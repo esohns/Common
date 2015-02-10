@@ -1,0 +1,38 @@
+ACLOCAL_AMFLAGS = -I m4
+
+AM_CPPFLAGS = \
+  -DLIBCOMMON_BUILD_DLL=1 \
+  -DMETA_PACKAGE=\"@META_PACKAGE@\"
+
+noinst_HEADERS = \
+  stdafx.h
+include_HEADERS = \
+  common_defines.h \
+  common_exports.h \
+  common_file_tools.h \
+  common_macros.h \
+  common_tools.h \
+  common.h
+
+lib_LTLIBRARIES = libCommon.la
+libCommon_la_LDFLAGS = -version-info 0:1:0
+libCommon_la_SOURCES = \
+  common_defines.h \
+  common_exports.h \
+  common_file_tools.cpp \
+  common_file_tools.h \
+  common_macros.h \
+  common_tools.cpp \
+  common_tools.h \
+  common.h \
+  stdafx.cpp \
+  stdafx.h
+#  stdafx.h.gch
+
+# (GNU-)make-rule for pch
+#%.h.gch: %.h
+#  $(CXX) -c $<
+#stdafx.h.gch: stdafx.h
+#   $(CXX) -c $<
+#stdafx.h.gch: Makefile
+#  $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(libCommon_la_CXXFLAGS) $(extra_CFLAGS_libCommon_la) -c stdafx.h -o stdafx.h.gch
