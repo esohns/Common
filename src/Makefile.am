@@ -10,7 +10,14 @@ include_HEADERS = \
   common_defines.h \
   common_exports.h \
   common_file_tools.h \
+  common_idumpstate.h \
+  common_iclone.h \
+  common_icontrol.h \
+  common_irefcount.h \
   common_macros.h \
+  common_referencecounter_base.h \
+  common_task_base.inl \
+  common_task_base.h \
   common_tools.h \
   common.h
 
@@ -21,7 +28,17 @@ libCommon_la_SOURCES = \
   common_exports.h \
   common_file_tools.cpp \
   common_file_tools.h \
+  common_iclone.h \
+  common_icontrol.h \
+  common_idumpstate.h \
+  common_irefcount.h \
   common_macros.h \
+  common_macros.h \
+  common_referencecounter_base.cpp \
+  common_referencecounter_base.h \
+  common_task_base.cpp \
+  common_task_base.inl \
+  common_task_base.h \
   common_tools.cpp \
   common_tools.h \
   common.h \
@@ -36,3 +53,4 @@ libCommon_la_SOURCES = \
 #   $(CXX) -c $<
 #stdafx.h.gch: Makefile
 #  $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(libCommon_la_CXXFLAGS) $(extra_CFLAGS_libCommon_la) -c stdafx.h -o stdafx.h.gch
+

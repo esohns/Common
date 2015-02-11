@@ -18,32 +18,44 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_MACROS_H
-#define COMMON_MACROS_H
+#ifndef COMMON_REFERENCECOUNTER_BASE_H
+#define COMMON_REFERENCECOUNTER_BASE_H
 
-#define COMMON_TRACE_IMPL(X) ACE_Trace ____ (ACE_TEXT (X), __LINE__, ACE_TEXT (__FILE__))
+#include "ace/Global_Macros.h"
+#include "ace/Condition_T.h"
+#include "ace/Synch.h"
 
-// by default tracing is turned off
-#if !defined (COMMON_NTRACE)
-#  define COMMON_NTRACE 1
-#endif /* COMMON_NTRACE */
+#include "common_exports.h"
+#include "common_irefcount.h"
 
-#if (COMMON_NTRACE == 1)
-#  define COMMON_TRACE(X)
-#else
-#  if !defined (COMMON_HAS_TRACE)
-#    define COMMON_HAS_TRACE
-#  endif /* COMMON_HAS_TRACE */
-#  define COMMON_TRACE(X) COMMON_TRACE_IMPL(X)
-#  include <ace/Trace.h>
-#endif /* COMMON_NTRACE */
+class Common_Export Common_ReferenceCounterBase
+ : virtual public Common_IRefCount
+{
+ public:
+  virtual ~Common_ReferenceCounterBase ();
 
-#ifdef __GNUC__
-#define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-#endif
-#define COMPILER_NAME ACE::compiler_name()
-#define COMPILER_VERSION (ACE::compiler_major_version() * 10000 + ACE::compiler_minor_version() * 100 + ACE::compiler_beta_version())
+  // implement Common_IRefCount
+  virtual void increase ();
+  virtual void decrease ();
+  virtual unsigned int count ();
+  virtual void wait_zero ();
 
-#define COMMON_STRINGIZE(X) #X
+ protected:
+  // *WARNING*: "delete on 0" may not work predictably if there are
+  // any waiters (or in ANY multithreaded context, for that matter)...
+  Common_ReferenceCounterBase (unsigned int = 1, // initial reference count
+                               bool = true);     // delete on 0 ?
+
+  mutable ACE_Recursive_Thread_Mutex        lock_;
+  unsigned int                              counter_;
+
+ private:
+  ACE_UNIMPLEMENTED_FUNC (Common_ReferenceCounterBase ());
+  ACE_UNIMPLEMENTED_FUNC (Common_ReferenceCounterBase (const Common_ReferenceCounterBase&););
+  ACE_UNIMPLEMENTED_FUNC (Common_ReferenceCounterBase& operator= (const Common_ReferenceCounterBase&));
+
+  bool                                      deleteOnZero_;
+  ACE_Condition<ACE_Recursive_Thread_Mutex> condition_;
+};
 
 #endif

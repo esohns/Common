@@ -17,33 +17,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#include "stdafx.h"
 
-#ifndef COMMON_MACROS_H
-#define COMMON_MACROS_H
-
-#define COMMON_TRACE_IMPL(X) ACE_Trace ____ (ACE_TEXT (X), __LINE__, ACE_TEXT (__FILE__))
-
-// by default tracing is turned off
-#if !defined (COMMON_NTRACE)
-#  define COMMON_NTRACE 1
-#endif /* COMMON_NTRACE */
-
-#if (COMMON_NTRACE == 1)
-#  define COMMON_TRACE(X)
-#else
-#  if !defined (COMMON_HAS_TRACE)
-#    define COMMON_HAS_TRACE
-#  endif /* COMMON_HAS_TRACE */
-#  define COMMON_TRACE(X) COMMON_TRACE_IMPL(X)
-#  include <ace/Trace.h>
-#endif /* COMMON_NTRACE */
-
-#ifdef __GNUC__
-#define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-#endif
-#define COMPILER_NAME ACE::compiler_name()
-#define COMPILER_VERSION (ACE::compiler_major_version() * 10000 + ACE::compiler_minor_version() * 100 + ACE::compiler_beta_version())
-
-#define COMMON_STRINGIZE(X) #X
-
-#endif
+#include "common_task_base.h"

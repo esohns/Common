@@ -18,23 +18,23 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef RPG_COMMON_TOOLS_H
-#define RPG_COMMON_TOOLS_H
+#ifndef COMMON_TOOLS_H
+#define COMMON_TOOLS_H
 
-#include "common_exports.h"
-#include "common.h"
+#include <string>
 
 #include "ace/Global_Macros.h"
 #include "ace/Time_Value.h"
 #include "ace/Signal.h"
 
-#include <string>
+#include "common_exports.h"
+#include "common.h"
 
 // forward declaration(s)
 class ACE_Log_Msg_Backend;
 class ACE_Event_Handler;
 
-class RPG_Common_Export Common_Tools
+class Common_Export Common_Tools
 {
  public:
   // use this to generate a "condensed" period string
@@ -50,8 +50,8 @@ class RPG_Common_Export Common_Tools
 
   static bool isLinux ();
 
-  static bool initResourceLimits (const bool& = false, // #file descriptors (i.e. open handles)
-                                  const bool& = true); // stack trace/sizes (i.e. core file sizes)
+  static bool initResourceLimits (bool = false, // #file descriptors (i.e. open handles)
+                                  bool = true); // stack trace/sizes (i.e. core file sizes)
 
   static void getCurrentUserName (std::string&,  // return value: username
                                   std::string&); // return value: "real" name
@@ -59,21 +59,21 @@ class RPG_Common_Export Common_Tools
 
   static bool initLogging (const std::string&,           // program name (i.e. argv[0])
                            const std::string&,           // log file {"" --> disable}
-                           const bool& = false,          // log to syslog ?
-                           const bool& = false,          // enable tracing messages ?
-                           const bool& = false,          // enable debug messages ?
+                           bool = false,          // log to syslog ?
+                           bool = false,          // enable tracing messages ?
+                           bool = false,          // enable debug messages ?
                            ACE_Log_Msg_Backend* = NULL); // logger backend {NULL --> disable}
 
   static bool preInitSignals (ACE_Sig_Set&,             // signal set (*NOTE*: IN/OUT)
-                              const bool&,              // use reactor ?
+                              bool,                     // use reactor ?
                               Common_SignalActions_t&); // return value: previous actions
   static bool initSignals (ACE_Sig_Set&,             // signal set (*NOTE*: IN/OUT)
                            ACE_Event_Handler*,       // event handler handle
                            Common_SignalActions_t&); // return value: previous actions
   static void finiSignals (const ACE_Sig_Set&,             // signal set
-                           const bool&,                    // use reactor ?
+                           bool,                           // use reactor ?
                            const Common_SignalActions_t&); // previous actions
-  static void retrieveSignalInfo (const int&,        // signal
+  static void retrieveSignalInfo (int,               // signal
                                   const siginfo_t&,  // info
                                   const ucontext_t*, // context
                                   std::string&);     // return value: info
