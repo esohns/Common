@@ -57,7 +57,7 @@ Common_Tools::period2String(const ACE_Time_Value& period_in,
   int minutes = static_cast<int> (temp.sec ()) / 60;
   temp.sec (temp.sec () % 60);
 
-  char time_string[RPG_COMMON_BUFSIZE];
+  char time_string[COMMON_BUFSIZE];
   // *TODO*: rewrite this in C++...
   if (ACE_OS::snprintf (time_string,
                         sizeof (time_string),
@@ -320,7 +320,7 @@ Common_Tools::getCurrentUserName (std::string& username_out,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::cuserid(): \"%m\", falling back\n")));
 
-    username_out = ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (RPG_COMMON_DEF_USER_LOGIN_BASE)));
+    username_out = ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_USER_LOGIN_BASE)));
 
     return;
   } // end IF
@@ -330,7 +330,7 @@ Common_Tools::getCurrentUserName (std::string& username_out,
   int            success = -1;
   struct passwd  pwd;
   struct passwd* pwd_result = NULL;
-  char           buffer[RPG_COMMON_BUFSIZE];
+  char           buffer[COMMON_BUFSIZE];
   ACE_OS::memset (buffer, 0, sizeof (buffer));
 //  size_t         bufsize = 0;
 //  bufsize = sysconf (_SC_GETPW_R_SIZE_MAX);
@@ -338,11 +338,11 @@ Common_Tools::getCurrentUserName (std::string& username_out,
 //    bufsize = 16384;        /* Should be more than enough */
 
   uid_t user_id = ACE_OS::geteuid ();
-  success = ::getpwuid_r (user_id,            // user id
-                          &pwd,               // passwd entry
-                          buffer,             // buffer
-                          RPG_COMMON_BUFSIZE, // buffer size
-                          &pwd_result);       // result (handle)
+  success = ::getpwuid_r (user_id,        // user id
+                          &pwd,           // passwd entry
+                          buffer,         // buffer
+                          COMMON_BUFSIZE, // buffer size
+                          &pwd_result);   // result (handle)
   if (pwd_result == NULL)
   {
     if (success == 0)
@@ -353,12 +353,12 @@ Common_Tools::getCurrentUserName (std::string& username_out,
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::getpwuid_r(%u): \"%m\", falling back\n"),
                   user_id));
-    username_out = ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (RPG_COMMON_DEF_USER_LOGIN_BASE)));
+    username_out = ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_USER_LOGIN_BASE)));
   } // end IF
   else
     realname_out = pwd.pw_gecos;
 #else
-  TCHAR buffer[RPG_COMMON_BUFSIZE];
+  TCHAR buffer[COMMON_BUFSIZE];
   ACE_OS::memset (buffer, 0, sizeof(buffer));
   DWORD buffer_size = 0;
   if (GetUserNameEx (NameDisplay, // EXTENDED_NAME_FORMAT

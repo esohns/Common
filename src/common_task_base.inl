@@ -136,12 +136,12 @@ Common_TaskBase_T<TaskSynchStrategyType,
   {
     thread_name = NULL;
     ACE_NEW_NORETURN (thread_name,
-                      char[RPG_COMMON_BUFSIZE]);
+                      char[COMMON_BUFSIZE]);
     if (!thread_name)
     {
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("failed to allocate memory(%u), aborting\n"),
-                  (sizeof (char) * RPG_COMMON_BUFSIZE)));
+                  (sizeof (char) * COMMON_BUFSIZE)));
 
       // clean up
       delete [] thread_ids;

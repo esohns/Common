@@ -14,10 +14,12 @@ include_HEADERS = \
   common_iclone.h \
   common_icontrol.h \
   common_irefcount.h \
+  common_itimer.h \
   common_macros.h \
   common_referencecounter_base.h \
   common_task_base.inl \
   common_task_base.h \
+  common_timer_manager.h \
   common_tools.h \
   common.h
 
@@ -32,6 +34,7 @@ libCommon_la_SOURCES = \
   common_icontrol.h \
   common_idumpstate.h \
   common_irefcount.h \
+  common_itimer.h \
   common_macros.h \
   common_macros.h \
   common_referencecounter_base.cpp \
@@ -39,6 +42,8 @@ libCommon_la_SOURCES = \
   common_task_base.cpp \
   common_task_base.inl \
   common_task_base.h \
+  common_timer_manager.cpp \
+  common_timer_manager.h \
   common_tools.cpp \
   common_tools.h \
   common.h \

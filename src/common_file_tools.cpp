@@ -716,7 +716,7 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
 
       // fallback
       result =
-          ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT(RPG_COMMON_DEF_DUMP_DIR)));
+          ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
       return result;
     } // end IF
   } // end IF
@@ -725,12 +725,12 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
   int            success = -1;
   struct passwd  pwd;
   struct passwd* pwd_result = NULL;
-  char           buffer[RPG_COMMON_BUFSIZE];
-  ACE_OS::memset (buffer, 0, sizeof (RPG_COMMON_BUFSIZE));
+  char           buffer[COMMON_BUFSIZE];
+  ACE_OS::memset (buffer, 0, sizeof (COMMON_BUFSIZE));
   success = ACE_OS::getpwnam_r (user_name.c_str(),  // user name
                                 &pwd,               // passwd entry
                                 buffer,             // buffer
-                                RPG_COMMON_BUFSIZE, // buffer size
+                                COMMON_BUFSIZE,     // buffer size
                                 &pwd_result);       // result (handle)
   if (pwd_result == NULL)
   {
@@ -745,7 +745,7 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
 
     // fallback
     result =
-        ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT(RPG_COMMON_DEF_DUMP_DIR)));
+        ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
   } // end IF
   else result = ACE_TEXT_ALWAYS_CHAR (pwd.pw_dir);
 #else
@@ -757,7 +757,7 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
 
     // fallback
     result =
-        ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (RPG_COMMON_DEF_DUMP_DIR)));
+        ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
     return result;
   } // end IF
 
@@ -809,7 +809,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
 
     // fallback
     result =
-        ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (RPG_COMMON_DEF_DUMP_DIR)));
+        ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
     return result;
   } // end IF
 
@@ -822,7 +822,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
 
     // fallback
     result =
-        ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (RPG_COMMON_DEF_DUMP_DIR)));
+        ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
     return result;
   } // end IF
 
@@ -875,7 +875,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
 
       // fallback
       result =
-          ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (RPG_COMMON_DEF_DUMP_DIR)));
+          ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
     } // end IF
     else
       ACE_DEBUG ((LM_DEBUG,
@@ -894,9 +894,9 @@ Common_File_Tools::getDumpDirectory ()
   // init return value(s)
   std::string result;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  result = ACE_OS::getenv (ACE_TEXT_ALWAYS_CHAR (RPG_COMMON_DEF_DUMP_DIR));
+  result = ACE_OS::getenv (ACE_TEXT_ALWAYS_CHAR (COMMON_DEF_DUMP_DIR));
 #else
-  result = ACE_TEXT_ALWAYS_CHAR (RPG_COMMON_DEF_DUMP_DIR);
+  result = ACE_TEXT_ALWAYS_CHAR (COMMON_DEF_DUMP_DIR);
 #endif
 
   // sanity check(s): directory exists ?
@@ -935,7 +935,7 @@ Common_File_Tools::getLogFilename (const std::string& programName_in)
   std::string result = Common_File_Tools::getLogDirectory ();
   result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   result += programName_in;
-  result += RPG_COMMON_LOG_FILENAME_SUFFIX;
+  result += COMMON_LOG_FILENAME_SUFFIX;
 
   // sanity check(s): log file exists ?
   // Yes ? --> try to delete it then !
@@ -969,9 +969,9 @@ Common_File_Tools::getLogDirectory ()
   // init return value(s)
   std::string result;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  result = ACE_OS::getenv (ACE_TEXT_ALWAYS_CHAR (RPG_COMMON_DEF_LOG_DIRECTORY));
+  result = ACE_OS::getenv (ACE_TEXT_ALWAYS_CHAR (COMMON_DEF_LOG_DIRECTORY));
 #else
-  result = ACE_TEXT_ALWAYS_CHAR (RPG_COMMON_DEF_LOG_DIRECTORY);
+  result = ACE_TEXT_ALWAYS_CHAR (COMMON_DEF_LOG_DIRECTORY);
 #endif
 
   // sanity check(s): directory exists ?
