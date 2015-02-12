@@ -32,8 +32,14 @@
 #include "ace/Proactor.h"
 #include "ace/POSIX_Proactor.h"
 #include "ace/Reactor.h"
+#include "ace/TP_Reactor.h"
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "ace/WFMO_Reactor.h"
+#else
+#include "ace/Dev_Poll_Reactor.h"
+#endif
 
-#if defined(ACE_WIN32) || defined(ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <Security.h>
 #endif
 
@@ -57,7 +63,7 @@ Common_Tools::period2String(const ACE_Time_Value& period_in,
   int minutes = static_cast<int> (temp.sec ()) / 60;
   temp.sec (temp.sec () % 60);
 
-  char time_string[COMMON_BUFSIZE];
+  char time_string[BUFSIZ];
   // *TODO*: rewrite this in C++...
   if (ACE_OS::snprintf (time_string,
                         sizeof (time_string),
@@ -330,7 +336,7 @@ Common_Tools::getCurrentUserName (std::string& username_out,
   int            success = -1;
   struct passwd  pwd;
   struct passwd* pwd_result = NULL;
-  char           buffer[COMMON_BUFSIZE];
+  char           buffer[BUFSIZ];
   ACE_OS::memset (buffer, 0, sizeof (buffer));
 //  size_t         bufsize = 0;
 //  bufsize = sysconf (_SC_GETPW_R_SIZE_MAX);
@@ -338,11 +344,11 @@ Common_Tools::getCurrentUserName (std::string& username_out,
 //    bufsize = 16384;        /* Should be more than enough */
 
   uid_t user_id = ACE_OS::geteuid ();
-  success = ::getpwuid_r (user_id,        // user id
-                          &pwd,           // passwd entry
-                          buffer,         // buffer
-                          COMMON_BUFSIZE, // buffer size
-                          &pwd_result);   // result (handle)
+  success = ::getpwuid_r (user_id,         // user id
+                          &pwd,            // passwd entry
+                          buffer,          // buffer
+                          sizeof (buffer), // buffer size
+                          &pwd_result);    // result (handle)
   if (pwd_result == NULL)
   {
     if (success == 0)
@@ -1030,4 +1036,304 @@ Common_Tools::retrieveSignalInfo (int signal_in,
 
   // OK: set return value
   information_out = information.str ();
+}
+
+bool
+Common_Tools::initEventDispatch (bool useReactor_in,
+                                 unsigned int numDispatchThreads_in,
+                                 bool& serializeOutput_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::initEventDispatch"));
+
+  // init return value(s)
+  serializeOutput_out = false;
+
+  // step1: init reactor/proactor
+  if (useReactor_in)
+  {
+    if (numDispatchThreads_in > 1)
+    {
+      ACE_Reactor_Impl* reactor_implementation = NULL;
+  #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+      if (COMMON_USE_DEV_POLL_REACTOR)
+        ACE_NEW_RETURN (reactor_implementation,
+                        ACE_Dev_Poll_Reactor (ACE::max_handles (),       // max num handles (1024)
+                                              true,                      // restart after EINTR ?
+                                              NULL,                      // signal handler handle
+                                              NULL,                      // timer queue handle
+                                              0,                         // disable notify pipe ?
+                                              NULL,                      // notification handler handle
+                                              1,                         // mask signals ?
+                                              ACE_DEV_POLL_TOKEN::FIFO), // signal queue
+                        false);
+      else
+      {
+        ACE_NEW_RETURN (reactor_implementation,
+                        ACE_TP_Reactor (ACE::max_handles (),             // max num handles (1024)
+                                        true,                            // restart after EINTR ?
+                                        NULL,                            // signal handler handle
+                                        NULL,                            // timer queue handle
+                                        true,                            // mask signals ?
+                                        ACE_Select_Reactor_Token::FIFO), // signal queue
+                        false);
+
+        serializeOutput_out = true;
+      } // end ELSE
+  #else
+      if (COMMON_USE_WFMO_REACTOR)
+        ACE_NEW_RETURN (reactor_implementation,
+                        ACE_WFMO_Reactor (ACE_WFMO_Reactor::DEFAULT_SIZE, // max num handles (62 [+ 2])
+                                          0,                              // unused
+                                          NULL,                           // signal handler handle
+                                          NULL,                           // timer queue handle
+                                          NULL),                          // notification handler handle
+                        false);
+      else
+      {
+        ACE_NEW_RETURN (reactor_implementation,
+                        ACE_TP_Reactor (ACE::max_handles (),             // max num handles (1024)
+                                        true,                            // restart after EINTR ?
+                                        NULL,                            // signal handler handle
+                                        NULL,                            // timer queue handle
+                                        true,                            // mask signals ?
+                                        ACE_Select_Reactor_Token::FIFO), // signal queue
+                        false);
+
+        serializeOutput_out = true;
+      } // end ELSE
+  #endif
+      ACE_Reactor* new_reactor = NULL;
+      ACE_NEW_RETURN (new_reactor,
+                      ACE_Reactor (reactor_implementation, // implementation handle
+                                   1),                     // delete in dtor ?
+                      false);
+      // make this the "default" reactor...
+      ACE_Reactor::instance (new_reactor, 1); // delete in dtor
+    } // end IF
+  } // end IF
+  else
+  {
+    // *NOTE* using default platform proactor...
+    ACE_Proactor* proactor = NULL;
+    ACE_NEW_RETURN (proactor,
+                    ACE_Proactor (NULL,  // implementation handle --> create new
+                                  true,  // delete in dtor ?
+                                  NULL), // timer queue handle    --> create new
+                    false);
+    // make this the "default" proactor...
+    ACE_Proactor* previous_proactor = ACE_Proactor::instance (proactor, // implementation handle
+                                                              1);       // delete in dtor ?
+    delete previous_proactor;
+  } // end ELSE
+
+  return true;
+}
+
+ACE_THR_FUNC_RETURN
+threadpool_event_dispatcher_function (void* args_in)
+{
+  COMMON_TRACE (ACE_TEXT ("::threadpool_event_dispatcher_function"));
+
+  bool use_reactor = *reinterpret_cast<bool*> (args_in);
+
+//  ACE_DEBUG ((LM_DEBUG,
+//              ACE_TEXT ("(%t) worker starting...\n")));
+
+  // *IMPORTANT NOTE*: "The signal disposition is a per-process attribute: in a multithreaded
+  //                   application, the disposition of a particular signal is the same for
+  //                   all threads." (see man 7 signal)
+//  // ignore SIGPIPE: need this to continue gracefully after a client
+//  // suddenly disconnects (i.e. application/system crash, etc...)
+//  // --> specify ignore action
+//  // *IMPORTANT NOTE*: don't actually need to keep this around after registration
+//  // *NOTE*: do NOT restart system calls in this case (see manual)
+//  ACE_Sig_Action no_sigpipe (static_cast<ACE_SignalHandler> (SIG_IGN), // ignore action
+//                             ACE_Sig_Set (1),                          // mask of signals to be blocked when servicing
+//                                                                       // --> block them all (bar KILL/STOP; see manual)
+//                             SA_SIGINFO);                              // flags
+////                               (SA_RESTART | SA_SIGINFO));              // flags
+//  ACE_Sig_Action original_action;
+//  if (no_sigpipe.register_action (SIGPIPE, &original_action) == -1)
+//    ACE_DEBUG ((LM_DEBUG,
+//                ACE_TEXT ("failed to ACE_Sig_Action::register_action(SIGPIPE): \"%m\", continuing\n")));
+//
+  int success = -1;
+  // handle any events...
+  if (use_reactor)
+    success = ACE_Reactor::instance ()->run_reactor_event_loop (0);
+  else
+    success = ACE_Proactor::instance ()->proactor_run_event_loop (0);
+  if (success == -1)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("(%t) failed to handle events: \"%m\", leaving\n")));
+
+  //// clean up
+  //if (no_sigpipe.restore_action (SIGPIPE, original_action) == -1)
+  //  ACE_DEBUG ((LM_DEBUG,
+  //              ACE_TEXT ("failed to ACE_Sig_Action::restore_action(SIGPIPE): \"%m\", continuing\n")));
+
+//  ACE_DEBUG ((LM_DEBUG,
+//              ACE_TEXT ("(%t) worker leaving...\n")));
+
+  return (success == 0 ? NULL : NULL);
+}
+
+bool
+Common_Tools::startEventDispatch (bool useReactor_in,
+                                  unsigned int numDispatchThreads_in,
+                                  int& groupID_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::startEventDispatch"));
+
+  // init return value(s)
+  groupID_out = -1;
+
+  // spawn worker(s) ?
+  // *NOTE*: if #dispatch threads == 1, event dispatch takes place in the main
+  // thread --> do NOT spawn any workers here...
+  if (numDispatchThreads_in > 1)
+  {
+    // start a (group of) worker thread(s)...
+    ACE_hthread_t* thread_handles = NULL;
+    ACE_NEW_NORETURN (thread_handles,
+                      ACE_hthread_t[numDispatchThreads_in]);
+    if (!thread_handles)
+    {
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("failed to allocate memory(%u), aborting\n"),
+                  (sizeof (ACE_hthread_t)* numDispatchThreads_in)));
+
+      return false;
+    } // end IF
+    ACE_OS::memset (thread_handles, 0, sizeof (thread_handles));
+    const char** thread_names = NULL;
+    ACE_NEW_NORETURN (thread_names,
+                      const char*[numDispatchThreads_in]);
+    if (!thread_names)
+    {
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("failed to allocate memory(%u), aborting\n"),
+                  (sizeof (const char*) * numDispatchThreads_in)));
+
+      // clean up
+      delete [] thread_handles;
+
+      return false;
+    } // end IF
+    ACE_OS::memset (thread_names, 0, sizeof(thread_names));
+    char* thread_name = NULL;
+    std::string buffer;
+    std::ostringstream converter;
+    for (unsigned int i = 0;
+         i < numDispatchThreads_in;
+         i++)
+    {
+      thread_name = NULL;
+      ACE_NEW_NORETURN (thread_name,
+                        char[BUFSIZ]);
+      if (!thread_name)
+      {
+        ACE_DEBUG ((LM_CRITICAL,
+                    ACE_TEXT ("failed to allocate memory, aborting\n")));
+
+        // clean up
+        delete[] thread_handles;
+        for (unsigned int j = 0; j < i; j++)
+          delete [] thread_names[j];
+        delete [] thread_names;
+
+        return false;
+      } // end IF
+      ACE_OS::memset (thread_name, 0, sizeof (thread_name));
+      converter.clear ();
+      converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+      converter << (i + 1);
+      buffer = ACE_TEXT_ALWAYS_CHAR (COMMON_EVENT_DISPATCH_THREAD_NAME);
+      buffer += ACE_TEXT_ALWAYS_CHAR (" #");
+      buffer += converter.str ();
+      ACE_OS::strcpy (thread_name,
+                      buffer.c_str ());
+      thread_names[i] = thread_name;
+    } // end FOR
+    groupID_out =
+        ACE_Thread_Manager::instance ()->spawn_n (numDispatchThreads_in,                  // # threads
+                                                  ::threadpool_event_dispatcher_function, // function
+                                                  &const_cast<bool&> (useReactor_in),     // argument
+                                                  (THR_NEW_LWP      |
+                                                   THR_JOINABLE     |
+                                                   THR_INHERIT_SCHED),                    // flags
+                                                  ACE_DEFAULT_THREAD_PRIORITY,            // priority
+                                                  COMMON_EVENT_DISPATCH_THREAD_GROUP_ID,  // group id
+                                                  NULL,                                   // task
+                                                  thread_handles,                         // handle(s)
+                                                  NULL,                                   // stack(s)
+                                                  NULL,                                   // stack size(s)
+                                                  thread_names);                          // name(s)
+    if (groupID_out == -1)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Thread_Manager::spawn_n(%u): \"%m\", aborting\n"),
+                  numDispatchThreads_in));
+
+      // clean up
+      delete[] thread_handles;
+      for (unsigned int i = 0; i < numDispatchThreads_in; i++)
+        delete [] thread_names[i];
+      delete[] thread_names;
+
+      return false;
+    } // end IF
+
+    converter.clear ();
+    converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+    for (unsigned int i = 0; i < numDispatchThreads_in; i++)
+    {
+      converter << ACE_TEXT_ALWAYS_CHAR ("#") << (i + 1)
+                << ACE_TEXT_ALWAYS_CHAR (" ")
+                << thread_handles[i]
+                << ACE_TEXT_ALWAYS_CHAR ("\n");
+      delete [] thread_names[i];
+    } // end IF
+
+    buffer = converter.str ();
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("(%s) spawned %u worker thread(s) (group: %d):\n%s"),
+                ACE_TEXT (COMMON_EVENT_DISPATCH_THREAD_NAME),
+                numDispatchThreads_in,
+                groupID_out,
+                ACE_TEXT (buffer.c_str ())));
+
+    delete [] thread_handles;
+    delete [] thread_names;
+  } // end IF
+
+  return true;
+}
+
+void
+Common_Tools::finiEventDispatch (bool stopReactor_in,
+                                 bool stopProactor_in,
+                                 int groupID_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::finiEventDispatch"));
+
+  // step1: stop reactor/proactor
+  // *IMPORTANT NOTE*: current proactor implementations start a pseudo-task that runs the
+  // reactor --> stop that as well
+  if (stopReactor_in || stopProactor_in)
+    if (ACE_Reactor::instance ()->end_event_loop () == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Reactor::end_event_loop: \"%m\", continuing\n")));
+
+  if (stopProactor_in)
+    if (ACE_Proactor::instance ()->end_event_loop () == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Proactor::end_event_loop: \"%m\", continuing\n")));
+
+  // step2: wait for any worker(s)
+  if (groupID_in != -1)
+    if (ACE_Thread_Manager::instance ()->wait_grp (groupID_in) == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Thread_Manager::wait_grp(%d): \"%m\", continuing\n"),
+                  groupID_in));
 }

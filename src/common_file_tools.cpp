@@ -124,8 +124,8 @@ Common_File_Tools::isDirectory (const std::string& directory_in)
 
 //  // sanity check --> ignore dot/double-dot
 //  if (ACE_OS::strncmp (dirEntry_in->d_name,
-//                       ACE_TEXT_ALWAYS_CHAR (RPG_NET_SERVER_LOG_FILENAME_PREFIX),
-//                       ACE_OS::strlen (ACE_TEXT_ALWAYS_CHAR (RPG_NET_SERVER_LOG_FILENAME_PREFIX))) != 0)
+//                       ACE_TEXT_ALWAYS_CHAR (Net_SERVER_LOG_FILENAME_PREFIX),
+//                       ACE_OS::strlen (ACE_TEXT_ALWAYS_CHAR (Net_SERVER_LOG_FILENAME_PREFIX))) != 0)
 //  {
 ////     ACE_DEBUG ((LM_DEBUG,
 ////                 ACE_TEXT ("ignoring \"%s\"...\n"),
@@ -725,13 +725,13 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
   int            success = -1;
   struct passwd  pwd;
   struct passwd* pwd_result = NULL;
-  char           buffer[COMMON_BUFSIZE];
-  ACE_OS::memset (buffer, 0, sizeof (COMMON_BUFSIZE));
-  success = ACE_OS::getpwnam_r (user_name.c_str(),  // user name
-                                &pwd,               // passwd entry
-                                buffer,             // buffer
-                                COMMON_BUFSIZE,     // buffer size
-                                &pwd_result);       // result (handle)
+  char           buffer[BUFSIZ];
+  ACE_OS::memset (buffer, 0, sizeof (BUFSIZ));
+  success = ACE_OS::getpwnam_r (user_name.c_str(), // user name
+                                &pwd,              // passwd entry
+                                buffer,            // buffer
+                                BUFSIZ,            // buffer size
+                                &pwd_result);      // result (handle)
   if (pwd_result == NULL)
   {
     if (success == 0)

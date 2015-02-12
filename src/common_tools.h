@@ -34,6 +34,8 @@
 class ACE_Log_Msg_Backend;
 class ACE_Event_Handler;
 
+ACE_THR_FUNC_RETURN threadpool_event_dispatcher_function (void*);
+
 class Common_Export Common_Tools
 {
  public:
@@ -77,6 +79,18 @@ class Common_Export Common_Tools
                                   const siginfo_t&,  // info
                                   const ucontext_t*, // context
                                   std::string&);     // return value: info
+
+  // event loop
+  static bool initEventDispatch (bool,         // use reactor ? : proactor
+                                 unsigned int, // # dispatching threads
+                                 bool&);       // return value: output requires serialization
+  static bool startEventDispatch (bool,         // use reactor ? : proactor
+                                  unsigned int, // # dispatching threads
+                                  int&);        // return value: thread group id
+  // *NOTE*: this call blocks until all dispatching threads have joined
+  static void finiEventDispatch (bool, // stop reactor ?
+                                 bool, // stop proactor ?
+                                 int); // thread group id
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Tools ());

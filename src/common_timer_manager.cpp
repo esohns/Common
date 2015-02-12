@@ -74,7 +74,7 @@ Common_Timer_Manager::Common_Timer_Manager ()
   thread_ids[0] = 0;
   ACE_hthread_t thread_handles[1];
   thread_handles[0] = 0;
-  char thread_name[COMMON_BUFSIZE];
+  char thread_name[BUFSIZ];
   ACE_OS::memset (thread_name, 0, sizeof (thread_name));
   ACE_OS::strcpy (thread_name,
                   ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_NAME));

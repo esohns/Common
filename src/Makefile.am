@@ -13,7 +13,10 @@ include_HEADERS = \
   common_idumpstate.h \
   common_iclone.h \
   common_icontrol.h \
+  common_inotify.h \
   common_irefcount.h \
+  common_istatistic.h \
+  common_isubscribe.h \
   common_itimer.h \
   common_macros.h \
   common_referencecounter_base.h \
@@ -33,7 +36,10 @@ libCommon_la_SOURCES = \
   common_iclone.h \
   common_icontrol.h \
   common_idumpstate.h \
+  common_inotify.h \
   common_irefcount.h \
+  common_istatistic.h \
+  common_isubscribe.h \
   common_itimer.h \
   common_macros.h \
   common_macros.h \

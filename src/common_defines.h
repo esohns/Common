@@ -27,39 +27,43 @@
 
 // *PORTABILITY*: pathnames are not portable --> (try to) use %TEMP% on Windows
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-#define COMMON_DEF_DUMP_DIR            "/var/tmp"
+#define COMMON_DEF_DUMP_DIR                   "/var/tmp"
 #else
-#define COMMON_DEF_DUMP_DIR            "TEMP" // environment
+#define COMMON_DEF_DUMP_DIR                   "TEMP" // environment
 #endif
 
 // *** trace log ***
-#define COMMON_DEF_LOG_DIRECTORY       COMMON_DEF_DUMP_DIR
-#define COMMON_LOG_FILENAME_SUFFIX     ".log"
-#define COMMON_LOG_VERBOSE             false
+#define COMMON_DEF_LOG_DIRECTORY              COMMON_DEF_DUMP_DIR
+#define COMMON_LOG_FILENAME_SUFFIX            ".log"
+#define COMMON_LOG_VERBOSE                    false
 
-// general stuff
+// *** timers ***
 // *WARNING*: make sure group IDs are consistent !!!
-#define COMMON_TIMER_THREAD_GROUP_ID   100
-#define COMMON_TIMER_THREAD_NAME       "timer dispatch"
+#define COMMON_TIMER_THREAD_GROUP_ID          100
+#define COMMON_TIMER_THREAD_NAME              "timer dispatch"
 // *IMPORTANT NOTE*: currently used for (initial) slot pre-allocation only;
 // ultimately, the total number of available concurrent slots depends on the
 // actual implementation --> check the code, don't rely on ACE_DEFAULT_TIMERS
 //#define RPG_COMMON_DEF_NUM_TIMER_SLOTS            std::numeric_limits<long>::max()
-#define COMMON_DEF_NUM_TIMER_SLOTS     ACE_DEFAULT_TIMERS
-#define COMMON_PREALLOCATE_TIMER_SLOTS true
+#define COMMON_DEF_NUM_TIMER_SLOTS            ACE_DEFAULT_TIMERS
+#define COMMON_PREALLOCATE_TIMER_SLOTS        true
+
+// *** event loop ***
+#define COMMON_EVENT_DISPATCH_THREAD_GROUP_ID 101
+#define COMMON_EVENT_DISPATCH_THREAD_NAME     "event dispatch"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #define COMMON_USE_WFMO_REACTOR        true // ? ACE_WFMO_Reactor : ACE_TP_Reactor
 #else
 #define COMMON_USE_DEV_POLL_REACTOR    false // ? ACE_Dev_Poll_Reactor : ACE_TP_Reactor
 #endif
 
-// *IMPORTANT NOTE*: used for libc calls (i.e. char buffers, mostly)
-#define COMMON_BUFSIZE                 512 // bytes
+//// *IMPORTANT NOTE*: used for libc calls (i.e. char buffers, mostly)
+//#define COMMON_BUFSIZE                        512 // bytes
 
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-#define COMMON_DEF_USER_LOGIN_BASE     "LOGNAME" // environment
+#define COMMON_DEF_USER_LOGIN_BASE            "LOGNAME" // environment
 #else
-#define COMMON_DEF_USER_LOGIN_BASE     "USERNAME" // environment
+#define COMMON_DEF_USER_LOGIN_BASE            "USERNAME" // environment
 #endif
 
 #endif

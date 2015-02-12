@@ -21,17 +21,19 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <map>
+
 // timer queue
-#include "ace/Synch_Traits.h"
 #include "ace/Event_Handler_Handle_Timeout_Upcall.h"
+#include "ace/Module.h"
+#include "ace/Signal.h"
+#include "ace/Synch_Traits.h"
 //#include "ace/Timer_Heap_T.h"
+#include "ace/Task.h"
 #include "ace/Timer_Wheel_T.h"
 #include "ace/Timer_Queue_T.h"
 #include "ace/Timer_Queue_Adapters.h"
 #include "ace/Time_Policy.h"
-#include "ace/Signal.h"
-
-#include <map>
 
 // *NOTE*: use the high resolution for accuracy and low latency
 typedef ACE_HR_Time_Policy Common_TimePolicy_t;
@@ -61,5 +63,10 @@ typedef ACE_Thread_Timer_Queue_Adapter<Common_TimerQueueImpl_t,
 
 typedef std::map<int, ACE_Sig_Action> Common_SignalActions_t;
 typedef Common_SignalActions_t::const_iterator Common_SignalActionsIterator_t;
+
+typedef ACE_Task<ACE_MT_SYNCH,
+                 Common_TimePolicy_t> Common_Task_t;
+typedef ACE_Module<ACE_MT_SYNCH,
+                   Common_TimePolicy_t> Common_Module_t;
 
 #endif

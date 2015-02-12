@@ -20,6 +20,7 @@
 
 #include <sstream>
 
+#include "ace/Log_Msg.h"
 #include "ace/Message_Block.h"
 #include "ace/Time_Value.h"
 
@@ -136,12 +137,12 @@ Common_TaskBase_T<TaskSynchStrategyType,
   {
     thread_name = NULL;
     ACE_NEW_NORETURN (thread_name,
-                      char[COMMON_BUFSIZE]);
+                      char[BUFSIZ]);
     if (!thread_name)
     {
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("failed to allocate memory(%u), aborting\n"),
-                  (sizeof (char) * COMMON_BUFSIZE)));
+                  (sizeof (char) * BUFSIZ)));
 
       // clean up
       delete [] thread_ids;
