@@ -82,22 +82,22 @@ AC_SUBST(CXXFLAGS)
 AC_CHECK_LIB([ACE], [main])
 
 # Checks for header files.
-dnl AC_HEADER_STDBOOL
+AC_HEADER_STDBOOL
 
 # Checks for typedefs, structures, and compiler characteristics.
 dnl AC_C_INLINE
-dnl AC_TYPE_SIZE_T
-dnl AC_TYPE_UID_T
+AC_TYPE_SIZE_T
+AC_TYPE_UID_T
 
 # Checks for library functions.
 dnl AC_FUNC_ERROR_AT_LINE
-dnl AC_CHECK_FUNCS([strerror])
-dnl AC_CHECK_FUNCS([getcwd])
-dnl AC_CHECK_FUNCS([gettimeofday])
-dnl AC_CHECK_FUNCS([memset])
-dnl AC_CHECK_FUNCS([mkdir])
-dnl AC_CHECK_FUNCS([uname])
-dnl AC_CHECK_FUNCS([realpath])
+AC_CHECK_FUNCS([strerror])
+AC_CHECK_FUNCS([getcwd])
+AC_CHECK_FUNCS([gettimeofday])
+AC_CHECK_FUNCS([memset])
+AC_CHECK_FUNCS([mkdir])
+AC_CHECK_FUNCS([uname])
+AC_CHECK_FUNCS([realpath])
 
 AC_CONFIG_FILES([Makefile
                  scripts/Makefile

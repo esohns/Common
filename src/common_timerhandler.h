@@ -18,16 +18,39 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_ITIMER_H
-#define COMMON_ITIMER_H
+#ifndef COMMON_TIMERHANDLER_H
+#define COMMON_TIMERHANDLER_H
 
-class Common_ITimer
+#include "ace/Global_Macros.h"
+#include "ace/Event_Handler.h"
+#include "ace/Time_Value.h"
+
+#include "common_exports.h"
+
+// forward declarations
+class Common_ITimer;
+
+class Common_Export Common_TimerHandler
+ : public ACE_Event_Handler
 {
  public:
-  virtual ~Common_ITimer () {}
+  Common_TimerHandler (Common_ITimer*, // dispatch interface
+                       bool = false);  // invoke only once ?
+  virtual ~Common_TimerHandler ();
 
-  // exposed interface
-  virtual void handleTimeout (const void*) = 0; // argument
+  // implement specific behaviour
+  virtual int handle_timeout (const ACE_Time_Value&, // current time
+                              const void*);          // asynchronous completion token
+
+ private:
+  typedef ACE_Event_Handler inherited;
+
+  ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler ());
+  ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler (const Common_TimerHandler&));
+  ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler& operator= (const Common_TimerHandler&));
+
+  Common_ITimer* interfaceHandle_;
+  bool           isOneShot_;
 };
 
 #endif

@@ -18,16 +18,18 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_ITIMER_H
-#define COMMON_ITIMER_H
+#ifndef COMMON_ICOUNTER_H
+#define COMMON_ICOUNTER_H
 
-class Common_ITimer
+class Common_ICounter
 {
  public:
-  virtual ~Common_ITimer () {}
+  // *NOTE*: to shut up the compiler (gcc4) complaining about missing virtual dtors, set
+  // -Wno-non-virtual-dtor in the project settings...
 
   // exposed interface
-  virtual void handleTimeout (const void*) = 0; // argument
+  virtual void reset () = 0;
 };
 
 #endif
+

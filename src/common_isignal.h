@@ -18,16 +18,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_ITIMER_H
-#define COMMON_ITIMER_H
+#ifndef COMMON_ISIGNAL_H
+#define COMMON_ISIGNAL_H
 
-class Common_ITimer
+class Common_ISignal
 {
  public:
-  virtual ~Common_ITimer () {}
+  virtual ~Common_ISignal () {}
 
   // exposed interface
-  virtual void handleTimeout (const void*) = 0; // argument
+  virtual bool handleSignal (int) = 0; // signal
 };
 
 #endif

@@ -61,9 +61,9 @@ class Common_Export Common_Tools
 
   static bool initLogging (const std::string&,           // program name (i.e. argv[0])
                            const std::string&,           // log file {"" --> disable}
-                           bool = false,          // log to syslog ?
-                           bool = false,          // enable tracing messages ?
-                           bool = false,          // enable debug messages ?
+                           bool = false,                 // log to syslog ?
+                           bool = false,                 // enable tracing messages ?
+                           bool = false,                 // enable debug messages ?
                            ACE_Log_Msg_Backend* = NULL); // logger backend {NULL --> disable}
 
   static bool preInitSignals (ACE_Sig_Set&,             // signal set (*NOTE*: IN/OUT)

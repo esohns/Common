@@ -13,15 +13,19 @@ include_HEADERS = \
   common_idumpstate.h \
   common_iclone.h \
   common_icontrol.h \
+  common_icounter.h \
   common_inotify.h \
   common_irefcount.h \
+  common_isignal.h \
   common_istatistic.h \
   common_isubscribe.h \
   common_itimer.h \
   common_macros.h \
   common_referencecounter_base.h \
+  common_signalhandler.h \
   common_task_base.inl \
   common_task_base.h \
+  common_timerhandler.h \
   common_timer_manager.h \
   common_tools.h \
   common.h
@@ -35,9 +39,11 @@ libCommon_la_SOURCES = \
   common_file_tools.h \
   common_iclone.h \
   common_icontrol.h \
+  common_icounter.h \
   common_idumpstate.h \
   common_inotify.h \
   common_irefcount.h \
+  common_isignal.h \
   common_istatistic.h \
   common_isubscribe.h \
   common_itimer.h \
@@ -45,9 +51,13 @@ libCommon_la_SOURCES = \
   common_macros.h \
   common_referencecounter_base.cpp \
   common_referencecounter_base.h \
+  common_signalhandler.cpp \
+  common_signalhandler.h \
   common_task_base.cpp \
   common_task_base.inl \
   common_task_base.h \
+  common_timerhandler.cpp \
+  common_timerhandler.h \
   common_timer_manager.cpp \
   common_timer_manager.h \
   common_tools.cpp \

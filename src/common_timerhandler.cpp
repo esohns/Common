@@ -17,17 +17,52 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#include "stdafx.h"
 
-#ifndef COMMON_ITIMER_H
-#define COMMON_ITIMER_H
+#include "common_timerhandler.h"
 
-class Common_ITimer
+#include "ace/Log_Msg.h"
+
+#include "common_macros.h"
+#include "common_itimer.h"
+
+Common_TimerHandler::Common_TimerHandler (Common_ITimer* interfaceHandle_in,
+                                          bool isOneShot_in)
+ : inherited (NULL,                           // no reactor
+              ACE_Event_Handler::LO_PRIORITY) // priority
+ , interfaceHandle_ (interfaceHandle_in)
+ , isOneShot_ (isOneShot_in)
 {
- public:
-  virtual ~Common_ITimer () {}
+  COMMON_TRACE (ACE_TEXT ("Common_TimerHandler::Common_TimerHandler"));
 
-  // exposed interface
-  virtual void handleTimeout (const void*) = 0; // argument
-};
+}
 
-#endif
+Common_TimerHandler::~Common_TimerHandler ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TimerHandler::~Common_TimerHandler"));
+
+}
+
+int
+Common_TimerHandler::handle_timeout (const ACE_Time_Value& tv_in,
+                                     const void* arg_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TimerHandler::handle_timeout"));
+
+  ACE_UNUSED_ARG (tv_in);
+  ACE_UNUSED_ARG (arg_in);
+
+  try
+  {
+    interfaceHandle_->handleTimeout (arg_in);
+  }
+  catch (...)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("caught an exception in RPG_Common_ITimer::handleTimeout(), continuing\n")));
+
+    // *TODO*: what else can we do ?
+  }
+
+  return (isOneShot_ ? -1 : 0);
+}
