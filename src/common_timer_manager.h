@@ -22,6 +22,7 @@
 #define COMMON_TIMER_MANAGER_H
 
 #include "ace/Singleton.h"
+#include "ace/Synch.h"
 #include "ace/Time_Value.h"
 
 #include "common_exports.h"

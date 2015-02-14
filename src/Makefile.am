@@ -1,7 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 
 AM_CPPFLAGS = \
-  -DLIBCOMMON_BUILD_DLL=1 \
+  -DCOMMON_BUILD_DLL=1 \
   -DMETA_PACKAGE=\"@META_PACKAGE@\"
 
 noinst_HEADERS = \
@@ -74,4 +74,7 @@ libCommon_la_SOURCES = \
 #   $(CXX) -c $<
 #stdafx.h.gch: Makefile
 #  $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(libCommon_la_CXXFLAGS) $(extra_CFLAGS_libCommon_la) -c stdafx.h -o stdafx.h.gch
+
+SUBDIRS = \
+  ui
 

@@ -99,8 +99,13 @@ AC_CHECK_FUNCS([mkdir])
 AC_CHECK_FUNCS([uname])
 AC_CHECK_FUNCS([realpath])
 
+# Checks for libraries.
+PKG_CHECK_MODULES([PKGLIB], [sdl SDL_ttf libglade-2.0 gmodule-export-2.0 gthread-2.0 gtk+-2.0])
+
 AC_CONFIG_FILES([Makefile
                  scripts/Makefile
-                 src/Makefile])
+                 src/Makefile
+                 src/ui/Makefile])
 
 AC_OUTPUT
+
