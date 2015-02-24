@@ -10,10 +10,11 @@ include_HEADERS = \
   common_defines.h \
   common_exports.h \
   common_file_tools.h \
-  common_idumpstate.h \
   common_iclone.h \
   common_icontrol.h \
   common_icounter.h \
+  common_idumpstate.h \
+  common_iinitialize.h \
   common_inotify.h \
   common_irefcount.h \
   common_isignal.h \
@@ -41,6 +42,7 @@ libCommon_la_SOURCES = \
   common_icontrol.h \
   common_icounter.h \
   common_idumpstate.h \
+  common_iinitialize.h \
   common_inotify.h \
   common_irefcount.h \
   common_isignal.h \

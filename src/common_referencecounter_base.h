@@ -50,12 +50,12 @@ class Common_Export Common_ReferenceCounterBase
   unsigned int                              counter_;
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_ReferenceCounterBase ());
-  ACE_UNIMPLEMENTED_FUNC (Common_ReferenceCounterBase (const Common_ReferenceCounterBase&););
-  ACE_UNIMPLEMENTED_FUNC (Common_ReferenceCounterBase& operator= (const Common_ReferenceCounterBase&));
+  //ACE_UNIMPLEMENTED_FUNC (Common_ReferenceCounterBase ());
+  //ACE_UNIMPLEMENTED_FUNC (Common_ReferenceCounterBase (const Common_ReferenceCounterBase&));
+  //ACE_UNIMPLEMENTED_FUNC (Common_ReferenceCounterBase& operator= (const Common_ReferenceCounterBase&));
 
-  bool                                      deleteOnZero_;
   ACE_Condition<ACE_Recursive_Thread_Mutex> condition_;
+  bool                                      deleteOnZero_;
 };
 
 #endif
