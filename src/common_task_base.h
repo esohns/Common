@@ -27,6 +27,7 @@
 #include "ace/Task.h"
 
 #include "common_idumpstate.h"
+#include "common_iinitialize.h"
 
 // forward declaration(s)
 class ACE_Message_Block;
@@ -36,8 +37,8 @@ template <typename TaskSynchStrategyType,
           typename TimePolicyType>
 class Common_TaskBase_T
  : public ACE_Task<TaskSynchStrategyType,
-                   TimePolicyType>,
-   public Common_IDumpState
+                   TimePolicyType>
+ , public Common_IDumpState
 {
  public:
   virtual ~Common_TaskBase_T ();

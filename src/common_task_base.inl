@@ -361,7 +361,7 @@ template <typename TaskSynchStrategyType,
           typename TimePolicyType>
 void
 Common_TaskBase_T<TaskSynchStrategyType,
-                  TimePolicyType>::shutdown()
+                  TimePolicyType>::shutdown ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::shutdown"));
 

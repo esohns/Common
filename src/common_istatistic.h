@@ -21,16 +21,16 @@
 #ifndef COMMON_ISTATISTIC_H
 #define COMMON_ISTATISTIC_H
 
-template <typename StatisticsInfoContainer_Type>
+template <typename StatisticContainerType>
 class Common_IStatistic_T
 {
  public:
   virtual ~Common_IStatistic_T () {}
 
   // exposed interface
-  // *NOTE*: the argument MAY act both as input/output,
+  // *NOTE*: the argument MAY serve both as input/output,
   // this depends on the implementation...
-  virtual bool collect (StatisticsInfoContainer_Type&) const = 0;
+  virtual bool collect (StatisticContainerType&) const = 0;
   virtual void report () const = 0;
 };
 

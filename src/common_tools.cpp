@@ -364,7 +364,7 @@ Common_Tools::getCurrentUserName (std::string& username_out,
   else
     realname_out = pwd.pw_gecos;
 #else
-  TCHAR buffer[COMMON_BUFSIZE];
+  TCHAR buffer[BUFSIZ];
   ACE_OS::memset (buffer, 0, sizeof(buffer));
   DWORD buffer_size = 0;
   if (GetUserNameEx (NameDisplay, // EXTENDED_NAME_FORMAT
@@ -376,7 +376,7 @@ Common_Tools::getCurrentUserName (std::string& username_out,
                   ACE_TEXT ("failed to GetUserNameEx(): \"%m\", continuing\n")));
   } // end IF
   else
-    realname_out = buffer;
+    realname_out = ACE_TEXT_ANTI_TO_TCHAR (buffer);
 #endif
 }
 

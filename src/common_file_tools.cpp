@@ -776,7 +776,7 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
 
     // fallback
     result =
-        ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (RPG_COMMON_DEF_DUMP_DIR)));
+      ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
     return result;
   } // end IF
 
@@ -785,7 +785,7 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to CloseHandle(), continuing\n")));
 
-  result = ACE_TEXT_ALWAYS_CHAR (buffer);
+  result = ACE_TEXT_ANTI_TO_TCHAR (buffer);
 #endif
 
   return result;
@@ -856,11 +856,11 @@ Common_File_Tools::getUserConfigurationDirectory ()
 
     // fallback
     result =
-        ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (RPG_COMMON_DEF_DUMP_DIR)));
+        ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
     return result;
   } // end IF
 
-  result = ACE_TEXT_ALWAYS_CHAR (buffer);
+  result = ACE_TEXT_ANTI_TO_TCHAR (buffer);
   result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
 #endif
   result += ACE_TEXT_ALWAYS_CHAR (LIBCOMMON_PACKAGE);
