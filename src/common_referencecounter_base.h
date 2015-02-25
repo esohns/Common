@@ -32,6 +32,7 @@ class Common_Export Common_ReferenceCounterBase
  : virtual public Common_IRefCount
 {
  public:
+  Common_ReferenceCounterBase (const Common_ReferenceCounterBase&);
   virtual ~Common_ReferenceCounterBase ();
 
   // implement Common_IRefCount
@@ -41,21 +42,19 @@ class Common_Export Common_ReferenceCounterBase
   virtual void wait_zero ();
 
  protected:
+  Common_ReferenceCounterBase ();
   // *WARNING*: "delete on 0" may not work predictably if there are
   // any waiters (or in ANY multithreaded context, for that matter)...
-  Common_ReferenceCounterBase (unsigned int = 1, // initial reference count
-                               bool = true);     // delete on 0 ?
+  Common_ReferenceCounterBase (unsigned int, // initial reference count
+                               bool);        // delete on 0 ?
+  Common_ReferenceCounterBase& operator= (const Common_ReferenceCounterBase&);
 
-  mutable ACE_Recursive_Thread_Mutex        lock_;
   unsigned int                              counter_;
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_ReferenceCounterBase ());
-  ACE_UNIMPLEMENTED_FUNC (Common_ReferenceCounterBase (const Common_ReferenceCounterBase&));
-  ACE_UNIMPLEMENTED_FUNC (Common_ReferenceCounterBase& operator= (const Common_ReferenceCounterBase&));
-
   ACE_Condition<ACE_Recursive_Thread_Mutex> condition_;
   bool                                      deleteOnZero_;
+  mutable ACE_Recursive_Thread_Mutex        lock_;
 };
 
 #endif

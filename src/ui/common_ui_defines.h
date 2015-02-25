@@ -22,35 +22,35 @@
 #define COMMON_UI_DEFINES_H
 
 // event dispatch (GTK)
-#define COMMON_UI_GTK_THREAD_GROUP_ID                 200
-#define COMMON_UI_GTK_THREAD_NAME                     "UI dispatch"
+#define COMMON_UI_GTK_THREAD_GROUP_ID            200
+#define COMMON_UI_GTK_THREAD_NAME                "UI dispatch"
 
 // event dispatch (SDL)
-#define COMMON_UI_SDL_EVENT_TIMER                     SDL_USEREVENT
+#define COMMON_UI_SDL_EVENT_TIMER                SDL_USEREVENT
 // *NOTE*: this defines the input resolution or "interactivity"
 // *WARNING*: apparently, the maximum SDL timer resolution is 10 ms
-#define COMMON_UI_SDL_EVENT_TIMEOUT                   100 // ms
+#define COMMON_UI_SDL_EVENT_TIMEOUT              100 // ms
 //// *NOTE*: sensible values are multiples of COMMON_UI_SDL_EVENT_TIMEOUT, as
 //// that is the resolution factor
-//#define COMMON_UI_SDL_EVENT_RESOLUTION                100 // ms
+//#define COMMON_UI_SDL_EVENT_RESOLUTION           100 // ms
 
 // window
-#define COMMON_UI_WINDOW_DEFAULT_WIDTH                800
-#define COMMON_UI_WINDOW_DEFAULT_HEIGHT               600
+#define COMMON_UI_WINDOW_DEFAULT_WIDTH           800
+#define COMMON_UI_WINDOW_DEFAULT_HEIGHT          600
 
 // video (SDL)
-#define COMMON_UI_SDL_VIDEO_DEFAULT_BPP               32
-#define COMMON_UI_SDL_VIDEO_DEFAULT_DOUBLEBUFFER      false
-#define COMMON_UI_SDL_VIDEO_DEFAULT_OPENGL            false
-#define COMMON_UI_SDL_VIDEO_DEFAULT_FULLSCREEN        false
-#define COMMON_UI_SDL_VIDEO_DEFAULT_INIT              false
-//#define COMMON_UI_SDL_VIDEO_DEFAULT_FRAMERATE         30
-#define COMMON_UI_SDL_VIDEO_SCREENSHOT_PREFIX         "screenshot"
-#define COMMON_UI_SDL_VIDEO_SCREENSHOT_EXT            ".png"
+#define COMMON_UI_SDL_VIDEO_DEFAULT_BPP          32
+#define COMMON_UI_SDL_VIDEO_DEFAULT_DOUBLEBUFFER false
+#define COMMON_UI_SDL_VIDEO_DEFAULT_OPENGL       false
+#define COMMON_UI_SDL_VIDEO_DEFAULT_FULLSCREEN   false
+#define COMMON_UI_SDL_VIDEO_DEFAULT_INIT         false
+//#define COMMON_UI_SDL_VIDEO_DEFAULT_FRAMERATE    30
+#define COMMON_UI_SDL_VIDEO_SCREENSHOT_PREFIX    "screenshot"
+#define COMMON_UI_SDL_VIDEO_SCREENSHOT_EXT       ".png"
 
 // text (SDL)
-#define COMMON_UI_SDL_TEXT_FONT                       FONT_MAIN_SMALL
-#define COMMON_UI_SDL_TEXT_COLOR                      COLOR_WHITE
-#define COMMON_UI_SDL_TEXT_SHADECOLOR                 COLOR_BLACK
+#define COMMON_UI_SDL_TEXT_FONT                  FONT_MAIN_SMALL
+#define COMMON_UI_SDL_TEXT_COLOR                 COLOR_WHITE
+#define COMMON_UI_SDL_TEXT_SHADECOLOR            COLOR_BLACK
 
 #endif

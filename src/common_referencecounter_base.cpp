@@ -25,6 +25,15 @@
 
 #include "common_macros.h"
 
+Common_ReferenceCounterBase::Common_ReferenceCounterBase ()
+ : counter_ (1)
+ , deleteOnZero_ (true)
+ , condition_ (lock_)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
+
+}
+
 Common_ReferenceCounterBase::Common_ReferenceCounterBase (unsigned int initCount_in,
                                                           bool deleteOnZero_in)
  : counter_ (initCount_in)
@@ -35,14 +44,28 @@ Common_ReferenceCounterBase::Common_ReferenceCounterBase (unsigned int initCount
 
 }
 
-//Common_ReferenceCounterBase::Common_ReferenceCounterBase (const Common_ReferenceCounterBase& counter_in)
-// : counter_ (counter_in.counter_)
-// , deleteOnZero_ (counter_in.deleteOnZero_)
-// , condition_ (counter_in.lock_) // *NOTE*: uses the same lock
-//{
-//    COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
-//
-//}
+Common_ReferenceCounterBase::Common_ReferenceCounterBase (const Common_ReferenceCounterBase& counter_in)
+ : counter_ (counter_in.counter_)
+ , deleteOnZero_ (counter_in.deleteOnZero_)
+ , condition_ (counter_in.lock_) // *NOTE*: uses the same lock
+{
+    COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
+
+}
+
+Common_ReferenceCounterBase&
+Common_ReferenceCounterBase::operator= (const Common_ReferenceCounterBase& rhs)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::operator="));
+
+  counter_ = rhs.counter_;
+  deleteOnZero_ = rhs.deleteOnZero_;
+  // *TODO*: this will not work; using cl.exe there is a compiler problem with
+  //         private member access however - fix this (check usecases first)
+  //condition_.mutex_ = rhs.lock_;
+
+  return *this;
+}
 
 Common_ReferenceCounterBase::~Common_ReferenceCounterBase ()
 {
