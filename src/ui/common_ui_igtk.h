@@ -30,8 +30,8 @@ class Common_UI_IGTK
   // -Wno-non-virtual-dtor in the project settings...
 
   // exposed interface
-  virtual bool init (const std::string&) = 0; // UI definition filename
-  virtual void fini () = 0;
+  virtual bool initialize (const std::string&) = 0; // UI definition filename
+  virtual void finalize () = 0;
 };
 
 #endif

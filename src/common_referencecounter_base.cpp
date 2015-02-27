@@ -27,8 +27,8 @@
 
 Common_ReferenceCounterBase::Common_ReferenceCounterBase ()
  : counter_ (1)
- , deleteOnZero_ (true)
  , condition_ (lock_)
+ , deleteOnZero_ (true)
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
 
@@ -37,8 +37,8 @@ Common_ReferenceCounterBase::Common_ReferenceCounterBase ()
 Common_ReferenceCounterBase::Common_ReferenceCounterBase (unsigned int initCount_in,
                                                           bool deleteOnZero_in)
  : counter_ (initCount_in)
- , deleteOnZero_ (deleteOnZero_in)
  , condition_ (lock_)
+ , deleteOnZero_ (deleteOnZero_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
 
@@ -46,8 +46,8 @@ Common_ReferenceCounterBase::Common_ReferenceCounterBase (unsigned int initCount
 
 Common_ReferenceCounterBase::Common_ReferenceCounterBase (const Common_ReferenceCounterBase& counter_in)
  : counter_ (counter_in.counter_)
- , deleteOnZero_ (counter_in.deleteOnZero_)
  , condition_ (counter_in.lock_) // *NOTE*: uses the same lock
+ , deleteOnZero_ (counter_in.deleteOnZero_)
 {
     COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
 
@@ -59,10 +59,10 @@ Common_ReferenceCounterBase::operator= (const Common_ReferenceCounterBase& rhs)
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::operator="));
 
   counter_ = rhs.counter_;
-  deleteOnZero_ = rhs.deleteOnZero_;
   // *TODO*: this will not work; using cl.exe there is a compiler problem with
   //         private member access however - fix this (check usecases first)
   //condition_.mutex_ = rhs.lock_;
+  deleteOnZero_ = rhs.deleteOnZero_;
 
   return *this;
 }

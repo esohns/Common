@@ -1,4 +1,5 @@
-ACLOCAL_AMFLAGS = -I m4
+ACLOCAL_AMFLAGS = \
+  -I m4
 
 AM_CPPFLAGS = \
   -DCOMMON_BUILD_DLL=1 \
@@ -79,4 +80,3 @@ libCommon_la_SOURCES = \
 
 SUBDIRS = \
   ui
-

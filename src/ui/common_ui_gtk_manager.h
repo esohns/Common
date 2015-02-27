@@ -45,10 +45,10 @@ class Common_UI_Export Common_UI_GTK_Manager
                              ACE_Recursive_Thread_Mutex>;
 
  public:
-  virtual void init (int,                // argc
-                     ACE_TCHAR** ,       // argv
-                     const std::string&, // UI definition filename
-                     Common_UI_IGTK*);   // widget UI interface handle
+  virtual void initialize (int,                // argc
+                           ACE_TCHAR** ,       // argv
+                           const std::string&, // UI definition filename
+                           Common_UI_IGTK*);   // widget UI interface handle
 
   // implement Common_IControl
   virtual void start ();

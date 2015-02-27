@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -18,17 +18,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_UI_IINITGTK_H
-#define COMMON_UI_IINITGTK_H
+#ifndef COMMON_UI_TYPES_H
+#define COMMON_UI_TYPES_H
 
-#include "rpg_client_iwidget_ui.h"
+#include <vector>
 
-class RPG_Client_IGTKUI
- : public RPG_Client_IWidgetUI
-{
- public:
-  // *NOTE*: to shut up the compiler (gcc4) complaining about missing virtual dtors, set
-  // -Wno-non-virtual-dtor in the project settings...
-};
+#include "gtk/gtk.h"
+
+typedef std::vector<guint> Common_UI_GTK_EventSourceIDs_t;
+typedef Common_UI_GTK_EventSourceIDs_t::const_iterator Common_UI_GTK_EventSourceIDsIterator_t;
 
 #endif

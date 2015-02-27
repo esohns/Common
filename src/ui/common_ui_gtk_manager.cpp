@@ -55,12 +55,12 @@ Common_UI_GTK_Manager::~Common_UI_GTK_Manager ()
 }
 
 void
-Common_UI_GTK_Manager::init (int argc_in,
-                             ACE_TCHAR** argv_in,
-                             const std::string& filename_in,
-                             Common_UI_IGTK* interfaceHandle_in)
+Common_UI_GTK_Manager::initialize (int argc_in,
+                                   ACE_TCHAR** argv_in,
+                                   const std::string& filename_in,
+                                   Common_UI_IGTK* interfaceHandle_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager::init"));
+  COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager::initialize"));
 
   argc_ = argc_in;
   argv_ = argv_in;
@@ -124,11 +124,26 @@ Common_UI_GTK_Manager::close (u_long arg_in)
       if (inherited::thr_count () == 0)
         return 0; // nothing to do
 
-      gdk_threads_enter ();
-      guint level = gtk_main_level ();
-      if (level > 0)
-        gtk_main_quit ();
-      gdk_threads_leave ();
+      if (interfaceHandle_)
+      {
+        try
+        {
+          interfaceHandle_->finalize ();
+        }
+        catch (...)
+        {
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("caught exception in Common_UI_IInitGTK::finalize, continuing\n")));
+        }
+      } // end IF
+      else
+      {
+        gdk_threads_enter ();
+        guint level = gtk_main_level ();
+        if (level > 0)
+          gtk_main_quit ();
+        gdk_threads_leave ();
+      } // end ELSE
 
       break;
     }
@@ -151,7 +166,9 @@ Common_UI_GTK_Manager::svc (void)
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager::svc"));
 
 //  ACE_DEBUG ((LM_DEBUG,
-//              ACE_TEXT ("(%t) worker starting...\n")));
+//              ACE_TEXT ("(%t) GTK event dispatch starting...\n")));
+
+  int result = 0;
 
   if (!GTKIsInitialized_)
   {
@@ -170,7 +187,9 @@ Common_UI_GTK_Manager::svc (void)
       //// clean up
       //gdk_threads_leave ();
 
-      return -1;
+      result = -1;
+
+      goto done;
     } // end IF
     //// step2: init GNOME
     //   GnomeClient* gnomeSession = NULL;
@@ -197,17 +216,19 @@ Common_UI_GTK_Manager::svc (void)
       bool result = false;
       try
       {
-        result = interfaceHandle_->init (UIDefinitionFile_);
+        result = interfaceHandle_->initialize (UIDefinitionFile_);
       }
       catch (...)
       {
         ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("caught exception in Common_UI_IInitGTK::init, aborting\n")));
+                    ACE_TEXT ("caught exception in Common_UI_IInitGTK::initialize, aborting\n")));
 
         //// clean up
         //gdk_threads_leave ();
 
-        return -1;
+        result = -1;
+
+        goto done;
       }
       if (!result)
       {
@@ -217,7 +238,9 @@ Common_UI_GTK_Manager::svc (void)
         //// clean up
         //gdk_threads_leave ();
 
-        return -1;
+        result = -1;
+
+        goto done;
       } // end IF
     } // end IF
 
@@ -229,8 +252,9 @@ Common_UI_GTK_Manager::svc (void)
 
   // gtk_main_quit () has been called...
 
+done:
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("leaving GTK event dispatch...\n")));
+              ACE_TEXT ("(%t) leaving GTK event dispatch...\n")));
 
-  return 0;
+  return result;
 }

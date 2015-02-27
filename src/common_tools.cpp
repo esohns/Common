@@ -50,7 +50,7 @@ bool
 Common_Tools::period2String(const ACE_Time_Value& period_in,
                             std::string& timeString_out)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::period2String"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::period2String"));
 
   // init return value(s)
   timeString_out.resize(0);
@@ -87,7 +87,7 @@ Common_Tools::period2String(const ACE_Time_Value& period_in,
 std::string
 Common_Tools::sanitizeURI (const std::string& uri_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::sanitizeURI"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::sanitizeURI"));
 
   std::string result = uri_in;
 
@@ -133,7 +133,7 @@ Common_Tools::sanitizeURI (const std::string& uri_in)
 std::string
 Common_Tools::sanitize (const std::string& string_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::sanitize"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::sanitize"));
 
   std::string result = string_in;
 
@@ -147,7 +147,7 @@ Common_Tools::sanitize (const std::string& string_in)
 std::string
 Common_Tools::strip (const std::string& string_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::strip"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::strip"));
 
   std::string result = string_in;
 
@@ -166,7 +166,7 @@ Common_Tools::strip (const std::string& string_in)
 bool
 Common_Tools::isLinux ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isLinux"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::isLinux"));
 
   // get system information
   ACE_utsname name;
@@ -191,10 +191,10 @@ Common_Tools::isLinux ()
 }
 
 bool
-Common_Tools::initResourceLimits (bool fileDescriptors_in,
-                                  bool stackTraces_in)
+Common_Tools::setResourceLimits (bool fileDescriptors_in,
+                                 bool stackTraces_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::initResourceLimits"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::setResourceLimits"));
 
   if (fileDescriptors_in)
   {
@@ -211,10 +211,10 @@ Common_Tools::initResourceLimits (bool fileDescriptors_in,
         return false;
       } // end IF
 
-//       ACE_DEBUG ((LM_DEBUG,
-//                   ACE_TEXT ("file descriptor limits (before) [soft: \"%u\", hard: \"%u\"]...\n"),
-//                   fd_limit.rlim_cur,
-//                   fd_limit.rlim_max));
+//      ACE_DEBUG ((LM_DEBUG,
+//                  ACE_TEXT ("file descriptor limits (before) [soft: \"%u\", hard: \"%u\"]...\n"),
+//                  fd_limit.rlim_cur,
+//                  fd_limit.rlim_max));
 
       // *TODO*: really unset these limits; note that this probably requires
       // patching/recompiling the kernel...
@@ -313,7 +313,7 @@ void
 Common_Tools::getCurrentUserName (std::string& username_out,
                                   std::string& realname_out)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getCurrentUserName"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::getCurrentUserName"));
 
   // init return value(s)
   username_out.clear ();
@@ -383,7 +383,7 @@ Common_Tools::getCurrentUserName (std::string& username_out,
 std::string
 Common_Tools::getHostName ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getHostName"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::getHostName"));
 
   std::string result;
 
@@ -399,14 +399,14 @@ Common_Tools::getHostName ()
 }
 
 bool
-Common_Tools::initLogging (const std::string& programName_in,
-                           const std::string& logFile_in,
-                           bool logToSyslog_in,
-                           bool enableTracing_in,
-                           bool enableDebug_in,
-                           ACE_Log_Msg_Backend* backend_in)
+Common_Tools::initializeLogging (const std::string& programName_in,
+                                 const std::string& logFile_in,
+                                 bool logToSyslog_in,
+                                 bool enableTracing_in,
+                                 bool enableDebug_in,
+                                 ACE_Log_Msg_Backend* backend_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::initLogging"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::initializeLogging"));
 
   // *NOTE*: default log target is stderr
   u_long options_flags = ACE_Log_Msg::STDERR;
@@ -486,11 +486,11 @@ Common_Tools::initLogging (const std::string& programName_in,
 }
 
 bool
-Common_Tools::preInitSignals (ACE_Sig_Set& signals_inout,
-                              bool useReactor_in,
-                              Common_SignalActions_t& previousActions_out)
+Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
+                                    bool useReactor_in,
+                                    Common_SignalActions_t& previousActions_out)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::preInitSignals"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::preInitializeSignals"));
 
   // *IMPORTANT NOTE*: "The signal disposition is a per-process attribute: in a
   // multithreaded application, the disposition of a particular signal is the
@@ -573,11 +573,11 @@ Common_Tools::preInitSignals (ACE_Sig_Set& signals_inout,
 }
 
 bool
-Common_Tools::initSignals (ACE_Sig_Set& signals_inout,
-                           ACE_Event_Handler* eventHandler_in,
-                           Common_SignalActions_t& previousActions_out)
+Common_Tools::initializeSignals (ACE_Sig_Set& signals_inout,
+                                 ACE_Event_Handler* eventHandler_in,
+                                 Common_SignalActions_t& previousActions_out)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::initSignals"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::initializeSignals"));
 
   // init return value(s)
   previousActions_out.clear ();
@@ -617,11 +617,11 @@ Common_Tools::initSignals (ACE_Sig_Set& signals_inout,
 }
 
 void
-Common_Tools::finiSignals (const ACE_Sig_Set& signals_in,
-                           bool useReactor_in,
-                           const Common_SignalActions_t& previousActions_in)
+Common_Tools::finalizeSignals (const ACE_Sig_Set& signals_in,
+                               bool useReactor_in,
+                               const Common_SignalActions_t& previousActions_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::finiSignals"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::finalizeSignals"));
 
   // step1: unblock [SIGRTMIN,SIGRTMAX] IFF on Linux AND using the
   // ACE_POSIX_SIG_Proactor (the default)
@@ -685,7 +685,7 @@ Common_Tools::retrieveSignalInfo (int signal_in,
                                   const ucontext_t* context_in,
                                   std::string& information_out)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::retrieveSignalInfo"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::retrieveSignalInfo"));
 
   // init return value
   information_out.resize (0);
@@ -1039,11 +1039,11 @@ Common_Tools::retrieveSignalInfo (int signal_in,
 }
 
 bool
-Common_Tools::initEventDispatch (bool useReactor_in,
-                                 unsigned int numDispatchThreads_in,
-                                 bool& serializeOutput_out)
+Common_Tools::initializeEventDispatch (bool useReactor_in,
+                                       unsigned int numDispatchThreads_in,
+                                       bool& serializeOutput_out)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::initEventDispatch"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::initializeEventDispatch"));
 
   // init return value(s)
   serializeOutput_out = false;
@@ -1183,7 +1183,7 @@ Common_Tools::startEventDispatch (bool useReactor_in,
                                   unsigned int numDispatchThreads_in,
                                   int& groupID_out)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::startEventDispatch"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::startEventDispatch"));
 
   // init return value(s)
   groupID_out = -1;
@@ -1311,11 +1311,11 @@ Common_Tools::startEventDispatch (bool useReactor_in,
 }
 
 void
-Common_Tools::finiEventDispatch (bool stopReactor_in,
-                                 bool stopProactor_in,
-                                 int groupID_in)
+Common_Tools::finalizeEventDispatch (bool stopReactor_in,
+                                     bool stopProactor_in,
+                                     int groupID_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::finiEventDispatch"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::finalizeEventDispatch"));
 
   // step1: stop reactor/proactor
   // *IMPORTANT NOTE*: current proactor implementations start a pseudo-task that runs the
