@@ -213,10 +213,10 @@ Common_UI_GTK_Manager::svc (void)
     // step3: init client window
     if (interfaceHandle_)
     {
-      bool result = false;
+      bool result_2 = false;
       try
       {
-        result = interfaceHandle_->initialize (UIDefinitionFile_);
+        result_2 = interfaceHandle_->initialize (UIDefinitionFile_);
       }
       catch (...)
       {
@@ -230,7 +230,7 @@ Common_UI_GTK_Manager::svc (void)
 
         goto done;
       }
-      if (!result)
+      if (!result_2)
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to initialize GTK UI, aborting\n")));

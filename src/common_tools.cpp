@@ -603,9 +603,11 @@ Common_Tools::initializeSignals (ACE_Sig_Set& signals_inout,
                              ACE_Sig_Set (1),                          // mask of signals to be blocked when servicing
                                                                        // --> block them all (bar KILL/STOP; see manual)
                              (SA_RESTART | SA_SIGINFO));               // flags
-  if (ACE_Reactor::instance ()->register_handler (signals_inout,
-                                                  eventHandler_in,
-                                                  &new_action) == -1)
+  int result = -1;
+  result = ACE_Reactor::instance ()->register_handler (signals_inout,
+                                                       eventHandler_in,
+                                                       &new_action);
+  if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Reactor::register_handler(): \"%m\", aborting\n")));
