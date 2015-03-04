@@ -26,7 +26,6 @@ class Common_IInitialize
  public:
   virtual ~Common_IInitialize () {}
 
-  // API
   virtual bool initialize (const void*) = 0;
 };
 
@@ -36,7 +35,6 @@ class Common_IInitialize_T
  public:
   virtual ~Common_IInitialize_T () {}
 
-  // API
   virtual bool initialize (const ConfigurationType&) = 0;
 };
 
