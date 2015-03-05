@@ -59,9 +59,7 @@ Common_TimerHandler::handle_timeout (const ACE_Time_Value& tv_in,
   catch (...)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("caught an exception in RPG_Common_ITimer::handleTimeout(), continuing\n")));
-
-    // *TODO*: what else can we do ?
+                ACE_TEXT ("caught an exception in Common_ITimer::handleTimeout(), continuing\n")));
   }
 
   return (isOneShot_ ? -1 : 0);
