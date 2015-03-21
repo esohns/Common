@@ -30,7 +30,7 @@ class Common_IStatistic_T
   // exposed interface
   // *NOTE*: the argument MAY serve both as input/output,
   // this depends on the implementation...
-  virtual bool collect (StatisticContainerType&) const = 0;
+  virtual bool collect (StatisticContainerType&) = 0;
   virtual void report () const = 0;
 };
 

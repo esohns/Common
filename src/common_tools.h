@@ -39,6 +39,8 @@ ACE_THR_FUNC_RETURN threadpool_event_dispatcher_function (void*);
 class Common_Export Common_Tools
 {
  public:
+  static void initialize ();
+
   // use this to generate a "condensed" period string
   // - uses snprintf internally: "%H:%M:%S.usec"
   static bool period2String (const ACE_Time_Value&, // period

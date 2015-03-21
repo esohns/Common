@@ -21,14 +21,15 @@
 #ifndef COMMON_INOTIFY_H
 #define COMMON_INOTIFY_H
 
-template <typename MessageType>
+template <typename ConfigurationType,
+          typename MessageType>
 class Common_INotify_T
 {
  public:
   virtual ~Common_INotify_T () {};
 
   // API
-  virtual void start () = 0;
+  virtual void start (const ConfigurationType&) = 0;
   virtual void notify (const MessageType&) = 0; // data
   virtual void end () = 0;
 };

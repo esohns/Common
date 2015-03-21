@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <locale>
 
+#include "ace/High_Res_Timer.h"
 #include "ace/OS.h"
 #include "ace/Log_Msg.h"
 #include "ace/Log_Msg_Backend.h"
@@ -45,6 +46,18 @@
 
 #include "common_macros.h"
 #include "common_defines.h"
+
+void
+Common_Tools::initialize ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::initialize"));
+
+  //ACE_DEBUG ((LM_DEBUG,
+  //            ACE_TEXT ("calibrating high-resolution timer...\n")));
+  //ACE_High_Res_Timer::calibrate (500000, 10);
+  //ACE_DEBUG ((LM_DEBUG,
+  //            ACE_TEXT ("calibrating high-resolution timer...done\n")));
+}
 
 bool
 Common_Tools::period2String(const ACE_Time_Value& period_in,
