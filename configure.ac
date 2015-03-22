@@ -160,8 +160,8 @@ AC_CHECK_LIB([ACE], [main])
 
 AC_CONFIG_FILES([Makefile
                  scripts/Makefile
+                 include/Makefile
                  src/Makefile
                  src/ui/Makefile])
 
 AC_OUTPUT
-
