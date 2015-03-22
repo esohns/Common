@@ -37,7 +37,7 @@
 #include "common_defines.h"
 #include "common_tools.h"
 
-#include "libCommon-config.h"
+#include "libcommon_config.h"
 
 bool
 Common_File_Tools::isReadable (const std::string& filename_in)

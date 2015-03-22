@@ -26,6 +26,14 @@
 #include <algorithm>
 #include <locale>
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include <Security.h>
+#endif
+
+#if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
+#include "valgrind/memcheck.h"
+#endif
+
 #include "ace/High_Res_Timer.h"
 #include "ace/OS.h"
 #include "ace/Log_Msg.h"
@@ -40,10 +48,6 @@
 #include "ace/Dev_Poll_Reactor.h"
 #endif
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include <Security.h>
-#endif
-
 #include "common_macros.h"
 #include "common_defines.h"
 
@@ -51,6 +55,12 @@ void
 Common_Tools::initialize ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::initialize"));
+
+#if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
+  if (RUNNING_ON_VALGRIND)
+    ACE_DEBUG ((LM_INFO,
+                ACE_TEXT ("running on valgrind...\n")));
+#endif
 
   //ACE_DEBUG ((LM_DEBUG,
   //            ACE_TEXT ("calibrating high-resolution timer...\n")));
@@ -616,10 +626,12 @@ Common_Tools::initializeSignals (ACE_Sig_Set& signals_inout,
                              ACE_Sig_Set (1),                          // mask of signals to be blocked when servicing
                                                                        // --> block them all (bar KILL/STOP; see manual)
                              (SA_RESTART | SA_SIGINFO));               // flags
+  ACE_Reactor* reactor_p = ACE_Reactor::instance ();
+  ACE_ASSERT (reactor_p);
   int result = -1;
-  result = ACE_Reactor::instance ()->register_handler (signals_inout,
-                                                       eventHandler_in,
-                                                       &new_action);
+  result = reactor_p->register_handler (signals_inout,
+                                        eventHandler_in,
+                                        &new_action);
   if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
