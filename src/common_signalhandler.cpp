@@ -103,10 +103,10 @@ Common_SignalHandler::handle_signal (int signal_in,
   } // end IF
   else
   {
-    ACE_Handler* h = this;
-    result = ACE_Proactor::instance ()->schedule_timer (h,                     // event handler
-                                                        NULL,                  // act
-                                                        ACE_Time_Value::zero); // expire immediately
+    result =
+        ACE_Proactor::instance ()->schedule_timer (*this,                 // event handler
+                                                   NULL,                  // act
+                                                   ACE_Time_Value::zero); // expire immediately
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Proactor::schedule_timer: \"%m\", aborting\n")));
