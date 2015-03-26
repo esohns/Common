@@ -24,7 +24,14 @@
 #include <map>
 
 // timer queue
+#include "ace/Version.h"
+#if (ACE_MAJOR_VERSION >= 6) && \
+    ((ACE_MINOR_VERSION > 0) || \
+     (ACE_BETA_VERSION  > 3))
 #include "ace/Event_Handler_Handle_Timeout_Upcall.h"
+#else
+#include "ace/Timer_Queuefwd.h"
+#endif
 #include "ace/Module.h"
 #include "ace/Signal.h"
 #include "ace/Synch_Traits.h"
