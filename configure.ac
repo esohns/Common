@@ -48,7 +48,7 @@ AC_PROG_RANLIB
 AM_PROG_AR
 
 # init other tools
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 # build time sanity check...
 AM_SANITY_CHECK
 LT_INIT
@@ -58,7 +58,7 @@ m4_define([LIBCOMMON_CONFIG_H], [libcommon_config.h])
 AX_PREFIX_CONFIG_H([LIBCOMMON_CONFIG_H], [libcommon], [config.h])
 
 # define meta-package
-META_PACKAGE_NAME=libCommon
+META_PACKAGE_NAME="libCommon"
 AC_DEFINE([META_PACKAGE_NAME], ["libCommon"], [meta-package-name])
 
 #AC_LANG([C++])
@@ -99,10 +99,10 @@ AC_ARG_ENABLE([tracing],
               [tracing=$tracing_default])
 AM_CONDITIONAL([TRACING], [test x$tracing = xyes])
 if test x$tracing = xyes; then
-  CXXFLAGS="${CXXFLAGS} -DOLINUXINO_NTRACE=0"
+  CXXFLAGS="${CXXFLAGS} -DCOMMON_NTRACE=0"
   AC_MSG_RESULT([yes])
 else
-  CXXFLAGS="${CXXFLAGS} -DOLINUXINO_NTRACE=1"
+  CXXFLAGS="${CXXFLAGS} -DCOMMON_NTRACE=1"
   AC_MSG_RESULT([no])
 fi
 
@@ -153,6 +153,8 @@ AM_COND_IF([VALGRIND_SUPPORT],
 PKG_CHECK_MODULES([PKGLIB], [sdl SDL_ttf libglade-2.0 gmodule-export-2.0 gthread-2.0 gtk+-2.0])
 
 # checks for other libraries (non-pkg-config)
+# FIXME: Replace `main' with a function in `-lpthread':
+AC_CHECK_LIB([pthread], [main])
 # FIXME: Replace `main' with a function in `-lACE':
 AC_CHECK_LIB([ACE], [main])
 
