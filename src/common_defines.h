@@ -25,14 +25,16 @@
 
 #include "ace/Default_Constants.h"
 
+// *** compiler ***
+#define COMMON_GCC_UNUSED_GUARD               __attribute__ ((unused))
+
+// *** trace log ***
 // *PORTABILITY*: pathnames are not portable --> (try to) use %TEMP% on Windows
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
 #define COMMON_DEF_DUMP_DIR                   "/var/tmp"
 #else
 #define COMMON_DEF_DUMP_DIR                   "TEMP" // environment
 #endif
-
-// *** trace log ***
 #define COMMON_DEF_LOG_DIRECTORY              COMMON_DEF_DUMP_DIR
 #define COMMON_LOG_FILENAME_SUFFIX            ".log"
 #define COMMON_LOG_VERBOSE                    false
@@ -56,9 +58,6 @@
 #else
 #define COMMON_USE_DEV_POLL_REACTOR    false // ? ACE_Dev_Poll_Reactor : ACE_TP_Reactor
 #endif
-
-//// *IMPORTANT NOTE*: used for libc calls (i.e. char buffers, mostly)
-//#define COMMON_BUFSIZE                        512 // bytes
 
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
 #define COMMON_DEF_USER_LOGIN_BASE            "LOGNAME" // environment

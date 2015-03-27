@@ -30,9 +30,6 @@
 #include "common_icontrol.h"
 #include "common_idumpstate.h"
 
-// *NOTE*: global time policy (supplies gettimeofday())
-static Common_TimePolicy_t COMMON_TIME_POLICY;
-
 class Common_Export Common_Timer_Manager
  : public Common_TimerQueue_t,
    public Common_IControl,
@@ -68,8 +65,10 @@ class Common_Export Common_Timer_Manager
 
   // *IMPORTANT NOTE*: this is only the functor, individual handlers are
   //                   managed in the queue
-  Common_TimeoutUpcall_t   timerHandler_;
-  Common_TimerQueueImpl_t* timerQueue_;
+  Common_TimeoutUpcall_t     timerHandler_;
+  Common_TimerQueueImpl_t*   timerQueue_;
+
+  static Common_TimePolicy_t timePolicy_;
 };
 
 typedef ACE_Singleton<Common_Timer_Manager,

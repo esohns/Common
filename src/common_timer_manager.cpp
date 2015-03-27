@@ -28,6 +28,9 @@
 #include "common_macros.h"
 #include "common_itimer.h"
 
+// define statics
+Common_TimePolicy_t Common_Timer_Manager::timePolicy_;
+
 Common_Timer_Manager::Common_Timer_Manager ()
  : inherited (ACE_Thread_Manager::instance (), // thread manager --> use default
               NULL)                            // timer queue --> allocate (dummy) temp first :( *TODO*
@@ -42,7 +45,7 @@ Common_Timer_Manager::Common_Timer_Manager ()
   //																				 	 COMMON_PREALLOCATE_TIMER_SLOTS, // preallocate timer nodes ?
   //																					 &timerHandler_,                 // upcall functor
   //																					 NULL,                           // freelist --> allocate
-  //																					 COMMON_TIME_POLICY));
+  //																					 COMMON_TIME_NOW));
   ACE_NEW_NORETURN (timerQueue_,
                     Common_TimerQueueImpl_t (ACE_DEFAULT_TIMER_WHEEL_SIZE,
                                              ACE_DEFAULT_TIMER_WHEEL_RESOLUTION,
@@ -50,7 +53,7 @@ Common_Timer_Manager::Common_Timer_Manager ()
                                                                              : 0), // preallocate timer nodes ?
                                              &timerHandler_,                       // upcall functor
                                              NULL,                                 // freelist --> allocate
-                                             COMMON_TIME_POLICY));
+                                             timePolicy_));
   if (!timerQueue_)
   {
     ACE_DEBUG ((LM_CRITICAL,

@@ -40,10 +40,19 @@
 #include "ace/Timer_Wheel_T.h"
 #include "ace/Timer_Queue_T.h"
 #include "ace/Timer_Queue_Adapters.h"
+#if (ACE_MAJOR_VERSION >= 6) && \
+    ((ACE_MINOR_VERSION > 1) || \
+     (ACE_BETA_VERSION  > 6))
 #include "ace/Time_Policy.h"
 
-// *NOTE*: use the high resolution for accuracy and low latency
+#include "common_defines.h"
+
+// *NOTE*: use the high resolution time for accuracy and low latency
 typedef ACE_HR_Time_Policy Common_TimePolicy_t;
+#else
+#error "ACE version > 6.1.6 required"
+typedef ACE_System_Time_Policy Common_TimePolicy_t;
+#endif
 
 // *NOTE*: ensure a minimal amount of locking
 //typedef ACE_Event_Handler_Handle_Timeout_Upcall<ACE_SYNCH_NULL_MUTEX> RPG_Common_TimeoutUpcall_t;
@@ -75,5 +84,19 @@ typedef ACE_Task<ACE_MT_SYNCH,
                  Common_TimePolicy_t> Common_Task_t;
 typedef ACE_Module<ACE_MT_SYNCH,
                    Common_TimePolicy_t> Common_Module_t;
+
+#if (ACE_MAJOR_VERSION >= 6) && \
+    ((ACE_MINOR_VERSION > 1) || \
+     (ACE_BETA_VERSION  > 6))
+// *NOTE*: global time policy (supplies gettimeofday())
+#if defined __GNUC__
+//#pragma GCC diagnostic ignored "-Wunused-variable"
+COMMON_GCC_UNUSED_GUARD static Common_TimePolicy_t COMMON_TIME_POLICY;
+//#pragma GCC diagnostic pop
+#endif
+#define COMMON_TIME_NOW COMMON_TIME_POLICY ()
+#else
+#define COMMON_TIME_NOW ACE_OS::gettimeofday ()
+#endif
 
 #endif
