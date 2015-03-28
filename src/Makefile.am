@@ -15,6 +15,7 @@ include_HEADERS = \
   common_icontrol.h \
   common_icounter.h \
   common_idumpstate.h \
+  common_iget.h \
   common_iinitialize.h \
   common_inotify.h \
   common_irefcount.h \
@@ -43,6 +44,7 @@ libCommon_la_SOURCES = \
   common_icontrol.h \
   common_icounter.h \
   common_idumpstate.h \
+  common_iget.h \
   common_iinitialize.h \
   common_inotify.h \
   common_irefcount.h \

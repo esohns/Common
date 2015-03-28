@@ -51,6 +51,9 @@ class Common_TaskBase_T
   virtual void dump_state () const;
 
  protected:
+  // convenient types
+  typedef ACE_Module<TaskSynchStrategyType, TimePolicyType> MODULE_T;
+
   Common_TaskBase_T (const std::string&, // thread name
                      int,                // thread group id
                      unsigned int = 1,   // # thread(s)
