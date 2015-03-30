@@ -1,38 +1,53 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-# define version information
+# version
 m4_define([M4_LIBCOMMON_VERSION_MAJOR], [0])
 m4_define([M4_LIBCOMMON_VERSION_MINOR], [0])
 m4_define([M4_LIBCOMMON_VERSION_MICRO], [1])
 m4_define([M4_LIBCOMMON_VERSION_DEVEL], [devel])
 m4_define([M4_LIBCOMMON_VERSION],
           [M4_LIBCOMMON_VERSION_MAJOR.M4_LIBCOMMON_VERSION_MINOR.M4_LIBCOMMON_VERSION_MICRO[]m4_ifset([M4_LIBCOMMON_VERSION_DEVEL],-[M4_LIBCOMMON_VERSION_DEVEL])])
-m4_define([M4_LIBCOMMON_VERSION_API]  , [1])
-dnl # Libtool versioning.
-dnl m4_define([dc_version_lt_current],[0])
-dnl m4_define([dc_version_lt_revision],[0])
-dnl m4_define([dc_version_lt_age],[0])
-AC_SUBST([LIBCOMMON_VERSION],[M4_LIBCOMMON_VERSION])
-AC_SUBST([LIBCOMMON_VERSION_MAJOR],[M4_LIBCOMMON_VERSION_MAJOR])
-AC_SUBST([LIBCOMMON_VERSION_MINOR],[M4_LIBCOMMON_VERSION_MINOR])
-AC_SUBST([LIBCOMMON_VERSION_MICRO],[M4_LIBCOMMON_VERSION_MICRO])
-dnl AC_SUBST([DC_VERSION_LIBTOOL],[dc_version_lt_current:dc_version_lt_revision:dc_version_lt_age])
-# Version suffix.
+m4_define([M4_LIBCOMMON_VERSION_API], [1])
+
+# libtool versioning
+m4_define([M4_LIBCOMMON_LT_VERSION_AGE], [0])
+m4_define([M4_LIBCOMMON_LT_VERSION_CURRENT], [M4_LIBCOMMON_VERSION_MAJOR])
+m4_define([M4_LIBCOMMON_LT_VERSION_REVISION], [m4_eval(100 * M4_LIBCOMMON_VERSION_MAJOR + 10 * M4_LIBCOMMON_VERSION_MINOR + M4_LIBCOMMON_VERSION_MICRO)])
+m4_define([M4_LIBCOMMON_LT_VERSION_INFO],
+          [M4_LIBCOMMON_LT_VERSION_CURRENT:M4_LIBCOMMON_LT_VERSION_REVISION:M4_LIBCOMMON_LT_VERSION_AGE])
+
+# version suffix
 m4_ifset([M4_LIBCOMMON_VERSION_DEVEL],
-         [AC_DEFINE(HAVE_VERSION_DEVEL, [1], [Define if a version suffix is present.])])
-AC_SUBST([LIBCOMMON_VERSION_API],[M4_LIBCOMMON_VERSION_API])
+         [AC_DEFINE(HAVE_VERSION_DEVEL, [1], [define if a version suffix is present])])
+
+# (meta-)package name
+m4_define([M4_META_PACKAGE_NAME], [libCommon])
 
 AC_PREREQ([2.69])
-AC_INIT([libCommon],
+AC_INIT([M4_META_PACKAGE_NAME],
         [M4_LIBCOMMON_VERSION],
         [eriksohns@123mail.org],
-        [libCommon],
+        [M4_META_PACKAGE_NAME],
         [http://www.github.com/esohns/libCommon])
-AC_CONFIG_SRCDIR([config.h.in])
-AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([aux_config])
 AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_SRCDIR([config.h.in])
+
+LIBCOMMON_VERSION_API=M4_LIBCOMMON_VERSION_API
+AC_SUBST([LIBCOMMON_VERSION_API])
+
+LIBCOMMON_LT_VERSION_INFO=M4_LIBCOMMON_LT_VERSION_INFO
+AC_SUBST([LIBCOMMON_LT_VERSION_INFO])
+
+LIBCOMMON_VERSION=M4_LIBCOMMON_VERSION
+AC_SUBST([LIBCOMMON_VERSION])
+LIBCOMMON_VERSION_MAJOR=M4_LIBCOMMON_VERSION_MAJOR
+AC_SUBST([LIBCOMMON_VERSION_MAJOR])
+LIBCOMMON_VERSION_MINOR=M4_LIBCOMMON_VERSION_MINOR
+AC_SUBST([LIBCOMMON_VERSION_MINOR])
+LIBCOMMON_VERSION_MICRO=M4_LIBCOMMON_VERSION_MICRO
+AC_SUBST([LIBCOMMON_VERSION_MICRO])
 
 #AC_USE_SYSTEM_EXTENSIONS
 
@@ -54,18 +69,14 @@ AM_SANITY_CHECK
 LT_INIT
 
 # prefix config.h
-m4_define([LIBCOMMON_CONFIG_H], [libcommon_config.h])
-AX_PREFIX_CONFIG_H([LIBCOMMON_CONFIG_H], [libcommon], [config.h])
-
-# define meta-package
-META_PACKAGE_NAME="libCommon"
-AC_DEFINE([META_PACKAGE_NAME], ["libCommon"], [meta-package-name])
+m4_define([LIBCOMMON_CONFIG_H], [libCommon_config.h])
+AX_PREFIX_CONFIG_H([LIBCOMMON_CONFIG_H], [M4_META_PACKAGE_NAME], [config.h])
 
 #AC_LANG([C++])
 
 ## (re)set the cpp compiler flags
-#CXXFLAGS="-fno-implicit-templates"
-CXXFLAGS=
+#CXXFLAGS_DEBUG="-fno-implicit-templates"
+CXXFLAGS_DEBUG=
 # --> enable debug support ?
 AC_MSG_CHECKING([enable debugging])
 debug_default="no"
@@ -79,13 +90,14 @@ AC_ARG_ENABLE([debug],
               [debug=$debug_default])
 AM_CONDITIONAL([DEBUG], [test x$debug = xyes])
 if test x$debug = xyes; then
-  CXXFLAGS="-g -O0 -Wall -fno-inline -D_DEBUG"
+  CXXFLAGS_DEBUG="-fno-inline -g -O0 -Wall -D_DEBUG"
   AC_MSG_RESULT([yes])
 else
-  CXXFLAGS="-O3 -Wall -Werror -DACE_NDEBUG"
+  CXXFLAGS_DEBUG="-O3 -Werror -DACE_NDEBUG"
   AC_MSG_RESULT([no])
 fi
 
+CXXFLAGS_TRACING=
 # --> enable tracing support ?
 AC_MSG_CHECKING([enable tracing])
 tracing_default="no"
@@ -99,13 +111,15 @@ AC_ARG_ENABLE([tracing],
               [tracing=$tracing_default])
 AM_CONDITIONAL([TRACING], [test x$tracing = xyes])
 if test x$tracing = xyes; then
-  CXXFLAGS="${CXXFLAGS} -DCOMMON_NTRACE=0"
+#  CXXFLAGS_TRACING="-DACE_NTRACE=0 -DCOMMON_NTRACE=0"
+  CXXFLAGS_TRACING="-DCOMMON_NTRACE=0"
   AC_MSG_RESULT([yes])
 else
-  CXXFLAGS="${CXXFLAGS} -DCOMMON_NTRACE=1"
+  CXXFLAGS_TRACING="-DACE_NTRACE=1 -DCOMMON_NTRACE=1"
   AC_MSG_RESULT([no])
 fi
 
+CXXFLAGS_VALGRIND=
 # --> enable valgrind support ?
 AC_MSG_CHECKING([enable valgrind support])
 valgrind_support_default="no"
@@ -119,15 +133,16 @@ AC_ARG_ENABLE([valgrind-support],
               [valgrind_support=$valgrind_support_default])
 AM_CONDITIONAL([VALGRIND_SUPPORT], [test x$valgrind_support = xyes])
 if test x$valgrind_support = xyes; then
-  CXXFLAGS="${CXXFLAGS} -DLIBCOMMON_ENABLE_VALGRIND_SUPPORT"
+  CXXFLAGS_VALGRIND="-DLIBCOMMON_ENABLE_VALGRIND_SUPPORT"
   AC_MSG_RESULT([yes])
 else
   AC_MSG_RESULT([no])
 fi
 
 # export variables (so Makefile substitutions can be made)
-AC_SUBST(META_PACKAGE_NAME)
+CXXFLAGS="${CXXFLAGS_DEBUG} ${CXXFLAGS_TRACING} ${CXXFLAGS_VALGRIND}"
 AC_SUBST(CXXFLAGS)
+#AC_SUBST(META_PACKAGE_NAME)
 
 # checks for typedefs, structures, and compiler characteristics
 AC_TYPE_SIZE_T
@@ -150,18 +165,22 @@ AC_CHECK_FUNCS([realpath])
 # checks for libraries
 AM_COND_IF([VALGRIND_SUPPORT],
            [PKG_CHECK_MODULES([PKGVALGRIND], [valgrind])])
-PKG_CHECK_MODULES([PKGLIB], [sdl SDL_ttf libglade-2.0 gmodule-export-2.0 gthread-2.0 gtk+-2.0])
+PKG_CHECK_MODULES([PKGLIB], [gtk+-2.0])
 
 # checks for other libraries (non-pkg-config)
 # FIXME: Replace `main' with a function in `-lpthread':
-AC_CHECK_LIB([pthread], [main])
+#AC_CHECK_LIB([pthread], [pthread_create])
+AC_SEARCH_LIBS([pthread_create], [pthread], , AC_MSG_ERROR([unable to find pthread library]))
 # FIXME: Replace `main' with a function in `-lACE':
-AC_CHECK_LIB([ACE], [main])
+#AC_CHECK_LIB([ACE], [ACE_OS::memset])
+#AC_SEARCH_LIBS([ACE_OS::memset], [ACE], , AC_MSG_ERROR([unable to find ACE library]))
 
 # checks for tools
 
+AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile
                  scripts/Makefile
+                 scripts/libCommon.pc
                  include/Makefile
                  src/Makefile
                  src/ui/Makefile])

@@ -1,9 +1,12 @@
 ACLOCAL_AMFLAGS = \
   -I m4
 
-AM_CPPFLAGS = \
+DEFS += \
   -DCOMMON_BUILD_DLL=1 \
-  -DMETA_PACKAGE=\"@META_PACKAGE@\"
+  -DMETA_PACKAGE=\"@PACKAGE_NAME@\"
+
+AM_CPPFLAGS = \
+  -I$(top_srcdir)/../ATCD/ACE
 
 noinst_HEADERS = \
   stdafx.h
@@ -34,7 +37,7 @@ include_HEADERS = \
   common.h
 
 lib_LTLIBRARIES = libCommon.la
-libCommon_la_LDFLAGS = -version-info 0:1:0
+libCommon_la_LDFLAGS = -version-info @LIBCOMMON_LT_VERSION_INFO@
 libCommon_la_SOURCES = \
   common_defines.h \
   common_exports.h \

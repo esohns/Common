@@ -21,7 +21,7 @@
 
 #include "common_file_tools.h"
 
-#if defined(ACE_WIN32) || defined(ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "Userenv.h"
 #include "Shlobj.h"
 #endif
@@ -37,7 +37,9 @@
 #include "common_defines.h"
 #include "common_tools.h"
 
-#include "libcommon_config.h"
+#if defined (HAVE_CONFIG_H)
+#include "libCommon_config.h"
+#endif
 
 bool
 Common_File_Tools::isReadable (const std::string& filename_in)
