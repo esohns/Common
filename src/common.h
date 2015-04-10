@@ -93,6 +93,8 @@ typedef ACE_Module<ACE_MT_SYNCH,
 //#pragma GCC diagnostic ignored "-Wunused-variable"
 COMMON_GCC_UNUSED_GUARD static Common_TimePolicy_t COMMON_TIME_POLICY;
 //#pragma GCC diagnostic pop
+#else
+static Common_TimePolicy_t COMMON_TIME_POLICY;
 #endif
 #define COMMON_TIME_NOW COMMON_TIME_POLICY ()
 #else

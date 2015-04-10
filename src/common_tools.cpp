@@ -647,8 +647,10 @@ Common_Tools::finalizeSignals (const ACE_Sig_Set& signals_in,
 
   // step1: unblock [SIGRTMIN,SIGRTMAX] IFF on UNIX AND using the
   // ACE_POSIX_SIG_Proactor (the default)
-  // *IMPORTANT NOTE*: proactor implementation dispatches the signals in worker
-  // thread(s) and enabled them there automatically (see code)
+  // *IMPORTANT NOTE*: the proactor implementation dispatches the signals in
+  //                   worker thread(s) and enabled them there automatically
+  //                   (see code)
+#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
   if (!useReactor_in)
   {
     ACE_POSIX_Proactor* proactor_impl_p =
@@ -683,6 +685,7 @@ Common_Tools::finalizeSignals (const ACE_Sig_Set& signals_in,
       } // end IF
     } // end IF
   } // end IF
+#endif
 
   // step2: restore previous signal handlers
   if (ACE_Reactor::instance ()->remove_handler (signals_in) == -1)
