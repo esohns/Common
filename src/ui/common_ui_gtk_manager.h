@@ -30,10 +30,8 @@
 #include "common_task_base.h"
 #include "common_icontrol.h"
 
+#include "common_ui_common.h"
 #include "common_ui_exports.h"
-
-// forward declarations
-class Common_UI_IGTK;
 
 class Common_UI_Export Common_UI_GTK_Manager
  : public Common_TaskBase_T<ACE_MT_SYNCH,
@@ -45,10 +43,11 @@ class Common_UI_Export Common_UI_GTK_Manager
                              ACE_Recursive_Thread_Mutex>;
 
  public:
-  virtual void initialize (int,                // argc
-                           ACE_TCHAR** ,       // argv
-                           const std::string&, // UI definition filename
-                           Common_UI_IGTK*);   // widget UI interface handle
+  virtual void initialize (int,                 // argc
+                           ACE_TCHAR** ,        // argv
+                           const std::string&,  // UI definition filename
+                           Common_UI_GTKState*, // state handle
+                           Common_UI_IGTK_t*);  // UI interface handle
 
   // implement Common_IControl
   virtual void start ();
@@ -68,11 +67,12 @@ class Common_UI_Export Common_UI_GTK_Manager
   ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Manager (const Common_UI_GTK_Manager&));
   ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Manager& operator= (const Common_UI_GTK_Manager&));
 
-  bool            GTKIsInitialized_;
-  int             argc_;
-  ACE_TCHAR**     argv_;
-  std::string     UIDefinitionFile_;
-  Common_UI_IGTK* interfaceHandle_;
+  bool                GTKIsInitialized_;
+  int                 argc_;
+  ACE_TCHAR**         argv_;
+  Common_UI_GTKState* state_;
+  std::string         UIDefinitionFile_;
+  Common_UI_IGTK_t*   UIInterfaceHandle_;
 };
 
 typedef ACE_Singleton<Common_UI_GTK_Manager,

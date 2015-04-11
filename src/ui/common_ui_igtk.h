@@ -23,14 +23,12 @@
 
 #include <string>
 
-class Common_UI_IGTK
+template <typename StateType>
+class Common_UI_IGTK_T
 {
  public:
-  // *NOTE*: to shut up the compiler (gcc4) complaining about missing virtual dtors, set
-  // -Wno-non-virtual-dtor in the project settings...
-
-  // exposed interface
-  virtual bool initialize (const std::string&) = 0; // UI definition filename
+  virtual bool initialize (const std::string&, // UI definition filename
+                           StateType&) = 0;    // return value: GTK state
   virtual void finalize () = 0;
 };
 

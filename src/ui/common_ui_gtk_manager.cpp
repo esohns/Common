@@ -42,7 +42,8 @@ Common_UI_GTK_Manager::Common_UI_GTK_Manager ()
  , argc_ (0)
  , argv_ (NULL)
  , UIDefinitionFile_ ()
- , interfaceHandle_ (NULL)
+ , state_ (NULL)
+ , UIInterfaceHandle_ (NULL)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager::Common_UI_GTK_Manager"));
 
@@ -58,14 +59,19 @@ void
 Common_UI_GTK_Manager::initialize (int argc_in,
                                    ACE_TCHAR** argv_in,
                                    const std::string& filename_in,
-                                   Common_UI_IGTK* interfaceHandle_in)
+                                   Common_UI_GTKState* state_in,
+                                   Common_UI_IGTK_t* interfaceHandle_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager::initialize"));
+
+  // sanity check(s)
+  ACE_ASSERT (state_in);
 
   argc_ = argc_in;
   argv_ = argv_in;
   UIDefinitionFile_ = filename_in;
-  interfaceHandle_ = interfaceHandle_in;
+  state_ = state_in;
+  UIInterfaceHandle_ = interfaceHandle_in;
 }
 
 void
@@ -124,16 +130,16 @@ Common_UI_GTK_Manager::close (u_long arg_in)
       if (inherited::thr_count () == 0)
         return 0; // nothing to do
 
-      if (interfaceHandle_)
+      if (UIInterfaceHandle_)
       {
         try
         {
-          interfaceHandle_->finalize ();
+          UIInterfaceHandle_->finalize ();
         }
         catch (...)
         {
           ACE_DEBUG ((LM_ERROR,
-                      ACE_TEXT ("caught exception in Common_UI_IInitGTK::finalize, continuing\n")));
+                      ACE_TEXT ("caught exception in Common_UI_IGTK_T::finalize, continuing\n")));
         }
       } // end IF
       else
@@ -152,7 +158,6 @@ Common_UI_GTK_Manager::close (u_long arg_in)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("invalid argument: %u, aborting\n"),
                   arg_in));
-
       return -1;
     }
   } // end SWITCH
@@ -211,17 +216,19 @@ Common_UI_GTK_Manager::svc (void)
     //  ACE_ASSERT(gnomeProgram);
 
     // step3: init client window
-    if (interfaceHandle_)
+    if (UIInterfaceHandle_)
     {
       bool result_2 = false;
+      ACE_ASSERT (state_);
       try
       {
-        result_2 = interfaceHandle_->initialize (UIDefinitionFile_);
+        result_2 = UIInterfaceHandle_->initialize (UIDefinitionFile_,
+                                                   *state_);
       }
       catch (...)
       {
         ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("caught exception in Common_UI_IInitGTK::initialize, aborting\n")));
+                    ACE_TEXT ("caught exception in Common_UI_IGTK_T::initialize, aborting\n")));
 
         //// clean up
         //gdk_threads_leave ();
