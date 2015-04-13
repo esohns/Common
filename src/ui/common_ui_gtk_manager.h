@@ -67,9 +67,10 @@ class Common_UI_Export Common_UI_GTK_Manager
   ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Manager (const Common_UI_GTK_Manager&));
   ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Manager& operator= (const Common_UI_GTK_Manager&));
 
-  bool                GTKIsInitialized_;
   int                 argc_;
   ACE_TCHAR**         argv_;
+  bool                GTKIsInitialized_;
+  bool                isInitialized_;
   Common_UI_GTKState* state_;
   std::string         UIDefinitionFile_;
   Common_UI_IGTK_t*   UIInterfaceHandle_;

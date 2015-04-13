@@ -19,40 +19,39 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include "common_ui_glade_definition.h"
+#include "common_ui_gtk_builder_definition.h"
 
 #include "ace/Log_Msg.h"
 #include "ace/Synch.h"
 
-#include "glade/glade.h"
 #include "gtk/gtk.h"
 
 #include "common_file_tools.h"
 
 #include "common_macros.h"
 
-Common_UI_GladeDefinition::Common_UI_GladeDefinition (int argc_in,
-                                                      ACE_TCHAR** argv_in)
+Common_UI_GtkBuilderDefinition::Common_UI_GtkBuilderDefinition (int argc_in,
+                                                                ACE_TCHAR** argv_in)
  : argc_ (argc_in)
  , argv_ (argv_in)
  , GTKState_ (NULL)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_UI_GladeDefinition::Common_UI_GladeDefinition"));
+  COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition::Common_UI_GtkBuilderDefinition"));
 
   ACE_ASSERT (GTKState_);
 }
 
-Common_UI_GladeDefinition::~Common_UI_GladeDefinition ()
+Common_UI_GtkBuilderDefinition::~Common_UI_GtkBuilderDefinition ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_UI_GladeDefinition::~Common_UI_GladeDefinition"));
+  COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition::~Common_UI_GtkBuilderDefinition"));
 
 }
 
 bool
-Common_UI_GladeDefinition::initialize (const std::string& filename_in,
-                                       Common_UI_GTKState& GTKState_inout)
+Common_UI_GtkBuilderDefinition::initialize (const std::string& filename_in,
+                                            Common_UI_GTKState& GTKState_inout)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_UI_GladeDefinition::initialize"));
+  COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition::initialize"));
 
   // sanity check(s)
   if (!Common_File_Tools::isReadable (filename_in.c_str ()))
@@ -67,16 +66,26 @@ Common_UI_GladeDefinition::initialize (const std::string& filename_in,
 
   ACE_Guard<ACE_Thread_Mutex> aGuard (GTKState_inout.lock);
 
+  // sanity check(s)
+  if (!GTKState_->builder)
+    GTKState_->builder = gtk_builder_new ();
+  ACE_ASSERT (GTKState_inout.builder);
+
   // step1: load widget tree
-  ACE_ASSERT (!GTKState_inout.XML);
-  GTKState_inout.XML = glade_xml_new (filename_in.c_str (), // definition file
-                                      NULL,                 // root widget --> construct all
-                                      NULL);                // domain
-  if (!GTKState_inout.XML)
+  GError* error = NULL;
+  gtk_builder_add_from_file (GTKState_->builder,
+                             filename_in.c_str (),
+                             &error);
+  if (error)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to glade_xml_new(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (filename_in.c_str ())));
+                ACE_TEXT ("failed to gtk_builder_add_from_file(\"%s\"): \"%s\", aborting\n"),
+                ACE_TEXT (filename_in.c_str ()),
+                ACE_TEXT (error->message)));
+
+    // clean up
+    g_error_free (error);
+
     return false;
   } // end IF
 
@@ -96,9 +105,9 @@ Common_UI_GladeDefinition::initialize (const std::string& filename_in,
 }
 
 void
-Common_UI_GladeDefinition::finalize ()
+Common_UI_GtkBuilderDefinition::finalize ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_UI_GladeDefinition::finalize"));
+  COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition::finalize"));
 
   // sanity check(s)
   ACE_ASSERT (GTKState_);

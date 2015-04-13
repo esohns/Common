@@ -94,12 +94,14 @@
     <ClInclude Include="..\..\src\ui\common_ui_defines.h" />
     <ClInclude Include="..\..\src\ui\common_ui_exports.h" />
     <ClInclude Include="..\..\src\ui\common_ui_glade_definition.h" />
+    <ClInclude Include="..\..\src\ui\common_ui_gtk_builder_definition.h" />
     <ClInclude Include="..\..\src\ui\common_ui_gtk_manager.h" />
     <ClInclude Include="..\..\src\ui\common_ui_igtk.h" />
     <ClInclude Include="..\..\src\ui\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ui\common_ui_glade_definition.cpp" />
+    <ClCompile Include="..\..\src\ui\common_ui_gtk_builder_definition.cpp" />
     <ClCompile Include="..\..\src\ui\common_ui_gtk_manager.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>

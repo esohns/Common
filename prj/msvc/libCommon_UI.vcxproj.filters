@@ -36,6 +36,9 @@
     <ClInclude Include="..\..\src\ui\common_ui_common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\ui\common_ui_gtk_builder_definition.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ui\common_ui_gtk_manager.cpp">
@@ -45,6 +48,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ui\common_ui_glade_definition.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\common_ui_gtk_builder_definition.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

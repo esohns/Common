@@ -38,11 +38,12 @@ Common_UI_GTK_Manager::Common_UI_GTK_Manager ()
               COMMON_UI_GTK_THREAD_GROUP_ID,                    // group id
               1,                                                // # threads
               false)                                            // do NOT auto-start !
- , GTKIsInitialized_ (false)
  , argc_ (0)
  , argv_ (NULL)
- , UIDefinitionFile_ ()
+ , GTKIsInitialized_ (false)
+ , isInitialized_ (false)
  , state_ (NULL)
+ , UIDefinitionFile_ ()
  , UIInterfaceHandle_ (NULL)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager::Common_UI_GTK_Manager"));
@@ -252,6 +253,24 @@ Common_UI_GTK_Manager::svc (void)
     } // end IF
 
     GTKIsInitialized_ = true;
+  } // end IF
+
+  if (!isInitialized_ && UIInterfaceHandle_)
+  {
+    isInitialized_ = UIInterfaceHandle_->initialize (UIDefinitionFile_,
+                                                     *state_);
+    if (!isInitialized_)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_UI_IGTK_t::initialize(): \"%m\", aborting\n")));
+
+      //// clean up
+      //gdk_threads_leave ();
+
+      result = -1;
+
+      goto done;
+    } // end IF
   } // end IF
 
   gtk_main ();

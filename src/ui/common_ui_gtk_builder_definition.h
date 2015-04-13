@@ -1,5 +1,5 @@
-﻿/***************************************************************************
- *   Copyright (C) 2009 by Erik Sohns   *
+/***************************************************************************
+ *   Copyright (C) 2010 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,35 +18,38 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_UI_COMMON_H
-#define COMMON_UI_COMMON_H
+#ifndef COMMON_UI_GTK_BUILDER_DEFINITION_H
+#define COMMON_UI_GTK_BUILDER_DEFINITION_H
 
-#include <list>
+#include <string>
 
-#include "ace/Synch.h"
+#include "ace/Global_Macros.h"
 
-#include "glade/glade.h"
-#include "gtk/gtk.h"
-
+#include "common_ui_common.h"
+#include "common_ui_exports.h"
 #include "common_ui_igtk.h"
 
-typedef std::list<guint> Common_UI_GTKEventSourceIds_t;
-typedef Common_UI_GTKEventSourceIds_t::const_iterator Common_UI_GTKEventSourceIdsIterator_t;
-
-struct Common_UI_GTKState
+class Common_UI_Export Common_UI_GtkBuilderDefinition
+ : public Common_UI_IGTK_T<Common_UI_GTKState>
 {
-  Common_UI_GTKEventSourceIds_t eventSourceIds;
-  ACE_Thread_Mutex              lock;
-  void*                         CBUserData;
-  union
-  {
-    GtkBuilder*                 builder;
-    GladeXML*                   XML;
-  };
-  GSourceFunc                   InitializationHook;
-  GSourceFunc                   FinalizationHook;
-};
+ public:
+  Common_UI_GtkBuilderDefinition (int,          // argc
+                                  ACE_TCHAR**); // argv
+  virtual ~Common_UI_GtkBuilderDefinition ();
 
-typedef Common_UI_IGTK_T<Common_UI_GTKState> Common_UI_IGTK_t;
+  // implement Common_UI_IGTK_T
+  virtual bool initialize (const std::string&,   // definiton filename
+                           Common_UI_GTKState&); // return value: GTK state
+  virtual void finalize ();
+
+ private:
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_GtkBuilderDefinition ());
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_GtkBuilderDefinition (const Common_UI_GtkBuilderDefinition&));
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_GtkBuilderDefinition& operator= (const Common_UI_GtkBuilderDefinition&));
+
+  int                 argc_;
+  ACE_TCHAR**         argv_;
+  Common_UI_GTKState* GTKState_;
+};
 
 #endif
