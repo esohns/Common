@@ -22,6 +22,9 @@
 #define COMMON_UI_COMMON_H
 
 #include <list>
+#include <map>
+#include <string>
+#include <utility>
 
 #include "ace/Synch.h"
 
@@ -30,21 +33,38 @@
 
 #include "common_ui_igtk.h"
 
+//enum Common_UI_GTKDefinitionType
+//{
+//  GTK_DEFINITIONTYPE_BUILDER = 0,
+//  GTK_DEFINITIONTYPE_GLADE,
+//  ///////////////////////////////////////
+//  GTK_DEFINITIONTYPE_INVALID,
+//  GTK_DEFINITIONTYPE_MAX
+//};
+
 typedef std::list<guint> Common_UI_GTKEventSourceIds_t;
 typedef Common_UI_GTKEventSourceIds_t::const_iterator Common_UI_GTKEventSourceIdsIterator_t;
 
+//typedef std::list<std::string> Common_UI_UIDefinitions_t;
+//typedef Common_UI_UIDefinitions_t::const_iterator Common_UI_UIDefinitionsIterator_t;
+
+typedef std::pair<std::string, GtkBuilder*> Common_UI_GTKBuilder_t;
+typedef std::map<std::string, Common_UI_GTKBuilder_t> Common_UI_GTKBuilders_t;
+typedef Common_UI_GTKBuilders_t::const_iterator Common_UI_GTKBuildersIterator_t;
+typedef std::pair<std::string, GladeXML*> Common_UI_GTKGladeXML_t;
+typedef std::map<std::string, Common_UI_GTKGladeXML_t> Common_UI_GladeXMLs_t;
+typedef Common_UI_GladeXMLs_t::const_iterator Common_UI_GladeXMLsIterator_t;
+
 struct Common_UI_GTKState
 {
+  Common_UI_GTKBuilders_t       builders;
+  //Common_UI_UIDefinitions_t     definitions;
   Common_UI_GTKEventSourceIds_t eventSourceIds;
+  GSourceFunc                   finalizationHook;
+  Common_UI_GladeXMLs_t         gladeXML;
+  GSourceFunc                   initializationHook;
   ACE_Thread_Mutex              lock;
-  void*                         CBUserData;
-  union
-  {
-    GtkBuilder*                 builder;
-    GladeXML*                   XML;
-  };
-  GSourceFunc                   InitializationHook;
-  GSourceFunc                   FinalizationHook;
+  void*                         userData;
 };
 
 typedef Common_UI_IGTK_T<Common_UI_GTKState> Common_UI_IGTK_t;

@@ -43,7 +43,6 @@ Common_UI_GTK_Manager::Common_UI_GTK_Manager ()
  , GTKIsInitialized_ (false)
  , isInitialized_ (false)
  , state_ (NULL)
- , UIDefinitionFile_ ()
  , UIInterfaceHandle_ (NULL)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager::Common_UI_GTK_Manager"));
@@ -59,7 +58,6 @@ Common_UI_GTK_Manager::~Common_UI_GTK_Manager ()
 void
 Common_UI_GTK_Manager::initialize (int argc_in,
                                    ACE_TCHAR** argv_in,
-                                   const std::string& filename_in,
                                    Common_UI_GTKState* state_in,
                                    Common_UI_IGTK_t* interfaceHandle_in)
 {
@@ -70,7 +68,6 @@ Common_UI_GTK_Manager::initialize (int argc_in,
 
   argc_ = argc_in;
   argv_ = argv_in;
-  UIDefinitionFile_ = filename_in;
   state_ = state_in;
   UIInterfaceHandle_ = interfaceHandle_in;
 }
@@ -216,49 +213,14 @@ Common_UI_GTK_Manager::svc (void)
     //                                    NULL);                               // property name(s)
     //  ACE_ASSERT(gnomeProgram);
 
-    // step3: init client window
-    if (UIInterfaceHandle_)
-    {
-      bool result_2 = false;
-      ACE_ASSERT (state_);
-      try
-      {
-        result_2 = UIInterfaceHandle_->initialize (UIDefinitionFile_,
-                                                   *state_);
-      }
-      catch (...)
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("caught exception in Common_UI_IGTK_T::initialize, aborting\n")));
-
-        //// clean up
-        //gdk_threads_leave ();
-
-        result = -1;
-
-        goto done;
-      }
-      if (!result_2)
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to initialize GTK UI, aborting\n")));
-
-        //// clean up
-        //gdk_threads_leave ();
-
-        result = -1;
-
-        goto done;
-      } // end IF
-    } // end IF
-
     GTKIsInitialized_ = true;
   } // end IF
 
   if (!isInitialized_ && UIInterfaceHandle_)
   {
-    isInitialized_ = UIInterfaceHandle_->initialize (UIDefinitionFile_,
-                                                     *state_);
+    ACE_ASSERT (state_);
+
+    isInitialized_ = UIInterfaceHandle_->initialize (*state_);
     if (!isInitialized_)
     {
       ACE_DEBUG ((LM_ERROR,

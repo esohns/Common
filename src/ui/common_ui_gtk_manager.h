@@ -21,8 +21,6 @@
 #ifndef COMMON_UI_GTK_MANAGER_H
 #define COMMON_UI_GTK_MANAGER_H
 
-#include <string>
-
 #include "ace/Singleton.h"
 #include "ace/Synch.h"
 
@@ -32,6 +30,9 @@
 
 #include "common_ui_common.h"
 #include "common_ui_exports.h"
+
+// forward declarations
+struct Common_UI_GTKState;
 
 class Common_UI_Export Common_UI_GTK_Manager
  : public Common_TaskBase_T<ACE_MT_SYNCH,
@@ -43,11 +44,10 @@ class Common_UI_Export Common_UI_GTK_Manager
                              ACE_Recursive_Thread_Mutex>;
 
  public:
-  virtual void initialize (int,                 // argc
-                           ACE_TCHAR** ,        // argv
-                           const std::string&,  // UI definition filename
-                           Common_UI_GTKState*, // state handle
-                           Common_UI_IGTK_t*);  // UI interface handle
+  void initialize (int,                                // argc
+                   ACE_TCHAR** ,                       // argv
+                   Common_UI_GTKState*,                // state handle
+                   Common_UI_IGTK_t*);                 // UI interface handle
 
   // implement Common_IControl
   virtual void start ();
@@ -72,7 +72,6 @@ class Common_UI_Export Common_UI_GTK_Manager
   bool                GTKIsInitialized_;
   bool                isInitialized_;
   Common_UI_GTKState* state_;
-  std::string         UIDefinitionFile_;
   Common_UI_IGTK_t*   UIInterfaceHandle_;
 };
 

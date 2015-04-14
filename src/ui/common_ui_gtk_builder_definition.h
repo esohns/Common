@@ -21,8 +21,6 @@
 #ifndef COMMON_UI_GTK_BUILDER_DEFINITION_H
 #define COMMON_UI_GTK_BUILDER_DEFINITION_H
 
-#include <string>
-
 #include "ace/Global_Macros.h"
 
 #include "common_ui_common.h"
@@ -38,8 +36,7 @@ class Common_UI_Export Common_UI_GtkBuilderDefinition
   virtual ~Common_UI_GtkBuilderDefinition ();
 
   // implement Common_UI_IGTK_T
-  virtual bool initialize (const std::string&,   // definiton filename
-                           Common_UI_GTKState&); // return value: GTK state
+  virtual bool initialize (Common_UI_GTKState&); // return value: GTK state
   virtual void finalize ();
 
  private:

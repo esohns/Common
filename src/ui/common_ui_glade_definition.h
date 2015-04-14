@@ -38,8 +38,7 @@ class Common_UI_Export Common_UI_GladeDefinition
   virtual ~Common_UI_GladeDefinition ();
 
   // implement Common_UI_IGTK_T
-  virtual bool initialize (const std::string&,   // definiton filename
-                           Common_UI_GTKState&); // return value: GTK state
+  virtual bool initialize (Common_UI_GTKState&); // return value: GTK state
   virtual void finalize ();
 
  private:

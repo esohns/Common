@@ -48,50 +48,60 @@ Common_UI_GtkBuilderDefinition::~Common_UI_GtkBuilderDefinition ()
 }
 
 bool
-Common_UI_GtkBuilderDefinition::initialize (const std::string& filename_in,
-                                            Common_UI_GTKState& GTKState_inout)
+Common_UI_GtkBuilderDefinition::initialize (Common_UI_GTKState& GTKState_inout)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition::initialize"));
-
-  // sanity check(s)
-  if (!Common_File_Tools::isReadable (filename_in.c_str ()))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("UI definition file \"%s\" doesn't exist, aborting\n"),
-                ACE_TEXT (filename_in.c_str ())));
-    return false;
-  } // end IF
 
   GTKState_ = &GTKState_inout;
 
   ACE_Guard<ACE_Thread_Mutex> aGuard (GTKState_inout.lock);
 
-  // sanity check(s)
-  if (!GTKState_->builder)
-    GTKState_->builder = gtk_builder_new ();
-  ACE_ASSERT (GTKState_inout.builder);
-
-  // step1: load widget tree
+  // step1: load widget tree(s)
+  GtkBuilder* builder_p = NULL;
   GError* error = NULL;
-  gtk_builder_add_from_file (GTKState_->builder,
-                             filename_in.c_str (),
-                             &error);
-  if (error)
+  for (Common_UI_GTKBuildersIterator_t iterator = GTKState_inout.builders.begin ();
+       iterator != GTKState_inout.builders.end ();
+       iterator++)
   {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to gtk_builder_add_from_file(\"%s\"): \"%s\", aborting\n"),
-                ACE_TEXT (filename_in.c_str ()),
-                ACE_TEXT (error->message)));
+    // sanity check(s)
+    ACE_ASSERT (!(*iterator).second.second);
 
-    // clean up
-    g_error_free (error);
+    builder_p = gtk_builder_new ();
+    if (!builder_p)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to gtk_builder_new(): \"%m\", aborting\n")));
+      return false;
+    } // end IF
 
-    return false;
-  } // end IF
+    gtk_builder_add_from_file (builder_p,                         // builder handle
+                               (*iterator).second.first.c_str (), // definition file,
+                               &error);                           // error
+    if (error)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to gtk_builder_add_from_file(\"%s\"): \"%s\", aborting\n"),
+                  ACE_TEXT ((*iterator).second.first.c_str ()),
+                  ACE_TEXT (error->message)));
+
+      // clean up
+      g_object_unref (G_OBJECT (builder_p));
+      g_error_free (error);
+
+      return false;
+    } // end IF
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("loaded widget tree \"%s\": \"%s\"\n"),
+                ACE_TEXT ((*iterator).first.c_str ()),
+                ACE_TEXT ((*iterator).second.first.c_str ())));
+
+    GTKState_inout.builders[(*iterator).first] =
+      std::make_pair ((*iterator).second.first, builder_p);
+  } // end FOR
 
   // step2: schedule UI initialization
-  guint event_source_id = g_idle_add (GTKState_inout.InitializationHook,
-                                      GTKState_inout.CBUserData);
+  guint event_source_id = g_idle_add (GTKState_inout.initializationHook,
+                                      GTKState_inout.userData);
   if (event_source_id == 0)
   {
     ACE_DEBUG ((LM_ERROR,
@@ -115,8 +125,8 @@ Common_UI_GtkBuilderDefinition::finalize ()
   ACE_Guard<ACE_Thread_Mutex> aGuard (GTKState_->lock);
 
   // schedule UI finalization
-  guint event_source_id = g_idle_add (GTKState_->FinalizationHook,
-                                      GTKState_->CBUserData);
+  guint event_source_id = g_idle_add (GTKState_->finalizationHook,
+                                      GTKState_->userData);
   if (event_source_id == 0)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to g_idle_add(): \"%m\", continuing\n")));

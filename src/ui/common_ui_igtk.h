@@ -21,14 +21,11 @@
 #ifndef COMMON_UI_IGTK_H
 #define COMMON_UI_IGTK_H
 
-#include <string>
-
 template <typename StateType>
 class Common_UI_IGTK_T
 {
  public:
-  virtual bool initialize (const std::string&, // UI definition filename
-                           StateType&) = 0;    // return value: GTK state
+  virtual bool initialize (StateType&) = 0;    // return value: GTK state
   virtual void finalize () = 0;
 };
 

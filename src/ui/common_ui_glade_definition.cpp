@@ -39,7 +39,6 @@ Common_UI_GladeDefinition::Common_UI_GladeDefinition (int argc_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GladeDefinition::Common_UI_GladeDefinition"));
 
-  ACE_ASSERT (GTKState_);
 }
 
 Common_UI_GladeDefinition::~Common_UI_GladeDefinition ()
@@ -49,40 +48,45 @@ Common_UI_GladeDefinition::~Common_UI_GladeDefinition ()
 }
 
 bool
-Common_UI_GladeDefinition::initialize (const std::string& filename_in,
-                                       Common_UI_GTKState& GTKState_inout)
+Common_UI_GladeDefinition::initialize (Common_UI_GTKState& GTKState_inout)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GladeDefinition::initialize"));
-
-  // sanity check(s)
-  if (!Common_File_Tools::isReadable (filename_in.c_str ()))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("UI definition file \"%s\" doesn't exist, aborting\n"),
-                ACE_TEXT (filename_in.c_str ())));
-    return false;
-  } // end IF
 
   GTKState_ = &GTKState_inout;
 
   ACE_Guard<ACE_Thread_Mutex> aGuard (GTKState_inout.lock);
 
-  // step1: load widget tree
-  ACE_ASSERT (!GTKState_inout.XML);
-  GTKState_inout.XML = glade_xml_new (filename_in.c_str (), // definition file
-                                      NULL,                 // root widget --> construct all
-                                      NULL);                // domain
-  if (!GTKState_inout.XML)
+  // step1: load widget tree(s)
+  GladeXML* glade_XML_p = NULL;
+  for (Common_UI_GladeXMLsIterator_t iterator = GTKState_inout.gladeXML.begin ();
+       iterator != GTKState_inout.gladeXML.end ();
+       iterator++)
   {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to glade_xml_new(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (filename_in.c_str ())));
-    return false;
-  } // end IF
+    // sanity check(s)
+    ACE_ASSERT (!(*iterator).second.second);
+
+    glade_XML_p = glade_xml_new ((*iterator).second.first.c_str (), // definition file
+                                 NULL,                              // root widget --> construct all
+                                 NULL);                             // domain
+    if (!glade_XML_p)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to glade_xml_new(\"%s\"): \"%m\", aborting\n"),
+                  ACE_TEXT ((*iterator).second.first.c_str ())));
+      return false;
+    } // end IF
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("loaded widget tree \"%s\": \"%s\"\n"),
+                ACE_TEXT ((*iterator).first.c_str ()),
+                ACE_TEXT ((*iterator).second.first.c_str ())));
+
+    GTKState_inout.gladeXML[(*iterator).first] =
+      std::make_pair ((*iterator).second.first, glade_XML_p);
+  } // end FOR
 
   // step2: schedule UI initialization
-  guint event_source_id = g_idle_add (GTKState_inout.InitializationHook,
-                                      GTKState_inout.CBUserData);
+  guint event_source_id = g_idle_add (GTKState_inout.initializationHook,
+                                      GTKState_inout.userData);
   if (event_source_id == 0)
   {
     ACE_DEBUG ((LM_ERROR,
@@ -106,8 +110,8 @@ Common_UI_GladeDefinition::finalize ()
   ACE_Guard<ACE_Thread_Mutex> aGuard (GTKState_->lock);
 
   // schedule UI finalization
-  guint event_source_id = g_idle_add (GTKState_->FinalizationHook,
-                                      GTKState_->CBUserData);
+  guint event_source_id = g_idle_add (GTKState_->finalizationHook,
+                                      GTKState_->userData);
   if (event_source_id == 0)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to g_idle_add(): \"%m\", continuing\n")));
