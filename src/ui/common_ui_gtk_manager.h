@@ -44,6 +44,9 @@ class Common_UI_Export Common_UI_GTK_Manager
                              ACE_Recursive_Thread_Mutex>;
 
  public:
+  // override ACE_Task_Base member(s)
+  virtual int close (u_long = 0);
+
   void initialize (int,                                // argc
                    ACE_TCHAR** ,                       // argv
                    Common_UI_GTKState*,                // state handle
@@ -59,7 +62,6 @@ class Common_UI_Export Common_UI_GTK_Manager
                             Common_TimePolicy_t> inherited;
 
   // override ACE_Task_Base member(s)
-  virtual int close (u_long = 0);
   virtual int svc (void);
 
   Common_UI_GTK_Manager ();

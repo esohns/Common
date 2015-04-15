@@ -43,17 +43,20 @@
 //};
 
 typedef std::list<guint> Common_UI_GTKEventSourceIds_t;
-typedef Common_UI_GTKEventSourceIds_t::const_iterator Common_UI_GTKEventSourceIdsIterator_t;
+typedef Common_UI_GTKEventSourceIds_t::iterator Common_UI_GTKEventSourceIdsIterator_t;
 
 //typedef std::list<std::string> Common_UI_UIDefinitions_t;
 //typedef Common_UI_UIDefinitions_t::const_iterator Common_UI_UIDefinitionsIterator_t;
 
 typedef std::pair<std::string, GtkBuilder*> Common_UI_GTKBuilder_t;
 typedef std::map<std::string, Common_UI_GTKBuilder_t> Common_UI_GTKBuilders_t;
-typedef Common_UI_GTKBuilders_t::const_iterator Common_UI_GTKBuildersIterator_t;
+typedef Common_UI_GTKBuilders_t::iterator Common_UI_GTKBuildersIterator_t;
+typedef Common_UI_GTKBuilders_t::const_iterator Common_UI_GTKBuildersConstIterator_t;
+
 typedef std::pair<std::string, GladeXML*> Common_UI_GTKGladeXML_t;
 typedef std::map<std::string, Common_UI_GTKGladeXML_t> Common_UI_GladeXMLs_t;
-typedef Common_UI_GladeXMLs_t::const_iterator Common_UI_GladeXMLsIterator_t;
+typedef Common_UI_GladeXMLs_t::iterator Common_UI_GladeXMLsIterator_t;
+typedef Common_UI_GladeXMLs_t::const_iterator Common_UI_GladeXMLsConstIterator_t;
 
 struct Common_UI_GTKState
 {

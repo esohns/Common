@@ -45,6 +45,25 @@ Common_UI_GladeDefinition::~Common_UI_GladeDefinition ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GladeDefinition::~Common_UI_GladeDefinition"));
 
+  // clean up
+  if (GTKState_)
+  {
+    // step1: free widget tree(s)
+    for (Common_UI_GladeXMLsIterator_t iterator = GTKState_->gladeXML.begin ();
+         iterator != GTKState_->gladeXML.end ();
+         iterator++)
+    {
+      g_object_unref (G_OBJECT ((*iterator).second.second));
+      (*iterator).second.second = NULL;
+    } // end FOR
+
+    // step2: clear active events
+    for (Common_UI_GTKEventSourceIdsIterator_t iterator = GTKState_->eventSourceIds.begin ();
+         iterator != GTKState_->eventSourceIds.end ();
+         iterator++)
+      g_source_remove (*iterator);
+    GTKState_->eventSourceIds.clear ();
+  } // end IF
 }
 
 bool

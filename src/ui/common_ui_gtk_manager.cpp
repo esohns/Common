@@ -87,9 +87,9 @@ Common_UI_GTK_Manager::stop (bool lockedAccess_in)
 
   ACE_UNUSED_ARG (lockedAccess_in);
 
-  if (close (0) == -1)
+  if (close (1) == -1)
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_UI_GTK_Manager::close(0): \"%m\", continuing\n")));
+                ACE_TEXT ("failed to Common_UI_GTK_Manager::close(1): \"%m\", continuing\n")));
 
   if (inherited::wait () == -1)
     ACE_DEBUG ((LM_ERROR,
@@ -110,9 +110,9 @@ Common_UI_GTK_Manager::close (u_long arg_in)
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager::close"));
 
   // *NOTE*: this method may be invoked
-  // - by an external thread closing down the active object
+  // - by an external thread closing down the active object (arg_in == 1 !)
   // - by the worker thread which calls this after returning from svc()
-  //    --> in this case, this should be a NOP...
+  //   (arg_in == 0 !) --> in this case, this should be a NOP...
   switch (arg_in)
   {
     case 0:
