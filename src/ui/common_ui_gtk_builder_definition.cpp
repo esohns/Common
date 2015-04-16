@@ -38,7 +38,6 @@ Common_UI_GtkBuilderDefinition::Common_UI_GtkBuilderDefinition (int argc_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition::Common_UI_GtkBuilderDefinition"));
 
-  ACE_ASSERT (GTKState_);
 }
 
 Common_UI_GtkBuilderDefinition::~Common_UI_GtkBuilderDefinition ()
