@@ -21,6 +21,8 @@
 
 #include "common_ui_glade_definition.h"
 
+#include <fstream>
+
 #include "ace/Log_Msg.h"
 #include "ace/Synch.h"
 
@@ -87,17 +89,83 @@ Common_UI_GladeDefinition::initialize (Common_UI_GTKState& GTKState_inout)
     glade_XML_p = glade_xml_new ((*iterator).second.first.c_str (), // definition file
                                  NULL,                              // root widget --> construct all
                                  NULL);                             // domain
+
+    //// slurp whole file
+    //std::ifstream file_stream ((*iterator).second.first.c_str (),
+    //                           std::ios_base::in);
+    //if (file_stream.fail ())
+    //{
+    //  ACE_DEBUG ((LM_ERROR,
+    //              ACE_TEXT ("failed to open \"%s\": \"%m\", aborting\n"),
+    //              ACE_TEXT ((*iterator).second.first.c_str ())));
+    //  return false;
+    //} // end IF
+    //file_stream.seekg (0, std::ios::end);
+    //char* buffer_p = NULL;
+    //int size = file_stream.tellg ();
+    //ACE_NEW_NORETURN (buffer_p,
+    //                  char[size]);
+    //if (!buffer_p)
+    //{
+    //  ACE_DEBUG ((LM_CRITICAL,
+    //              ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
+
+    //  // clean up
+    //  file_stream.close ();
+    //  if (file_stream.fail ())
+    //    ACE_DEBUG ((LM_ERROR,
+    //                ACE_TEXT ("failed to close \"%s\": \"%m\", continuing\n"),
+    //                ACE_TEXT ((*iterator).second.first.c_str ())));
+
+    //  return false;
+    //} // end IF
+    //file_stream.seekg (0, std::ios::beg);
+    //file_stream.read (buffer_p, size);
+    //if (file_stream.fail ())
+    //{
+    //  ACE_DEBUG ((LM_ERROR,
+    //              ACE_TEXT ("failed to read \"%s\": \"%m\", aborting\n"),
+    //              ACE_TEXT ((*iterator).second.first.c_str ())));
+
+    //  // clean up
+    //  file_stream.close ();
+    //  if (file_stream.fail ())
+    //    ACE_DEBUG ((LM_ERROR,
+    //                ACE_TEXT ("failed to close \"%s\": \"%m\", continuing\n"),
+    //                ACE_TEXT ((*iterator).second.first.c_str ())));
+
+    //  return false;
+    //} // end IF
+    //file_stream.close ();
+    //if (file_stream.fail ())
+    //  ACE_DEBUG ((LM_ERROR,
+    //              ACE_TEXT ("failed to close \"%s\": \"%m\", continuing\n"),
+    //              ACE_TEXT ((*iterator).second.first.c_str ())));
+
+    //glade_XML_p = glade_xml_new_from_buffer (buffer_p, size, // definition file / size
+    //                                         NULL,           // root widget --> construct all
+    //                                         NULL);          // domain
     if (!glade_XML_p)
     {
       ACE_DEBUG ((LM_ERROR,
+                  //ACE_TEXT ("failed to glade_xml_new_from_buffer(\"%s\"): \"%m\", aborting\n"),
                   ACE_TEXT ("failed to glade_xml_new(\"%s\"): \"%m\", aborting\n"),
                   ACE_TEXT ((*iterator).second.first.c_str ())));
+
+      //// clean up
+      //delete[] buffer_p;
+
       return false;
     } // end IF
+    //delete[] buffer_p;
+
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("loaded widget tree \"%s\": \"%s\"\n"),
                 ACE_TEXT ((*iterator).first.c_str ()),
                 ACE_TEXT ((*iterator).second.first.c_str ())));
+
+    // connect (default) signals
+    //glade_xml_signal_autoconnect (glade_XML_p);
 
     GTKState_inout.gladeXML[(*iterator).first] =
       std::make_pair ((*iterator).second.first, glade_XML_p);

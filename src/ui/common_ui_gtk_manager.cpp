@@ -55,7 +55,7 @@ Common_UI_GTK_Manager::~Common_UI_GTK_Manager ()
 
 }
 
-void
+bool
 Common_UI_GTK_Manager::initialize (int argc_in,
                                    ACE_TCHAR** argv_in,
                                    Common_UI_GTKState* state_in,
@@ -70,6 +70,19 @@ Common_UI_GTK_Manager::initialize (int argc_in,
   argv_ = argv_in;
   state_ = state_in;
   UIInterfaceHandle_ = interfaceHandle_in;
+
+  if (!GTKIsInitialized_)
+  {
+    GTKIsInitialized_ = initializeGTK ();
+    if (!GTKIsInitialized_)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_UI_GTK_Manager::initializeGTK(): \"%m\", aborting\n")));
+      return false;
+    } // end IF
+  } // end IF
+
+  return true;
 }
 
 void
@@ -87,11 +100,13 @@ Common_UI_GTK_Manager::stop (bool lockedAccess_in)
 
   ACE_UNUSED_ARG (lockedAccess_in);
 
-  if (close (1) == -1)
+  int result = close (1);
+  if (result == -1)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_UI_GTK_Manager::close(1): \"%m\", continuing\n")));
 
-  if (inherited::wait () == -1)
+  result = inherited::wait ();
+  if (result == -1)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Task_Base::wait(): \"%m\", continuing\n")));
 }
@@ -175,45 +190,16 @@ Common_UI_GTK_Manager::svc (void)
 
   if (!GTKIsInitialized_)
   {
-    // step1: init GTK
-    //#if defined (ACE_WIN32) || defined (ACE_WIN64)
-    //		g_thread_init (NULL);
-    //#endif
-    //		gdk_threads_init ();
-    //		gdk_threads_enter ();
-    if (!gtk_init_check (&argc_,
-                         &argv_))
+    GTKIsInitialized_ = initializeGTK ();
+    if (!GTKIsInitialized_);
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to gtk_init_check(): \"%m\", aborting\n")));
-
-      //// clean up
-      //gdk_threads_leave ();
+                  ACE_TEXT ("failed to Common_UI_GTK_Manager::initializeGTK(): \"%m\", aborting\n")));
 
       result = -1;
 
       goto done;
     } // end IF
-    //// step2: init GNOME
-    //   GnomeClient* gnomeSession = NULL;
-    //   gnomeSession = gnome_client_new();
-    //   ACE_ASSERT(gnomeSession);
-    //   gnome_client_set_program(gnomeSession, ACE::basename(argv_in[0]));
-    //  GnomeProgram* gnomeProgram = NULL;
-    //  gnomeProgram = gnome_program_init (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_GNOME_APPLICATION_ID), // app ID
-    //#ifdef HAVE_CONFIG_H
-    ////                                     ACE_TEXT_ALWAYS_CHAR (VERSION),    // version
-    //                                    ACE_TEXT_ALWAYS_CHAR (RPG_VERSION),   // version
-    //#else
-    //	                                NULL,
-    //#endif
-    //                                    LIBGNOMEUI_MODULE,                   // module info
-    //                                    argc_in,                             // cmdline
-    //                                    argv_in,                             // cmdline
-    //                                    NULL);                               // property name(s)
-    //  ACE_ASSERT(gnomeProgram);
-
-    GTKIsInitialized_ = true;
   } // end IF
 
   if (!isInitialized_ && UIInterfaceHandle_)
@@ -225,9 +211,6 @@ Common_UI_GTK_Manager::svc (void)
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_UI_IGTK_t::initialize(): \"%m\", aborting\n")));
-
-      //// clean up
-      //gdk_threads_leave ();
 
       result = -1;
 
@@ -245,4 +228,52 @@ done:
               ACE_TEXT ("(%t) leaving GTK event dispatch...\n")));
 
   return result;
+}
+
+bool
+Common_UI_GTK_Manager::initializeGTK ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager::initializeGTK"));
+
+  // step1: initialize GTK
+  //#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  //		g_thread_init (NULL);
+  //#endif
+  //		gdk_threads_init ();
+  //		gdk_threads_enter ();
+  if (!gtk_init_check (&argc_,
+                       &argv_))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to gtk_init_check(): \"%m\", aborting\n")));
+
+    //// clean up
+    //gdk_threads_leave ();
+
+    return false;
+  } // end IF
+
+  // step2: initialize (lib)glade
+  glade_init ();
+
+  //// step3: init GNOME
+  //   GnomeClient* gnomeSession = NULL;
+  //   gnomeSession = gnome_client_new();
+  //   ACE_ASSERT(gnomeSession);
+  //   gnome_client_set_program(gnomeSession, ACE::basename(argv_in[0]));
+  //  GnomeProgram* gnomeProgram = NULL;
+  //  gnomeProgram = gnome_program_init (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_GNOME_APPLICATION_ID), // app ID
+  //#ifdef HAVE_CONFIG_H
+  ////                                     ACE_TEXT_ALWAYS_CHAR (VERSION),    // version
+  //                                    ACE_TEXT_ALWAYS_CHAR (RPG_VERSION),   // version
+  //#else
+  //	                                NULL,
+  //#endif
+  //                                    LIBGNOMEUI_MODULE,                   // module info
+  //                                    argc_in,                             // cmdline
+  //                                    argv_in,                             // cmdline
+  //                                    NULL);                               // property name(s)
+  //  ACE_ASSERT(gnomeProgram);
+
+  return true;
 }

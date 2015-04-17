@@ -96,9 +96,9 @@ Common_File_Tools::isDirectory (const std::string& directory_in)
     {
       case ENOENT:
       {
-        ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("\"%s\": \"%m\", aborting\n"),
-                    ACE_TEXT (directory_in.c_str ())));
+        //ACE_DEBUG ((LM_DEBUG,
+        //            ACE_TEXT ("\"%s\": \"%m\", aborting\n"),
+        //            ACE_TEXT (directory_in.c_str ())));
 
         // URI doesn't even exist --> NOT a directory !
         return false;

@@ -47,10 +47,10 @@ class Common_UI_Export Common_UI_GTK_Manager
   // override ACE_Task_Base member(s)
   virtual int close (u_long = 0);
 
-  void initialize (int,                                // argc
-                   ACE_TCHAR** ,                       // argv
-                   Common_UI_GTKState*,                // state handle
-                   Common_UI_IGTK_t*);                 // UI interface handle
+  bool initialize (int,                 // argc
+                   ACE_TCHAR** ,        // argv
+                   Common_UI_GTKState*, // state handle
+                   Common_UI_IGTK_t*);  // UI interface handle
 
   // implement Common_IControl
   virtual void start ();
@@ -61,13 +61,15 @@ class Common_UI_Export Common_UI_GTK_Manager
   typedef Common_TaskBase_T<ACE_MT_SYNCH,
                             Common_TimePolicy_t> inherited;
 
-  // override ACE_Task_Base member(s)
-  virtual int svc (void);
-
   Common_UI_GTK_Manager ();
   virtual ~Common_UI_GTK_Manager ();
   ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Manager (const Common_UI_GTK_Manager&));
   ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Manager& operator= (const Common_UI_GTK_Manager&));
+
+  // override ACE_Task_Base member(s)
+  virtual int svc (void);
+
+  bool initializeGTK ();
 
   int                 argc_;
   ACE_TCHAR**         argv_;
