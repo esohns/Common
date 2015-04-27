@@ -62,7 +62,7 @@ AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AM_PROG_AR
 
-# init other tools
+# initialize other tools
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 # build time sanity check...
 AM_SANITY_CHECK
@@ -166,6 +166,7 @@ AC_CHECK_FUNCS([realpath])
 AM_COND_IF([VALGRIND_SUPPORT],
            [PKG_CHECK_MODULES([PKGVALGRIND], [valgrind])])
 PKG_CHECK_MODULES([PKGLIB], [gtk+-2.0 libglade-2.0])
+#PKG_CHECK_MODULES([PKGLIB], [gtk+-2.0])
 
 # checks for other libraries (non-pkg-config)
 # FIXME: Replace `main' with a function in `-lpthread':

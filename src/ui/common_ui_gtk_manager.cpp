@@ -191,7 +191,7 @@ Common_UI_GTK_Manager::svc (void)
   if (!GTKIsInitialized_)
   {
     GTKIsInitialized_ = initializeGTK ();
-    if (!GTKIsInitialized_);
+    if (!GTKIsInitialized_)
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_UI_GTK_Manager::initializeGTK(): \"%m\", aborting\n")));

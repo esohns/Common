@@ -28,10 +28,14 @@
 
 #include "ace/Synch.h"
 
-#include "glade/glade.h"
 #include "gtk/gtk.h"
 
+#include "glade/glade.h"
+
 #include "common_ui_igtk.h"
+
+//// forward declarations
+//struct GladeXML;
 
 //enum Common_UI_GTKDefinitionType
 //{
