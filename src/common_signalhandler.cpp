@@ -136,15 +136,16 @@ Common_SignalHandler::handle_exception (ACE_HANDLE handle_in)
 
   ACE_UNUSED_ARG (handle_in);
 
-  std::string information;
-  Common_Tools::retrieveSignalInfo(signal_,
-                                   sigInfo_,
-                                   &uContext_,
-                                   information);
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("%D: received [%S]: %s\n"),
-              signal_,
-              ACE_TEXT (information.c_str ())));
+  //// *PORTABILITY*: tracing in a signal handler context is not portable
+  //std::string information;
+  //Common_Tools::retrieveSignalInfo(signal_,
+  //                                 sigInfo_,
+  //                                 &uContext_,
+  //                                 information);
+  //ACE_DEBUG ((LM_DEBUG,
+  //            ACE_TEXT ("%D: received [%S]: %s\n"),
+  //            signal_,
+  //            ACE_TEXT (information.c_str ())));
 
   bool success = true;
   try
@@ -153,6 +154,7 @@ Common_SignalHandler::handle_exception (ACE_HANDLE handle_in)
   }
   catch (...)
   {
+    // *PORTABILITY*: tracing in a signal handler context is not portable
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("caught exception in Common_ISignal::handleSignal: \"%m\", continuing\n")));
   }
