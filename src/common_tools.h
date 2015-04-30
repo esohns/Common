@@ -71,7 +71,8 @@ class Common_Export Common_Tools
   static bool preInitializeSignals (ACE_Sig_Set&,             // signal set (*NOTE*: IN/OUT)
                                     bool,                     // use reactor ?
                                     Common_SignalActions_t&); // return value: previous actions
-  static bool initializeSignals (ACE_Sig_Set&,             // signal set (*NOTE*: IN/OUT)
+  static bool initializeSignals (const ACE_Sig_Set&,       // signal set (to handle)
+                                 const ACE_Sig_Set&,       // signal set (to ignore)
                                  ACE_Event_Handler*,       // event handler handle
                                  Common_SignalActions_t&); // return value: previous actions
   static void finalizeSignals (const ACE_Sig_Set&,             // signal set

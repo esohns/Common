@@ -522,15 +522,17 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
   // step1: ignore SIGPIPE: continue gracefully after a client suddenly
   // disconnects (i.e. application/system crash, etc...)
   // --> specify ignore action
-  // *IMPORTANT NOTE*: don't actually need to keep this around after registration
-  // *NOTE*: do NOT restart system calls in this case (see manual)
+  // *NOTE*: there is no need to keep this around after registration
+  // *IMPORTANT NOTE*: do NOT restart system calls in this case (see manual)
   ACE_Sig_Action ignore_action (static_cast<ACE_SignalHandler> (SIG_IGN), // ignore action
                                 ACE_Sig_Set (1),                          // mask of signals to be blocked when servicing
                                                                           // --> block them all (bar KILL/STOP; see manual)
                                 0);                                       // flags
   ACE_Sig_Action previous_action;
-  if (ignore_action.register_action (SIGPIPE,
-                                     &previous_action) == -1)
+  int result = -1;
+  result = ignore_action.register_action (SIGPIPE,
+                                          &previous_action);
+  if (result == -1)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("failed to ACE_Sig_Action::register_action(%S): \"%m\", continuing\n"),
                 SIGPIPE));
@@ -550,7 +552,8 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
     if (proactor_impl->get_impl_type () == ACE_POSIX_Proactor::PROACTOR_SIG)
     {
       sigset_t signal_set;
-      if (ACE_OS::sigemptyset (&signal_set) == - 1)
+      result = ACE_OS::sigemptyset (&signal_set);
+      if (result == - 1)
       {
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", aborting\n")));
@@ -560,25 +563,30 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
            i <= ACE_SIGRTMAX;
            i++)
       {
-        if (ACE_OS::sigaddset (&signal_set, i) == -1)
+        result = ACE_OS::sigaddset (&signal_set, i);
+        if (result == -1)
         {
           ACE_DEBUG ((LM_DEBUG,
                       ACE_TEXT ("failed to ACE_OS::sigaddset(): \"%m\", aborting\n")));
           return false;
         } // end IF
         if (signals_inout.is_member (i))
-          if (signals_inout.sig_del (i) == -1)
+        {
+          result = signals_inout.sig_del (i);
+          if (result == -1)
           {
             ACE_DEBUG ((LM_DEBUG,
                         ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%S): \"%m\", aborting\n"),
                         i));
             return false;
           } // end IF
+        } // end IF
       } // end IF
       sigset_t original_mask;
-      if (ACE_OS::thr_sigsetmask (SIG_BLOCK,
-                                  &signal_set,
-                                  &original_mask) == -1)
+      result = ACE_OS::thr_sigsetmask (SIG_BLOCK,
+                                       &signal_set,
+                                       &original_mask);
+      if (result == -1)
       {
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", aborting\n")));
@@ -592,7 +600,8 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
 }
 
 bool
-Common_Tools::initializeSignals (ACE_Sig_Set& signals_inout,
+Common_Tools::initializeSignals (const ACE_Sig_Set& signals_in,
+                                 const ACE_Sig_Set& ignoreSignals_in,
                                  ACE_Event_Handler* eventHandler_in,
                                  Common_SignalActions_t& previousActions_out)
 {
@@ -610,22 +619,49 @@ Common_Tools::initializeSignals (ACE_Sig_Set& signals_inout,
   for (int i = 1;
        i < ACE_NSIG;
        i++)
-    if (signals_inout.is_member (i))
+    if (signals_in.is_member (i))
     {
       previous_action.retrieve_action (i);
       previousActions_out[i] = previous_action;
     } // end IF
 
+  // *NOTE*: there is no need to keep this around after registration
+  // *IMPORTANT NOTE*: do NOT restart system calls in this case (see manual)
+  ACE_Sig_Action ignore_action (static_cast<ACE_SignalHandler> (SIG_IGN), // ignore action
+                                ACE_Sig_Set (1),                          // mask of signals to be blocked when servicing
+                                                                          // --> block them all (bar KILL/STOP; see manual)
+                                (SA_RESTART | SA_SIGINFO));               // flags
+  int result = -1;
+  for (int i = 1;
+       i < ACE_NSIG;
+       i++)
+    if (ignoreSignals_in.is_member (i))
+    {
+      result = ignore_action.register_action (i,
+                                              &previous_action);
+      if (result == -1)
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("failed to ACE_Sig_Action::register_action(%S): \"%m\", continuing\n"),
+                    i));
+      else
+      {
+        previousActions_out[i] = previous_action;
+
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("ignoring signal \"%S\"...\n"),
+                    i));
+      } // end IF
+    } // end IF
+
   // step2: register (process-wide) signal handler
-  // *IMPORTANT NOTE*: don't actually need to keep this around after registration
+  // *NOTE*: there is no need to keep this around after registration
   ACE_Sig_Action new_action (static_cast<ACE_SignalHandler> (SIG_DFL), // default action
                              ACE_Sig_Set (1),                          // mask of signals to be blocked when servicing
                                                                        // --> block them all (bar KILL/STOP; see manual)
                              (SA_RESTART | SA_SIGINFO));               // flags
   ACE_Reactor* reactor_p = ACE_Reactor::instance ();
   ACE_ASSERT (reactor_p);
-  int result = -1;
-  result = reactor_p->register_handler (signals_inout,
+  result = reactor_p->register_handler (signals_in,
                                         eventHandler_in,
                                         &new_action);
   if (result == -1)
@@ -1081,59 +1117,70 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
     if (numDispatchThreads_in > 1)
     {
       ACE_Reactor_Impl* reactor_impl_p = NULL;
-  #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
       if (COMMON_USE_DEV_POLL_REACTOR)
-        ACE_NEW_RETURN (reactor_impl_p,
-                        ACE_Dev_Poll_Reactor (ACE::max_handles (),       // max num handles (1024)
-                                              true,                      // restart after EINTR ?
-                                              NULL,                      // signal handler handle
-                                              NULL,                      // timer queue handle
-                                              0,                         // disable notify pipe ?
-                                              NULL,                      // notification handler handle
-                                              1,                         // mask signals ?
-                                              ACE_DEV_POLL_TOKEN::FIFO), // signal queue
-                        false);
+        ACE_NEW_NORETURN (reactor_impl_p,
+                          ACE_Dev_Poll_Reactor (ACE::max_handles (),        // max num handles (1024)
+                                                true,                       // restart after EINTR ?
+                                                NULL,                       // signal handler handle
+                                                NULL,                       // timer queue handle
+                                                0,                          // disable notify pipe ?
+                                                NULL,                       // notification handler handle
+                                                1,                          // mask signals ?
+                                                ACE_DEV_POLL_TOKEN::FIFO)); // signal queue
       else
       {
-        ACE_NEW_RETURN (reactor_impl_p,
-                        ACE_TP_Reactor (ACE::max_handles (),             // max num handles (1024)
-                                        true,                            // restart after EINTR ?
-                                        NULL,                            // signal handler handle
-                                        NULL,                            // timer queue handle
-                                        true,                            // mask signals ?
-                                        ACE_Select_Reactor_Token::FIFO), // signal queue
-                        false);
+        ACE_NEW_NORETURN (reactor_impl_p,
+                          ACE_TP_Reactor (ACE::max_handles (),              // max num handles (1024)
+                                          true,                             // restart after EINTR ?
+                                          NULL,                             // signal handler handle
+                                          NULL,                             // timer queue handle
+                                          true,                             // mask signals ?
+                                          ACE_Select_Reactor_Token::FIFO)); // signal queue
 
         serializeOutput_out = true;
       } // end ELSE
-  #else
+#else
       if (COMMON_USE_WFMO_REACTOR)
-        ACE_NEW_RETURN (reactor_impl_p,
-                        ACE_WFMO_Reactor (ACE_WFMO_Reactor::DEFAULT_SIZE, // max num handles (62 [+ 2])
-                                          0,                              // unused
-                                          NULL,                           // signal handler handle
-                                          NULL,                           // timer queue handle
-                                          NULL),                          // notification handler handle
-                        false);
+        ACE_NEW_NORETURN (reactor_impl_p,
+                          ACE_WFMO_Reactor (ACE_WFMO_Reactor::DEFAULT_SIZE, // max num handles (62 [+ 2])
+                                            0,                              // unused
+                                            NULL,                           // signal handler handle
+                                            NULL,                           // timer queue handle
+                                            NULL));                         // notification handler handle
       else
       {
-        ACE_NEW_RETURN (reactor_impl_p,
-                        ACE_TP_Reactor (ACE::max_handles (),             // max num handles (1024)
-                                        true,                            // restart after EINTR ?
-                                        NULL,                            // signal handler handle
-                                        NULL,                            // timer queue handle
-                                        true,                            // mask signals ?
-                                        ACE_Select_Reactor_Token::FIFO), // signal queue
-                        false);
+        ACE_NEW_NORETURN (reactor_impl_p,
+                          ACE_TP_Reactor (ACE::max_handles (),              // max num handles (1024)
+                                          true,                             // restart after EINTR ?
+                                          NULL,                             // signal handler handle
+                                          NULL,                             // timer queue handle
+                                          true,                             // mask signals ?
+                                          ACE_Select_Reactor_Token::FIFO)); // signal queue
 
         serializeOutput_out = true;
       } // end ELSE
-  #endif
+#endif
+      if (!reactor_impl_p)
+      {
+        ACE_DEBUG ((LM_CRITICAL,
+                    ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
+        return false;
+      } // end IF
       ACE_Reactor* reactor_p = NULL;
-      ACE_NEW_RETURN (reactor_p,
-                      ACE_Reactor (reactor_impl_p, // implementation handle
-                                   1),             // delete in dtor ?
-                      false);
+      ACE_NEW_NORETURN (reactor_p,
+                        ACE_Reactor (reactor_impl_p, // implementation handle
+                                     1));            // delete in dtor ?
+      if (!reactor_p)
+      {
+        ACE_DEBUG ((LM_CRITICAL,
+                    ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
+
+        // clean up
+        delete reactor_impl_p;
+
+        return false;
+      } // end IF
       // make this the "default" reactor...
       ACE_Reactor::instance (reactor_p, // reactor handle
                              1);        // delete in dtor ?
@@ -1143,13 +1190,19 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
   {
     // *NOTE* using default platform proactor...
     ACE_Proactor* proactor_p = NULL;
-    ACE_NEW_RETURN (proactor_p,
-                    ACE_Proactor (NULL,  // implementation handle --> create new
-//                                  false, // *NOTE*: call close() manually
-//                                         // (see finalizeEventDispatch() below)
-                                  true,  // delete in dtor ?
-                                  NULL), // timer queue handle    --> create new
-                    false);
+    ACE_NEW_NORETURN (proactor_p,
+                      ACE_Proactor (NULL,   // implementation handle --> create new
+//                                  false,  // *NOTE*: call close() manually
+//                                          // (see finalizeEventDispatch() below)
+                                    true,   // delete in dtor ?
+                                    NULL)); // timer queue handle --> create new
+    if (!proactor_p)
+    {
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
+      return false;
+    } // end IF
+
     // make this the "default" proactor...
     ACE_Proactor* previous_proactor_p =
         ACE_Proactor::instance (proactor_p, // implementation handle
@@ -1321,7 +1374,11 @@ Common_Tools::startEventDispatch (bool useReactor_in,
   {
     converter << ACE_TEXT_ALWAYS_CHAR ("#") << (i + 1)
               << ACE_TEXT_ALWAYS_CHAR (" ")
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+              << ::GetThreadId (thread_handles[i])
+#else
               << thread_handles[i]
+#endif
               << ACE_TEXT_ALWAYS_CHAR ("\n");
     delete [] thread_names[i];
   } // end IF
