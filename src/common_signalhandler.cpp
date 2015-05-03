@@ -73,7 +73,7 @@ Common_SignalHandler::handle_signal (int signal_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_SignalHandler::handle_signal"));
 
-  // init return value
+  // initialize return value
   int result = -1;
 
   // *IMPORTANT NOTE*: in signal context, most actions are forbidden, so save
@@ -97,6 +97,7 @@ Common_SignalHandler::handle_signal (int signal_in,
     result = ACE_Reactor::instance ()->notify (this,
                                                ACE_Event_Handler::EXCEPT_MASK,
                                                NULL);
+    // *PORTABILITY*: tracing in a signal handler context is not portable
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Reactor::notify: \"%m\", aborting\n")));
@@ -107,6 +108,7 @@ Common_SignalHandler::handle_signal (int signal_in,
         ACE_Proactor::instance ()->schedule_timer (*this,                 // event handler
                                                    NULL,                  // act
                                                    ACE_Time_Value::zero); // expire immediately
+    // *PORTABILITY*: tracing in a signal handler context is not portable
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Proactor::schedule_timer: \"%m\", aborting\n")));
@@ -124,7 +126,8 @@ Common_SignalHandler::handle_time_out (const ACE_Time_Value& time_in,
   ACE_UNUSED_ARG (time_in);
   ACE_UNUSED_ARG (act_in);
 
-  if (handle_exception (ACE_INVALID_HANDLE) == -1)
+  int result = handle_exception (ACE_INVALID_HANDLE);
+  if (result == -1)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_SignalHandler::handle_exception: \"%m\", continuing\n")));
 }
@@ -154,7 +157,6 @@ Common_SignalHandler::handle_exception (ACE_HANDLE handle_in)
   }
   catch (...)
   {
-    // *PORTABILITY*: tracing in a signal handler context is not portable
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("caught exception in Common_ISignal::handleSignal: \"%m\", continuing\n")));
   }
