@@ -916,7 +916,6 @@ Common_File_Tools::getDumpDirectory ()
 
       return result;
     } // end IF
-
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("created directory: \"%s\"...\n"),
                 ACE_TEXT (result.c_str ())));
