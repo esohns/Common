@@ -456,7 +456,6 @@ Common_Tools::initializeLogging (const std::string& programName_in,
     {
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
-
       return false;
     } // end IF
 //    if (log_stream->open (logFile_in.c_str (),
@@ -484,7 +483,6 @@ Common_Tools::initializeLogging (const std::string& programName_in,
                 ACE_TEXT ("failed to ACE_Log_Msg::open(\"%s\", %u): \"%m\", aborting\n"),
                 ACE_TEXT (programName_in.c_str ()),
                 options_flags));
-
     return false;
   } // end IF
 
@@ -508,6 +506,16 @@ Common_Tools::initializeLogging (const std::string& programName_in,
                               ACE_Log_Msg::PROCESS);
 
   return true;
+}
+
+void
+Common_Tools::finalizeLogging ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::finalizeLogging"));
+
+  // *NOTE*: this may be necessary in case the backend sits on the stack.
+  //         In that case, ACE::fini() closes the backend too late...
+  ACE_LOG_MSG->msg_backend (NULL);
 }
 
 bool

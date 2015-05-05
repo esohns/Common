@@ -67,6 +67,7 @@ class Common_Export Common_Tools
                                  bool = false,                 // enable tracing messages ?
                                  bool = false,                 // enable debug messages ?
                                  ACE_Log_Msg_Backend* = NULL); // logger backend {NULL --> disable}
+  static void finalizeLogging ();
 
   static bool preInitializeSignals (ACE_Sig_Set&,             // signal set (*NOTE*: IN/OUT)
                                     bool,                     // use reactor ?
