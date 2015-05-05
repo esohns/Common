@@ -21,7 +21,9 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <deque>
 #include <map>
+#include <string>
 
 // timer queue
 #include "ace/Version.h"
@@ -100,5 +102,9 @@ static Common_TimePolicy_t COMMON_TIME_POLICY;
 #else
 #define COMMON_TIME_NOW ACE_OS::gettimeofday ()
 #endif
+
+typedef std::deque<std::string> Common_MessageStack_t;
+typedef Common_MessageStack_t::const_iterator Common_MessageStackConstIterator_t;
+//typedef std::deque<ACE_Log_Record> Common_LogRecordStack_t;
 
 #endif
