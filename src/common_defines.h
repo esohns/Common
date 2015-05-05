@@ -54,7 +54,7 @@
 #define COMMON_EVENT_DISPATCH_THREAD_NAME       "event dispatch"
 // reactor
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define COMMON_EVENT_WINXX_USE_WFMO_REACTOR     true // ? ACE_WFMO_Reactor : ACE_TP_Reactor
+#define COMMON_EVENT_WINXX_USE_WFMO_REACTOR     false // ? ACE_WFMO_Reactor : ACE_TP_Reactor
 #else
 #define COMMON_EVENT_POSIX_USE_DEV_POLL_REACTOR false // ? ACE_Dev_Poll_Reactor : ACE_TP_Reactor
 #endif

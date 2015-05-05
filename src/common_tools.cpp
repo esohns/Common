@@ -1226,7 +1226,8 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
     ACE_Proactor* previous_proactor_p =
         ACE_Proactor::instance (proactor_p, // implementation handle
                                 1);         // delete in dtor ?
-    delete previous_proactor_p;
+    if (previous_proactor_p)
+      delete previous_proactor_p;
   } // end ELSE
 
   return true;
@@ -1292,13 +1293,13 @@ threadpool_event_dispatcher_function (void* args_in)
 }
 
 bool
-Common_Tools::startEventDispatch (bool useReactor_in,
+Common_Tools::startEventDispatch (const bool& useReactor_in,
                                   unsigned int numDispatchThreads_in,
                                   int& groupID_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::startEventDispatch"));
 
-  // init return value(s)
+  // initialize return value(s)
   groupID_out = -1;
 
   // spawn worker(s) ?
@@ -1371,7 +1372,7 @@ Common_Tools::startEventDispatch (bool useReactor_in,
   groupID_out =
       ACE_Thread_Manager::instance ()->spawn_n (numDispatchThreads_in,                  // # threads
                                                 ::threadpool_event_dispatcher_function, // function
-                                                &useReactor_in,                         // argument
+                                                &const_cast<bool&> (useReactor_in),     // argument
                                                 (THR_NEW_LWP      |
                                                  THR_JOINABLE     |
                                                  THR_INHERIT_SCHED),                    // flags

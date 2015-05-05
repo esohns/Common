@@ -87,7 +87,9 @@ class Common_Export Common_Tools
   static bool initializeEventDispatch (bool,         // use reactor ? : proactor
                                        unsigned int, // # dispatching threads
                                        bool&);       // return value: output requires serialization
-  static bool startEventDispatch (bool,         // use reactor ? : proactor
+  // *NOTE*: the first argument is passed to the thread function as argument,
+  //         so must reside on the stack (hence the reference)
+  static bool startEventDispatch (const bool&,  // use reactor ? : proactor
                                   unsigned int, // # dispatching threads
                                   int&);        // return value: thread group id
   // *NOTE*: this call blocks until all dispatching threads have joined
