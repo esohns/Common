@@ -85,9 +85,9 @@ class Common_Export Common_Tools
                                   std::string&);     // return value: info
 
   // event loop
-  static bool initializeEventDispatch (bool,         // use reactor ? : proactor
-                                       unsigned int, // # dispatching threads
-                                       bool&);       // return value: output requires serialization
+  static bool initializeEventDispatch (bool,   // use reactor ? : proactor
+                                       bool,   // use thread pool ?
+                                       bool&); // return value: output requires serialization
   // *NOTE*: the first argument is passed to the thread function as argument,
   //         so must reside on the stack (hence the reference)
   static bool startEventDispatch (const bool&,  // use reactor ? : proactor

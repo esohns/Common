@@ -73,28 +73,29 @@ Common_ReferenceCounterBase::~Common_ReferenceCounterBase ()
 
 }
 
-void
+unsigned int
 Common_ReferenceCounterBase::increase ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::increase"));
 
   ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
 
-  counter_++;
+  return ++counter_;
 }
 
-void
+unsigned int
 Common_ReferenceCounterBase::decrease ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::decrease"));
 
+  int result = 0;
   bool destroy = false;
 
   // synch access
   {
     ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
 
-    counter_--;
+    result = --counter_;
 
     // awaken any waiters...
     if (counter_ == 0)
@@ -108,10 +109,12 @@ Common_ReferenceCounterBase::decrease ()
 
   if (destroy)
     delete this;
+
+  return result;
 }
 
 unsigned int
-Common_ReferenceCounterBase::count ()
+Common_ReferenceCounterBase::count () const
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::count"));
 

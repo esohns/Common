@@ -1130,43 +1130,43 @@ Common_Tools::retrieveSignalInfo (int signal_in,
 
 bool
 Common_Tools::initializeEventDispatch (bool useReactor_in,
-                                       unsigned int numDispatchThreads_in,
+                                       bool useThreadPool_in,
                                        bool& serializeOutput_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::initializeEventDispatch"));
 
-  // init return value(s)
+  // initialize return value(s)
   serializeOutput_out = false;
 
-  // step1: init reactor/proactor
+  // step1: initialize reactor/proactor
   if (useReactor_in)
   {
-    if (numDispatchThreads_in > 1)
+    ACE_Reactor_Impl* reactor_impl_p = NULL;
+    if (useThreadPool_in)
     {
-      ACE_Reactor_Impl* reactor_impl_p = NULL;
+      ACE_NEW_NORETURN (reactor_impl_p,
+                        ACE_TP_Reactor (ACE::max_handles (),              // max num handles (1024)
+                                        true,                             // restart after EINTR ?
+                                        NULL,                             // signal handler handle
+                                        NULL,                             // timer queue handle
+                                        true,                             // mask signals ?
+                                        ACE_Select_Reactor_Token::FIFO)); // signal queue
+
+      serializeOutput_out = true;
+    } // end ELSE
+    else
+    {
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
       if (COMMON_EVENT_POSIX_USE_DEV_POLL_REACTOR)
         ACE_NEW_NORETURN (reactor_impl_p,
-                          ACE_Dev_Poll_Reactor (ACE::max_handles (),        // max num handles (1024)
-                                                true,                       // restart after EINTR ?
-                                                NULL,                       // signal handler handle
-                                                NULL,                       // timer queue handle
-                                                0,                          // disable notify pipe ?
-                                                NULL,                       // notification handler handle
-                                                1,                          // mask signals ?
-                                                ACE_DEV_POLL_TOKEN::FIFO)); // signal queue
-      else
-      {
-        ACE_NEW_NORETURN (reactor_impl_p,
-                          ACE_TP_Reactor (ACE::max_handles (),              // max num handles (1024)
-                                          true,                             // restart after EINTR ?
-                                          NULL,                             // signal handler handle
-                                          NULL,                             // timer queue handle
-                                          true,                             // mask signals ?
-                                          ACE_Select_Reactor_Token::FIFO)); // signal queue
-
-        serializeOutput_out = true;
-      } // end ELSE
+                          ACE_Dev_Poll_Reactor (ACE::max_handles (),             // max num handles (1024)
+                                                true,                            // restart after EINTR ?
+                                                NULL,                            // signal handler handle
+                                                NULL,                            // timer queue handle
+                                                ACE_DISABLE_NOTIFY_PIPE_DEFAULT, // disable notify pipe ?
+                                                NULL,                            // notification handler handle
+                                                1,                               // mask signals ?
+                                                ACE_DEV_POLL_TOKEN::FIFO));      // signal queue
 #else
       if (COMMON_EVENT_WINXX_USE_WFMO_REACTOR)
         ACE_NEW_NORETURN (reactor_impl_p,
@@ -1175,43 +1175,47 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
                                             NULL,                           // signal handler handle
                                             NULL,                           // timer queue handle
                                             NULL));                         // notification handler handle
+#endif
       else
       {
         ACE_NEW_NORETURN (reactor_impl_p,
-                          ACE_TP_Reactor (ACE::max_handles (),              // max num handles (1024)
-                                          true,                             // restart after EINTR ?
-                                          NULL,                             // signal handler handle
-                                          NULL,                             // timer queue handle
-                                          true,                             // mask signals ?
-                                          ACE_Select_Reactor_Token::FIFO)); // signal queue
-
-        serializeOutput_out = true;
+                          ACE_Select_Reactor (ACE::max_handles (),             // max num handles (1024)
+                                              true,                            // restart after EINTR ?
+                                              NULL,                            // signal handler handle
+                                              NULL,                            // timer queue handle
+                                              ACE_DISABLE_NOTIFY_PIPE_DEFAULT, // disable notification pipe ?
+                                              NULL,                            // notification handler handle
+                                              true,                            // mask signals ?
+                                              ACE_SELECT_TOKEN::FIFO));        // signal queue
       } // end ELSE
-#endif
       if (!reactor_impl_p)
       {
         ACE_DEBUG ((LM_CRITICAL,
                     ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
         return false;
       } // end IF
-      ACE_Reactor* reactor_p = NULL;
-      ACE_NEW_NORETURN (reactor_p,
-                        ACE_Reactor (reactor_impl_p, // implementation handle
-                                     1));            // delete in dtor ?
-      if (!reactor_p)
-      {
-        ACE_DEBUG ((LM_CRITICAL,
-                    ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
+    } // end IF
+    ACE_Reactor* reactor_p = NULL;
+    ACE_NEW_NORETURN (reactor_p,
+                      ACE_Reactor (reactor_impl_p, // implementation handle
+                                   1));            // delete in dtor ?
+    if (!reactor_p)
+    {
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
 
-        // clean up
-        delete reactor_impl_p;
+      // clean up
+      delete reactor_impl_p;
 
-        return false;
-      } // end IF
-      // make this the "default" reactor...
+      return false;
+    } // end IF
+
+    // make this the "default" reactor...
+    ACE_Reactor* previous_reactor_p =
       ACE_Reactor::instance (reactor_p, // reactor handle
                              1);        // delete in dtor ?
-    } // end IF
+    if (previous_reactor_p)
+      delete previous_reactor_p;
   } // end IF
   else
   {

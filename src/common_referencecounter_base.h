@@ -36,9 +36,9 @@ class Common_Export Common_ReferenceCounterBase
   virtual ~Common_ReferenceCounterBase ();
 
   // implement Common_IRefCount
-  virtual void increase ();
-  virtual void decrease ();
-  virtual unsigned int count ();
+  virtual unsigned int increase ();
+  virtual unsigned int decrease ();
+  virtual unsigned int count () const;
   virtual void wait_zero ();
 
  protected:
