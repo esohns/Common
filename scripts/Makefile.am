@@ -5,3 +5,4 @@ EXTRA_DIST = \
   exports.bat \
   exports.sh \
   @PACKAGE_NAME@.pc.in
+

@@ -33,6 +33,7 @@ AC_INIT([M4_META_PACKAGE_NAME],
 AC_CONFIG_AUX_DIR([aux_config])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([config.h.in])
+dnl AC_CONFIG_SUBDIRS([modules/ATCD])
 
 LIBCOMMON_VERSION_API=M4_LIBCOMMON_VERSION_API
 AC_SUBST([LIBCOMMON_VERSION_API])
@@ -90,7 +91,7 @@ AC_ARG_ENABLE([debug],
               [debug=$debug_default])
 AM_CONDITIONAL([DEBUG], [test x$debug = xyes])
 if test x$debug = xyes; then
-  CXXFLAGS_DEBUG="-fno-inline -g -O0 -Wall -D_DEBUG"
+  CXXFLAGS_DEBUG="-fno-inline -g -O0 -D_DEBUG"
   AC_MSG_RESULT([yes])
 else
   CXXFLAGS_DEBUG="-O3 -Werror -DACE_NDEBUG"
@@ -141,10 +142,9 @@ fi
 
 # export variables (so Makefile substitutions can be made)
 #CXXFLAGS_BASE="-ansi -D_POSIX_C_SOURCE=199506L -D_REENTRANT -D_GNU_SOURCE"
-CXXFLAGS_BASE="-ansi -D_GNU_SOURCE"
+CXXFLAGS_BASE="-ansi -Wall -D_GNU_SOURCE"
 CXXFLAGS="${CXXFLAGS_BASE} ${CXXFLAGS_DEBUG} ${CXXFLAGS_TRACING} ${CXXFLAGS_VALGRIND}"
 AC_SUBST(CXXFLAGS)
-#AC_SUBST(META_PACKAGE_NAME)
 
 # checks for typedefs, structures, and compiler characteristics
 AC_TYPE_SIZE_T
@@ -167,7 +167,7 @@ AC_CHECK_FUNCS([realpath])
 # checks for libraries
 AM_COND_IF([VALGRIND_SUPPORT],
            [PKG_CHECK_MODULES([PKGVALGRIND], [valgrind])])
-PKG_CHECK_MODULES([PKGLIB], [gtk+-2.0 libglade-2.0])
+PKG_CHECK_MODULES([PKGLIB], [libpng gmodule-export-2.0 gthread-2.0 gtk+-2.0 libglade-2.0])
 #PKG_CHECK_MODULES([PKGLIB], [gtk+-2.0])
 
 # checks for other libraries (non-pkg-config)
@@ -181,11 +181,14 @@ AC_SEARCH_LIBS([pthread_create], [pthread], , AC_MSG_ERROR([unable to find pthre
 # checks for tools
 
 AC_CONFIG_HEADERS([config.h])
+
 AC_CONFIG_FILES([Makefile
+                 m4/Makefile
                  scripts/Makefile
                  scripts/libCommon.pc
-                 include/Makefile
+                 modules/Makefile
                  src/Makefile
                  src/ui/Makefile])
 
 AC_OUTPUT
+
