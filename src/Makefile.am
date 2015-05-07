@@ -27,6 +27,7 @@ include_HEADERS = \
   common_istatistic.h \
   common_isubscribe.h \
   common_itimer.h \
+  common_logger.h \
   common_macros.h \
   common_referencecounter_base.h \
   common_signalhandler.h \
@@ -56,7 +57,8 @@ libCommon_la_SOURCES = \
   common_istatistic.h \
   common_isubscribe.h \
   common_itimer.h \
-  common_macros.h \
+  common_logger.cpp \
+  common_logger.h \
   common_macros.h \
   common_referencecounter_base.cpp \
   common_referencecounter_base.h \
