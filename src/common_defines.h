@@ -59,6 +59,10 @@
 #define COMMON_EVENT_POSIX_USE_DEV_POLL_REACTOR false // ? ACE_Dev_Poll_Reactor : ACE_TP_Reactor
 #endif
 // proactor
+// *NOTE*: on Linux, this is the default proactor
+#define COMMON_EVENT_USE_SIG_PROACTOR           true
+// *NOTE*: parallel (!) operations
+#define COMMON_EVENT_MAXIMUM_AIO_OPERATIONS     ACE_AIO_MAX_SIZE
 // *IMPORTANT NOTE*: "...NPTL makes internal use of the first two real-time
 //                   signals (see also signal(7)); these signals cannot be
 //                   used in applications. ..." (see 'man 7 pthreads')

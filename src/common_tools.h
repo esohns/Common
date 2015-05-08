@@ -41,6 +41,10 @@ class Common_Export Common_Tools
  public:
   static void initialize ();
 
+  // --- singleton ---
+  static Common_TimerQueue_t* getTimerManager ();
+
+  // --- strings ---
   // use this to generate a "condensed" period string
   // - uses snprintf internally: "%H:%M:%S.usec"
   static bool period2String (const ACE_Time_Value&, // period
@@ -50,17 +54,18 @@ class Common_Export Common_Tools
   static std::string sanitize (const std::string&); // string
   static std::string strip (const std::string&); // string
 
-  // ---------------------------------------------------------------------------
-
+  // --- platform ---
   static bool isLinux ();
 
-  static bool setResourceLimits (bool = false, // #file descriptors (i.e. open handles)
-                                 bool = true); // stack trace/sizes (i.e. core file sizes)
+  static bool setResourceLimits (bool = false,  // #file descriptors (i.e. open handles)
+                                 bool = true,   // stack trace/sizes (i.e. core file sizes)
+                                 bool = false); // pending (rt) signals
 
   static void getCurrentUserName (std::string&,  // return value: username
                                   std::string&); // return value: "real" name
   static std::string getHostName (); // return value: hostname
 
+  // --- logging ---
   static bool initializeLogging (const std::string&,           // program name (i.e. argv[0])
                                  const std::string&,           // log file {"" --> disable}
                                  bool = false,                 // log to syslog ?
@@ -69,22 +74,24 @@ class Common_Export Common_Tools
                                  ACE_Log_Msg_Backend* = NULL); // logger backend {NULL --> disable}
   static void finalizeLogging ();
 
-  static bool preInitializeSignals (ACE_Sig_Set&,             // signal set (*NOTE*: IN/OUT)
-                                    bool,                     // use reactor ?
-                                    Common_SignalActions_t&); // return value: previous actions
+  // --- signals ---
+  static bool preInitializeSignals (ACE_Sig_Set&,            // signal set (*NOTE*: IN/OUT)
+                                    bool,                    // use reactor ?
+                                    Common_SignalActions_t&, // return value: previous actions
+                                    sigset_t&);              // return value: previous mask
   static bool initializeSignals (const ACE_Sig_Set&,       // signal set (to handle)
                                  const ACE_Sig_Set&,       // signal set (to ignore)
                                  ACE_Event_Handler*,       // event handler handle
                                  Common_SignalActions_t&); // return value: previous actions
-  static void finalizeSignals (const ACE_Sig_Set&,             // signal set
-                               bool,                           // use reactor ?
-                               const Common_SignalActions_t&); // previous actions
+  static void finalizeSignals (const ACE_Sig_Set&,            // signal set
+                               const Common_SignalActions_t&, // previous actions
+                               const sigset_t&);              // previous mask
   static void retrieveSignalInfo (int,               // signal
                                   const siginfo_t&,  // info
                                   const ucontext_t*, // context
                                   std::string&);     // return value: info
 
-  // event loop
+  // --- event loop ---
   static bool initializeEventDispatch (bool,   // use reactor ? : proactor
                                        bool,   // use thread pool ?
                                        bool&); // return value: output requires serialization
@@ -97,6 +104,7 @@ class Common_Export Common_Tools
   static void finalizeEventDispatch (bool, // stop reactor ?
                                      bool, // stop proactor ?
                                      int); // thread group id
+  static void unblockRealtimeSignals (sigset_t&); // return value: original mask
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Tools ());

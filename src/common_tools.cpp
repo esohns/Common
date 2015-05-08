@@ -50,8 +50,9 @@
 #include "ace/Dev_Poll_Reactor.h"
 #endif
 
-#include "common_macros.h"
 #include "common_defines.h"
+#include "common_macros.h"
+#include "common_timer_manager.h"
 
 void
 Common_Tools::initialize ()
@@ -69,6 +70,14 @@ Common_Tools::initialize ()
   //ACE_High_Res_Timer::calibrate (500000, 10);
   //ACE_DEBUG ((LM_DEBUG,
   //            ACE_TEXT ("calibrating high-resolution timer...done\n")));
+}
+
+Common_TimerQueue_t*
+Common_Tools::getTimerManager ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::getTimerManager"));
+
+  return COMMON_TIMERMANAGER_SINGLETON::instance ();
 }
 
 bool
@@ -217,119 +226,173 @@ Common_Tools::isLinux ()
 
 bool
 Common_Tools::setResourceLimits (bool fileDescriptors_in,
-                                 bool stackTraces_in)
+                                 bool stackTraces_in,
+                                 bool pendingSignals_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::setResourceLimits"));
 
+  int result = -1;
+
+  rlimit resource_limit;
   if (fileDescriptors_in)
   {
 // *PORTABILITY*: this is almost entirely non-portable...
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-    rlimit fd_limit;
+    result = ACE_OS::getrlimit (RLIMIT_NOFILE,
+                                &resource_limit);
+    if (result == -1)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_NOFILE): \"%m\", aborting\n")));
+      return false;
+    } // end IF
 
-      if (ACE_OS::getrlimit (RLIMIT_NOFILE,
-                             &fd_limit) == -1)
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_NOFILE): \"%m\", aborting\n")));
+    //      ACE_DEBUG ((LM_DEBUG,
+    //                  ACE_TEXT ("file descriptor limits (before) [soft: \"%u\", hard: \"%u\"]...\n"),
+    //                  resource_limit.rlim_cur,
+    //                  resource_limit.rlim_max));
 
-        return false;
-      } // end IF
+    // *TODO*: really unset these limits; note that this probably requires
+    // patching/recompiling the kernel...
+    // *NOTE*: setting/raising the max limit probably requires CAP_SYS_RESOURCE
+    resource_limit.rlim_cur = resource_limit.rlim_max;
+    //      resource_limit.rlim_cur = RLIM_INFINITY;
+    //      resource_limit.rlim_max = RLIM_INFINITY;
+    result = ACE_OS::setrlimit (RLIMIT_NOFILE,
+                                &resource_limit);
+    if (result == -1)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::setrlimit(RLIMIT_NOFILE): \"%m\", aborting\n")));
+      return false;
+    } // end IF
 
-//      ACE_DEBUG ((LM_DEBUG,
-//                  ACE_TEXT ("file descriptor limits (before) [soft: \"%u\", hard: \"%u\"]...\n"),
-//                  fd_limit.rlim_cur,
-//                  fd_limit.rlim_max));
+    // verify...
+    result = ACE_OS::getrlimit (RLIMIT_NOFILE,
+                                &resource_limit);
+    if (result == -1)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_NOFILE): \"%m\", aborting\n")));
+      return false;
+    } // end IF
 
-      // *TODO*: really unset these limits; note that this probably requires
-      // patching/recompiling the kernel...
-      // *NOTE*: setting/raising the max limit probably requires CAP_SYS_RESOURCE
-      fd_limit.rlim_cur = fd_limit.rlim_max;
-//      fd_limit.rlim_cur = RLIM_INFINITY;
-//      fd_limit.rlim_max = RLIM_INFINITY;
-      if (ACE_OS::setrlimit (RLIMIT_NOFILE,
-                             &fd_limit) == -1)
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_OS::setrlimit(RLIMIT_NOFILE): \"%m\", aborting\n")));
-
-        return false;
-      } // end IF
-
-      // verify...
-      if (ACE_OS::getrlimit (RLIMIT_NOFILE,
-                             &fd_limit) == -1)
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_NOFILE): \"%m\", aborting\n")));
-
-        return false;
-      } // end IF
-
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("unset file descriptor limits, now: [soft: %u, hard: %u]...\n"),
-                  fd_limit.rlim_cur,
-                  fd_limit.rlim_max));
-#else
     ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("unset file descriptor limits, now: [soft: %u, hard: %u]...\n"),
+                resource_limit.rlim_cur,
+                resource_limit.rlim_max));
+#else
+    // *TODO*: really ?
+    ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("file descriptor limits are not available on this platform, continuing\n")));
 #endif
   } // end IF
 
 // -----------------------------------------------------------------------------
 
-  if (!stackTraces_in)
-    return true;
-
-// *PORTABILITY*: this is almost entirely non-portable...
+  if (stackTraces_in)
+  {
+    // *PORTABILITY*: this is almost entirely non-portable...
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-  rlimit core_limit;
+    //  // debug info
+    //  if (ACE_OS::getrlimit (RLIMIT_CORE,
+    //                         &resource_limit) == -1)
+    //  {
+    //    ACE_DEBUG ((LM_ERROR,
+    //                ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_CORE): \"%m\", aborting\n")));
+    //    return false;
+    //  } // end IF
 
-//  // debug info
-//  if (ACE_OS::getrlimit (RLIMIT_CORE,
-//                         &core_limit) == -1)
-//  {
-//    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_CORE): \"%m\", aborting\n")));
+    //   ACE_DEBUG ((LM_DEBUG,
+    //               ACE_TEXT ("corefile limits (before) [soft: \"%u\", hard: \"%u\"]...\n"),
+    //               core_limit.rlim_cur,
+    //               core_limit.rlim_max));
 
-//    return false;
-//  } // end IF
+    // set soft/hard limits to unlimited...
+    resource_limit.rlim_cur = RLIM_INFINITY;
+    resource_limit.rlim_max = RLIM_INFINITY;
+    result = ACE_OS::setrlimit (RLIMIT_CORE,
+                                &resource_limit);
+    if (result == -1)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::setrlimit(RLIMIT_CORE): \"%m\", aborting\n")));
+      return false;
+    } // end IF
 
-//   ACE_DEBUG ((LM_DEBUG,
-//               ACE_TEXT ("corefile limits (before) [soft: \"%u\", hard: \"%u\"]...\n"),
-//               core_limit.rlim_cur,
-//               core_limit.rlim_max));
+    // verify...
+    result = ACE_OS::getrlimit (RLIMIT_CORE,
+                                &resource_limit);
+    if (result == -1)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_CORE): \"%m\", aborting\n")));
+      return false;
+    } // end IF
 
-  // set soft/hard limits to unlimited...
-  core_limit.rlim_cur = RLIM_INFINITY;
-  core_limit.rlim_max = RLIM_INFINITY;
-  if (ACE_OS::setrlimit (RLIMIT_CORE,
-                         &core_limit) == -1)
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::setrlimit(RLIMIT_CORE): \"%m\", aborting\n")));
-
-    return false;
-  } // end IF
-
-  // verify...
-  if (ACE_OS::getrlimit (RLIMIT_CORE,
-                         &core_limit) == -1)
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_CORE): \"%m\", aborting\n")));
-
-    return false;
-  } // end IF
-
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("unset corefile limits, now: [soft: %u, hard: %u]...\n"),
-              core_limit.rlim_cur,
-              core_limit.rlim_max));
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("unset corefile limits, now: [soft: %u, hard: %u]...\n"),
+                resource_limit.rlim_cur,
+                resource_limit.rlim_max));
 #else
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("corefile limits are not available on this platform, continuing\n")));
+    // *TODO*: really ?
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("corefile limits are not available on this platform, continuing\n")));
 #endif
+  } // end IF
+
+  if (pendingSignals_in)
+  {
+    // *PORTABILITY*: this is almost entirely non-portable...
+#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+    //  // debug info
+    //  if (ACE_OS::getrlimit (RLIMIT_SIGPENDING,
+    //                         &resource_limit) == -1)
+    //  {
+    //    ACE_DEBUG ((LM_ERROR,
+    //                ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_SIGPENDING): \"%m\", aborting\n")));
+    //    return false;
+    //  } // end IF
+
+    //   ACE_DEBUG ((LM_DEBUG,
+    //               ACE_TEXT ("pending signals limit (before) [soft: \"%u\", hard: \"%u\"]...\n"),
+    //               signal_pending_limit.rlim_cur,
+    //               signal_pending_limit.rlim_max));
+
+    // set soft/hard limits to unlimited...
+    // *NOTE*: setting/raising the max limit probably requires CAP_SYS_RESOURCE
+//    resource_limit.rlim_cur = RLIM_INFINITY;
+//    resource_limit.rlim_max = RLIM_INFINITY;
+//    resource_limit.rlim_cur = resource_limit.rlim_max;
+//    result = ACE_OS::setrlimit (RLIMIT_SIGPENDING,
+//                                &resource_limit);
+//    if (result == -1)
+//    {
+//      ACE_DEBUG ((LM_ERROR,
+//                  ACE_TEXT ("failed to ACE_OS::setrlimit(RLIMIT_SIGPENDING): \"%m\", aborting\n")));
+//      return false;
+//    } // end IF
+
+    // verify...
+    result = ACE_OS::getrlimit (RLIMIT_SIGPENDING,
+                                &resource_limit);
+    if (result == -1)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_SIGPENDING): \"%m\", aborting\n")));
+      return false;
+    } // end IF
+
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("unset pending signal limits, now: [soft: %u, hard: %u]...\n"),
+                resource_limit.rlim_cur,
+                resource_limit.rlim_max));
+#else
+    // *TODO*: really ?
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("pending signal limits are not available on this platform, continuing\n")));
+#endif
+  } // end IF
 
   return true;
 }
@@ -521,9 +584,22 @@ Common_Tools::finalizeLogging ()
 bool
 Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
                                     bool useReactor_in,
-                                    Common_SignalActions_t& previousActions_out)
+                                    Common_SignalActions_t& previousActions_out,
+                                    sigset_t& originalMask_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::preInitializeSignals"));
+
+  int result = -1;
+
+  // initialize return value(s)
+  previousActions_out.clear ();
+  result = ACE_OS::sigemptyset (&originalMask_out);
+  if (result == - 1)
+  {
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", aborting\n")));
+    return false;
+  } // end IF
 
   // *IMPORTANT NOTE*: "The signal disposition is a per-process attribute: in a
   // multithreaded application, the disposition of a particular signal is the
@@ -539,7 +615,6 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
                                                                           // --> block them all (bar KILL/STOP; see manual)
                                 0);                                       // flags
   ACE_Sig_Action previous_action;
-  int result = -1;
   result = ignore_action.register_action (SIGPIPE,
                                           &previous_action);
   if (result == -1)
@@ -554,61 +629,68 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
   //                   worker thread(s) and re-enables them there automatically
   // --> see also POSIX_Proactor.cpp:1593
 
+  // *IMPORTANT NOTE*: child threads inherit the signal mask of their parent...
+  //                   --> make sure this is the main thread !
+
   // step2: --> block [SIGRTMIN,SIGRTMAX] iff on POSIX platform AND using the
   // ACE_POSIX_SIG_Proactor (the default).
+  // *NOTE*: the proactor ctor does this automatically --> don't want that in
+  //         all circumstances (i.e. when not using a threadpool)
 
   // *IMPORTANT NOTE*: "...NPTL makes internal use of the first two real-time
   //                   signals (see also signal(7)); these signals cannot be
   //                   used in applications. ..." (see 'man 7 pthreads')
   // --> on POSIX platforms, make sure that ACE_SIGRTMIN == 34
-  if (!useReactor_in)
+  ACE_Proactor* proactor_p = ACE_Proactor::instance ();
+  ACE_ASSERT (proactor_p);
+  ACE_POSIX_Proactor* proactor_impl_p =
+      dynamic_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
+  ACE_ASSERT (proactor_impl_p);
+  ACE_POSIX_Proactor::Proactor_Type proactor_type =
+      proactor_impl_p->get_impl_type ();
+  if (!useReactor_in &&
+      (proactor_type == ACE_POSIX_Proactor::PROACTOR_SIG))
   {
-    ACE_POSIX_Proactor* proactor_impl =
-        dynamic_cast<ACE_POSIX_Proactor*> (ACE_Proactor::instance ()->implementation ());
-    ACE_ASSERT (proactor_impl);
-    if (proactor_impl->get_impl_type () == ACE_POSIX_Proactor::PROACTOR_SIG)
+    sigset_t signal_set;
+    result = ACE_OS::sigemptyset (&signal_set);
+    if (result == - 1)
     {
-      sigset_t signal_set;
-      result = ACE_OS::sigemptyset (&signal_set);
-      if (result == - 1)
-      {
-        ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", aborting\n")));
-        return false;
-      } // end IF
-      for (int i = ACE_SIGRTMIN;
-           i <= ACE_SIGRTMAX;
-           i++)
-      {
-        result = ACE_OS::sigaddset (&signal_set, i);
-        if (result == -1)
-        {
-          ACE_DEBUG ((LM_DEBUG,
-                      ACE_TEXT ("failed to ACE_OS::sigaddset(): \"%m\", aborting\n")));
-          return false;
-        } // end IF
-        if (signals_inout.is_member (i))
-        {
-          result = signals_inout.sig_del (i);
-          if (result == -1)
-          {
-            ACE_DEBUG ((LM_DEBUG,
-                        ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%S): \"%m\", aborting\n"),
-                        i));
-            return false;
-          } // end IF
-        } // end IF
-      } // end IF
-      sigset_t original_mask;
-      result = ACE_OS::thr_sigsetmask (SIG_BLOCK,
-                                       &signal_set,
-                                       &original_mask);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", aborting\n")));
+      return false;
+    } // end IF
+    for (int i = ACE_SIGRTMIN;
+         i <= ACE_SIGRTMAX;
+         i++)
+    {
+      result = ACE_OS::sigaddset (&signal_set, i);
       if (result == -1)
       {
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", aborting\n")));
+                    ACE_TEXT ("failed to ACE_OS::sigaddset(): \"%m\", aborting\n")));
         return false;
       } // end IF
+      if (signals_inout.is_member (i))
+      {
+        result = signals_inout.sig_del (i); // <-- let the event dispatch handle
+                                            //     all realtime signals
+        if (result == -1)
+        {
+          ACE_DEBUG ((LM_DEBUG,
+                      ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%S): \"%m\", aborting\n"),
+                      i));
+          return false;
+        } // end IF
+      } // end IF
+    } // end IF
+    result = ACE_OS::thr_sigsetmask (SIG_BLOCK,
+                                     &signal_set,
+                                     &originalMask_out);
+    if (result == -1)
+    {
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", aborting\n")));
+      return false;
     } // end IF
   } // end IF
 #endif
@@ -624,7 +706,7 @@ Common_Tools::initializeSignals (const ACE_Sig_Set& signals_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::initializeSignals"));
 
-  // init return value(s)
+  // initialize return value(s)
   previousActions_out.clear ();
 
   // *NOTE*: "The signal disposition is a per-process attribute: in a
@@ -642,6 +724,7 @@ Common_Tools::initializeSignals (const ACE_Sig_Set& signals_in,
       previousActions_out[i] = previous_action;
     } // end IF
 
+  // step2: ignore certain signals
   // *NOTE*: there is no need to keep this around after registration
   // *IMPORTANT NOTE*: do NOT restart system calls in this case (see manual)
   ACE_Sig_Action ignore_action (static_cast<ACE_SignalHandler> (SIG_IGN), // ignore action
@@ -670,7 +753,7 @@ Common_Tools::initializeSignals (const ACE_Sig_Set& signals_in,
       } // end IF
     } // end IF
 
-  // step2: register (process-wide) signal handler
+  // step3: register (process-wide) signal handler
   // *NOTE*: there is no need to keep this around after registration
   ACE_Sig_Action new_action (static_cast<ACE_SignalHandler> (SIG_DFL), // default action
                              ACE_Sig_Set (1),                          // mask of signals to be blocked when servicing
@@ -693,61 +776,17 @@ Common_Tools::initializeSignals (const ACE_Sig_Set& signals_in,
 
 void
 Common_Tools::finalizeSignals (const ACE_Sig_Set& signals_in,
-                               bool useReactor_in,
-                               const Common_SignalActions_t& previousActions_in)
+                               const Common_SignalActions_t& previousActions_in,
+                               const sigset_t& previousMask_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::finalizeSignals"));
 
   int result = -1;
 
-  // step1: unblock [SIGRTMIN,SIGRTMAX] IFF on UNIX AND using the
-  // ACE_POSIX_SIG_Proactor (the default)
-  // *IMPORTANT NOTE*: the proactor implementation dispatches the signals in
-  //                   worker thread(s) and enabled them there automatically
-  //                   (see code)
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-  if (!useReactor_in)
-  {
-    ACE_POSIX_Proactor* proactor_impl_p =
-        dynamic_cast<ACE_POSIX_Proactor*> (ACE_Proactor::instance ()->implementation ());
-    if (proactor_impl_p &&
-        (proactor_impl_p->get_impl_type () == ACE_POSIX_Proactor::PROACTOR_SIG))
-    {
-      sigset_t signal_set;
-      result = ACE_OS::sigemptyset (&signal_set);
-      if (result == - 1)
-      {
-        ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", returning\n")));
-        return;
-      } // end IF
-      for (int i = ACE_SIGRTMIN;
-           i <= ACE_SIGRTMAX;
-           i++)
-      {
-        result = ACE_OS::sigaddset (&signal_set, i);
-        if (result == -1)
-        {
-          ACE_DEBUG ((LM_DEBUG,
-                      ACE_TEXT ("failed to ACE_OS::sigaddset(): \"%m\", returning\n")));
-          return;
-        } // end IF
-      } // end FOR
-      result = ACE_OS::thr_sigsetmask (SIG_UNBLOCK,
-                                       &signal_set,
-                                       NULL);
-      if (result == -1)
-      {
-        ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", returning\n")));
-        return;
-      } // end IF
-    } // end IF
-  } // end IF
-#endif
-
-  // step2: restore previous signal handlers
-  result = ACE_Reactor::instance ()->remove_handler (signals_in);
+  // step1: restore previous signal handlers
+  ACE_Reactor* reactor_p = ACE_Reactor::instance ();
+  ACE_ASSERT (reactor_p);
+  result = reactor_p->remove_handler (signals_in);
   if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
@@ -767,6 +806,14 @@ Common_Tools::finalizeSignals (const ACE_Sig_Set& signals_in,
                   ACE_TEXT ("failed to ACE_Sig_Action::register_action(%S): \"%m\", continuing\n"),
                   (*iterator).first));
   } // end FOR
+
+  // step2: restore previous signal mask
+  result = ACE_OS::thr_sigsetmask (SIG_SETMASK,
+                                   &previousMask_in,
+                                   NULL);
+  if (result == -1)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", continuing\n")));
 }
 
 void
@@ -1219,12 +1266,22 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
   } // end IF
   else
   {
-    // *NOTE* using default platform proactor...
+    ACE_Proactor_Impl* proactor_impl_p = NULL;
+#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+    if (COMMON_EVENT_USE_SIG_PROACTOR)
+    {
+      ACE_NEW_NORETURN (proactor_impl_p,
+                        ACE_POSIX_SIG_Proactor (COMMON_EVENT_MAXIMUM_AIO_OPERATIONS)); // parallel operations
+    } // end IF
+#else
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("using default platform proactor...\n")));
+#endif
     ACE_Proactor* proactor_p = NULL;
     ACE_NEW_NORETURN (proactor_p,
-                      ACE_Proactor (NULL,   // implementation handle --> create new
-//                                  false,  // *NOTE*: call close() manually
-//                                          // (see finalizeEventDispatch() below)
+                      ACE_Proactor (proactor_impl_p, // implementation handle --> create new ?
+//                                    false,  // *NOTE*: call close() manually
+//                                            // (see finalizeEventDispatch() below)
                                     true,   // delete in dtor ?
                                     NULL)); // timer queue handle --> create new
     if (!proactor_p)
@@ -1236,10 +1293,25 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
 
     // make this the "default" proactor...
     ACE_Proactor* previous_proactor_p =
-        ACE_Proactor::instance (proactor_p, // implementation handle
+        ACE_Proactor::instance (proactor_p, // proactor handle
                                 1);         // delete in dtor ?
     if (previous_proactor_p)
       delete previous_proactor_p;
+
+//    ACE_POSIX_Proactor::Proactor_Type proactor_type =
+//        proactor_p->get_impl_type ();
+//    switch (proactor_type)
+//    {
+//      case ACE_POSIX_Proactor::PROACTOR_SIG:
+//        break;
+//      default:
+//      {
+//        ACE_DEBUG ((LM_ERROR,
+//                    ACE_TEXT ("invalid/unknown proactor type (was: %d), aborting\n"),
+//                    proactor_type));
+//        return false;
+//      }
+//    } // end SWITCH
   } // end ELSE
 
   return true;
@@ -1266,37 +1338,45 @@ threadpool_event_dispatcher_function (void* args_in)
 //              result_2));
 #endif
 
-  // *IMPORTANT NOTE*: "The signal disposition is a per-process attribute: in a multithreaded
-  //                   application, the disposition of a particular signal is the same for
-  //                   all threads." (see man 7 signal)
-//  // ignore SIGPIPE: need this to continue gracefully after a client
-//  // suddenly disconnects (i.e. application/system crash, etc...)
-//  // --> specify ignore action
-//  // *IMPORTANT NOTE*: don't actually need to keep this around after registration
-//  // *NOTE*: do NOT restart system calls in this case (see manual)
-//  ACE_Sig_Action no_sigpipe (static_cast<ACE_SignalHandler> (SIG_IGN), // ignore action
-//                             ACE_Sig_Set (1),                          // mask of signals to be blocked when servicing
-//                                                                       // --> block them all (bar KILL/STOP; see manual)
-//                             SA_SIGINFO);                              // flags
-////                               (SA_RESTART | SA_SIGINFO));              // flags
-//  ACE_Sig_Action original_action;
-//  if (no_sigpipe.register_action (SIGPIPE, &original_action) == -1)
-//    ACE_DEBUG ((LM_DEBUG,
-//                ACE_TEXT ("failed to ACE_Sig_Action::register_action(SIGPIPE): \"%m\", continuing\n")));
-//
+  // *IMPORTANT NOTE*: "The signal disposition is a per-process attribute: in a
+  //                   multithreaded application, the disposition of a
+  //                   particular signal is the same for all threads."
+  //                   (see man 7 signal)
+
   // handle any events...
   if (use_reactor)
-    result = ACE_Reactor::instance ()->run_reactor_event_loop (0);
+  {
+    ACE_Reactor* reactor_p = ACE_Reactor::instance ();
+    ACE_ASSERT (reactor_p);
+    result = reactor_p->run_reactor_event_loop (0);
+  } // end IF
   else
-    result = ACE_Proactor::instance ()->proactor_run_event_loop (0);
+  {
+    // unblock [SIGRTMIN,SIGRTMAX] IFF on POSIX AND using the
+    // ACE_POSIX_SIG_Proactor (the default)
+    // *IMPORTANT NOTE*: the proactor implementation dispatches the signals in
+    //                   worker thread(s) and enabled them there automatically
+    //                   (see code) *TODO*: verify this claim
+    ACE_Proactor* proactor_p = ACE_Proactor::instance ();
+    ACE_ASSERT (proactor_p);
+#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+    ACE_POSIX_Proactor* proactor_impl_p =
+        dynamic_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
+    ACE_ASSERT (proactor_impl_p);
+    ACE_POSIX_Proactor::Proactor_Type proactor_type =
+        proactor_impl_p->get_impl_type ();
+    if (!use_reactor &&
+        (proactor_type == ACE_POSIX_Proactor::PROACTOR_SIG))
+    {
+      sigset_t original_mask;
+      Common_Tools::unblockRealtimeSignals (original_mask);
+    } // end IF
+#endif
+    result = proactor_p->proactor_run_event_loop (0);
+  } // end ELSE
   if (result == -1)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("(%t) failed to handle events: \"%m\", leaving\n")));
-
-  //// clean up
-  //if (no_sigpipe.restore_action (SIGPIPE, original_action) == -1)
-  //  ACE_DEBUG ((LM_DEBUG,
-  //              ACE_TEXT ("failed to ACE_Sig_Action::restore_action(SIGPIPE): \"%m\", continuing\n")));
 
 //  ACE_DEBUG ((LM_DEBUG,
 //              ACE_TEXT ("(%t) worker leaving...\n")));
@@ -1494,4 +1574,52 @@ Common_Tools::finalizeEventDispatch (bool stopReactor_in,
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Thread_Manager::wait_grp(%d): \"%m\", continuing\n"),
                   groupID_in));
+}
+
+void
+Common_Tools::unblockRealtimeSignals (sigset_t& originalMask_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::unblockRealtimeSignals"));
+
+  int result = -1;
+
+  // initialize return value(s)
+  result = ACE_OS::sigemptyset (&originalMask_out);
+  if (result == - 1)
+  {
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", returning\n")));
+    return;
+  } // end IF
+
+  sigset_t signal_set;
+  result = ACE_OS::sigemptyset (&signal_set);
+  if (result == - 1)
+  {
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", returning\n")));
+    return;
+  } // end IF
+  for (int i = ACE_SIGRTMIN;
+       i <= ACE_SIGRTMAX;
+       i++)
+  {
+    result = ACE_OS::sigaddset (&signal_set, i);
+    if (result == -1)
+    {
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("failed to ACE_OS::sigaddset(): \"%m\", returning\n")));
+      return;
+    } // end IF
+  } // end FOR
+
+  result = ACE_OS::thr_sigsetmask (SIG_UNBLOCK,
+                                   &signal_set,
+                                   &originalMask_out);
+  if (result == -1)
+  {
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", returning\n")));
+    return;
+  } // end IF
 }
