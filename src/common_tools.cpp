@@ -233,11 +233,11 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
 
   int result = -1;
 
-  rlimit resource_limit;
   if (fileDescriptors_in)
   {
 // *PORTABILITY*: this is almost entirely non-portable...
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+    rlimit resource_limit;
     result = ACE_OS::getrlimit (RLIMIT_NOFILE,
                                 &resource_limit);
     if (result == -1)
@@ -641,56 +641,59 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
   //                   signals (see also signal(7)); these signals cannot be
   //                   used in applications. ..." (see 'man 7 pthreads')
   // --> on POSIX platforms, make sure that ACE_SIGRTMIN == 34
-  ACE_Proactor* proactor_p = ACE_Proactor::instance ();
-  ACE_ASSERT (proactor_p);
-  ACE_POSIX_Proactor* proactor_impl_p =
-      dynamic_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
-  ACE_ASSERT (proactor_impl_p);
-  ACE_POSIX_Proactor::Proactor_Type proactor_type =
-      proactor_impl_p->get_impl_type ();
-  if (!useReactor_in &&
-      (proactor_type == ACE_POSIX_Proactor::PROACTOR_SIG))
+  if (!useReactor_in)
   {
-    sigset_t signal_set;
-    result = ACE_OS::sigemptyset (&signal_set);
-    if (result == - 1)
+    ACE_Proactor* proactor_p = ACE_Proactor::instance ();
+    ACE_ASSERT (proactor_p);
+    ACE_POSIX_Proactor* proactor_impl_p =
+        dynamic_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
+    ACE_ASSERT (proactor_impl_p);
+    ACE_POSIX_Proactor::Proactor_Type proactor_type =
+        proactor_impl_p->get_impl_type ();
+    if (!useReactor_in &&
+        (proactor_type == ACE_POSIX_Proactor::PROACTOR_SIG))
     {
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", aborting\n")));
-      return false;
-    } // end IF
-    for (int i = ACE_SIGRTMIN;
-         i <= ACE_SIGRTMAX;
-         i++)
-    {
-      result = ACE_OS::sigaddset (&signal_set, i);
-      if (result == -1)
+      sigset_t signal_set;
+      result = ACE_OS::sigemptyset (&signal_set);
+      if (result == - 1)
       {
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("failed to ACE_OS::sigaddset(): \"%m\", aborting\n")));
+                    ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", aborting\n")));
         return false;
       } // end IF
-      if (signals_inout.is_member (i))
+      for (int i = ACE_SIGRTMIN;
+           i <= ACE_SIGRTMAX;
+           i++)
       {
-        result = signals_inout.sig_del (i); // <-- let the event dispatch handle
-                                            //     all realtime signals
+        result = ACE_OS::sigaddset (&signal_set, i);
         if (result == -1)
         {
           ACE_DEBUG ((LM_DEBUG,
-                      ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%S): \"%m\", aborting\n"),
-                      i));
+                      ACE_TEXT ("failed to ACE_OS::sigaddset(): \"%m\", aborting\n")));
           return false;
         } // end IF
+        if (signals_inout.is_member (i))
+        {
+          result = signals_inout.sig_del (i); // <-- let the event dispatch handle
+                                              //     all realtime signals
+          if (result == -1)
+          {
+            ACE_DEBUG ((LM_DEBUG,
+                        ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%S): \"%m\", aborting\n"),
+                        i));
+            return false;
+          } // end IF
+        } // end IF
       } // end IF
-    } // end IF
-    result = ACE_OS::thr_sigsetmask (SIG_BLOCK,
-                                     &signal_set,
-                                     &originalMask_out);
-    if (result == -1)
-    {
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", aborting\n")));
-      return false;
+      result = ACE_OS::thr_sigsetmask (SIG_BLOCK,
+                                       &signal_set,
+                                       &originalMask_out);
+      if (result == -1)
+      {
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", aborting\n")));
+        return false;
+      } // end IF
     } // end IF
   } // end IF
 #endif
@@ -1357,6 +1360,7 @@ threadpool_event_dispatcher_function (void* args_in)
     // *IMPORTANT NOTE*: the proactor implementation dispatches the signals in
     //                   worker thread(s) and enabled them there automatically
     //                   (see code) *TODO*: verify this claim
+    //                   (see also: Asynch_Pseudo_Task.cpp:56)
     ACE_Proactor* proactor_p = ACE_Proactor::instance ();
     ACE_ASSERT (proactor_p);
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)

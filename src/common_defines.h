@@ -45,7 +45,7 @@
 // *IMPORTANT NOTE*: currently used for (initial) slot pre-allocation only;
 // ultimately, the total number of available concurrent slots depends on the
 // actual implementation --> check the code, don't rely on ACE_DEFAULT_TIMERS
-//#define RPG_COMMON_DEF_NUM_TIMER_SLOTS            std::numeric_limits<long>::max()
+//#define COMMON_DEF_NUM_TIMER_SLOTS              std::numeric_limits<long>::max()
 #define COMMON_DEF_NUM_TIMER_SLOTS              ACE_DEFAULT_TIMERS
 #define COMMON_PREALLOCATE_TIMER_SLOTS          true
 

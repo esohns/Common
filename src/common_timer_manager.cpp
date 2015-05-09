@@ -39,36 +39,39 @@ Common_Timer_Manager::Common_Timer_Manager ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager::Common_Timer_Manager"));
 
-  // set time queue
+  int result = -1;
+
+  // set timer queue
   //ACE_NEW_NORETURN (timerQueue_,
-  //								  Common_TimerQueueImpl_t (COMMON_DEF_NUM_TIMER_SLOTS,     // preallocated slots
-  //																				 	 COMMON_PREALLOCATE_TIMER_SLOTS, // preallocate timer nodes ?
-  //																					 &timerHandler_,                 // upcall functor
-  //																					 NULL,                           // freelist --> allocate
-  //																					 COMMON_TIME_NOW));
+  //                  Common_TimerQueueImpl_t ((COMMON_PREALLOCATE_TIMER_SLOTS ? COMMON_DEF_NUM_TIMER_SLOTS
+  //                                                                           : 0), // preallocated slots
+  //                                           COMMON_PREALLOCATE_TIMER_SLOTS,       // preallocate timer nodes ?
+  //                                           &timerHandler_,                       // upcall functor
+  //                                           NULL,                                 // freelist --> allocate
+  //                                           timePolicy_));                        // time policy
   ACE_NEW_NORETURN (timerQueue_,
-                    Common_TimerQueueImpl_t (ACE_DEFAULT_TIMER_WHEEL_SIZE,
-                                             ACE_DEFAULT_TIMER_WHEEL_RESOLUTION,
-                                             (COMMON_PREALLOCATE_TIMER_SLOTS ? COMMON_DEF_NUM_TIMER_SLOTS
-                                                                             : 0), // preallocate timer nodes ?
-                                             &timerHandler_,                       // upcall functor
-                                             NULL,                                 // freelist --> allocate
-                                             timePolicy_));
+                    Common_TimerQueueImpl_t (&timerHandler_, // upcall functor
+                                             NULL,           // freelist --> allocate
+                                             timePolicy_));  // time policy
+  //ACE_NEW_NORETURN (timerQueue_,
+  //                  Common_TimerQueueImpl_t (ACE_DEFAULT_TIMER_WHEEL_SIZE,
+  //                                           ACE_DEFAULT_TIMER_WHEEL_RESOLUTION,
+  //                                           (COMMON_PREALLOCATE_TIMER_SLOTS ? COMMON_DEF_NUM_TIMER_SLOTS
+  //                                                                           : 0), // preallocate timer nodes ?
+  //                                           &timerHandler_,                       // upcall functor
+  //                                           NULL,                                 // freelist --> allocate
+  //                                           timePolicy_));                        // time policy
   if (!timerQueue_)
   {
     ACE_DEBUG ((LM_CRITICAL,
-                ACE_TEXT ("failed to allocate Common_TimerQueueImpl_t, aborting\n")));
-
+                ACE_TEXT ("failed to allocate Common_TimerQueueImpl_t, returning\n")));
     return;
   } // end IF
-  // *NOTE*: use a high resolution timer for best accuracy & lowest latency
-  //ACE_High_Res_Timer::global_scale_factor();
-  //myTimerQueue->gettimeofday(&ACE_High_Res_Timer::gettimeofday_hr);
-  if (inherited::timer_queue (timerQueue_) == -1)
+  result = inherited::timer_queue (timerQueue_);
+  if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::timer_queue(): \"%m\", aborting\n")));
-
+                ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::timer_queue(): \"%m\", returning\n")));
     return;
   } // end IF
 
@@ -83,26 +86,25 @@ Common_Timer_Manager::Common_Timer_Manager ()
                   ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_NAME));
   const char* thread_names[1];
   thread_names[0] = thread_name;
-  if (inherited::activate ((THR_NEW_LWP      |
-                            THR_JOINABLE     |
-                            THR_INHERIT_SCHED),          // flags
-                           1,                            // # threads --> 1
-                           0,                            // force active ?
-                           ACE_DEFAULT_THREAD_PRIORITY,  // priority
-                           COMMON_TIMER_THREAD_GROUP_ID, // group id
-                           NULL,                         // task base
-                           thread_handles,               // thread handle(s)
-                           NULL,                         // stack(s)
-                           NULL,                         // stack size(s)
-                           thread_ids,                   // thread id(s)
-                           thread_names) == -1)          // thread name(s)
+  result = inherited::activate ((THR_NEW_LWP      |
+                                 THR_JOINABLE     |
+                                 THR_INHERIT_SCHED),          // flags
+                                1,                            // # threads --> 1
+                                0,                            // force active ?
+                                ACE_DEFAULT_THREAD_PRIORITY,  // priority
+                                COMMON_TIMER_THREAD_GROUP_ID, // group id
+                                NULL,                         // task base
+                                thread_handles,               // thread handle(s)
+                                NULL,                         // stack(s)
+                                NULL,                         // stack size(s)
+                                thread_ids,                   // thread id(s)
+                                thread_names);                // thread name(s)
+  if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::activate(): \"%m\", returning\n")));
-
     return;
   } // end IF
-
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s) spawned worker thread (group: %d, id: %u)...\n"),
               ACE_TEXT (COMMON_TIMER_THREAD_NAME),

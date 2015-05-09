@@ -37,9 +37,10 @@
 #include "ace/Module.h"
 #include "ace/Signal.h"
 #include "ace/Synch_Traits.h"
-//#include "ace/Timer_Heap_T.h"
 #include "ace/Task.h"
-#include "ace/Timer_Wheel_T.h"
+//#include "ace/Timer_Heap_T.h"
+#include "ace/Timer_List_T.h"
+//#include "ace/Timer_Wheel_T.h"
 #include "ace/Timer_Queue_T.h"
 #include "ace/Timer_Queue_Adapters.h"
 #if (ACE_MAJOR_VERSION >= 6) && \
@@ -57,25 +58,34 @@ typedef ACE_System_Time_Policy Common_TimePolicy_t;
 #endif
 
 // *NOTE*: ensure a minimal amount of locking
-//typedef ACE_Event_Handler_Handle_Timeout_Upcall<ACE_SYNCH_NULL_MUTEX> RPG_Common_TimeoutUpcall_t;
+//typedef ACE_Event_Handler_Handle_Timeout_Upcall<ACE_SYNCH_NULL_MUTEX> Common_TimeoutUpcall_t;
 typedef ACE_Event_Handler_Handle_Timeout_Upcall Common_TimeoutUpcall_t;
-// *NOTE*: ACEs' timer heap implementation currently has some stability issue...
+// *WARNING*: apparently, ACEs' timer heap implementation currently has some
+//            stability issue...
 //typedef ACE_Timer_Heap_T<ACE_Event_Handler*,
-//                         RPG_Common_TimeoutUpcall_t,
+//                         Common_TimeoutUpcall_t,
 //                         ACE_SYNCH_NULL_MUTEX,
-//                         RPG_Common_TimePolicy_t> RPG_Common_TimerQueueImpl_t;
+//                         Common_TimePolicy_t> Common_TimerQueueImpl_t;
 //typedef ACE_Timer_Heap_Iterator_T<ACE_Event_Handler*,
-//                                  RPG_Common_TimeoutUpcall_t,
+//                                  Common_TimeoutUpcall_t,
 //                                  ACE_SYNCH_NULL_MUTEX,
-//                                  RPG_Common_TimePolicy_t> RPG_Common_TimerQueueImplIterator_t;
-typedef ACE_Timer_Wheel_T<ACE_Event_Handler*,
-                          Common_TimeoutUpcall_t,
-                          ACE_SYNCH_NULL_MUTEX,
-                          Common_TimePolicy_t> Common_TimerQueueImpl_t;
-typedef ACE_Timer_Wheel_Iterator_T<ACE_Event_Handler*,
-                                   Common_TimeoutUpcall_t,
-                                   ACE_SYNCH_NULL_MUTEX,
-                                   Common_TimePolicy_t> Common_TimerQueueImplIterator_t;
+//                                  Common_TimePolicy_t> Common_TimerQueueImplIterator_t;
+typedef ACE_Timer_List_T<ACE_Event_Handler*,
+                         Common_TimeoutUpcall_t,
+                         ACE_SYNCH_NULL_MUTEX,
+                         Common_TimePolicy_t> Common_TimerQueueImpl_t;
+typedef ACE_Timer_List_Iterator_T<ACE_Event_Handler*,
+                                  Common_TimeoutUpcall_t,
+                                  ACE_SYNCH_NULL_MUTEX,
+                                  Common_TimePolicy_t> Common_TimerQueueImplIterator_t;
+//typedef ACE_Timer_Wheel_T<ACE_Event_Handler*,
+//                          Common_TimeoutUpcall_t,
+//                          ACE_SYNCH_NULL_MUTEX,
+//                          Common_TimePolicy_t> Common_TimerQueueImpl_t;
+//typedef ACE_Timer_Wheel_Iterator_T<ACE_Event_Handler*,
+//                                   Common_TimeoutUpcall_t,
+//                                   ACE_SYNCH_NULL_MUTEX,
+//                                   Common_TimePolicy_t> Common_TimerQueueImplIterator_t;
 typedef ACE_Thread_Timer_Queue_Adapter<Common_TimerQueueImpl_t,
                                        ACE_Event_Handler*> Common_TimerQueue_t;
 

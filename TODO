@@ -1,0 +1,5 @@
+open issues:
+
+- verify the timer manager implementation (heap/wheel); apparently, it has some stability issues
+- verify that the timer manager implementation (timer wheel) timer cancellation is working correctly
+ (it seems that timers are not correctly removed in all cases --> the dispatching thread never sleeps)
