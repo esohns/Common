@@ -232,12 +232,14 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
   COMMON_TRACE (ACE_TEXT ("Common_Tools::setResourceLimits"));
 
   int result = -1;
+#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+    rlimit resource_limit;
+#endif
 
   if (fileDescriptors_in)
   {
 // *PORTABILITY*: this is almost entirely non-portable...
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-    rlimit resource_limit;
     result = ACE_OS::getrlimit (RLIMIT_NOFILE,
                                 &resource_limit);
     if (result == -1)
@@ -302,7 +304,6 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
     //                ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_CORE): \"%m\", aborting\n")));
     //    return false;
     //  } // end IF
-
     //   ACE_DEBUG ((LM_DEBUG,
     //               ACE_TEXT ("corefile limits (before) [soft: \"%u\", hard: \"%u\"]...\n"),
     //               core_limit.rlim_cur,

@@ -21,14 +21,14 @@
 
 #include "common_timer_manager.h"
 
-#include "ace/Log_Msg.h"
 #include "ace/High_Res_Timer.h"
+#include "ace/Log_Msg.h"
 
 #include "common_defines.h"
-#include "common_macros.h"
 #include "common_itimer.h"
+#include "common_macros.h"
 
-// define statics
+// define static variables
 Common_TimePolicy_t Common_Timer_Manager::timePolicy_;
 
 Common_Timer_Manager::Common_Timer_Manager ()
@@ -116,13 +116,16 @@ Common_Timer_Manager::~Common_Timer_Manager ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager::~Common_Timer_Manager"));
 
+  int result = -1;
+
   if (isRunning ())
     stop ();
 
   // *IMPORTANT NOTE*: avoid close()ing the timer queue in the base class dtor
-  if (inherited::timer_queue (NULL) == -1)
+  result = inherited::timer_queue (NULL);
+  if (result == -1)
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::timer_queue(): \"%m\", aborting\n")));
+                ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::timer_queue(): \"%m\", continuing\n")));
   delete timerQueue_;
 }
 
@@ -168,16 +171,19 @@ Common_Timer_Manager::fini_timers ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager::fini_timers"));
 
-  const void* act = NULL;
+  int result = -1;
+
+  const void* act_p = NULL;
   long timer_id = 0;
   Common_TimerQueueImplIterator_t iterator (*inherited::timer_queue ());
   for (iterator.first ();
        !iterator.isdone ();
        iterator.next ())
   {
-    act = NULL;
+    act_p = NULL;
     timer_id = iterator.item ()->get_timer_id ();
-    if (inherited::cancel (timer_id, &act) == -1)
+    result = inherited::cancel (timer_id, &act_p);
+    if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to cancel timer (ID: %d): \"%m\", continuing\n"),
                   timer_id));
@@ -194,19 +200,22 @@ Common_Timer_Manager::resetInterval (long timerID_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager::resetInterval"));
 
+  int result = -1;
+
   {
     ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (inherited::mutex ());
 
-    if (inherited::timer_queue ()->reset_interval (timerID_in, interval_in))
+    Common_TimerQueueImpl_t* timer_queue_p = inherited::timer_queue ();
+    ACE_ASSERT (timer_queue_p);
+    result = timer_queue_p->reset_interval (timerID_in, interval_in);
+    if (result == -1)
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to reset_interval() for timer (ID: %u): \"%m\", aborting\n"),
+                  ACE_TEXT ("failed to ACE_Abstract_Timer_Queue::reset_interval() (timer ID was: %u): \"%m\", returning\n"),
                   timerID_in));
-
       return;
     } // end IF
   } // end lock scope
-
 //   ACE_DEBUG ((LM_DEBUG,
 //               ACE_TEXT ("reset timer interval (ID: %u)...\n"),
 //               timerID_in));
