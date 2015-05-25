@@ -60,8 +60,8 @@ typedef ACE_System_Time_Policy Common_TimePolicy_t;
 // *NOTE*: ensure a minimal amount of locking
 //typedef ACE_Event_Handler_Handle_Timeout_Upcall<ACE_SYNCH_NULL_MUTEX> Common_TimeoutUpcall_t;
 typedef ACE_Event_Handler_Handle_Timeout_Upcall Common_TimeoutUpcall_t;
-// *WARNING*: apparently, ACEs' timer heap implementation currently has some
-//            stability issue...
+//// *WARNING*: apparently, ACEs' timer heap implementation currently has some
+////            stability issue...
 //typedef ACE_Timer_Heap_T<ACE_Event_Handler*,
 //                         Common_TimeoutUpcall_t,
 //                         ACE_SYNCH_NULL_MUTEX,

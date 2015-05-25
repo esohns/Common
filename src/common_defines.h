@@ -22,6 +22,7 @@
 #define COMMON_DEFINES_H
 
 #include "ace/Default_Constants.h"
+#include "ace/POSIX_Proactor.h"
 
 // *** compiler ***
 #define COMMON_GCC_UNUSED_GUARD                 __attribute__ ((unused))
@@ -42,12 +43,13 @@
 //                   application
 #define COMMON_TIMER_THREAD_GROUP_ID            100
 #define COMMON_TIMER_THREAD_NAME                "timer dispatch"
-// *IMPORTANT NOTE*: currently used for (initial) slot pre-allocation only;
-// ultimately, the total number of available concurrent slots depends on the
-// actual implementation --> check the code, don't rely on ACE_DEFAULT_TIMERS
-//#define COMMON_DEF_NUM_TIMER_SLOTS              std::numeric_limits<long>::max()
-#define COMMON_DEF_NUM_TIMER_SLOTS              ACE_DEFAULT_TIMERS
-#define COMMON_PREALLOCATE_TIMER_SLOTS          true
+// *IMPORTANT NOTE*: currently used for (initial !) slot pre-allocation only;
+//                   ultimately, the total number of available concurrent slots
+//                   depends on the actual implementation
+//                   --> check the code, don't rely on ACE_DEFAULT_TIMERS
+//#define COMMON_TIMER_DEFAULT_NUM_TIMER_SLOTS    ACE_DEFAULT_TIMERS
+#define COMMON_TIMER_DEFAULT_NUM_TIMER_SLOTS    32768
+#define COMMON_TIMER_PREALLOCATE_TIMER_SLOTS    true
 
 // *** event loop ***
 #define COMMON_EVENT_DISPATCH_THREAD_GROUP_ID   101

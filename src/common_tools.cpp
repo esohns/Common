@@ -404,7 +404,7 @@ Common_Tools::getCurrentUserName (std::string& username_out,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::getCurrentUserName"));
 
-  // init return value(s)
+  // initialize return value(s)
   username_out.clear ();
   realname_out.clear ();
 
@@ -474,17 +474,19 @@ Common_Tools::getHostName ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::getHostName"));
 
-  std::string result;
-
-  ACE_TCHAR host_name[MAXHOSTNAMELEN];
+  int result = -1;
+  std::string return_value;
+  ACE_TCHAR host_name[MAXHOSTNAMELEN + 1];
   ACE_OS::memset (host_name, 0, sizeof (host_name));
-  if (ACE_OS::hostname (host_name, sizeof (host_name)) == -1)
+
+  result = ACE_OS::hostname (host_name, sizeof (host_name));
+  if (result == -1)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::hostname(): \"%m\", aborting\n")));
   else
-    result = host_name;
+    return_value = ACE_TEXT_ALWAYS_CHAR (host_name);
 
-  return result;
+  return return_value;
 }
 
 bool

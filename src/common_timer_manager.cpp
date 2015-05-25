@@ -43,12 +43,12 @@ Common_Timer_Manager::Common_Timer_Manager ()
 
   // set timer queue
   //ACE_NEW_NORETURN (timerQueue_,
-  //                  Common_TimerQueueImpl_t ((COMMON_PREALLOCATE_TIMER_SLOTS ? COMMON_DEF_NUM_TIMER_SLOTS
-  //                                                                           : 0), // preallocated slots
-  //                                           COMMON_PREALLOCATE_TIMER_SLOTS,       // preallocate timer nodes ?
-  //                                           &timerHandler_,                       // upcall functor
-  //                                           NULL,                                 // freelist --> allocate
-  //                                           timePolicy_));                        // time policy
+  //                  Common_TimerQueueImpl_t ((COMMON_TIMER_PREALLOCATE_TIMER_SLOTS ? COMMON_TIMER_DEFAULT_NUM_TIMER_SLOTS
+  //                                                                                 : 0), // preallocated slots
+  //                                           COMMON_TIMER_PREALLOCATE_TIMER_SLOTS,       // preallocate timer nodes ?
+  //                                           &timerHandler_,                             // upcall functor
+  //                                           NULL,                                       // freelist --> allocate
+  //                                           timePolicy_));                              // time policy
   ACE_NEW_NORETURN (timerQueue_,
                     Common_TimerQueueImpl_t (&timerHandler_, // upcall functor
                                              NULL,           // freelist --> allocate
