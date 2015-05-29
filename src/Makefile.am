@@ -12,6 +12,7 @@ AM_CPPFLAGS = \
 noinst_HEADERS = \
   stdafx.h
 include_HEADERS = \
+  common.h \
   common_defines.h \
   common_exports.h \
   common_file_tools.h \
@@ -33,14 +34,19 @@ include_HEADERS = \
   common_signalhandler.h \
   common_task_base.inl \
   common_task_base.h \
+  common_time_common.h \
+  common_timer_common.h \
+  common_timerhandler.h \
   common_timerhandler.h \
   common_timer_manager.h \
-  common_tools.h \
-  common.h
+  common_timer_manager.inl \
+  common_timer_manager_common.h \
+  common_tools.h
 
 lib_LTLIBRARIES = libCommon.la
 libCommon_la_LDFLAGS = -version-info @LIBCOMMON_LT_VERSION_INFO@
 libCommon_la_SOURCES = \
+  common.h \
   common_defines.h \
   common_exports.h \
   common_file_tools.cpp \
@@ -67,13 +73,16 @@ libCommon_la_SOURCES = \
   common_task_base.cpp \
   common_task_base.inl \
   common_task_base.h \
+  common_time_common.h \
+  common_timer_common.h \
   common_timerhandler.cpp \
   common_timerhandler.h \
   common_timer_manager.cpp \
   common_timer_manager.h \
+  common_timer_manager.inl \
+  common_timer_manager_common.h \
   common_tools.cpp \
   common_tools.h \
-  common.h \
   stdafx.cpp \
   stdafx.h
 #  stdafx.h.gch

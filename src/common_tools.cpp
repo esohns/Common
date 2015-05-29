@@ -41,8 +41,12 @@
 #include "ace/Log_Msg.h"
 #include "ace/Log_Msg_Backend.h"
 #include "ace/Proactor.h"
+#include "ace/POSIX_CB_Proactor.h"
 #include "ace/POSIX_Proactor.h"
 #include "ace/Reactor.h"
+#if defined (ACE_HAS_AIO_CALLS) && defined (sun)
+#include "ace/SUN_Proactor.h"
+#endif
 #include "ace/TP_Reactor.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "ace/WFMO_Reactor.h"
@@ -52,7 +56,7 @@
 
 #include "common_defines.h"
 #include "common_macros.h"
-#include "common_timer_manager.h"
+#include "common_timer_manager_common.h"
 
 void
 Common_Tools::initialize ()
@@ -72,7 +76,7 @@ Common_Tools::initialize ()
   //            ACE_TEXT ("calibrating high-resolution timer...done\n")));
 }
 
-Common_TimerQueue_t*
+Common_Timer_Manager_t*
 Common_Tools::getTimerManager ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::getTimerManager"));
@@ -81,13 +85,13 @@ Common_Tools::getTimerManager ()
 }
 
 bool
-Common_Tools::period2String(const ACE_Time_Value& period_in,
-                            std::string& timeString_out)
+Common_Tools::period2String (const ACE_Time_Value& period_in,
+                             std::string& timeString_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::period2String"));
 
   // init return value(s)
-  timeString_out.resize(0);
+  timeString_out.clear ();
 
   // extract hours and minutes...
   ACE_Time_Value temp = period_in;
@@ -474,11 +478,12 @@ Common_Tools::getHostName ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::getHostName"));
 
-  int result = -1;
+  // initialize return value(s)
   std::string return_value;
+
+  int result = -1;
   ACE_TCHAR host_name[MAXHOSTNAMELEN + 1];
   ACE_OS::memset (host_name, 0, sizeof (host_name));
-
   result = ACE_OS::hostname (host_name, sizeof (host_name));
   if (result == -1)
     ACE_DEBUG ((LM_ERROR,
@@ -830,27 +835,29 @@ Common_Tools::retrieveSignalInfo (int signal_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::retrieveSignalInfo"));
 
-  // init return value
-  information_out.resize (0);
+  // initialize return value
+  information_out.clear ();
 
+  int result = -1;
   std::ostringstream information;
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
   // step0: common information (on POSIX.1b)
-  information << ACE_TEXT ("PID/UID: ");
+  information << ACE_TEXT_ALWAYS_CHAR ("PID/UID: ");
   information << info_in.si_pid;
-  information << ACE_TEXT ("/");
+  information << ACE_TEXT_ALWAYS_CHAR ("/");
   information << info_in.si_uid;
 
   // (try to) get user name
-  char pw_buf[BUFSIZ];
-  passwd pw_struct;
-  passwd* pw_ptr = NULL;
+  char buffer[BUFSIZ];
+  struct passwd passwd;
+  struct passwd* passwd_p = NULL;
 // *PORTABILITY*: this isn't completely portable... (man getpwuid_r)
-  if (::getpwuid_r (info_in.si_uid,
-                    &pw_struct,
-                    pw_buf,
-                    sizeof (pw_buf),
-                    &pw_ptr))
+  result = ::getpwuid_r (info_in.si_uid,
+                         &passwd,
+                         buffer,
+                         sizeof (buffer),
+                         &passwd_p);
+  if (result || !passwd_p)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::getpwuid_r(%d) : \"%m\", continuing\n"),
@@ -858,37 +865,37 @@ Common_Tools::retrieveSignalInfo (int signal_in,
   } // end IF
   else
   {
-    information << ACE_TEXT ("[\"");
-    information << pw_struct.pw_name;
-    information << ACE_TEXT ("\"]");
+    information << ACE_TEXT_ALWAYS_CHAR ("[\"");
+    information << passwd.pw_name;
+    information << ACE_TEXT_ALWAYS_CHAR ("\"]");
   } // end ELSE
 
   // "si_signo,  si_errno  and  si_code are defined for all signals..."
-  information << ACE_TEXT (", errno: ");
+  information << ACE_TEXT_ALWAYS_CHAR (", errno: ");
   information << info_in.si_errno;
-  information << ACE_TEXT ("[\"");
+  information << ACE_TEXT_ALWAYS_CHAR ("[\"");
   information << ACE_OS::strerror (info_in.si_errno);
-  information << ACE_TEXT ("\"], code: ");
+  information << ACE_TEXT_ALWAYS_CHAR ("\"], code: ");
 
   // step1: retrieve signal code...
   switch (info_in.si_code)
   {
     case SI_USER:
-      information << ACE_TEXT ("SI_USER"); break;
+      information << ACE_TEXT_ALWAYS_CHAR ("SI_USER"); break;
     case SI_KERNEL:
-      information << ACE_TEXT ("SI_KERNEL"); break;
+      information << ACE_TEXT_ALWAYS_CHAR ("SI_KERNEL"); break;
     case SI_QUEUE:
-      information << ACE_TEXT ("SI_QUEUE"); break;
+      information << ACE_TEXT_ALWAYS_CHAR ("SI_QUEUE"); break;
     case SI_TIMER:
-      information << ACE_TEXT ("SI_TIMER"); break;
+      information << ACE_TEXT_ALWAYS_CHAR ("SI_TIMER"); break;
     case SI_MESGQ:
-      information << ACE_TEXT ("SI_MESGQ"); break;
+      information << ACE_TEXT_ALWAYS_CHAR ("SI_MESGQ"); break;
     case SI_ASYNCIO:
-      information << ACE_TEXT ("SI_ASYNCIO"); break;
+      information << ACE_TEXT_ALWAYS_CHAR ("SI_ASYNCIO"); break;
     case SI_SIGIO:
-      information << ACE_TEXT ("SI_SIGIO"); break;
+      information << ACE_TEXT_ALWAYS_CHAR ("SI_SIGIO"); break;
     case SI_TKILL:
-      information << ACE_TEXT ("SI_TKILL"); break;
+      information << ACE_TEXT_ALWAYS_CHAR ("SI_TKILL"); break;
     default:
     { // (signal-dependant) codes...
       switch (signal_in)
@@ -898,21 +905,21 @@ Common_Tools::retrieveSignalInfo (int signal_in,
           switch (info_in.si_code)
           {
             case ILL_ILLOPC:
-              information << ACE_TEXT ("ILL_ILLOPC"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("ILL_ILLOPC"); break;
             case ILL_ILLOPN:
-              information << ACE_TEXT ("ILL_ILLOPN"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("ILL_ILLOPN"); break;
             case ILL_ILLADR:
-              information << ACE_TEXT ("ILL_ILLADR"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("ILL_ILLADR"); break;
             case ILL_ILLTRP:
-              information << ACE_TEXT ("ILL_ILLTRP"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("ILL_ILLTRP"); break;
             case ILL_PRVOPC:
-              information << ACE_TEXT ("ILL_PRVOPC"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("ILL_PRVOPC"); break;
             case ILL_PRVREG:
-              information << ACE_TEXT ("ILL_PRVREG"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("ILL_PRVREG"); break;
             case ILL_COPROC:
-              information << ACE_TEXT ("ILL_COPROC"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("ILL_COPROC"); break;
             case ILL_BADSTK:
-              information << ACE_TEXT ("ILL_BADSTK"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("ILL_BADSTK"); break;
             default:
             {
               ACE_DEBUG ((LM_DEBUG,
@@ -930,21 +937,21 @@ Common_Tools::retrieveSignalInfo (int signal_in,
           switch (info_in.si_code)
           {
             case FPE_INTDIV:
-              information << ACE_TEXT ("FPE_INTDIV"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("FPE_INTDIV"); break;
             case FPE_INTOVF:
-              information << ACE_TEXT ("FPE_INTOVF"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("FPE_INTOVF"); break;
             case FPE_FLTDIV:
-              information << ACE_TEXT ("FPE_FLTDIV"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("FPE_FLTDIV"); break;
             case FPE_FLTOVF:
-              information << ACE_TEXT ("FPE_FLTOVF"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("FPE_FLTOVF"); break;
             case FPE_FLTUND:
-              information << ACE_TEXT ("FPE_FLTUND"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("FPE_FLTUND"); break;
             case FPE_FLTRES:
-              information << ACE_TEXT ("FPE_FLTRES"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("FPE_FLTRES"); break;
             case FPE_FLTINV:
-              information << ACE_TEXT ("FPE_FLTINV"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("FPE_FLTINV"); break;
             case FPE_FLTSUB:
-              information << ACE_TEXT ("FPE_FLTSUB"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("FPE_FLTSUB"); break;
             default:
             {
               ACE_DEBUG ((LM_DEBUG,
@@ -962,9 +969,9 @@ Common_Tools::retrieveSignalInfo (int signal_in,
           switch (info_in.si_code)
           {
             case SEGV_MAPERR:
-              information << ACE_TEXT ("SEGV_MAPERR"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("SEGV_MAPERR"); break;
             case SEGV_ACCERR:
-              information << ACE_TEXT ("SEGV_ACCERR"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("SEGV_ACCERR"); break;
             default:
             {
               ACE_DEBUG ((LM_DEBUG,
@@ -982,11 +989,11 @@ Common_Tools::retrieveSignalInfo (int signal_in,
           switch (info_in.si_code)
           {
             case BUS_ADRALN:
-              information << ACE_TEXT ("BUS_ADRALN"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("BUS_ADRALN"); break;
             case BUS_ADRERR:
-              information << ACE_TEXT ("BUS_ADRERR"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("BUS_ADRERR"); break;
             case BUS_OBJERR:
-              information << ACE_TEXT ("BUS_OBJERR"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("BUS_OBJERR"); break;
             default:
             {
               ACE_DEBUG ((LM_DEBUG,
@@ -1004,9 +1011,9 @@ Common_Tools::retrieveSignalInfo (int signal_in,
           switch (info_in.si_code)
           {
             case TRAP_BRKPT:
-              information << ACE_TEXT ("TRAP_BRKPT"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("TRAP_BRKPT"); break;
             case TRAP_TRACE:
-              information << ACE_TEXT ("TRAP_TRACE"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("TRAP_TRACE"); break;
             default:
             {
               ACE_DEBUG ((LM_DEBUG,
@@ -1024,17 +1031,17 @@ Common_Tools::retrieveSignalInfo (int signal_in,
           switch (info_in.si_code)
           {
             case CLD_EXITED:
-              information << ACE_TEXT ("CLD_EXITED"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("CLD_EXITED"); break;
             case CLD_KILLED:
-              information << ACE_TEXT ("CLD_KILLED"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("CLD_KILLED"); break;
             case CLD_DUMPED:
-              information << ACE_TEXT ("CLD_DUMPED"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("CLD_DUMPED"); break;
             case CLD_TRAPPED:
-              information << ACE_TEXT ("CLD_TRAPPED"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("CLD_TRAPPED"); break;
             case CLD_STOPPED:
-              information << ACE_TEXT ("CLD_STOPPED"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("CLD_STOPPED"); break;
             case CLD_CONTINUED:
-              information << ACE_TEXT ("CLD_CONTINUED"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("CLD_CONTINUED"); break;
             default:
             {
               ACE_DEBUG ((LM_DEBUG,
@@ -1052,17 +1059,17 @@ Common_Tools::retrieveSignalInfo (int signal_in,
           switch (info_in.si_code)
           {
             case POLL_IN:
-              information << ACE_TEXT ("POLL_IN"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("POLL_IN"); break;
             case POLL_OUT:
-              information << ACE_TEXT ("POLL_OUT"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("POLL_OUT"); break;
             case POLL_MSG:
-              information << ACE_TEXT ("POLL_MSG"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("POLL_MSG"); break;
             case POLL_ERR:
-              information << ACE_TEXT ("POLL_ERR"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("POLL_ERR"); break;
             case POLL_PRI:
-              information << ACE_TEXT ("POLL_PRI"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("POLL_PRI"); break;
             case POLL_HUP:
-              information << ACE_TEXT ("POLL_HUP"); break;
+              information << ACE_TEXT_ALWAYS_CHAR ("POLL_HUP"); break;
             default:
             {
               ACE_DEBUG ((LM_DEBUG,
@@ -1094,20 +1101,20 @@ Common_Tools::retrieveSignalInfo (int signal_in,
   {
     case SIGALRM:
     {
-      information << ACE_TEXT (", overrun: ");
+      information << ACE_TEXT_ALWAYS_CHAR (", overrun: ");
       information << info_in.si_overrun;
-      information << ACE_TEXT (", (internal) id: ");
+      information << ACE_TEXT_ALWAYS_CHAR (", (internal) id: ");
       information << info_in.si_timerid;
 
       break;
     }
     case SIGCHLD:
     {
-      information << ACE_TEXT (", (exit) status: ");
+      information << ACE_TEXT_ALWAYS_CHAR (", (exit) status: ");
       information << info_in.si_status;
-      information << ACE_TEXT (", time consumed (user): ");
+      information << ACE_TEXT_ALWAYS_CHAR (", time consumed (user): ");
       information << info_in.si_utime;
-      information << ACE_TEXT (" / (system): ");
+      information << ACE_TEXT_ALWAYS_CHAR (" / (system): ");
       information << info_in.si_stime;
 
       break;
@@ -1118,16 +1125,16 @@ Common_Tools::retrieveSignalInfo (int signal_in,
     case SIGBUS:
     {
       // *TODO*: more data ?
-      information << ACE_TEXT (", fault at address: ");
+      information << ACE_TEXT_ALWAYS_CHAR (", fault at address: ");
       information << info_in.si_addr;
 
       break;
     }
     case SIGPOLL:
     {
-      information << ACE_TEXT (", band event: ");
+      information << ACE_TEXT_ALWAYS_CHAR (", band event: ");
       information << info_in.si_band;
-      information << ACE_TEXT (", (file) descriptor: ");
+      information << ACE_TEXT_ALWAYS_CHAR (", (file) descriptor: ");
       information << info_in.si_fd;
 
       break;
@@ -1146,21 +1153,21 @@ Common_Tools::retrieveSignalInfo (int signal_in,
   switch (signal_in)
   {
     case SIGINT:
-      information << ACE_TEXT ("SIGINT"); break;
+      information << ACE_TEXT_ALWAYS_CHAR ("SIGINT"); break;
     case SIGILL:
-      information << ACE_TEXT ("SIGILL"); break;
+      information << ACE_TEXT_ALWAYS_CHAR ("SIGILL"); break;
     case SIGFPE:
-      information << ACE_TEXT ("SIGFPE"); break;
+      information << ACE_TEXT_ALWAYS_CHAR ("SIGFPE"); break;
     case SIGSEGV:
-      information << ACE_TEXT ("SIGSEGV"); break;
+      information << ACE_TEXT_ALWAYS_CHAR ("SIGSEGV"); break;
     case SIGTERM:
-      information << ACE_TEXT ("SIGTERM"); break;
+      information << ACE_TEXT_ALWAYS_CHAR ("SIGTERM"); break;
     case SIGBREAK:
-      information << ACE_TEXT ("SIGBREAK"); break;
+      information << ACE_TEXT_ALWAYS_CHAR ("SIGBREAK"); break;
     case SIGABRT:
-      information << ACE_TEXT ("SIGABRT"); break;
+      information << ACE_TEXT_ALWAYS_CHAR ("SIGABRT"); break;
     case SIGABRT_COMPAT:
-      information << ACE_TEXT ("SIGABRT_COMPAT"); break;
+      information << ACE_TEXT_ALWAYS_CHAR ("SIGABRT_COMPAT"); break;
     default:
     {
       ACE_DEBUG ((LM_DEBUG,
@@ -1171,9 +1178,9 @@ Common_Tools::retrieveSignalInfo (int signal_in,
     }
   } // end SWITCH
 
-  information << ACE_TEXT (", signalled handle: ");
+  information << ACE_TEXT_ALWAYS_CHAR (", signalled handle: ");
   information << info_in.si_handle_;
-  //information << ACE_TEXT (", array of signalled handle(s): ");
+  //information << ACE_TEXT_ALWAYS_CHAR (", array of signalled handle(s): ");
   //information << info_in.si_handles_;
 #endif
 
@@ -1191,28 +1198,51 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
   // initialize return value(s)
   serializeOutput_out = false;
 
+  // step0: select reactor/proactor implementation
+  Common_Reactor_t reactor_type = COMMON_EVENT_REACTOR_DEFAULT;
+  Common_Proactor_t proactor_type = COMMON_EVENT_PROACTOR_DEFAULT;
+  if (useReactor_in)
+  {
+#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+    if (COMMON_EVENT_POSIX_USE_DEV_POLL_REACTOR)
+      reactor_type = COMMON_EVENT_REACTOR_DEV_POLL;
+    else
+#else
+    if (COMMON_EVENT_WINXX_USE_WFMO_REACTOR)
+      reactor_type = COMMON_EVENT_REACTOR_WFMO;
+    else
+#endif
+      reactor_type = (useThreadPool_in ? COMMON_EVENT_REACTOR_TP
+                                       : COMMON_EVENT_REACTOR_SELECT);
+  } // end IF
+  else
+  {
+#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+    if (COMMON_EVENT_USE_SIG_PROACTOR)
+      proactor_type = COMMON_EVENT_PROACTOR_POSIX_SIG;
+#endif
+  } // end ELSE
+
   // step1: initialize reactor/proactor
   if (useReactor_in)
   {
     ACE_Reactor_Impl* reactor_impl_p = NULL;
-    if (useThreadPool_in)
+    switch (reactor_type)
     {
-      ACE_NEW_NORETURN (reactor_impl_p,
-                        ACE_TP_Reactor (ACE::max_handles (),              // max num handles (1024)
-                                        true,                             // restart after EINTR ?
-                                        NULL,                             // signal handler handle
-                                        NULL,                             // timer queue handle
-                                        true,                             // mask signals ?
-                                        ACE_Select_Reactor_Token::FIFO)); // signal queue
-
-      serializeOutput_out = true;
-    } // end ELSE
-    else
-    {
+      case COMMON_EVENT_REACTOR_DEFAULT:
+      {
+//        ACE_DEBUG ((LM_DEBUG,
+//                    ACE_TEXT ("using default (platform-specific) reactor...\n")));
+        break;
+      }
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-      if (COMMON_EVENT_POSIX_USE_DEV_POLL_REACTOR)
+      case COMMON_EVENT_REACTOR_DEV_POLL:
+      {
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("using dev/poll reactor...\n")));
+
         ACE_NEW_NORETURN (reactor_impl_p,
-                          ACE_Dev_Poll_Reactor (ACE::max_handles (),             // max num handles (1024)
+                          ACE_Dev_Poll_Reactor (COMMON_EVENT_MAXIMUM_HANDLES,    // max num handles
                                                 true,                            // restart after EINTR ?
                                                 NULL,                            // signal handler handle
                                                 NULL,                            // timer queue handle
@@ -1220,19 +1250,17 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
                                                 NULL,                            // notification handler handle
                                                 1,                               // mask signals ?
                                                 ACE_DEV_POLL_TOKEN::FIFO));      // signal queue
-#else
-      if (COMMON_EVENT_WINXX_USE_WFMO_REACTOR)
-        ACE_NEW_NORETURN (reactor_impl_p,
-                          ACE_WFMO_Reactor (ACE_WFMO_Reactor::DEFAULT_SIZE, // max num handles (62 [+ 2])
-                                            0,                              // unused
-                                            NULL,                           // signal handler handle
-                                            NULL,                           // timer queue handle
-                                            NULL));                         // notification handler handle
+
+        break;
+      }
 #endif
-      else
+      case COMMON_EVENT_REACTOR_SELECT:
       {
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("using select reactor...\n")));
+
         ACE_NEW_NORETURN (reactor_impl_p,
-                          ACE_Select_Reactor (ACE::max_handles (),             // max num handles (1024)
+                          ACE_Select_Reactor (COMMON_EVENT_MAXIMUM_HANDLES,    // max num handles
                                               true,                            // restart after EINTR ?
                                               NULL,                            // signal handler handle
                                               NULL,                            // timer queue handle
@@ -1240,27 +1268,64 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
                                               NULL,                            // notification handler handle
                                               true,                            // mask signals ?
                                               ACE_SELECT_TOKEN::FIFO));        // signal queue
-      } // end ELSE
-      if (!reactor_impl_p)
+
+        break;
+      }
+      case COMMON_EVENT_REACTOR_TP:
+      {
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("using thread-pool reactor...\n")));
+
+        ACE_NEW_NORETURN (reactor_impl_p,
+                          ACE_TP_Reactor (COMMON_EVENT_MAXIMUM_HANDLES,     // max num handles
+                                          true,                             // restart after EINTR ?
+                                          NULL,                             // signal handler handle
+                                          NULL,                             // timer queue handle
+                                          true,                             // mask signals ?
+                                          ACE_Select_Reactor_Token::FIFO)); // signal queue
+
+        break;
+      }
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      case COMMON_EVENT_REACTOR_WFMO:
+      {
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("using WFMO reactor...\n")));
+
+        ACE_NEW_NORETURN (reactor_impl_p,
+                          ACE_WFMO_Reactor (ACE_WFMO_Reactor::DEFAULT_SIZE, // max num handles (62 [+ 2])
+                                            0,                              // unused
+                                            NULL,                           // signal handler handle
+                                            NULL,                           // timer queue handle
+                                            NULL));                         // notification handler handle
+
+        break;
+      }
+#endif
+      default:
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("invalid/unknown reactor type (was: %d), aborting\n"),
+                    reactor_type));
+        return false;
+      }
+    } // end SWITCH
+    ACE_Reactor* reactor_p = NULL;
+    if (reactor_impl_p)
+    {
+      ACE_NEW_NORETURN (reactor_p,
+                        ACE_Reactor (reactor_impl_p, // implementation handle
+                                     1));            // delete in dtor ?
+      if (!reactor_p)
       {
         ACE_DEBUG ((LM_CRITICAL,
                     ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
+
+        // clean up
+        delete reactor_impl_p;
+
         return false;
       } // end IF
-    } // end IF
-    ACE_Reactor* reactor_p = NULL;
-    ACE_NEW_NORETURN (reactor_p,
-                      ACE_Reactor (reactor_impl_p, // implementation handle
-                                   1));            // delete in dtor ?
-    if (!reactor_p)
-    {
-      ACE_DEBUG ((LM_CRITICAL,
-                  ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
-
-      // clean up
-      delete reactor_impl_p;
-
-      return false;
     } // end IF
 
     // make this the "default" reactor...
@@ -1273,28 +1338,81 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
   else
   {
     ACE_Proactor_Impl* proactor_impl_p = NULL;
+    switch (proactor_type)
+    {
+      case COMMON_EVENT_PROACTOR_DEFAULT:
+      {
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("using default (platform-specific) proactor...\n")));
+        break;
+      }
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-    if (COMMON_EVENT_USE_SIG_PROACTOR)
-    {
-      ACE_NEW_NORETURN (proactor_impl_p,
-                        ACE_POSIX_SIG_Proactor (COMMON_EVENT_MAXIMUM_AIO_OPERATIONS)); // parallel operations
-    } // end IF
-#else
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("using default platform proactor...\n")));
+      case COMMON_EVENT_PROACTOR_POSIX_AIOCB:
+      {
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("using POSIX AIOCB proactor...\n")));
+
+        ACE_NEW_NORETURN (proactor_impl_p,
+                          ACE_POSIX_AIOCB_Proactor (COMMON_EVENT_MAXIMUM_AIO_OPERATIONS)); // parallel operations
+
+        break;
+      }
+      case COMMON_EVENT_PROACTOR_POSIX_SIG:
+      {
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("using POSIX RT-signal proactor...\n")));
+
+        ACE_NEW_NORETURN (proactor_impl_p,
+                          ACE_POSIX_SIG_Proactor (COMMON_EVENT_MAXIMUM_AIO_OPERATIONS)); // parallel operations
+
+        break;
+      }
+#if defined (ACE_HAS_AIO_CALLS) && defined (sun)
+      case COMMON_EVENT_PROACTOR_POSIX_SUN:
+      {
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("using SunOS proactor...\n")));
+
+        ACE_NEW_NORETURN (proactor_impl_p,
+                          ACE_SUN_Proactor (COMMON_EVENT_MAXIMUM_AIO_OPERATIONS)); // parallel operations
+
+        break;
+      }
 #endif
+      case COMMON_EVENT_PROACTOR_POSIX_CB:
+      {
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("using POSIX CB proactor...\n")));
+
+        ACE_NEW_NORETURN (proactor_impl_p,
+                          ACE_POSIX_CB_Proactor (COMMON_EVENT_MAXIMUM_AIO_OPERATIONS)); // parallel operations
+
+        break;
+      }
+#endif
+      default:
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("invalid/unknown proactor type (was: %d), aborting\n"),
+                    proactor_type));
+        return false;
+      }
+    } // end SWITCH
     ACE_Proactor* proactor_p = NULL;
-    ACE_NEW_NORETURN (proactor_p,
-                      ACE_Proactor (proactor_impl_p, // implementation handle --> create new ?
-//                                    false,  // *NOTE*: call close() manually
-//                                            // (see finalizeEventDispatch() below)
-                                    true,   // delete in dtor ?
-                                    NULL)); // timer queue handle --> create new
-    if (!proactor_p)
+    if (proactor_impl_p)
     {
-      ACE_DEBUG ((LM_CRITICAL,
-                  ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
-      return false;
+      ACE_NEW_NORETURN (proactor_p,
+                        ACE_Proactor (proactor_impl_p, // implementation handle --> create new ?
+                                      //                                    false,  // *NOTE*: call close() manually
+                                      //                                            // (see finalizeEventDispatch() below)
+                                      true,   // delete in dtor ?
+                                      NULL)); // timer queue handle --> create new
+      if (!proactor_p)
+      {
+        ACE_DEBUG ((LM_CRITICAL,
+                    ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
+        return false;
+      } // end IF
     } // end IF
 
     // make this the "default" proactor...
@@ -1303,21 +1421,6 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
                                 1);         // delete in dtor ?
     if (previous_proactor_p)
       delete previous_proactor_p;
-
-//    ACE_POSIX_Proactor::Proactor_Type proactor_type =
-//        proactor_p->get_impl_type ();
-//    switch (proactor_type)
-//    {
-//      case ACE_POSIX_Proactor::PROACTOR_SIG:
-//        break;
-//      default:
-//      {
-//        ACE_DEBUG ((LM_ERROR,
-//                    ACE_TEXT ("invalid/unknown proactor type (was: %d), aborting\n"),
-//                    proactor_type));
-//        return false;
-//      }
-//    } // end SWITCH
   } // end ELSE
 
   return true;
@@ -1630,3 +1733,4 @@ Common_Tools::unblockRealtimeSignals (sigset_t& originalMask_out)
     return;
   } // end IF
 }
+

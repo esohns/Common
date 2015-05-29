@@ -21,8 +21,11 @@
 #ifndef COMMON_DEFINES_H
 #define COMMON_DEFINES_H
 
+#include "ace/ACE.h"
 #include "ace/Default_Constants.h"
 #include "ace/POSIX_Proactor.h"
+
+//#include "common.h"
 
 // *** compiler ***
 #define COMMON_GCC_UNUSED_GUARD                 __attribute__ ((unused))
@@ -39,6 +42,9 @@
 #define COMMON_LOG_VERBOSE                      false
 
 // *** timers ***
+#define COMMON_TIMER_MANAGER_DEFAULT_MODE       COMMON_TIMER_MODE_QUEUE
+#define COMMON_TIMER_MANAGER_DEFAULT_QUEUE      COMMON_TIMER_QUEUE_WHEEL
+
 // *IMPORTANT NOTE*: make sure group IDs are consistent across the entire (!)
 //                   application
 #define COMMON_TIMER_THREAD_GROUP_ID            100
@@ -56,9 +62,9 @@
 #define COMMON_EVENT_DISPATCH_THREAD_NAME       "event dispatch"
 // reactor
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define COMMON_EVENT_WINXX_USE_WFMO_REACTOR     false // ? ACE_WFMO_Reactor : ACE_TP_Reactor
+#define COMMON_EVENT_WINXX_USE_WFMO_REACTOR     false
 #else
-#define COMMON_EVENT_POSIX_USE_DEV_POLL_REACTOR false // ? ACE_Dev_Poll_Reactor : ACE_TP_Reactor
+#define COMMON_EVENT_POSIX_USE_DEV_POLL_REACTOR true
 #endif
 // proactor
 // *NOTE*: on Linux, this is the default proactor
@@ -70,6 +76,7 @@
 //                   used in applications. ..." (see 'man 7 pthreads')
 // --> on POSIX platforms, make sure that ACE_SIGRTMIN == 34
 #define COMMON_EVENT_PROACTOR_SIG_RT_SIGNAL     ACE_SIGRTMIN
+#define COMMON_EVENT_MAXIMUM_HANDLES            ACE::max_handles ()
 
 // *** environment ***
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)

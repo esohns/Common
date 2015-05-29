@@ -21,60 +21,87 @@
 #ifndef COMMON_TIMER_MANAGER_H
 #define COMMON_TIMER_MANAGER_H
 
+#include "ace/Asynch_IO.h"
+#include "ace/Event_Handler.h"
 #include "ace/Singleton.h"
 #include "ace/Synch.h"
 #include "ace/Time_Value.h"
 
-#include "common_exports.h"
 #include "common.h"
 #include "common_icontrol.h"
 #include "common_idumpstate.h"
+#include "common_iinitialize.h"
+//#include "common_time_common.h"
+#include "common_timer_common.h"
 
-class Common_Export Common_Timer_Manager
- : public Common_TimerQueue_t,
+template <typename TimerQueueType,
+          typename TimerQueueAdapterType>
+class Common_Timer_Manager_T
+ : public TimerQueueAdapterType,
    public Common_IControl,
-   public Common_IDumpState
+   public Common_IDumpState,
+   public Common_IInitialize_T<Common_TimerConfiguration_t>
 {
   // singleton needs access to the ctor/dtors
-  friend class ACE_Singleton<Common_Timer_Manager,
+  friend class ACE_Singleton<Common_Timer_Manager_T<TimerQueueType,
+                                                    TimerQueueAdapterType>,
                              ACE_Recursive_Thread_Mutex>;
 
  public:
-  void resetInterval (long,                   // timer ID
-                      const ACE_Time_Value&); // interval
+  // proactor version
+  long schedule_timer (ACE_Handler&,                                  // event handler
+                       const void*,                                   // act
+                       const ACE_Time_Value&,                         // delay
+                       const ACE_Time_Value& = ACE_Time_Value::zero); // interval
+  // *NOTE*: API adopted from ACE_Reactor_Timer_Interface
+  long schedule_timer (ACE_Event_Handler*,                            // event handler
+                       const void*,                                   // act
+                       const ACE_Time_Value&,                         // delay
+                       const ACE_Time_Value& = ACE_Time_Value::zero); // interval
+  int reset_timer_interval (long,                   // timer id
+                            const ACE_Time_Value&); // interval
+  int cancel_timer (long,             // timer id
+                    const void** = 0, // return value: act
+                    int = 1);         // don't call handle_close()
 
   // implement Common_IControl
-  virtual void stop (bool = true);
+  virtual void start ();
+  virtual void stop (bool = true); // locked access ?
   virtual bool isRunning () const;
 
   // implement Common_IDumpState
   virtual void dump_state () const;
 
+  // implement Common_IInitialize_T
+  virtual bool initialize (const Common_TimerConfiguration_t&);
+
  private:
-  typedef Common_TimerQueue_t inherited;
+  typedef TimerQueueAdapterType inherited;
 
-  virtual void start ();
+  // convenience types
+  typedef Common_Timer_Manager_T<TimerQueueType,
+                                 TimerQueueAdapterType> OWN_TYPE;
 
-  Common_Timer_Manager ();
-  ACE_UNIMPLEMENTED_FUNC (Common_Timer_Manager (const Common_Timer_Manager&));
-  ACE_UNIMPLEMENTED_FUNC (Common_Timer_Manager& operator= (const Common_Timer_Manager&));
-  virtual ~Common_Timer_Manager ();
+  Common_Timer_Manager_T ();
+  ACE_UNIMPLEMENTED_FUNC (Common_Timer_Manager_T (const Common_Timer_Manager_T&));
+  ACE_UNIMPLEMENTED_FUNC (Common_Timer_Manager_T& operator= (const Common_Timer_Manager_T&));
+  virtual ~Common_Timer_Manager_T ();
 
   // helper methods
-  void fini_timers ();
+  unsigned int flushTimers ();
+  bool initializeTimerQueue ();
+
+  Common_TimerConfiguration_t configuration_;
 
   // *IMPORTANT NOTE*: this is only the functor, individual handlers are
   //                   managed in the queue
-  Common_TimeoutUpcall_t     timerHandler_;
-  Common_TimerQueueImpl_t*   timerQueue_;
+  Common_TimeoutUpcall_t      timerHandler_;
+  TimerQueueType*             timerQueue_;
 
-  static Common_TimePolicy_t timePolicy_;
+//  static Common_TimePolicy_t  timePolicy_;
 };
 
-typedef ACE_Singleton<Common_Timer_Manager,
-                      ACE_Recursive_Thread_Mutex> COMMON_TIMERMANAGER_SINGLETON;
-COMMON_SINGLETON_DECLARE (ACE_Singleton,
-                          Common_Timer_Manager,
-                          ACE_Recursive_Thread_Mutex);
+// include template implementation
+#include "common_timer_manager.inl"
 
 #endif

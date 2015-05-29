@@ -27,8 +27,9 @@
 #include "ace/Time_Value.h"
 #include "ace/Signal.h"
 
-#include "common_exports.h"
 #include "common.h"
+#include "common_exports.h"
+#include "common_timer_manager_common.h"
 
 // forward declaration(s)
 class ACE_Log_Msg_Backend;
@@ -42,7 +43,7 @@ class Common_Export Common_Tools
   static void initialize ();
 
   // --- singleton ---
-  static Common_TimerQueue_t* getTimerManager ();
+  static Common_Timer_Manager_t* getTimerManager ();
 
   // --- strings ---
   // use this to generate a "condensed" period string

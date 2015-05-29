@@ -25,94 +25,72 @@
 #include <map>
 #include <string>
 
-// timer queue
-#include "ace/Version.h"
-#if (ACE_MAJOR_VERSION >= 6) && \
-    ((ACE_MINOR_VERSION > 0) || \
-     (ACE_BETA_VERSION  > 3))
-#include "ace/Event_Handler_Handle_Timeout_Upcall.h"
-#else
-#include "ace/Timer_Queuefwd.h"
-#endif
-#include "ace/Module.h"
 #include "ace/Signal.h"
-#include "ace/Synch_Traits.h"
-#include "ace/Task.h"
-//#include "ace/Timer_Heap_T.h"
-#include "ace/Timer_List_T.h"
-//#include "ace/Timer_Wheel_T.h"
-#include "ace/Timer_Queue_T.h"
-#include "ace/Timer_Queue_Adapters.h"
-#if (ACE_MAJOR_VERSION >= 6) && \
-    ((ACE_MINOR_VERSION > 1) || \
-     (ACE_BETA_VERSION  > 6))
-#include "ace/Time_Policy.h"
 
 #include "common_defines.h"
 
-// *NOTE*: use the high resolution time for accuracy and low latency
-typedef ACE_HR_Time_Policy Common_TimePolicy_t;
-#else
-#error "ACE version > 6.1.6 required"
-typedef ACE_System_Time_Policy Common_TimePolicy_t;
-#endif
+enum Common_TimerMode_t
+{
+  COMMON_TIMER_MODE_PROACTOR = 0,
+  COMMON_TIMER_MODE_QUEUE,
+  COMMON_TIMER_MODE_REACTOR,
+  COMMON_TIMER_MODE_SIGNAL,
+  /////////////////////////////////////
+  COMMON_TIMER_MODE_MAX,
+  COMMON_TIMER_MODE_INVALID
+};
 
-// *NOTE*: ensure a minimal amount of locking
-//typedef ACE_Event_Handler_Handle_Timeout_Upcall<ACE_SYNCH_NULL_MUTEX> Common_TimeoutUpcall_t;
-typedef ACE_Event_Handler_Handle_Timeout_Upcall Common_TimeoutUpcall_t;
-//// *WARNING*: apparently, ACEs' timer heap implementation currently has some
-////            stability issue...
-//typedef ACE_Timer_Heap_T<ACE_Event_Handler*,
-//                         Common_TimeoutUpcall_t,
-//                         ACE_SYNCH_NULL_MUTEX,
-//                         Common_TimePolicy_t> Common_TimerQueueImpl_t;
-//typedef ACE_Timer_Heap_Iterator_T<ACE_Event_Handler*,
-//                                  Common_TimeoutUpcall_t,
-//                                  ACE_SYNCH_NULL_MUTEX,
-//                                  Common_TimePolicy_t> Common_TimerQueueImplIterator_t;
-typedef ACE_Timer_List_T<ACE_Event_Handler*,
-                         Common_TimeoutUpcall_t,
-                         ACE_SYNCH_NULL_MUTEX,
-                         Common_TimePolicy_t> Common_TimerQueueImpl_t;
-typedef ACE_Timer_List_Iterator_T<ACE_Event_Handler*,
-                                  Common_TimeoutUpcall_t,
-                                  ACE_SYNCH_NULL_MUTEX,
-                                  Common_TimePolicy_t> Common_TimerQueueImplIterator_t;
-//typedef ACE_Timer_Wheel_T<ACE_Event_Handler*,
-//                          Common_TimeoutUpcall_t,
-//                          ACE_SYNCH_NULL_MUTEX,
-//                          Common_TimePolicy_t> Common_TimerQueueImpl_t;
-//typedef ACE_Timer_Wheel_Iterator_T<ACE_Event_Handler*,
-//                                   Common_TimeoutUpcall_t,
-//                                   ACE_SYNCH_NULL_MUTEX,
-//                                   Common_TimePolicy_t> Common_TimerQueueImplIterator_t;
-typedef ACE_Thread_Timer_Queue_Adapter<Common_TimerQueueImpl_t,
-                                       ACE_Event_Handler*> Common_TimerQueue_t;
+enum Common_TimerQueueType_t
+{
+  COMMON_TIMER_QUEUE_HEAP = 0,
+  COMMON_TIMER_QUEUE_LIST,
+  COMMON_TIMER_QUEUE_WHEEL,
+  ///////////////////////////////////////
+  COMMON_TIMER_QUEUE_MAX,
+  COMMON_TIMER_QUEUE_INVALID
+};
 
+struct Common_TimerConfiguration_t
+{
+  inline Common_TimerConfiguration_t ()
+   : mode (COMMON_TIMER_MANAGER_DEFAULT_MODE)
+   , queueType (COMMON_TIMER_MANAGER_DEFAULT_QUEUE)
+  {};
+
+  Common_TimerMode_t      mode;
+  Common_TimerQueueType_t queueType;
+};
+
+// *** signals ***
 typedef std::map<int, ACE_Sig_Action> Common_SignalActions_t;
 typedef Common_SignalActions_t::const_iterator Common_SignalActionsIterator_t;
 
-typedef ACE_Task<ACE_MT_SYNCH,
-                 Common_TimePolicy_t> Common_Task_t;
-typedef ACE_Module<ACE_MT_SYNCH,
-                   Common_TimePolicy_t> Common_Module_t;
+// *** event dispatch
+enum Common_Proactor_t
+{
+  COMMON_EVENT_PROACTOR_DEFAULT = 0, // platform-specific
+  COMMON_EVENT_PROACTOR_POSIX_AIOCB, // POSIX only !
+  COMMON_EVENT_PROACTOR_POSIX_SIG,   // POSIX only !
+  COMMON_EVENT_PROACTOR_POSIX_SUN,   // POSIX only !
+  COMMON_EVENT_PROACTOR_POSIX_CB,    // POSIX only !
+  ///////////////////////////////////////
+  COMMON_EVENT_PROACTOR_MAX,
+  COMMON_EVENT_PROACTOR_INVALID
+};
 
-#if (ACE_MAJOR_VERSION >= 6) && \
-    ((ACE_MINOR_VERSION > 1) || \
-     (ACE_BETA_VERSION  > 6))
-// *NOTE*: global time policy (supplies gettimeofday())
-#if defined __GNUC__
-//#pragma GCC diagnostic ignored "-Wunused-variable"
-COMMON_GCC_UNUSED_GUARD static Common_TimePolicy_t COMMON_TIME_POLICY;
-//#pragma GCC diagnostic pop
-#else
-static Common_TimePolicy_t COMMON_TIME_POLICY;
-#endif
-#define COMMON_TIME_NOW COMMON_TIME_POLICY ()
-#else
-#define COMMON_TIME_NOW ACE_OS::gettimeofday ()
-#endif
+enum Common_Reactor_t
+{
+  COMMON_EVENT_REACTOR_DEFAULT = 0, // platform-specific
+  COMMON_EVENT_REACTOR_DEV_POLL,    // POSIX only !
+  COMMON_EVENT_REACTOR_SELECT,
+  COMMON_EVENT_REACTOR_TP,
+  COMMON_EVENT_REACTOR_WFMO,        // Win32 only !
+  ///////////////////////////////////////
+  COMMON_EVENT_REACTOR_MAX,
+  COMMON_EVENT_REACTOR_INVALID
+};
 
+// *** log ***
 typedef std::deque<std::string> Common_MessageStack_t;
 typedef Common_MessageStack_t::const_iterator Common_MessageStackConstIterator_t;
 //typedef std::deque<ACE_Log_Record> Common_LogRecordStack_t;

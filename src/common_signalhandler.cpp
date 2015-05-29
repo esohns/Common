@@ -24,10 +24,10 @@
 #include <string>
 
 #include "ace/Assert.h"
-#include "ace/OS.h"
-#include "ace/Reactor.h"
-#include "ace/Proactor.h"
 #include "ace/Log_Msg.h"
+#include "ace/OS.h"
+#include "ace/Proactor.h"
+#include "ace/Reactor.h"
 
 #include "common_isignal.h"
 #include "common_macros.h"
@@ -94,24 +94,28 @@ Common_SignalHandler::handle_signal (int signal_in,
   // schedule an event (see below)
   if (useReactor_)
   {
-    result = ACE_Reactor::instance ()->notify (this,
-                                               ACE_Event_Handler::EXCEPT_MASK,
-                                               NULL);
+    ACE_Reactor* reactor_p = ACE_Reactor::instance ();
+    ACE_ASSERT (reactor_p);
+    result = reactor_p->notify (this,
+                                ACE_Event_Handler::EXCEPT_MASK,
+                                NULL);
     // *PORTABILITY*: tracing in a signal handler context is not portable
-    if (result == -1)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Reactor::notify: \"%m\", aborting\n")));
+//    if (result == -1)
+//      ACE_DEBUG ((LM_ERROR,
+//                  ACE_TEXT ("failed to ACE_Reactor::notify: \"%m\", aborting\n")));
   } // end IF
   else
   {
+    ACE_Proactor* proactor_p = ACE_Proactor::instance ();
+    ACE_ASSERT (proactor_p);
     result =
-        ACE_Proactor::instance ()->schedule_timer (*this,                 // event handler
-                                                   NULL,                  // act
-                                                   ACE_Time_Value::zero); // expire immediately
+        proactor_p->schedule_timer (*this,                 // event handler
+                                    NULL,                  // act
+                                    ACE_Time_Value::zero); // expire immediately
     // *PORTABILITY*: tracing in a signal handler context is not portable
-    if (result == -1)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Proactor::schedule_timer: \"%m\", aborting\n")));
+//    if (result == -1)
+//      ACE_DEBUG ((LM_ERROR,
+//                  ACE_TEXT ("failed to ACE_Proactor::schedule_timer: \"%m\", aborting\n")));
   } // end ELSE
 
   return result;
@@ -139,18 +143,17 @@ Common_SignalHandler::handle_exception (ACE_HANDLE handle_in)
 
   ACE_UNUSED_ARG (handle_in);
 
-  //// *PORTABILITY*: tracing in a signal handler context is not portable
-  //std::string information;
-  //Common_Tools::retrieveSignalInfo(signal_,
-  //                                 sigInfo_,
-  //                                 &uContext_,
-  //                                 information);
-  //ACE_DEBUG ((LM_DEBUG,
-  //            ACE_TEXT ("%D: received [%S]: %s\n"),
-  //            signal_,
-  //            ACE_TEXT (information.c_str ())));
+  std::string information;
+  Common_Tools::retrieveSignalInfo(signal_,
+                                   sigInfo_,
+                                   &uContext_,
+                                   information);
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("%D: received [%S]: %s\n"),
+              signal_,
+              ACE_TEXT (information.c_str ())));
 
-  bool success = true;
+  bool success = false;
   try
   {
     success = interfaceHandle_->handleSignal (signal_);

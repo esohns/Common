@@ -87,6 +87,15 @@
     <ClInclude Include="..\..\src\common_logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\common_time_common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\common_timer_common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\common_timer_manager_common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\common_file_tools.cpp">
@@ -119,6 +128,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\common_task_base.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\src\common_timer_manager.inl">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

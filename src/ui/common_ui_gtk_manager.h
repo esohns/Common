@@ -23,10 +23,11 @@
 
 #include "ace/Singleton.h"
 #include "ace/Synch.h"
+#include "ace/Synch_Traits.h"
 
-#include "common.h"
-#include "common_task_base.h"
 #include "common_icontrol.h"
+#include "common_task_base.h"
+#include "common_time_common.h"
 
 #include "common_ui_common.h"
 #include "common_ui_exports.h"

@@ -108,7 +108,10 @@
     <ClInclude Include="..\..\src\common_signalhandler.h" />
     <ClInclude Include="..\..\src\common_task_base.h" />
     <ClInclude Include="..\..\src\common_timerhandler.h" />
+    <ClInclude Include="..\..\src\common_timer_common.h" />
     <ClInclude Include="..\..\src\common_timer_manager.h" />
+    <ClInclude Include="..\..\src\common_timer_manager_common.h" />
+    <ClInclude Include="..\..\src\common_time_common.h" />
     <ClInclude Include="..\..\src\common_tools.h" />
     <ClInclude Include="..\..\src\stdafx.h" />
   </ItemGroup>
@@ -135,6 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\common_task_base.inl" />
+    <None Include="..\..\src\common_timer_manager.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
