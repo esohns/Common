@@ -24,7 +24,7 @@
 class Common_IRefCount
 {
  public:
-  virtual ~Common_IRefCount () {}
+  inline virtual ~Common_IRefCount () {};
 
   // exposed interface
   virtual unsigned int increase () = 0;

@@ -25,9 +25,9 @@ template <typename Type>
 class Common_IGet_T
 {
  public:
-  virtual ~Common_IGet_T () {}
+  inline virtual ~Common_IGet_T () {};
 
-  virtual void get (Type&) const = 0; // return value: type
+  virtual const Type& get () const = 0; // return value: type
 };
 
 #endif

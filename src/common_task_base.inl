@@ -56,8 +56,11 @@ Common_TaskBase_T<TaskSynchStrategyType,
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::~Common_TaskBase_T"));
 
+  int result = -1;
+
   // sanity check(s)
-  if (inherited::thr_count () > 0)
+  result = inherited::thr_count ();
+  if (result > 0)
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("outstanding threads --> check implementation, continuing\n")));
@@ -65,7 +68,8 @@ Common_TaskBase_T<TaskSynchStrategyType,
     close (1);
   } // end IF
 
-  if (inherited::wait () == -1)
+  result = inherited::wait ();
+  if (result == -1)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Task_Base::wait(): \"%m\", continuing\n")));
 }

@@ -25,7 +25,7 @@ template <typename Type>
 class Common_IClone_T
 {
  public:
-  virtual ~Common_IClone_T () {}
+  inline virtual ~Common_IClone_T () {};
 
   // exposed interface
   virtual Type* clone () = 0;

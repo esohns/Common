@@ -25,7 +25,7 @@ template <typename InterfaceType>
 class Common_ISubscribe_T
 {
  public:
-  virtual ~Common_ISubscribe_T () {}
+  inline virtual ~Common_ISubscribe_T () {};
 
   // API
   virtual void subscribe (InterfaceType*) = 0;

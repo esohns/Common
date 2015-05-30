@@ -24,7 +24,7 @@
 class Common_IControl
 {
  public:
-  virtual ~Common_IControl () {}
+  inline virtual ~Common_IControl () {};
 
   // exposed interface
   virtual void start () = 0;

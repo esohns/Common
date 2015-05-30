@@ -25,7 +25,7 @@ template <typename StatisticContainerType>
 class Common_IStatistic_T
 {
  public:
-  virtual ~Common_IStatistic_T () {}
+  inline virtual ~Common_IStatistic_T () {};
 
   // exposed interface
   // *NOTE*: the argument MAY serve both as input/output,

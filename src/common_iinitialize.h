@@ -24,7 +24,7 @@
 class Common_IInitialize
 {
  public:
-  virtual ~Common_IInitialize () {}
+  inline virtual ~Common_IInitialize () {};
 
   virtual bool initialize (const void*) = 0;
 };
@@ -33,7 +33,7 @@ template <typename ConfigurationType>
 class Common_IInitialize_T
 {
  public:
-  virtual ~Common_IInitialize_T () {}
+  inline virtual ~Common_IInitialize_T () {};
 
   virtual bool initialize (const ConfigurationType&) = 0;
 };
