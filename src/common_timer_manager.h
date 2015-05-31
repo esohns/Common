@@ -37,10 +37,10 @@
 template <typename TimerQueueType,
           typename TimerQueueAdapterType>
 class Common_Timer_Manager_T
- : public TimerQueueAdapterType,
-   public Common_IControl,
-   public Common_IDumpState,
-   public Common_IInitialize_T<Common_TimerConfiguration_t>
+ : public TimerQueueAdapterType
+ , public Common_IControl
+ , public Common_IDumpState
+ , public Common_IInitialize_T<Common_TimerConfiguration>
 {
   // singleton needs access to the ctor/dtors
   friend class ACE_Singleton<Common_Timer_Manager_T<TimerQueueType,
@@ -73,7 +73,7 @@ class Common_Timer_Manager_T
   virtual void dump_state () const;
 
   // implement Common_IInitialize_T
-  virtual bool initialize (const Common_TimerConfiguration_t&);
+  virtual bool initialize (const Common_TimerConfiguration&);
 
  private:
   typedef TimerQueueAdapterType inherited;
@@ -91,12 +91,12 @@ class Common_Timer_Manager_T
   unsigned int flushTimers ();
   bool initializeTimerQueue ();
 
-  Common_TimerConfiguration_t configuration_;
+  Common_TimerConfiguration configuration_;
 
   // *IMPORTANT NOTE*: this is only the functor, individual handlers are
   //                   managed in the queue
-  Common_TimeoutUpcall_t      timerHandler_;
-  TimerQueueType*             timerQueue_;
+  Common_TimeoutUpcall_t    timerHandler_;
+  TimerQueueType*           timerQueue_;
 
 //  static Common_TimePolicy_t  timePolicy_;
 };

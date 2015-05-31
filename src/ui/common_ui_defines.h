@@ -21,6 +21,8 @@
 #ifndef COMMON_UI_DEFINES_H
 #define COMMON_UI_DEFINES_H
 
+#include "SDL.h"
+
 // interface definition (GTK)
 #define COMMON_UI_GTK_DEFINITION_DESCRIPTOR_MAIN "main"
 

@@ -25,11 +25,35 @@
 #include <map>
 #include <string>
 
+#include "ace/OS.h"
 #include "ace/Signal.h"
 
 #include "common_defines.h"
 
-enum Common_TimerMode_t
+struct Common_SignalInformation
+{
+  Common_SignalInformation ()
+   : signal (-1)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  , sigInfo (ACE_INVALID_HANDLE)
+  , uContext (-1)
+#else
+  , sigInfo ()
+  , uContext ()
+#endif
+  {
+#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+    ACE_OS::memset (&sigInfo, 0, sizeof (sigInfo));
+    ACE_OS::memset (&uContext, 0, sizeof (uContext));
+#endif
+  };
+
+  int        signal;
+  siginfo_t  sigInfo;
+  ucontext_t uContext;
+};
+
+enum Common_TimerMode
 {
   COMMON_TIMER_MODE_PROACTOR = 0,
   COMMON_TIMER_MODE_QUEUE,
@@ -40,7 +64,7 @@ enum Common_TimerMode_t
   COMMON_TIMER_MODE_INVALID
 };
 
-enum Common_TimerQueueType_t
+enum Common_TimerQueueType
 {
   COMMON_TIMER_QUEUE_HEAP = 0,
   COMMON_TIMER_QUEUE_LIST,
@@ -50,15 +74,15 @@ enum Common_TimerQueueType_t
   COMMON_TIMER_QUEUE_INVALID
 };
 
-struct Common_TimerConfiguration_t
+struct Common_TimerConfiguration
 {
-  inline Common_TimerConfiguration_t ()
+  inline Common_TimerConfiguration ()
    : mode (COMMON_TIMER_MANAGER_DEFAULT_MODE)
    , queueType (COMMON_TIMER_MANAGER_DEFAULT_QUEUE)
   {};
 
-  Common_TimerMode_t      mode;
-  Common_TimerQueueType_t queueType;
+  Common_TimerMode      mode;
+  Common_TimerQueueType queueType;
 };
 
 // *** signals ***
@@ -66,28 +90,28 @@ typedef std::map<int, ACE_Sig_Action> Common_SignalActions_t;
 typedef Common_SignalActions_t::const_iterator Common_SignalActionsIterator_t;
 
 // *** event dispatch
-enum Common_Proactor_t
+enum Common_ProactorType
 {
-  COMMON_EVENT_PROACTOR_DEFAULT = 0, // platform-specific
-  COMMON_EVENT_PROACTOR_POSIX_AIOCB, // POSIX only !
-  COMMON_EVENT_PROACTOR_POSIX_SIG,   // POSIX only !
-  COMMON_EVENT_PROACTOR_POSIX_SUN,   // POSIX only !
-  COMMON_EVENT_PROACTOR_POSIX_CB,    // POSIX only !
+  COMMON_PROACTOR_DEFAULT = 0, // platform-specific
+  COMMON_PROACTOR_POSIX_AIOCB, // POSIX only !
+  COMMON_PROACTOR_POSIX_SIG,   // POSIX only !
+  COMMON_PROACTOR_POSIX_SUN,   // POSIX only !
+  COMMON_PROACTOR_POSIX_CB,    // POSIX only !
   ///////////////////////////////////////
-  COMMON_EVENT_PROACTOR_MAX,
-  COMMON_EVENT_PROACTOR_INVALID
+  COMMON_PROACTOR_MAX,
+  COMMON_PROACTOR_INVALID
 };
 
-enum Common_Reactor_t
+enum Common_ReactorType
 {
-  COMMON_EVENT_REACTOR_DEFAULT = 0, // platform-specific
-  COMMON_EVENT_REACTOR_DEV_POLL,    // POSIX only !
-  COMMON_EVENT_REACTOR_SELECT,
-  COMMON_EVENT_REACTOR_TP,
-  COMMON_EVENT_REACTOR_WFMO,        // Win32 only !
+  COMMON_REACTOR_DEFAULT = 0, // platform-specific
+  COMMON_REACTOR_DEV_POLL,    // POSIX only !
+  COMMON_REACTOR_SELECT,
+  COMMON_REACTOR_TP,
+  COMMON_REACTOR_WFMO,        // Win32 only !
   ///////////////////////////////////////
-  COMMON_EVENT_REACTOR_MAX,
-  COMMON_EVENT_REACTOR_INVALID
+  COMMON_REACTOR_MAX,
+  COMMON_REACTOR_INVALID
 };
 
 // *** log ***

@@ -600,7 +600,7 @@ template <typename TimerQueueType,
           typename TimerQueueAdapterType>
 bool
 Common_Timer_Manager_T<TimerQueueType,
-                       TimerQueueAdapterType>::initialize (const Common_TimerConfiguration_t& configuration_in)
+                       TimerQueueAdapterType>::initialize (const Common_TimerConfiguration& configuration_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::initialize"));
 

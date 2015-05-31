@@ -414,12 +414,13 @@ Common_Tools::getCurrentUserName (std::string& username_out,
 
   char user_name[ACE_MAX_USERID];
   ACE_OS::memset (user_name, 0, sizeof (user_name));
-  if (ACE_OS::cuserid (user_name, ACE_MAX_USERID) == NULL)
+  if (!ACE_OS::cuserid (user_name, ACE_MAX_USERID))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::cuserid(): \"%m\", falling back\n")));
 
-    username_out = ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_USER_LOGIN_BASE)));
+    username_out =
+      ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_USER_LOGIN_BASE)));
 
     return;
   } // end IF
@@ -457,19 +458,20 @@ Common_Tools::getCurrentUserName (std::string& username_out,
   else
     realname_out = pwd.pw_gecos;
 #else
-  TCHAR buffer[BUFSIZ];
-  ACE_OS::memset (buffer, 0, sizeof(buffer));
-  DWORD buffer_size = 0;
-  if (GetUserNameEx (NameDisplay, // EXTENDED_NAME_FORMAT
-                     buffer,
-                     &buffer_size) == 0)
+  ACE_TCHAR buffer[BUFSIZ];
+  ACE_OS::memset (buffer, 0, sizeof (buffer));
+  DWORD buffer_size = BUFSIZ;
+  if (!ACE_TEXT_GetUserNameEx (NameDisplay, // EXTENDED_NAME_FORMAT
+                               buffer,
+                               &buffer_size))
   {
-    if (GetLastError () != ERROR_NONE_MAPPED)
+    DWORD error = GetLastError ();
+    if (error != ERROR_NONE_MAPPED)
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to GetUserNameEx(): \"%m\", continuing\n")));
+                  ACE_TEXT ("failed to ::GetUserNameEx(): \"%m\", continuing\n")));
   } // end IF
   else
-    realname_out = ACE_TEXT_ANTI_TO_TCHAR (buffer);
+    realname_out = ACE_TEXT_ALWAYS_CHAR (buffer);
 #endif
 }
 
@@ -632,78 +634,96 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
   else
     previousActions_out[SIGPIPE] = previous_action;
 
+  // step2: block certain signals
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-  // *IMPORTANT NOTE*: the proactor implementation dispatches the signals in
-  //                   worker thread(s) and re-enables them there automatically
-  // --> see also POSIX_Proactor.cpp:1593
-
   // *IMPORTANT NOTE*: child threads inherit the signal mask of their parent...
-  //                   --> make sure this is the main thread !
+  // --> make sure this is the main thread and invoked ASAP !
 
-  // step2: --> block [SIGRTMIN,SIGRTMAX] iff on POSIX platform AND using the
-  // ACE_POSIX_SIG_Proactor (the default).
-  // *NOTE*: the proactor ctor does this automatically --> don't want that in
-  //         all circumstances (i.e. when not using a threadpool)
+  // step2a: --> block [SIGRTMIN,SIGRTMAX] iff the default/current (!) proactor
+  //             implementation happens to be ACE_POSIX_Proactor::PROACTOR_SIG
+  //             (i.e. Linux, ...)
+
+  // *NOTE*: the ACE_POSIX_Proactor::PROACTOR_SIG implementation also blocks the
+  //         RT signal(s) in its ctor
+  // --> see also: POSIX_Proactor.cpp:1604,1653
+  //         ...and later dispatches the signals in worker thread(s) running the
+  //         event loop
+  // --> see also: POSIX_Proactor.cpp:1864
+  // --> see also: man sigwaitinfo, man 7 signal
 
   // *IMPORTANT NOTE*: "...NPTL makes internal use of the first two real-time
   //                   signals (see also signal(7)); these signals cannot be
   //                   used in applications. ..." (see 'man 7 pthreads')
   // --> on POSIX platforms, make sure that ACE_SIGRTMIN == 34
-  if (!useReactor_in)
+
+  ACE_POSIX_Proactor::Proactor_Type proactor_type;
+  ACE_Proactor* proactor_p = ACE_Proactor::instance ();
+  ACE_ASSERT (proactor_p);
+  ACE_POSIX_Proactor* proactor_impl_p =
+      dynamic_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
+  if (!proactor_impl_p)
   {
-    ACE_Proactor* proactor_p = ACE_Proactor::instance ();
-    ACE_ASSERT (proactor_p);
-    ACE_POSIX_Proactor* proactor_impl_p =
-        dynamic_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
-    ACE_ASSERT (proactor_impl_p);
-    ACE_POSIX_Proactor::Proactor_Type proactor_type =
-        proactor_impl_p->get_impl_type ();
-    if (!useReactor_in &&
-        (proactor_type == ACE_POSIX_Proactor::PROACTOR_SIG))
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("dynamic_cast<ACE_POSIX_Proactor> failed, continuing\n")));
+    goto _continue;
+  } // end IF
+  proactor_type = proactor_impl_p->get_impl_type ();
+  if (!useReactor_in &&
+      (proactor_type == ACE_POSIX_Proactor::PROACTOR_SIG))
+  {
+    sigset_t rt_signal_set;
+    result = ACE_OS::sigemptyset (&rt_signal_set);
+    if (result == - 1)
     {
-      sigset_t signal_set;
-      result = ACE_OS::sigemptyset (&signal_set);
-      if (result == - 1)
-      {
-        ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", aborting\n")));
-        return false;
-      } // end IF
-      for (int i = ACE_SIGRTMIN;
-           i <= ACE_SIGRTMAX;
-           i++)
-      {
-        result = ACE_OS::sigaddset (&signal_set, i);
-        if (result == -1)
-        {
-          ACE_DEBUG ((LM_DEBUG,
-                      ACE_TEXT ("failed to ACE_OS::sigaddset(): \"%m\", aborting\n")));
-          return false;
-        } // end IF
-        if (signals_inout.is_member (i))
-        {
-          result = signals_inout.sig_del (i); // <-- let the event dispatch handle
-                                              //     all realtime signals
-          if (result == -1)
-          {
-            ACE_DEBUG ((LM_DEBUG,
-                        ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%S): \"%m\", aborting\n"),
-                        i));
-            return false;
-          } // end IF
-        } // end IF
-      } // end IF
-      result = ACE_OS::thr_sigsetmask (SIG_BLOCK,
-                                       &signal_set,
-                                       &originalMask_out);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", aborting\n")));
+      return false;
+    } // end IF
+    unsigned int number = 0;
+    for (int i = ACE_SIGRTMIN;
+         i <= ACE_SIGRTMAX;
+         i++, number++)
+    {
+      result = ACE_OS::sigaddset (&rt_signal_set, i);
       if (result == -1)
       {
-        ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", aborting\n")));
-        return false;
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_OS::sigaddset(%S): \"%m\", continuing\n"),
+                    i));
+        number--;
+      } // end IF
+
+      // remove any RT signals from the signal set handled by the application
+      // itself
+      if (signals_inout.is_member (i))
+      {
+        result = signals_inout.sig_del (i); // <-- let the event dispatch handle
+                                            //     all realtime signals
+        if (result == -1)
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%S): \"%m\", continuing\n"),
+                      i));
+//        else
+//          ACE_DEBUG ((LM_DEBUG,
+//                      ACE_TEXT ("removed %S from handled signals...\n"),
+//                      i));
       } // end IF
     } // end IF
+    result = ACE_OS::thr_sigsetmask (SIG_BLOCK,
+                                     &rt_signal_set,
+                                     &originalMask_out);
+    if (result == -1)
+    {
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", aborting\n")));
+      return false;
+    } // end IF
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("[%d-%d]: blocked %d RT signals...\n"),
+                ACE_SIGRTMIN, ACE_SIGRTMAX,
+                number));
   } // end IF
+_continue:
 #endif
 
   return true;
@@ -735,7 +755,9 @@ Common_Tools::initializeSignals (const ACE_Sig_Set& signals_in,
       previousActions_out[i] = previous_action;
     } // end IF
 
-  // step2: ignore certain signals
+  // step2: ignore/block certain signals
+
+  // step2a: ignore certain signals
   // *NOTE*: there is no need to keep this around after registration
   // *IMPORTANT NOTE*: do NOT restart system calls in this case (see manual)
   ACE_Sig_Action ignore_action (static_cast<ACE_SignalHandler> (SIG_IGN), // ignore action
@@ -764,6 +786,86 @@ Common_Tools::initializeSignals (const ACE_Sig_Set& signals_in,
       } // end IF
     } // end IF
 
+//  // step2b: block certain signals
+//#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+//  // *IMPORTANT NOTE*: child threads inherit the signal mask of their parent...
+//  // --> make sure this is the main thread and invoked ASAP !
+
+//  // step2a: --> block [SIGRTMIN,SIGRTMAX] iff the default/current (!) proactor
+//  //             implementation happens to be ACE_POSIX_Proactor::PROACTOR_SIG
+//  //             (i.e. Linux, ...)
+
+//  // *NOTE*: the ACE_POSIX_Proactor::PROACTOR_SIG implementation also blocks the
+//  //         RT signal(s) in its ctor
+//  // --> see also: POSIX_Proactor.cpp:1604,1653
+//  //         ...and later dispatches the signals in worker thread(s) running the
+//  //         event loop
+//  // --> see also: POSIX_Proactor.cpp:1864
+//  // --> see also: man sigwaitinfo, man 7 signal
+
+//  // *IMPORTANT NOTE*: "...NPTL makes internal use of the first two real-time
+//  //                   signals (see also signal(7)); these signals cannot be
+//  //                   used in applications. ..." (see 'man 7 pthreads')
+//  // --> on POSIX platforms, make sure that ACE_SIGRTMIN == 34
+
+//  ACE_POSIX_Proactor::Proactor_Type proactor_type;
+//  ACE_Proactor* proactor_p = ACE_Proactor::instance ();
+//  ACE_ASSERT (proactor_p);
+//  ACE_POSIX_Proactor* proactor_impl_p =
+//      dynamic_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
+//  if (!proactor_impl_p)
+//  {
+//    ACE_DEBUG ((LM_DEBUG,
+//                ACE_TEXT ("dynamic_cast<ACE_POSIX_Proactor> failed, continuing\n")));
+//    goto _continue;
+//  } // end IF
+//  proactor_type = proactor_impl_p->get_impl_type ();
+//  if (!useReactor_in &&
+//      (proactor_type == ACE_POSIX_Proactor::PROACTOR_SIG))
+//  {
+//    sigset_t rt_signal_set;
+//    result = ACE_OS::sigemptyset (&rt_signal_set);
+//    if (result == - 1)
+//    {
+//      ACE_DEBUG ((LM_DEBUG,
+//                  ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", aborting\n")));
+//      return false;
+//    } // end IF
+//    for (int i = ACE_SIGRTMIN;
+//         i <= ACE_SIGRTMAX;
+//         i++)
+//    {
+//      result = ACE_OS::sigaddset (&rt_signal_set, i);
+//      if (result == -1)
+//        ACE_DEBUG ((LM_ERROR,
+//                    ACE_TEXT ("failed to ACE_OS::sigaddset(%S): \"%m\", continuing\n"),
+//                    i));
+
+//      // remove any RT signals from the signal set handled by the application
+//      // itself
+//      if (signals_inout.is_member (i))
+//      {
+//        result = signals_inout.sig_del (i); // <-- let the event dispatch handle
+//        //     all realtime signals
+//        if (result == -1)
+//          ACE_DEBUG ((LM_ERROR,
+//                      ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%S): \"%m\", continuing\n"),
+//                      i));
+//      } // end IF
+//    } // end IF
+//    result = ACE_OS::thr_sigsetmask (SIG_BLOCK,
+//                                     &rt_signal_set,
+//                                     &originalMask_out);
+//    if (result == -1)
+//    {
+//      ACE_DEBUG ((LM_DEBUG,
+//                  ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", aborting\n")));
+//      return false;
+//    } // end IF
+//  } // end IF
+//_continue:
+//#endif
+
   // step3: register (process-wide) signal handler
   // *NOTE*: there is no need to keep this around after registration
   ACE_Sig_Action new_action (static_cast<ACE_SignalHandler> (SIG_DFL), // default action
@@ -781,6 +883,15 @@ Common_Tools::initializeSignals (const ACE_Sig_Set& signals_in,
                 ACE_TEXT ("failed to ACE_Reactor::register_handler(): \"%m\", aborting\n")));
     return false;
   } // end IF
+
+  // debug info
+  for (int i = 1;
+       i < ACE_NSIG;
+       i++)
+    if (signals_in.is_member (i))
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("handling signal \"%S\"...\n"),
+                  i));
 
   return true;
 }
@@ -818,6 +929,7 @@ Common_Tools::finalizeSignals (const ACE_Sig_Set& signals_in,
                   (*iterator).first));
   } // end FOR
 
+#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
   // step2: restore previous signal mask
   result = ACE_OS::thr_sigsetmask (SIG_SETMASK,
                                    &previousMask_in,
@@ -825,11 +937,12 @@ Common_Tools::finalizeSignals (const ACE_Sig_Set& signals_in,
   if (result == -1)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", continuing\n")));
+#endif
 }
 
 void
 Common_Tools::retrieveSignalInfo (int signal_in,
-                                  const siginfo_t& info_in,
+                                  const struct siginfo_t& info_in,
                                   const ucontext_t* context_in,
                                   std::string& information_out)
 {
@@ -1199,27 +1312,29 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
   serializeOutput_out = false;
 
   // step0: select reactor/proactor implementation
-  Common_Reactor_t reactor_type = COMMON_EVENT_REACTOR_DEFAULT;
-  Common_Proactor_t proactor_type = COMMON_EVENT_PROACTOR_DEFAULT;
+  Common_ReactorType reactor_type = COMMON_REACTOR_DEFAULT;
+  Common_ProactorType proactor_type = COMMON_PROACTOR_DEFAULT;
   if (useReactor_in)
   {
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
     if (COMMON_EVENT_POSIX_USE_DEV_POLL_REACTOR)
-      reactor_type = COMMON_EVENT_REACTOR_DEV_POLL;
+      reactor_type = COMMON_REACTOR_DEV_POLL;
     else
 #else
     if (COMMON_EVENT_WINXX_USE_WFMO_REACTOR)
-      reactor_type = COMMON_EVENT_REACTOR_WFMO;
+      reactor_type = COMMON_REACTOR_WFMO;
     else
 #endif
-      reactor_type = (useThreadPool_in ? COMMON_EVENT_REACTOR_TP
-                                       : COMMON_EVENT_REACTOR_SELECT);
+      reactor_type = (useThreadPool_in ? COMMON_REACTOR_TP
+                                       : COMMON_REACTOR_SELECT);
   } // end IF
   else
   {
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-    if (COMMON_EVENT_USE_SIG_PROACTOR)
-      proactor_type = COMMON_EVENT_PROACTOR_POSIX_SIG;
+    if (COMMON_EVENT_PROACTOR_USE_SIG)
+      proactor_type = COMMON_PROACTOR_POSIX_SIG;
+    else if (COMMON_EVENT_PROACTOR_USE_AIOCB)
+      proactor_type = COMMON_PROACTOR_POSIX_AIOCB;
 #endif
   } // end ELSE
 
@@ -1229,14 +1344,14 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
     ACE_Reactor_Impl* reactor_impl_p = NULL;
     switch (reactor_type)
     {
-      case COMMON_EVENT_REACTOR_DEFAULT:
+      case COMMON_REACTOR_DEFAULT:
       {
 //        ACE_DEBUG ((LM_DEBUG,
 //                    ACE_TEXT ("using default (platform-specific) reactor...\n")));
         break;
       }
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-      case COMMON_EVENT_REACTOR_DEV_POLL:
+      case COMMON_REACTOR_DEV_POLL:
       {
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using dev/poll reactor...\n")));
@@ -1254,7 +1369,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
         break;
       }
 #endif
-      case COMMON_EVENT_REACTOR_SELECT:
+      case COMMON_REACTOR_SELECT:
       {
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using select reactor...\n")));
@@ -1271,7 +1386,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
 
         break;
       }
-      case COMMON_EVENT_REACTOR_TP:
+      case COMMON_REACTOR_TP:
       {
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using thread-pool reactor...\n")));
@@ -1287,7 +1402,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
         break;
       }
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-      case COMMON_EVENT_REACTOR_WFMO:
+      case COMMON_REACTOR_WFMO:
       {
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using WFMO reactor...\n")));
@@ -1340,52 +1455,52 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
     ACE_Proactor_Impl* proactor_impl_p = NULL;
     switch (proactor_type)
     {
-      case COMMON_EVENT_PROACTOR_DEFAULT:
+      case COMMON_PROACTOR_DEFAULT:
       {
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using default (platform-specific) proactor...\n")));
         break;
       }
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-      case COMMON_EVENT_PROACTOR_POSIX_AIOCB:
+      case COMMON_PROACTOR_POSIX_AIOCB:
       {
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using POSIX AIOCB proactor...\n")));
 
         ACE_NEW_NORETURN (proactor_impl_p,
-                          ACE_POSIX_AIOCB_Proactor (COMMON_EVENT_MAXIMUM_AIO_OPERATIONS)); // parallel operations
+                          ACE_POSIX_AIOCB_Proactor (COMMON_EVENT_PROACTOR_NUM_AIO_OPERATIONS)); // parallel operations
 
         break;
       }
-      case COMMON_EVENT_PROACTOR_POSIX_SIG:
+      case COMMON_PROACTOR_POSIX_SIG:
       {
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using POSIX RT-signal proactor...\n")));
 
         ACE_NEW_NORETURN (proactor_impl_p,
-                          ACE_POSIX_SIG_Proactor (COMMON_EVENT_MAXIMUM_AIO_OPERATIONS)); // parallel operations
+                          ACE_POSIX_SIG_Proactor (COMMON_EVENT_PROACTOR_NUM_AIO_OPERATIONS)); // parallel operations
 
         break;
       }
 #if defined (ACE_HAS_AIO_CALLS) && defined (sun)
-      case COMMON_EVENT_PROACTOR_POSIX_SUN:
+      case COMMON_PROACTOR_POSIX_SUN:
       {
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using SunOS proactor...\n")));
 
         ACE_NEW_NORETURN (proactor_impl_p,
-                          ACE_SUN_Proactor (COMMON_EVENT_MAXIMUM_AIO_OPERATIONS)); // parallel operations
+                          ACE_SUN_Proactor (COMMON_EVENT_PROACTOR_NUM_AIO_OPERATIONS)); // parallel operations
 
         break;
       }
 #endif
-      case COMMON_EVENT_PROACTOR_POSIX_CB:
+      case COMMON_PROACTOR_POSIX_CB:
       {
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using POSIX CB proactor...\n")));
 
         ACE_NEW_NORETURN (proactor_impl_p,
-                          ACE_POSIX_CB_Proactor (COMMON_EVENT_MAXIMUM_AIO_OPERATIONS)); // parallel operations
+                          ACE_POSIX_CB_Proactor (COMMON_EVENT_PROACTOR_NUM_AIO_OPERATIONS)); // parallel operations
 
         break;
       }
@@ -1461,27 +1576,26 @@ threadpool_event_dispatcher_function (void* args_in)
   } // end IF
   else
   {
-    // unblock [SIGRTMIN,SIGRTMAX] IFF on POSIX AND using the
-    // ACE_POSIX_SIG_Proactor (the default)
-    // *IMPORTANT NOTE*: the proactor implementation dispatches the signals in
-    //                   worker thread(s) and enabled them there automatically
-    //                   (see code) *TODO*: verify this claim
-    //                   (see also: Asynch_Pseudo_Task.cpp:56)
+//    // unblock [SIGRTMIN,SIGRTMAX] IFF on POSIX AND using the
+//    // ACE_POSIX_SIG_Proactor (the default)
+//    // *IMPORTANT NOTE*: the proactor implementation dispatches the signals in
+//    //                   worker thread(s)
+//    //                   (see also: Asynch_Pseudo_Task.cpp:56)
     ACE_Proactor* proactor_p = ACE_Proactor::instance ();
     ACE_ASSERT (proactor_p);
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-    ACE_POSIX_Proactor* proactor_impl_p =
-        dynamic_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
-    ACE_ASSERT (proactor_impl_p);
-    ACE_POSIX_Proactor::Proactor_Type proactor_type =
-        proactor_impl_p->get_impl_type ();
-    if (!use_reactor &&
-        (proactor_type == ACE_POSIX_Proactor::PROACTOR_SIG))
-    {
-      sigset_t original_mask;
-      Common_Tools::unblockRealtimeSignals (original_mask);
-    } // end IF
-#endif
+//#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+//    ACE_POSIX_Proactor* proactor_impl_p =
+//        dynamic_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
+//    ACE_ASSERT (proactor_impl_p);
+//    ACE_POSIX_Proactor::Proactor_Type proactor_type =
+//        proactor_impl_p->get_impl_type ();
+//    if (!use_reactor &&
+//        (proactor_type == ACE_POSIX_Proactor::PROACTOR_SIG))
+//    {
+//      sigset_t original_mask;
+//      Common_Tools::unblockRealtimeSignals (original_mask);
+//    } // end IF
+//#endif
     result = proactor_p->proactor_run_event_loop (0);
   } // end ELSE
   if (result == -1)
@@ -1495,7 +1609,7 @@ threadpool_event_dispatcher_function (void* args_in)
 }
 
 bool
-Common_Tools::startEventDispatch (const bool& useReactor_in,
+Common_Tools::startEventDispatch (bool useReactor_in,
                                   unsigned int numDispatchThreads_in,
                                   int& groupID_out)
 {
@@ -1686,51 +1800,50 @@ Common_Tools::finalizeEventDispatch (bool stopReactor_in,
                   groupID_in));
 }
 
-void
-Common_Tools::unblockRealtimeSignals (sigset_t& originalMask_out)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::unblockRealtimeSignals"));
-
-  int result = -1;
-
-  // initialize return value(s)
-  result = ACE_OS::sigemptyset (&originalMask_out);
-  if (result == - 1)
-  {
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", returning\n")));
-    return;
-  } // end IF
-
-  sigset_t signal_set;
-  result = ACE_OS::sigemptyset (&signal_set);
-  if (result == - 1)
-  {
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", returning\n")));
-    return;
-  } // end IF
-  for (int i = ACE_SIGRTMIN;
-       i <= ACE_SIGRTMAX;
-       i++)
-  {
-    result = ACE_OS::sigaddset (&signal_set, i);
-    if (result == -1)
-    {
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("failed to ACE_OS::sigaddset(): \"%m\", returning\n")));
-      return;
-    } // end IF
-  } // end FOR
-
-  result = ACE_OS::thr_sigsetmask (SIG_UNBLOCK,
-                                   &signal_set,
-                                   &originalMask_out);
-  if (result == -1)
-  {
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", returning\n")));
-    return;
-  } // end IF
-}
-
+//void
+//Common_Tools::unblockRealtimeSignals (sigset_t& originalMask_out)
+//{
+//  COMMON_TRACE (ACE_TEXT ("Common_Tools::unblockRealtimeSignals"));
+//
+//  int result = -1;
+//
+//  // initialize return value(s)
+//  result = ACE_OS::sigemptyset (&originalMask_out);
+//  if (result == - 1)
+//  {
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", returning\n")));
+//    return;
+//  } // end IF
+//
+//  sigset_t signal_set;
+//  result = ACE_OS::sigemptyset (&signal_set);
+//  if (result == - 1)
+//  {
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", returning\n")));
+//    return;
+//  } // end IF
+//  for (int i = ACE_SIGRTMIN;
+//       i <= ACE_SIGRTMAX;
+//       i++)
+//  {
+//    result = ACE_OS::sigaddset (&signal_set, i);
+//    if (result == -1)
+//    {
+//      ACE_DEBUG ((LM_ERROR,
+//                  ACE_TEXT ("failed to ACE_OS::sigaddset(): \"%m\", returning\n")));
+//      return;
+//    } // end IF
+//  } // end FOR
+//
+//  result = ACE_OS::thr_sigsetmask (SIG_UNBLOCK,
+//                                   &signal_set,
+//                                   &originalMask_out);
+//  if (result == -1)
+//  {
+//    ACE_DEBUG ((LM_DEBUG,
+//                ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(SIG_UNBLOCK): \"%m\", returning\n")));
+//    return;
+//  } // end IF
+//}

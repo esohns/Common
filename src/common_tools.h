@@ -87,10 +87,10 @@ class Common_Export Common_Tools
   static void finalizeSignals (const ACE_Sig_Set&,            // signal set
                                const Common_SignalActions_t&, // previous actions
                                const sigset_t&);              // previous mask
-  static void retrieveSignalInfo (int,               // signal
-                                  const siginfo_t&,  // info
-                                  const ucontext_t*, // context
-                                  std::string&);     // return value: info
+  static void retrieveSignalInfo (int,                     // signal
+                                  const struct siginfo_t&, // info
+                                  const ucontext_t*,       // context
+                                  std::string&);           // return value: info
 
   // --- event loop ---
   static bool initializeEventDispatch (bool,   // use reactor ? : proactor
@@ -98,14 +98,14 @@ class Common_Export Common_Tools
                                        bool&); // return value: output requires serialization
   // *NOTE*: the first argument is passed to the thread function as argument,
   //         so must reside on the stack (hence the reference)
-  static bool startEventDispatch (const bool&,  // use reactor ? : proactor
+  static bool startEventDispatch (bool,         // use reactor ? : proactor
                                   unsigned int, // # dispatching threads
                                   int&);        // return value: thread group id
   // *NOTE*: this call blocks until all dispatching threads have joined
   static void finalizeEventDispatch (bool, // stop reactor ?
                                      bool, // stop proactor ?
                                      int); // thread group id
-  static void unblockRealtimeSignals (sigset_t&); // return value: original mask
+  //static void unblockRealtimeSignals (sigset_t&); // return value: original mask
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Tools ());

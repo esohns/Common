@@ -21,9 +21,11 @@
 #ifndef COMMON_SIGNALHANDLER_H
 #define COMMON_SIGNALHANDLER_H
 
-#include "ace/Global_Macros.h"
 #include "ace/Asynch_IO.h"
 #include "ace/Event_Handler.h"
+#include "ace/Global_Macros.h"
+#include "ace/OS.h"
+#include "ace/Time_Value.h"
 
 #include "common_exports.h"
 
@@ -37,10 +39,10 @@ class Common_Export Common_SignalHandler
  public:
   virtual ~Common_SignalHandler ();
 
-  // *NOTE*: proactor code: invoke handle_exception
-  virtual void handle_time_out (const ACE_Time_Value&, // target time
-                                const void* = NULL);   // act
-  // *NOTE*: save state and notify the proactor/reactor
+//  // *NOTE*: proactor code: invoke handle_exception
+//  virtual void handle_time_out (const ACE_Time_Value&, // target time
+//                                const void* = NULL);   // act
+  // *NOTE*: notifies the proactor/reactor
   virtual int handle_signal (int,                 // signal
                              siginfo_t* = NULL,   // not needed on UNIX
                              ucontext_t* = NULL); // not used
@@ -62,9 +64,6 @@ class Common_Export Common_SignalHandler
 
   Common_ISignal* interfaceHandle_;
   bool            useReactor_;
-  int             signal_;
-  siginfo_t       sigInfo_;
-  ucontext_t      uContext_;
 };
 
 #endif
