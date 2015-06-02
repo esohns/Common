@@ -44,7 +44,6 @@ include_HEADERS = \
   common_tools.h
 
 lib_LTLIBRARIES = libCommon.la
-libCommon_la_LDFLAGS = -version-info @LIBCOMMON_LT_VERSION_INFO@
 libCommon_la_SOURCES = \
   common.h \
   common_defines.h \
@@ -86,6 +85,12 @@ libCommon_la_SOURCES = \
   stdafx.cpp \
   stdafx.h
 #  stdafx.h.gch
+
+libCommon_la_CPPFLAGS = \
+  $(AM_CPPFLAGS) \
+  -I$(srcdir)/..
+libCommon_la_LDFLAGS = \
+  -version-info @LIBCOMMON_LT_VERSION_INFO@
 
 # (GNU-)make-rule for pch
 #%.h.gch: %.h

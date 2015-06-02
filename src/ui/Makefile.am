@@ -5,10 +5,14 @@ DEFS = \
   -DCOMMON_UI_BUILD_DLL=1 \
   -DMETA_PACKAGE=\"@PACKAGE_NAME@\"
 
-#  -I/home/esohns/Downloads/libglade-2.6.4
 AM_CPPFLAGS = \
   -I$(top_srcdir)/../ATCD/ACE \
-  -I$(builddir)/..
+  $(PKGSDL_CFLAGS) \
+  $(PKGGTK_CFLAGS)
+if VALGRIND_SUPPORT
+AM_CPPFLAGS += \
+  $(PKGVALGRIND_CFLAGS)
+endif
 
 noinst_HEADERS = \
   stdafx.h
@@ -39,8 +43,9 @@ libCommon_UI_la_SOURCES = \
   common_ui_types.h \
   stdafx.cpp \
   stdafx.h
-
 libCommon_UI_la_CPPFLAGS = \
   $(AM_CPPFLAGS) \
   -I$(srcdir)/.. \
-  $(PKGLIB_CFLAGS)
+  -I$(builddir)/..
+libCommon_UI_la_LDFLAGS = \
+  -version-info @LIBCOMMON_LT_VERSION_INFO@

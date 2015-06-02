@@ -69,7 +69,7 @@ Common_SignalHandler::handle_signal (int signal_in,
   struct siginfo_t signal_information (ACE_INVALID_HANDLE);
 //  signal_information.si_handle_ = ACE_INVALID_HANDLE;
 #else
-  struct siginfo_t signal_information;
+  siginfo_t signal_information;
   ACE_OS::memset (&signal_information, 0, sizeof (signal_information));
   if (sigInfo_in)
     signal_information = *sigInfo_in;

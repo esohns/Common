@@ -942,7 +942,11 @@ Common_Tools::finalizeSignals (const ACE_Sig_Set& signals_in,
 
 void
 Common_Tools::retrieveSignalInfo (int signal_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
                                   const struct siginfo_t& info_in,
+#else
+                                  const siginfo_t& info_in,
+#endif
                                   const ucontext_t* context_in,
                                   std::string& information_out)
 {
