@@ -25,6 +25,8 @@
 
 #include "ace/Global_Macros.h"
 #include "ace/Log_Msg.h"
+#include "ace/Log_Record.h"
+#include "ace/OS.h"
 #include "ace/Synch.h"
 
 #include "common_defines.h"
@@ -34,10 +36,28 @@
 Common_Logger::Common_Logger (Common_MessageStack_t* stack_in,
                               ACE_Recursive_Thread_Mutex* lock_in)
  : inherited ()
+ , buffer_ (NULL)
  , lock_ (lock_in)
  , messageStack_ (stack_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Logger::Common_Logger"));
+
+  ACE_HANDLE file_handle = ACE_OS::mkstemp (static_cast<char*> (NULL));
+  if (file_handle == ACE_INVALID_HANDLE)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::mkstemp(): \"%m\", continuing\n")));
+  buffer_ = ACE_OS::fdopen (file_handle, ACE_TEXT ("+w"));
+  if (!buffer_)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::fdopen(): \"%m\", continuing\n")));
+
+    // clean up
+    int result = ACE_OS::close (file_handle);
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::close(): \"%m\", continuing\n")));
+  } // end IF
 
 }
 
@@ -45,6 +65,13 @@ Common_Logger::~Common_Logger ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Logger::~Common_Logger"));
 
+  if (buffer_)
+  {
+    int result = ACE_OS::fclose (buffer_);
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::fclose(): \"%m\", continuing\n")));
+  } // end IF
 }
 
 int
@@ -78,22 +105,39 @@ Common_Logger::log (ACE_Log_Record& record_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Logger::log"));
 
+  int result = -1;
+
   // sanity check(s)
+  ACE_ASSERT (buffer_);
   ACE_ASSERT (lock_);
   ACE_ASSERT (messageStack_);
 
   std::ostringstream string_stream;
-  int result =
-   record_in.print (ACE_TEXT (Common_Tools::getHostName ().c_str ()),
-                    (COMMON_LOG_VERBOSE ? ACE_Log_Msg::VERBOSE
-                                        : ACE_Log_Msg::VERBOSE_LITE),
-                    string_stream);
+  //result =
+  // record_in.print (ACE_TEXT (Common_Tools::getHostName ().c_str ()),
+  //                  (COMMON_LOG_VERBOSE ? ACE_Log_Msg::VERBOSE
+  //                                      : ACE_Log_Msg::VERBOSE_LITE),
+  //                  string_stream);
+  result =
+    record_in.print (ACE_TEXT (Common_Tools::getHostName ().c_str ()),
+                     (COMMON_LOG_VERBOSE ? ACE_Log_Msg::VERBOSE
+                                         : ACE_Log_Msg::VERBOSE_LITE),
+                     buffer_);
   if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Log_Record::print(): \"%m\", aborting\n")));
     return -1;
   } // end IF
+  result = ACE_OS::fseek (buffer_, 0, SEEK_SET);
+  if (result == -1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::fseek(0x%@): \"%m\", aborting\n"),
+                buffer_));
+    return -1;
+  } // end IF
+  string_stream << buffer_;
 
   ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (*lock_);
 

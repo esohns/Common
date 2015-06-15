@@ -24,14 +24,18 @@
 #include <string>
 
 #include "ace/Global_Macros.h"
+//#include "ace/Module.h"
 #include "ace/Task.h"
 
 #include "common_idumpstate.h"
-#include "common_iinitialize.h"
 
 // forward declaration(s)
+//template <ACE_SYNCH_DECL, class TIME_POLICY>
+//class ACE_Task;
 class ACE_Message_Block;
 class ACE_Time_Value;
+template <ACE_SYNCH_DECL, class TIME_POLICY>
+class ACE_Module;
 
 template <typename TaskSynchStrategyType,
           typename TimePolicyType>
@@ -77,7 +81,7 @@ class Common_TaskBase_T
 
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T ());
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T (const Common_TaskBase_T&));
-  ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T& operator=(const Common_TaskBase_T&));
+  ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T& operator= (const Common_TaskBase_T&));
 
   std::string  threadName_;
   unsigned int numThreads_;

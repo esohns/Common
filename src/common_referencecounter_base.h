@@ -21,12 +21,16 @@
 #ifndef COMMON_REFERENCECOUNTER_BASE_H
 #define COMMON_REFERENCECOUNTER_BASE_H
 
-#include "ace/Global_Macros.h"
-#include "ace/Condition_T.h"
-#include "ace/Synch.h"
+//#include "ace/Condition_T.h"
+#include "ace/Condition_Recursive_Thread_Mutex.h"
+//#include "ace/Recursive_Thread_Mutex.h"
+//#include "ace/Synch.h"
 
 #include "common_exports.h"
 #include "common_irefcount.h"
+
+//// forward declarations
+//class ACE_Recursive_Thread_Mutex;
 
 class Common_Export Common_ReferenceCounterBase
  : virtual public Common_IRefCount
@@ -49,12 +53,12 @@ class Common_Export Common_ReferenceCounterBase
                                bool);        // delete on 0 ?
   Common_ReferenceCounterBase& operator= (const Common_ReferenceCounterBase&);
 
-  unsigned int                              counter_;
+  unsigned int                      counter_;
 
  private:
-  ACE_Condition<ACE_Recursive_Thread_Mutex> condition_;
-  bool                                      deleteOnZero_;
-  mutable ACE_Recursive_Thread_Mutex        lock_;
+  ACE_SYNCH_RECURSIVE_CONDITION     condition_;
+  bool                              deleteOnZero_;
+  mutable ACE_SYNCH_RECURSIVE_MUTEX lock_;
 };
 
 #endif

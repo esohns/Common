@@ -10,6 +10,7 @@
 #endif
 
 // System Library Header Files
+//#include "ace/streams.h"
 #include "ace/OS.h"
 #include "ace/ACE.h"
 #include "ace/Log_Msg.h"
@@ -19,15 +20,15 @@
 #include "ace/CDR_Stream.h"
 
 // C RunTime Header Files
-#include <string>
-#include <map>
-#include <vector>
-#include <set>
 #include <deque>
-#include <locale>
-#include <sstream>
-#include <stack>
 #include <functional>
+//#include <locale>
+#include <map>
+//#include <string>
+#include <set>
+//#include <sstream>
+#include <stack>
+#include <vector>
 
 // Local Header Files
 #include "common_macros.h"

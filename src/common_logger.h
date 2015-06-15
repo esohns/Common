@@ -21,13 +21,16 @@
 #ifndef COMMON_LOGGER_H
 #define COMMON_LOGGER_H
 
+#include <cstdlib>
+
 #include "ace/Log_Msg_Backend.h"
-#include "ace/Log_Record.h"
+//#include "ace/Log_Record.h"
 
 #include "common.h"
 #include "common_exports.h"
 
 // forward declaration(s)
+class ACE_Log_Record;
 class ACE_Recursive_Thread_Mutex;
 
 /**
@@ -53,6 +56,8 @@ class Common_Export Common_Logger
   ACE_UNIMPLEMENTED_FUNC (Common_Logger ());
   ACE_UNIMPLEMENTED_FUNC (Common_Logger (const Common_Logger&));
   ACE_UNIMPLEMENTED_FUNC (Common_Logger& operator= (const Common_Logger&));
+
+  FILE*                       buffer_;
 
   ACE_Recursive_Thread_Mutex* lock_;
   Common_MessageStack_t*      messageStack_;

@@ -21,10 +21,11 @@
 
 #include "common_tools.h"
 
+//#include <algorithm>
+//#include <iostream>
 #include <fstream>
+//#include <locale>
 #include <sstream>
-#include <algorithm>
-#include <locale>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <Security.h>
@@ -37,6 +38,7 @@
 #endif
 
 #include "ace/High_Res_Timer.h"
+//#include "ace/iosfwd.h"
 #include "ace/OS.h"
 #include "ace/Log_Msg.h"
 #include "ace/Log_Msg_Backend.h"
@@ -206,13 +208,15 @@ Common_Tools::isLinux ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::isLinux"));
 
+  int result = -1;
+
   // get system information
   ACE_utsname name;
-  if (ACE_OS::uname (&name) == -1)
+  result = ACE_OS::uname (&name);
+  if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::uname(): \"%m\", aborting\n")));
-
     return false;
   } // end IF
 
@@ -300,9 +304,9 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
   {
     // *PORTABILITY*: this is almost entirely non-portable...
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-    //  // debug info
-    //  if (ACE_OS::getrlimit (RLIMIT_CORE,
-    //                         &resource_limit) == -1)
+    //  result = ACE_OS::getrlimit (RLIMIT_CORE,
+    //                              &resource_limit);
+    //  if (result == -1)
     //  {
     //    ACE_DEBUG ((LM_ERROR,
     //                ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_CORE): \"%m\", aborting\n")));
@@ -350,9 +354,9 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
   {
     // *PORTABILITY*: this is almost entirely non-portable...
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-    //  // debug info
-    //  if (ACE_OS::getrlimit (RLIMIT_SIGPENDING,
-    //                         &resource_limit) == -1)
+    //  result = ACE_OS::getrlimit (RLIMIT_SIGPENDING,
+    //                              &resource_limit);
+    //  if (result == -1)
     //  {
     //    ACE_DEBUG ((LM_ERROR,
     //                ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_SIGPENDING): \"%m\", aborting\n")));
@@ -506,6 +510,8 @@ Common_Tools::initializeLogging (const std::string& programName_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::initializeLogging"));
 
+  int result = -1;
+
   // *NOTE*: default log target is stderr
   u_long options_flags = ACE_Log_Msg::STDERR;
   if (logToSyslog_in)
@@ -519,38 +525,43 @@ Common_Tools::initializeLogging (const std::string& programName_in,
   {
     options_flags |= ACE_Log_Msg::OSTREAM;
 
-    ACE_OSTREAM_TYPE* log_stream;
+    ACE_OSTREAM_TYPE* log_stream_p = NULL;
     std::ios_base::openmode open_mode = (std::ios_base::out |
                                          std::ios_base::trunc);
-    ACE_NEW_NORETURN (log_stream,
+    ACE_NEW_NORETURN (log_stream_p,
                       std::ofstream (logFile_in.c_str (),
-                                    open_mode));
-    if (!log_stream)
+                                     open_mode));
+//    log_stream_p = ACE_OS::fopen (logFile_in.c_str (),
+//                                  ACE_TEXT_ALWAYS_CHAR ("w"));
+    if (!log_stream_p)
     {
-      ACE_DEBUG ((LM_CRITICAL,
-                  ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
+      //ACE_DEBUG ((LM_CRITICAL,
+      //            ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::fopen(): \"%m\", aborting\n")));
       return false;
     } // end IF
 //    if (log_stream->open (logFile_in.c_str (),
 //                          open_mode))
-    if (log_stream->fail ())
+    if (log_stream_p->fail ())
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to initialize logfile (was: \"%s\"): \"%m\", aborting\n"),
-                  ACE_TEXT (logFile_in.c_str())));
+                  ACE_TEXT (logFile_in.c_str ())));
 
       // clean up
-      delete log_stream;
+      delete log_stream_p;
 
       return false;
     } // end IF
 
-    // *NOTE*: the logger singleton assumes ownership of the stream lifecycle
-    ACE_LOG_MSG->msg_ostream (log_stream, 1);
+    // *NOTE*: the logger singleton assumes ownership of the stream object
+    ACE_LOG_MSG->msg_ostream (log_stream_p, true);
   } // end IF
-  if (ACE_LOG_MSG->open (ACE_TEXT (programName_in.c_str ()),
-                         options_flags,
-                         NULL) == -1)
+  result = ACE_LOG_MSG->open (ACE_TEXT (programName_in.c_str ()),
+                              options_flags,
+                              NULL);
+  if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Log_Msg::open(\"%s\", %u): \"%m\", aborting\n"),
@@ -1767,8 +1778,8 @@ Common_Tools::finalizeEventDispatch (bool stopReactor_in,
   int result = -1;
 
   // step1: stop reactor/proactor
-  // *IMPORTANT NOTE*: current proactor implementations start a pseudo-task that
-  //                   runs the reactor --> stop that as well
+  // *IMPORTANT NOTE*: current proactor implementations start a pseudo-task
+  //                   that runs the reactor --> stop that as well
   if (stopReactor_in || stopProactor_in)
   {
     ACE_Reactor* reactor_p = ACE_Reactor::instance ();
@@ -1798,10 +1809,63 @@ Common_Tools::finalizeEventDispatch (bool stopReactor_in,
 
   // step2: wait for any worker(s)
   if (groupID_in != -1)
-    if (ACE_Thread_Manager::instance ()->wait_grp (groupID_in) == -1)
+  {
+    ACE_Thread_Manager* thread_manager_p = ACE_Thread_Manager::instance ();
+    ACE_ASSERT (thread_manager_p);
+    result = thread_manager_p->wait_grp (groupID_in);
+    if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Thread_Manager::wait_grp(%d): \"%m\", continuing\n"),
                   groupID_in));
+  } // end IF
+}
+
+void
+Common_Tools::dispatchEvents (bool stopReactor_in,
+                              bool stopProactor_in,
+                              int groupID_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::dispatchEvents"));
+
+  int result = -1;
+
+  // *NOTE*: when using a thread pool, handle things differently...
+  if (groupID_in != -1)
+  {
+    ACE_Thread_Manager* thread_manager_p = ACE_Thread_Manager::instance ();
+    ACE_ASSERT (thread_manager_p);
+    result = thread_manager_p->wait_grp (groupID_in);
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Thread_Manager::wait_grp(%d): \"%m\", continuing\n"),
+                  groupID_in));
+  } // end IF
+  else
+  {
+    if (stopReactor_in)
+    {
+      ACE_Reactor* reactor_p = ACE_Reactor::instance ();
+      ACE_ASSERT (reactor_p);
+      //// *WARNING*: restart system calls (after e.g. SIGINT) for the reactor
+      //reactor_p->restart (1);
+      result = reactor_p->run_reactor_event_loop (0);
+      if (result == -1)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_Reactor::run_reactor_event_loop(): \"%m\", continuing\n")));
+    } // end IF
+    else
+    {
+      ACE_Proactor* proactor_p = ACE_Proactor::instance ();
+      ACE_ASSERT (proactor_p);
+      result = proactor_p->proactor_run_event_loop (0);
+      if (result == -1)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_Proactor::proactor_run_event_loop(): \"%m\", continuing\n")));
+    } // end ELSE
+  } // end ELSE
+
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("finished event dispatch...\n")));
 }
 
 //void

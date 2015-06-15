@@ -21,7 +21,7 @@
 #ifndef COMMON_TOOLS_H
 #define COMMON_TOOLS_H
 
-#include <string>
+//#include <string>
 
 #include "ace/Global_Macros.h"
 #include "ace/Time_Value.h"
@@ -32,6 +32,10 @@
 #include "common_timer_manager_common.h"
 
 // forward declaration(s)
+//namespace std
+//{
+//class string;
+//};
 class ACE_Log_Msg_Backend;
 class ACE_Event_Handler;
 
@@ -105,6 +109,9 @@ class Common_Export Common_Tools
   static bool startEventDispatch (bool,         // use reactor ? : proactor
                                   unsigned int, // # dispatching threads
                                   int&);        // return value: thread group id
+  static void dispatchEvents (bool,      // start reactor ?
+                              bool,      // start proactor ?
+                              int = -1); // thread group id
   // *NOTE*: this call blocks until all dispatching threads have joined
   static void finalizeEventDispatch (bool, // stop reactor ?
                                      bool, // stop proactor ?

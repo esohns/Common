@@ -7,6 +7,7 @@ DEFS += \
   -DMETA_PACKAGE=\"@PACKAGE_NAME@\"
 
 AM_CPPFLAGS = \
+  -I/usr/include/c++/3.4.6/backward \
   -I$(top_srcdir)/../ATCD/ACE
 
 noinst_HEADERS = \

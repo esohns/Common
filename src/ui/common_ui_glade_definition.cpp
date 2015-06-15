@@ -23,6 +23,7 @@
 
 #include <fstream>
 
+#include "ace/Guard_T.h"
 #include "ace/Log_Msg.h"
 #include "ace/Synch.h"
 

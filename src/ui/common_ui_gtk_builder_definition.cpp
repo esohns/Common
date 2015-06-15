@@ -21,6 +21,7 @@
 
 #include "common_ui_gtk_builder_definition.h"
 
+#include "ace/Guard_T.h"
 #include "ace/Log_Msg.h"
 #include "ace/Synch.h"
 

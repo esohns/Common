@@ -21,9 +21,9 @@
 #ifndef COMMON_DEFINES_H
 #define COMMON_DEFINES_H
 
-#include "ace/ACE.h"
-#include "ace/Default_Constants.h"
-#include "ace/POSIX_Proactor.h"
+//#include "ace/ACE.h"
+//#include "ace/Default_Constants.h"
+//#include "ace/POSIX_Proactor.h"
 
 //#include "common.h"
 

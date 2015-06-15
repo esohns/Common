@@ -9,24 +9,26 @@
 #include <windows.h>
 #endif
 
-// System Library Header Files
-#include <ace/OS.h>
-#include <ace/ACE.h>
-#include <ace/Log_Msg.h>
-#include <ace/Assert.h>
-#include <ace/Synch.h>
-#include <ace/Task.h>
-#include <ace/Reactor.h>
-#include <ace/Malloc_Allocator.h>
-#include <ace/Lock_Adapter_T.h>
-#include <ace/Stream.h>
-
 // C RunTime Header Files
+#include <bitset>
+#include <functional>
+//#include <iostream>
+#include <set>
+#include <sstream>
 #include <string>
 #include <map>
 #include <vector>
-#include <set>
-#include <bitset>
-#include <iostream>
-#include <sstream>
-#include <functional>
+
+// System Library Header Files
+//#include "ace/streams.h"
+//#include "ace/ACE.h"
+#include "ace/Assert.h"
+//#include "ace/Lock_Adapter_T.h"
+#include "ace/Log_Msg.h"
+//#include "ace/Malloc_Allocator.h"
+#include "ace/OS.h"
+//#include "ace/Synch.h"
+//#include "ace/Task.h"
+
+// Local Header Files
+#include "common_macros.h"
