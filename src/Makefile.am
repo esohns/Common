@@ -102,4 +102,5 @@ libCommon_la_LDFLAGS = \
 #  $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(CXXFLAGS) $(libCommon_la_CXXFLAGS) $(extra_CFLAGS_libCommon_la) -c stdafx.h -o stdafx.h.gch
 
 SUBDIRS = \
+  . \
   ui

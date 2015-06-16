@@ -21,10 +21,8 @@
 
 #include "common_tools.h"
 
-//#include <algorithm>
 //#include <iostream>
-#include <fstream>
-//#include <locale>
+//#include <fstream>
 #include <sstream>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -49,6 +47,7 @@
 #if defined (ACE_HAS_AIO_CALLS) && defined (sun)
 #include "ace/SUN_Proactor.h"
 #endif
+#include "ace/streams.h"
 #include "ace/TP_Reactor.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "ace/WFMO_Reactor.h"
@@ -523,7 +522,9 @@ Common_Tools::initializeLogging (const std::string& programName_in,
   } // end IF
   if (!logFile_in.empty ())
   {
+#if !defined (__GNUC__)
     options_flags |= ACE_Log_Msg::OSTREAM;
+#endif
 
     ACE_OSTREAM_TYPE* log_stream_p = NULL;
     std::ios_base::openmode open_mode = (std::ios_base::out |
@@ -556,7 +557,10 @@ Common_Tools::initializeLogging (const std::string& programName_in,
     } // end IF
 
     // *NOTE*: the logger singleton assumes ownership of the stream object
+    // *BUG*: doesn't work on Linux
+#if !defined (__GNUC__)
     ACE_LOG_MSG->msg_ostream (log_stream_p, true);
+#endif
   } // end IF
   result = ACE_LOG_MSG->open (ACE_TEXT (programName_in.c_str ()),
                               options_flags,
@@ -1587,7 +1591,7 @@ threadpool_event_dispatcher_function (void* args_in)
   {
     ACE_Reactor* reactor_p = ACE_Reactor::instance ();
     ACE_ASSERT (reactor_p);
-    result = reactor_p->run_reactor_event_loop (0);
+    result = reactor_p->run_reactor_event_loop (NULL);
   } // end IF
   else
   {
@@ -1611,7 +1615,7 @@ threadpool_event_dispatcher_function (void* args_in)
 //      Common_Tools::unblockRealtimeSignals (original_mask);
 //    } // end IF
 //#endif
-    result = proactor_p->proactor_run_event_loop (0);
+    result = proactor_p->proactor_run_event_loop (NULL);
   } // end ELSE
   if (result == -1)
     ACE_DEBUG ((LM_ERROR,
@@ -1630,8 +1634,27 @@ Common_Tools::startEventDispatch (bool useReactor_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::startEventDispatch"));
 
+  int result = -1;
+
   // initialize return value(s)
   groupID_out = -1;
+
+  // reset event dispatch
+  if (useReactor_in)
+  {
+    ACE_Reactor* reactor_p = ACE_Reactor::instance ();
+    ACE_ASSERT (reactor_p);
+    reactor_p->reset_reactor_event_loop ();
+  } // end IF
+  else
+  {
+    ACE_Proactor* proactor_p = ACE_Proactor::instance ();
+    ACE_ASSERT (proactor_p);
+    result = proactor_p->proactor_reset_event_loop ();
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Proactor::proactor_reset_event_loop: \"%m\", continuing\n")));
+  } // end ELSE
 
   // spawn worker(s) ?
   // *NOTE*: if #dispatch threads == 1, event dispatch takes place in the main
@@ -1700,20 +1723,22 @@ Common_Tools::startEventDispatch (bool useReactor_in,
                     buffer.c_str ());
     thread_names_p[i] = thread_name_p;
   } // end FOR
+  ACE_Thread_Manager* thread_manager_p = ACE_Thread_Manager::instance ();
+  ACE_ASSERT (thread_manager_p);
   groupID_out =
-      ACE_Thread_Manager::instance ()->spawn_n (numDispatchThreads_in,                  // # threads
-                                                ::threadpool_event_dispatcher_function, // function
-                                                &const_cast<bool&> (useReactor_in),     // argument
-                                                (THR_NEW_LWP      |
-                                                 THR_JOINABLE     |
-                                                 THR_INHERIT_SCHED),                    // flags
-                                                ACE_DEFAULT_THREAD_PRIORITY,            // priority
-                                                COMMON_EVENT_DISPATCH_THREAD_GROUP_ID,  // group id
-                                                NULL,                                   // task
-                                                thread_handles_p,                       // handle(s)
-                                                NULL,                                   // stack(s)
-                                                NULL,                                   // stack size(s)
-                                                thread_names_p);                        // name(s)
+    thread_manager_p->spawn_n (numDispatchThreads_in,                  // # threads
+                               ::threadpool_event_dispatcher_function, // function
+                               &const_cast<bool&> (useReactor_in),     // argument
+                               (THR_NEW_LWP     |
+                               THR_JOINABLE     |
+                               THR_INHERIT_SCHED),                     // flags
+                               ACE_DEFAULT_THREAD_PRIORITY,            // priority
+                               COMMON_EVENT_DISPATCH_THREAD_GROUP_ID,  // group id
+                               NULL,                                   // task
+                               thread_handles_p,                       // handle(s)
+                               NULL,                                   // stack(s)
+                               NULL,                                   // stack size(s)
+                               thread_names_p);                        // name(s)
   if (groupID_out == -1)
   {
     ACE_DEBUG ((LM_ERROR,
@@ -1765,6 +1790,9 @@ Common_Tools::startEventDispatch (bool useReactor_in,
   delete [] thread_handles_p;
   delete [] thread_names_p;
 
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("started event dispatch...\n")));
+
   return true;
 }
 
@@ -1807,7 +1835,7 @@ Common_Tools::finalizeEventDispatch (bool stopReactor_in,
 //                  ACE_TEXT ("failed to ACE_Proactor::close: \"%m\", continuing\n")));
   } // end IF
 
-  // step2: wait for any worker(s)
+  // step2: wait for any worker(s) ?
   if (groupID_in != -1)
   {
     ACE_Thread_Manager* thread_manager_p = ACE_Thread_Manager::instance ();
@@ -1818,6 +1846,9 @@ Common_Tools::finalizeEventDispatch (bool stopReactor_in,
                   ACE_TEXT ("failed to ACE_Thread_Manager::wait_grp(%d): \"%m\", continuing\n"),
                   groupID_in));
   } // end IF
+
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("stopped event dispatch...\n")));
 }
 
 void
@@ -1865,7 +1896,7 @@ Common_Tools::dispatchEvents (bool stopReactor_in,
   } // end ELSE
 
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("finished event dispatch...\n")));
+              ACE_TEXT ("event dispatch complete...\n")));
 }
 
 //void
