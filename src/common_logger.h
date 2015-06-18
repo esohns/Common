@@ -23,15 +23,16 @@
 
 #include <cstdlib>
 
+#include "ace/Global_Macros.h"
 #include "ace/Log_Msg_Backend.h"
 //#include "ace/Log_Record.h"
+#include "ace/Synch_Traits.h"
 
 #include "common.h"
 #include "common_exports.h"
 
 // forward declaration(s)
 class ACE_Log_Record;
-class ACE_Recursive_Thread_Mutex;
 
 /**
   @author Erik Sohns <erik.sohns@web.de>
@@ -40,8 +41,8 @@ class Common_Export Common_Logger
  : public ACE_Log_Msg_Backend
 {
  public:
-  Common_Logger (Common_MessageStack_t*,       // message stack
-                 ACE_Recursive_Thread_Mutex*); // synch lock
+  Common_Logger (Common_MessageStack_t*,      // message stack
+                 ACE_SYNCH_RECURSIVE_MUTEX*); // synch lock
   virtual ~Common_Logger ();
 
   // implement ACE_Log_Msg_Backend interface
@@ -57,10 +58,10 @@ class Common_Export Common_Logger
   ACE_UNIMPLEMENTED_FUNC (Common_Logger (const Common_Logger&));
   ACE_UNIMPLEMENTED_FUNC (Common_Logger& operator= (const Common_Logger&));
 
-  FILE*                       buffer_;
+  FILE*                      buffer_;
 
-  ACE_Recursive_Thread_Mutex* lock_;
-  Common_MessageStack_t*      messageStack_;
+  ACE_SYNCH_RECURSIVE_MUTEX* lock_;
+  Common_MessageStack_t*     messageStack_;
 };
 
 #endif

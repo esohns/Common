@@ -92,8 +92,8 @@ class Common_Timer_Manager_T
 
   Common_TimerConfiguration configuration_;
 
-  // *IMPORTANT NOTE*: this is only the functor, individual handlers are
-  //                   managed in the queue
+  // *NOTE*: this is only the functor, individual handlers are managed in the
+  //        queue
   Common_TimeoutUpcall_t    timerHandler_;
   TimerQueueType*           timerQueue_;
 };

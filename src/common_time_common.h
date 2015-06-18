@@ -23,7 +23,9 @@
 
 #include "ace/Version.h"
 
+#if defined __GNUC__
 #include "common_defines.h"
+#endif
 
 #if (ACE_MAJOR_VERSION >= 6) && \
     ((ACE_MINOR_VERSION > 1) || \
