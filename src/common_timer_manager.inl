@@ -17,6 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+
 #include "ace/High_Res_Timer.h"
 #include "ace/Log_Msg.h"
 #include "ace/Proactor.h"
@@ -205,7 +206,7 @@ Common_Timer_Manager_T<TimerQueueType,
 //                      ACE_TEXT ("cancelled timer (ID: %d)...\n"),
 //                      timer_id));
 //      } // end FOR
-      ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (inherited::mutex ());
+      ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (inherited::mutex ());
 
       Common_ITimerQueue_t* timer_queue_p = inherited::timer_queue ();
       ACE_ASSERT (timer_queue_p);
@@ -476,7 +477,7 @@ Common_Timer_Manager_T<TimerQueueType,
     }
     case COMMON_TIMER_MODE_QUEUE:
     {
-      ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (inherited::mutex ());
+      ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (inherited::mutex ());
 
       Common_ITimerQueue_t* timer_queue_p = inherited::timer_queue ();
       ACE_ASSERT (timer_queue_p);
@@ -589,7 +590,7 @@ Common_Timer_Manager_T<TimerQueueType,
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::dump_state"));
 
   {
-    ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (const_cast<OWN_TYPE*> (this)->mutex ());
+    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (const_cast<OWN_TYPE_T*> (this)->mutex ());
 
     // *TODO*: print some meaningful data
     ACE_ASSERT (false);
@@ -618,7 +619,7 @@ Common_Timer_Manager_T<TimerQueueType,
       break;
     case COMMON_TIMER_MODE_QUEUE:
     {
-      ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (inherited::mutex ());
+      ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (inherited::mutex ());
 
       Common_ITimerQueue_t* timer_queue_p = inherited::timer_queue ();
       ACE_ASSERT (timer_queue_p);

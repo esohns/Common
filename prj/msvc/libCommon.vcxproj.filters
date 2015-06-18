@@ -96,6 +96,12 @@
     <ClInclude Include="..\..\src\common_timer_manager_common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\common_statemachine_base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\common_istatemachine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\common_file_tools.cpp">
@@ -125,12 +131,18 @@
     <ClCompile Include="..\..\src\common_logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\common_statemachine_base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\common_task_base.inl">
       <Filter>Header Files</Filter>
     </None>
     <None Include="..\..\src\common_timer_manager.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\..\src\common_statemachine_base.inl">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

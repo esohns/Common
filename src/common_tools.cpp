@@ -1418,6 +1418,8 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
                                           true,                             // mask signals ?
                                           ACE_Select_Reactor_Token::FIFO)); // signal queue
 
+        serializeOutput_out = true;
+
         break;
       }
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

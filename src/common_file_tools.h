@@ -55,6 +55,7 @@ class Common_Export Common_File_Tools
   static std::string getUserConfigurationDirectory ();
 
   static std::string getDumpDirectory ();
+  static std::string getLogDirectory ();
 
   static std::string getLogFilename (const std::string&); // program name
 
@@ -64,11 +65,10 @@ class Common_Export Common_File_Tools
   ACE_UNIMPLEMENTED_FUNC (Common_File_Tools (const Common_File_Tools&));
   ACE_UNIMPLEMENTED_FUNC (Common_File_Tools& operator= (const Common_File_Tools&));
 
-  // helper methods
+  //// helper methods
 //  static int dirent_selector (const dirent*);
 //  static int dirent_comparator (const dirent**,
 //                                const dirent**);
-  static std::string getLogDirectory ();
 };
 
 #endif

@@ -23,16 +23,14 @@
 
 #include "ace/Asynch_IO.h"
 #include "ace/Event_Handler.h"
-#include "ace/Recursive_Thread_Mutex.h"
 #include "ace/Singleton.h"
-//#include "ace/Synch.h"
+#include "ace/Synch_Traits.h"
 #include "ace/Time_Value.h"
 
 #include "common.h"
 #include "common_icontrol.h"
 #include "common_idumpstate.h"
 #include "common_iinitialize.h"
-//#include "common_time_common.h"
 #include "common_timer_common.h"
 
 template <typename TimerQueueType,
@@ -46,7 +44,7 @@ class Common_Timer_Manager_T
   // singleton needs access to the ctor/dtors
   friend class ACE_Singleton<Common_Timer_Manager_T<TimerQueueType,
                                                     TimerQueueAdapterType>,
-                             ACE_Recursive_Thread_Mutex>;
+                             ACE_SYNCH_RECURSIVE_MUTEX>;
 
  public:
   // proactor version
@@ -81,7 +79,7 @@ class Common_Timer_Manager_T
 
   // convenience types
   typedef Common_Timer_Manager_T<TimerQueueType,
-                                 TimerQueueAdapterType> OWN_TYPE;
+                                 TimerQueueAdapterType> OWN_TYPE_T;
 
   Common_Timer_Manager_T ();
   ACE_UNIMPLEMENTED_FUNC (Common_Timer_Manager_T (const Common_Timer_Manager_T&));
@@ -98,8 +96,6 @@ class Common_Timer_Manager_T
   //                   managed in the queue
   Common_TimeoutUpcall_t    timerHandler_;
   TimerQueueType*           timerQueue_;
-
-//  static Common_TimePolicy_t  timePolicy_;
 };
 
 // include template implementation

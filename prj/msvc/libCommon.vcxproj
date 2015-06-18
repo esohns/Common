@@ -99,6 +99,7 @@
     <ClInclude Include="..\..\src\common_inotify.h" />
     <ClInclude Include="..\..\src\common_irefcount.h" />
     <ClInclude Include="..\..\src\common_isignal.h" />
+    <ClInclude Include="..\..\src\common_istatemachine.h" />
     <ClInclude Include="..\..\src\common_istatistic.h" />
     <ClInclude Include="..\..\src\common_isubscribe.h" />
     <ClInclude Include="..\..\src\common_itimer.h" />
@@ -106,6 +107,7 @@
     <ClInclude Include="..\..\src\common_macros.h" />
     <ClInclude Include="..\..\src\common_referencecounter_base.h" />
     <ClInclude Include="..\..\src\common_signalhandler.h" />
+    <ClInclude Include="..\..\src\common_statemachine_base.h" />
     <ClInclude Include="..\..\src\common_task_base.h" />
     <ClInclude Include="..\..\src\common_timerhandler.h" />
     <ClInclude Include="..\..\src\common_timer_common.h" />
@@ -123,6 +125,7 @@
     </ClCompile>
     <ClCompile Include="..\..\src\common_signalhandler.cpp">
     </ClCompile>
+    <ClCompile Include="..\..\src\common_statemachine_base.cpp" />
     <ClCompile Include="..\..\src\common_task_base.cpp">
     </ClCompile>
     <ClCompile Include="..\..\src\common_timerhandler.cpp">
@@ -145,6 +148,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\src\common_statemachine_base.inl" />
     <None Include="..\..\src\common_task_base.inl" />
     <None Include="..\..\src\common_timer_manager.inl" />
   </ItemGroup>
