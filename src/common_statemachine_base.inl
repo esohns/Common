@@ -75,13 +75,13 @@ Common_StateMachine_Base_T<StateType>::change (StateType newState_in)
   // invoke callback...
   try
   {
-    onChange (newState_in);
+    this->onChange (newState_in);
   }
   catch (...)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("caught exception in Common_IStateMachine_T::onChange(\"%s\"), aborting\n"),
-                ACE_TEXT (state2String (newState_in).c_str ())));
+                ACE_TEXT (this->state2String (newState_in).c_str ())));
 
     return false;
   }

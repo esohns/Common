@@ -60,6 +60,7 @@ libCommon_la_SOURCES = \
   common_inotify.h \
   common_irefcount.h \
   common_isignal.h \
+  common_istatemachine.h \
   common_istatistic.h \
   common_isubscribe.h \
   common_itimer.h \
@@ -70,6 +71,9 @@ libCommon_la_SOURCES = \
   common_referencecounter_base.h \
   common_signalhandler.cpp \
   common_signalhandler.h \
+  common_statemachine_base.cpp \
+  common_statemachine_base.h \
+  common_statemachine_base.inl \
   common_task_base.cpp \
   common_task_base.inl \
   common_task_base.h \

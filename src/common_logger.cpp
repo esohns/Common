@@ -26,6 +26,7 @@
 #include "ace/Guard_T.h"
 #include "ace/Log_Msg.h"
 #include "ace/Log_Record.h"
+#include "ace/Synch.h"
 #include "ace/OS.h"
 
 #include "common_defines.h"

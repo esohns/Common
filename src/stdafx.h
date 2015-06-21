@@ -11,24 +11,24 @@
 
 // System Library Header Files
 //#include "ace/streams.h"
+//#include "ace/Assert.h"
+//#include "ace/ACE.h"
+//#include "ace/CDR_Stream.h"
+//#include "ace/Log_Msg.h"
 #include "ace/OS.h"
-#include "ace/ACE.h"
-#include "ace/Log_Msg.h"
-#include "ace/Assert.h"
-#include "ace/Synch.h"
-#include "ace/Singleton.h"
-#include "ace/CDR_Stream.h"
+//#include "ace/Singleton.h"
+//#include "ace/Synch.h"
 
 // C RunTime Header Files
-#include <deque>
-#include <functional>
+//#include <deque>
+//#include <functional>
 //#include <locale>
-#include <map>
+//#include <map>
 //#include <string>
-#include <set>
+//#include <set>
 //#include <sstream>
-#include <stack>
-#include <vector>
+//#include <stack>
+//#include <vector>
 
 // Local Header Files
 #include "common_macros.h"

@@ -44,7 +44,7 @@ class Common_Timer_Manager_T
   // singleton needs access to the ctor/dtors
   friend class ACE_Singleton<Common_Timer_Manager_T<TimerQueueType,
                                                     TimerQueueAdapterType>,
-                             ACE_SYNCH_RECURSIVE_MUTEX>;
+                             ACE_SYNCH_MUTEX>;
 
  public:
   // proactor version

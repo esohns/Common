@@ -22,7 +22,7 @@
 #define COMMON_TIMER_MANAGER_COMMON_H
 
 #include "ace/Singleton.h"
-#include "ace/Synch.h"
+#include "ace/Synch_Traits.h"
 
 #include "common_exports.h"
 #include "common_timer_common.h"
@@ -34,12 +34,13 @@ typedef Common_Timer_Manager_T<Common_TimerQueueListImpl_t,
                                Common_TimerManagerListBase_t> Common_Timer_ManagerList_t;
 typedef Common_Timer_Manager_T<Common_TimerQueueWheelImpl_t,
                                Common_TimerManagerWheelBase_t> Common_Timer_ManagerWheel_t;
+// *NOTE*: this specifies the (default) strategy
 typedef Common_Timer_ManagerWheel_t Common_Timer_Manager_t;
 
 typedef ACE_Singleton<Common_Timer_Manager_t,
-                      ACE_Recursive_Thread_Mutex> COMMON_TIMERMANAGER_SINGLETON;
+                      ACE_SYNCH_MUTEX> COMMON_TIMERMANAGER_SINGLETON;
 COMMON_SINGLETON_DECLARE (ACE_Singleton,
                           Common_Timer_Manager_t,
-                          ACE_Recursive_Thread_Mutex);
+                          ACE_SYNCH_MUTEX);
 
 #endif

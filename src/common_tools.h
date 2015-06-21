@@ -21,8 +21,9 @@
 #ifndef COMMON_TOOLS_H
 #define COMMON_TOOLS_H
 
-//#include <string>
+#include <string>
 
+#include "ace/config-macros.h"
 #include "ace/Global_Macros.h"
 #include "ace/Time_Value.h"
 #include "ace/Signal.h"
@@ -32,12 +33,8 @@
 #include "common_timer_manager_common.h"
 
 // forward declaration(s)
-//namespace std
-//{
-//class string;
-//};
-class ACE_Log_Msg_Backend;
 class ACE_Event_Handler;
+class ACE_Log_Msg_Backend;
 
 ACE_THR_FUNC_RETURN threadpool_event_dispatcher_function (void*);
 

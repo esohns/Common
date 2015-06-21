@@ -19,8 +19,6 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include "common_file_tools.h"
-
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "Userenv.h"
 #include "Shlobj.h"
@@ -32,6 +30,8 @@
 #include "ace/FILE_Connector.h"
 #include "ace/Dirent_Selector.h"
 #include "ace/OS_NS_sys_sendfile.h"
+
+#include "common_file_tools.h"
 
 #include "common_macros.h"
 #include "common_defines.h"

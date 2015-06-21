@@ -19,11 +19,11 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include "common_tools.h"
-
-//#include <iostream>
-//#include <fstream>
+#include <iostream>
+#include <fstream>
 #include <sstream>
+
+using namespace std;
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <Security.h>
@@ -35,9 +35,15 @@
 #include "valgrind/memcheck.h"
 #endif
 
+// *IMPORTANT NOTE*: several ACE headers inclue ace/iosfwd.h, which introduces
+//                   a problem in conjunction with the standard include headers
+//                   when ACE_USES_OLD_IOSTREAMS is defined
+//                   --> include the necessary headers manually (see above), and
+//                       prevent ace/iosfwd.h from causing any harm
+#define ACE_IOSFWD_H
+
 #include "ace/High_Res_Timer.h"
-//#include "ace/iosfwd.h"
-#include "ace/OS.h"
+//#include "ace/OS.h"
 #include "ace/Log_Msg.h"
 #include "ace/Log_Msg_Backend.h"
 #include "ace/Proactor.h"
@@ -47,13 +53,14 @@
 #if defined (ACE_HAS_AIO_CALLS) && defined (sun)
 #include "ace/SUN_Proactor.h"
 #endif
-#include "ace/streams.h"
 #include "ace/TP_Reactor.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "ace/WFMO_Reactor.h"
 #else
 #include "ace/Dev_Poll_Reactor.h"
 #endif
+
+#include "common_tools.h"
 
 #include "common_defines.h"
 #include "common_macros.h"
@@ -522,9 +529,7 @@ Common_Tools::initializeLogging (const std::string& programName_in,
   } // end IF
   if (!logFile_in.empty ())
   {
-#if !defined (__GNUC__)
     options_flags |= ACE_Log_Msg::OSTREAM;
-#endif
 
     ACE_OSTREAM_TYPE* log_stream_p = NULL;
     std::ios_base::openmode open_mode = (std::ios_base::out |
@@ -558,9 +563,7 @@ Common_Tools::initializeLogging (const std::string& programName_in,
 
     // *NOTE*: the logger singleton assumes ownership of the stream object
     // *BUG*: doesn't work on Linux
-#if !defined (__GNUC__)
     ACE_LOG_MSG->msg_ostream (log_stream_p, true);
-#endif
   } // end IF
   result = ACE_LOG_MSG->open (ACE_TEXT (programName_in.c_str ()),
                               options_flags,
@@ -1384,6 +1387,8 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
                                                 NULL,                            // notification handler handle
                                                 1,                               // mask signals ?
                                                 ACE_DEV_POLL_TOKEN::FIFO));      // signal queue
+
+        serializeOutput_out = true;
 
         break;
       }
