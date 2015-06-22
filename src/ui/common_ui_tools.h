@@ -32,6 +32,7 @@
 class Common_UI_Export Common_UI_Tools
 {
  public:
+  static std::string UTF82Locale (const std::string&); // string
   static std::string UTF82Locale (const gchar*,        // string
                                   const gssize& = -1); // length in bytes (-1: \0-terminated)
   // *IMPORTANT NOTE*: return value needs to be g_free()'d !

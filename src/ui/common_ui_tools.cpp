@@ -26,6 +26,15 @@
 #include "common_macros.h"
 
 std::string
+Common_UI_Tools::UTF82Locale (const std::string& string_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::UTF82Locale"));
+
+  return Common_UI_Tools::UTF82Locale (string_in.c_str (),
+                                       -1);
+}
+
+std::string
 Common_UI_Tools::UTF82Locale (const gchar* string_in,
                               const gssize& length_in)
 {
@@ -44,8 +53,9 @@ Common_UI_Tools::UTF82Locale (const gchar* string_in,
   if (conversion_error)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to convert string: \"%s\", aborting\n"),
-                ACE_TEXT_CHAR_TO_TCHAR (conversion_error->message)));
+                ACE_TEXT ("failed to g_locale_from_utf8(\"%s\"): \"%s\", aborting\n"),
+                ACE_TEXT (string_in),
+                ACE_TEXT (conversion_error->message)));
 
     // clean up
     g_error_free (conversion_error);
