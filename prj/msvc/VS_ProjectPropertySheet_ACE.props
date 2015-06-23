@@ -5,11 +5,11 @@
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>D:\projects\ACE_wrappers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\projects\ATCD\ACE</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>D:\projects\ACE_wrappers\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ACEd.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\projects\ATCD\ACE\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ACE.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />
