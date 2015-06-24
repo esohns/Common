@@ -26,8 +26,8 @@
 //#include "ace/Lock_Adapter_T.h"
 #include "ace/Log_Msg.h"
 //#include "ace/Malloc_Allocator.h"
-#include "ace/OS.h"
-//#include "ace/Synch.h"
+//#include "ace/OS.h"
+#include "ace/Synch.h"
 //#include "ace/Task.h"
 
 // Local Header Files

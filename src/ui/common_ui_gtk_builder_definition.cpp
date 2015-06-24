@@ -28,7 +28,6 @@
 #include "gtk/gtk.h"
 
 #include "common_file_tools.h"
-
 #include "common_macros.h"
 
 Common_UI_GtkBuilderDefinition::Common_UI_GtkBuilderDefinition (int argc_in,
@@ -73,7 +72,7 @@ Common_UI_GtkBuilderDefinition::initialize (Common_UI_GTKState& GTKState_inout)
 
   GTKState_ = &GTKState_inout;
 
-  ACE_Guard<ACE_Thread_Mutex> aGuard (GTKState_inout.lock);
+  ACE_Guard<ACE_SYNCH_MUTEX> aGuard (GTKState_inout.lock);
 
   // step1: load widget tree(s)
   GtkBuilder* builder_p = NULL;
@@ -141,7 +140,7 @@ Common_UI_GtkBuilderDefinition::finalize ()
   // sanity check(s)
   ACE_ASSERT (GTKState_);
 
-  ACE_Guard<ACE_Thread_Mutex> aGuard (GTKState_->lock);
+  ACE_Guard<ACE_SYNCH_MUTEX> aGuard (GTKState_->lock);
 
   // schedule UI finalization
   guint event_source_id = g_idle_add (GTKState_->finalizationHook,

@@ -235,7 +235,22 @@ Common_UI_GTK_Manager::initializeGTK ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager::initializeGTK"));
 
+  ACE_ASSERT (state_);
+
   // step1: initialize GTK
+
+  // step1a: specifiy any .rc files
+  if (!state_->RCFiles.empty ())
+  {
+    for (Common_UI_UIRCFilesIterator_t iterator = state_->RCFiles.begin ();
+         iterator != state_->RCFiles.end ();
+         iterator++)
+      gtk_rc_add_default_file_utf8 ((*iterator).c_str ());
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("added %u GTK .rc file(s)...\n"),
+                state_->RCFiles.size ()));
+  } // end FOR
+
   //#if defined (ACE_WIN32) || defined (ACE_WIN64)
   //		g_thread_init (NULL);
   //#endif

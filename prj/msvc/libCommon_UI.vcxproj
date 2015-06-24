@@ -127,7 +127,12 @@
     <ClInclude Include="..\..\src\ui\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\ui\common_ui_glade_definition.cpp" />
+    <ClCompile Include="..\..\src\ui\common_ui_glade_definition.cpp">
+      <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ShowIncludes>
+      <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ShowIncludes>
+    </ClCompile>
     <ClCompile Include="..\..\src\ui\common_ui_gtk_builder_definition.cpp" />
     <ClCompile Include="..\..\src\ui\common_ui_gtk_manager.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>

@@ -21,8 +21,6 @@
 #ifndef COMMON_UI_GLADE_DEFINITION_H
 #define COMMON_UI_GLADE_DEFINITION_H
 
-#include <string>
-
 #include "ace/Global_Macros.h"
 
 #include "common_ui_common.h"

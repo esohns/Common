@@ -26,7 +26,7 @@
 #include <string>
 #include <utility>
 
-#include "ace/Synch.h"
+#include "ace/Synch_Traits.h"
 
 #include "gtk/gtk.h"
 
@@ -49,8 +49,8 @@
 typedef std::list<guint> Common_UI_GTKEventSourceIds_t;
 typedef Common_UI_GTKEventSourceIds_t::iterator Common_UI_GTKEventSourceIdsIterator_t;
 
-//typedef std::list<std::string> Common_UI_UIDefinitions_t;
-//typedef Common_UI_UIDefinitions_t::const_iterator Common_UI_UIDefinitionsIterator_t;
+typedef std::list<std::string> Common_UI_UIRCFiles_t;
+typedef Common_UI_UIRCFiles_t::const_iterator Common_UI_UIRCFilesIterator_t;
 
 typedef std::pair<std::string, GtkBuilder*> Common_UI_GTKBuilder_t;
 typedef std::map<std::string, Common_UI_GTKBuilder_t> Common_UI_GTKBuilders_t;
@@ -64,13 +64,27 @@ typedef Common_UI_GladeXMLs_t::const_iterator Common_UI_GladeXMLsConstIterator_t
 
 struct Common_UI_GTKState
 {
+  inline Common_UI_GTKState ()
+   : builders ()
+   , RCFiles ()
+   , eventSourceIds ()
+   , finalizationHook ()
+   , gladeXML ()
+   , initializationHook ()
+   , lock ()
+   //////////////////////////////////////
+   , userData (NULL)
+  {};
+
   Common_UI_GTKBuilders_t       builders;
-  //Common_UI_UIDefinitions_t     definitions;
+  Common_UI_UIRCFiles_t         RCFiles;
   Common_UI_GTKEventSourceIds_t eventSourceIds;
   GSourceFunc                   finalizationHook;
   Common_UI_GladeXMLs_t         gladeXML;
   GSourceFunc                   initializationHook;
-  ACE_Thread_Mutex              lock;
+  // *TODO*: remove this ASAP
+  ACE_SYNCH_MUTEX               lock;
+  ///////////////////////////////////////
   void*                         userData;
 };
 
