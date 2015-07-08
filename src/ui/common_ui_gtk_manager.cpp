@@ -218,8 +218,9 @@ Common_UI_GTK_Manager::svc (void)
     } // end IF
   } // end IF
 
+  gdk_threads_enter ();
   gtk_main ();
-  //gdk_threads_leave ();
+  gdk_threads_leave ();
 
   // gtk_main_quit () has been called...
 
@@ -245,17 +246,18 @@ Common_UI_GTK_Manager::initializeGTK ()
     for (Common_UI_UIRCFilesIterator_t iterator = state_->RCFiles.begin ();
          iterator != state_->RCFiles.end ();
          iterator++)
-      gtk_rc_add_default_file_utf8 ((*iterator).c_str ());
+      gtk_rc_add_default_file ((*iterator).c_str ());
+//      gtk_rc_add_default_file_utf8 ((*iterator).c_str ());
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("added %u GTK .rc file(s)...\n"),
                 state_->RCFiles.size ()));
   } // end FOR
 
-  //#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  //		g_thread_init (NULL);
-  //#endif
-  //		gdk_threads_init ();
-  //		gdk_threads_enter ();
+//#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  g_thread_init (NULL);
+//#endif
+  gdk_threads_init ();
+  //gdk_threads_enter ();
   if (!gtk_init_check (&argc_,
                        &argv_))
   {

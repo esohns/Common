@@ -19,22 +19,22 @@
  ***************************************************************************/
 #include "stdafx.h"
 
+#include "ace/OS.h"
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include "Userenv.h"
 #include "Shlobj.h"
+#include "Userenv.h"
 #endif
 
 #include "ace/ACE.h"
-#include "ace/OS.h"
-#include "ace/FILE_IO.h"
-#include "ace/FILE_Connector.h"
 #include "ace/Dirent_Selector.h"
+#include "ace/FILE_Connector.h"
+#include "ace/FILE_IO.h"
 #include "ace/OS_NS_sys_sendfile.h"
 
-#include "common_file_tools.h"
-
-#include "common_macros.h"
 #include "common_defines.h"
+#include "common_file_tools.h"
+#include "common_macros.h"
 #include "common_tools.h"
 
 #if defined (HAVE_CONFIG_H)
@@ -46,15 +46,16 @@ Common_File_Tools::isReadable (const std::string& filename_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isReadable"));
 
+  int result = -1;
   ACE_stat stat;
   ACE_OS::memset (&stat, 0, sizeof (stat));
-  if (ACE_OS::stat (filename_in.c_str (),
-                    &stat) == -1)
+  result = ACE_OS::stat (filename_in.c_str (),
+                         &stat);
+  if (result == -1)
   {
     //ACE_DEBUG ((LM_DEBUG,
     //            ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
     //            ACE_TEXT (filename_in.c_str ())));
-
     return false;
   } // end IF
 
@@ -67,15 +68,16 @@ Common_File_Tools::isEmpty (const std::string& filename_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isEmpty"));
 
+  int result = -1;
   ACE_stat stat;
   ACE_OS::memset (&stat, 0, sizeof(stat));
-  if (ACE_OS::stat (filename_in.c_str (),
-                    &stat) == -1)
+  result = ACE_OS::stat (filename_in.c_str (),
+                         &stat);
+  if (result == -1)
   {
 //    ACE_DEBUG ((LM_DEBUG,
 //                ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
 //                ACE_TEXT (filename_in.c_str ())));
-
     return false;
   } // end IF
 
@@ -87,10 +89,12 @@ Common_File_Tools::isDirectory (const std::string& directory_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isDirectory"));
 
+  int result = -1;
   ACE_stat stat;
   ACE_OS::memset (&stat, 0, sizeof (stat));
-  if (ACE_OS::stat (directory_in.c_str (),
-                    &stat) == -1)
+  result = ACE_OS::stat (directory_in.c_str (),
+                         &stat);
+  if (result == -1)
   {
     switch (errno)
     {
@@ -108,7 +112,6 @@ Common_File_Tools::isDirectory (const std::string& directory_in)
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
                     ACE_TEXT (directory_in.c_str ())));
-
         return false;
       }
     } // end SWITCH
@@ -154,31 +157,33 @@ Common_File_Tools::isEmptyDirectory (const std::string& directory_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isEmptyDirectory"));
 
-  // init return value
-  bool result = false;
+  // initialize return value
+  bool return_value = false;
 
+  int result = -1;
   ACE_Dirent_Selector entries;
-  if (entries.open (ACE_TEXT (directory_in.c_str ()),
+  result = entries.open (ACE_TEXT (directory_in.c_str ()),
 //                    &Common_File_Tools::dirent_selector,
 //                    &Common_File_Tools::dirent_comparator) == -1)
-                    NULL,
-                    NULL) == -1)
+                         NULL,
+                         NULL);
+  if (result == -1)
   {
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("failed to ACE_Dirent_Selector::open(\"%s\"): \"%m\", aborting\n"),
                 ACE_TEXT (directory_in.c_str ())));
-
-    return result;
+    return false;
   } // end IF
-  result = (entries.length () == 0);
+  return_value = (entries.length () == 0);
 
   // clean up
-  if (entries.close () == -1)
+  result = entries.close ();
+  if (result == -1)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Dirent_Selector::close(\"%s\"): \"%m\", continuing\n"),
                 ACE_TEXT (directory_in.c_str ())));
 
-  return result;
+  return return_value;
 }
 
 bool
@@ -186,8 +191,11 @@ Common_File_Tools::createDirectory (const std::string& directory_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::createDirectory"));
 
-  if (ACE_OS::mkdir (directory_in.c_str (),
-                     ACE_DEFAULT_DIR_PERMS) == -1)
+  int result = -1;
+
+  result = ACE_OS::mkdir (directory_in.c_str (),
+                          ACE_DEFAULT_DIR_PERMS);
+  if (result == -1)
   {
     switch (errno)
     {
@@ -195,17 +203,17 @@ Common_File_Tools::createDirectory (const std::string& directory_in)
       {
         // OK: some base sub-directory doesn't seem to exist...
         // --> try to recurse
-        const ACE_TCHAR* dirname = ACE::dirname (directory_in.c_str (),
-                                                 ACE_DIRECTORY_SEPARATOR_CHAR);
-        if (!dirname)
+        const ACE_TCHAR* directory_p =
+          ACE::dirname (directory_in.c_str (),
+                        ACE_DIRECTORY_SEPARATOR_CHAR);
+        if (!directory_p)
         {
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to ACE::dirname(\"%s\"): \"%m\", aborting\n"),
                       ACE_TEXT (directory_in.c_str ())));
-
           return false;
         } // end IF
-        std::string base_directory = ACE_TEXT_ALWAYS_CHAR (dirname);
+        std::string base_directory = ACE_TEXT_ALWAYS_CHAR (directory_p);
         // sanity check: don't recurse for "." !
         if (base_directory != ACE_TEXT_ALWAYS_CHAR ("."))
         {
@@ -225,7 +233,6 @@ Common_File_Tools::createDirectory (const std::string& directory_in)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("\"%s\" already exists, leaving\n"),
                     ACE_TEXT (directory_in.c_str ())));
-
         return true;
       }
       default:
@@ -233,12 +240,10 @@ Common_File_Tools::createDirectory (const std::string& directory_in)
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_OS::mkdir(\"%s\"): \"%m\", aborting\n"),
                     ACE_TEXT (directory_in.c_str ())));
-
         return false;
       }
     } // end SWITCH
   } // end IF
-
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("created: \"%s\"...\n"),
               ACE_TEXT (directory_in.c_str ())));
@@ -252,69 +257,76 @@ Common_File_Tools::copyFile (const std::string& filename_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::createDirectory"));
 
+  int result = -1;
+
   // connect to the file...
   ACE_FILE_Addr source_address, target_address;
-  if (source_address.set (ACE_TEXT_CHAR_TO_TCHAR (filename_in.c_str ())) == -1)
+  result = source_address.set (ACE_TEXT_CHAR_TO_TCHAR (filename_in.c_str ()));
+  if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Addr::set() file \"%s\": \"%m\", aborting\n"),
                 ACE_TEXT (filename_in.c_str ())));
-
     return false;
   } // end IF
-  const ACE_TCHAR* basename = ACE::basename (filename_in.c_str (),
-                                             ACE_DIRECTORY_SEPARATOR_CHAR);
-  if (!basename)
+  const ACE_TCHAR* filename_p =
+    ACE::basename (ACE_TEXT_CHAR_TO_TCHAR (filename_in.c_str ()),
+                   ACE_DIRECTORY_SEPARATOR_CHAR);
+  if (!filename_p)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE::basename(\"%s\"): \"%m\", aborting\n"),
                 ACE_TEXT (filename_in.c_str ())));
-
     return false;
   } // end IF
   std::string target_filename = directory_in;
   target_filename += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  target_filename += ACE_TEXT_ALWAYS_CHAR (basename);
-  if (target_address.set (ACE_TEXT_CHAR_TO_TCHAR (target_filename.c_str ())) == -1)
+  target_filename += ACE_TEXT_ALWAYS_CHAR (filename_p);
+  result =
+    target_address.set (ACE_TEXT_CHAR_TO_TCHAR (target_filename.c_str ()));
+  if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Addr::set() file \"%s\": \"%m\", aborting\n"),
                 ACE_TEXT (target_filename.c_str ())));
-
     return false;
   } // end IF
 
   // don't block on file opening (see ACE doc)...
   ACE_FILE_Connector connector, receptor;
   ACE_FILE_IO source_file, target_file;
-  if (connector.connect (source_file,                                         // file
-                         source_address,                                      // remote SAP
-                         const_cast<ACE_Time_Value*> (&ACE_Time_Value::zero), // timeout
-                         ACE_Addr::sap_any,                                   // local SAP
-                         0,                                                   // reuse address ?
-                         (O_RDONLY | O_BINARY | O_EXCL),                      // flags
-                         ACE_DEFAULT_FILE_PERMS) == -1)                       // permissions
+  result =
+    connector.connect (source_file,                                         // file
+                       source_address,                                      // remote SAP
+                       const_cast<ACE_Time_Value*> (&ACE_Time_Value::zero), // timeout
+                       ACE_Addr::sap_any,                                   // local SAP
+                       0,                                                   // reuse address ?
+                       (O_RDONLY | O_BINARY | O_EXCL),                      // flags
+                       ACE_DEFAULT_FILE_PERMS);                             // permissions
+  if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Connector::connect() to file \"%s\": \"%m\", aborting\n"),
                 ACE_TEXT (filename_in.c_str ())));
-
     return false;
   } // end IF
-  if (receptor.connect (target_file,                                         // file
-                        target_address,                                      // remote SAP
-                        const_cast<ACE_Time_Value*> (&ACE_Time_Value::zero), // timeout
-                        ACE_Addr::sap_any,                                   // local SAP
-                        0,                                                   // reuse address ?
-                        (O_WRONLY | O_CREAT | O_BINARY | O_TRUNC),           // flags
-                        ACE_DEFAULT_FILE_PERMS) == -1)                       // permissions
+  result =
+    receptor.connect (target_file,                                         // file
+                      target_address,                                      // remote SAP
+                      const_cast<ACE_Time_Value*> (&ACE_Time_Value::zero), // timeout
+                      ACE_Addr::sap_any,                                   // local SAP
+                      0,                                                   // reuse address ?
+                      (O_WRONLY | O_CREAT | O_BINARY | O_TRUNC),           // flags
+                      ACE_DEFAULT_FILE_PERMS);                             // permissions
+  if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Connector::connect() to file \"%s\": \"%m\", aborting\n"),
                 ACE_TEXT (target_filename.c_str ())));
 
     // clean up
-    if (source_file.close () == -1)
+    result = source_file.close ();
+    if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_FILE::close(\"%s\"): \"%m\", continuing\n"),
                   ACE_TEXT (filename_in.c_str ())));
@@ -364,28 +376,32 @@ Common_File_Tools::copyFile (const std::string& filename_in,
 //    return false;
 //  } // end IF
   ACE_FILE_Info file_info;
-  if (source_file.get_info (file_info) == -1)
+  result = source_file.get_info (file_info);
+  if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_IO::get_info(\"%s\"): \"%m\", aborting\n"),
                 ACE_TEXT (filename_in.c_str ())));
 
     // clean up
-    if (source_file.close () == -1)
+    result = source_file.close ();
+    if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_FILE::close(\"%s\"): \"%m\", continuing\n"),
                   ACE_TEXT (filename_in.c_str ())));
-    if (target_file.remove () == -1)
+    result = target_file.remove ();
+    if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_FILE::remove(\"%s\"): \"%m\", continuing\n"),
                   ACE_TEXT (target_filename.c_str ())));
 
     return false;
   } // end IF
-  if (ACE_OS::sendfile (source_file.get_handle (),
-                        target_file.get_handle (),
-                        NULL,
-                        file_info.size_) != file_info.size_)
+  ssize_t bytes_written = ACE_OS::sendfile (source_file.get_handle (),
+                                            target_file.get_handle (),
+                                            NULL,
+                                            file_info.size_);
+  if (bytes_written != file_info.size_)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::sendfile(\"%s\",\"%s\"): \"%m\", aborting\n"),
@@ -393,11 +409,13 @@ Common_File_Tools::copyFile (const std::string& filename_in,
                 ACE_TEXT (target_filename.c_str ())));
 
     // clean up
-    if (source_file.close () == -1)
+    result = source_file.close ();
+    if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_FILE::close(\"%s\"): \"%m\", continuing\n"),
                   ACE_TEXT (filename_in.c_str ())));
-    if (target_file.remove () == -1)
+    result = target_file.remove ();
+    if (result == -1)
       ACE_DEBUG  ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_FILE::remove(\"%s\"): \"%m\", continuing\n"),
                   ACE_TEXT (target_filename.c_str ())));
@@ -407,11 +425,13 @@ Common_File_Tools::copyFile (const std::string& filename_in,
 
   // clean up
 //  delete[] io_vec.iov_base;
-  if (source_file.close () == -1)
+  result = source_file.close ();
+  if (result == -1)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE::close(\"%s\"): \"%m\", continuing\n"),
                 ACE_TEXT (filename_in.c_str ())));
-  if (target_file.close () == -1)
+  result = target_file.close ();
+  if (result == -1)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE::close(\"%s\"): \"%m\", continuing\n"),
                 ACE_TEXT (target_filename.c_str ())));
@@ -429,45 +449,47 @@ Common_File_Tools::deleteFile (const std::string& filename_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::deleteFile"));
 
+  int result = -1;
+
   // connect to the file...
   ACE_FILE_Addr address;
-  if (address.set (ACE_TEXT_CHAR_TO_TCHAR (filename_in.c_str ())) == -1)
+  result = address.set (ACE_TEXT_CHAR_TO_TCHAR (filename_in.c_str ()));
+  if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Addr::set() file \"%s\": \"%m\", aborting\n"),
                 ACE_TEXT (filename_in.c_str ())));
-
     return false;
   } // end IF
 
   // don't want to block on file opening (see ACE doc)...
   ACE_FILE_Connector connector;
   ACE_FILE_IO file;
-  if (connector.connect (file,
-                         address,
-                         const_cast<ACE_Time_Value*> (&ACE_Time_Value::zero),
-                         ACE_Addr::sap_any,
-                         0,
-                         (O_WRONLY | O_BINARY),
-                         ACE_DEFAULT_FILE_PERMS) == -1)
+  result =
+    connector.connect (file,
+                       address,
+                       const_cast<ACE_Time_Value*> (&ACE_Time_Value::zero),
+                       ACE_Addr::sap_any,
+                       0,
+                       (O_WRONLY | O_BINARY),
+                       ACE_DEFAULT_FILE_PERMS);
+  if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Connector::connect() to file \"%s\": \"%m\", aborting\n"),
                 ACE_TEXT (filename_in.c_str ())));
-
     return false;
   } // end IF
 
   // delete file
-  if (file.remove () == -1)
+  result = file.remove ();
+  if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_IO::remove() file \"%s\": \"%m\", aborting\n"),
                 ACE_TEXT (filename_in.c_str ())));
-
     return false;
   } // end IF
-
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("deleted \"%s\"...\n"),
               ACE_TEXT (filename_in.c_str ())));
@@ -481,38 +503,39 @@ Common_File_Tools::loadFile (const std::string& filename_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::loadFile"));
 
-  // init return value(s)
+  int result = -1;
+
+  // initialize return value(s)
   file_out = NULL;
 
-  FILE* fp = NULL;
-  fp = ACE_OS::fopen (ACE_TEXT (filename_in.c_str ()),
-                      ACE_TEXT_ALWAYS_CHAR ("rb"));
-  if (!fp)
+  FILE* file_p =
+    ACE_OS::fopen (ACE_TEXT (filename_in.c_str ()),
+                   ACE_TEXT_ALWAYS_CHAR ("rb"));
+  if (!file_p)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): %m, aborting\n"),
                 ACE_TEXT (filename_in.c_str ())));
-
     return false;
   } // end IF
 
   // obtain file size
-  if (ACE_OS::fseek (fp, 0, SEEK_END))
+  result = ACE_OS::fseek (file_p, 0, SEEK_END);
+  if (result)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fseek(\"%s\"): %m, aborting\n"),
                 ACE_TEXT (filename_in.c_str ())));
 
     // clean up
-    if (ACE_OS::fclose (fp) == -1)
+    result = ACE_OS::fclose (file_p);
+    if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): %m, continuing\n"),
                   ACE_TEXT (filename_in.c_str ())));
-
     return false;
   } // end IF
-  long fsize = 0;
-  fsize = ACE_OS::ftell (fp);
+  long fsize = ACE_OS::ftell (file_p);
   if (fsize == -1)
   {
     ACE_DEBUG ((LM_ERROR,
@@ -520,14 +543,14 @@ Common_File_Tools::loadFile (const std::string& filename_in,
                 ACE_TEXT (filename_in.c_str ())));
 
     // clean up
-    if (ACE_OS::fclose (fp) == -1)
+    result = ACE_OS::fclose (file_p);
+    if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): %m, continuing\n"),
                   ACE_TEXT (filename_in.c_str ())));
-
     return false;
   } // end IF
-  ACE_OS::rewind (fp);
+  ACE_OS::rewind (file_p);
 
   // *PORTABILITY* allocate array
 //  file_out = new (std::nothrow) unsigned char[fsize];
@@ -540,44 +563,47 @@ Common_File_Tools::loadFile (const std::string& filename_in,
                 fsize));
 
     // clean up
-    if (ACE_OS::fclose (fp) == -1)
+    result = ACE_OS::fclose (file_p);
+    if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): %m, continuing\n"),
                   ACE_TEXT (filename_in.c_str ())));
-
     return false;
   } // end IF
 
   // read data
-  if (ACE_OS::fread (static_cast<void*>(file_out), // target buffer
-                     fsize,                        // read everything
-                     1,                            // ... all at once
-                     fp) != 1)                     // handle
+  result = ACE_OS::fread (static_cast<void*> (file_out), // target buffer
+                          fsize,                         // read everything
+                          1,                             // ... all at once
+                          file_p);                       // handle
+  if (result != 1)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to read file(\"%s\"): %m, aborting\n"),
                 ACE_TEXT (filename_in.c_str ())));
 
     // clean up
-    if (ACE_OS::fclose (fp) == -1)
+    result = ACE_OS::fclose (file_p);
+    if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): %m, continuing\n"),
                   ACE_TEXT (filename_in.c_str ())));
-    delete[] file_out;
+    delete [] file_out;
     file_out = NULL;
 
     return false;
   } // end IF
 
   // clean up
-  if (ACE_OS::fclose (fp) == -1)
+  result = ACE_OS::fclose (file_p);
+  if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): %m, aborting\n"),
                 ACE_TEXT (filename_in.c_str ())));
 
     // clean up
-    delete[] file_out;
+    delete [] file_out;
     file_out = NULL;
 
     return false;
@@ -591,17 +617,15 @@ Common_File_Tools::realPath (const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::realPath"));
 
-  // init result(s)
+  // initialize result(s)
   std::string result;
 
   char path[PATH_MAX];
-  if (ACE_OS::realpath (path_in.c_str (),
-                        path) == NULL)
+  if (!ACE_OS::realpath (path_in.c_str (), path))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::realpath(\"%s\"): %m, aborting\n"),
                 ACE_TEXT (path_in.c_str ())));
-
     return result;
   } // end IF
   result = path;
@@ -619,11 +643,10 @@ Common_File_Tools::getWorkingDirectory ()
   // retrieve working directory
   char cwd[PATH_MAX];
   ACE_OS::memset (cwd, 0, sizeof(cwd));
-  if (ACE_OS::getcwd (cwd, sizeof (cwd)) == NULL)
+  if (!ACE_OS::getcwd (cwd, sizeof (cwd)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::getcwd(): \"%m\", aborting\n")));
-
     return result;
   } // end IF
   result = cwd;
@@ -703,7 +726,7 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getUserHomeDirectory"));
 
-  // init result value(s)
+  // initialize result value(s)
   std::string result;
 
   std::string user_name = user_in;
@@ -752,7 +775,7 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
   else result = ACE_TEXT_ALWAYS_CHAR (pwd.pw_dir);
 #else
   HANDLE token = 0;
-  if (OpenProcessToken (GetCurrentProcess(), TOKEN_QUERY, &token) == 0)
+  if (!OpenProcessToken (GetCurrentProcess (), TOKEN_QUERY, &token))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to OpenProcessToken(), falling back\n")));
@@ -763,10 +786,15 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
     return result;
   } // end IF
 
-  TCHAR buffer[PATH_MAX];
+  ACE_TCHAR buffer[PATH_MAX];
   ACE_OS::memset (buffer, 0, sizeof (buffer));
   DWORD buffer_size = PATH_MAX;
-  if (!GetUserProfileDirectory (token, buffer, &buffer_size))
+  // *TODO*: this is apparently inconsistent (see also config.h for details)
+#if defined (ACE_USES_WCHAR)
+  if (!GetUserProfileDirectoryW (token, buffer, &buffer_size))
+#else
+  if (!GetUserProfileDirectoryA (token, buffer, &buffer_size))
+#endif
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to GetUserProfileDirectory(): \"%s\", falling back\n")));
@@ -787,7 +815,7 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to CloseHandle(), continuing\n")));
 
-  result = ACE_TEXT_ANTI_TO_TCHAR (buffer);
+  result = ACE_TEXT_ALWAYS_CHAR (buffer);
 #endif
 
   return result;
@@ -829,26 +857,34 @@ Common_File_Tools::getUserConfigurationDirectory ()
   } // end IF
 
   result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  result += ACE_TEXT_ALWAYS_CHAR (".");
+  result += '.';
 #else
-  TCHAR buffer[PATH_MAX];
+  ACE_TCHAR buffer[PATH_MAX];
   ACE_OS::memset (buffer, 0, sizeof (buffer));
 
-  HRESULT win_result = SHGetFolderPath (NULL,                                   // hwndOwner
-                                        CSIDL_APPDATA | CSIDL_FLAG_DONT_VERIFY, // nFolder
-                                        NULL,                                   // hToken
-                                        SHGFP_TYPE_CURRENT,                     // dwFlags
-                                        buffer);                                // pszPath
+  HRESULT win_result =
+// *TODO*: this is apparently inconsistent (see also config.h for details)
+#if defined (ACE_USES_WCHAR)
+  SHGetFolderPathW (NULL,                                   // hwndOwner
+#else
+  SHGetFolderPathA (NULL,                                   // hwndOwner
+#endif
+                    CSIDL_APPDATA | CSIDL_FLAG_DONT_VERIFY, // nFolder
+                    NULL,                                   // hToken
+                    SHGFP_TYPE_CURRENT,                     // dwFlags
+                    buffer);                                // pszPath
   if (FAILED (win_result))
   {
     ACE_OS::memset (buffer, 0, sizeof (buffer));
-    if (FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM,                // dwFlags
-                       NULL,                                      // lpSource
-                       win_result,                                // dwMessageId
-                       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // dwLanguageId
-                       buffer,                                    // lpBuffer
-                       PATH_MAX,                                  // nSize
-                       NULL) == 0)                                // Arguments
+    win_result =
+      ACE_TEXT_FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM,                 // dwFlags
+                              NULL,                                       // lpSource
+                              win_result,                                 // dwMessageId
+                              MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT), // dwLanguageId
+                              buffer,                                     // lpBuffer
+                              PATH_MAX,                                   // nSize
+                              NULL);                                      // Arguments
+    if (FAILED (win_result))                                 
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to FormatMessage(%d): \"%m\", continuing\n"),
                   win_result));
@@ -862,7 +898,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
     return result;
   } // end IF
 
-  result = ACE_TEXT_ANTI_TO_TCHAR (buffer);
+  result = ACE_TEXT_ALWAYS_CHAR (buffer);
   result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
 #endif
   result += ACE_TEXT_ALWAYS_CHAR (LIBCOMMON_PACKAGE);
@@ -893,10 +929,11 @@ Common_File_Tools::getDumpDirectory ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getDumpDirectory"));
 
-  // init return value(s)
+  // initialize return value(s)
   std::string result;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  result = ACE_OS::getenv (ACE_TEXT_ALWAYS_CHAR (COMMON_DEF_DUMP_DIR));
+  result =
+    ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
 #else
   result = ACE_TEXT_ALWAYS_CHAR (COMMON_DEF_DUMP_DIR);
 #endif
@@ -953,7 +990,6 @@ Common_File_Tools::getLogFilename (const std::string& programName_in)
 
       return result;
     } // end IF
-
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("deleted file: \"%s\"...\n"),
                 ACE_TEXT (result.c_str ())));
@@ -967,10 +1003,11 @@ Common_File_Tools::getLogDirectory ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getLogDirectory"));
 
-  // init return value(s)
+  // initialize return value(s)
   std::string result;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  result = ACE_OS::getenv (ACE_TEXT_ALWAYS_CHAR (COMMON_DEF_LOG_DIRECTORY));
+  result =
+    ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_LOG_DIRECTORY)));
 #else
   result = ACE_TEXT_ALWAYS_CHAR (COMMON_DEF_LOG_DIRECTORY);
 #endif
@@ -990,7 +1027,6 @@ Common_File_Tools::getLogDirectory ()
 
       return result;
     } // end IF
-
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("created directory: \"%s\"...\n"),
                 ACE_TEXT (result.c_str ())));

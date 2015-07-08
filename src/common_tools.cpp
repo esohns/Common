@@ -19,20 +19,20 @@
  ***************************************************************************/
 #include "stdafx.h"
 
+#include "common_tools.h"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
 using namespace std;
 
+#include "ace/OS.h"
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <Security.h>
 #else
 //#include <syscall.h>
-#endif
-
-#if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
-#include "valgrind/memcheck.h"
 #endif
 
 // *IMPORTANT NOTE*: several ACE headers inclue ace/iosfwd.h, which introduces
@@ -43,12 +43,11 @@ using namespace std;
 #define ACE_IOSFWD_H
 
 #include "ace/High_Res_Timer.h"
-//#include "ace/OS.h"
 #include "ace/Log_Msg.h"
 #include "ace/Log_Msg_Backend.h"
-#include "ace/Proactor.h"
 #include "ace/POSIX_CB_Proactor.h"
 #include "ace/POSIX_Proactor.h"
+#include "ace/Proactor.h"
 #include "ace/Reactor.h"
 #if defined (ACE_HAS_AIO_CALLS) && defined (sun)
 #include "ace/SUN_Proactor.h"
@@ -60,7 +59,9 @@ using namespace std;
 #include "ace/Dev_Poll_Reactor.h"
 #endif
 
-#include "common_tools.h"
+#if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
+#include "valgrind/memcheck.h"
+#endif
 
 #include "common_defines.h"
 #include "common_macros.h"
@@ -470,7 +471,7 @@ Common_Tools::getCurrentUserName (std::string& username_out,
 #else
   ACE_TCHAR buffer[BUFSIZ];
   ACE_OS::memset (buffer, 0, sizeof (buffer));
-  DWORD buffer_size = BUFSIZ;
+  DWORD buffer_size = sizeof (buffer);
   if (!ACE_TEXT_GetUserNameEx (NameDisplay, // EXTENDED_NAME_FORMAT
                                buffer,
                                &buffer_size))
@@ -478,7 +479,8 @@ Common_Tools::getCurrentUserName (std::string& username_out,
     DWORD error = GetLastError ();
     if (error != ERROR_NONE_MAPPED)
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ::GetUserNameEx(): \"%m\", continuing\n")));
+                  ACE_TEXT ("failed to %s(): \"%m\", continuing\n"),
+                  ACE_TEXT (ACE_TEXT_GetUserNameEx)));
   } // end IF
   else
     realname_out = ACE_TEXT_ALWAYS_CHAR (buffer);

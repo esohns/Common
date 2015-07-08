@@ -23,6 +23,7 @@
 
 #include <list>
 #include <map>
+#include <set>
 #include <string>
 #include <utility>
 
@@ -46,7 +47,7 @@
 //  GTK_DEFINITIONTYPE_MAX
 //};
 
-typedef std::list<guint> Common_UI_GTKEventSourceIds_t;
+typedef std::set<guint> Common_UI_GTKEventSourceIds_t;
 typedef Common_UI_GTKEventSourceIds_t::iterator Common_UI_GTKEventSourceIdsIterator_t;
 
 typedef std::list<std::string> Common_UI_UIRCFiles_t;
@@ -66,24 +67,26 @@ struct Common_UI_GTKState
 {
   inline Common_UI_GTKState ()
    : builders ()
-   , RCFiles ()
+   , cursor (NULL)
    , eventSourceIds ()
    , finalizationHook ()
    , gladeXML ()
    , initializationHook ()
    , lock ()
+   , RCFiles ()
    //////////////////////////////////////
    , userData (NULL)
   {};
 
   Common_UI_GTKBuilders_t       builders;
-  Common_UI_UIRCFiles_t         RCFiles;
+  GdkCursor*                    cursor;
   Common_UI_GTKEventSourceIds_t eventSourceIds;
   GSourceFunc                   finalizationHook;
   Common_UI_GladeXMLs_t         gladeXML;
   GSourceFunc                   initializationHook;
   // *TODO*: remove this ASAP
   ACE_SYNCH_MUTEX               lock;
+  Common_UI_UIRCFiles_t         RCFiles;
   ///////////////////////////////////////
   void*                         userData;
 };

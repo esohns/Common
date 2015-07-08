@@ -15,7 +15,7 @@
 //#include "ace/ACE.h"
 //#include "ace/CDR_Stream.h"
 //#include "ace/Log_Msg.h"
-#include "ace/OS.h"
+//#include "ace/OS.h"
 //#include "ace/Singleton.h"
 //#include "ace/Synch.h"
 

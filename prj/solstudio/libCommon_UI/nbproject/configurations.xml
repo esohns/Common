@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="95">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>../../../src/ui/common_ui_common.h</itemPath>
+      <itemPath>../../../src/ui/common_ui_defines.h</itemPath>
+      <itemPath>../../../src/ui/common_ui_exports.h</itemPath>
+      <itemPath>../../../src/ui/common_ui_glade_definition.h</itemPath>
+      <itemPath>../../../src/ui/common_ui_gtk_builder_definition.h</itemPath>
+      <itemPath>../../../src/ui/common_ui_gtk_manager.h</itemPath>
+      <itemPath>../../../src/ui/common_ui_igtk.h</itemPath>
+      <itemPath>../../../src/ui/common_ui_tools.h</itemPath>
+      <itemPath>../../../src/ui/common_ui_types.h</itemPath>
+      <itemPath>../../../src/ui/stdafx.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>../../../src/ui/common_ui_glade_definition.cpp</itemPath>
+      <itemPath>../../../src/ui/common_ui_gtk_builder_definition.cpp</itemPath>
+      <itemPath>../../../src/ui/common_ui_gtk_manager.cpp</itemPath>
+      <itemPath>../../../src/ui/common_ui_tools.cpp</itemPath>
+      <itemPath>../../../src/ui/stdafx.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="2">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+      </compileType>
+      <item path="../../../src/ui/common_ui_common.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_defines.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_exports.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_glade_definition.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_glade_definition.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_gtk_builder_definition.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_gtk_builder_definition.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_gtk_manager.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_gtk_manager.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_igtk.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_tools.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_tools.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_types.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/ui/stdafx.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/ui/stdafx.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="2">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="../../../src/ui/common_ui_common.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_defines.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_exports.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_glade_definition.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_glade_definition.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_gtk_builder_definition.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_gtk_builder_definition.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_gtk_manager.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_gtk_manager.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_igtk.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_tools.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_tools.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/ui/common_ui_types.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/ui/stdafx.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/ui/stdafx.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>

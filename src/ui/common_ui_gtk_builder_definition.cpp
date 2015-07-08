@@ -126,8 +126,7 @@ Common_UI_GtkBuilderDefinition::initialize (Common_UI_GTKState& GTKState_inout)
                 ACE_TEXT ("failed to g_idle_add(): \"%m\", aborting\n")));
     return false;
   } // end IF
-  else
-    GTKState_inout.eventSourceIds.push_back (event_source_id);
+  GTKState_inout.eventSourceIds.insert (event_source_id);
 
   return true;
 }
@@ -149,5 +148,5 @@ Common_UI_GtkBuilderDefinition::finalize ()
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to g_idle_add(): \"%m\", continuing\n")));
   else
-    GTKState_->eventSourceIds.push_back (event_source_id);
+    GTKState_->eventSourceIds.insert (event_source_id);
 }

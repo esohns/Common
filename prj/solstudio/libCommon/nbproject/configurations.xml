@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="95">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>../../../src/common.h</itemPath>
+      <itemPath>../../../src/common_defines.h</itemPath>
+      <itemPath>../../../src/common_exports.h</itemPath>
+      <itemPath>../../../src/common_file_tools.h</itemPath>
+      <itemPath>../../../src/common_iclone.h</itemPath>
+      <itemPath>../../../src/common_icontrol.h</itemPath>
+      <itemPath>../../../src/common_icounter.h</itemPath>
+      <itemPath>../../../src/common_idumpstate.h</itemPath>
+      <itemPath>../../../src/common_iget.h</itemPath>
+      <itemPath>../../../src/common_iinitialize.h</itemPath>
+      <itemPath>../../../src/common_ilock.h</itemPath>
+      <itemPath>../../../src/common_inotify.h</itemPath>
+      <itemPath>../../../src/common_irefcount.h</itemPath>
+      <itemPath>../../../src/common_isignal.h</itemPath>
+      <itemPath>../../../src/common_istatemachine.h</itemPath>
+      <itemPath>../../../src/common_istatistic.h</itemPath>
+      <itemPath>../../../src/common_isubscribe.h</itemPath>
+      <itemPath>../../../src/common_itimer.h</itemPath>
+      <itemPath>../../../src/common_logger.h</itemPath>
+      <itemPath>../../../src/common_macros.h</itemPath>
+      <itemPath>../../../src/common_referencecounter_base.h</itemPath>
+      <itemPath>../../../src/common_signalhandler.h</itemPath>
+      <itemPath>../../../src/common_statemachine_base.h</itemPath>
+      <itemPath>../../../src/common_statemachine_base.inl</itemPath>
+      <itemPath>../../../src/common_task_base.h</itemPath>
+      <itemPath>../../../src/common_task_base.inl</itemPath>
+      <itemPath>../../../src/common_time_common.h</itemPath>
+      <itemPath>../../../src/common_timer_common.h</itemPath>
+      <itemPath>../../../src/common_timer_manager.h</itemPath>
+      <itemPath>../../../src/common_timer_manager.inl</itemPath>
+      <itemPath>../../../src/common_timer_manager_common.h</itemPath>
+      <itemPath>../../../src/common_timerhandler.h</itemPath>
+      <itemPath>../../../src/common_tools.h</itemPath>
+      <itemPath>../../../src/stdafx.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>../../../src/common_file_tools.cpp</itemPath>
+      <itemPath>../../../src/common_logger.cpp</itemPath>
+      <itemPath>../../../src/common_referencecounter_base.cpp</itemPath>
+      <itemPath>../../../src/common_signalhandler.cpp</itemPath>
+      <itemPath>../../../src/common_statemachine_base.cpp</itemPath>
+      <itemPath>../../../src/common_task_base.cpp</itemPath>
+      <itemPath>../../../src/common_timer_manager.cpp</itemPath>
+      <itemPath>../../../src/common_timerhandler.cpp</itemPath>
+      <itemPath>../../../src/common_tools.cpp</itemPath>
+      <itemPath>../../../src/stdafx.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="2">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <ccTool>
+          <incDir>
+            <pElem>../../../../ATCD/ACE</pElem>
+          </incDir>
+        </ccTool>
+      </compileType>
+      <item path="../../../src/common.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_defines.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_exports.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_file_tools.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/common_file_tools.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_iclone.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_icontrol.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_icounter.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_idumpstate.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_iget.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_iinitialize.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_ilock.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_inotify.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_irefcount.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_isignal.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_istatemachine.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_istatistic.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_isubscribe.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_itimer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_logger.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/common_logger.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_macros.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_referencecounter_base.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_referencecounter_base.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_signalhandler.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_signalhandler.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_statemachine_base.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_statemachine_base.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_statemachine_base.inl"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_task_base.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/common_task_base.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_task_base.inl" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_time_common.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_timer_common.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_timer_manager.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_timer_manager.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_timer_manager.inl"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_timer_manager_common.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_timerhandler.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_timerhandler.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_tools.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/common_tools.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/stdafx.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/stdafx.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="2">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="../../../src/common.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_defines.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_exports.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_file_tools.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/common_file_tools.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_iclone.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_icontrol.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_icounter.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_idumpstate.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_iget.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_iinitialize.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_ilock.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_inotify.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_irefcount.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_isignal.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_istatemachine.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_istatistic.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_isubscribe.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_itimer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_logger.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/common_logger.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_macros.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_referencecounter_base.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_referencecounter_base.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_signalhandler.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_signalhandler.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_statemachine_base.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_statemachine_base.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_statemachine_base.inl"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_task_base.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/common_task_base.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_task_base.inl" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_time_common.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_timer_common.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_timer_manager.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_timer_manager.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_timer_manager.inl"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_timer_manager_common.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_timerhandler.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="../../../src/common_timerhandler.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/common_tools.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/common_tools.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../../../src/stdafx.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../../../src/stdafx.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
