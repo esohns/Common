@@ -80,8 +80,14 @@
       <compileType>
         <ccTool>
           <incDir>
+            <pElem>../../../include</pElem>
             <pElem>../../../../ATCD/ACE</pElem>
           </incDir>
+          <preprocessorList>
+            <Elem>HAVE_CONFIG_H</Elem>
+            <Elem>_POSIX_PTHREAD_SEMANTICS</Elem>
+          </preprocessorList>
+          <useLinkerLibraries>false</useLinkerLibraries>
         </ccTool>
       </compileType>
       <item path="../../../src/common.h" ex="false" tool="3" flavor2="0">
@@ -224,6 +230,15 @@
         </cTool>
         <ccTool>
           <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>../../../include</pElem>
+            <pElem>../../../../ATCD/ACE</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>HAVE_CONFIG_H</Elem>
+            <Elem>_POSIX_PTHREAD_SEMANTICS</Elem>
+          </preprocessorList>
+          <useLinkerLibraries>false</useLinkerLibraries>
         </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>

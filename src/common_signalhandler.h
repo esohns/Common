@@ -55,9 +55,9 @@ class Common_Export Common_SignalHandler
   typedef ACE_Handler inherited;
   typedef ACE_Event_Handler inherited2;
 
-  ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler ());
-  ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler (const Common_SignalHandler&));
-  ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler& operator= (const Common_SignalHandler&));
+  ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler ())
+  ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler (const Common_SignalHandler&))
+  ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler& operator= (const Common_SignalHandler&))
 
   // *NOTE*: implement specific behaviour
   virtual int handle_exception (ACE_HANDLE = ACE_INVALID_HANDLE); // handle

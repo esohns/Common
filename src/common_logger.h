@@ -54,9 +54,9 @@ class Common_Export Common_Logger
  private:
   typedef ACE_Log_Msg_Backend inherited;
 
-  ACE_UNIMPLEMENTED_FUNC (Common_Logger ());
-  ACE_UNIMPLEMENTED_FUNC (Common_Logger (const Common_Logger&));
-  ACE_UNIMPLEMENTED_FUNC (Common_Logger& operator= (const Common_Logger&));
+  ACE_UNIMPLEMENTED_FUNC (Common_Logger ())
+  ACE_UNIMPLEMENTED_FUNC (Common_Logger (const Common_Logger&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Logger& operator= (const Common_Logger&))
 
   FILE*                      buffer_;
 

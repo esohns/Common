@@ -747,19 +747,19 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
   } // end IF
 
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-  int            success = -1;
+  int            result_2 = -1;
   struct passwd  pwd;
-  struct passwd* pwd_result = NULL;
-  char           buffer[BUFSIZ];
+  struct passwd* result_p = NULL;
+  char           buffer[BUFSIZ]; // _SC_GETPW_R_SIZE_MAX
   ACE_OS::memset (buffer, 0, sizeof (BUFSIZ));
-  success = ACE_OS::getpwnam_r (user_name.c_str(), // user name
-                                &pwd,              // passwd entry
-                                buffer,            // buffer
-                                BUFSIZ,            // buffer size
-                                &pwd_result);      // result (handle)
-  if (pwd_result == NULL)
+  result_2 = ACE_OS::getpwnam_r (user_name.c_str (), // user name
+                                 &pwd,               // passwd entry
+                                 buffer,             // buffer
+                                 BUFSIZ,             // buffer size
+                                 &result_p);         // result (handle)
+  if (!result_p)
   {
-    if (success == 0)
+    if (result_2 == 0)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("user \"%s\" not found, falling back\n"),
                   ACE_TEXT (user_name.c_str ())));

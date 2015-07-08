@@ -73,43 +73,43 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liblibCommon.${CND_DLIB_EXT}: ${OBJEC
 
 ${OBJECTDIR}/_ext/1386528437/common_file_tools.o: ../../../src/common_file_tools.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1386528437
-	$(COMPILE.cc) -fast -g0 -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_file_tools.o ../../../src/common_file_tools.cpp
+	$(COMPILE.cc) -fast -g0 -DHAVE_CONFIG_H -D_POSIX_PTHREAD_SEMANTICS -I../../../include -I../../../../ATCD/ACE -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_file_tools.o ../../../src/common_file_tools.cpp
 
 ${OBJECTDIR}/_ext/1386528437/common_logger.o: ../../../src/common_logger.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1386528437
-	$(COMPILE.cc) -fast -g0 -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_logger.o ../../../src/common_logger.cpp
+	$(COMPILE.cc) -fast -g0 -DHAVE_CONFIG_H -D_POSIX_PTHREAD_SEMANTICS -I../../../include -I../../../../ATCD/ACE -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_logger.o ../../../src/common_logger.cpp
 
 ${OBJECTDIR}/_ext/1386528437/common_referencecounter_base.o: ../../../src/common_referencecounter_base.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1386528437
-	$(COMPILE.cc) -fast -g0 -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_referencecounter_base.o ../../../src/common_referencecounter_base.cpp
+	$(COMPILE.cc) -fast -g0 -DHAVE_CONFIG_H -D_POSIX_PTHREAD_SEMANTICS -I../../../include -I../../../../ATCD/ACE -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_referencecounter_base.o ../../../src/common_referencecounter_base.cpp
 
 ${OBJECTDIR}/_ext/1386528437/common_signalhandler.o: ../../../src/common_signalhandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1386528437
-	$(COMPILE.cc) -fast -g0 -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_signalhandler.o ../../../src/common_signalhandler.cpp
+	$(COMPILE.cc) -fast -g0 -DHAVE_CONFIG_H -D_POSIX_PTHREAD_SEMANTICS -I../../../include -I../../../../ATCD/ACE -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_signalhandler.o ../../../src/common_signalhandler.cpp
 
 ${OBJECTDIR}/_ext/1386528437/common_statemachine_base.o: ../../../src/common_statemachine_base.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1386528437
-	$(COMPILE.cc) -fast -g0 -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_statemachine_base.o ../../../src/common_statemachine_base.cpp
+	$(COMPILE.cc) -fast -g0 -DHAVE_CONFIG_H -D_POSIX_PTHREAD_SEMANTICS -I../../../include -I../../../../ATCD/ACE -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_statemachine_base.o ../../../src/common_statemachine_base.cpp
 
 ${OBJECTDIR}/_ext/1386528437/common_task_base.o: ../../../src/common_task_base.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1386528437
-	$(COMPILE.cc) -fast -g0 -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_task_base.o ../../../src/common_task_base.cpp
+	$(COMPILE.cc) -fast -g0 -DHAVE_CONFIG_H -D_POSIX_PTHREAD_SEMANTICS -I../../../include -I../../../../ATCD/ACE -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_task_base.o ../../../src/common_task_base.cpp
 
 ${OBJECTDIR}/_ext/1386528437/common_timer_manager.o: ../../../src/common_timer_manager.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1386528437
-	$(COMPILE.cc) -fast -g0 -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_timer_manager.o ../../../src/common_timer_manager.cpp
+	$(COMPILE.cc) -fast -g0 -DHAVE_CONFIG_H -D_POSIX_PTHREAD_SEMANTICS -I../../../include -I../../../../ATCD/ACE -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_timer_manager.o ../../../src/common_timer_manager.cpp
 
 ${OBJECTDIR}/_ext/1386528437/common_timerhandler.o: ../../../src/common_timerhandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1386528437
-	$(COMPILE.cc) -fast -g0 -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_timerhandler.o ../../../src/common_timerhandler.cpp
+	$(COMPILE.cc) -fast -g0 -DHAVE_CONFIG_H -D_POSIX_PTHREAD_SEMANTICS -I../../../include -I../../../../ATCD/ACE -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_timerhandler.o ../../../src/common_timerhandler.cpp
 
 ${OBJECTDIR}/_ext/1386528437/common_tools.o: ../../../src/common_tools.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1386528437
-	$(COMPILE.cc) -fast -g0 -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_tools.o ../../../src/common_tools.cpp
+	$(COMPILE.cc) -fast -g0 -DHAVE_CONFIG_H -D_POSIX_PTHREAD_SEMANTICS -I../../../include -I../../../../ATCD/ACE -KPIC  -o ${OBJECTDIR}/_ext/1386528437/common_tools.o ../../../src/common_tools.cpp
 
 ${OBJECTDIR}/_ext/1386528437/stdafx.o: ../../../src/stdafx.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1386528437
-	$(COMPILE.cc) -fast -g0 -KPIC  -o ${OBJECTDIR}/_ext/1386528437/stdafx.o ../../../src/stdafx.cpp
+	$(COMPILE.cc) -fast -g0 -DHAVE_CONFIG_H -D_POSIX_PTHREAD_SEMANTICS -I../../../include -I../../../../ATCD/ACE -KPIC  -o ${OBJECTDIR}/_ext/1386528437/stdafx.o ../../../src/stdafx.cpp
 
 # Subprojects
 .build-subprojects:

@@ -60,10 +60,10 @@ class Common_Export Common_File_Tools
   static std::string getLogFilename (const std::string&); // program name
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_File_Tools ());
-  ACE_UNIMPLEMENTED_FUNC (virtual ~Common_File_Tools ());
-  ACE_UNIMPLEMENTED_FUNC (Common_File_Tools (const Common_File_Tools&));
-  ACE_UNIMPLEMENTED_FUNC (Common_File_Tools& operator= (const Common_File_Tools&));
+  ACE_UNIMPLEMENTED_FUNC (Common_File_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (virtual ~Common_File_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (Common_File_Tools (const Common_File_Tools&))
+  ACE_UNIMPLEMENTED_FUNC (Common_File_Tools& operator= (const Common_File_Tools&))
 
   //// helper methods
 //  static int dirent_selector (const dirent*);

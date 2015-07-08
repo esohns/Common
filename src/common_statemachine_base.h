@@ -51,8 +51,8 @@ class Common_StateMachine_Base_T
   StateType                         state_;
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_StateMachine_Base_T (const Common_StateMachine_Base_T&));
-  ACE_UNIMPLEMENTED_FUNC (Common_StateMachine_Base_T& operator= (const Common_StateMachine_Base_T&));
+  ACE_UNIMPLEMENTED_FUNC (Common_StateMachine_Base_T (const Common_StateMachine_Base_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_StateMachine_Base_T& operator= (const Common_StateMachine_Base_T&))
 
   // implement (part of) Common_IStateMachine_T
   virtual bool wait (const ACE_Time_Value* = NULL);

@@ -68,23 +68,23 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liblibCommon_UI.${CND_DLIB_EXT}: ${OB
 
 ${OBJECTDIR}/_ext/1368229934/common_ui_glade_definition.o: ../../../src/ui/common_ui_glade_definition.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1368229934
-	$(COMPILE.cc) -g -KPIC  -o ${OBJECTDIR}/_ext/1368229934/common_ui_glade_definition.o ../../../src/ui/common_ui_glade_definition.cpp
+	$(COMPILE.cc) -g -D_POSIX_PTHREAD_SEMANTICS -I../../../src -I/usr/include/libglade-2.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/lib/gtk-2.0/include -I/usr/include/gtk-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/glib-2.0 -I../../../../ATCD/ACE -KPIC  -o ${OBJECTDIR}/_ext/1368229934/common_ui_glade_definition.o ../../../src/ui/common_ui_glade_definition.cpp
 
 ${OBJECTDIR}/_ext/1368229934/common_ui_gtk_builder_definition.o: ../../../src/ui/common_ui_gtk_builder_definition.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1368229934
-	$(COMPILE.cc) -g -KPIC  -o ${OBJECTDIR}/_ext/1368229934/common_ui_gtk_builder_definition.o ../../../src/ui/common_ui_gtk_builder_definition.cpp
+	$(COMPILE.cc) -g -D_POSIX_PTHREAD_SEMANTICS -I../../../src -I/usr/include/libglade-2.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/lib/gtk-2.0/include -I/usr/include/gtk-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/glib-2.0 -I../../../../ATCD/ACE -KPIC  -o ${OBJECTDIR}/_ext/1368229934/common_ui_gtk_builder_definition.o ../../../src/ui/common_ui_gtk_builder_definition.cpp
 
 ${OBJECTDIR}/_ext/1368229934/common_ui_gtk_manager.o: ../../../src/ui/common_ui_gtk_manager.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1368229934
-	$(COMPILE.cc) -g -KPIC  -o ${OBJECTDIR}/_ext/1368229934/common_ui_gtk_manager.o ../../../src/ui/common_ui_gtk_manager.cpp
+	$(COMPILE.cc) -g -D_POSIX_PTHREAD_SEMANTICS -I../../../src -I/usr/include/libglade-2.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/lib/gtk-2.0/include -I/usr/include/gtk-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/glib-2.0 -I../../../../ATCD/ACE -KPIC  -o ${OBJECTDIR}/_ext/1368229934/common_ui_gtk_manager.o ../../../src/ui/common_ui_gtk_manager.cpp
 
 ${OBJECTDIR}/_ext/1368229934/common_ui_tools.o: ../../../src/ui/common_ui_tools.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1368229934
-	$(COMPILE.cc) -g -KPIC  -o ${OBJECTDIR}/_ext/1368229934/common_ui_tools.o ../../../src/ui/common_ui_tools.cpp
+	$(COMPILE.cc) -g -D_POSIX_PTHREAD_SEMANTICS -I../../../src -I/usr/include/libglade-2.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/lib/gtk-2.0/include -I/usr/include/gtk-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/glib-2.0 -I../../../../ATCD/ACE -KPIC  -o ${OBJECTDIR}/_ext/1368229934/common_ui_tools.o ../../../src/ui/common_ui_tools.cpp
 
 ${OBJECTDIR}/_ext/1368229934/stdafx.o: ../../../src/ui/stdafx.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/1368229934
-	$(COMPILE.cc) -g -KPIC  -o ${OBJECTDIR}/_ext/1368229934/stdafx.o ../../../src/ui/stdafx.cpp
+	$(COMPILE.cc) -g -D_POSIX_PTHREAD_SEMANTICS -I../../../src -I/usr/include/libglade-2.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/lib/gtk-2.0/include -I/usr/include/gtk-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/glib-2.0 -I../../../../ATCD/ACE -KPIC  -o ${OBJECTDIR}/_ext/1368229934/stdafx.o ../../../src/ui/stdafx.cpp
 
 # Subprojects
 .build-subprojects:

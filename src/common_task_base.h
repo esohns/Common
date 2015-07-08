@@ -79,9 +79,9 @@ class Common_TaskBase_T
   virtual int svc (void);
   virtual int module_closed (void);
 
-  ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T ());
-  ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T (const Common_TaskBase_T&));
-  ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T& operator= (const Common_TaskBase_T&));
+  ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T ())
+  ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T (const Common_TaskBase_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T& operator= (const Common_TaskBase_T&))
 
   std::string  threadName_;
   unsigned int numThreads_;

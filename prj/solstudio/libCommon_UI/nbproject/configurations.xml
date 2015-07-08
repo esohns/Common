@@ -49,6 +49,35 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <compileType>
+        <ccTool>
+          <incDir>
+            <pElem>../../../src</pElem>
+            <pElem>/usr/include/libglade-2.0</pElem>
+            <pElem>/usr/include/atk-1.0</pElem>
+            <pElem>/usr/include/cairo</pElem>
+            <pElem>/usr/include/pango-1.0</pElem>
+            <pElem>/usr/lib/gtk-2.0/include</pElem>
+            <pElem>/usr/include/gtk-2.0</pElem>
+            <pElem>/usr/lib/glib-2.0/include</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>../../../../ATCD/ACE</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>_POSIX_PTHREAD_SEMANTICS</Elem>
+          </preprocessorList>
+        </ccTool>
+        <requiredProjects>
+          <makeArtifact PL="../libCommon"
+                        CT="2"
+                        CN="Debug"
+                        AC="true"
+                        BL="false"
+                        WD="../libCommon"
+                        BC="${MAKE}  -f Makefile CONF=Debug"
+                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liblibCommon.${CND_DLIB_EXT}">
+          </makeArtifact>
+        </requiredProjects>
       </compileType>
       <item path="../../../src/ui/common_ui_common.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -120,6 +149,21 @@
         </cTool>
         <ccTool>
           <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>../../../src</pElem>
+            <pElem>/usr/include/libglade-2.0</pElem>
+            <pElem>/usr/include/atk-1.0</pElem>
+            <pElem>/usr/include/cairo</pElem>
+            <pElem>/usr/include/pango-1.0</pElem>
+            <pElem>/usr/lib/gtk-2.0/include</pElem>
+            <pElem>/usr/include/gtk-2.0</pElem>
+            <pElem>/usr/lib/glib-2.0/include</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>../../../../ATCD/ACE</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>_POSIX_PTHREAD_SEMANTICS</Elem>
+          </preprocessorList>
         </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
@@ -127,6 +171,18 @@
         <asmTool>
           <developmentMode>5</developmentMode>
         </asmTool>
+        <requiredProjects>
+          <makeArtifact PL="../libCommon"
+                        CT="2"
+                        CN="Debug"
+                        AC="true"
+                        BL="false"
+                        WD="../libCommon"
+                        BC="${MAKE}  -f Makefile CONF=Debug"
+                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/liblibCommon.${CND_DLIB_EXT}">
+          </makeArtifact>
+        </requiredProjects>
       </compileType>
       <item path="../../../src/ui/common_ui_common.h" ex="false" tool="3" flavor2="0">
       </item>

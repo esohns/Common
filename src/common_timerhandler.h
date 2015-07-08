@@ -45,9 +45,9 @@ class Common_Export Common_TimerHandler
  private:
   typedef ACE_Event_Handler inherited;
 
-  ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler ());
-  ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler (const Common_TimerHandler&));
-  ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler& operator= (const Common_TimerHandler&));
+  ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler ())
+  ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler (const Common_TimerHandler&))
+  ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler& operator= (const Common_TimerHandler&))
 
   Common_ITimer* interfaceHandle_;
   bool           isOneShot_;

@@ -82,8 +82,8 @@ class Common_Timer_Manager_T
                                  TimerQueueAdapterType> OWN_TYPE_T;
 
   Common_Timer_Manager_T ();
-  ACE_UNIMPLEMENTED_FUNC (Common_Timer_Manager_T (const Common_Timer_Manager_T&));
-  ACE_UNIMPLEMENTED_FUNC (Common_Timer_Manager_T& operator= (const Common_Timer_Manager_T&));
+  ACE_UNIMPLEMENTED_FUNC (Common_Timer_Manager_T (const Common_Timer_Manager_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Timer_Manager_T& operator= (const Common_Timer_Manager_T&))
   virtual ~Common_Timer_Manager_T ();
 
   // helper methods

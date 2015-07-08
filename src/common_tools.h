@@ -116,10 +116,10 @@ class Common_Export Common_Tools
   //static void unblockRealtimeSignals (sigset_t&); // return value: original mask
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_Tools ());
-  ACE_UNIMPLEMENTED_FUNC (~Common_Tools ());
-  ACE_UNIMPLEMENTED_FUNC (Common_Tools (const Common_Tools&));
-  ACE_UNIMPLEMENTED_FUNC (Common_Tools& operator= (const Common_Tools&));
+  ACE_UNIMPLEMENTED_FUNC (Common_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (~Common_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (Common_Tools (const Common_Tools&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Tools& operator= (const Common_Tools&))
 };
 
 #endif

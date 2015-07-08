@@ -31,6 +31,9 @@ using namespace std;
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <Security.h>
+// *NOTE*: Solaris (11)-specific
+#elif defined (__sun) && defined (__SVR4)
+#include <rctl.h>
 #else
 //#include <syscall.h>
 #endif
@@ -45,6 +48,10 @@ using namespace std;
 #include "ace/High_Res_Timer.h"
 #include "ace/Log_Msg.h"
 #include "ace/Log_Msg_Backend.h"
+// *NOTE*: Solaris (11)-specific
+#if defined (__sun) && defined (__SVR4)
+#include "ace/OS_Memory.h"
+#endif
 #include "ace/POSIX_CB_Proactor.h"
 #include "ace/POSIX_Proactor.h"
 #include "ace/Proactor.h"
@@ -390,8 +397,29 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
 //    } // end IF
 
     // verify...
+// *NOTE*: Solaris (11)-specific
+#if defined (__sun) && defined (__SVR4)
+    rctlblk_t* block_p =
+        static_cast<rctlblk_t*> (ACE_CALLOC_FUNC (1, rctlblk_size ()));
+    if (!block_p)
+    {
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
+      return false;
+    } // end IF
+    result = ::getrctl (ACE_TEXT_ALWAYS_CHAR ("process.max-sigqueue-size"),
+                        NULL, block_p,
+                        RCTL_USAGE);
+    if (result == 0)
+    {
+      resource_limit.rlim_cur = rctlblk_get_value (block_p);
+      resource_limit.rlim_max = rctlblk_get_value (block_p);
+    } // end IF
+    ACE_FREE_FUNC (block_p);
+#else
     result = ACE_OS::getrlimit (RLIMIT_SIGPENDING,
                                 &resource_limit);
+#endif
     if (result == -1)
     {
       ACE_DEBUG ((LM_ERROR,
@@ -1017,23 +1045,45 @@ Common_Tools::retrieveSignalInfo (int signal_in,
   // step1: retrieve signal code...
   switch (info_in.si_code)
   {
-    case SI_USER:
+// *NOTE*: Solaris (11)-specific
+#if defined (__sun) && defined (__SVR4)
+  case SI_NOINFO:
+      information << ACE_TEXT_ALWAYS_CHAR ("SI_NOINFO"); break;
+  case SI_DTRACE:
+      information << ACE_TEXT_ALWAYS_CHAR ("SI_DTRACE"); break;
+  case SI_RCTL:
+      information << ACE_TEXT_ALWAYS_CHAR ("SI_RCTL"); break;
+/////////////////////////////////////////
+#endif
+  case SI_USER:
       information << ACE_TEXT_ALWAYS_CHAR ("SI_USER"); break;
-    case SI_KERNEL:
+// *NOTE*: Solaris (11)-specific
+#if defined (__sun) && defined (__SVR4)
+  case SI_LWP:
+      information << ACE_TEXT_ALWAYS_CHAR ("SI_LWP"); break;
+#else
+  case SI_KERNEL:
       information << ACE_TEXT_ALWAYS_CHAR ("SI_KERNEL"); break;
+#endif
     case SI_QUEUE:
       information << ACE_TEXT_ALWAYS_CHAR ("SI_QUEUE"); break;
     case SI_TIMER:
       information << ACE_TEXT_ALWAYS_CHAR ("SI_TIMER"); break;
-    case SI_MESGQ:
-      information << ACE_TEXT_ALWAYS_CHAR ("SI_MESGQ"); break;
     case SI_ASYNCIO:
       information << ACE_TEXT_ALWAYS_CHAR ("SI_ASYNCIO"); break;
-    case SI_SIGIO:
+    case SI_MESGQ:
+      information << ACE_TEXT_ALWAYS_CHAR ("SI_MESGQ"); break;
+// *NOTE*: Solaris (11)-specific
+#if defined (__sun) && defined (__SVR4)
+  case SI_LWP_QUEUE:
+      information << ACE_TEXT_ALWAYS_CHAR ("SI_LWP_QUEUE"); break;
+#else
+  case SI_SIGIO:
       information << ACE_TEXT_ALWAYS_CHAR ("SI_SIGIO"); break;
     case SI_TKILL:
       information << ACE_TEXT_ALWAYS_CHAR ("SI_TKILL"); break;
-    default:
+#endif
+  default:
     { // (signal-dependant) codes...
       switch (signal_in)
       {
@@ -1062,7 +1112,6 @@ Common_Tools::retrieveSignalInfo (int signal_in,
               ACE_DEBUG ((LM_DEBUG,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
                           info_in.si_code));
-
               break;
             }
           } // end SWITCH
@@ -1094,7 +1143,6 @@ Common_Tools::retrieveSignalInfo (int signal_in,
               ACE_DEBUG ((LM_DEBUG,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
                           info_in.si_code));
-
               break;
             }
           } // end SWITCH
@@ -1114,7 +1162,6 @@ Common_Tools::retrieveSignalInfo (int signal_in,
               ACE_DEBUG ((LM_DEBUG,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
                           info_in.si_code));
-
               break;
             }
           } // end SWITCH
@@ -1136,7 +1183,6 @@ Common_Tools::retrieveSignalInfo (int signal_in,
               ACE_DEBUG ((LM_DEBUG,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
                           info_in.si_code));
-
               break;
             }
           } // end SWITCH
@@ -1156,7 +1202,6 @@ Common_Tools::retrieveSignalInfo (int signal_in,
               ACE_DEBUG ((LM_DEBUG,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
                           info_in.si_code));
-
               break;
             }
           } // end SWITCH
@@ -1184,7 +1229,6 @@ Common_Tools::retrieveSignalInfo (int signal_in,
               ACE_DEBUG ((LM_DEBUG,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
                           info_in.si_code));
-
               break;
             }
           } // end SWITCH
@@ -1212,7 +1256,6 @@ Common_Tools::retrieveSignalInfo (int signal_in,
               ACE_DEBUG ((LM_DEBUG,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
                           info_in.si_code));
-
               break;
             }
           } // end SWITCH
@@ -1224,7 +1267,6 @@ Common_Tools::retrieveSignalInfo (int signal_in,
           ACE_DEBUG ((LM_DEBUG,
                       ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
                       info_in.si_code));
-
           break;
         }
       } // end SWITCH
@@ -1238,11 +1280,12 @@ Common_Tools::retrieveSignalInfo (int signal_in,
   {
     case SIGALRM:
     {
+#if defined (__linux__)
       information << ACE_TEXT_ALWAYS_CHAR (", overrun: ");
       information << info_in.si_overrun;
       information << ACE_TEXT_ALWAYS_CHAR (", (internal) id: ");
       information << info_in.si_timerid;
-
+#endif
       break;
     }
     case SIGCHLD:
@@ -1253,7 +1296,6 @@ Common_Tools::retrieveSignalInfo (int signal_in,
       information << info_in.si_utime;
       information << ACE_TEXT_ALWAYS_CHAR (" / (system): ");
       information << info_in.si_stime;
-
       break;
     }
     case SIGILL:
@@ -1264,7 +1306,6 @@ Common_Tools::retrieveSignalInfo (int signal_in,
       // *TODO*: more data ?
       information << ACE_TEXT_ALWAYS_CHAR (", fault at address: ");
       information << info_in.si_addr;
-
       break;
     }
     case SIGPOLL:
@@ -1273,7 +1314,6 @@ Common_Tools::retrieveSignalInfo (int signal_in,
       information << info_in.si_band;
       information << ACE_TEXT_ALWAYS_CHAR (", (file) descriptor: ");
       information << info_in.si_fd;
-
       break;
     }
     default:
@@ -1282,7 +1322,6 @@ Common_Tools::retrieveSignalInfo (int signal_in,
 //       ACE_DEBUG ((LM_DEBUG,
 //                   ACE_TEXT ("no additional information for signal: \"%S\"...\n"),
 //                   signal_in));
-
       break;
     }
   } // end SWITCH
@@ -1310,7 +1349,6 @@ Common_Tools::retrieveSignalInfo (int signal_in,
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("invalid/unknown signal: %S, continuing\n"),
                   signal_in));
-
       break;
     }
   } // end SWITCH
@@ -1570,12 +1608,16 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
 }
 
 ACE_THR_FUNC_RETURN
-threadpool_event_dispatcher_function (void* args_in)
+threadpool_event_dispatcher_function (void* arg_in)
 {
   COMMON_TRACE (ACE_TEXT ("::threadpool_event_dispatcher_function"));
 
-  bool use_reactor = *reinterpret_cast<bool*> (args_in);
-  int result = -1;
+  bool use_reactor = *reinterpret_cast<bool*> (arg_in);
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  ACE_THR_FUNC_RETURN result = -1;
+#else
+  ACE_THR_FUNC_RETURN result = arg_in;
+#endif
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 //  ACE_DEBUG ((LM_DEBUG,
@@ -1596,11 +1638,12 @@ threadpool_event_dispatcher_function (void* args_in)
   //                   (see man 7 signal)
 
   // handle any events...
+  int result_2 = -1;
   if (use_reactor)
   {
     ACE_Reactor* reactor_p = ACE_Reactor::instance ();
     ACE_ASSERT (reactor_p);
-    result = reactor_p->run_reactor_event_loop (NULL);
+    result_2 = reactor_p->run_reactor_event_loop (NULL);
   } // end IF
   else
   {
@@ -1624,16 +1667,22 @@ threadpool_event_dispatcher_function (void* args_in)
 //      Common_Tools::unblockRealtimeSignals (original_mask);
 //    } // end IF
 //#endif
-    result = proactor_p->proactor_run_event_loop (NULL);
+    result_2 = proactor_p->proactor_run_event_loop (NULL);
   } // end ELSE
-  if (result == -1)
+  if (result_2 == -1)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("(%t) failed to handle events: \"%m\", leaving\n")));
 
 //  ACE_DEBUG ((LM_DEBUG,
 //              ACE_TEXT ("(%t) worker leaving...\n")));
 
-  return (result == 0 ? NULL : NULL);
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  result = result_2;
+#else
+  result = ((result_2 == 0) ? NULL : result);
+#endif
+
+  return result;
 }
 
 bool
