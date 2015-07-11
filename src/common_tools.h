@@ -21,12 +21,14 @@
 #ifndef COMMON_TOOLS_H
 #define COMMON_TOOLS_H
 
+#include <signal.h>
+
 #include <string>
 
 #include "ace/config-macros.h"
 #include "ace/Global_Macros.h"
-#include "ace/Time_Value.h"
-#include "ace/Signal.h"
+//#include "ace/Time_Value.h"
+//#include "ace/Signal.h"
 
 #include "common.h"
 #include "common_exports.h"
@@ -35,6 +37,8 @@
 // forward declaration(s)
 class ACE_Event_Handler;
 class ACE_Log_Msg_Backend;
+class ACE_Sig_Set;
+class ACE_Time_Value;
 
 ACE_THR_FUNC_RETURN threadpool_event_dispatcher_function (void*);
 

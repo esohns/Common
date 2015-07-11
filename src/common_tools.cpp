@@ -19,15 +19,18 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include "common_tools.h"
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
+// *WORKAROUND*
 using namespace std;
-
-#include "ace/OS.h"
+// *IMPORTANT NOTE*: several ACE headers inclue ace/iosfwd.h, which introduces
+//                   a problem in conjunction with the standard include headers
+//                   when ACE_USES_OLD_IOSTREAMS is defined
+//                   --> include the necessary headers manually (see above), and
+//                       prevent ace/iosfwd.h from causing any harm
+#define ACE_IOSFWD_H
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <Security.h>
@@ -37,13 +40,6 @@ using namespace std;
 #else
 //#include <syscall.h>
 #endif
-
-// *IMPORTANT NOTE*: several ACE headers inclue ace/iosfwd.h, which introduces
-//                   a problem in conjunction with the standard include headers
-//                   when ACE_USES_OLD_IOSTREAMS is defined
-//                   --> include the necessary headers manually (see above), and
-//                       prevent ace/iosfwd.h from causing any harm
-#define ACE_IOSFWD_H
 
 #include "ace/High_Res_Timer.h"
 #include "ace/Log_Msg.h"
@@ -59,6 +55,7 @@ using namespace std;
 #if defined (ACE_HAS_AIO_CALLS) && defined (sun)
 #include "ace/SUN_Proactor.h"
 #endif
+#include "ace/Time_Value.h"
 #include "ace/TP_Reactor.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "ace/WFMO_Reactor.h"
@@ -69,6 +66,8 @@ using namespace std;
 #if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
 #include "valgrind/memcheck.h"
 #endif
+
+#include "common_tools.h"
 
 #include "common_defines.h"
 #include "common_macros.h"

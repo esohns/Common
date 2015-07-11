@@ -21,6 +21,9 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+//#include <signal.h>
+//#include <ucontext.h>
+
 #include <deque>
 #include <map>
 #include <string>
@@ -29,6 +32,9 @@
 #include "ace/Signal.h"
 
 #include "common_defines.h"
+
+// forward declarations
+class ACE_Sig_Action;
 
 struct Common_SignalInformation
 {
