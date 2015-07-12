@@ -32,7 +32,7 @@ using namespace std;
 //                       prevent ace/iosfwd.h from causing any harm
 #define ACE_IOSFWD_H
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if defined (_MSC_VER)
 #include <Security.h>
 // *NOTE*: Solaris (11)-specific
 #elif defined (__sun) && defined (__SVR4)

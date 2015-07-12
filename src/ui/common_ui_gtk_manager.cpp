@@ -33,6 +33,70 @@
 #include "common_ui_defines.h"
 #include "common_ui_igtk.h"
 
+void
+glib_print_debug_handler (const gchar* message_in)
+{
+  //COMMON_TRACE (ACE_TEXT ("::glib_print_debug_handler"));
+
+  glib_log_handler (NULL,
+                    G_LOG_LEVEL_DEBUG,
+                    message_in, NULL);
+}
+void
+glib_print_error_handler (const gchar* message_in)
+{
+  //COMMON_TRACE (ACE_TEXT ("::glib_print_error_handler"));
+
+  glib_log_handler (NULL,
+                    G_LOG_LEVEL_ERROR,
+                    message_in, NULL);
+}
+void
+glib_log_handler (const gchar* logDomain_in,
+                  GLogLevelFlags logLevel_in,
+                  const gchar* message_in,
+                  gpointer userData_in)
+{
+  //COMMON_TRACE (ACE_TEXT ("::glib_log_handler"));
+
+  // translate loglevel
+  ACE_Log_Priority log_priority = ACE_Log_Priority::LM_ERROR;
+  switch (logLevel_in & G_LOG_LEVEL_MASK)
+  {
+    //case G_LOG_FLAG_RECURSION:
+    //case G_LOG_FLAG_FATAL:
+    //  break;
+    case G_LOG_LEVEL_ERROR:
+      break;
+    case G_LOG_LEVEL_CRITICAL:
+      log_priority = ACE_Log_Priority::LM_CRITICAL;
+      break;
+    case G_LOG_LEVEL_WARNING:
+      log_priority = ACE_Log_Priority::LM_WARNING;
+      break;
+    case G_LOG_LEVEL_MESSAGE:
+      log_priority = ACE_Log_Priority::LM_NOTICE;
+      break;
+    case G_LOG_LEVEL_INFO:
+      log_priority = ACE_Log_Priority::LM_INFO;
+      break;
+    case G_LOG_LEVEL_DEBUG:
+      log_priority = ACE_Log_Priority::LM_DEBUG;
+      break;
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown log level (was: %d), continuing"),
+                  logLevel_in));
+      break;
+    }
+  } // end SWITCH
+
+  ACE_DEBUG ((log_priority,
+              ACE_TEXT ("GLib: %s"),
+              ACE_TEXT (message_in)));
+}
+
 Common_UI_GTK_Manager::Common_UI_GTK_Manager ()
  : inherited (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_GTK_THREAD_NAME), // thread name
               COMMON_UI_GTK_THREAD_GROUP_ID,                    // group id
@@ -240,17 +304,35 @@ Common_UI_GTK_Manager::initializeGTK ()
 
   // step1: initialize GTK
 
-  // step1a: specifiy any .rc files
+  // step1a: set log handlers
+  //g_set_print_handler (glib_print_debug_handler);
+  g_set_printerr_handler (glib_print_error_handler);
+  //g_log_set_default_handler (glib_log_handler, NULL);
+  GLogLevelFlags log_level =
+    static_cast <GLogLevelFlags> (G_LOG_LEVEL_ERROR    |
+                                  G_LOG_LEVEL_CRITICAL |
+                                  G_LOG_LEVEL_WARNING  |
+                                  G_LOG_LEVEL_MESSAGE  |
+                                  G_LOG_LEVEL_INFO     |
+                                  G_LOG_LEVEL_DEBUG);
+  g_log_set_handler (NULL,
+                     log_level,
+                     glib_log_handler, NULL);
+
+  // step1b: specify any .rc files
   if (!state_->RCFiles.empty ())
   {
+    int i = 1;
     for (Common_UI_UIRCFilesIterator_t iterator = state_->RCFiles.begin ();
          iterator != state_->RCFiles.end ();
-         iterator++)
+         ++iterator, ++i)
+    {
       gtk_rc_add_default_file ((*iterator).c_str ());
 //      gtk_rc_add_default_file_utf8 ((*iterator).c_str ());
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("added %u GTK .rc file(s)...\n"),
-                state_->RCFiles.size ()));
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("#%u: added GTK .rc file \"%s\"...\n"),
+                  i, ACE_TEXT (ACE::basename ((*iterator).c_str ()))));
+    } // end FOR
   } // end FOR
 
 //#if defined (ACE_WIN32) || defined (ACE_WIN64)

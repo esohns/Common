@@ -32,6 +32,13 @@
 #include "common_ui_common.h"
 #include "common_ui_exports.h"
 
+void glib_print_debug_handler (const gchar*); // message
+void glib_print_error_handler (const gchar*); // message
+void glib_log_handler (const gchar*,   // domain
+                       GLogLevelFlags, // priority
+                       const gchar*,   // message
+                       gpointer);      // user data
+
 // forward declarations
 struct Common_UI_GTKState;
 
