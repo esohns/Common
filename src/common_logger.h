@@ -25,7 +25,6 @@
 
 #include "ace/Global_Macros.h"
 #include "ace/Log_Msg_Backend.h"
-//#include "ace/Log_Record.h"
 #include "ace/Synch_Traits.h"
 
 #include "common.h"
@@ -58,7 +57,7 @@ class Common_Export Common_Logger
   ACE_UNIMPLEMENTED_FUNC (Common_Logger (const Common_Logger&))
   ACE_UNIMPLEMENTED_FUNC (Common_Logger& operator= (const Common_Logger&))
 
-  FILE*                      buffer_;
+  //FILE*                      buffer_;
 
   ACE_SYNCH_RECURSIVE_MUTEX* lock_;
   Common_MessageStack_t*     messageStack_;
