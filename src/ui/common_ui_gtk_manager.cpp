@@ -24,6 +24,7 @@
 #include "ace/OS.h"
 #include "ace/Thread.h"
 #include "ace/Log_Msg.h"
+#include "ace/Log_Priority.h"
 
 #include "gtk/gtk.h"
 
@@ -60,7 +61,7 @@ glib_log_handler (const gchar* logDomain_in,
   //COMMON_TRACE (ACE_TEXT ("::glib_log_handler"));
 
   // translate loglevel
-  ACE_Log_Priority log_priority = ACE_Log_Priority::LM_ERROR;
+  ACE_Log_Priority log_priority = LM_ERROR;
   switch (logLevel_in & G_LOG_LEVEL_MASK)
   {
     //case G_LOG_FLAG_RECURSION:
@@ -69,19 +70,19 @@ glib_log_handler (const gchar* logDomain_in,
     case G_LOG_LEVEL_ERROR:
       break;
     case G_LOG_LEVEL_CRITICAL:
-      log_priority = ACE_Log_Priority::LM_CRITICAL;
+      log_priority = LM_CRITICAL;
       break;
     case G_LOG_LEVEL_WARNING:
-      log_priority = ACE_Log_Priority::LM_WARNING;
+      log_priority = LM_WARNING;
       break;
     case G_LOG_LEVEL_MESSAGE:
-      log_priority = ACE_Log_Priority::LM_NOTICE;
+      log_priority = LM_NOTICE;
       break;
     case G_LOG_LEVEL_INFO:
-      log_priority = ACE_Log_Priority::LM_INFO;
+      log_priority = LM_INFO;
       break;
     case G_LOG_LEVEL_DEBUG:
-      log_priority = ACE_Log_Priority::LM_DEBUG;
+      log_priority = LM_DEBUG;
       break;
     default:
     {

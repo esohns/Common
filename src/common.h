@@ -96,6 +96,15 @@ typedef std::map<int, ACE_Sig_Action> Common_SignalActions_t;
 typedef Common_SignalActions_t::const_iterator Common_SignalActionsIterator_t;
 
 // *** event dispatch
+enum Common_DispatchType
+{
+  COMMON_DISPATCH_INVALID = -1,
+  COMMON_DISPATCH_PROACTOR = 0,
+  COMMON_DISPATCH_REACTOR,
+  ///////////////////////////////////////
+  COMMON_DISPATCH_MAX
+};
+
 enum Common_ProactorType
 {
   COMMON_PROACTOR_DEFAULT = 0, // platform-specific
