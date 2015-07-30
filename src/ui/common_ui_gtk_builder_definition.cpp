@@ -136,17 +136,17 @@ Common_UI_GtkBuilderDefinition::finalize ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition::finalize"));
 
-  // sanity check(s)
-  ACE_ASSERT (GTKState_);
+  if (GTKState_)
+  {
+    ACE_Guard<ACE_SYNCH_MUTEX> aGuard (GTKState_->lock);
 
-  ACE_Guard<ACE_SYNCH_MUTEX> aGuard (GTKState_->lock);
-
-  // schedule UI finalization
-  guint event_source_id = g_idle_add (GTKState_->finalizationHook,
-                                      GTKState_->userData);
-  if (event_source_id == 0)
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to g_idle_add(): \"%m\", continuing\n")));
-  else
-    GTKState_->eventSourceIds.insert (event_source_id);
+    // schedule UI finalization
+    guint event_source_id = g_idle_add (GTKState_->finalizationHook,
+                                        GTKState_->userData);
+    if (event_source_id == 0)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to g_idle_add(): \"%m\", continuing\n")));
+    else
+      GTKState_->eventSourceIds.insert (event_source_id);
+  } // end IF
 }

@@ -159,7 +159,8 @@ Common_UI_GTK_Manager::start ()
 }
 
 void
-Common_UI_GTK_Manager::stop (bool lockedAccess_in)
+Common_UI_GTK_Manager::stop (bool waitForCompletion_in,
+                             bool lockedAccess_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager::stop"));
 
@@ -170,10 +171,13 @@ Common_UI_GTK_Manager::stop (bool lockedAccess_in)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_UI_GTK_Manager::close(1): \"%m\", continuing\n")));
 
-  result = inherited::wait ();
-  if (result == -1)
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_Task_Base::wait(): \"%m\", continuing\n")));
+  if (waitForCompletion_in)
+  {
+    result = inherited::wait ();
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Task_Base::wait(): \"%m\", continuing\n")));
+  } // end IF
 }
 
 bool
@@ -190,9 +194,10 @@ Common_UI_GTK_Manager::close (u_long arg_in)
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager::close"));
 
   // *NOTE*: this method may be invoked
-  // - by an external thread closing down the active object (arg_in == 1 !)
-  // - by the worker thread which calls this after returning from svc()
-  //   (arg_in == 0 !) --> in this case, this should be a NOP...
+  //         - by an external thread closing down the active object
+  //           (arg_in == 1 !)
+  //         - by the worker thread which calls this after returning from svc()
+  //           (arg_in == 0 !) --> in this case, this should be a NOP...
   switch (arg_in)
   {
     case 0:

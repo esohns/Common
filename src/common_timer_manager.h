@@ -65,7 +65,8 @@ class Common_Timer_Manager_T
 
   // implement Common_IControl
   virtual void start ();
-  virtual void stop (bool = true); // locked access ?
+  virtual void stop (bool = true,  // wait for completion ?
+                     bool = true); // locked access ?
   virtual bool isRunning () const;
 
   // implement Common_IDumpState
@@ -87,7 +88,7 @@ class Common_Timer_Manager_T
   virtual ~Common_Timer_Manager_T ();
 
   // helper methods
-  unsigned int flushTimers ();
+  unsigned int flushTimers (bool = true); // locked access ?
   bool initializeTimerQueue ();
 
   Common_TimerConfiguration configuration_;

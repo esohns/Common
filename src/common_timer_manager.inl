@@ -125,28 +125,30 @@ template <typename TimerQueueType,
           typename TimerQueueAdapterType>
 void
 Common_Timer_Manager_T<TimerQueueType,
-                       TimerQueueAdapterType>::stop (bool lockedAccess_in)
+                       TimerQueueAdapterType>::stop (bool waitForCompletion_in,
+                                                     bool lockedAccess_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::stop"));
 
   int result = -1;
 
+  // *NOTE*: deactivate the timer queue and wake up the worker thread
   inherited::deactivate ();
-  // make sure the dispatcher thread has joined...
-  result = inherited::wait ();
-  if (result == -1)
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_Task_Base::wait(): \"%m\", continuing\n")));
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("(%s) joined worker thread...\n"),
-              ACE_TEXT (COMMON_TIMER_THREAD_NAME)));
+
+  // *TODO*: this doesn't look quite correct yet...
+  if (waitForCompletion_in)
+  {
+    result = inherited::wait ();
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Task_Base::wait(): \"%m\", continuing\n")));
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("(%s) joined worker thread...\n"),
+                ACE_TEXT (COMMON_TIMER_THREAD_NAME)));
+  } // end IF
 
   // clean up
-  if (lockedAccess_in)
-    inherited::mutex ().acquire ();
-  unsigned int flushed_timers = flushTimers ();
-  if (lockedAccess_in)
-    inherited::mutex ().release ();
+  unsigned int flushed_timers = flushTimers (lockedAccess_in);
   if (flushed_timers)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("flushed %u timer(s)...\n"),
@@ -168,7 +170,7 @@ template <typename TimerQueueType,
           typename TimerQueueAdapterType>
 unsigned int
 Common_Timer_Manager_T<TimerQueueType,
-                       TimerQueueAdapterType>::flushTimers ()
+                       TimerQueueAdapterType>::flushTimers (bool lockedAccess_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::flushTimers"));
 
@@ -182,11 +184,21 @@ Common_Timer_Manager_T<TimerQueueType,
     case COMMON_TIMER_MODE_REACTOR:
     {
       ACE_ASSERT (false);
+      ACE_NOTSUP_RETURN (-1);
+
       ACE_NOTREACHED (return -1);
-      break;
     }
     case COMMON_TIMER_MODE_QUEUE:
     {
+      if (lockedAccess_in)
+      {
+        ACE_SYNCH_RECURSIVE_MUTEX& mutex_r = inherited::mutex ();
+        result = mutex_r.acquire ();
+        if (result == -1)
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to ACE_MT_SYNCH::RECURSIVE_MUTEX::acquire(): \"%m\", continuing\n")));
+      } // end IF
+
 //      const void* act_p = NULL;
 //      long timer_id = 0;
 //      Common_TimerQueueImplIterator_t iterator (*inherited::timer_queue ());
@@ -206,14 +218,21 @@ Common_Timer_Manager_T<TimerQueueType,
 //                      ACE_TEXT ("cancelled timer (ID: %d)...\n"),
 //                      timer_id));
 //      } // end FOR
-      ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (inherited::mutex ());
-
       Common_ITimerQueue_t* timer_queue_p = inherited::timer_queue ();
       ACE_ASSERT (timer_queue_p);
       result = timer_queue_p->close ();
       if (result == -1)
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to Common_ITimerQueue_t::close(): \"%m\", continuing\n")));
+
+      if (lockedAccess_in)
+      {
+        ACE_SYNCH_RECURSIVE_MUTEX& mutex_r = inherited::mutex ();
+        result = mutex_r.release ();
+        if (result == -1)
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to ACE_MT_SYNCH::RECURSIVE_MUTEX::release(): \"%m\", continuing\n")));
+      } // end IF
 
       break;
     }

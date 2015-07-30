@@ -20,6 +20,3 @@
 #include "stdafx.h"
 
 #include "common_timer_manager.h"
-
-#include "ace/Singleton.h"
-#include "ace/Synch.h"

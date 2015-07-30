@@ -28,7 +28,8 @@ class Common_IControl
 
   // exposed interface
   virtual void start () = 0;
-  virtual void stop (bool = true) = 0; // locked access ?
+  virtual void stop (bool = true,      // wait for completion ?
+                     bool = true) = 0; // locked access ?
   virtual bool isRunning () const = 0;
 };
 

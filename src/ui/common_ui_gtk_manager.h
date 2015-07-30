@@ -62,7 +62,8 @@ class Common_UI_Export Common_UI_GTK_Manager
 
   // implement Common_IControl
   virtual void start ();
-  virtual void stop (bool = true); // locked access ?
+  virtual void stop (bool = true,  // wait for completion ?
+                     bool = true); // locked access ?
   virtual bool isRunning () const;
 
  private:
