@@ -39,7 +39,6 @@ include_HEADERS = \
   common_time_common.h \
   common_timer_common.h \
   common_timerhandler.h \
-  common_timerhandler.h \
   common_timer_manager.h \
   common_timer_manager.inl \
   common_timer_manager_common.h \

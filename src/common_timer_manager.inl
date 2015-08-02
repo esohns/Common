@@ -640,8 +640,8 @@ Common_Timer_Manager_T<TimerQueueType,
     {
       ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (inherited::mutex ());
 
-      Common_ITimerQueue_t* timer_queue_p = inherited::timer_queue ();
-      ACE_ASSERT (timer_queue_p);
+//      Common_ITimerQueue_t* timer_queue_p = inherited::timer_queue ();
+//      ACE_ASSERT (timer_queue_p);
 
       if (!timerQueue_)
         if (!initializeTimerQueue ())
