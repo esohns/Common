@@ -187,6 +187,15 @@ Common_File_Tools::isEmptyDirectory (const std::string& directory_in)
 }
 
 bool
+Common_File_Tools::isValid (const std::string& filename_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isValid"));
+
+  std::string directory = ACE::dirname (filename_in.c_str ());
+  return Common_File_Tools::isDirectory (directory);
+}
+
+bool
 Common_File_Tools::createDirectory (const std::string& directory_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::createDirectory"));

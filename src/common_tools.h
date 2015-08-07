@@ -27,8 +27,6 @@
 
 #include "ace/config-macros.h"
 #include "ace/Global_Macros.h"
-//#include "ace/Time_Value.h"
-//#include "ace/Signal.h"
 
 #include "common.h"
 #include "common_exports.h"
@@ -102,16 +100,16 @@ class Common_Export Common_Tools
                                   std::string&);           // return value: info
 
   // --- event loop ---
-  static bool initializeEventDispatch (bool,   // use reactor ? : proactor
-                                       bool,   // use thread pool ?
-                                       bool&); // return value: output requires serialization
+  static bool initializeEventDispatch (bool,         // use reactor ? : proactor
+                                       bool,         // use thread pool ?
+                                       unsigned int, // number of (dispatching) threads
+                                       bool&);       // return value: output requires serialization
   // *NOTE*: the first argument is passed to the thread function as argument,
   //         so must reside on the stack (hence the reference)
   static bool startEventDispatch (bool,         // use reactor ? : proactor
                                   unsigned int, // # dispatching threads
                                   int&);        // return value: thread group id
-  static void dispatchEvents (bool,      // start reactor ?
-                              bool,      // start proactor ?
+  static void dispatchEvents (bool,      // use reactor ? : proactor
                               int = -1); // thread group id
   // *NOTE*: this call blocks until all dispatching threads have joined
   static void finalizeEventDispatch (bool, // stop reactor ?

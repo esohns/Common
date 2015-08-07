@@ -108,10 +108,13 @@ enum Common_DispatchType
 enum Common_ProactorType
 {
   COMMON_PROACTOR_DEFAULT = 0, // platform-specific
+  ///////////////////////////////////////
   COMMON_PROACTOR_POSIX_AIOCB, // POSIX only !
   COMMON_PROACTOR_POSIX_SIG,   // POSIX only !
   COMMON_PROACTOR_POSIX_SUN,   // POSIX only !
   COMMON_PROACTOR_POSIX_CB,    // POSIX only !
+  ///////////////////////////////////////
+  COMMON_PROACTOR_WIN32,       // Win32 only !
   ///////////////////////////////////////
   COMMON_PROACTOR_MAX,
   COMMON_PROACTOR_INVALID

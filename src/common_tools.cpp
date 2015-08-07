@@ -58,6 +58,7 @@ using namespace std;
 #include "ace/Time_Value.h"
 #include "ace/TP_Reactor.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "ace/WIN32_Proactor.h"
 #include "ace/WFMO_Reactor.h"
 #else
 #include "ace/Dev_Poll_Reactor.h"
@@ -1365,6 +1366,7 @@ Common_Tools::retrieveSignalInfo (int signal_in,
 bool
 Common_Tools::initializeEventDispatch (bool useReactor_in,
                                        bool useThreadPool_in,
+                                       unsigned int numThreads_in,
                                        bool& serializeOutput_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::initializeEventDispatch"));
@@ -1391,7 +1393,9 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
   } // end IF
   else
   {
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    proactor_type = COMMON_PROACTOR_WIN32;
+#else
     if (COMMON_EVENT_PROACTOR_USE_SIG)
       proactor_type = COMMON_PROACTOR_POSIX_SIG;
     else if (COMMON_EVENT_PROACTOR_USE_AIOCB)
@@ -1526,7 +1530,19 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
                     ACE_TEXT ("using default (platform-specific) proactor...\n")));
         break;
       }
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      case COMMON_PROACTOR_WIN32:
+      {
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("using Win32 proactor...\n")));
+
+        ACE_NEW_NORETURN (proactor_impl_p,
+                          ACE_WIN32_Proactor (numThreads_in, // parallel accesses [0: #processors]
+                                              false));       // N/A
+
+        break;
+      }
+#else
       case COMMON_PROACTOR_POSIX_AIOCB:
       {
         ACE_DEBUG ((LM_DEBUG,
@@ -1583,8 +1599,8 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
     {
       ACE_NEW_NORETURN (proactor_p,
                         ACE_Proactor (proactor_impl_p, // implementation handle --> create new ?
-                                      //                                    false,  // *NOTE*: call close() manually
-                                      //                                            // (see finalizeEventDispatch() below)
+                                      //       false,  // *NOTE*: call close() manually
+                                      //               // (see finalizeEventDispatch() below)
                                       true,   // delete in dtor ?
                                       NULL)); // timer queue handle --> create new
       if (!proactor_p)
@@ -1721,6 +1737,8 @@ Common_Tools::startEventDispatch (bool useReactor_in,
 
   // start a (group of) worker thread(s)...
   ACE_hthread_t* thread_handles_p = NULL;
+  // *TODO*: use ACE_NEW_MALLOC_ARRAY (as soon as the NORETURN variant becomes
+  //         available)
   ACE_NEW_NORETURN (thread_handles_p,
                     ACE_hthread_t[numDispatchThreads_in]);
   if (!thread_handles_p)
@@ -1732,6 +1750,8 @@ Common_Tools::startEventDispatch (bool useReactor_in,
   } // end IF
 //  ACE_OS::memset (thread_handles_p, 0, sizeof (thread_handles_p));
   const char** thread_names_p = NULL;
+  // *TODO*: use ACE_NEW_MALLOC_ARRAY (as soon as the NORETURN variant becomes
+  //         available)
   ACE_NEW_NORETURN (thread_names_p,
                     const char*[numDispatchThreads_in]);
   if (!thread_names_p)
@@ -1754,6 +1774,8 @@ Common_Tools::startEventDispatch (bool useReactor_in,
        i++)
   {
     thread_name_p = NULL;
+    // *TODO*: use ACE_NEW_MALLOC_ARRAY (as soon as the NORETURN variant becomes
+    //         available)
     ACE_NEW_NORETURN (thread_name_p,
                       char[BUFSIZ]);
     if (!thread_name_p)
@@ -1776,8 +1798,7 @@ Common_Tools::startEventDispatch (bool useReactor_in,
     buffer = ACE_TEXT_ALWAYS_CHAR (COMMON_EVENT_DISPATCH_THREAD_NAME);
     buffer += ACE_TEXT_ALWAYS_CHAR (" #");
     buffer += converter.str ();
-    ACE_OS::strcpy (thread_name_p,
-                    buffer.c_str ());
+    ACE_OS::strcpy (thread_name_p, buffer.c_str ());
     thread_names_p[i] = thread_name_p;
   } // end FOR
   ACE_Thread_Manager* thread_manager_p = ACE_Thread_Manager::instance ();
@@ -1909,8 +1930,7 @@ Common_Tools::finalizeEventDispatch (bool stopReactor_in,
 }
 
 void
-Common_Tools::dispatchEvents (bool stopReactor_in,
-                              bool stopProactor_in,
+Common_Tools::dispatchEvents (bool useReactor_in,
                               int groupID_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::dispatchEvents"));
@@ -1930,7 +1950,7 @@ Common_Tools::dispatchEvents (bool stopReactor_in,
   } // end IF
   else
   {
-    if (stopReactor_in)
+    if (useReactor_in)
     {
       ACE_Reactor* reactor_p = ACE_Reactor::instance ();
       ACE_ASSERT (reactor_p);

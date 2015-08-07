@@ -24,14 +24,11 @@
 #include <string>
 
 #include "ace/Global_Macros.h"
-//#include "ace/Module.h"
 #include "ace/Task.h"
 
 #include "common_idumpstate.h"
 
 // forward declaration(s)
-//template <ACE_SYNCH_DECL, class TIME_POLICY>
-//class ACE_Task;
 class ACE_Message_Block;
 class ACE_Time_Value;
 template <ACE_SYNCH_DECL, class TIME_POLICY>
@@ -69,6 +66,11 @@ class Common_TaskBase_T
   // helper methods
   void shutdown ();
 
+  // override ACE_Task_Base members
+  virtual int svc (void);
+
+  unsigned int threadCount_;
+
  private:
   typedef ACE_Task<TaskSynchStrategyType,
                    TimePolicyType> inherited;
@@ -76,15 +78,13 @@ class Common_TaskBase_T
   // override/hide ACE_Task_Base members
   virtual int put (ACE_Message_Block*,
                    ACE_Time_Value*);
-  virtual int svc (void);
   virtual int module_closed (void);
 
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T ())
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T (const Common_TaskBase_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T& operator= (const Common_TaskBase_T&))
 
-  std::string  threadName_;
-  unsigned int numThreads_;
+  std::string threadName_;
 };
 
 // include template implementation

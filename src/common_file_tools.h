@@ -30,14 +30,15 @@
 class Common_Export Common_File_Tools
 {
  public:
-  static bool isReadable (const std::string&); // FQ filename
-  static bool isEmpty (const std::string&); // FQ filename
-  static bool isDirectory (const std::string&); // directory
-  static bool isEmptyDirectory (const std::string&); // directory
   static bool createDirectory (const std::string&); // directory
   static bool copyFile (const std::string&,  // FQ filename
                         const std::string&); // directory
   static bool deleteFile (const std::string&); // FQ filename
+  static bool isReadable (const std::string&); // FQ filename
+  static bool isEmpty (const std::string&); // FQ filename
+  static bool isDirectory (const std::string&); // directory
+  static bool isEmptyDirectory (const std::string&); // directory
+  static bool isValid (const std::string&); // (FQ) filename
   // *NOTE*: users need to free (delete[]) the returned buffer
   static bool loadFile (const std::string&, // FQ filename
                         unsigned char*&);   // return value: memory buffer (array)
