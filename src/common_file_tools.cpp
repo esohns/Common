@@ -621,6 +621,26 @@ Common_File_Tools::loadFile (const std::string& filename_in,
   return true;
 }
 
+unsigned int
+Common_File_Tools::size (const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::size"));
+
+  int result = -1;
+  ACE_stat stat;
+  ACE_OS::memset (&stat, 0, sizeof (stat));
+  result = ACE_OS::stat (path_in.c_str (), &stat);
+  if (result == -1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", returning\n"),
+                ACE_TEXT (path_in.c_str ())));
+    return 0;
+  } // end IF
+
+  return static_cast<unsigned int> (stat.st_size);
+}
+
 std::string
 Common_File_Tools::realPath (const std::string& path_in)
 {

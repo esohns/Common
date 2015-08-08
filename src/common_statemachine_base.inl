@@ -61,16 +61,8 @@ Common_StateMachine_Base_T<StateType>::change (StateType newState_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::change"));
 
-  //std::string current_state_string, new_state_string;
+  //std::string new_state_string;
   //new_state_string = state2String (newState_in);
-
-  {
-    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
-
-    //current_state_string = state2String (state_);
-
-    state_ = newState_in;
-  } // end lock scope
 
   // invoke callback...
   try
@@ -85,6 +77,16 @@ Common_StateMachine_Base_T<StateType>::change (StateType newState_in)
 
     return false;
   }
+
+  //std::string current_state_string;
+  //current_state_string = state2String (state_);
+
+  {
+    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
+
+    state_ = newState_in;
+  } // end lock scope
+
   //ACE_DEBUG ((LM_DEBUG,
   //            ACE_TEXT ("\"%s\" --> \"%s\"\n"),
   //            ACE_TEXT (current_state_string.c_str ()),
@@ -104,7 +106,5 @@ Common_StateMachine_Base_T<StateType>::wait (const ACE_Time_Value* timeout_in)
   ACE_ASSERT (false);
   ACE_NOTSUP_RETURN (false);
 
-#if defined (_MSC_VER)
-  ACE_NOTREACHED (return false);
-#endif
+  ACE_NOTREACHED (return false;)
 }

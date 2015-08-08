@@ -53,7 +53,8 @@ class Common_TaskBase_T
 
  protected:
   // convenient types
-  typedef ACE_Module<TaskSynchStrategyType, TimePolicyType> MODULE_T;
+  typedef ACE_Module<TaskSynchStrategyType,
+                     TimePolicyType> MODULE_T;
 
   Common_TaskBase_T (const std::string&, // thread name
                      int,                // thread group id
@@ -64,10 +65,8 @@ class Common_TaskBase_T
   virtual int open (void* = NULL);
 
   // helper methods
+  // enqueue MB_STOP --> stop worker thread(s)
   void shutdown ();
-
-  // override ACE_Task_Base members
-  virtual int svc (void);
 
   unsigned int threadCount_;
 
@@ -76,9 +75,10 @@ class Common_TaskBase_T
                    TimePolicyType> inherited;
 
   // override/hide ACE_Task_Base members
+  virtual int module_closed (void);
   virtual int put (ACE_Message_Block*,
                    ACE_Time_Value*);
-  virtual int module_closed (void);
+  virtual int svc (void);
 
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T ())
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T (const Common_TaskBase_T&))

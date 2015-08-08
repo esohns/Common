@@ -42,6 +42,7 @@ class Common_Export Common_File_Tools
   // *NOTE*: users need to free (delete[]) the returned buffer
   static bool loadFile (const std::string&, // FQ filename
                         unsigned char*&);   // return value: memory buffer (array)
+  static unsigned int size (const std::string&); // (FQ) filename
 
   static std::string realPath (const std::string&); // path
 

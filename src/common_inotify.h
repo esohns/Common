@@ -22,12 +22,14 @@
 #define COMMON_INOTIFY_H
 
 template <typename ConfigurationType,
-          typename MessageType>
+          typename MessageType,
+          typename SessionMessageType>
 class Common_INotify_T
 {
  public:
   virtual void start (const ConfigurationType&) = 0; // configuration
-  virtual void notify (const MessageType&) = 0; // data
+  virtual void notify (const MessageType&) = 0; // (protocol) data
+  virtual void notify (const SessionMessageType&) = 0; // session message
   virtual void end () = 0;
 };
 

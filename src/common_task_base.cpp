@@ -20,6 +20,3 @@
 #include "stdafx.h"
 
 #include "common_task_base.h"
-
-#include "ace/Module.h"
-#include "ace/Task.h"
