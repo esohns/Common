@@ -23,13 +23,10 @@
 
 #include "ace/Version.h"
 
-#if defined __GNUC__
 #include "common_defines.h"
-#endif
 
-#if (ACE_MAJOR_VERSION >= 6) && \
-    ((ACE_MINOR_VERSION > 1) || \
-     (ACE_BETA_VERSION  > 6))
+#if ((ACE_MAJOR_VERSION >= 6) && \
+     ((ACE_MINOR_VERSION > 1) || (ACE_BETA_VERSION  > 6)))
 #include "ace/Time_Policy.h"
 // *NOTE*: use the high resolution time for accuracy and low latency
 typedef ACE_HR_Time_Policy Common_TimePolicy_t;
@@ -38,17 +35,16 @@ typedef ACE_HR_Time_Policy Common_TimePolicy_t;
 typedef ACE_System_Time_Policy Common_TimePolicy_t;
 #endif
 
-#if (ACE_MAJOR_VERSION >= 6) && \
-    ((ACE_MINOR_VERSION > 1) || \
-     (ACE_BETA_VERSION  > 6))
+#if ((ACE_MAJOR_VERSION >= 6) && \
+     ((ACE_MINOR_VERSION > 1) || (ACE_BETA_VERSION  > 6)))
 // *NOTE*: global time policy (supplies gettimeofday())
-#if defined __GNUC__
+#if defined (__GNUC__)
 //#pragma GCC diagnostic ignored "-Wunused-variable"
-COMMON_GCC_UNUSED_GUARD static Common_TimePolicy_t COMMON_TIME_POLICY;
+#endif // __GNUC__
+COMMON_COMPILER_UNUSED_SYMBOL_PREFIX static Common_TimePolicy_t COMMON_TIME_POLICY;
+#if defined (__GNUC__)
 //#pragma GCC diagnostic pop
-#else
-static Common_TimePolicy_t COMMON_TIME_POLICY;
-#endif
+#endif // __GNUC__
 #define COMMON_TIME_NOW COMMON_TIME_POLICY ()
 #else
 #define COMMON_TIME_NOW ACE_OS::gettimeofday ()

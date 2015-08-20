@@ -48,7 +48,8 @@ struct Common_SignalInformation
   , uContext ()
 #endif
   {
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
     ACE_OS::memset (&sigInfo, 0, sizeof (sigInfo));
     ACE_OS::memset (&uContext, 0, sizeof (uContext));
 #endif
@@ -83,8 +84,8 @@ enum Common_TimerQueueType
 struct Common_TimerConfiguration
 {
   inline Common_TimerConfiguration ()
-   : mode (COMMON_TIMER_MANAGER_DEFAULT_MODE)
-   , queueType (COMMON_TIMER_MANAGER_DEFAULT_QUEUE)
+   : mode (COMMON_TIMER_DEFAULT_MODE)
+   , queueType (COMMON_TIMER_DEFAULT_QUEUE)
   {};
 
   Common_TimerMode      mode;
@@ -95,7 +96,7 @@ struct Common_TimerConfiguration
 typedef std::map<int, ACE_Sig_Action> Common_SignalActions_t;
 typedef Common_SignalActions_t::const_iterator Common_SignalActionsIterator_t;
 
-// *** event dispatch
+// *** (ACE) event-dispatch specific
 enum Common_DispatchType
 {
   COMMON_DISPATCH_INVALID = -1,
@@ -107,14 +108,14 @@ enum Common_DispatchType
 
 enum Common_ProactorType
 {
-  COMMON_PROACTOR_DEFAULT = 0, // platform-specific
+  COMMON_PROACTOR_ACE_DEFAULT = 0, // --> (somewhat) platform-specific
   ///////////////////////////////////////
-  COMMON_PROACTOR_POSIX_AIOCB, // POSIX only !
-  COMMON_PROACTOR_POSIX_SIG,   // POSIX only !
-  COMMON_PROACTOR_POSIX_SUN,   // POSIX only !
-  COMMON_PROACTOR_POSIX_CB,    // POSIX only !
+  COMMON_PROACTOR_POSIX_AIOCB,     // POSIX only
+  COMMON_PROACTOR_POSIX_SIG,       // POSIX only
+  COMMON_PROACTOR_POSIX_SUN,       // POSIX only
+  COMMON_PROACTOR_POSIX_CB,        // POSIX only
   ///////////////////////////////////////
-  COMMON_PROACTOR_WIN32,       // Win32 only !
+  COMMON_PROACTOR_WIN32,           // Win32 only
   ///////////////////////////////////////
   COMMON_PROACTOR_MAX,
   COMMON_PROACTOR_INVALID
@@ -122,11 +123,12 @@ enum Common_ProactorType
 
 enum Common_ReactorType
 {
-  COMMON_REACTOR_DEFAULT = 0, // platform-specific
-  COMMON_REACTOR_DEV_POLL,    // POSIX only !
+  COMMON_REACTOR_ACE_DEFAULT = 0, // --> (somewhat) platform-specific
+  ///////////////////////////////////////
+  COMMON_REACTOR_DEV_POLL,        // POSIX only
   COMMON_REACTOR_SELECT,
-  COMMON_REACTOR_TP,
-  COMMON_REACTOR_WFMO,        // Win32 only !
+  COMMON_REACTOR_THREAD_POOL,     // *IMPORTANT NOTE*: currently, only a select()-based implementation is available
+  COMMON_REACTOR_WFMO,            // Win32 only
   ///////////////////////////////////////
   COMMON_REACTOR_MAX,
   COMMON_REACTOR_INVALID

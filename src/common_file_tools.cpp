@@ -758,61 +758,35 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
   // initialize result value(s)
   std::string result;
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  int            result_2 = -1;
+  struct passwd  pwd;
+  struct passwd* result_p = NULL;
+  char           buffer[BUFSIZ]; // _SC_GETPW_R_SIZE_MAX
+#endif
+
   std::string user_name = user_in;
   if (user_name.empty ())
   {
+    // fallback --> use current user
     std::string real_name;
     Common_Tools::getCurrentUserName (user_name, real_name);
     if (user_name.empty ())
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_Tools::getCurrentUserName(), falling back\n")));
-
-      // fallback
-      result =
-          ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
-      return result;
+      goto fallback;
     } // end IF
   } // end IF
 
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-  int            result_2 = -1;
-  struct passwd  pwd;
-  struct passwd* result_p = NULL;
-  char           buffer[BUFSIZ]; // _SC_GETPW_R_SIZE_MAX
-  ACE_OS::memset (buffer, 0, sizeof (BUFSIZ));
-  result_2 = ACE_OS::getpwnam_r (user_name.c_str (), // user name
-                                 &pwd,               // passwd entry
-                                 buffer,             // buffer
-                                 BUFSIZ,             // buffer size
-                                 &result_p);         // result (handle)
-  if (!result_p)
-  {
-    if (result_2 == 0)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("user \"%s\" not found, falling back\n"),
-                  ACE_TEXT (user_name.c_str ())));
-    else
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_OS::getpwnam_r(\"%s\"): \"%m\", falling back\n"),
-                  ACE_TEXT (user_name.c_str ())));
-
-    // fallback
-    result =
-        ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
-  } // end IF
-  else result = ACE_TEXT_ALWAYS_CHAR (pwd.pw_dir);
-#else
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   HANDLE token = 0;
   if (!OpenProcessToken (GetCurrentProcess (), TOKEN_QUERY, &token))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to OpenProcessToken(), falling back\n")));
-
-    // fallback
-    result =
-        ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
-    return result;
+    goto fallback;
   } // end IF
 
   ACE_TCHAR buffer[PATH_MAX];
@@ -833,10 +807,7 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to CloseHandle(), continuing\n")));
 
-    // fallback
-    result =
-      ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
-    return result;
+    goto fallback;
   } // end IF
 
   // clean up
@@ -845,8 +816,38 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
                 ACE_TEXT ("failed to CloseHandle(), continuing\n")));
 
   result = ACE_TEXT_ALWAYS_CHAR (buffer);
+#else
+  ACE_OS::memset (buffer, 0, sizeof (BUFSIZ));
+  result_2 = ACE_OS::getpwnam_r (user_name.c_str (), // user name
+                                 &pwd,               // passwd entry
+                                 buffer,             // buffer
+                                 BUFSIZ,             // buffer size
+                                 &result_p);         // result (handle)
+  if (!result_p)
+  {
+    if (result_2 == 0)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("user \"%s\" not found, falling back\n"),
+                  ACE_TEXT (user_name.c_str ())));
+    else
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::getpwnam_r(\"%s\"): \"%m\", falling back\n"),
+                  ACE_TEXT (user_name.c_str ())));
+    goto fallback;
+  } // end IF
+  else result = ACE_TEXT_ALWAYS_CHAR (pwd.pw_dir);
 #endif
 
+  return result;
+
+fallback:
+  ACE_TCHAR* string_p =
+      ACE_OS::getenv (ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE));
+  if (!string_p)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"), continuing\n"),
+                ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE)));
+  result = ACE_TEXT_ALWAYS_CHAR (string_p);
   return result;
 }
 
@@ -857,37 +858,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
 
   std::string result;
 
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-  std::string user_name;
-  std::string real_name;
-  Common_Tools::getCurrentUserName (user_name, real_name);
-  if (user_name.empty ())
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_Tools::getCurrentUserName(), falling back\n")));
-
-    // fallback
-    result =
-        ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
-    return result;
-  } // end IF
-
-  result = Common_File_Tools::getUserHomeDirectory (user_name);
-  if (result.empty ())
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT("failed to Common_File_Tools::getUserHomeDirectory(\"%s\"), falling back\n"),
-                ACE_TEXT (user_name.c_str ())));
-
-    // fallback
-    result =
-        ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
-    return result;
-  } // end IF
-
-  result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  result += '.';
-#else
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   ACE_TCHAR buffer[PATH_MAX];
   ACE_OS::memset (buffer, 0, sizeof (buffer));
 
@@ -920,15 +891,33 @@ Common_File_Tools::getUserConfigurationDirectory ()
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to SHGetFolderPath(CSIDL_APPDATA): \"%s\", falling back\n"),
                 buffer));
-
-    // fallback
-    result =
-        ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
-    return result;
+    goto fallback;
   } // end IF
 
   result = ACE_TEXT_ALWAYS_CHAR (buffer);
   result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
+#else
+  std::string user_name;
+  std::string real_name;
+  Common_Tools::getCurrentUserName (user_name, real_name);
+  if (user_name.empty ())
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_Tools::getCurrentUserName(), falling back\n")));
+    goto fallback;
+  } // end IF
+
+  result = Common_File_Tools::getUserHomeDirectory (user_name);
+  if (result.empty ())
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT("failed to Common_File_Tools::getUserHomeDirectory(\"%s\"), falling back\n"),
+                ACE_TEXT (user_name.c_str ())));
+    goto fallback;
+  } // end IF
+
+  result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
+  result += '.';
 #endif
   result += ACE_TEXT_ALWAYS_CHAR (LIBCOMMON_PACKAGE);
 
@@ -939,10 +928,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_File_Tools::createDirectory(\"%s\"), falling back\n"),
                   ACE_TEXT (result.c_str ())));
-
-      // fallback
-      result =
-          ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
+      goto fallback;
     } // end IF
     else
       ACE_DEBUG ((LM_DEBUG,
@@ -950,6 +936,16 @@ Common_File_Tools::getUserConfigurationDirectory ()
                   ACE_TEXT (result.c_str ())));
   } // end IF
 
+  return result;
+
+fallback:
+  ACE_TCHAR* string_p =
+      ACE_OS::getenv (ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE));
+  if (!string_p)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"), continuing\n"),
+                ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE)));
+  result = ACE_TEXT_ALWAYS_CHAR (string_p);
   return result;
 }
 
@@ -960,15 +956,17 @@ Common_File_Tools::getDumpDirectory ()
 
   // initialize return value(s)
   std::string result;
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  result =
-    ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_DUMP_DIR)));
-#else
-  result = ACE_TEXT_ALWAYS_CHAR (COMMON_DEF_DUMP_DIR);
-#endif
+
+  ACE_TCHAR* string_p =
+      ACE_OS::getenv (ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE));
+  if (!string_p)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"), continuing\n"),
+                ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE)));
+  result = ACE_TEXT_ALWAYS_CHAR (string_p);
 
   // sanity check(s): directory exists ?
-  // No ? --> try to create it then !
+  // No ? --> (try to) create it then
   if (!Common_File_Tools::isDirectory (result))
   {
     if (!Common_File_Tools::createDirectory (result))
@@ -976,11 +974,7 @@ Common_File_Tools::getDumpDirectory ()
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_File_Tools::createDirectory(\"%s\"), aborting\n"),
                   ACE_TEXT (result.c_str ())));
-
-      // clean up
-      result.clear ();
-
-      return result;
+      goto fallback;
     } // end IF
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("created directory: \"%s\"...\n"),
@@ -988,24 +982,28 @@ Common_File_Tools::getDumpDirectory ()
   } // end IF
 
   return result;
+
+fallback:
+  // *TODO*: implement a fallback strategy here
+  return result;
 }
 
 std::string
-Common_File_Tools::getLogFilename (const std::string& programName_in)
+Common_File_Tools::getLogFilename (const std::string& packageName_in,
+                                   const std::string& programName_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getLogFilename"));
 
   // sanity check(s)
   ACE_ASSERT (!programName_in.empty ());
 
-  // construct correct logfilename...
-  std::string result = Common_File_Tools::getLogDirectory ();
+  std::string result = Common_File_Tools::getLogDirectory (packageName_in);
   result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   result += programName_in;
   result += COMMON_LOG_FILENAME_SUFFIX;
 
   // sanity check(s): log file exists ?
-  // Yes ? --> try to delete it then !
+  // Yes ? --> (try to) delete it then
   if (Common_File_Tools::isReadable (result))
   {
     if (!Common_File_Tools::deleteFile (result))
@@ -1028,21 +1026,32 @@ Common_File_Tools::getLogFilename (const std::string& programName_in)
 }
 
 std::string
-Common_File_Tools::getLogDirectory ()
+Common_File_Tools::getLogDirectory (const std::string& packageName_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getLogDirectory"));
 
   // initialize return value(s)
   std::string result;
+
+  const ACE_TCHAR* string_p =
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  result =
-    ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_LOG_DIRECTORY)));
+  string_p = ACE_OS::getenv (ACE_TEXT (COMMON_LOG_DEFAULT_DIRECTORY));
+  if (!string_p)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"), continuing\n"),
+                ACE_TEXT (COMMON_LOG_DEFAULT_DIRECTORY)));
 #else
-  result = ACE_TEXT_ALWAYS_CHAR (COMMON_DEF_LOG_DIRECTORY);
+  string_p = ACE_TEXT_CHAR_TO_TCHAR (COMMON_LOG_DEFAULT_DIRECTORY);
 #endif
+  result = ACE_TEXT_ALWAYS_CHAR (string_p);
+  if (!packageName_in.empty ())
+  {
+    result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
+    result += packageName_in;
+  } // end IF
 
   // sanity check(s): directory exists ?
-  // No ? --> try to create it then !
+  // No ? --> (try to) create it then
   if (!Common_File_Tools::isDirectory (result))
   {
     if (!Common_File_Tools::createDirectory (result))
@@ -1050,16 +1059,16 @@ Common_File_Tools::getLogDirectory ()
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_File_Tools::createDirectory(\"%s\"), aborting\n"),
                   ACE_TEXT (result.c_str ())));
-
-      // clean up
-      result.clear ();
-
-      return result;
+      goto fallback;
     } // end IF
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("created directory: \"%s\"...\n"),
                 ACE_TEXT (result.c_str ())));
   } // end IF
 
+  return result;
+
+fallback:
+  // *TODO*: implement a fallback strategy here
   return result;
 }

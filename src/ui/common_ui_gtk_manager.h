@@ -21,9 +21,11 @@
 #ifndef COMMON_UI_GTK_MANAGER_H
 #define COMMON_UI_GTK_MANAGER_H
 
+#include "ace/Global_Macros.h"
 #include "ace/Singleton.h"
-#include "ace/Synch.h"
 #include "ace/Synch_Traits.h"
+
+#include "gtk/gtk.h"
 
 #include "common_icontrol.h"
 #include "common_task_base.h"
@@ -52,9 +54,6 @@ class Common_UI_Export Common_UI_GTK_Manager
                              ACE_Recursive_Thread_Mutex>;
 
  public:
-  // override ACE_Task_Base member(s)
-  virtual int close (u_long = 0);
-
   bool initialize (int,                 // argc
                    ACE_TCHAR** ,        // argv
                    Common_UI_GTKState*, // state handle
@@ -72,10 +71,11 @@ class Common_UI_Export Common_UI_GTK_Manager
 
   Common_UI_GTK_Manager ();
   virtual ~Common_UI_GTK_Manager ();
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Manager (const Common_UI_GTK_Manager&));
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Manager& operator= (const Common_UI_GTK_Manager&));
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Manager (const Common_UI_GTK_Manager&))
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Manager& operator= (const Common_UI_GTK_Manager&))
 
   // override ACE_Task_Base member(s)
+  virtual int close (u_long = 0);
   virtual int svc (void);
 
   bool initializeGTK ();

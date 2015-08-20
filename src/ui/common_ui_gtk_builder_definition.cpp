@@ -76,7 +76,7 @@ Common_UI_GtkBuilderDefinition::initialize (Common_UI_GTKState& GTKState_inout)
 
   // step1: load widget tree(s)
   GtkBuilder* builder_p = NULL;
-  GError* error = NULL;
+  GError* error_p = NULL;
   for (Common_UI_GTKBuildersIterator_t iterator = GTKState_inout.builders.begin ();
        iterator != GTKState_inout.builders.end ();
        iterator++)
@@ -94,17 +94,17 @@ Common_UI_GtkBuilderDefinition::initialize (Common_UI_GTKState& GTKState_inout)
 
     gtk_builder_add_from_file (builder_p,                         // builder handle
                                (*iterator).second.first.c_str (), // definition file,
-                               &error);                           // error
-    if (error)
+                               &error_p);                         // error
+    if (error_p)
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to gtk_builder_add_from_file(\"%s\"): \"%s\", aborting\n"),
                   ACE_TEXT ((*iterator).second.first.c_str ()),
-                  ACE_TEXT (error->message)));
+                  ACE_TEXT (error_p->message)));
 
       // clean up
       g_object_unref (G_OBJECT (builder_p));
-      g_error_free (error);
+      g_error_free (error_p);
 
       return false;
     } // end IF

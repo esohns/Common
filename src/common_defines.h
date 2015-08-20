@@ -27,70 +27,145 @@
 
 //#include "common.h"
 
-// *** compiler ***
-#define COMMON_GCC_UNUSED_GUARD                  __attribute__ ((unused))
+/////////////////////////////////////////
 
-// *** trace log ***
-// *PORTABILITY*: pathnames are not portable --> (try to) use %TEMP% on Windows
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-#define COMMON_DEF_DUMP_DIR                      "/var/tmp"
+// +++ platform-specifics +++
+
+// ----------- hardware -----------------
+
+// *NOTE*: address any platform specifications affecting 'user-land' (aka
+//         application-) software.
+//         From a C/C++ perspective, this currently includes:
+//         - CPU memory layout (endianness)
+//         - .../8/16/32/64/... address ('int') size
+//         - (floating point-/GPU/...) co-processors ((still) not specified --> compiler flags)
+//         - [not to mention: asynch/io, 'shared' memory access, 'signals', ... --> [register/memory] locking]
+// [Win32 / (g)libc API]
+// *NOTE*: specifically, it does not, at this time, involve:
+//         - (C/G/...)PU register access
+
+// // hardware
+
+// ----------- software -----------------
+
+// *** default (system) "locations" ***
+
+// *HISTORY*: Contrary to UNIX-based systems (?), Windows (TM) systems have not
+//            (yet) implemented a consistent concept of a (system-wide)
+//            (file)system storage tree (as in/see also: LSB)
+// [forward/backward slash path discriminator, mount points/drive letters]
+
+// *NOTE*: given the industrial rift (?) between hardware manufacturers and the
+//         software industry, there is no apparent concept or method to exactly
+//         specify a (storage) location within a computer system
+
+// *NOTE*: the concept of 'environment variables' (see e.g. wikipedia article)
+//         has been adopted by all currently supported platforms of this
+//         library.
+// *PORTABILIY*: this fact is used here to portably identify the default
+//               location for temporary (log)files
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+// *TODO*: differentiate between different Windows (TM) versions
+#define COMMON_LOCATION_APPLICATION_STORAGE_VARIABLE  "LOCALAPPDATA"
+#define COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE    "TMP"
 #else
-#define COMMON_DEF_DUMP_DIR                      "TEMP" // environment
+#define COMMON_LOCATION_APPLICATION_STORAGE_DIRECTORY "/usr/share"
+#define COMMON_LOCATION_LOG_STORAGE_DIRECTORY         "/var/log"
+//#define COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY   "/var/tmp"
+#define COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE    "TEMP"
+#endif // defined (ACE_WIN32) || defined (ACE_WIN64)
+
+// // software
+
+/////////////////////////////////////////
+
+// +++ compiler-specifics +++
+
+#if defined (__GNUC__)
+#define COMMON_COMPILER_UNUSED_SYMBOL_PREFIX         __attribute__ ((unused))
+#endif // defined (__GNUC__)
+
+/////////////////////////////////////////
+
+// *** log ***
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#define COMMON_LOG_DEFAULT_DIRECTORY                 COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE
+#else
+#define COMMON_LOG_DEFAULT_DIRECTORY                 COMMON_LOCATION_LOG_STORAGE_DIRECTORY
 #endif
-#define COMMON_DEF_LOG_DIRECTORY                 COMMON_DEF_DUMP_DIR
-#define COMMON_LOG_FILENAME_SUFFIX               ".log"
-#define COMMON_LOG_VERBOSE                       false
+#define COMMON_LOG_FILENAME_SUFFIX                   ".log"
+#define COMMON_LOG_VERBOSE                           false
 
 // *** timers ***
-#define COMMON_TIMER_MANAGER_DEFAULT_MODE        COMMON_TIMER_MODE_QUEUE
-#define COMMON_TIMER_MANAGER_DEFAULT_QUEUE       COMMON_TIMER_QUEUE_WHEEL
+#define COMMON_TIMER_DEFAULT_MODE                    COMMON_TIMER_MODE_QUEUE
+#define COMMON_TIMER_DEFAULT_QUEUE                   COMMON_TIMER_QUEUE_WHEEL
 
 // *IMPORTANT NOTE*: make sure group IDs are consistent across the entire (!)
 //                   application
-#define COMMON_TIMER_THREAD_GROUP_ID             100
-#define COMMON_TIMER_THREAD_NAME                 "timer dispatch"
+#define COMMON_TIMER_THREAD_GROUP_ID                 100
+#define COMMON_TIMER_THREAD_NAME                     "timer dispatch"
 // *IMPORTANT NOTE*: currently used for (initial !) slot pre-allocation only;
 //                   ultimately, the total number of available concurrent slots
 //                   depends on the actual implementation
 //                   --> check the code, don't rely on ACE_DEFAULT_TIMERS
 //#define COMMON_TIMER_DEFAULT_NUM_TIMER_SLOTS    ACE_DEFAULT_TIMERS
-#define COMMON_TIMER_DEFAULT_NUM_TIMER_SLOTS     32768
-#define COMMON_TIMER_PREALLOCATE_TIMER_SLOTS     true
+#define COMMON_TIMER_DEFAULT_NUM_TIMER_SLOTS         32768
+#define COMMON_TIMER_PREALLOCATE_TIMER_SLOTS         true
 
 // *** event loop ***
-#define COMMON_EVENT_DISPATCH_THREAD_GROUP_ID    101
-#define COMMON_EVENT_DISPATCH_THREAD_NAME        "event dispatch"
+#define COMMON_EVENT_MAXIMUM_HANDLES                 ACE::max_handles ()
 
-#define COMMON_EVENT_MAXIMUM_HANDLES             ACE::max_handles ()
+#define COMMON_EVENT_THREAD_GROUP_ID                 101
+#define COMMON_EVENT_THREAD_NAME                     "event dispatch"
 
-// reactor
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define COMMON_EVENT_WINXX_USE_WFMO_REACTOR      false
-#else
-#define COMMON_EVENT_POSIX_USE_DEV_POLL_REACTOR  true
-#endif
+// "proactor"-based
+#define COMMON_EVENT_PROACTOR_TYPE                   COMMON_PROACTOR_ACE_DEFAULT
+#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
 
-// proactor
-// *NOTE*: the current SIG proactor does not work very well on recent Linux
-//         systems (see also POSIX_Proactor.cpp:1878, flg_aio is never set)
-//         This is slightly problematic, as it is the default proactor on that
-//         platform (ACE_Proactor::instance ())
-#define COMMON_EVENT_PROACTOR_USE_SIG            false
-#define COMMON_EVENT_PROACTOR_USE_AIOCB          true
+#if defined (__GNUC__)
+// *NOTE*: currently, on Linux systems, the ACE default proactor implementation
+//         is COMMON_PROACTOR_POSIX_SIG
+//#undef COMMON_EVENT_PROACTOR_TYPE
+//#define COMMON_EVENT_PROACTOR_TYPE                   COMMON_PROACTOR_POSIX_CB
 
-// *NOTE*: parallel (!) operations
-#define COMMON_EVENT_PROACTOR_NUM_AIO_OPERATIONS ACE_AIO_MAX_SIZE
+// *IMPORTANT NOTE*: on Linux, this proactor implementation has a
+//                   (long-standing, see below) issue when used in multi-
+//                   threaded applications. Apparently, current (2.19) versions
+//                   of glibcs' implementation of aio_suspend are not (very)
+//                   reentrant.
+// "../sysdeps/pthread/aio_suspend.c:218: aio_suspend: Assertion `requestlist[cnt] != ((void *)0)' failed."
+//                   This is a known issue (see also:
+// https://groups.yahoo.com/neo/groups/ace-users/conversations/topics/37756).
+//                   A (proper) solution would involve attention and changes to
+//                   either (both) glibc (and) or ACE
+//#define COMMON_EVENT_PROACTOR_TYPE                   COMMON_PROACTOR_POSIX_AIOCB
+#endif // __GNUC__
+#endif // !defined (ACE_WIN32) && !defined (ACE_WIN64)
+
+// proactor options
+// *NOTE*: parallel (!) (in-flight) operations
+#define COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS   ACE_AIO_MAX_SIZE
 // *IMPORTANT NOTE*: "...NPTL makes internal use of the first two real-time
 //                   signals (see also signal(7)); these signals cannot be
 //                   used in applications. ..." (see 'man 7 pthreads')
-// --> on POSIX platforms, make sure that ACE_SIGRTMIN == 34
-#define COMMON_EVENT_PROACTOR_SIG_RT_SIGNAL      ACE_SIGRTMIN
+// --> on POSIX platforms, ensure that ACE_SIGRTMIN == 34 (!?)
+#define COMMON_EVENT_PROACTOR_SIG_RT_SIGNAL          ACE_SIGRTMIN
+
+// "reactor"-based
+#define COMMON_EVENT_REACTOR_TYPE                    COMMON_REACTOR_ACE_DEFAULT
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+// *CHECK*: the default reactor would be COMMON_REACTOR_SELECT on these systems
+#else // --> currently: UNIX-based
+// *CHECK*: the default reactor would be COMMON_REACTOR_SELECT on these systems
+#undef COMMON_EVENT_REACTOR_TYPE
+#define COMMON_EVENT_REACTOR_TYPE                    COMMON_REACTOR_DEV_POLL
+#endif // defined (ACE_WIN32) || defined (ACE_WIN64)
 
 // *** environment ***
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-#define COMMON_DEF_USER_LOGIN_BASE               "LOGNAME" // environment
+#define COMMON_DEF_USER_LOGIN_BASE                   "LOGNAME" // environment
 #else
-#define COMMON_DEF_USER_LOGIN_BASE               "USERNAME" // environment
-#endif
+#define COMMON_DEF_USER_LOGIN_BASE                   "USERNAME" // environment
+#endif // !defined (ACE_WIN32) && !defined (ACE_WIN64)
 
 #endif

@@ -562,7 +562,7 @@ Common_Tools::initializeLogging (const std::string& programName_in,
     options_flags |= ACE_Log_Msg::OSTREAM;
 
     ACE_OSTREAM_TYPE* log_stream_p = NULL;
-    std::ios_base::openmode open_mode = (std::ios_base::out |
+    std::ios_base::openmode open_mode = (std::ios_base::out   |
                                          std::ios_base::trunc);
     ACE_NEW_NORETURN (log_stream_p,
                       std::ofstream (logFile_in.c_str (),
@@ -582,7 +582,7 @@ Common_Tools::initializeLogging (const std::string& programName_in,
     if (log_stream_p->fail ())
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to initialize logfile (was: \"%s\"): \"%m\", aborting\n"),
+                  ACE_TEXT ("failed to create log file (was: \"%s\"): \"%m\", aborting\n"),
                   ACE_TEXT (logFile_in.c_str ())));
 
       // clean up
@@ -1366,7 +1366,7 @@ Common_Tools::retrieveSignalInfo (int signal_in,
 bool
 Common_Tools::initializeEventDispatch (bool useReactor_in,
                                        bool useThreadPool_in,
-                                       unsigned int numThreads_in,
+                                       unsigned int numberOfThreads_in,
                                        bool& serializeOutput_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::initializeEventDispatch"));
@@ -1374,34 +1374,18 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
   // initialize return value(s)
   serializeOutput_out = false;
 
-  // step0: select reactor/proactor implementation
-  Common_ReactorType reactor_type = COMMON_REACTOR_DEFAULT;
-  Common_ProactorType proactor_type = COMMON_PROACTOR_DEFAULT;
+  // step0: initialize reactor/proactor implementation
+  // *NOTE*: the appropriate type of event dispatch mechanism may depend on
+  //         several factors:
+  //         - targeted platform(s) (i.e. supported mechanisms, (software) environment)
+  //         - envisioned application type (i.e. library, plugin)
+  // *TODO*: the chosen event dispatch implementation should be based on
+  //         #defines only (!, see above, common.h)
+  Common_ReactorType reactor_type = COMMON_EVENT_REACTOR_TYPE;
+  Common_ProactorType proactor_type = COMMON_EVENT_PROACTOR_TYPE;
   if (useReactor_in)
-  {
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-    if (COMMON_EVENT_POSIX_USE_DEV_POLL_REACTOR)
-      reactor_type = COMMON_REACTOR_DEV_POLL;
-    else
-#else
-    if (COMMON_EVENT_WINXX_USE_WFMO_REACTOR)
-      reactor_type = COMMON_REACTOR_WFMO;
-    else
-#endif
-      reactor_type = (useThreadPool_in ? COMMON_REACTOR_TP
-                                       : COMMON_REACTOR_SELECT);
-  } // end IF
-  else
-  {
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-    proactor_type = COMMON_PROACTOR_WIN32;
-#else
-    if (COMMON_EVENT_PROACTOR_USE_SIG)
-      proactor_type = COMMON_PROACTOR_POSIX_SIG;
-    else if (COMMON_EVENT_PROACTOR_USE_AIOCB)
-      proactor_type = COMMON_PROACTOR_POSIX_AIOCB;
-#endif
-  } // end ELSE
+    reactor_type = (useThreadPool_in ? COMMON_REACTOR_THREAD_POOL
+                                     : reactor_type);
 
   // step1: initialize reactor/proactor
   if (useReactor_in)
@@ -1409,10 +1393,10 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
     ACE_Reactor_Impl* reactor_impl_p = NULL;
     switch (reactor_type)
     {
-      case COMMON_REACTOR_DEFAULT:
+      case COMMON_REACTOR_ACE_DEFAULT:
       {
-//        ACE_DEBUG ((LM_DEBUG,
-//                    ACE_TEXT ("using default (platform-specific) reactor...\n")));
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("using ACE default (platform-specific) reactor...\n")));
         break;
       }
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
@@ -1453,7 +1437,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
 
         break;
       }
-      case COMMON_REACTOR_TP:
+      case COMMON_REACTOR_THREAD_POOL:
       {
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using thread-pool reactor...\n")));
@@ -1521,13 +1505,28 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
   } // end IF
   else
   {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+    struct aioinit aioinit_s;
+    ACE_OS::memset (&aioinit_s, 0, sizeof (aioinit_s));
+    aioinit_s.aio_threads = numberOfThreads_in;                     // default: 20
+    aioinit_s.aio_num = COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS; // default: 64
+//    aioinit_s.aio_locks = 0;
+//    aioinit_s.aio_usedba = 0;
+//    aioinit_s.aio_debug = 0;
+//    aioinit_s.aio_numusers = 0;
+    aioinit_s.aio_idle_time = 1;                                    // default: 1
+//    aioinit_s.aio_reserved = 0;
+    aio_init (&aioinit_s);
+#endif
+
     ACE_Proactor_Impl* proactor_impl_p = NULL;
     switch (proactor_type)
     {
-      case COMMON_PROACTOR_DEFAULT:
+      case COMMON_PROACTOR_ACE_DEFAULT:
       {
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("using default (platform-specific) proactor...\n")));
+                    ACE_TEXT ("using ACE default (platform-specific) proactor...\n")));
         break;
       }
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -1549,7 +1548,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
                     ACE_TEXT ("using POSIX AIOCB proactor...\n")));
 
         ACE_NEW_NORETURN (proactor_impl_p,
-                          ACE_POSIX_AIOCB_Proactor (COMMON_EVENT_PROACTOR_NUM_AIO_OPERATIONS)); // parallel operations
+                          ACE_POSIX_AIOCB_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
 
         break;
       }
@@ -1559,7 +1558,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
                     ACE_TEXT ("using POSIX RT-signal proactor...\n")));
 
         ACE_NEW_NORETURN (proactor_impl_p,
-                          ACE_POSIX_SIG_Proactor (COMMON_EVENT_PROACTOR_NUM_AIO_OPERATIONS)); // parallel operations
+                          ACE_POSIX_SIG_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
 
         break;
       }
@@ -1570,7 +1569,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
                     ACE_TEXT ("using SunOS proactor...\n")));
 
         ACE_NEW_NORETURN (proactor_impl_p,
-                          ACE_SUN_Proactor (COMMON_EVENT_PROACTOR_NUM_AIO_OPERATIONS)); // parallel operations
+                          ACE_SUN_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
 
         break;
       }
@@ -1581,7 +1580,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
                     ACE_TEXT ("using POSIX CB proactor...\n")));
 
         ACE_NEW_NORETURN (proactor_impl_p,
-                          ACE_POSIX_CB_Proactor (COMMON_EVENT_PROACTOR_NUM_AIO_OPERATIONS)); // parallel operations
+                          ACE_POSIX_CB_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
 
         break;
       }
@@ -1599,8 +1598,8 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
     {
       ACE_NEW_NORETURN (proactor_p,
                         ACE_Proactor (proactor_impl_p, // implementation handle --> create new ?
-                                      //       false,  // *NOTE*: call close() manually
-                                      //               // (see finalizeEventDispatch() below)
+//                                      false,  // *NOTE*: --> call close() manually
+//                                              // (see finalizeEventDispatch() below)
                                       true,   // delete in dtor ?
                                       NULL)); // timer queue handle --> create new
       if (!proactor_p)
@@ -1652,7 +1651,7 @@ threadpool_event_dispatcher_function (void* arg_in)
   //                   particular signal is the same for all threads."
   //                   (see man 7 signal)
 
-  // handle any events...
+  // handle any events
   int result_2 = -1;
   if (use_reactor)
   {
@@ -1702,7 +1701,7 @@ threadpool_event_dispatcher_function (void* arg_in)
 
 bool
 Common_Tools::startEventDispatch (bool useReactor_in,
-                                  unsigned int numDispatchThreads_in,
+                                  unsigned int numberOfDispatchThreads_in,
                                   int& groupID_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::startEventDispatch"));
@@ -1732,7 +1731,7 @@ Common_Tools::startEventDispatch (bool useReactor_in,
   // spawn worker(s) ?
   // *NOTE*: if #dispatch threads == 1, event dispatch takes place in the main
   //         thread --> do NOT spawn any workers here...
-  if (numDispatchThreads_in <= 1)
+  if (numberOfDispatchThreads_in <= 1)
     return true;
 
   // start a (group of) worker thread(s)...
@@ -1740,12 +1739,12 @@ Common_Tools::startEventDispatch (bool useReactor_in,
   // *TODO*: use ACE_NEW_MALLOC_ARRAY (as soon as the NORETURN variant becomes
   //         available)
   ACE_NEW_NORETURN (thread_handles_p,
-                    ACE_hthread_t[numDispatchThreads_in]);
+                    ACE_hthread_t[numberOfDispatchThreads_in]);
   if (!thread_handles_p)
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory(%u), aborting\n"),
-                (sizeof (ACE_hthread_t) * numDispatchThreads_in)));
+                (sizeof (ACE_hthread_t) * numberOfDispatchThreads_in)));
     return false;
   } // end IF
 //  ACE_OS::memset (thread_handles_p, 0, sizeof (thread_handles_p));
@@ -1753,12 +1752,12 @@ Common_Tools::startEventDispatch (bool useReactor_in,
   // *TODO*: use ACE_NEW_MALLOC_ARRAY (as soon as the NORETURN variant becomes
   //         available)
   ACE_NEW_NORETURN (thread_names_p,
-                    const char*[numDispatchThreads_in]);
+                    const char*[numberOfDispatchThreads_in]);
   if (!thread_names_p)
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory(%u), aborting\n"),
-                (sizeof (char*) * numDispatchThreads_in)));
+                (sizeof (char*) * numberOfDispatchThreads_in)));
 
     // clean up
     delete [] thread_handles_p;
@@ -1770,7 +1769,7 @@ Common_Tools::startEventDispatch (bool useReactor_in,
   std::string buffer;
   std::ostringstream converter;
   for (unsigned int i = 0;
-       i < numDispatchThreads_in;
+       i < numberOfDispatchThreads_in;
        i++)
   {
     thread_name_p = NULL;
@@ -1795,7 +1794,7 @@ Common_Tools::startEventDispatch (bool useReactor_in,
     converter.clear ();
     converter.str (ACE_TEXT_ALWAYS_CHAR (""));
     converter << (i + 1);
-    buffer = ACE_TEXT_ALWAYS_CHAR (COMMON_EVENT_DISPATCH_THREAD_NAME);
+    buffer = ACE_TEXT_ALWAYS_CHAR (COMMON_EVENT_THREAD_NAME);
     buffer += ACE_TEXT_ALWAYS_CHAR (" #");
     buffer += converter.str ();
     ACE_OS::strcpy (thread_name_p, buffer.c_str ());
@@ -1804,14 +1803,14 @@ Common_Tools::startEventDispatch (bool useReactor_in,
   ACE_Thread_Manager* thread_manager_p = ACE_Thread_Manager::instance ();
   ACE_ASSERT (thread_manager_p);
   groupID_out =
-    thread_manager_p->spawn_n (numDispatchThreads_in,                  // # threads
+    thread_manager_p->spawn_n (numberOfDispatchThreads_in,             // # threads
                                ::threadpool_event_dispatcher_function, // function
                                &const_cast<bool&> (useReactor_in),     // argument
                                (THR_NEW_LWP     |
                                THR_JOINABLE     |
                                THR_INHERIT_SCHED),                     // flags
                                ACE_DEFAULT_THREAD_PRIORITY,            // priority
-                               COMMON_EVENT_DISPATCH_THREAD_GROUP_ID,  // group id
+                               COMMON_EVENT_THREAD_GROUP_ID,           // group id
                                NULL,                                   // task
                                thread_handles_p,                       // handle(s)
                                NULL,                                   // stack(s)
@@ -1821,11 +1820,11 @@ Common_Tools::startEventDispatch (bool useReactor_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Thread_Manager::spawn_n(%u): \"%m\", aborting\n"),
-                numDispatchThreads_in));
+                numberOfDispatchThreads_in));
 
     // clean up
     delete [] thread_handles_p;
-    for (unsigned int i = 0; i < numDispatchThreads_in; i++)
+    for (unsigned int i = 0; i < numberOfDispatchThreads_in; i++)
       delete [] thread_names_p[i];
     delete [] thread_names_p;
 
@@ -1837,7 +1836,7 @@ Common_Tools::startEventDispatch (bool useReactor_in,
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
 //    __uint64_t thread_id = 0;
 #endif
-  for (unsigned int i = 0; i < numDispatchThreads_in; i++)
+  for (unsigned int i = 0; i < numberOfDispatchThreads_in; i++)
   {
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
 //    ::pthread_getthreadid_np (&thread_handles_p[i], &thread_id);
@@ -1859,8 +1858,8 @@ Common_Tools::startEventDispatch (bool useReactor_in,
   buffer = converter.str ();
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s) spawned %u worker thread(s) (group: %d):\n%s"),
-              ACE_TEXT (COMMON_EVENT_DISPATCH_THREAD_NAME),
-              numDispatchThreads_in,
+              ACE_TEXT (COMMON_EVENT_THREAD_NAME),
+              numberOfDispatchThreads_in,
               groupID_out,
               ACE_TEXT (buffer.c_str ())));
 

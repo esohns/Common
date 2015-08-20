@@ -21,12 +21,11 @@
 
 #include "common_ui_gtk_manager.h"
 
-#include "ace/OS.h"
-#include "ace/Thread.h"
+#include "ace/ACE.h"
 #include "ace/Log_Msg.h"
 #include "ace/Log_Priority.h"
-
-#include "gtk/gtk.h"
+#include "ace/OS.h"
+#include "ace/Thread.h"
 
 #include "common_macros.h"
 #include "common_timer_manager.h"
@@ -197,11 +196,11 @@ Common_UI_GTK_Manager::close (u_long arg_in)
   //         - by an external thread closing down the active object
   //           (arg_in == 1 !)
   //         - by the worker thread which calls this after returning from svc()
-  //           (arg_in == 0 !) --> in this case, this should be a NOP...
+  //           (arg_in == 0 !) --> in this case, this should be a NOP
   switch (arg_in)
   {
     case 0:
-    { // check specifically for the second case...
+    { // check specifically for the second case
       if (ACE_OS::thr_equal (ACE_Thread::self (),
                              inherited::last_thread ()))
         break;
@@ -254,7 +253,7 @@ Common_UI_GTK_Manager::svc (void)
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager::svc"));
 
 //  ACE_DEBUG ((LM_DEBUG,
-//              ACE_TEXT ("(%t) GTK event dispatch starting...\n")));
+//              ACE_TEXT ("(%t) GTK event dispatch starting\n")));
 
   int result = 0;
 
@@ -280,7 +279,7 @@ Common_UI_GTK_Manager::svc (void)
     if (!isInitialized_)
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to Common_UI_IGTK_t::initialize(): \"%m\", aborting\n")));
+                  ACE_TEXT ("failed to Common_UI_IGTK_t::initialize(), errno was: \"%m\", aborting\n")));
 
       result = -1;
 
@@ -292,11 +291,11 @@ Common_UI_GTK_Manager::svc (void)
   gtk_main ();
   gdk_threads_leave ();
 
-  // gtk_main_quit () has been called...
+  // stop() (close() --> gtk_main_quit ()) was called...
 
 done:
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("(%t) leaving GTK event dispatch...\n")));
+              ACE_TEXT ("(%t) leaving GTK event dispatch\n")));
 
   return result;
 }
