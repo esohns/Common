@@ -47,20 +47,30 @@ Common_UI_GtkBuilderDefinition::~Common_UI_GtkBuilderDefinition ()
   // clean up
   if (GTKState_)
   {
+    ACE_Guard<ACE_SYNCH_MUTEX> aGuard (GTKState_->lock);
+
     // step1: free widget tree(s)
     for (Common_UI_GTKBuildersIterator_t iterator = GTKState_->builders.begin ();
          iterator != GTKState_->builders.end ();
          iterator++)
-    {
-      g_object_unref (G_OBJECT ((*iterator).second.second));
-      (*iterator).second.second = NULL;
-    } // end FOR
+      if ((*iterator).second.second)
+      {
+        g_object_unref (G_OBJECT ((*iterator).second.second));
+        (*iterator).second.second = NULL;
+      } // end IF
+    // *TODO*: builder definitions to the corresponding builder
+    GTKState_->builders.clear ();
 
     // step2: clear active events
+    gboolean result = false;
+    // *TODO*: map source ids to the corresponding builder
     for (Common_UI_GTKEventSourceIdsIterator_t iterator = GTKState_->eventSourceIds.begin ();
          iterator != GTKState_->eventSourceIds.end ();
          iterator++)
-      g_source_remove (*iterator);
+    {
+      result = g_source_remove (*iterator);
+      ACE_UNUSED_ARG (result);
+    } // end FOR
     GTKState_->eventSourceIds.clear ();
   } // end IF
 }
@@ -71,8 +81,6 @@ Common_UI_GtkBuilderDefinition::initialize (Common_UI_GTKState& GTKState_inout)
   COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition::initialize"));
 
   GTKState_ = &GTKState_inout;
-
-  ACE_Guard<ACE_SYNCH_MUTEX> aGuard (GTKState_inout.lock);
 
   // step1: load widget tree(s)
   GtkBuilder* builder_p = NULL;
@@ -120,7 +128,7 @@ Common_UI_GtkBuilderDefinition::initialize (Common_UI_GTKState& GTKState_inout)
   // step2: schedule UI initialization
   guint event_source_id = g_idle_add (GTKState_inout.initializationHook,
                                       GTKState_inout.userData);
-  if (event_source_id == 0)
+  if (!event_source_id)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to g_idle_add(): \"%m\", aborting\n")));
@@ -138,15 +146,17 @@ Common_UI_GtkBuilderDefinition::finalize ()
 
   if (GTKState_)
   {
+    // schedule UI finalization
     ACE_Guard<ACE_SYNCH_MUTEX> aGuard (GTKState_->lock);
 
-    // schedule UI finalization
     guint event_source_id = g_idle_add (GTKState_->finalizationHook,
                                         GTKState_->userData);
-    if (event_source_id == 0)
+    if (!event_source_id)
+    {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to g_idle_add(): \"%m\", continuing\n")));
-    else
-      GTKState_->eventSourceIds.insert (event_source_id);
+                  ACE_TEXT ("failed to g_idle_add(): \"%m\", returning")));
+      return;
+    } // end IF
+    GTKState_->eventSourceIds.insert (event_source_id);
   } // end IF
 }

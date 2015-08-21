@@ -21,7 +21,7 @@
 #ifndef COMMON_LOGGER_H
 #define COMMON_LOGGER_H
 
-#include <cstdlib>
+//#include <cstdlib>
 
 #include "ace/Global_Macros.h"
 #include "ace/Log_Msg_Backend.h"
@@ -40,8 +40,8 @@ class Common_Export Common_Logger
  : public ACE_Log_Msg_Backend
 {
  public:
-  Common_Logger (Common_MessageStack_t*,      // message stack
-                 ACE_SYNCH_RECURSIVE_MUTEX*); // synch lock
+  Common_Logger (Common_MessageStack_t*, // message stack handle
+                 ACE_SYNCH_MUTEX*);      // lock handle
   virtual ~Common_Logger ();
 
   // implement ACE_Log_Msg_Backend interface
@@ -57,10 +57,10 @@ class Common_Export Common_Logger
   ACE_UNIMPLEMENTED_FUNC (Common_Logger (const Common_Logger&))
   ACE_UNIMPLEMENTED_FUNC (Common_Logger& operator= (const Common_Logger&))
 
-  //FILE*                      buffer_;
+//  FILE*                  buffer_;
 
-  ACE_SYNCH_RECURSIVE_MUTEX* lock_;
-  Common_MessageStack_t*     messageStack_;
+  ACE_SYNCH_MUTEX*       lock_;
+  Common_MessageStack_t* messageStack_;
 };
 
 #endif

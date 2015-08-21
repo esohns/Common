@@ -683,9 +683,10 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
     previousActions_out[SIGPIPE] = previous_action;
 
   // step2: block certain signals
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   // *IMPORTANT NOTE*: child threads inherit the signal mask of their parent...
-  // --> make sure this is the main thread and invoked ASAP !
+  //                   --> make sure this is the main thread and invoked ASAP !
 
   // step2a: --> block [SIGRTMIN,SIGRTMAX] iff the default/current (!) proactor
   //             implementation happens to be ACE_POSIX_Proactor::PROACTOR_SIG
@@ -702,23 +703,25 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
   // *IMPORTANT NOTE*: "...NPTL makes internal use of the first two real-time
   //                   signals (see also signal(7)); these signals cannot be
   //                   used in applications. ..." (see 'man 7 pthreads')
-  // --> on POSIX platforms, make sure that ACE_SIGRTMIN == 34
+  //                   --> on POSIX platforms, ensure that ACE_SIGRTMIN == 34
 
-  ACE_POSIX_Proactor::Proactor_Type proactor_type;
-  ACE_Proactor* proactor_p = ACE_Proactor::instance ();
-  ACE_ASSERT (proactor_p);
-  ACE_POSIX_Proactor* proactor_impl_p =
-      dynamic_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
-  if (!proactor_impl_p)
+  if (!useReactor_in)
   {
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("dynamic_cast<ACE_POSIX_Proactor> failed, continuing\n")));
-    goto _continue;
-  } // end IF
-  proactor_type = proactor_impl_p->get_impl_type ();
-  if (!useReactor_in &&
-      (proactor_type == ACE_POSIX_Proactor::PROACTOR_SIG))
-  {
+    ACE_POSIX_Proactor::Proactor_Type proactor_type;
+    ACE_Proactor* proactor_p = ACE_Proactor::instance ();
+    ACE_ASSERT (proactor_p);
+    ACE_POSIX_Proactor* proactor_impl_p =
+        dynamic_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
+    if (!proactor_impl_p)
+    {
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("dynamic_cast<ACE_POSIX_Proactor> failed, continuing\n")));
+      goto _continue;
+    } // end IF
+    proactor_type = proactor_impl_p->get_impl_type ();
+    if (proactor_type != ACE_POSIX_Proactor::PROACTOR_SIG)
+      goto _continue;
+
     sigset_t rt_signal_set;
     result = ACE_OS::sigemptyset (&rt_signal_set);
     if (result == - 1)
@@ -767,7 +770,7 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
       return false;
     } // end IF
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("[%d-%d]: blocked %d RT signals...\n"),
+                ACE_TEXT ("[%u-%u]: blocked %d real-time signals...\n"),
                 ACE_SIGRTMIN, ACE_SIGRTMAX,
                 number));
   } // end IF
@@ -938,8 +941,8 @@ Common_Tools::initializeSignals (const ACE_Sig_Set& signals_in,
        i++)
     if (signals_in.is_member (i))
       ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("handling signal \"%S\"...\n"),
-                  i));
+                  ACE_TEXT ("handling signal %u: \"%S\"...\n"),
+                  i, i));
 
   return true;
 }

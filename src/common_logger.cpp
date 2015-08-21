@@ -26,7 +26,6 @@
 #include "ace/Guard_T.h"
 #include "ace/Log_Msg.h"
 #include "ace/Log_Record.h"
-#include "ace/Synch.h"
 #include "ace/OS.h"
 
 #include "common_defines.h"
@@ -34,7 +33,7 @@
 #include "common_tools.h"
 
 Common_Logger::Common_Logger (Common_MessageStack_t* stack_in,
-                              ACE_SYNCH_RECURSIVE_MUTEX* lock_in)
+                              ACE_SYNCH_MUTEX* lock_in)
  : inherited ()
  //, buffer_ (NULL)
  , lock_ (lock_in)
@@ -116,10 +115,10 @@ Common_Logger::log (ACE_Log_Record& record_in)
 
   std::ostringstream string_stream;
   result =
-   record_in.print (ACE_TEXT (Common_Tools::getHostName ().c_str ()),
-                    (COMMON_LOG_VERBOSE ? ACE_Log_Msg::VERBOSE
-                                        : ACE_Log_Msg::VERBOSE_LITE),
-                    string_stream);
+      record_in.print (ACE_TEXT (Common_Tools::getHostName ().c_str ()),
+                       (COMMON_LOG_VERBOSE ? ACE_Log_Msg::VERBOSE
+                                           : ACE_Log_Msg::VERBOSE_LITE),
+                       string_stream);
   //result =
   //  record_in.print (ACE_TEXT (Common_Tools::getHostName ().c_str ()),
   //                   (COMMON_LOG_VERBOSE ? ACE_Log_Msg::VERBOSE
@@ -141,7 +140,7 @@ Common_Logger::log (ACE_Log_Record& record_in)
   //} // end IF
   //string_stream << buffer_;
 
-  ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (*lock_);
+  ACE_Guard<ACE_SYNCH_MUTEX> aGuard (*lock_);
 
   messageStack_->push_back (string_stream.str ());
 

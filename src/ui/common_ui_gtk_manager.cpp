@@ -279,7 +279,7 @@ Common_UI_GTK_Manager::svc (void)
     if (!isInitialized_)
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to Common_UI_IGTK_t::initialize(), errno was: \"%m\", aborting\n")));
+                  ACE_TEXT ("failed to Common_UI_IGTK_t::initialize() (errno was: \"%m\"), aborting\n")));
 
       result = -1;
 

@@ -957,14 +957,22 @@ Common_File_Tools::getDumpDirectory ()
   // initialize return value(s)
   std::string result;
 
+  unsigned int fallback_level = 0;
+  std::string environment_variable =
+      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE);
+use_environment:
   ACE_TCHAR* string_p =
-      ACE_OS::getenv (ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE));
+      ACE_OS::getenv (ACE_TEXT (environment_variable.c_str ()));
   if (!string_p)
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"), continuing\n"),
-                ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE)));
+  {
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"), falling back\n"),
+                ACE_TEXT (environment_variable.c_str ())));
+    goto fallback;
+  } // end IF
   result = ACE_TEXT_ALWAYS_CHAR (string_p);
 
+use_path:
   // sanity check(s): directory exists ?
   // No ? --> (try to) create it then
   if (!Common_File_Tools::isDirectory (result))
@@ -972,7 +980,7 @@ Common_File_Tools::getDumpDirectory ()
     if (!Common_File_Tools::createDirectory (result))
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to Common_File_Tools::createDirectory(\"%s\"), aborting\n"),
+                  ACE_TEXT ("failed to Common_File_Tools::createDirectory(\"%s\"), falling back\n"),
                   ACE_TEXT (result.c_str ())));
       goto fallback;
     } // end IF
@@ -984,7 +992,36 @@ Common_File_Tools::getDumpDirectory ()
   return result;
 
 fallback:
-  // *TODO*: implement a fallback strategy here
+  ++fallback_level;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  if (fallback_level == 1)
+  {
+    environment_variable =
+        ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE_2);
+    goto use_environment;
+  } // end IF
+  ACE_ASSERT (false);
+  // *TODO*: implement fallback levels dependent on host Windows (TM) version
+  //         see: https://en.wikipedia.org/wiki/Environment_variable#Windows
+#else
+  switch (fallback_level)
+  {
+    case 1:
+      result =
+          ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY);
+      goto use_path;
+    case 2:
+      result =
+          ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY_2);
+      goto use_path;
+    default:
+      break;
+  } // end SWITCH
+  ACE_ASSERT (false);
+  // *TODO*: implement fallback levels dependent on host platform/version
+  //         see e.g. https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
+#endif
+
   return result;
 }
 
@@ -1033,17 +1070,29 @@ Common_File_Tools::getLogDirectory (const std::string& packageName_in)
   // initialize return value(s)
   std::string result;
 
-  const ACE_TCHAR* string_p =
+  unsigned int fallback_level = 0;
+  std::string environment_variable;
+  const ACE_TCHAR* string_p = NULL;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  string_p = ACE_OS::getenv (ACE_TEXT (COMMON_LOG_DEFAULT_DIRECTORY));
-  if (!string_p)
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"), continuing\n"),
-                ACE_TEXT (COMMON_LOG_DEFAULT_DIRECTORY)));
+  environment_variable =
+      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE);
 #else
-  string_p = ACE_TEXT_CHAR_TO_TCHAR (COMMON_LOG_DEFAULT_DIRECTORY);
+  result = ACE_TEXT_CHAR_TO_TCHAR (COMMON_LOG_DEFAULT_DIRECTORY);
+  goto use_path;
 #endif
+use_environment:
+  string_p =
+      ACE_OS::getenv (ACE_TEXT (environment_variable.c_str ()));
+  if (!string_p)
+  {
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"), falling back\n"),
+                ACE_TEXT (environment_variable.c_str ())));
+    goto fallback;
+  } // end IF
   result = ACE_TEXT_ALWAYS_CHAR (string_p);
+
+use_path:
   if (!packageName_in.empty ())
   {
     result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
@@ -1057,7 +1106,7 @@ Common_File_Tools::getLogDirectory (const std::string& packageName_in)
     if (!Common_File_Tools::createDirectory (result))
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to Common_File_Tools::createDirectory(\"%s\"), aborting\n"),
+                  ACE_TEXT ("failed to Common_File_Tools::createDirectory(\"%s\"), falling back\n"),
                   ACE_TEXT (result.c_str ())));
       goto fallback;
     } // end IF
@@ -1069,6 +1118,35 @@ Common_File_Tools::getLogDirectory (const std::string& packageName_in)
   return result;
 
 fallback:
-  // *TODO*: implement a fallback strategy here
+  ++fallback_level;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  if (fallback_level == 1)
+  {
+    environment_variable =
+        ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE_2);
+    goto use_environment;
+  } // end IF
+  ACE_ASSERT (false);
+  // *TODO*: implement fallback levels dependent on host Windows (TM) version
+  //         see e.g.: https://en.wikipedia.org/wiki/Environment_variable#Windows
+#else
+  switch (fallback_level)
+  {
+    case 1:
+      result =
+          ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY);
+      goto use_path;
+    case 2:
+      result =
+          ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY_2);
+      goto use_path;
+    default:
+      break;
+  } // end SWITCH
+  ACE_ASSERT (false);
+  // *TODO*: implement fallback levels dependent on host platform/version
+  //         see e.g. https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
+#endif
+
   return result;
 }
