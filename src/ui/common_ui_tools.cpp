@@ -43,28 +43,27 @@ Common_UI_Tools::UTF82Locale (const gchar* string_in,
   // initialize result
   std::string result;
 
-  gchar* converted_text = NULL;
-  GError* conversion_error = NULL;
-  converted_text = g_locale_from_utf8 (string_in,          // text
-                                       length_in,          // number of bytes
-                                       NULL,               // bytes read (don't care)
-                                       NULL,               // bytes written (don't care)
-                                       &conversion_error); // return value: error
-  if (conversion_error)
+  GError* error_p = NULL;
+  gchar* string_p = g_locale_from_utf8 (string_in, // text
+                                        length_in, // number of bytes
+                                        NULL,      // bytes read (don't care)
+                                        NULL,      // bytes written (don't care)
+                                        &error_p); // return value: error
+  if (error_p)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to g_locale_from_utf8(\"%s\"): \"%s\", aborting\n"),
                 ACE_TEXT (string_in),
-                ACE_TEXT (conversion_error->message)));
+                ACE_TEXT (error_p->message)));
 
     // clean up
-    g_error_free (conversion_error);
+    g_error_free (error_p);
   } // end IF
   else
-    result = converted_text;
+    result = string_p;
 
   // clean up
-  g_free (converted_text);
+  g_free (string_p);
 
   return result;
 }
@@ -77,20 +76,21 @@ Common_UI_Tools::Locale2UTF8 (const std::string& string_in)
   // initialize result
   gchar* result_p = NULL;
 
-  GError* conversion_error = NULL;
+  GError* error_p = NULL;
   result_p = g_locale_to_utf8 (string_in.c_str (), // text
                                -1,                 // \0-terminated
                                NULL,               // bytes read (don't care)
                                NULL,               // bytes written (don't care)
-                               &conversion_error); // return value: error
-  if (conversion_error)
+                               &error_p);          // return value: error
+  if (error_p)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to convert string: \"%s\", aborting\n"),
-                ACE_TEXT (conversion_error->message)));
+                ACE_TEXT ("failed to g_locale_to_utf8(\"%s\"): \"%s\", aborting\n"),
+                ACE_TEXT (string_in.c_str ()),
+                ACE_TEXT (error_p->message)));
 
       // clean up
-    g_error_free (conversion_error);
+    g_error_free (error_p);
 
     return NULL;
   } // end IF
