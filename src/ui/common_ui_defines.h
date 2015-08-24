@@ -23,6 +23,13 @@
 
 //#include "SDL.h"
 
+// *IMPORTANT NOTE*: for some reason, the glib 2 windows package does not define
+//                   these
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#define G_SOURCE_CONTINUE                        TRUE
+#define G_SOURCE_REMOVE                          FALSE
+#endif
+
 // interface definition (GTK)
 #define COMMON_UI_GTK_DEFINITION_DESCRIPTOR_MAIN "main"
 

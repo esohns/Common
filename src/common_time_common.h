@@ -38,13 +38,13 @@ typedef ACE_System_Time_Policy Common_TimePolicy_t;
 #if ((ACE_MAJOR_VERSION >= 6) && \
      ((ACE_MINOR_VERSION > 1) || (ACE_BETA_VERSION  > 6)))
 // *NOTE*: global time policy (supplies gettimeofday())
-#if defined (__GNUC__)
+#if defined (__GNUG__)
 //#pragma GCC diagnostic ignored "-Wunused-variable"
-#endif // __GNUC__
+#endif // __GNUG__
 COMMON_COMPILER_UNUSED_SYMBOL_PREFIX static Common_TimePolicy_t COMMON_TIME_POLICY;
-#if defined (__GNUC__)
+#if defined (__GNUG__)
 //#pragma GCC diagnostic pop
-#endif // __GNUC__
+#endif // __GNUG__
 #define COMMON_TIME_NOW COMMON_TIME_POLICY ()
 #else
 #define COMMON_TIME_NOW ACE_OS::gettimeofday ()

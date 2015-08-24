@@ -972,7 +972,56 @@ use_environment:
   } // end IF
   result = ACE_TEXT_ALWAYS_CHAR (string_p);
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  // *NOTE*: %USERPROFILE% is not localized
+  ACE_TCHAR buffer[PATH_MAX];
+  ACE_OS::memset (buffer, 0, sizeof (buffer));
+  HRESULT win_result = S_OK;
+  DWORD win_result_2 = 0;
+
+  //win_result =
+  //  SHGetFolderPath (NULL,                                         // hwndOwner
+  //                   CSIDL_LOCAL_APPDATA | CSIDL_FLAG_DONT_VERIFY, // nFolder
+  //                   NULL,                                         // hToken
+  //                   SHGFP_TYPE_CURRENT,                           // dwFlags
+  //                   buffer);                                      // pszPath
+  win_result_2 = ACE_TEXT_GetTempPath (sizeof (buffer),
+                                       buffer);
+  if (win_result == 0) win_result = GetLastError ();
+  if (FAILED (win_result))
+  {
+    ACE_OS::memset (buffer, 0, sizeof (buffer));
+    win_result_2 =
+      ACE_TEXT_FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM,                 // dwFlags
+                              NULL,                                       // lpSource
+                              win_result,                                 // dwMessageId
+                              MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT), // dwLanguageId
+                              buffer,                                     // lpBuffer
+                              PATH_MAX,                                   // nSize
+                              NULL);                                      // Arguments
+    if (win_result_2 == 0)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to FormatMessage(%d) (errno: \"%m\"): %d, continuing\n"),
+                  win_result, GetLastError ()));
+    //ACE_DEBUG ((LM_ERROR,
+    //            ACE_TEXT ("failed to SHGetFolderPath(CSIDL_LOCAL_APPDATA): \"%s\", falling back\n"),
+    //            buffer));
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to GetTempPath(): \"%s\", falling back\n"),
+                buffer));
+    goto fallback;
+  } // end IF
+  result = ACE_TEXT_ALWAYS_CHAR (buffer);
+
+  // strip trailing backslashes...
+  std::string::size_type last_backslash_pos =
+    result.find_last_of ('\\',
+                         std::string::npos); // begin searching at the end !
+  if (last_backslash_pos != std::string::npos)
+    result = result.substr (0, last_backslash_pos);
+#else
 use_path:
+#endif
   // sanity check(s): directory exists ?
   // No ? --> (try to) create it then
   if (!Common_File_Tools::isDirectory (result))
@@ -1092,7 +1141,10 @@ use_environment:
   } // end IF
   result = ACE_TEXT_ALWAYS_CHAR (string_p);
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
 use_path:
+#endif
   if (!packageName_in.empty ())
   {
     result += ACE_DIRECTORY_SEPARATOR_CHAR_A;

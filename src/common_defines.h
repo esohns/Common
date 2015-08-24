@@ -84,9 +84,11 @@
 
 // +++ compiler-specifics +++
 
-#if defined (__GNUC__)
+#if defined (__GNUG__)
 #define COMMON_COMPILER_UNUSED_SYMBOL_PREFIX         __attribute__ ((unused))
-#endif // defined (__GNUC__)
+#else
+#define COMMON_COMPILER_UNUSED_SYMBOL_PREFIX         
+#endif // defined (__GNUG__)
 
 /////////////////////////////////////////
 

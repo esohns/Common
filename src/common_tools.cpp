@@ -1539,8 +1539,8 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
                     ACE_TEXT ("using Win32 proactor...\n")));
 
         ACE_NEW_NORETURN (proactor_impl_p,
-                          ACE_WIN32_Proactor (numThreads_in, // parallel accesses [0: #processors]
-                                              false));       // N/A
+                          ACE_WIN32_Proactor (numberOfThreads_in, // parallel accesses [0: #processors]
+                                              false));            // N/A
 
         break;
       }
