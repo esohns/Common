@@ -4,7 +4,7 @@ ACLOCAL_AMFLAGS = \
 DEFS += \
   -DHAVE_CONFIG_H \
   -DCOMMON_BUILD_DLL=1 \
-  -DMETA_PACKAGE=\"@PACKAGE_NAME@\"
+  -DPACKAGE=\"@PACKAGE_NAME@\"
 
 #  -I/usr/include/c++/3.4.6/backward
 #  -I$(top_srcdir)/3rd_party/c++
