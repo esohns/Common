@@ -35,22 +35,23 @@ class Common_StateMachine_Base_T
  : public Common_IStateMachine_T<StateType>
 {
  public:
-  Common_StateMachine_Base_T ();
+  Common_StateMachine_Base_T (StateType = static_cast<StateType> (-1));
   virtual ~Common_StateMachine_Base_T ();
 
   // implement (part of) Common_IStateMachine_T
   virtual StateType current () const;
-  virtual bool change (StateType); // new state
 
  protected:
-  //   *IMPORTANT NOTE*: this MUST be recursive, so children can retrieve current
-  //                     state from within onStateChange without deadlocking
-  //ACE_Condition<ACE_Recursive_Thread_Mutex> myCondition;
-  mutable ACE_SYNCH_RECURSIVE_MUTEX lock_;
+  virtual bool change (StateType); // new state
 
   StateType                         state_;
+  //   *IMPORTANT NOTE*: MUST be recursive, so children can retrieve the current
+  //                     state from within onStateChange without deadlock
+  //ACE_Condition<ACE_Recursive_Thread_Mutex> myCondition;
+  mutable ACE_SYNCH_RECURSIVE_MUTEX stateLock_;
 
  private:
+  ACE_UNIMPLEMENTED_FUNC (Common_StateMachine_Base_T ())
   ACE_UNIMPLEMENTED_FUNC (Common_StateMachine_Base_T (const Common_StateMachine_Base_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_StateMachine_Base_T& operator= (const Common_StateMachine_Base_T&))
 

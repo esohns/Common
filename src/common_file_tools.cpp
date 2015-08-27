@@ -192,7 +192,8 @@ Common_File_Tools::isValid (const std::string& filename_in)
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isValid"));
 
   std::string directory = ACE::dirname (filename_in.c_str ());
-  return Common_File_Tools::isDirectory (directory);
+  return ((directory != ACE_TEXT_ALWAYS_CHAR (".")) &&
+          Common_File_Tools::isDirectory (directory));
 }
 
 bool

@@ -24,8 +24,9 @@
 #include "common_macros.h"
 
 template <typename StateType>
-Common_StateMachine_Base_T<StateType>::Common_StateMachine_Base_T ()
- : state_ (static_cast<StateType> (-1))
+Common_StateMachine_Base_T<StateType>::Common_StateMachine_Base_T (StateType state_in)
+ : state_ (state_in)
+ //: state_ (static_cast<StateType> (-1))
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::Common_StateMachine_Base_T"));
 
@@ -47,7 +48,7 @@ Common_StateMachine_Base_T<StateType>::current () const
   StateType result = static_cast<StateType> (-1);
 
   {
-    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
+    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (stateLock_);
 
     result = state_;
   } // end lock scope
@@ -61,8 +62,12 @@ Common_StateMachine_Base_T<StateType>::change (StateType newState_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::change"));
 
-  //std::string new_state_string;
-  //new_state_string = state2String (newState_in);
+  StateType previous_state;
+  {
+    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (stateLock_);
+
+    previous_state = state_;
+  } // end lock scope
 
   // invoke callback...
   try
@@ -74,23 +79,26 @@ Common_StateMachine_Base_T<StateType>::change (StateType newState_in)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("caught exception in Common_IStateMachine_T::onChange(\"%s\"), aborting\n"),
                 ACE_TEXT (this->state2String (newState_in).c_str ())));
-
     return false;
   }
 
-  //std::string current_state_string;
-  //current_state_string = state2String (state_);
-
   {
-    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
+    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (stateLock_);
 
-    state_ = newState_in;
+    // *NOTE*: if the implementation is 'passive', the whole operation pertaining
+    //         to newState_in may have been processed 'inline' by the current
+    //         thread and have completed by 'now'
+    //         --> in this case leave the state alone
+    // *TODO*: this may not be the best way to implement that case (i.e. there
+    //         could be intermediate states...)
+    if (previous_state == state_)
+      state_ = newState_in;
   } // end lock scope
 
   //ACE_DEBUG ((LM_DEBUG,
   //            ACE_TEXT ("\"%s\" --> \"%s\"\n"),
-  //            ACE_TEXT (current_state_string.c_str ()),
-  //            ACE_TEXT (new_state_string.c_str ())));
+  //            ACE_TEXT (this->state2String (previous_state).c_str ()),
+  //            ACE_TEXT (this->state2String (newState_in).c_str ())));
 
   return true;
 }

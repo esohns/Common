@@ -35,13 +35,16 @@ class Common_IStateMachine_T
   virtual ~Common_IStateMachine_T () {}
 
   virtual StateType current () const = 0;
-  virtual bool change (StateType) = 0; // new state
-
-  virtual void onChange (StateType) = 0; // new state
+  virtual void initialize () = 0;
+  virtual void reset () = 0;
   virtual bool wait (const ACE_Time_Value* = NULL) = 0; // (absolute) timeout ? : block
 
   // *NOTE*: unfortunately, this cannot be static...
   virtual std::string state2String (StateType) const = 0; // return value: state string
+
+ protected:
+  virtual bool change (StateType) = 0; // new state
+  virtual void onChange (StateType) = 0; // new state
 };
 
 #endif

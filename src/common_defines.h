@@ -103,7 +103,7 @@
 
 // *** timers ***
 #define COMMON_TIMER_DEFAULT_MODE                    COMMON_TIMER_MODE_QUEUE
-#define COMMON_TIMER_DEFAULT_QUEUE                   COMMON_TIMER_QUEUE_WHEEL
+#define COMMON_TIMER_DEFAULT_QUEUE                   COMMON_TIMER_QUEUE_HEAP
 
 // *IMPORTANT NOTE*: make sure group IDs are consistent across the entire (!)
 //                   application
@@ -125,8 +125,12 @@
 
 // "proactor"-based
 #define COMMON_EVENT_PROACTOR_TYPE                   COMMON_PROACTOR_ACE_DEFAULT
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#undef COMMON_EVENT_PROACTOR_TYPE
+#define COMMON_EVENT_PROACTOR_TYPE                   COMMON_PROACTOR_WIN32
+#endif
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
 #if defined (__GNUC__)
 // *NOTE*: currently, on Linux systems, the ACE default proactor implementation
 //         is COMMON_PROACTOR_POSIX_SIG
@@ -145,7 +149,7 @@
 //                   either (both) glibc (and) or ACE
 //#define COMMON_EVENT_PROACTOR_TYPE                   COMMON_PROACTOR_POSIX_AIOCB
 #endif // __GNUC__
-#endif // !defined (ACE_WIN32) && !defined (ACE_WIN64)
+#endif // defined (ACE_WIN32) || defined (ACE_WIN64)
 
 // proactor options
 // *NOTE*: parallel (!) (in-flight) operations
