@@ -35,8 +35,8 @@ Common_SignalHandler::Common_SignalHandler (Common_ISignal* interfaceHandle_in,
  : inherited ()
  , inherited2 (NULL,                           // default reactor
                ACE_Event_Handler::LO_PRIORITY) // priority
- , interfaceHandle_ (interfaceHandle_in)
  , useReactor_ (useReactor_in)
+ , interfaceHandle_ (interfaceHandle_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_SignalHandler::Common_SignalHandler"));
 

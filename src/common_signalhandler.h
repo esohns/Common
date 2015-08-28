@@ -25,7 +25,7 @@
 #include "ace/Event_Handler.h"
 #include "ace/Global_Macros.h"
 #include "ace/OS.h"
-#include "ace/Time_Value.h"
+//#include "ace/Time_Value.h"
 
 #include "common_exports.h"
 
@@ -51,6 +51,8 @@ class Common_Export Common_SignalHandler
   Common_SignalHandler (Common_ISignal*, // event handler handle
                         bool = true);    // use reactor ?
 
+  bool            useReactor_;
+
  private:
   typedef ACE_Handler inherited;
   typedef ACE_Event_Handler inherited2;
@@ -63,7 +65,6 @@ class Common_Export Common_SignalHandler
   virtual int handle_exception (ACE_HANDLE = ACE_INVALID_HANDLE); // handle
 
   Common_ISignal* interfaceHandle_;
-  bool            useReactor_;
 };
 
 #endif
