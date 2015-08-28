@@ -777,6 +777,23 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
 _continue:
 #endif
 
+  // *NOTE*: remove SIGSEGV to enable core dumps on non-windows systems
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  if (signals_inout.is_member (SIGSEGV))
+  {
+    result = signals_inout.sig_del (SIGSEGV);
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%S): \"%m\", continuing\n"),
+                  SIGSEGV));
+    else
+      ACE_DEBUG ((LM_WARNING,
+                  ACE_TEXT ("removed %S from handled signals...\n"),
+                  SIGSEGV));
+  } // end IF
+#endif
+
   return true;
 }
 

@@ -885,7 +885,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
                               buffer,                                     // lpBuffer
                               PATH_MAX,                                   // nSize
                               NULL);                                      // Arguments
-    if (FAILED (win_result))                                 
+    if (FAILED (win_result))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to FormatMessage(%d): \"%m\", continuing\n"),
                   win_result));
@@ -961,7 +961,9 @@ Common_File_Tools::getDumpDirectory ()
   unsigned int fallback_level = 0;
   std::string environment_variable =
       ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE);
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 use_environment:
+#endif
   ACE_TCHAR* string_p =
       ACE_OS::getenv (ACE_TEXT (environment_variable.c_str ()));
   if (!string_p)
@@ -1130,7 +1132,9 @@ Common_File_Tools::getLogDirectory (const std::string& packageName_in)
   result = ACE_TEXT_CHAR_TO_TCHAR (COMMON_LOG_DEFAULT_DIRECTORY);
   goto use_path;
 #endif
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 use_environment:
+#endif
   string_p =
       ACE_OS::getenv (ACE_TEXT (environment_variable.c_str ()));
   if (!string_p)
