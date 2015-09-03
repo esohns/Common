@@ -21,44 +21,42 @@
 #ifndef COMMON_REFERENCECOUNTER_BASE_H
 #define COMMON_REFERENCECOUNTER_BASE_H
 
-//#include "ace/Condition_T.h"
 #include "ace/Condition_Recursive_Thread_Mutex.h"
 //#include "ace/Recursive_Thread_Mutex.h"
-//#include "ace/Synch.h"
+#include "ace/Synch_Traits.h"
 
 #include "common_exports.h"
-#include "common_irefcount.h"
-
-//// forward declarations
-//class ACE_Recursive_Thread_Mutex;
+#include "common_ireferencecount.h"
 
 class Common_Export Common_ReferenceCounterBase
- : virtual public Common_IRefCount
+ : virtual public Common_IReferenceCount
 {
  public:
+  Common_ReferenceCounterBase (unsigned int); // initial reference count
   Common_ReferenceCounterBase (const Common_ReferenceCounterBase&);
   virtual ~Common_ReferenceCounterBase ();
 
-  // implement Common_IRefCount
+  // implement Common_IReferenceCount
   virtual unsigned int increase ();
   virtual unsigned int decrease ();
   virtual unsigned int count () const;
-  virtual void wait_zero ();
+  virtual void wait (unsigned int = 0);
+
+  Common_ReferenceCounterBase& operator= (const Common_ReferenceCounterBase&);
 
  protected:
   Common_ReferenceCounterBase ();
   // *WARNING*: "delete on 0" may not work predictably if there are
-  // any waiters (or in ANY multithreaded context, for that matter)...
+  //            any waiters (or in ANY multi-threaded context, for that matter)
   Common_ReferenceCounterBase (unsigned int, // initial reference count
                                bool);        // delete on 0 ?
-  Common_ReferenceCounterBase& operator= (const Common_ReferenceCounterBase&);
 
-  unsigned int                      counter_;
+  unsigned int                          counter_;
 
  private:
-  ACE_SYNCH_RECURSIVE_CONDITION     condition_;
-  bool                              deleteOnZero_;
-  mutable ACE_SYNCH_RECURSIVE_MUTEX lock_;
+   ACE_Condition_Recursive_Thread_Mutex condition_;
+  bool                                  deleteOnZero_;
+  mutable ACE_SYNCH_RECURSIVE_MUTEX     lock_;
 };
 
 #endif

@@ -113,7 +113,7 @@
     <ClInclude Include="..\..\src\common_idumpstate.h" />
     <ClInclude Include="..\..\src\common_iinitialize.h" />
     <ClInclude Include="..\..\src\common_inotify.h" />
-    <ClInclude Include="..\..\src\common_irefcount.h" />
+    <ClInclude Include="..\..\src\common_ireferencecount.h" />
     <ClInclude Include="..\..\src\common_isignal.h" />
     <ClInclude Include="..\..\src\common_istatemachine.h" />
     <ClInclude Include="..\..\src\common_istatistic.h" />

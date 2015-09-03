@@ -187,11 +187,35 @@ Common_File_Tools::isEmptyDirectory (const std::string& directory_in)
 }
 
 bool
-Common_File_Tools::isValid (const std::string& filename_in)
+Common_File_Tools::isValidFileName (const std::string& string_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isValid"));
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isValidFileName"));
 
-  std::string directory = ACE::dirname (filename_in.c_str ());
+  std::string directory, file_name;
+  directory =
+    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (string_in.c_str ())));
+  file_name =
+    ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (string_in.c_str ())));
+
+  // *TODO*: this isn't entirely accurate
+  return (!Common_File_Tools::isDirectory (string_in) &&
+          ((directory != ACE_TEXT_ALWAYS_CHAR ("."))  &&
+           Common_File_Tools::isDirectory (directory) &&
+           !file_name.empty ()));
+}
+
+bool
+Common_File_Tools::isValidPath (const std::string& string_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isValidPath"));
+
+  std::string directory, file_name;
+  directory = 
+    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (string_in.c_str ())));
+  file_name =
+    ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (string_in.c_str ())));
+
+  // *TODO*: this isn't entirely accurate
   return ((directory != ACE_TEXT_ALWAYS_CHAR (".")) &&
           Common_File_Tools::isDirectory (directory));
 }
@@ -203,7 +227,7 @@ Common_File_Tools::createDirectory (const std::string& directory_in)
 
   int result = -1;
 
-  result = ACE_OS::mkdir (directory_in.c_str (),
+  result = ACE_OS::mkdir (ACE_TEXT (directory_in.c_str ()),
                           ACE_DEFAULT_DIR_PERMS);
   if (result == -1)
   {
@@ -214,7 +238,7 @@ Common_File_Tools::createDirectory (const std::string& directory_in)
         // OK: some base sub-directory doesn't seem to exist...
         // --> try to recurse
         const ACE_TCHAR* directory_p =
-          ACE::dirname (directory_in.c_str (),
+          ACE::dirname (ACE_TEXT (directory_in.c_str ()),
                         ACE_DIRECTORY_SEPARATOR_CHAR);
         if (!directory_p)
         {
@@ -760,6 +784,9 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
   std::string result;
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+  HANDLE      token = 0;
+  ACE_TCHAR   buffer[PATH_MAX];
+  DWORD       buffer_size = sizeof (buffer);
 #else
   int            result_2 = -1;
   struct passwd  pwd;
@@ -782,7 +809,6 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
   } // end IF
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  HANDLE token = 0;
   if (!OpenProcessToken (GetCurrentProcess (), TOKEN_QUERY, &token))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -790,9 +816,7 @@ Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
     goto fallback;
   } // end IF
 
-  ACE_TCHAR buffer[PATH_MAX];
   ACE_OS::memset (buffer, 0, sizeof (buffer));
-  DWORD buffer_size = PATH_MAX;
   // *TODO*: this is apparently inconsistent (see also config.h for details)
 #if defined (ACE_USES_WCHAR)
   if (!GetUserProfileDirectoryW (token, buffer, &buffer_size))
@@ -951,9 +975,9 @@ fallback:
 }
 
 std::string
-Common_File_Tools::getDumpDirectory ()
+Common_File_Tools::getTempDirectory ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getDumpDirectory"));
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getTempDirectory"));
 
   // initialize return value(s)
   std::string result;

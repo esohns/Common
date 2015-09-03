@@ -31,18 +31,19 @@ class Common_Export Common_File_Tools
 {
  public:
   static bool createDirectory (const std::string&); // directory
-  static bool copyFile (const std::string&,  // FQ filename
+  static bool copyFile (const std::string&,  // FQ file name
                         const std::string&); // directory
-  static bool deleteFile (const std::string&); // FQ filename
-  static bool isReadable (const std::string&); // FQ filename
-  static bool isEmpty (const std::string&); // FQ filename
+  static bool deleteFile (const std::string&); // FQ file name
+  static bool isReadable (const std::string&); // FQ file name
+  static bool isEmpty (const std::string&); // FQ file name
   static bool isDirectory (const std::string&); // directory
   static bool isEmptyDirectory (const std::string&); // directory
-  static bool isValid (const std::string&); // (FQ) filename
+  static bool isValidFileName (const std::string&); // (FQ) file name
+  static bool isValidPath (const std::string&); // (FQ) path
   // *NOTE*: users need to free (delete[]) the returned buffer
-  static bool loadFile (const std::string&, // FQ filename
+  static bool loadFile (const std::string&, // FQ file name
                         unsigned char*&);   // return value: memory buffer (array)
-  static unsigned int size (const std::string&); // (FQ) filename
+  static unsigned int size (const std::string&); // (FQ) file name
 
   static std::string realPath (const std::string&); // path
 
@@ -56,7 +57,7 @@ class Common_Export Common_File_Tools
   // *NOTE*: (try to) create the directory if it doesn't exist
   static std::string getUserConfigurationDirectory ();
 
-  static std::string getDumpDirectory ();
+  static std::string getTempDirectory ();
   static std::string getLogDirectory (const std::string&); // package name
 
   static std::string getLogFilename (const std::string&, // package name

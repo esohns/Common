@@ -23,24 +23,13 @@
 
 #include "ace/Guard_T.h"
 #include "ace/Log_Msg.h"
-//#include "ace/Synch.h"
 
 #include "common_macros.h"
 
-Common_ReferenceCounterBase::Common_ReferenceCounterBase ()
- : counter_ (1)
+Common_ReferenceCounterBase::Common_ReferenceCounterBase (unsigned int initialCount_in)
+ : counter_ (initialCount_in)
  , condition_ (lock_)
- , deleteOnZero_ (true)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
-
-}
-
-Common_ReferenceCounterBase::Common_ReferenceCounterBase (unsigned int initCount_in,
-                                                          bool deleteOnZero_in)
- : counter_ (initCount_in)
- , condition_ (lock_)
- , deleteOnZero_ (deleteOnZero_in)
+ , deleteOnZero_ (false)
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
 
@@ -51,7 +40,32 @@ Common_ReferenceCounterBase::Common_ReferenceCounterBase (const Common_Reference
  , condition_ (counter_in.lock_) // *NOTE*: uses the same lock
  , deleteOnZero_ (counter_in.deleteOnZero_)
 {
-    COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
+  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
+
+}
+
+Common_ReferenceCounterBase::~Common_ReferenceCounterBase ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::~Common_ReferenceCounterBase"));
+
+}
+
+Common_ReferenceCounterBase::Common_ReferenceCounterBase ()
+ : counter_ (1)
+ , condition_ (lock_)
+ , deleteOnZero_ (true)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
+
+}
+
+Common_ReferenceCounterBase::Common_ReferenceCounterBase (unsigned int initialCount_in,
+                                                          bool deleteOnZero_in)
+ : counter_ (initialCount_in)
+ , condition_ (lock_)
+ , deleteOnZero_ (deleteOnZero_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
 
 }
 
@@ -69,18 +83,12 @@ Common_ReferenceCounterBase::operator= (const Common_ReferenceCounterBase& rhs)
   return *this;
 }
 
-Common_ReferenceCounterBase::~Common_ReferenceCounterBase ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::~Common_ReferenceCounterBase"));
-
-}
-
 unsigned int
 Common_ReferenceCounterBase::increase ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::increase"));
 
-  ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
+  ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
 
   return ++counter_;
 }
@@ -95,7 +103,7 @@ Common_ReferenceCounterBase::decrease ()
 
   // synch access
   {
-    ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
+    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
 
     result = --counter_;
 
@@ -120,21 +128,21 @@ Common_ReferenceCounterBase::count () const
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::count"));
 
-  ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
+  ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
 
   return counter_;
 }
 
 void
-Common_ReferenceCounterBase::wait_zero ()
+Common_ReferenceCounterBase::wait (unsigned int count_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::wait_zero"));
+  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::wait"));
 
   {
     // need lock
-    ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
+    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
 
-    while (counter_)
+    while (counter_ != count_in)
     {
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("waiting (count: %u)...\n"),
