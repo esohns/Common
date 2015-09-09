@@ -434,7 +434,7 @@ Common_File_Tools::copyFile (const std::string& filename_in,
   ssize_t bytes_written = ACE_OS::sendfile (source_file.get_handle (),
                                             target_file.get_handle (),
                                             NULL,
-                                            file_info.size_);
+                                            static_cast<size_t> (file_info.size_));
   if (bytes_written != file_info.size_)
   {
     ACE_DEBUG ((LM_ERROR,
@@ -548,7 +548,7 @@ Common_File_Tools::loadFile (const std::string& filename_in,
   if (!file_p)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): %m, aborting\n"),
+                ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
                 ACE_TEXT (filename_in.c_str ())));
     return false;
   } // end IF
@@ -558,29 +558,29 @@ Common_File_Tools::loadFile (const std::string& filename_in,
   if (result)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::fseek(\"%s\"): %m, aborting\n"),
+                ACE_TEXT ("failed to ACE_OS::fseek(\"%s\"): \"%m\", aborting\n"),
                 ACE_TEXT (filename_in.c_str ())));
 
     // clean up
     result = ACE_OS::fclose (file_p);
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): %m, continuing\n"),
+                  ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
                   ACE_TEXT (filename_in.c_str ())));
     return false;
   } // end IF
-  long fsize = ACE_OS::ftell (file_p);
-  if (fsize == -1)
+  long file_size = ACE_OS::ftell (file_p);
+  if (file_size == -1)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::ftell(\"%s\"): %m, aborting\n"),
+                ACE_TEXT ("failed to ACE_OS::ftell(\"%s\"): \"%m\", aborting\n"),
                 ACE_TEXT (filename_in.c_str ())));
 
     // clean up
     result = ACE_OS::fclose (file_p);
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): %m, continuing\n"),
+                  ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
                   ACE_TEXT (filename_in.c_str ())));
     return false;
   } // end IF
@@ -589,38 +589,39 @@ Common_File_Tools::loadFile (const std::string& filename_in,
   // *PORTABILITY* allocate array
 //  file_out = new (std::nothrow) unsigned char[fsize];
   ACE_NEW_NORETURN (file_out,
-                    unsigned char[fsize]);
+                    unsigned char[file_size]);
   if (!file_out)
   {
     ACE_DEBUG ((LM_CRITICAL,
-                ACE_TEXT ("failed to allocate memory(%d): %m, aborting\n"),
-                fsize));
+                ACE_TEXT ("failed to allocate memory(%d): \"%m\", aborting\n"),
+                file_size));
 
     // clean up
     result = ACE_OS::fclose (file_p);
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): %m, continuing\n"),
+                  ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
                   ACE_TEXT (filename_in.c_str ())));
     return false;
   } // end IF
 
   // read data
-  result = ACE_OS::fread (static_cast<void*> (file_out), // target buffer
-                          fsize,                         // read everything
-                          1,                             // ... all at once
-                          file_p);                       // handle
+  result =
+    static_cast<size_t> (ACE_OS::fread (static_cast<void*> (file_out),   // target buffer
+                                        static_cast<size_t> (file_size), // read everything ...
+                                        1,                               // ... at once
+                                        file_p));                        // handle
   if (result != 1)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to read file(\"%s\"): %m, aborting\n"),
+                ACE_TEXT ("failed to read file(\"%s\"): \"%m\", aborting\n"),
                 ACE_TEXT (filename_in.c_str ())));
 
     // clean up
     result = ACE_OS::fclose (file_p);
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): %m, continuing\n"),
+                  ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
                   ACE_TEXT (filename_in.c_str ())));
     delete [] file_out;
     file_out = NULL;
@@ -633,7 +634,7 @@ Common_File_Tools::loadFile (const std::string& filename_in,
   if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): %m, aborting\n"),
+                ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", aborting\n"),
                 ACE_TEXT (filename_in.c_str ())));
 
     // clean up
@@ -887,32 +888,33 @@ Common_File_Tools::getUserConfigurationDirectory ()
   ACE_TCHAR buffer[PATH_MAX];
   ACE_OS::memset (buffer, 0, sizeof (buffer));
 
-  HRESULT win_result =
+  HRESULT result_2 =
 // *TODO*: this is apparently inconsistent (see also config.h for details)
 #if defined (ACE_USES_WCHAR)
-  SHGetFolderPathW (NULL,                                   // hwndOwner
+    SHGetFolderPathW (NULL,                                   // hwndOwner
 #else
-  SHGetFolderPathA (NULL,                                   // hwndOwner
+    SHGetFolderPathA (NULL,                                   // hwndOwner
 #endif
-                    CSIDL_APPDATA | CSIDL_FLAG_DONT_VERIFY, // nFolder
-                    NULL,                                   // hToken
-                    SHGFP_TYPE_CURRENT,                     // dwFlags
-                    buffer);                                // pszPath
-  if (FAILED (win_result))
+                      CSIDL_APPDATA | CSIDL_FLAG_DONT_VERIFY, // nFolder
+                      NULL,                                   // hToken
+                      SHGFP_TYPE_CURRENT,                     // dwFlags
+                      buffer);                                // pszPath
+  if (FAILED (result_2))
   {
     ACE_OS::memset (buffer, 0, sizeof (buffer));
-    win_result =
-      ACE_TEXT_FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM,                 // dwFlags
-                              NULL,                                       // lpSource
-                              win_result,                                 // dwMessageId
-                              MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT), // dwLanguageId
-                              buffer,                                     // lpBuffer
-                              PATH_MAX,                                   // nSize
-                              NULL);                                      // Arguments
-    if (FAILED (win_result))
+    DWORD result_3 =
+      ACE_TEXT_FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM,    // dwFlags
+                              NULL,                          // lpSource
+                              static_cast<DWORD> (result_2), // dwMessageId
+                              MAKELANGID (LANG_NEUTRAL,
+                                          SUBLANG_DEFAULT),  // dwLanguageId
+                              buffer,                        // lpBuffer
+                              sizeof (buffer),               // nSize
+                              NULL);                         // Arguments
+    if (result_3 == 0)
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to FormatMessage(%d): \"%m\", continuing\n"),
-                  win_result));
+                  ACE_TEXT ("failed to FormatMessage(%d), result was: %u: \"%m\", continuing\n"),
+                  result_2, GetLastError ()));
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to SHGetFolderPath(CSIDL_APPDATA): \"%s\", falling back\n"),
                 buffer));
@@ -1003,33 +1005,46 @@ use_environment:
   // *NOTE*: %USERPROFILE% is not localized
   ACE_TCHAR buffer[PATH_MAX];
   ACE_OS::memset (buffer, 0, sizeof (buffer));
-  HRESULT win_result = S_OK;
-  DWORD win_result_2 = 0;
+  //HRESULT result_2 = S_OK;
+  DWORD result_3 = 0;
 
-  //win_result =
+  //result_2 =
   //  SHGetFolderPath (NULL,                                         // hwndOwner
   //                   CSIDL_LOCAL_APPDATA | CSIDL_FLAG_DONT_VERIFY, // nFolder
   //                   NULL,                                         // hToken
   //                   SHGFP_TYPE_CURRENT,                           // dwFlags
   //                   buffer);                                      // pszPath
-  win_result_2 = ACE_TEXT_GetTempPath (sizeof (buffer),
-                                       buffer);
-  if (win_result == 0) win_result = GetLastError ();
-  if (FAILED (win_result))
+  result_3 = ACE_TEXT_GetTempPath (sizeof (buffer), buffer);
+  //if (FAILED (result_2))
+  if (result_3 == 0)
   {
-    ACE_OS::memset (buffer, 0, sizeof (buffer));
-    win_result_2 =
-      ACE_TEXT_FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM,                 // dwFlags
-                              NULL,                                       // lpSource
-                              win_result,                                 // dwMessageId
-                              MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT), // dwLanguageId
-                              buffer,                                     // lpBuffer
-                              PATH_MAX,                                   // nSize
-                              NULL);                                      // Arguments
-    if (win_result_2 == 0)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to FormatMessage(%d) (errno: \"%m\"): %d, continuing\n"),
-                  win_result, GetLastError ()));
+    result_3 = GetLastError ();
+    DWORD result_4 =
+      ACE_TEXT_FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM,   // dwFlags
+                              NULL,                         // lpSource
+                              result_3,                     // dwMessageId
+                              MAKELANGID (LANG_NEUTRAL,
+                                          SUBLANG_DEFAULT), // dwLanguageId
+                              buffer,                       // lpBuffer
+                              sizeof (buffer),              // nSize
+                              NULL);                        // Arguments
+    if (result_4 == 0)
+    {
+      DWORD result_5 = 
+        ACE_TEXT_FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM,   // dwFlags
+                                NULL,                         // lpSource
+                                result_4,                     // dwMessageId
+                                MAKELANGID (LANG_NEUTRAL,
+                                            SUBLANG_DEFAULT), // dwLanguageId
+                                buffer,                       // lpBuffer
+                                sizeof (buffer),              // nSize
+                                NULL);                        // Arguments
+      if (result_5 == 0)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to FormatMessage(%d), result was: %u, continuing\n"),
+                    result_4, GetLastError ()));
+    } // end IF
+
     //ACE_DEBUG ((LM_ERROR,
     //            ACE_TEXT ("failed to SHGetFolderPath(CSIDL_LOCAL_APPDATA): \"%s\", falling back\n"),
     //            buffer));

@@ -166,20 +166,20 @@ Common_TaskBase_T<TaskSynchStrategyType,
                     buffer.c_str ());
     thread_names_p[i] = thread_name_p;
   } // end FOR
-  int result = -1;
-  result = inherited::activate ((THR_NEW_LWP      |
-                                 THR_JOINABLE |
-                                 THR_INHERIT_SCHED),         // flags
-                                threadCount_,                // # threads
-                                0,                           // force active ?
-                                ACE_DEFAULT_THREAD_PRIORITY, // priority
-                                inherited::grp_id (),        // group id (see above)
-                                NULL,                        // task base
-                                thread_handles_p,            // thread handle(s)
-                                NULL,                        // stack(s)
-                                NULL,                        // stack size(s)
-                                thread_ids_p,                // thread id(s)
-                                thread_names_p);             // thread name(s)
+  int result =
+    inherited::activate ((THR_NEW_LWP      |
+                          THR_JOINABLE     |
+                          THR_INHERIT_SCHED),             // flags
+                         static_cast<int> (threadCount_), // # threads
+                         0,                               // force active ?
+                         ACE_DEFAULT_THREAD_PRIORITY,     // priority
+                         inherited::grp_id (),            // group id (see above)
+                         NULL,                            // task base
+                         thread_handles_p,                // thread handle(s)
+                         NULL,                            // stack(s)
+                         NULL,                            // stack size(s)
+                         thread_ids_p,                    // thread id(s)
+                         thread_names_p);                 // thread name(s)
   if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,

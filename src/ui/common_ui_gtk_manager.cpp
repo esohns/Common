@@ -59,6 +59,9 @@ glib_log_handler (const gchar* logDomain_in,
 {
   //COMMON_TRACE (ACE_TEXT ("::glib_log_handler"));
 
+  ACE_UNUSED_ARG (logDomain_in);
+  ACE_UNUSED_ARG (userData_in);
+
   // translate loglevel
   ACE_Log_Priority log_priority = LM_ERROR;
   switch (logLevel_in & G_LOG_LEVEL_MASK)

@@ -98,7 +98,7 @@ Common_ReferenceCounterBase::decrease ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::decrease"));
 
-  int result = 0;
+  unsigned int result = 0;
   bool destroy = false;
 
   // synch access

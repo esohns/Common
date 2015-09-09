@@ -184,9 +184,9 @@ Common_Timer_Manager_T<TimerQueueType,
     case COMMON_TIMER_MODE_REACTOR:
     {
       ACE_ASSERT (false);
-      ACE_NOTSUP_RETURN (-1);
+      ACE_NOTSUP_RETURN (std::numeric_limits<unsigned int>::max ());
 
-      ACE_NOTREACHED (return -1);
+      ACE_NOTREACHED (return std::numeric_limits<unsigned int>::max ());
     }
     case COMMON_TIMER_MODE_QUEUE:
     {
@@ -318,6 +318,8 @@ Common_Timer_Manager_T<TimerQueueType,
                                                       COMMON_TIME_POLICY));                       // time policy
       break;
     }
+    case COMMON_TIMER_QUEUE_INVALID:
+    case COMMON_TIMER_QUEUE_MAX:
     default:
     {
       ACE_DEBUG ((LM_ERROR,
@@ -541,6 +543,7 @@ Common_Timer_Manager_T<TimerQueueType,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::cancel_timer"));
 
+  ACE_UNUSED_ARG (dontCallHandleClose_in);
   int result = -1;
 
   switch (configuration_.mode)
@@ -654,7 +657,10 @@ Common_Timer_Manager_T<TimerQueueType,
       break;
     }
     case COMMON_TIMER_MODE_REACTOR:
+    case COMMON_TIMER_MODE_SIGNAL:
       break;
+    case COMMON_TIMER_MODE_INVALID:
+    case COMMON_TIMER_MODE_MAX:
     default:
     {
       ACE_DEBUG ((LM_ERROR,

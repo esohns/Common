@@ -19,8 +19,9 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <limits>
 #include <sstream>
 
 // *WORKAROUND*
@@ -253,15 +254,19 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::setResourceLimits"));
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   int result = -1;
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-    rlimit resource_limit;
+  rlimit resource_limit;
 #endif
 
   if (fileDescriptors_in)
   {
-// *PORTABILITY*: this is almost entirely non-portable...
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    // *TODO*: really ?
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("file descriptor limits are not available on this platform, continuing\n")));
+#else
     result = ACE_OS::getrlimit (RLIMIT_NOFILE,
                                 &resource_limit);
     if (result == -1)
@@ -305,10 +310,6 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
                 ACE_TEXT ("unset file descriptor limits, now: [soft: %u, hard: %u]...\n"),
                 resource_limit.rlim_cur,
                 resource_limit.rlim_max));
-#else
-    // *TODO*: really ?
-    ACE_DEBUG ((LM_WARNING,
-                ACE_TEXT ("file descriptor limits are not available on this platform, continuing\n")));
 #endif
   } // end IF
 
@@ -316,8 +317,11 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
 
   if (stackTraces_in)
   {
-    // *PORTABILITY*: this is almost entirely non-portable...
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    // *TODO*: really ?
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("core file limits/stack trace dumps are not available on this platform, continuing\n")));
+#else
     //  result = ACE_OS::getrlimit (RLIMIT_CORE,
     //                              &resource_limit);
     //  if (result == -1)
@@ -357,17 +361,16 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
                 ACE_TEXT ("unset corefile limits, now: [soft: %u, hard: %u]...\n"),
                 resource_limit.rlim_cur,
                 resource_limit.rlim_max));
-#else
-    // *TODO*: really ?
-    ACE_DEBUG ((LM_WARNING,
-                ACE_TEXT ("corefile limits are not available on this platform, continuing\n")));
 #endif
   } // end IF
 
   if (pendingSignals_in)
   {
-    // *PORTABILITY*: this is almost entirely non-portable...
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    // *TODO*: really ?
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("pending signal limits are not available on this platform, continuing\n")));
+#else
     //  result = ACE_OS::getrlimit (RLIMIT_SIGPENDING,
     //                              &resource_limit);
     //  if (result == -1)
@@ -431,10 +434,6 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
                 ACE_TEXT ("unset pending signal limits, now: [soft: %u, hard: %u]...\n"),
                 resource_limit.rlim_cur,
                 resource_limit.rlim_max));
-#else
-    // *TODO*: really ?
-    ACE_DEBUG ((LM_WARNING,
-                ACE_TEXT ("pending signal limits are not available on this platform, continuing\n")));
 #endif
   } // end IF
 
@@ -646,6 +645,9 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
                                     sigset_t& originalMask_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::preInitializeSignals"));
+
+  ACE_UNUSED_ARG (signals_inout);
+  ACE_UNUSED_ARG (useReactor_in);
 
   int result = -1;
 
@@ -971,6 +973,8 @@ Common_Tools::finalizeSignals (const ACE_Sig_Set& signals_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::finalizeSignals"));
 
+  ACE_UNUSED_ARG (previousMask_in);
+
   int result = -1;
 
   // step1: restore previous signal handlers
@@ -1020,12 +1024,47 @@ Common_Tools::retrieveSignalInfo (int signal_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::retrieveSignalInfo"));
 
+  ACE_UNUSED_ARG (context_in);
+
   // initialize return value
   information_out.clear ();
 
-  int result = -1;
   std::ostringstream information;
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  switch (signal_in)
+  {
+    case SIGINT:
+      information << ACE_TEXT_ALWAYS_CHAR ("SIGINT"); break;
+    case SIGILL:
+      information << ACE_TEXT_ALWAYS_CHAR ("SIGILL"); break;
+    case SIGFPE:
+      information << ACE_TEXT_ALWAYS_CHAR ("SIGFPE"); break;
+    case SIGSEGV:
+      information << ACE_TEXT_ALWAYS_CHAR ("SIGSEGV"); break;
+    case SIGTERM:
+      information << ACE_TEXT_ALWAYS_CHAR ("SIGTERM"); break;
+    case SIGBREAK:
+      information << ACE_TEXT_ALWAYS_CHAR ("SIGBREAK"); break;
+    case SIGABRT:
+      information << ACE_TEXT_ALWAYS_CHAR ("SIGABRT"); break;
+    case SIGABRT_COMPAT:
+      information << ACE_TEXT_ALWAYS_CHAR ("SIGABRT_COMPAT"); break;
+    default:
+    {
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("invalid/unknown signal: %S, continuing\n"),
+                  signal_in));
+      break;
+    }
+  } // end SWITCH
+
+  information << ACE_TEXT_ALWAYS_CHAR (", signalled handle: ");
+  information << info_in.si_handle_;
+  //information << ACE_TEXT_ALWAYS_CHAR (", array of signalled handle(s): ");
+  //information << info_in.si_handles_;
+#else
+  int result = -1;
+
   // step0: common information (on POSIX.1b)
   information << ACE_TEXT_ALWAYS_CHAR ("PID/UID: ");
   information << info_in.si_pid;
@@ -1345,38 +1384,6 @@ Common_Tools::retrieveSignalInfo (int signal_in,
       break;
     }
   } // end SWITCH
-#else
-  switch (signal_in)
-  {
-    case SIGINT:
-      information << ACE_TEXT_ALWAYS_CHAR ("SIGINT"); break;
-    case SIGILL:
-      information << ACE_TEXT_ALWAYS_CHAR ("SIGILL"); break;
-    case SIGFPE:
-      information << ACE_TEXT_ALWAYS_CHAR ("SIGFPE"); break;
-    case SIGSEGV:
-      information << ACE_TEXT_ALWAYS_CHAR ("SIGSEGV"); break;
-    case SIGTERM:
-      information << ACE_TEXT_ALWAYS_CHAR ("SIGTERM"); break;
-    case SIGBREAK:
-      information << ACE_TEXT_ALWAYS_CHAR ("SIGBREAK"); break;
-    case SIGABRT:
-      information << ACE_TEXT_ALWAYS_CHAR ("SIGABRT"); break;
-    case SIGABRT_COMPAT:
-      information << ACE_TEXT_ALWAYS_CHAR ("SIGABRT_COMPAT"); break;
-    default:
-    {
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("invalid/unknown signal: %S, continuing\n"),
-                  signal_in));
-      break;
-    }
-  } // end SWITCH
-
-  information << ACE_TEXT_ALWAYS_CHAR (", signalled handle: ");
-  information << info_in.si_handle_;
-  //information << ACE_TEXT_ALWAYS_CHAR (", array of signalled handle(s): ");
-  //information << info_in.si_handles_;
 #endif
 
   // OK: set return value
@@ -1419,7 +1426,8 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
                     ACE_TEXT ("using ACE default (platform-specific) reactor...\n")));
         break;
       }
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
       case COMMON_REACTOR_DEV_POLL:
       {
         ACE_DEBUG ((LM_DEBUG,
@@ -1446,14 +1454,14 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
                     ACE_TEXT ("using select reactor...\n")));
 
         ACE_NEW_NORETURN (reactor_impl_p,
-                          ACE_Select_Reactor (COMMON_EVENT_MAXIMUM_HANDLES,    // max num handles
-                                              true,                            // restart after EINTR ?
-                                              NULL,                            // signal handler handle
-                                              NULL,                            // timer queue handle
-                                              ACE_DISABLE_NOTIFY_PIPE_DEFAULT, // disable notification pipe ?
-                                              NULL,                            // notification handler handle
-                                              true,                            // mask signals ?
-                                              ACE_SELECT_TOKEN::FIFO));        // signal queue
+                          ACE_Select_Reactor (static_cast<size_t> (COMMON_EVENT_MAXIMUM_HANDLES), // max num handles
+                                              true,                                               // restart after EINTR ?
+                                              NULL,                                               // signal handler handle
+                                              NULL,                                               // timer queue handle
+                                              ACE_DISABLE_NOTIFY_PIPE_DEFAULT,                    // disable notification pipe ?
+                                              NULL,                                               // notification handler handle
+                                              true,                                               // mask signals ?
+                                              ACE_SELECT_TOKEN::FIFO));                           // signal queue
 
         break;
       }
@@ -1463,12 +1471,12 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
                     ACE_TEXT ("using thread-pool reactor...\n")));
 
         ACE_NEW_NORETURN (reactor_impl_p,
-                          ACE_TP_Reactor (COMMON_EVENT_MAXIMUM_HANDLES,     // max num handles
-                                          true,                             // restart after EINTR ?
-                                          NULL,                             // signal handler handle
-                                          NULL,                             // timer queue handle
-                                          true,                             // mask signals ?
-                                          ACE_Select_Reactor_Token::FIFO)); // signal queue
+                          ACE_TP_Reactor (static_cast<size_t> (COMMON_EVENT_MAXIMUM_HANDLES), // max num handles
+                                          true,                                               // restart after EINTR ?
+                                          NULL,                                               // signal handler handle
+                                          NULL,                                               // timer queue handle
+                                          true,                                               // mask signals ?
+                                          ACE_Select_Reactor_Token::FIFO));                   // signal queue
 
         serializeOutput_out = true;
 
@@ -1489,7 +1497,13 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
 
         break;
       }
+      ///////////////////////////////////
+      case COMMON_REACTOR_DEV_POLL:
+#else
+      case COMMON_REACTOR_WFMO:
 #endif
+      case COMMON_REACTOR_INVALID:
+      case COMMON_REACTOR_MAX:
       default:
       {
         ACE_DEBUG ((LM_ERROR,
@@ -1550,17 +1564,6 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
         break;
       }
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-      case COMMON_PROACTOR_WIN32:
-      {
-        ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("using Win32 proactor...\n")));
-
-        ACE_NEW_NORETURN (proactor_impl_p,
-                          ACE_WIN32_Proactor (numberOfThreads_in, // parallel accesses [0: #processors]
-                                              false));            // N/A
-
-        break;
-      }
 #else
       case COMMON_PROACTOR_POSIX_AIOCB:
       {
@@ -1569,6 +1572,16 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
 
         ACE_NEW_NORETURN (proactor_impl_p,
                           ACE_POSIX_AIOCB_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
+
+        break;
+      }
+      case COMMON_PROACTOR_POSIX_CB:
+      {
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("using POSIX CB proactor...\n")));
+
+        ACE_NEW_NORETURN (proactor_impl_p,
+                          ACE_POSIX_CB_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
 
         break;
       }
@@ -1594,17 +1607,27 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
         break;
       }
 #endif
-      case COMMON_PROACTOR_POSIX_CB:
+#endif
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      case COMMON_PROACTOR_WIN32:
       {
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("using POSIX CB proactor...\n")));
+                    ACE_TEXT ("using Win32 proactor...\n")));
 
         ACE_NEW_NORETURN (proactor_impl_p,
-                          ACE_POSIX_CB_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
+                          ACE_WIN32_Proactor (numberOfThreads_in, // parallel accesses [0: #processors]
+                                              false));            // N/A
 
         break;
       }
+      ///////////////////////////////////
+      case COMMON_PROACTOR_POSIX_AIOCB:
+      case COMMON_PROACTOR_POSIX_CB:
+      case COMMON_PROACTOR_POSIX_SIG:
+      case COMMON_PROACTOR_POSIX_SUN:
 #endif
+      case COMMON_PROACTOR_INVALID:
+      case COMMON_PROACTOR_MAX:
       default:
       {
         ACE_DEBUG ((LM_ERROR,
@@ -1620,8 +1643,8 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
                         ACE_Proactor (proactor_impl_p, // implementation handle --> create new ?
 //                                      false,  // *NOTE*: --> call close() manually
 //                                              // (see finalizeEventDispatch() below)
-                                      true,   // delete in dtor ?
-                                      NULL)); // timer queue handle --> create new
+                                      true,            // delete in dtor ?
+                                      NULL));          // timer queue handle --> create new
       if (!proactor_p)
       {
         ACE_DEBUG ((LM_CRITICAL,
@@ -1646,12 +1669,13 @@ threadpool_event_dispatcher_function (void* arg_in)
 {
   COMMON_TRACE (ACE_TEXT ("::threadpool_event_dispatcher_function"));
 
-  bool use_reactor = *reinterpret_cast<bool*> (arg_in);
+  ACE_THR_FUNC_RETURN result;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  ACE_THR_FUNC_RETURN result = -1;
+  result = std::numeric_limits<unsigned long>::max ();
 #else
-  ACE_THR_FUNC_RETURN result = arg_in;
+  result = arg_in;
 #endif
+  bool use_reactor = *reinterpret_cast<bool*> (arg_in);
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 //  ACE_DEBUG ((LM_DEBUG,
@@ -1711,7 +1735,8 @@ threadpool_event_dispatcher_function (void* arg_in)
 //              ACE_TEXT ("(%t) worker leaving...\n")));
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  result = result_2;
+  if (result_2 != -1)
+    result = static_cast<ACE_THR_FUNC_RETURN> (result_2);
 #else
   result = ((result_2 == 0) ? NULL : result);
 #endif
