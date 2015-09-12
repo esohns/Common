@@ -27,8 +27,7 @@
 #include <string>
 #include <utility>
 
-//#include "ace/Synch_Traits.h"
-#include "ace/Synch.h"
+#include "ace/Synch_Traits.h"
 
 #include "gtk/gtk.h"
 
@@ -86,11 +85,10 @@ struct Common_UI_GTKState
   Common_UI_GladeXMLs_t         gladeXML;
   GSourceFunc                   initializationHook;
   // *TODO*: remove this ASAP
-  ACE_Thread_Mutex              lock;
-//  ACE_SYNCH_MUTEX               lock;
+  ACE_SYNCH_MUTEX               lock;
   Common_UI_UIRCFiles_t         RCFiles;
   ///////////////////////////////////////
-  void*                         userData;
+  gpointer                      userData; // cb user data
 };
 
 typedef Common_UI_IGTK_T<Common_UI_GTKState> Common_UI_IGTK_t;
