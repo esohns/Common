@@ -210,7 +210,7 @@ Common_File_Tools::isValidPath (const std::string& string_in)
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isValidPath"));
 
   std::string directory, file_name;
-  directory = 
+  directory =
     ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (string_in.c_str ())));
   file_name =
     ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (string_in.c_str ())));
@@ -589,7 +589,7 @@ Common_File_Tools::loadFile (const std::string& filename_in,
   // *PORTABILITY* allocate array
 //  file_out = new (std::nothrow) unsigned char[fsize];
   ACE_NEW_NORETURN (file_out,
-                    unsigned char[file_size]);
+                    unsigned char[static_cast<unsigned int> (file_size)]);
   if (!file_out)
   {
     ACE_DEBUG ((LM_CRITICAL,
@@ -607,10 +607,10 @@ Common_File_Tools::loadFile (const std::string& filename_in,
 
   // read data
   result =
-    static_cast<size_t> (ACE_OS::fread (static_cast<void*> (file_out),   // target buffer
-                                        static_cast<size_t> (file_size), // read everything ...
-                                        1,                               // ... at once
-                                        file_p));                        // handle
+    static_cast<int> (ACE_OS::fread (static_cast<void*> (file_out),   // target buffer
+                                     static_cast<size_t> (file_size), // read everything ...
+                                     1,                               // ... at once
+                                     file_p));                        // handle
   if (result != 1)
   {
     ACE_DEBUG ((LM_ERROR,
@@ -871,7 +871,7 @@ fallback:
       ACE_OS::getenv (ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE));
   if (!string_p)
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"), continuing\n"),
+                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"): \"%m\", continuing\n"),
                 ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE)));
   result = ACE_TEXT_ALWAYS_CHAR (string_p);
   return result;
@@ -970,7 +970,7 @@ fallback:
       ACE_OS::getenv (ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE));
   if (!string_p)
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"), continuing\n"),
+                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"): \"%m\", continuing\n"),
                 ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE)));
   result = ACE_TEXT_ALWAYS_CHAR (string_p);
   return result;
@@ -995,7 +995,7 @@ use_environment:
   if (!string_p)
   {
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"), falling back\n"),
+                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"): \"%m\", falling back\n"),
                 ACE_TEXT (environment_variable.c_str ())));
     goto fallback;
   } // end IF
@@ -1030,7 +1030,7 @@ use_environment:
                               NULL);                        // Arguments
     if (result_4 == 0)
     {
-      DWORD result_5 = 
+      DWORD result_5 =
         ACE_TEXT_FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM,   // dwFlags
                                 NULL,                         // lpSource
                                 result_4,                     // dwMessageId
@@ -1179,7 +1179,7 @@ use_environment:
   if (!string_p)
   {
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"), falling back\n"),
+                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"): \"%m\", falling back\n"),
                 ACE_TEXT (environment_variable.c_str ())));
     goto fallback;
   } // end IF

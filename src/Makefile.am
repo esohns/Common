@@ -25,7 +25,7 @@ include_HEADERS = \
   common_iget.h \
   common_iinitialize.h \
   common_inotify.h \
-  common_irefcount.h \
+  common_ireferencecount.h \
   common_isignal.h \
   common_istatistic.h \
   common_isubscribe.h \
@@ -58,7 +58,7 @@ libCommon_la_SOURCES = \
   common_iget.h \
   common_iinitialize.h \
   common_inotify.h \
-  common_irefcount.h \
+  common_ireferencecount.h \
   common_isignal.h \
   common_istatemachine.h \
   common_istatistic.h \
