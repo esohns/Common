@@ -954,14 +954,14 @@ Common_Tools::initializeSignals (const ACE_Sig_Set& signals_in,
     return false;
   } // end IF
 
-  // debug info
-  for (int i = 1;
-       i < ACE_NSIG;
-       i++)
-    if (signals_in.is_member (i))
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("handling signal %u: \"%S\"...\n"),
-                  i, i));
+  //// debug info
+  //for (int i = 1;
+  //     i < ACE_NSIG;
+  //     i++)
+  //  if (signals_in.is_member (i))
+  //    ACE_DEBUG ((LM_DEBUG,
+  //                ACE_TEXT ("handling signal %u: \"%S\"...\n"),
+  //                i, i));
 
   return true;
 }

@@ -84,12 +84,12 @@ Common_UI_GladeDefinition::initialize (Common_UI_GTKState& GTKState_inout)
        iterator != GTKState_inout.gladeXML.end ();
        iterator++)
   {
-    // sanity check(s)
-    ACE_ASSERT (!(*iterator).second.second);
+    if ((*iterator).second.second) continue; // already loaded
 
-    glade_XML_p = glade_xml_new ((*iterator).second.first.c_str (), // definition file
-                                 NULL,                              // root widget --> construct all
-                                 NULL);                             // domain
+    glade_XML_p =
+      glade_xml_new ((*iterator).second.first.c_str (), // definition file
+                     NULL,                              // root widget --> construct all
+                     NULL);                             // domain
 
     //// slurp whole file
     //std::ifstream file_stream ((*iterator).second.first.c_str (),

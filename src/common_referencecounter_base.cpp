@@ -110,8 +110,11 @@ Common_ReferenceCounterBase::decrease ()
     // awaken any waiters...
     if (counter_ == 0)
     {
-      // final signal
-      condition_.broadcast ();
+      // (final) signal
+      int result_2 = condition_.broadcast ();
+      if (result_2 == -1)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_Condition::broadcast(): \"%m\", continuing\n")));
 
       destroy = deleteOnZero_;
     } // end IF
@@ -138,6 +141,8 @@ Common_ReferenceCounterBase::wait (unsigned int count_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::wait"));
 
+  int result = -1;
+
   {
     // need lock
     ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
@@ -148,7 +153,10 @@ Common_ReferenceCounterBase::wait (unsigned int count_in)
                   ACE_TEXT ("waiting (count: %u)...\n"),
                   counter_));
 
-      condition_.wait ();
+      result = condition_.wait ();
+      if (result == -1)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_Condition::wait(): \"%m\", continuing\n")));
     } // end WHILE
   } // end lock scope
 

@@ -22,7 +22,7 @@
 #define COMMON_REFERENCECOUNTER_BASE_H
 
 #include "ace/Condition_Recursive_Thread_Mutex.h"
-//#include "ace/Recursive_Thread_Mutex.h"
+#include "ace/Recursive_Thread_Mutex.h"
 #include "ace/Synch_Traits.h"
 
 #include "common_exports.h"
@@ -54,9 +54,9 @@ class Common_Export Common_ReferenceCounterBase
   unsigned int                          counter_;
 
  private:
-   ACE_Condition_Recursive_Thread_Mutex condition_;
-  bool                                  deleteOnZero_;
-  mutable ACE_SYNCH_RECURSIVE_MUTEX     lock_;
+  ACE_SYNCH_RECURSIVE_CONDITION     condition_;
+  bool                              deleteOnZero_;
+  mutable ACE_SYNCH_RECURSIVE_MUTEX lock_;
 };
 
 #endif
