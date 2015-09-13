@@ -78,6 +78,8 @@
 #define COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE    "TEMP"
 #endif // defined (ACE_WIN32) || defined (ACE_WIN64)
 
+#define COMMON_LOCATION_CONFIGURATION_DIRECTORY       "etc"
+
 // // software
 
 /////////////////////////////////////////
