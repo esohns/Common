@@ -59,7 +59,7 @@ class Common_UI_Export Common_UI_GTK_Manager
                    Common_UI_GTKState*, // state handle
                    Common_UI_IGTK_t*);  // UI interface handle
 
-  // implement Common_IControl
+  // implement (part of) Common_IControl
   virtual void start ();
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?
@@ -77,6 +77,9 @@ class Common_UI_Export Common_UI_GTK_Manager
   // override ACE_Task_Base member(s)
   virtual int close (u_long = 0);
   virtual int svc (void);
+
+  // implement (part of) Common_IControl
+  virtual void initialize ();
 
   bool initializeGTK ();
 

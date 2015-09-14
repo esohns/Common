@@ -153,6 +153,16 @@ Common_UI_GTK_Manager::initialize (int argc_in,
 }
 
 void
+Common_UI_GTK_Manager::initialize ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager::initialize"));
+
+  ACE_ASSERT (false);
+  ACE_NOTSUP;
+  ACE_NOTREACHED (return;)
+}
+
+void
 Common_UI_GTK_Manager::start ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager::start"));
