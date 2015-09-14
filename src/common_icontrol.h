@@ -27,7 +27,7 @@ class Common_IControl
   inline virtual ~Common_IControl () {};
 
   // exposed interface
-  virtual void initialize () = 0;
+  //virtual void initialize () = 0;
   virtual void start () = 0;
   virtual void stop (bool = true,      // wait for completion ?
                      bool = true) = 0; // locked access ?
