@@ -21,8 +21,10 @@
 #ifndef COMMON_REFERENCECOUNTER_BASE_H
 #define COMMON_REFERENCECOUNTER_BASE_H
 
-#include "ace/Condition_Recursive_Thread_Mutex.h"
-#include "ace/Recursive_Thread_Mutex.h"
+//#include "ace/Condition_Recursive_Thread_Mutex.h"
+//#include "ace/Recursive_Thread_Mutex.h"
+#include "ace/Condition_Thread_Mutex.h"
+#include "ace/Thread_Mutex.h"
 #include "ace/Synch_Traits.h"
 
 #include "common_exports.h"
@@ -51,12 +53,14 @@ class Common_Export Common_ReferenceCounterBase
   Common_ReferenceCounterBase (unsigned int, // initial reference count
                                bool);        // delete on 0 ?
 
-  unsigned int                          counter_;
+  unsigned int            counter_;
 
  private:
-  ACE_SYNCH_RECURSIVE_CONDITION     condition_;
-  bool                              deleteOnZero_;
-  mutable ACE_SYNCH_RECURSIVE_MUTEX lock_;
+  //ACE_Condition_Recursive_Thread_Mutex condition_;
+  ACE_SYNCH_CONDITION     condition_;
+  bool                    deleteOnZero_;
+  mutable ACE_SYNCH_MUTEX lock_;
+  //mutable ACE_Recursive_Thread_Mutex   lock_;
 };
 
 #endif

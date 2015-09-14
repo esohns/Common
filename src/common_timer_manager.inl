@@ -73,6 +73,19 @@ template <typename TimerQueueType,
           typename TimerQueueAdapterType>
 void
 Common_Timer_Manager_T<TimerQueueType,
+                       TimerQueueAdapterType>::initialize ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::initialize"));
+
+  ACE_ASSERT (false);
+  ACE_NOTSUP;
+  ACE_NOTREACHED (return;)
+}
+
+template <typename TimerQueueType,
+          typename TimerQueueAdapterType>
+void
+Common_Timer_Manager_T<TimerQueueType,
                        TimerQueueAdapterType>::start ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::start"));

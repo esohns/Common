@@ -88,7 +88,9 @@ Common_ReferenceCounterBase::increase ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::increase"));
 
-  ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
+  //ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
+  //ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
+  ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
 
   return ++counter_;
 }
@@ -103,7 +105,9 @@ Common_ReferenceCounterBase::decrease ()
 
   // synch access
   {
-    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
+    //ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
+    //ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
+    ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
 
     result = --counter_;
 
@@ -131,7 +135,9 @@ Common_ReferenceCounterBase::count () const
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::count"));
 
-  ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
+  //ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
+  //ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
+  ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
 
   return counter_;
 }
@@ -144,8 +150,9 @@ Common_ReferenceCounterBase::wait (unsigned int count_in)
   int result = -1;
 
   {
-    // need lock
-    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
+    //ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
+    //ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
+    ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
 
     while (counter_ != count_in)
     {

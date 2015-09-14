@@ -63,7 +63,7 @@ class Common_Timer_Manager_T
                     const void** = 0, // return value: act
                     int = 1);         // don't call handle_close()
 
-  // implement Common_IControl
+  // implement (part of) Common_IControl
   virtual void start ();
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?
@@ -86,6 +86,9 @@ class Common_Timer_Manager_T
   ACE_UNIMPLEMENTED_FUNC (Common_Timer_Manager_T (const Common_Timer_Manager_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_Timer_Manager_T& operator= (const Common_Timer_Manager_T&))
   virtual ~Common_Timer_Manager_T ();
+
+  // implement (part of) Common_IControl
+  virtual void initialize ();
 
   // helper methods
   unsigned int flushTimers (bool = true); // locked access ?
