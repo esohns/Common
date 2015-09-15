@@ -1431,7 +1431,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
       case COMMON_REACTOR_DEV_POLL:
       {
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("using dev/poll reactor...\n")));
+                    ACE_TEXT ("using /dev/poll reactor...\n")));
 
         ACE_NEW_NORETURN (reactor_impl_p,
                           ACE_Dev_Poll_Reactor (COMMON_EVENT_MAXIMUM_HANDLES,    // max num handles
