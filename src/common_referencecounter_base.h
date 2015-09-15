@@ -25,7 +25,7 @@
 //#include "ace/Recursive_Thread_Mutex.h"
 #include "ace/Condition_Thread_Mutex.h"
 #include "ace/Thread_Mutex.h"
-#include "ace/Synch_Traits.h"
+//#include "ace/Synch_Traits.h"
 
 #include "common_exports.h"
 #include "common_ireferencecount.h"
@@ -57,10 +57,12 @@ class Common_Export Common_ReferenceCounterBase
 
  private:
   //ACE_Condition_Recursive_Thread_Mutex condition_;
-  ACE_SYNCH_CONDITION     condition_;
-  bool                    deleteOnZero_;
-  mutable ACE_SYNCH_MUTEX lock_;
+  //ACE_SYNCH_CONDITION     condition_;
+  ACE_Condition<ACE_Thread_Mutex> condition_;
+  bool                            deleteOnZero_;
   //mutable ACE_Recursive_Thread_Mutex   lock_;
+  //mutable ACE_SYNCH_MUTEX lock_;
+  mutable ACE_Thread_Mutex        lock_;
 };
 
 #endif

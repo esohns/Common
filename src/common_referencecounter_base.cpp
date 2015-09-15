@@ -107,7 +107,8 @@ Common_ReferenceCounterBase::decrease ()
   {
     //ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
     //ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
-    ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
+    //ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
+    ACE_Guard<ACE_Thread_Mutex> aGuard (lock_);
 
     result = --counter_;
 
@@ -137,7 +138,8 @@ Common_ReferenceCounterBase::count () const
 
   //ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
   //ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
-  ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
+  //ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
+  ACE_Guard<ACE_Thread_Mutex> aGuard (lock_);
 
   return counter_;
 }
@@ -152,7 +154,8 @@ Common_ReferenceCounterBase::wait (unsigned int count_in)
   {
     //ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
     //ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
-    ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
+    //ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
+    ACE_Guard<ACE_Thread_Mutex> aGuard (lock_);
 
     while (counter_ != count_in)
     {
