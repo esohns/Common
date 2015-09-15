@@ -85,9 +85,9 @@ Common_StateMachine_Base_T<StateType>::change (StateType newState_in)
   {
     ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (stateLock_);
 
-    // *NOTE*: if the implementation is 'passive', the whole operation pertaining
-    //         to newState_in may have been processed 'inline' by the current
-    //         thread and have completed by 'now'
+    // *NOTE*: if the implementation is 'passive', the whole operation
+    //         pertaining to newState_in may have been processed 'inline' by the
+    //         current thread and may have completed by 'now'
     //         --> in this case leave the state alone
     // *TODO*: this may not be the best way to implement that case (i.e. there
     //         could be intermediate states...)
