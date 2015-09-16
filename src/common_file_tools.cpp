@@ -901,23 +901,9 @@ Common_File_Tools::getUserConfigurationDirectory ()
                       buffer);                                // pszPath
   if (FAILED (result_2))
   {
-    ACE_OS::memset (buffer, 0, sizeof (buffer));
-    DWORD result_3 =
-      ACE_TEXT_FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM,    // dwFlags
-                              NULL,                          // lpSource
-                              static_cast<DWORD> (result_2), // dwMessageId
-                              MAKELANGID (LANG_NEUTRAL,
-                                          SUBLANG_DEFAULT),  // dwLanguageId
-                              buffer,                        // lpBuffer
-                              sizeof (buffer),               // nSize
-                              NULL);                         // Arguments
-    if (result_3 == 0)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to FormatMessage(%d), result was: %u: \"%m\", continuing\n"),
-                  result_2, GetLastError ()));
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to SHGetFolderPath(CSIDL_APPDATA): \"%s\", falling back\n"),
-                buffer));
+                ACE_TEXT (Common_Tools::error2String (result_2).c_str ())));
     goto fallback;
   } // end IF
 
@@ -1019,38 +1005,12 @@ use_environment:
   if (result_3 == 0)
   {
     result_3 = GetLastError ();
-    DWORD result_4 =
-      ACE_TEXT_FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM,   // dwFlags
-                              NULL,                         // lpSource
-                              result_3,                     // dwMessageId
-                              MAKELANGID (LANG_NEUTRAL,
-                                          SUBLANG_DEFAULT), // dwLanguageId
-                              buffer,                       // lpBuffer
-                              sizeof (buffer),              // nSize
-                              NULL);                        // Arguments
-    if (result_4 == 0)
-    {
-      DWORD result_5 =
-        ACE_TEXT_FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM,   // dwFlags
-                                NULL,                         // lpSource
-                                result_4,                     // dwMessageId
-                                MAKELANGID (LANG_NEUTRAL,
-                                            SUBLANG_DEFAULT), // dwLanguageId
-                                buffer,                       // lpBuffer
-                                sizeof (buffer),              // nSize
-                                NULL);                        // Arguments
-      if (result_5 == 0)
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to FormatMessage(%d), result was: %u, continuing\n"),
-                    result_4, GetLastError ()));
-    } // end IF
-
     //ACE_DEBUG ((LM_ERROR,
     //            ACE_TEXT ("failed to SHGetFolderPath(CSIDL_LOCAL_APPDATA): \"%s\", falling back\n"),
     //            buffer));
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to GetTempPath(): \"%s\", falling back\n"),
-                buffer));
+                ACE_TEXT (Common_Tools::error2String (result_3).c_str ())));
     goto fallback;
   } // end IF
   result = ACE_TEXT_ALWAYS_CHAR (buffer);
