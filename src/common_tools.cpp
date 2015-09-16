@@ -535,6 +535,38 @@ Common_Tools::getHostName ()
   return return_value;
 }
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+std::string
+Common_Tools::error2String (DWORD error_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::error2String"));
+
+  std::string result;
+
+  ACE_TCHAR buffer[BUFSIZ];
+  ACE_OS::memset (buffer, 0, sizeof (buffer));
+  DWORD result_2 =
+    ACE_TEXT_FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM,                 // dwFlags
+                            NULL,                                       // lpSource
+                            error_in,                                   // dwMessageId
+                            MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT), // dwLanguageId
+                            buffer,                                     // lpBuffer
+                            sizeof (buffer),                            // nSize
+                            NULL);                                      // Arguments
+  if (!result_2)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to FormatMessage(%d): \"%s\", aborting\n"),
+                error_in,
+                ACE_TEXT (Common_Tools::error2String (::GetLastError ()).c_str ())));
+    return result;
+  } // end IF
+  result = ACE_TEXT_ALWAYS_CHAR (buffer);
+
+  return result;
+}
+#endif
+
 bool
 Common_Tools::initializeLogging (const std::string& programName_in,
                                  const std::string& logFile_in,
@@ -1847,20 +1879,23 @@ Common_Tools::startEventDispatch (bool useReactor_in,
   } // end FOR
   ACE_Thread_Manager* thread_manager_p = ACE_Thread_Manager::instance ();
   ACE_ASSERT (thread_manager_p);
+  ACE_THR_FUNC function_p =
+    static_cast<ACE_THR_FUNC> (::threadpool_event_dispatcher_function);
+  void* arg_p = &const_cast<bool&> (useReactor_in);
   groupID_out =
-    thread_manager_p->spawn_n (numberOfDispatchThreads_in,             // # threads
-                               ::threadpool_event_dispatcher_function, // function
-                               &const_cast<bool&> (useReactor_in),     // argument
+    thread_manager_p->spawn_n (numberOfDispatchThreads_in,   // # threads
+                               function_p,                   // function
+                               arg_p,                        // argument
                                (THR_NEW_LWP     |
                                THR_JOINABLE     |
-                               THR_INHERIT_SCHED),                     // flags
-                               ACE_DEFAULT_THREAD_PRIORITY,            // priority
-                               COMMON_EVENT_THREAD_GROUP_ID,           // group id
-                               NULL,                                   // task
-                               thread_handles_p,                       // handle(s)
-                               NULL,                                   // stack(s)
-                               NULL,                                   // stack size(s)
-                               thread_names_p);                        // name(s)
+                               THR_INHERIT_SCHED),           // flags
+                               ACE_DEFAULT_THREAD_PRIORITY,  // priority
+                               COMMON_EVENT_THREAD_GROUP_ID, // group id
+                               NULL,                         // task
+                               thread_handles_p,             // handle(s)
+                               NULL,                         // stack(s)
+                               NULL,                         // stack size(s)
+                               thread_names_p);              // name(s)
   if (groupID_out == -1)
   {
     ACE_DEBUG ((LM_ERROR,

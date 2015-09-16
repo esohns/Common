@@ -69,6 +69,10 @@ class Common_Export Common_Tools
                                   std::string&); // return value: "real" name
   static std::string getHostName (); // return value: hostname
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static std::string error2String (DWORD); // error
+#endif
+
   // --- logging ---
   static bool initializeLogging (const std::string&,           // program name (i.e. argv[0])
                                  const std::string&,           // log file {"" --> disable}
