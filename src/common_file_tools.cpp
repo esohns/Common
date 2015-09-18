@@ -903,7 +903,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to SHGetFolderPath(CSIDL_APPDATA): \"%s\", falling back\n"),
-                ACE_TEXT (Common_Tools::error2String (result_2).c_str ())));
+                ACE_TEXT (Common_Tools::error2String (static_cast<DWORD> (result_2)).c_str ())));
     goto fallback;
   } // end IF
 
