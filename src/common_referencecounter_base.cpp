@@ -90,7 +90,8 @@ Common_ReferenceCounterBase::increase ()
 
   //ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
   //ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
-  ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
+  //ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
+  ACE_Guard<ACE_Thread_Mutex> aGuard (lock_);
 
   return ++counter_;
 }
