@@ -696,15 +696,15 @@ Common_File_Tools::getWorkingDirectory ()
   std::string result;
 
   // retrieve working directory
-  char cwd[PATH_MAX];
-  ACE_OS::memset (cwd, 0, sizeof(cwd));
-  if (!ACE_OS::getcwd (cwd, sizeof (cwd)))
+  ACE_TCHAR buffer[PATH_MAX];
+  ACE_OS::memset (buffer, 0, sizeof (buffer));
+  if (!ACE_OS::getcwd (buffer, sizeof (buffer)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::getcwd(): \"%m\", aborting\n")));
     return result;
   } // end IF
-  result = cwd;
+  result = ACE_TEXT_ALWAYS_CHAR (buffer);
 
   return result;
 }
