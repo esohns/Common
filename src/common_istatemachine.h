@@ -34,13 +34,15 @@ class Common_IStateMachine_T
  public:
   virtual ~Common_IStateMachine_T () {}
 
-  virtual StateType current () const = 0;
+  virtual const StateType& current () const = 0;
   virtual void initialize () = 0;
   virtual void reset () = 0;
-  virtual bool wait (const ACE_Time_Value* = NULL) = 0; // (absolute) timeout ? : block
+  // *NOTE*: users need to provide absolute values (i.e. deadline)
+  // *TODO*: allow waiting for discrete states
+  virtual bool wait (const ACE_Time_Value* = NULL) = 0; // timeout ? : block
 
   // *NOTE*: unfortunately, this cannot be static...
-  virtual std::string state2String (StateType) const = 0; // return value: state string
+  virtual std::string state2String (StateType) const = 0; // return value: state
 
  protected:
   virtual bool change (StateType) = 0; // new state

@@ -170,7 +170,4 @@ Common_ReferenceCounterBase::wait (unsigned int count_in)
                     ACE_TEXT ("failed to ACE_Condition::wait(): \"%m\", continuing\n")));
     } // end WHILE
   } // end lock scope
-
-//  ACE_DEBUG ((LM_DEBUG,
-//              ACE_TEXT ("leaving...\n")));
 }

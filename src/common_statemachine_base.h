@@ -21,9 +21,10 @@
 #ifndef COMMON_STATEMACHINE_BASE_H
 #define COMMON_STATEMACHINE_BASE_H
 
+#include "ace/Condition_T.h"
 #include "ace/Global_Macros.h"
-//#include "ace/Synch_Traits.h"
-#include "ace/Synch.h"
+#include "ace/Recursive_Thread_Mutex.h"
+#include "ace/Synch_Traits.h"
 
 #include "common_istatemachine.h"
 
@@ -32,23 +33,26 @@ class ACE_Time_Value;
 
 template <typename StateType>
 class Common_StateMachine_Base_T
- : public Common_IStateMachine_T<StateType>
+ : virtual public Common_IStateMachine_T<StateType>
 {
  public:
   Common_StateMachine_Base_T (StateType = static_cast<StateType> (-1));
   virtual ~Common_StateMachine_Base_T ();
 
   // implement (part of) Common_IStateMachine_T
-  virtual StateType current () const;
+  virtual const StateType& current () const;
 
  protected:
   virtual bool change (StateType); // new state
 
-  StateType                         state_;
-  //   *IMPORTANT NOTE*: MUST be recursive, so children can retrieve the current
-  //                     state from within onStateChange without deadlock
-  //ACE_Condition<ACE_Recursive_Thread_Mutex> myCondition;
-  mutable ACE_SYNCH_RECURSIVE_MUTEX stateLock_;
+  //   *IMPORTANT NOTE*: MUST be recursive, so child classes can retrieve the
+  //                     current state from within onStateChange without
+  //                     deadlock
+  //ACE_SYNCH_CONDITION<ACE_SYNCH_RECURSIVE_MUTEX> condition_;
+  ACE_Condition<ACE_SYNCH_RECURSIVE_MUTEX> condition_;
+  mutable ACE_SYNCH_RECURSIVE_MUTEX        stateLock_;
+
+  StateType                                state_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_StateMachine_Base_T ())

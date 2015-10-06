@@ -25,7 +25,9 @@
 
 template <typename StateType>
 Common_StateMachine_Base_T<StateType>::Common_StateMachine_Base_T (StateType state_in)
- : state_ (state_in)
+ : condition_ (stateLock_)
+ , stateLock_ ()
+ , state_ (state_in)
  //: state_ (static_cast<StateType> (-1))
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::Common_StateMachine_Base_T"));
@@ -40,7 +42,7 @@ Common_StateMachine_Base_T<StateType>::~Common_StateMachine_Base_T ()
 }
 
 template <typename StateType>
-StateType
+const StateType&
 Common_StateMachine_Base_T<StateType>::current () const
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::current"));
