@@ -153,12 +153,8 @@ Common_SignalHandler::handle_signal (int signal_in,
 //  } // end ELSE
 
 //  return result;
-// *NOTE*: Solaris (11)-specific
-#if defined (__sun) && defined (__SVR4)
-  return handle_exception (static_cast<ACE_HANDLE> (signal_in));
-#else
-  return handle_exception (reinterpret_cast<ACE_HANDLE> (signal_in));
-#endif
+  size_t fake_handle = static_cast<size_t> (signal_in);
+  return handle_exception (reinterpret_cast<ACE_HANDLE> (fake_handle));
 }
 
 //void
@@ -191,12 +187,7 @@ Common_SignalHandler::handle_exception (ACE_HANDLE handle_in)
   bool result = true;
 
 //  ACE_UNUSED_ARG (handle_in);
-// *NOTE*: Solaris (11)-specific
-#if defined (__sun) && defined (__SVR4)
-  int signal = static_cast<int> (handle_in);
-#else
-  int signal = reinterpret_cast<int> (handle_in);
-#endif
+  int signal = static_cast<int> (reinterpret_cast<size_t> (handle_in));
 
 //  std::string information;
 //  Common_Tools::retrieveSignalInfo (signal_,

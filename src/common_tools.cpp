@@ -45,6 +45,7 @@ using namespace std;
 #include "ace/High_Res_Timer.h"
 #include "ace/Log_Msg.h"
 #include "ace/Log_Msg_Backend.h"
+#include "ace/OS.h"
 // *NOTE*: Solaris (11)-specific
 #if defined (__sun) && defined (__SVR4)
 #include "ace/OS_Memory.h"
@@ -75,6 +76,9 @@ using namespace std;
 #include "common_macros.h"
 #include "common_timer_manager_common.h"
 
+// initialize statics
+unsigned int Common_Tools::randomSeed_ = 0;
+
 void
 Common_Tools::initialize ()
 {
@@ -91,6 +95,8 @@ Common_Tools::initialize ()
   //ACE_High_Res_Timer::calibrate (500000, 10);
   //ACE_DEBUG ((LM_DEBUG,
   //            ACE_TEXT ("calibrating high-resolution timer...done\n")));
+
+  randomSeed_ = COMMON_TIME_NOW.usec ();
 }
 
 Common_Timer_Manager_t*
@@ -1744,7 +1750,19 @@ threadpool_event_dispatcher_function (void* arg_in)
 //    //                   (see also: Asynch_Pseudo_Task.cpp:56)
     ACE_Proactor* proactor_p = ACE_Proactor::instance ();
     ACE_ASSERT (proactor_p);
-//#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    //// *NOTE*: for some (obscure) reason, GetQueuedCompletionStatus returns
+    ////         EACCES in many cases (seems to be a race condition). Mitigate
+    ////         by delaying the threads a little here...
+    //// *TODO*: remove this ASAP
+    //int random_value = ACE_OS::rand_r (&Common_Tools::randomSeed_);
+    //ACE_Time_Value delay (0, static_cast<suseconds_t> (random_value));
+    //result_2 = ACE_OS::sleep (delay);
+    //if (result_2 == -1)
+    //  ACE_DEBUG ((LM_ERROR,
+    //              ACE_TEXT ("(%t) failed to ACE_OS::sleep(%#T): \"%m\", continuing\n"),
+    //              &delay));
+//#else
 //    ACE_POSIX_Proactor* proactor_impl_p =
 //        dynamic_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
 //    ACE_ASSERT (proactor_impl_p);
@@ -1756,12 +1774,16 @@ threadpool_event_dispatcher_function (void* arg_in)
 //      sigset_t original_mask;
 //      Common_Tools::unblockRealtimeSignals (original_mask);
 //    } // end IF
-//#endif
+#endif
     result_2 = proactor_p->proactor_run_event_loop (NULL);
   } // end ELSE
   if (result_2 == -1)
+  {
+    int error = ACE_OS::last_error ();
+    //if (error != EACCES) // 13: happens on Win32
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("(%t) failed to handle events: \"%m\", leaving\n")));
+  } // end IF
 
 //  ACE_DEBUG ((LM_DEBUG,
 //              ACE_TEXT ("(%t) worker leaving...\n")));
@@ -1777,19 +1799,23 @@ threadpool_event_dispatcher_function (void* arg_in)
 }
 
 bool
-Common_Tools::startEventDispatch (bool useReactor_in,
+Common_Tools::startEventDispatch (const bool* useReactor_in,
                                   unsigned int numberOfDispatchThreads_in,
                                   int& groupID_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::startEventDispatch"));
 
+  // sanity check(s)
+  ACE_ASSERT (useReactor_in);
+
   int result = -1;
+  bool use_reactor = *useReactor_in;
 
   // initialize return value(s)
   groupID_out = -1;
 
   // reset event dispatch
-  if (useReactor_in)
+  if (use_reactor)
   {
     ACE_Reactor* reactor_p = ACE_Reactor::instance ();
     ACE_ASSERT (reactor_p);
@@ -1881,7 +1907,7 @@ Common_Tools::startEventDispatch (bool useReactor_in,
   ACE_ASSERT (thread_manager_p);
   ACE_THR_FUNC function_p =
     static_cast<ACE_THR_FUNC> (::threadpool_event_dispatcher_function);
-  void* arg_p = &const_cast<bool&> (useReactor_in);
+  void* arg_p = const_cast<bool*> (useReactor_in);
   groupID_out =
     thread_manager_p->spawn_n (numberOfDispatchThreads_in,   // # threads
                                function_p,                   // function

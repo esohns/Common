@@ -110,7 +110,7 @@ class Common_Export Common_Tools
                                        bool&);       // return value: output requires serialization
   // *NOTE*: the first argument is passed to the thread function as argument,
   //         so must reside on the stack (hence the reference)
-  static bool startEventDispatch (bool,         // use reactor ? : proactor
+  static bool startEventDispatch (const bool*,  // use reactor ? : proactor (thread argument)
                                   unsigned int, // # dispatching threads
                                   int&);        // return value: thread group id
   static void dispatchEvents (bool,      // use reactor ? : proactor
@@ -120,6 +120,8 @@ class Common_Export Common_Tools
                                      bool, // stop proactor ?
                                      int); // thread group id
   //static void unblockRealtimeSignals (sigset_t&); // return value: original mask
+
+  static unsigned int randomSeed_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Tools ())
