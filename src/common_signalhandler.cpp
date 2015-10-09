@@ -153,8 +153,12 @@ Common_SignalHandler::handle_signal (int signal_in,
 //  } // end ELSE
 
 //  return result;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   size_t fake_handle = static_cast<size_t> (signal_in);
   return handle_exception (reinterpret_cast<ACE_HANDLE> (fake_handle));
+#else
+  return handle_exception (static_cast<ACE_HANDLE> (signal_in));
+#endif
 }
 
 //void
@@ -187,7 +191,11 @@ Common_SignalHandler::handle_exception (ACE_HANDLE handle_in)
   bool result = true;
 
 //  ACE_UNUSED_ARG (handle_in);
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   int signal = static_cast<int> (reinterpret_cast<size_t> (handle_in));
+#else
+  int signal = handle_in;
+#endif
 
 //  std::string information;
 //  Common_Tools::retrieveSignalInfo (signal_,

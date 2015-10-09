@@ -54,7 +54,7 @@ Common_File_Tools::isReadable (const std::string& filename_in)
   if (result == -1)
   {
     int error = ACE_OS::last_error ();
-    if (error != ENOENT) // 2: not found
+    if (error != ENOENT)  // 2  : not found
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
                   ACE_TEXT (filename_in.c_str ())));

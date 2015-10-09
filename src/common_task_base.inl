@@ -47,7 +47,12 @@ Common_TaskBase_T<TaskSynchStrategyType,
 
   // auto-start ?
   if (autoStart_in)
-    open (NULL);
+  {
+    int result = open (NULL);
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_TaskBase_T::open(): \"%m\", continuing\n")));
+  } // end IF
 }
 
 template <typename TaskSynchStrategyType,
@@ -65,7 +70,10 @@ Common_TaskBase_T<TaskSynchStrategyType,
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("%d active threads in dtor --> check implementation\n"),
                 inherited::thr_count_));
-    close (1);
+    result = close (1);
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_TaskBase_T::close(1): \"%m\", continuing\n")));
 
     result = inherited::wait ();
     if (result == -1)
@@ -183,7 +191,8 @@ Common_TaskBase_T<TaskSynchStrategyType,
   if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_Task::activate(): \"%m\", aborting\n")));
+                ACE_TEXT ("failed to ACE_Task::activate(%u): \"%m\", aborting\n"),
+                threadCount_));
 
     // clean up
     delete [] thread_ids_p;

@@ -66,9 +66,6 @@ glib_log_handler (const gchar* logDomain_in,
   ACE_Log_Priority log_priority = LM_ERROR;
   switch (logLevel_in & G_LOG_LEVEL_MASK)
   {
-    //case G_LOG_FLAG_RECURSION:
-    //case G_LOG_FLAG_FATAL:
-    //  break;
     case G_LOG_LEVEL_ERROR:
       break;
     case G_LOG_LEVEL_CRITICAL:
@@ -89,7 +86,7 @@ glib_log_handler (const gchar* logDomain_in,
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown log level (was: %d), continuing"),
+                  ACE_TEXT ("invalid/unknown GLib log level (was: %d), continuing"),
                   logLevel_in));
       break;
     }
@@ -321,19 +318,33 @@ Common_UI_GTK_Manager::initializeGTK ()
   ACE_ASSERT (state_);
 
   // step1: initialize GTK
+  char* locale_p = ::setlocale (LC_ALL, "");
+  if (locale_p)
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("set locale to \"%s\"...\n"),
+                ACE_TEXT (locale_p)));
+  else
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::setlocale(): \"%m\", continuing\n")));
 
   // step1a: set log handlers
   //g_set_print_handler (glib_print_debug_handler);
   g_set_printerr_handler (glib_print_error_handler);
   //g_log_set_default_handler (glib_log_handler, NULL);
   GLogLevelFlags log_level =
-    static_cast <GLogLevelFlags> (G_LOG_LEVEL_ERROR    |
+    static_cast <GLogLevelFlags> (G_LOG_FLAG_FATAL     |
+                                  G_LOG_FLAG_RECURSION |
+                                  G_LOG_LEVEL_ERROR    |
                                   G_LOG_LEVEL_CRITICAL |
                                   G_LOG_LEVEL_WARNING  |
                                   G_LOG_LEVEL_MESSAGE  |
                                   G_LOG_LEVEL_INFO     |
                                   G_LOG_LEVEL_DEBUG);
-  g_log_set_handler (NULL,
+  u_long process_priority_mask =
+      ACE_LOG_MSG->priority_mask (ACE_Log_Msg::PROCESS);
+  if (!(process_priority_mask & LM_DEBUG))
+    log_level = static_cast <GLogLevelFlags> (log_level & ~G_LOG_LEVEL_DEBUG);
+  g_log_set_handler (G_LOG_DOMAIN,
                      log_level,
                      glib_log_handler, NULL);
 
@@ -353,27 +364,40 @@ Common_UI_GTK_Manager::initializeGTK ()
     } // end FOR
   } // end FOR
 
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
   g_thread_init (NULL);
-//#endif
   gdk_threads_init ();
-  //gdk_threads_enter ();
   if (!gtk_init_check (&argc_,
                        &argv_))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to gtk_init_check(): \"%m\", aborting\n")));
-
-    //// clean up
-    //gdk_threads_leave ();
-
+                ACE_TEXT ("failed to gtk_init_check(), aborting\n")));
     return false;
   } // end IF
+//  gtk_init (&argc_,
+//            &argv_);
+//  GOptionEntry entries_a[] = { {NULL} };
+//  GError* error_p = NULL;
+//  if (!gtk_init_with_args (&argc_,    // argc
+//                           &argv_,    // argv
+//                           NULL,      // parameter string
+//                           entries_a, // entries
+//                           NULL,      // translation domain
+//                           &error_p)) // error
+//  {
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to gtk_init_with_args(): \"%s\", aborting\n"),
+//                ACE_TEXT (error_p->message)));
+
+//    // clean up
+//    g_error_free (error_p);
+
+//    return false;
+//  } // end IF
 
   // step2: initialize (lib)glade
   glade_init ();
 
-  //// step3: init GNOME
+  //// step3: initialize GNOME
   //   GnomeClient* gnomeSession = NULL;
   //   gnomeSession = gnome_client_new();
   //   ACE_ASSERT(gnomeSession);

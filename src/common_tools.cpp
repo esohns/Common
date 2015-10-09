@@ -1751,17 +1751,6 @@ threadpool_event_dispatcher_function (void* arg_in)
     ACE_Proactor* proactor_p = ACE_Proactor::instance ();
     ACE_ASSERT (proactor_p);
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-    //// *NOTE*: for some (obscure) reason, GetQueuedCompletionStatus returns
-    ////         EACCES in many cases (seems to be a race condition). Mitigate
-    ////         by delaying the threads a little here...
-    //// *TODO*: remove this ASAP
-    //int random_value = ACE_OS::rand_r (&Common_Tools::randomSeed_);
-    //ACE_Time_Value delay (0, static_cast<suseconds_t> (random_value));
-    //result_2 = ACE_OS::sleep (delay);
-    //if (result_2 == -1)
-    //  ACE_DEBUG ((LM_ERROR,
-    //              ACE_TEXT ("(%t) failed to ACE_OS::sleep(%#T): \"%m\", continuing\n"),
-    //              &delay));
 //#else
 //    ACE_POSIX_Proactor* proactor_impl_p =
 //        dynamic_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
@@ -1778,12 +1767,8 @@ threadpool_event_dispatcher_function (void* arg_in)
     result_2 = proactor_p->proactor_run_event_loop (NULL);
   } // end ELSE
   if (result_2 == -1)
-  {
-    int error = ACE_OS::last_error ();
-    //if (error != EACCES) // 13: happens on Win32
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("(%t) failed to handle events: \"%m\", leaving\n")));
-  } // end IF
+                ACE_TEXT ("(%t) failed to handle events: \"%m\", aborting\n")));
 
 //  ACE_DEBUG ((LM_DEBUG,
 //              ACE_TEXT ("(%t) worker leaving...\n")));
