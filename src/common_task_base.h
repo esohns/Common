@@ -24,6 +24,7 @@
 #include <string>
 
 #include "ace/Global_Macros.h"
+#include "ace/Message_Queue_T.h"
 #include "ace/Task.h"
 
 #include "common_idumpstate.h"
@@ -56,10 +57,13 @@ class Common_TaskBase_T
   typedef ACE_Module<TaskSynchStrategyType,
                      TimePolicyType> MODULE_T;
 
-  Common_TaskBase_T (const std::string&, // thread name
-                     int,                // thread group id
-                     unsigned int = 1,   // # thread(s)
-                     bool = true);       // auto-start ?
+  Common_TaskBase_T (const std::string&,                         // thread name
+                     int,                                        // (thread) group id
+                     unsigned int = 1,                           // # thread(s)
+                     bool = true,                                // auto-start ?
+                     ////////////////////
+                     ACE_Message_Queue<TaskSynchStrategyType,
+                                       TimePolicyType>* = NULL); // queue handle
 
   // override ACE_Task_Base members
   virtual int open (void* = NULL);

@@ -34,9 +34,12 @@ Common_TaskBase_T<TaskSynchStrategyType,
                   TimePolicyType>::Common_TaskBase_T (const std::string& threadName_in,
                                                       int threadGroupID_in,
                                                       unsigned int threadCount_in,
-                                                      bool autoStart_in)
- : inherited (NULL, // thread manager instance
-              NULL) // message queue handle
+                                                      bool autoStart_in,
+
+                                                      ACE_Message_Queue<TaskSynchStrategyType,
+                                                                        TimePolicyType>* queue_in)
+ : inherited (NULL,     // thread manager instance
+              queue_in) // message queue handle
  , threadCount_ (threadCount_in)
  , threadName_ (threadName_in)
 {
