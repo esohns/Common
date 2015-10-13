@@ -25,8 +25,8 @@
 #include "ace/OS_Memory.h"
 #include "ace/Time_Value.h"
 
-#include "common_macros.h"
 #include "common_defines.h"
+#include "common_macros.h"
 
 template <typename TaskSynchStrategyType,
           typename TimePolicyType>
@@ -89,11 +89,11 @@ template <typename TaskSynchStrategyType,
           typename TimePolicyType>
 int
 Common_TaskBase_T<TaskSynchStrategyType,
-                  TimePolicyType>::open (void* args_in)
+                  TimePolicyType>::open (void* arg_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::open"));
 
-  ACE_UNUSED_ARG (args_in);
+  ACE_UNUSED_ARG (arg_in);
 
   // sanity check(s)
   if (inherited::thr_count_ > 0) return 0; // nothing to do
@@ -283,12 +283,12 @@ template <typename TaskSynchStrategyType,
           typename TimePolicyType>
 int
 Common_TaskBase_T<TaskSynchStrategyType,
-                  TimePolicyType>::put (ACE_Message_Block* mb_in,
-                                        ACE_Time_Value* tv_in)
+                  TimePolicyType>::put (ACE_Message_Block* messageBlock_in,
+                                        ACE_Time_Value* timeout_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::put"));
 
-  return inherited::putq (mb_in, tv_in);
+  return inherited::putq (messageBlock_in, timeout_in);
 }
 
 // *** dummy stub methods ***

@@ -1097,6 +1097,9 @@ Common_Tools::retrieveSignalInfo (int signal_in,
   } // end SWITCH
 
   information << ACE_TEXT_ALWAYS_CHAR (", signalled handle: ");
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  information << ACE_TEXT_ALWAYS_CHAR ("0x");
+#endif
   information << info_in.si_handle_;
   //information << ACE_TEXT_ALWAYS_CHAR (", array of signalled handle(s): ");
   //information << info_in.si_handles_;
