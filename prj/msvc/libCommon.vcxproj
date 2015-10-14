@@ -126,7 +126,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
-      <AdditionalDependencies>Advapi32.lib;Secur32.lib;Shell32.lib;Userenv.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Advapi32.lib;Secur32.lib;Shell32.lib;Userenv.lib;ucrtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <RandomizedBaseAddress />
       <DataExecutionPrevention />
@@ -168,7 +168,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Advapi32.lib;Secur32.lib;Shell32.lib;Userenv.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bufferoverflowU.lib;msvcrt.lib;Advapi32.lib;Kernel32.lib;Secur32.lib;Shell32.lib;Userenv.lib;ucrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AllowIsolation>
@@ -183,6 +183,8 @@
       <TurnOffAssemblyGeneration>
       </TurnOffAssemblyGeneration>
       <LinkErrorReporting>SendErrorReport</LinkErrorReporting>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
     </Link>
     <Manifest>
       <SuppressStartupBanner>false</SuppressStartupBanner>

@@ -148,6 +148,7 @@
       <TurnOffAssemblyGeneration />
       <Profile>true</Profile>
       <LinkErrorReporting>SendErrorReport</LinkErrorReporting>
+      <AdditionalDependencies>ucrtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -200,6 +201,7 @@
       <TurnOffAssemblyGeneration>
       </TurnOffAssemblyGeneration>
       <LinkErrorReporting>SendErrorReport</LinkErrorReporting>
+      <AdditionalDependencies>ucrt.lib;msvcrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <SuppressStartupBanner>false</SuppressStartupBanner>
