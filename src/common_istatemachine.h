@@ -34,7 +34,7 @@ class Common_IStateMachine_T
  public:
   virtual ~Common_IStateMachine_T () {}
 
-  virtual const StateType& current () const = 0;
+  virtual StateType current () const = 0;
   virtual void initialize () = 0;
   virtual void reset () = 0;
   // *NOTE*: users need to provide absolute (!) values (i.e. deadline)

@@ -42,7 +42,7 @@ Common_StateMachine_Base_T<StateType>::~Common_StateMachine_Base_T ()
 }
 
 template <typename StateType>
-const StateType&
+StateType
 Common_StateMachine_Base_T<StateType>::current () const
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::current"));

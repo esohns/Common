@@ -40,7 +40,7 @@ class Common_StateMachine_Base_T
   virtual ~Common_StateMachine_Base_T ();
 
   // implement (part of) Common_IStateMachine_T
-  virtual const StateType& current () const;
+  virtual StateType current () const;
 
  protected:
   virtual bool change (StateType); // new state
