@@ -5,7 +5,8 @@
 m4_define([M4_LIBCOMMON_VERSION_MAJOR], [0])
 m4_define([M4_LIBCOMMON_VERSION_MINOR], [0])
 m4_define([M4_LIBCOMMON_VERSION_MICRO], [1])
-m4_define([M4_LIBCOMMON_VERSION_DEVEL], [devel])
+dnl *TODO*: rpmbuild complains about the .spec file version string if it contains '-'
+#m4_define([M4_LIBCOMMON_VERSION_DEVEL], [devel])
 m4_define([M4_LIBCOMMON_VERSION],
           [M4_LIBCOMMON_VERSION_MAJOR.M4_LIBCOMMON_VERSION_MINOR.M4_LIBCOMMON_VERSION_MICRO[]m4_ifset([M4_LIBCOMMON_VERSION_DEVEL],-[M4_LIBCOMMON_VERSION_DEVEL])])
 m4_define([M4_LIBCOMMON_VERSION_API], [1])
@@ -22,13 +23,16 @@ m4_ifset([M4_LIBCOMMON_VERSION_DEVEL],
          [AC_DEFINE(HAVE_VERSION_DEVEL, [1], [define if a version suffix is present])])
 
 # (meta-)package name
-m4_define([M4_META_PACKAGE_NAME], [libCommon])
+m4_define([M4_PACKAGE_NAME], [libCommon])
+
+# maintainer email address
+m4_define([M4_MAINTAINER_EMAIL_ADDRESS], [eriksohns@123mail.org])
 
 AC_PREREQ([2.69])
-AC_INIT([M4_META_PACKAGE_NAME],
+AC_INIT([M4_PACKAGE_NAME],
         [M4_LIBCOMMON_VERSION],
-        [eriksohns@123mail.org],
-        [M4_META_PACKAGE_NAME],
+        [M4_MAINTAINER_EMAIL_ADDRESS],
+        [M4_PACKAGE_NAME],
         [http://www.github.com/esohns/libCommon])
 AC_CONFIG_AUX_DIR([aux_config])
 AC_CONFIG_MACRO_DIR([m4])
@@ -64,14 +68,14 @@ AC_PROG_RANLIB
 AM_PROG_AR
 
 # initialize other tools
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_INIT_AUTOMAKE([tar-ustar -Wall -Werror foreign subdir-objects])
 # build time sanity check...
 AM_SANITY_CHECK
 LT_INIT
 
 # prefix config.h
 m4_define([LIBCOMMON_CONFIG_H], [libCommon_config.h])
-AX_PREFIX_CONFIG_H([LIBCOMMON_CONFIG_H], [M4_META_PACKAGE_NAME], [config.h])
+AX_PREFIX_CONFIG_H([LIBCOMMON_CONFIG_H], [M4_PACKAGE_NAME], [config.h])
 
 #AC_LANG([C++])
 
@@ -143,9 +147,31 @@ fi
 
 # export variables (so Makefile substitutions can be made)
 #CXXFLAGS_BASE="-ansi -D_POSIX_C_SOURCE=199506L -D_REENTRANT -D_GNU_SOURCE"
-CXXFLAGS_BASE="-ansi -Wall -D_GNU_SOURCE"
+CXXFLAGS_BASE="-ansi -std=c++11 -Wall -D_GNU_SOURCE"
 CXXFLAGS="${CXXFLAGS_BASE} ${CXXFLAGS_DEBUG} ${CXXFLAGS_TRACING} ${CXXFLAGS_VALGRIND}"
 AC_SUBST(CXXFLAGS)
+
+# build modules ?
+AC_MSG_CHECKING([enable module support])
+module_support_default="yes"
+AC_ARG_ENABLE([module-support],
+              [AS_HELP_STRING([--enable-module_support], [compile submodules [default="$module_support_default"]])],
+              [case "${enableval}" in
+                 yes) module_support=yes ;;
+                 no)  module_support=no  ;;
+                 *) AC_MSG_ERROR([bad value ${enableval} for --enable-module-support]) ;;
+               esac],
+              [module_support=$module_support_default])
+AM_CONDITIONAL([BUILD_MODULES], [test x$module_support = xyes])
+if test x$module_support = xyes; then
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_RESULT([no])
+fi
+dnl AM_COND_IF([BUILD_MODULES],
+dnl           [AC_CONFIG_SUBDIRS([modules/ATCD])])
+AM_COND_IF([BUILD_MODULES],
+           [AC_CONFIG_FILES([modules/Makefile])])
 
 # checks for typedefs, structures, and compiler characteristics
 AC_TYPE_SIZE_T
@@ -184,12 +210,16 @@ AC_SEARCH_LIBS([pthread_create], [pthread], , AC_MSG_ERROR([unable to find pthre
 AC_CONFIG_HEADERS([config.h])
 
 AC_CONFIG_FILES([Makefile
+                 3rd_party/Makefile
+                 3rd_party/ACE_wrappers/Makefile
+                 3rd_party/ACE_wrappers/ace/Makefile
+                 3rd_party/ACE_wrappers/include/Makefile
+                 3rd_party/ACE_wrappers/include/makeinclude/Makefile
                  m4/Makefile
                  scripts/Makefile
-                 scripts/libCommon.pc
-                 modules/Makefile
                  src/Makefile
                  src/ui/Makefile])
+AC_CONFIG_FILES([scripts/libCommon.pc])
 
 AC_OUTPUT
 

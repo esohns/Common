@@ -24,6 +24,7 @@ include_HEADERS = \
   common_idumpstate.h \
   common_iget.h \
   common_iinitialize.h \
+  common_ilock.h \
   common_inotify.h \
   common_ireferencecount.h \
   common_isignal.h \
@@ -57,6 +58,7 @@ libCommon_la_SOURCES = \
   common_idumpstate.h \
   common_iget.h \
   common_iinitialize.h \
+  common_ilock.h \
   common_inotify.h \
   common_ireferencecount.h \
   common_isignal.h \

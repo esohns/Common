@@ -1,7 +1,22 @@
 #ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = scripts modules src
+SUBDIRS = \
+  src
+if BUILD_MODULES
+ SUBDIRS += modules
+endif
+
+DIST_SUBDIRS = \
+  3rd_party \
+  m4 \
+  scripts \
+  src
+if BUILD_MODULES
+  DIST_SUBDIRS += modules
+endif
 
 EXTRA_DIST = \
-  autogen.sh
+  autogen.sh \
+  LICENSE \
+  README.md
 

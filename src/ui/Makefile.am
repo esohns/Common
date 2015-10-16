@@ -17,6 +17,7 @@ endif
 noinst_HEADERS = \
   stdafx.h
 include_HEADERS = \
+  common_ui_common.h \
   common_ui_defines.h \
   common_ui_exports.h \
   common_ui_glade_definition.h \
@@ -29,6 +30,7 @@ include_HEADERS = \
 lib_LTLIBRARIES = libCommon_UI.la
 
 libCommon_UI_la_SOURCES = \
+  common_ui_common.h \
   common_ui_defines.h \
   common_ui_exports.h \
   common_ui_glade_definition.cpp \
@@ -49,3 +51,4 @@ libCommon_UI_la_CPPFLAGS = \
   -I$(builddir)/..
 libCommon_UI_la_LDFLAGS = \
   -version-info @LIBCOMMON_LT_VERSION_INFO@
+
