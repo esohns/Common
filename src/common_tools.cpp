@@ -1114,9 +1114,13 @@ Common_Tools::retrieveSignalInfo (int signal_in,
 
   // (try to) get user name
   char buffer[BUFSIZ];
+  //  char buffer[L_cuserid];
+  ACE_OS::memset (buffer, 0, sizeof (buffer));
+//  char* result_p = ACE_OS::cuserid (buffer);
+//  if (!result_p)
   struct passwd passwd;
   struct passwd* passwd_p = NULL;
-// *PORTABILITY*: this isn't completely portable... (man getpwuid_r)
+// *PORTABILITY*: this isn't very portable (man getpwuid_r)
   result = ::getpwuid_r (info_in.si_uid,
                          &passwd,
                          buffer,
@@ -1125,13 +1129,16 @@ Common_Tools::retrieveSignalInfo (int signal_in,
   if (result || !passwd_p)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ::getpwuid_r(%d) : \"%m\", continuing\n"),
+                ACE_TEXT ("failed to ::getpwuid_r(%u) : \"%m\", continuing\n"),
                 info_in.si_uid));
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to ACE_OS::cuserid() : \"%m\", continuing\n")));
   } // end IF
   else
   {
     information << ACE_TEXT_ALWAYS_CHAR ("[\"");
     information << passwd.pw_name;
+//    information << buffer;
     information << ACE_TEXT_ALWAYS_CHAR ("\"]");
   } // end ELSE
 

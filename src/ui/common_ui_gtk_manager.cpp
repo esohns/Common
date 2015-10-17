@@ -219,7 +219,7 @@ Common_UI_GTK_Manager::close (u_long arg_in)
     }
     case 1:
     {
-      if (inherited::thr_count () == 0)
+      if (inherited::thr_count_ == 0)
         return 0; // nothing to do
 
       if (UIInterfaceHandle_)

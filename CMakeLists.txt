@@ -1,159 +1,67 @@
 cmake_minimum_required(VERSION 2.8)
+project (libCommon)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../chance/dice)
+set (libCommon_VERSION_MAJOR 0)
+set (libCommon_VERSION_MINOR 0)
+set (libCommon_VERSION_MICRO 1)
+set (libCommon_VERSION_DEVEL devel)
 
-#configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in.cmake
+               ${CMAKE_CURRENT_BINARY_DIR}/libCommon_config.h
+               @ONLY)
 
-########### next target ###############
-set(RPG_Common_LIB_SRCS
-    rpg_XMLSchema_XML_tree.h
-    rpg_XMLSchema_XML_types.h
-    rpg_common.h
-    rpg_common_XML_parser.cpp
-    rpg_common_XML_parser.h
-    rpg_common_XML_tree.cpp
-    rpg_common_XML_tree.h
-    rpg_common_XML_types.cpp
-    rpg_common_XML_types.h
-    rpg_common_actiontype.h
-    rpg_common_amount.h
-    rpg_common_areaofeffect.h
-    rpg_common_attribute.h
-    rpg_common_basechecktypeunion.h
-    rpg_common_camp.h
-    rpg_common_checktype.h
-    rpg_common_climate.h
-    rpg_common_condition.h
-    rpg_common_countermeasure.h
-    rpg_common_creaturemetatype.h
-    rpg_common_creaturesubtype.h
-    rpg_common_creaturetype.h
-    rpg_common_defines.h
-    rpg_common_exports.h
-    rpg_common_duration.h
-    rpg_common_effectduration.h
-    rpg_common_effecttype.h
-    rpg_common_environment.h
-    rpg_common_environment_XML_tree.cpp
-    rpg_common_environment_XML_tree.h
-    rpg_common_environment_XML_types.cpp
-    rpg_common_environment_XML_types.h
-    rpg_common_environment_incl.h
-    rpg_common_file_tools.cpp
-    rpg_common_file_tools.h
-    rpg_common_icontrol.h
-    rpg_common_idumpstate.h
-    rpg_common_incl.h
-    rpg_common_irefcount.h
-    rpg_common_istatistic.h
-    rpg_common_itimer.h
-    rpg_common_macros.h
-    rpg_common_physicaldamagetype.h
-    rpg_common_plane.h
-    rpg_common_referencecounter.cpp
-    rpg_common_referencecounter.h
-    rpg_common_savereductiontype.h
-    rpg_common_savingthrow.h
-    rpg_common_savingthrowcheck.h
-    rpg_common_size.h
-    rpg_common_skill.h
-    rpg_common_subclass.h
-    rpg_common_terrain.h
-    rpg_common_timeofday.h
-    rpg_common_timer_manager.cpp
-    rpg_common_timer_manager.h
-    rpg_common_timerhandler.cpp
-    rpg_common_timerhandler.h
-    rpg_common_tools.cpp
-    rpg_common_tools.h
-    rpg_common_usage.h
-    rpg_common_xsderrorhandler.cpp
-    rpg_common_xsderrorhandler.h)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+add_subdirectory(src)
+
+set (GCC_CXXFLAGS_DEBUG "")
+option(DEBUG
+       "enable debugging" ON)
+if (DEBUG)
+  set (GCC_CXXFLAGS_DEBUG "-g -O0 -fno-inline")
+  set_property(GLOBAL PROPERTY COMPILE_DEFINITIONS _DEBUG)
+else
+  set (GCC_CXXFLAGS_DEBUG "-O3")
+  set_property(GLOBAL PROPERTY COMPILE_DEFINITIONS ACE_NDEBUG)
+endif
+
+option(TRACING
+       "enable tracing" OFF)
+if (TRACING)
+  set_property(GLOBAL PROPERTY COMPILE_DEFINITIONS COMMON_NTRACE=0)
+else
+  set_property(GLOBAL PROPERTY COMPILE_DEFINITIONS COMMON_NTRACE=1)
+endif
+
+option(VALGRIND_SUPPORT
+       "enable valgrind support" OFF)
+if (VALGRIND_SUPPORT)
+  include (CheckIncludeFiles)
+  check_include_files(valgrind/valgrind.h HAVE_VALGRIND_H)
+#  include (CheckLibraryExists)
+#  check_library_exists(libvalgrind "" "" HAVE_LIB_VALGRIND)
+  include (FindPkgConfig)
+  pkg_check_modules(PKGVALGRIND REQUIRED libvalgrind)
+  set_property(GLOBAL PROPERTY COMPILE_DEFINITIONS LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
+endif
+
+set (GCC_CXXFLAGS_BASE "-ansi -std=c++11 -Wall")
 if (CMAKE_COMPILER_IS_GNUCC)
-    set_source_files_properties(${RPG_Common_LIB_SRCS} PROPERTIES COMPILE_FLAGS "-g -march=i686 -Wall")
-endif()
-set_source_files_properties(${RPG_Common_LIB_SRCS} PROPERTIES COMPILE_DEFINITIONS RPG_COMMON_BUILD_DLL)
+  set (CMAKE_CXX_FLAGS_DEBUG "${GCC_CXXFLAGS_BASE} ${GCC_CXXFLAGS_DEBUG}")
+  set (CMAKE_CXX_FLAGS_RELEASE "${GCC_CXXFLAGS_BASE} ${GCC_CXXFLAGS_DEBUG}")
+  set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${GCC_CXXFLAGS_BASE} -g ${GCC_CXXFLAGS_DEBUG}")
+  set_property(GLOBAL PROPERTY COMPILE_DEFINITIONS _GNU_SOURCE)
+endif
 
-add_library(RPG_Common SHARED ${RPG_Common_LIB_SRCS})
+option(BUILD_MODULES
+       "build (git) sub-modules" OFF)
 
-# add_custom_target(common_bindings
-#                   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/rpg_common.xsd)
-add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/rpg_common_XML_types.cpp
-                          ${CMAKE_CURRENT_SOURCE_DIR}/rpg_common_XML_types.h
-                          ${CMAKE_CURRENT_SOURCE_DIR}/rpg_XMLSchema_XML_types.h
-                          ${CMAKE_CURRENT_SOURCE_DIR}/rpg_common_XML_tree.cpp
-                          ${CMAKE_CURRENT_SOURCE_DIR}/rpg_common_XML_tree.h
-                          ${CMAKE_CURRENT_SOURCE_DIR}/rpg_XMLSchema_XML_tree.h
-                          ${CMAKE_CURRENT_SOURCE_DIR}/rpg_common_environment_XML_types.cpp
-                          ${CMAKE_CURRENT_SOURCE_DIR}/rpg_common_environment_XML_types.h
-                   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/scripts/bindings.sh
-                   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/rpg_common.xsd
-                           ${CMAKE_CURRENT_SOURCE_DIR}/rpg_common.map
-                           ${CMAKE_CURRENT_SOURCE_DIR}/rpg_common_environment.xsd
-                           ${CMAKE_CURRENT_SOURCE_DIR}/rpg_common_environment.map
-                   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/scripts
-                   COMMENT "generating XML <--> C++ bindings...")
+# build a CPack driven installer package
+include (InstallRequiredSystemLibraries)
+set (CPACK_PACKAGE_VERSION_MAJOR ${libCommon_VERSION_MAJOR})
+set (CPACK_PACKAGE_VERSION_MINOR ${libCommon_VERSION_MINOR})
+set (CPACK_PACKAGE_VERSION_PATCH ${libCommon_VERSION_MICRO})
+set (CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE)
+set (CPACK_RESOURCE_FILE_README ${CMAKE_CURRENT_SOURCE_DIR}/README)
+include (CPack)
 
-add_dependencies(RPG_Common RPG_Dice)
-
-set_target_properties(RPG_Common PROPERTIES VERSION 1.0.0 SOVERSION 1)
-
-########### install files ###############
-install(FILES rpg_common.xsd rpg_common_environment.xsd
-        DESTINATION share/RPG/config)
-install(FILES
-        rpg_XMLSchema_XML_tree.h
-        rpg_XMLSchema_XML_types.h
-        rpg_common.h
-        rpg_common_XML_parser.h
-        rpg_common_XML_tree.h
-        rpg_common_XML_types.h
-        rpg_common_actiontype.h
-        rpg_common_amount.h
-        rpg_common_areaofeffect.h
-        rpg_common_attribute.h
-        rpg_common_basechecktypeunion.h
-        rpg_common_camp.h
-        rpg_common_checktype.h
-        rpg_common_climate.h
-        rpg_common_condition.h
-        rpg_common_countermeasure.h
-        rpg_common_creaturemetatype.h
-        rpg_common_creaturesubtype.h
-        rpg_common_creaturetype.h
-        rpg_common_defines.h
-        rpg_common_exports.h
-        rpg_common_duration.h
-        rpg_common_effecttype.h
-        rpg_common_effectduration.h
-        rpg_common_environment.h
-        rpg_common_environment_XML_tree.h
-        rpg_common_environment_XML_types.h
-        rpg_common_environment_incl.h
-        rpg_common_file_tools.h
-        rpg_common_icontrol.h
-        rpg_common_idumpstate.h
-        rpg_common_incl.h
-        rpg_common_irefcount.h
-        rpg_common_istatistic.h
-        rpg_common_itimer.h
-        rpg_common_macros.h
-        rpg_common_physicaldamagetype.h
-        rpg_common_plane.h
-        rpg_common_referencecounter.h
-        rpg_common_savereductiontype.h
-        rpg_common_savingthrow.h
-        rpg_common_savingthrowcheck.h
-        rpg_common_size.h
-        rpg_common_skill.h
-        rpg_common_subclass.h
-        rpg_common_terrain.h
-        rpg_common_timeofday.h
-        rpg_common_timer_manager.h
-        rpg_common_timerhandler.h
-        rpg_common_tools.h
-        rpg_common_usage.h
-        rpg_common_xsderrorhandler.h
-        DESTINATION include)
-install(TARGETS RPG_Common LIBRARY DESTINATION lib)

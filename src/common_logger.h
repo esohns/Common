@@ -40,8 +40,8 @@ class Common_Export Common_Logger
  : public ACE_Log_Msg_Backend
 {
  public:
-  Common_Logger (Common_MessageStack_t*, // message stack handle
-                 ACE_SYNCH_MUTEX*);      // lock handle
+  Common_Logger (Common_MessageStack_t*,      // message stack handle
+                 ACE_SYNCH_RECURSIVE_MUTEX*); // lock handle
   virtual ~Common_Logger ();
 
   // implement ACE_Log_Msg_Backend interface
@@ -59,8 +59,8 @@ class Common_Export Common_Logger
 
 //  FILE*                  buffer_;
 
-  ACE_SYNCH_MUTEX*       lock_;
-  Common_MessageStack_t* messageStack_;
+  ACE_SYNCH_RECURSIVE_MUTEX* lock_;
+  Common_MessageStack_t*     messageStack_;
 };
 
 #endif

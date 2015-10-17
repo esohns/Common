@@ -84,8 +84,9 @@ struct Common_UI_GTKState
   GSourceFunc                   finalizationHook;
   Common_UI_GladeXMLs_t         gladeXML;
   GSourceFunc                   initializationHook;
+  // *NOTE*: needs to be recursive so logging works correctly
   // *TODO*: remove this ASAP
-  ACE_SYNCH_MUTEX               lock;
+  ACE_SYNCH_RECURSIVE_MUTEX     lock;
   Common_UI_UIRCFiles_t         RCFiles;
   ///////////////////////////////////////
   gpointer                      userData; // cb user data
