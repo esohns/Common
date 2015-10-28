@@ -73,6 +73,7 @@ Common_TaskBase_T<TaskSynchStrategyType,
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("%d active threads in dtor --> check implementation\n"),
                 inherited::thr_count_));
+
     result = close (1);
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
@@ -245,9 +246,10 @@ Common_TaskBase_T<TaskSynchStrategyType,
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::close"));
 
   // *NOTE*: this method may be invoked
-  // - by an external thread closing down the active object (1)
-  // - by the worker thread which calls this after returning from svc() (0)
-  //    --> in this case, this should be a NOP...
+  //         - by an external thread closing down the active object (1)
+  //         - by the worker thread which calls this after returning from
+  //           svc() (0)
+  //           --> in this case, this should be a NOP
   switch (arg_in)
   {
     case 0:

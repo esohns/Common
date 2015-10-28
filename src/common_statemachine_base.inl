@@ -72,6 +72,9 @@ Common_StateMachine_Base_T<StateType>::change (StateType newState_in)
   } // end lock scope
 
   // invoke callback...
+  // *IMPORTANT NOTE*: note that the stateLock_ is NOT held during the callback
+  // *TODO*: implement a consistent (thread-safe/reentrant) policy
+  bool result = true;
   try
   {
     this->onChange (newState_in);
@@ -81,36 +84,47 @@ Common_StateMachine_Base_T<StateType>::change (StateType newState_in)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("caught exception in Common_IStateMachine_T::onChange(\"%s\"), aborting\n"),
                 ACE_TEXT (this->state2String (newState_in).c_str ())));
-    return false;
+    result = false;
   }
 
+  bool signal = true;
   {
     ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (stateLock_);
 
     // *NOTE*: if the implementation is 'passive', the whole operation
     //         pertaining to newState_in may have been processed 'inline' by the
-    //         current thread and may have completed by 'now'
-    //         --> in this case leave the state alone
-    // *TODO*: this may not be the best way to implement that case (i.e. there
-    //         could be intermediate states...)
+    //         current thread and may have completed by 'now'. In this case the
+    //         callback has updated the state already
+    //         --> leave the state alone (*TODO*: signal waiters in this case ?)
+    // *TODO*: this may not be the best way to implement that case (see above)
     if (previous_state == state_)
       state_ = newState_in;
   } // end lock scope
-
   //ACE_DEBUG ((LM_DEBUG,
   //            ACE_TEXT ("\"%s\" --> \"%s\"\n"),
   //            ACE_TEXT (this->state2String (previous_state).c_str ()),
   //            ACE_TEXT (this->state2String (newState_in).c_str ())));
 
-  return true;
+  // signal any waiting threads
+  if (signal)
+  {
+    int result_2 = condition_.broadcast ();
+    if (result_2 == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Condition::broadcast(): \"%m\", continuing\n")));
+  } // end IF
+
+  return result;
 }
 
 template <typename StateType>
 bool
-Common_StateMachine_Base_T<StateType>::wait (const ACE_Time_Value* timeout_in)
+Common_StateMachine_Base_T<StateType>::wait (StateType state_in,
+                                             const ACE_Time_Value* timeout_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::wait"));
 
+  ACE_UNUSED_ARG (state_in);
   ACE_UNUSED_ARG (timeout_in);
 
   ACE_ASSERT (false);

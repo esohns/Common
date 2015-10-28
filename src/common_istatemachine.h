@@ -38,8 +38,8 @@ class Common_IStateMachine_T
   virtual void initialize () = 0;
   virtual void reset () = 0;
   // *NOTE*: users need to provide absolute (!) values (i.e. deadline)
-  // *TODO*: support waiting for specific states
-  virtual bool wait (const ACE_Time_Value* = NULL) = 0; // timeout (absolute) ? : block
+  virtual bool wait (StateType,
+                     const ACE_Time_Value* = NULL) = 0; // timeout (absolute) ? : block
 
   // *NOTE*: unfortunately, this cannot be static...
   virtual std::string state2String (StateType) const = 0; // return value: state

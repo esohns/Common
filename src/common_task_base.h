@@ -67,6 +67,8 @@ class Common_TaskBase_T
 
   // override ACE_Task_Base members
   virtual int open (void* = NULL);
+  virtual int put (ACE_Message_Block*,
+                   ACE_Time_Value*);
 
   // helper methods
   // enqueue MB_STOP --> stop worker thread(s)
@@ -80,8 +82,6 @@ class Common_TaskBase_T
 
   // override/hide ACE_Task_Base members
   virtual int module_closed (void);
-  virtual int put (ACE_Message_Block*,
-                   ACE_Time_Value*);
   virtual int svc (void);
 
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T ())

@@ -1,13 +1,16 @@
 /* config.h.in.cmake */
 
-#define libCommon_VERSION_MAJOR @libCommon_VERSION_MAJOR@
-#define libCommon_VERSION_MINOR @libCommon_VERSION_MINOR@
-#define libCommon_VERSION_MICRO @libCommon_VERSION_MICRO@
-#define libCommon_VERSION_DEVEL @libCommon_VERSION_DEVEL@
+#define libCommon_VERSION_MAJOR @VERSION_MAJOR@
+#define libCommon_VERSION_MINOR @VERSION_MINOR@
+#define libCommon_VERSION_MICRO @VERSION_MICRO@
+#define libCommon_VERSION_DEVEL @VERSION_DEVEL@
+
+#define LIBCOMMON_PACKAGE "@PACKAGE@"
 
 #cmakedefine VALGRIND_SUPPORT
 
 /* Name of package */
+#cmakedefine @PACKAGE@_PACKAGE "@PACKAGE@"
 //#undef PACKAGE
 
 /* Define to the address where bug reports for this package should be sent. */

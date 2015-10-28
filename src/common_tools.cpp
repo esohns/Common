@@ -1827,9 +1827,9 @@ Common_Tools::startEventDispatch (const bool* useReactor_in,
   } // end ELSE
 
   // spawn worker(s) ?
-  // *NOTE*: if #dispatch threads == 1, event dispatch takes place in the main
-  //         thread --> do NOT spawn any workers here...
-  if (numberOfDispatchThreads_in <= 1)
+  // *NOTE*: if #dispatch threads == 0, event dispatch takes place in the main
+  //         thread --> do not spawn any workers
+  if (numberOfDispatchThreads_in == 0)
     return true;
 
   // start a (group of) worker thread(s)...
