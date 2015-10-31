@@ -30,4 +30,14 @@ class Common_IGet_T
   virtual const Type& get () const = 0; // return value: type
 };
 
+template <typename Type>
+class Common_IGetSet_T
+{
+ public:
+  inline virtual ~Common_IGetSet_T () {};
+
+  virtual const Type& get () const = 0; // return value: type
+  virtual void set (const Type&) = 0;
+};
+
 #endif
