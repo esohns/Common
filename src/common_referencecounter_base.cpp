@@ -26,19 +26,29 @@
 
 #include "common_macros.h"
 
-Common_ReferenceCounterBase::Common_ReferenceCounterBase (unsigned int initialCount_in)
- : counter_ (initialCount_in)
- , condition_ (lock_)
+Common_ReferenceCounterBase::Common_ReferenceCounterBase (long initialCount_in)
+ : inherited (initialCount_in)
+ , condition_ (lock_,
+               USYNC_THREAD,
+               NULL,
+               NULL)
  , deleteOnZero_ (false)
+ , lock_ (NULL, // name
+          NULL) // attributes
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
 
 }
 
 Common_ReferenceCounterBase::Common_ReferenceCounterBase (const Common_ReferenceCounterBase& counter_in)
- : counter_ (counter_in.counter_)
- , condition_ (counter_in.lock_) // *NOTE*: uses the same lock
+ : inherited (counter_in)
+ , condition_ (counter_in.lock_, // *NOTE*: use the same lock
+               USYNC_THREAD,
+               NULL,
+               NULL)
  , deleteOnZero_ (counter_in.deleteOnZero_)
+ , lock_ (NULL, // name
+          NULL) // attributes
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
 
@@ -51,34 +61,45 @@ Common_ReferenceCounterBase::~Common_ReferenceCounterBase ()
 }
 
 Common_ReferenceCounterBase::Common_ReferenceCounterBase ()
- : counter_ (1)
- , condition_ (lock_)
+ : inherited (1)
+ , condition_ (lock_,
+               USYNC_THREAD,
+               NULL,
+               NULL)
  , deleteOnZero_ (true)
+ , lock_ (NULL, // name
+          NULL) // attributes
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
 
 }
 
-Common_ReferenceCounterBase::Common_ReferenceCounterBase (unsigned int initialCount_in,
+Common_ReferenceCounterBase::Common_ReferenceCounterBase (long initialCount_in,
                                                           bool deleteOnZero_in)
- : counter_ (initialCount_in)
- , condition_ (lock_)
+ : inherited (initialCount_in)
+ , condition_ (lock_,
+               USYNC_THREAD,
+               NULL,
+               NULL)
  , deleteOnZero_ (deleteOnZero_in)
+ , lock_ (NULL, // name
+          NULL) // attributes
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
 
 }
 
 Common_ReferenceCounterBase&
-Common_ReferenceCounterBase::operator= (const Common_ReferenceCounterBase& rhs)
+Common_ReferenceCounterBase::operator= (const Common_ReferenceCounterBase& rhs_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::operator="));
 
-  counter_ = rhs.counter_;
+  inherited::operator= (rhs_in);
+
   // *TODO*: this will not work; using cl.exe there is a compiler problem with
   //         private member access however - fix this (check usecases first)
-  //condition_.mutex_ = rhs.lock_;
-  deleteOnZero_ = rhs.deleteOnZero_;
+  //condition_.mutex_ = rhs_in.lock_;
+  deleteOnZero_ = rhs_in.deleteOnZero_;
 
   return *this;
 }
@@ -88,12 +109,9 @@ Common_ReferenceCounterBase::increase ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::increase"));
 
-  //ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
-  //ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
   //ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
-  ACE_Guard<ACE_Thread_Mutex> aGuard (lock_);
 
-  return ++counter_;
+  return static_cast<unsigned int> (inherited::increment ());
 }
 
 unsigned int
@@ -101,35 +119,26 @@ Common_ReferenceCounterBase::decrease ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::decrease"));
 
-  unsigned int result = 0;
-  bool destroy = false;
+  long result = inherited::decrement ();
+
+  // awaken any waiter(s)...
+  int result_2 = -1;
 
   // synch access
   {
-    //ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
-    //ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
-    //ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
-    ACE_Guard<ACE_Thread_Mutex> aGuard (lock_);
+    ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
 
-    result = --counter_;
-
-    // awaken any waiters...
-    if (counter_ == 0)
-    {
-      // (final) signal
-      int result_2 = condition_.broadcast ();
-      if (result_2 == -1)
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_Condition::broadcast(): \"%m\", continuing\n")));
-
-      destroy = deleteOnZero_;
-    } // end IF
+    // (final) signal
+    result_2 = condition_.broadcast ();
+    if (result_2 == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Condition::broadcast(): \"%m\", continuing\n")));
   } // end lock scope
 
-  if (destroy)
+  if ((result == 0) && deleteOnZero_)
     delete this;
 
-  return result;
+  return static_cast<unsigned int> (result);
 }
 
 unsigned int
@@ -137,12 +146,9 @@ Common_ReferenceCounterBase::count () const
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::count"));
 
-  //ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
-  //ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
   //ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
-  ACE_Guard<ACE_Thread_Mutex> aGuard (lock_);
 
-  return counter_;
+  return static_cast<unsigned int> (inherited::refcount_.value ());
 }
 
 void
@@ -152,17 +158,15 @@ Common_ReferenceCounterBase::wait (unsigned int count_in)
 
   int result = -1;
 
+  // synch access
   {
-    //ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (lock_);
-    //ACE_Guard<ACE_Recursive_Thread_Mutex> aGuard (lock_);
-    //ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
-    ACE_Guard<ACE_Thread_Mutex> aGuard (lock_);
+    ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
 
-    while (counter_ != count_in)
+    while (inherited::refcount_.value () != static_cast<long> (count_in))
     {
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("waiting (count: %u)...\n"),
-                  counter_));
+                  inherited::refcount_.value ()));
 
       result = condition_.wait ();
       if (result == -1)

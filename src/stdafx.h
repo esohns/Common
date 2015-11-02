@@ -9,6 +9,10 @@
 #include <windows.h>
 #endif
 
+// *NOTE*: nmake complains (see also:
+//         C:\Program Files (x86)\Windows Kits\8.1\include\shared\sspi.h(64))
+//#define SECURITY_WIN32
+
 // System Library Header Files
 //#include "ace/streams.h"
 //#include "ace/Assert.h"

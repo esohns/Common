@@ -21,20 +21,20 @@
 #ifndef COMMON_REFERENCECOUNTER_BASE_H
 #define COMMON_REFERENCECOUNTER_BASE_H
 
-//#include "ace/Condition_Recursive_Thread_Mutex.h"
-//#include "ace/Recursive_Thread_Mutex.h"
+//#include "ace/Condition_T.h"
 #include "ace/Condition_Thread_Mutex.h"
-#include "ace/Thread_Mutex.h"
-//#include "ace/Synch_Traits.h"
+#include "ace/Refcountable_T.h"
+#include "ace/Synch_Traits.h"
 
 #include "common_exports.h"
 #include "common_ireferencecount.h"
 
 class Common_Export Common_ReferenceCounterBase
- : virtual public Common_IReferenceCount
+ : public ACE_Refcountable_T<ACE_SYNCH_MUTEX>
+ , virtual public Common_IReferenceCount
 {
  public:
-  Common_ReferenceCounterBase (unsigned int); // initial reference count
+  Common_ReferenceCounterBase (long); // initial count (no delete on 0)
   Common_ReferenceCounterBase (const Common_ReferenceCounterBase&);
   virtual ~Common_ReferenceCounterBase ();
 
@@ -50,19 +50,16 @@ class Common_Export Common_ReferenceCounterBase
   Common_ReferenceCounterBase ();
   // *WARNING*: "delete on 0" may not work predictably if there are
   //            any waiters (or in ANY multi-threaded context, for that matter)
-  Common_ReferenceCounterBase (unsigned int, // initial reference count
-                               bool);        // delete on 0 ?
-
-  unsigned int            counter_;
+  Common_ReferenceCounterBase (long,  // initial reference count
+                               bool); // delete on 0 ?
 
  private:
-  //ACE_Condition_Recursive_Thread_Mutex condition_;
-  //ACE_SYNCH_CONDITION     condition_;
-  ACE_Condition<ACE_Thread_Mutex> condition_;
-  bool                            deleteOnZero_;
-  //mutable ACE_Recursive_Thread_Mutex   lock_;
-  //mutable ACE_SYNCH_MUTEX lock_;
-  mutable ACE_Thread_Mutex        lock_;
+  typedef ACE_Refcountable_T<ACE_SYNCH_MUTEX> inherited;
+
+  //ACE_Condition<ACE_SYNCH_MUTEX> condition_;
+  ACE_SYNCH_CONDITION            condition_;
+  bool                           deleteOnZero_;
+  mutable ACE_SYNCH_MUTEX        lock_;
 };
 
 #endif

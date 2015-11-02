@@ -21,37 +21,43 @@
 #ifndef COMMON_STATEMACHINE_BASE_H
 #define COMMON_STATEMACHINE_BASE_H
 
-#include "ace/Global_Macros.h"
 #include "ace/Condition_T.h"
-#include "ace/Recursive_Thread_Mutex.h"
-#include "ace/Synch_Traits.h"
+#include "ace/Global_Macros.h"
 
+#include "common_iinitialize.h"
 #include "common_istatemachine.h"
 
 // forward declarations
 class ACE_Time_Value;
 
-template <typename StateType>
+template <typename LockType,
+          typename StateType>
 class Common_StateMachine_Base_T
  : virtual public Common_IStateMachine_T<StateType>
+ , public Common_IInitialize_T<LockType>
 {
  public:
-  Common_StateMachine_Base_T (StateType = static_cast<StateType> (-1));
+  Common_StateMachine_Base_T (LockType*,                                // lock handle
+                              StateType = static_cast<StateType> (-1)); // (default) state
   virtual ~Common_StateMachine_Base_T ();
 
   // implement (part of) Common_IStateMachine_T
   virtual StateType current () const;
 
+  // implement Common_IIinitialize_T
+  virtual bool initialize (const LockType&);
+
  protected:
   virtual bool change (StateType); // new state
 
-  //   *IMPORTANT NOTE*: MUST be recursive, so derived classes can retrieve the
-  //                     current state from within onStateChange() without
-  //                     deadlocking
-  ACE_SYNCH_RECURSIVE_CONDITION     condition_;
-  mutable ACE_SYNCH_RECURSIVE_MUTEX stateLock_;
+  //   *IMPORTANT NOTE*: SHOULD probably be recursive, so derived classes can
+  //                     retrieve the current state from within change()
+  //                     without deadlocking
+  //ACE_SYNCH_RECURSIVE_CONDITION     condition_;
+  ACE_Condition<LockType>* condition_;
+  mutable LockType*        stateLock_;
 
-  StateType                         state_;
+  StateType                state_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_StateMachine_Base_T ())
@@ -61,6 +67,8 @@ class Common_StateMachine_Base_T
   // implement (part of) Common_IStateMachine_T
   virtual bool wait (StateType,
                      const ACE_Time_Value* = NULL);
+
+  bool                     isInitialized_;
 };
 
 // include template implementation

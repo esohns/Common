@@ -195,7 +195,7 @@ AC_CHECK_FUNCS([realpath])
 AM_COND_IF([VALGRIND_SUPPORT],
            [PKG_CHECK_MODULES([PKGVALGRIND], [valgrind])])
 PKG_CHECK_MODULES([PKGSDL], [sdl])
-PKG_CHECK_MODULES([PKGGTK], [libpng gmodule-export-2.0 gthread-2.0 gtk+-2.0 libglade-2.0])
+PKG_CHECK_MODULES([PKGGTK], [libpng gmodule-2.0 gthread-2.0 gtk+-2.0 libglade-2.0])
 
 # checks for other libraries (non-pkg-config)
 # FIXME: Replace `main' with a function in `-lpthread':

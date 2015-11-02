@@ -23,34 +23,57 @@
 
 #include "common_macros.h"
 
-template <typename StateType>
-Common_StateMachine_Base_T<StateType>::Common_StateMachine_Base_T (StateType state_in)
- : condition_ (stateLock_)
- , stateLock_ ()
+template <typename LockType,
+          typename StateType>
+Common_StateMachine_Base_T<LockType,
+                           StateType>::Common_StateMachine_Base_T (LockType* lock_in,
+                                                                   StateType state_in)
+ : condition_ (NULL)
+ , stateLock_ (NULL)
  , state_ (state_in)
- //: state_ (static_cast<StateType> (-1))
+ , isInitialized_ (false)
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::Common_StateMachine_Base_T"));
 
+  if (lock_in)
+  {
+    if (!initialize (*lock_in))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_StateMachine_Base_T::initialize, continuing\n")));
+    } // end IF
+    else
+      stateLock_ = lock_in;
+  } // end IF
 }
 
-template <typename StateType>
-Common_StateMachine_Base_T<StateType>::~Common_StateMachine_Base_T ()
+template <typename LockType,
+          typename StateType>
+Common_StateMachine_Base_T<LockType,
+                           StateType>::~Common_StateMachine_Base_T ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::~Common_StateMachine_Base_T"));
 
+  // clean up
+  if (condition_)
+    delete condition_;
 }
 
-template <typename StateType>
+template <typename LockType,
+          typename StateType>
 StateType
-Common_StateMachine_Base_T<StateType>::current () const
+Common_StateMachine_Base_T<LockType,
+                           StateType>::current () const
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::current"));
+
+  // sanity check(s)
+  ACE_ASSERT (stateLock_);
 
   StateType result = static_cast<StateType> (-1);
 
   {
-    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (stateLock_);
+    ACE_Guard<LockType> aGuard (*stateLock_);
 
     result = state_;
   } // end lock scope
@@ -58,15 +81,52 @@ Common_StateMachine_Base_T<StateType>::current () const
   return result;
 }
 
-template <typename StateType>
+template <typename LockType,
+          typename StateType>
 bool
-Common_StateMachine_Base_T<StateType>::change (StateType newState_in)
+Common_StateMachine_Base_T<LockType,
+                           StateType>::initialize (const LockType& lock_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::initialize"));
+
+  //*NOTE*: unfortunately, ACE conditions cannot be reinitialized yet
+  if (condition_)
+  {
+    delete condition_;
+    condition_ = NULL;
+  } // end IF
+
+  ACE_NEW_NORETURN (condition_,
+                    ACE_Condition<LockType> (const_cast<LockType&> (lock_in), // lock
+                                             USYNC_THREAD, // mode
+                                             NULL,         // name
+                                             NULL));       // arg
+  if (!condition_)
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to allocate memory, aborting\n")));
+    return false;
+  } // end IF
+  stateLock_ = &const_cast<LockType&> (lock_in);
+
+  return true;
+}
+
+template <typename LockType,
+          typename StateType>
+bool
+Common_StateMachine_Base_T<LockType,
+                           StateType>::change (StateType newState_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::change"));
 
+  // sanity check(s)
+  ACE_ASSERT (condition_);
+  ACE_ASSERT (stateLock_);
+
   StateType previous_state;
   {
-    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (stateLock_);
+    ACE_Guard<LockType> aGuard (*stateLock_);
 
     previous_state = state_;
   } // end lock scope
@@ -89,7 +149,7 @@ Common_StateMachine_Base_T<StateType>::change (StateType newState_in)
 
   bool signal = true;
   {
-    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (stateLock_);
+    ACE_Guard<LockType> aGuard (*stateLock_);
 
     // *NOTE*: if the implementation is 'passive', the whole operation
     //         pertaining to newState_in may have been processed 'inline' by the
@@ -108,7 +168,7 @@ Common_StateMachine_Base_T<StateType>::change (StateType newState_in)
   // signal any waiting threads
   if (signal)
   {
-    int result_2 = condition_.broadcast ();
+    int result_2 = condition_->broadcast ();
     if (result_2 == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Condition::broadcast(): \"%m\", continuing\n")));
@@ -117,9 +177,11 @@ Common_StateMachine_Base_T<StateType>::change (StateType newState_in)
   return result;
 }
 
-template <typename StateType>
+template <typename LockType,
+          typename StateType>
 bool
-Common_StateMachine_Base_T<StateType>::wait (StateType state_in,
+Common_StateMachine_Base_T<LockType,
+                           StateType>::wait (StateType state_in,
                                              const ACE_Time_Value* timeout_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::wait"));

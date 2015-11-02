@@ -4,20 +4,52 @@ cmake_minimum_required (VERSION 2.8)
 include (CheckFunctionExists)
 check_function_exists (strerror HAVE_FUNC_STRERROR)
 check_function_exists (getcwd HAVE_FUNC_GETCWD)
-check_function_exists (gettimeofday HAVE_FUNC_GETTIMEOFDAY)
+if (UNIX)
+ check_function_exists (gettimeofday HAVE_FUNC_GETTIMEOFDAY)
+endif ()
 check_function_exists (memset HAVE_FUNC_MEMSET)
 check_function_exists (mkdir HAVE_FUNC_MKDIR)
-check_function_exists (uname HAVE_FUNC_UNAME)
-check_function_exists (realpath HAVE_FUNC_REALPATH)
+if (UNIX)
+ check_function_exists (uname HAVE_FUNC_UNAME)
+endif ()
+if (UNIX)
+ check_function_exists (realpath HAVE_FUNC_REALPATH)
+endif ()
 
-include (CheckLibraryExists)
-check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
-find_library (HAVE_LIB_ACE libACE)
-#add_dependencies (${PROJECT_NAME} ACE)
+if (UNIX)
+ include (CheckLibraryExists)
+ check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
+endif ()
 
-include (FindPkgConfig)
-#pkg_check_modules (sdl)
-pkg_check_modules (PKGGTK REQUIRED libpng gmodule-export-2.0 gthread-2.0 gtk+-2.0 libglade-2.0)
+set (ACE_LIB_FILE libACE.so)
+if (UNIX)
+ if (DEFINED ENV{ACE_ROOT})
+  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
+                PATHS ENV ACE_ROOT
+                PATH_SUFFIXES build/linux/lib
+                DOC "searching for ${ACE_LIB_FILE}")
+ else ()
+  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
+                DOC "searching for ${ACE_LIB_FILE} (system paths)")
+ endif ()
+elseif (WIN32)
+ if (CMAKE_BUILD_TYPE STREQUAL Debug)
+  set (LIB_FILE_SUFFIX d)
+ endif ()
+ unset (ACE_LIB_FILE)
+ set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
+ find_library (ACE_LIBRARY ${ACE_LIB_FILE}
+               PATHS ENV ACE_ROOT
+               PATH_SUFFIXES lib\\${CMAKE_BUILD_TYPE}\\Win32
+               DOC "searching for ${ACE_LIB_FILE}")
+endif ()
+#if (NOT EXISTS ACE_LIBRARY)
+if (NOT ACE_LIBRARY)
+ message (FATAL_ERROR "could not find ${ACE_LIB_FILE} (was: \"${ACE_LIBRARY}\"), aborting")
+endif ()
+
+#include (FindPkgConfig)
+#pkg_check_modules (PKG_ACE REQUIRED ACE)
 
 add_definitions (-DHAVE_CONFIG_H)
 #set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
@@ -76,11 +108,23 @@ set (${PROJECT_NAME}_LIB_SRCS
 #if (CMAKE_COMPILER_IS_GNUCC)
 #    set_source_files_properties (${libCommon_LIB_SRCS} PROPERTIES COMPILE_FLAGS "-g -Wall")
 #endif ()
-set_source_files_properties (${libCommon_LIB_SRCS} PROPERTIES COMPILE_DEFINITIONS COMMON_BUILD_DLL)
+set_source_files_properties (${Common_LIB_SRCS} PROPERTIES COMPILE_DEFINITIONS COMMON_BUILD_DLL)
 
-add_library (Common SHARED ${libCommon_LIB_SRCS})
+add_library (${PROJECT_NAME} SHARED ${Common_LIB_SRCS})
 
-set_target_properties (Common PROPERTIES VERSION 1.0.0 SOVERSION 1)
+#add_dependencies (${PROJECT_NAME} ACE)
+
+set_target_properties (${PROJECT_NAME} PROPERTIES VERSION 1.0.0 SOVERSION 1)
+
+if (WIN32)
+ target_link_libraries (${PROJECT_NAME} ${ACE_LIBRARY})
+ target_link_libraries (${PROJECT_NAME} Secur32.lib)
+ target_link_libraries (${PROJECT_NAME} Userenv.lib)
+endif ()
+
+# add all targets to the build-tree export set
+export (TARGETS ${PROJECT_NAME}
+        FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
 install (FILES
@@ -119,6 +163,11 @@ install (FILES
          common_timer_manager_common.h
          common_tools.h
          DESTINATION include)
-install (TARGETS
-         Common
-         LIBRARY DESTINATION lib)
+install (TARGETS ${PROJECT_NAME}
+         EXPORT ${PROJECT_NAME}Targets
+         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
+         LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
+         RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
+         COMPONENT dev)
+
+add_subdirectory (ui)
