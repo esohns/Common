@@ -105,16 +105,12 @@ set (${PROJECT_NAME}_LIB_SRCS
      stdafx.cpp
      stdafx.h)
 
-#if (CMAKE_COMPILER_IS_GNUCC)
-#    set_source_files_properties (${libCommon_LIB_SRCS} PROPERTIES COMPILE_FLAGS "-g -Wall")
-#endif ()
-set_source_files_properties (${Common_LIB_SRCS} PROPERTIES COMPILE_DEFINITIONS COMMON_BUILD_DLL)
-
 add_library (${PROJECT_NAME} SHARED ${Common_LIB_SRCS})
 
 #add_dependencies (${PROJECT_NAME} ACE)
 
-set_target_properties (${PROJECT_NAME} PROPERTIES VERSION 1.0.0 SOVERSION 1)
+set_target_properties (${PROJECT_NAME} PROPERTIES DEFINE_SYMBOL COMMON_BUILD_DLL)
+set_target_properties (${PROJECT_NAME} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 if (WIN32)
  target_link_libraries (${PROJECT_NAME} ${ACE_LIBRARY})

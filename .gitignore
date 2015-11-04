@@ -46,11 +46,9 @@ build/
 .kdev4/
 cmake/
 
+# QtCreator
+CMakeLists.txt.user
+
 # MSVC
 Debug
 Release
-
-/prj/solstudio/libCommon/build/
-/prj/solstudio/libCommon/dist/
-/prj/solstudio/libCommon_UI/build/
-
