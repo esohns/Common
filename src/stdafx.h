@@ -2,7 +2,7 @@
 //  or project specific include files that are used frequently, but
 //      are changed infrequently
 //
-#if defined _MSC_VER
+#if defined (_MSC_VER)
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 
 // Windows Header Files
@@ -11,7 +11,9 @@
 
 // *NOTE*: nmake complains (see also:
 //         C:\Program Files (x86)\Windows Kits\8.1\include\shared\sspi.h(64))
-//#define SECURITY_WIN32
+#if defined (_MSC_VER)
+#define SECURITY_WIN32
+#endif
 
 // System Library Header Files
 //#include "ace/streams.h"

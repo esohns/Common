@@ -28,6 +28,7 @@
 #include "common_exports.h"
 
 class Common_Export Common_File_Tools
+//class Common_File_Tools
 {
  public:
   static bool createDirectory (const std::string&); // directory

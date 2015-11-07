@@ -33,10 +33,8 @@
 // forward declaration(s)
 class ACE_Log_Record;
 
-/**
-  @author Erik Sohns <erik.sohns@web.de>
- */
 class Common_Export Common_Logger
+//class Common_Logger
  : public ACE_Log_Msg_Backend
 {
  public:

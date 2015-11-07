@@ -67,8 +67,8 @@ Common_StateMachine_Base_T<LockType,
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::current"));
 
-  // sanity check(s)
-  ACE_ASSERT (stateLock_);
+  if (!stateLock_)
+    return state_;
 
   StateType result = static_cast<StateType> (-1);
 

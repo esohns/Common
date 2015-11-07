@@ -41,6 +41,7 @@ class ACE_Time_Value;
 ACE_THR_FUNC_RETURN threadpool_event_dispatcher_function (void*);
 
 class Common_Export Common_Tools
+//class Common_Tools
 {
  public:
   static void initialize ();

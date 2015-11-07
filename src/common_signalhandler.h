@@ -22,10 +22,10 @@
 #define COMMON_SIGNALHANDLER_H
 
 #include "ace/Asynch_IO.h"
+#include "ace/config-macros.h"
 #include "ace/Event_Handler.h"
 #include "ace/Global_Macros.h"
 #include "ace/OS.h"
-//#include "ace/Time_Value.h"
 
 #include "common_exports.h"
 
@@ -33,6 +33,7 @@
 class Common_ISignal;
 
 class Common_Export Common_SignalHandler
+//class Common_SignalHandler
  : public ACE_Handler
  , public ACE_Event_Handler
 {

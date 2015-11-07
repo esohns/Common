@@ -21,8 +21,9 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{06296185-3E70-472E-8B65-6F552AB1E283}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>libCommon_UI</RootNamespace>
+    <RootNamespace>libCommonUI</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <ProjectName>libCommonUI</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -88,6 +89,7 @@
     <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
     <GenerateManifest>false</GenerateManifest>
     <EmbedManifest>false</EmbedManifest>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -129,8 +131,9 @@
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FloatingPointExceptions>true</FloatingPointExceptions>
-      <OpenMPSupport>false</OpenMPSupport>
-      <DisableLanguageExtensions />
+      <OpenMPSupport>
+      </OpenMPSupport>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <ShowIncludes />
       <ErrorReporting>Send</ErrorReporting>
@@ -229,8 +232,9 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FloatingPointExceptions>true</FloatingPointExceptions>
-      <OpenMPSupport>false</OpenMPSupport>
-      <DisableLanguageExtensions />
+      <OpenMPSupport>
+      </OpenMPSupport>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <BrowseInformation>true</BrowseInformation>
       <ShowIncludes />

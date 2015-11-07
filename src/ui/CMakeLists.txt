@@ -65,6 +65,8 @@ if (WIN32)
  target_link_libraries (${PROJECT_NAME}UI ${COMMON_TARGET_NAME})
 endif ()
 
+# *WARNING*: linking libglade-2.dll(.a) requires "/SAFESEH:NO""
+set_target_properties (${PROJECT_NAME}UI PROPERTIES LINK_FLAGS /SAFESEH:NO)
 set_target_properties (${PROJECT_NAME}UI PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
 set_target_properties (${PROJECT_NAME}UI PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
