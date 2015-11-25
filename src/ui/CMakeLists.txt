@@ -8,8 +8,6 @@ include (FindPkgConfig)
 #pkg_check_modules (PKG_ACE REQUIRED ACE)
 pkg_check_modules (PKG_GTK_GLADE REQUIRED libpng gmodule-2.0 gthread-2.0 gtk+-2.0 libglade-2.0)
 
-#include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../modules/ATCD/ACE)
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE)
 if (UNIX)
  include_directories (${PKG_GTK_GLADE_INCLUDE_DIRS})
 elseif (WIN32)
@@ -66,7 +64,9 @@ if (WIN32)
 endif ()
 
 # *WARNING*: linking libglade-2.dll(.a) requires "/SAFESEH:NO""
-set_target_properties (${PROJECT_NAME}UI PROPERTIES LINK_FLAGS /SAFESEH:NO)
+if (WIN32)
+ set_target_properties (${PROJECT_NAME}UI PROPERTIES LINK_FLAGS /SAFESEH:NO)
+endif ()
 set_target_properties (${PROJECT_NAME}UI PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
 set_target_properties (${PROJECT_NAME}UI PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 

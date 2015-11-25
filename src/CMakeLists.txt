@@ -26,7 +26,7 @@ if (UNIX)
  if (DEFINED ENV{ACE_ROOT})
   find_library (ACE_LIBRARY ${ACE_LIB_FILE}
                 PATHS ENV ACE_ROOT
-                PATH_SUFFIXES build/linux/lib
+                PATH_SUFFIXES lib
                 DOC "searching for ${ACE_LIB_FILE}")
  else ()
   find_library (ACE_LIBRARY ${ACE_LIB_FILE}
@@ -54,8 +54,11 @@ endif ()
 add_definitions (-DHAVE_CONFIG_H)
 #set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
 
-#include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../modules/ATCD/ACE)
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../ATCD/ACE)
+if (UNIX)
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE)
+elseif (WIN32)
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../ATCD/ACE)
+endif ()
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/..)
 
 ############## next target ################

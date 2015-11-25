@@ -16,7 +16,7 @@ endif ()
 cmake_policy (SET CMP0048 NEW) # allow project VERSION
 project (Common
          VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-         LANGUAGES C CXX)
+         LANGUAGES CXX C)
 
 # override the installation directories ?
 set (INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
