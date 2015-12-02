@@ -21,13 +21,34 @@
 #ifndef COMMON_ITIMER_H
 #define COMMON_ITIMER_H
 
+#include "ace/Asynch_IO.h"
+//#include "ace/Event_Handler.h"
+#include "ace/Time_Value.h"
+
+// forward declarations
+class ACE_Event_Handler;
+
 class Common_ITimer
 {
  public:
   virtual ~Common_ITimer () {}
 
   // exposed interface
-  virtual void handleTimeout (const void*) = 0; // argument
+  // proactor version
+  virtual long schedule_timer (ACE_Handler&,                                      // event handler
+                               const void*,                                       // act
+                               const ACE_Time_Value&,                             // delay
+                               const ACE_Time_Value& = ACE_Time_Value::zero) = 0; // interval
+  // *NOTE*: API adopted from ACE_Reactor_Timer_Interface
+  virtual long schedule_timer (ACE_Event_Handler*,                                // event handler
+                               const void*,                                       // act
+                               const ACE_Time_Value&,                             // delay
+                               const ACE_Time_Value& = ACE_Time_Value::zero) = 0; // interval
+  virtual int reset_timer_interval (long,                       // timer id
+                                    const ACE_Time_Value&) = 0; // interval
+  virtual int cancel_timer (long,             // timer id
+                            const void** = 0, // return value: act
+                            int = 1) = 0;     // don't call handle_close()
 };
 
 #endif

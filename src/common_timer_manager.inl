@@ -27,10 +27,8 @@
 #include "common_itimer.h"
 #include "common_macros.h"
 
-template <typename TimerQueueType,
-          typename TimerQueueAdapterType>
-Common_Timer_Manager_T<TimerQueueType,
-                       TimerQueueAdapterType>::Common_Timer_Manager_T ()
+template <typename TimerQueueAdapterType>
+Common_Timer_Manager_T<TimerQueueAdapterType>::Common_Timer_Manager_T ()
  : inherited (ACE_Thread_Manager::instance (), // thread manager --> use default
               NULL)                            // timer queue --> allocate (dummy) temp first :( *TODO*
  , configuration_ ()
@@ -48,10 +46,8 @@ Common_Timer_Manager_T<TimerQueueType,
 //  start ();
 }
 
-template <typename TimerQueueType,
-          typename TimerQueueAdapterType>
-Common_Timer_Manager_T<TimerQueueType,
-                       TimerQueueAdapterType>::~Common_Timer_Manager_T ()
+template <typename TimerQueueAdapterType>
+Common_Timer_Manager_T<TimerQueueAdapterType>::~Common_Timer_Manager_T ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::~Common_Timer_Manager_T"));
 
@@ -69,24 +65,21 @@ Common_Timer_Manager_T<TimerQueueType,
     delete timerQueue_;
 }
 
-template <typename TimerQueueType,
-          typename TimerQueueAdapterType>
+template <typename TimerQueueAdapterType>
 void
-Common_Timer_Manager_T<TimerQueueType,
-                       TimerQueueAdapterType>::initialize ()
+Common_Timer_Manager_T<TimerQueueAdapterType>::initialize ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::initialize"));
 
   ACE_ASSERT (false);
   ACE_NOTSUP;
+
   ACE_NOTREACHED (return;)
 }
 
-template <typename TimerQueueType,
-          typename TimerQueueAdapterType>
+template <typename TimerQueueAdapterType>
 void
-Common_Timer_Manager_T<TimerQueueType,
-                       TimerQueueAdapterType>::start ()
+Common_Timer_Manager_T<TimerQueueAdapterType>::start ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::start"));
 
@@ -134,11 +127,9 @@ Common_Timer_Manager_T<TimerQueueType,
               thread_ids[0]));
 }
 
-template <typename TimerQueueType,
-          typename TimerQueueAdapterType>
+template <typename TimerQueueAdapterType>
 void
-Common_Timer_Manager_T<TimerQueueType,
-                       TimerQueueAdapterType>::stop (bool waitForCompletion_in,
+Common_Timer_Manager_T<TimerQueueAdapterType>::stop (bool waitForCompletion_in,
                                                      bool lockedAccess_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::stop"));
@@ -168,22 +159,18 @@ Common_Timer_Manager_T<TimerQueueType,
                 flushed_timers));
 }
 
-template <typename TimerQueueType,
-          typename TimerQueueAdapterType>
+template <typename TimerQueueAdapterType>
 bool
-Common_Timer_Manager_T<TimerQueueType,
-                       TimerQueueAdapterType>::isRunning () const
+Common_Timer_Manager_T<TimerQueueAdapterType>::isRunning () const
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::isRunning"));
 
   return (inherited::thr_count () > 0);
 }
 
-template <typename TimerQueueType,
-          typename TimerQueueAdapterType>
+template <typename TimerQueueAdapterType>
 unsigned int
-Common_Timer_Manager_T<TimerQueueType,
-                       TimerQueueAdapterType>::flushTimers (bool lockedAccess_in)
+Common_Timer_Manager_T<TimerQueueAdapterType>::flushTimers (bool lockedAccess_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::flushTimers"));
 
@@ -261,11 +248,9 @@ Common_Timer_Manager_T<TimerQueueType,
   return return_value;
 }
 
-template <typename TimerQueueType,
-          typename TimerQueueAdapterType>
+template <typename TimerQueueAdapterType>
 bool
-Common_Timer_Manager_T<TimerQueueType,
-                       TimerQueueAdapterType>::initializeTimerQueue ()
+Common_Timer_Manager_T<TimerQueueAdapterType>::initializeTimerQueue ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::initializeTimerQueue"));
 
@@ -347,11 +332,11 @@ Common_Timer_Manager_T<TimerQueueType,
                 ACE_TEXT ("failed to allocate memory, aborting\n")));
     return false;
   } // end IF
-  timerQueue_ = dynamic_cast<TimerQueueType*> (timer_queue_p);
+  timerQueue_ = dynamic_cast<TIMER_QUEUE_T*> (timer_queue_p);
   if (!timerQueue_)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("dynamic_cast<TimerQueueType> failed, aborting\n")));
+                ACE_TEXT ("dynamic_cast<TimerQueueAdapterType::TIMER_QUEUE*> failed, aborting\n")));
 
     // clean up
     delete timer_queue_p;
@@ -377,11 +362,9 @@ Common_Timer_Manager_T<TimerQueueType,
   return true;
 }
 
-template <typename TimerQueueType,
-          typename TimerQueueAdapterType>
+template <typename TimerQueueAdapterType>
 long
-Common_Timer_Manager_T<TimerQueueType,
-                       TimerQueueAdapterType>::schedule_timer (ACE_Handler& handler_in,
+Common_Timer_Manager_T<TimerQueueAdapterType>::schedule_timer (ACE_Handler& handler_in,
                                                                const void* act_in,
                                                                const ACE_Time_Value& delay_in,
                                                                const ACE_Time_Value& interval_in)
@@ -424,11 +407,9 @@ Common_Timer_Manager_T<TimerQueueType,
 
   return result;
 }
-template <typename TimerQueueType,
-          typename TimerQueueAdapterType>
+template <typename TimerQueueAdapterType>
 long
-Common_Timer_Manager_T<TimerQueueType,
-                       TimerQueueAdapterType>::schedule_timer (ACE_Event_Handler* handler_in,
+Common_Timer_Manager_T<TimerQueueAdapterType>::schedule_timer (ACE_Event_Handler* handler_in,
                                                                const void* act_in,
                                                                const ACE_Time_Value& delay_in,
                                                                const ACE_Time_Value& interval_in)
@@ -490,11 +471,9 @@ Common_Timer_Manager_T<TimerQueueType,
   return result;
 }
 
-template <typename TimerQueueType,
-          typename TimerQueueAdapterType>
+template <typename TimerQueueAdapterType>
 int
-Common_Timer_Manager_T<TimerQueueType,
-                       TimerQueueAdapterType>::reset_timer_interval (long timerID_in,
+Common_Timer_Manager_T<TimerQueueAdapterType>::reset_timer_interval (long timerID_in,
                                                                      const ACE_Time_Value& interval_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::reset_timer_interval"));
@@ -546,11 +525,9 @@ Common_Timer_Manager_T<TimerQueueType,
   return result;
 }
 
-template <typename TimerQueueType,
-          typename TimerQueueAdapterType>
+template <typename TimerQueueAdapterType>
 int
-Common_Timer_Manager_T<TimerQueueType,
-                       TimerQueueAdapterType>::cancel_timer (long timerID_in,
+Common_Timer_Manager_T<TimerQueueAdapterType>::cancel_timer (long timerID_in,
                                                              const void** act_out,
                                                              int dontCallHandleClose_in)
 {
@@ -616,11 +593,9 @@ Common_Timer_Manager_T<TimerQueueType,
   return result;
 }
 
-template <typename TimerQueueType,
-          typename TimerQueueAdapterType>
+template <typename TimerQueueAdapterType>
 void
-Common_Timer_Manager_T<TimerQueueType,
-                       TimerQueueAdapterType>::dump_state () const
+Common_Timer_Manager_T<TimerQueueAdapterType>::dump_state () const
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::dump_state"));
 
@@ -632,11 +607,9 @@ Common_Timer_Manager_T<TimerQueueType,
   } // end lock scope
 }
 
-template <typename TimerQueueType,
-          typename TimerQueueAdapterType>
+template <typename TimerQueueAdapterType>
 bool
-Common_Timer_Manager_T<TimerQueueType,
-                       TimerQueueAdapterType>::initialize (const Common_TimerConfiguration& configuration_in)
+Common_Timer_Manager_T<TimerQueueAdapterType>::initialize (const Common_TimerConfiguration& configuration_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::initialize"));
 

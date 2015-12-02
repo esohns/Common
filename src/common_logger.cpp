@@ -25,8 +25,8 @@
 
 #include "ace/Guard_T.h"
 #include "ace/Log_Msg.h"
-#include "ace/Log_Record.h"
-#include "ace/OS.h"
+//#include "ace/OS.h"
+#include "ace/Recursive_Thread_Mutex.h"
 
 #include "common_defines.h"
 #include "common_macros.h"

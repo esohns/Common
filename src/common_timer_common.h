@@ -35,10 +35,19 @@
 #include "ace/Timer_Heap_T.h"
 #include "ace/Timer_List_T.h"
 #include "ace/Timer_Wheel_T.h"
+// *NOTE*: try not to include this header in .h files (it's poisoned)
+// *TODO*: replace inclusion of Condition_Recursive_Thread_Mutex.h
+//         with Synch_Traits.h --> submit an ACE issue
 #include "ace/Timer_Queue_Adapters.h"
 #include "ace/Timer_Queue_T.h"
 
 #include "common_time_common.h"
+
+//// forward declarations
+//template <class TQ, class TYPE>
+//class ACE_Async_Timer_Queue_Adapter;
+//template <class TQ, class TYPE>
+//class ACE_Thread_Timer_Queue_Adapter;
 
 // *** timer queue ***
 // *NOTE*: ensure a minimal amount of locking

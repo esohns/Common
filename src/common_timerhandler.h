@@ -28,14 +28,14 @@
 #include "common_exports.h"
 
 // forward declarations
-class Common_ITimer;
+class Common_ITimerHandler;
 
 class Common_Export Common_TimerHandler
  : public ACE_Event_Handler
 {
  public:
-  Common_TimerHandler (Common_ITimer*, // dispatch interface
-                       bool = false);  // invoke only once ?
+  Common_TimerHandler (Common_ITimerHandler*, // dispatch interface
+                       bool = false);         // invoke only once ?
   virtual ~Common_TimerHandler ();
 
   // implement specific behaviour
@@ -49,8 +49,8 @@ class Common_Export Common_TimerHandler
   ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler (const Common_TimerHandler&))
   ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler& operator= (const Common_TimerHandler&))
 
-  Common_ITimer* interfaceHandle_;
-  bool           isOneShot_;
+  Common_ITimerHandler* handler_;
+  bool                  isOneShot_;
 };
 
 #endif

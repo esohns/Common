@@ -25,16 +25,13 @@
 
 #include "ace/Global_Macros.h"
 #include "ace/Log_Msg_Backend.h"
+#include "ace/Log_Record.h"
 #include "ace/Synch_Traits.h"
 
 #include "common.h"
 #include "common_exports.h"
 
-// forward declaration(s)
-class ACE_Log_Record;
-
 class Common_Export Common_Logger
-//class Common_Logger
  : public ACE_Log_Msg_Backend
 {
  public:

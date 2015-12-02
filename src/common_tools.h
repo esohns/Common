@@ -30,13 +30,13 @@
 
 #include "common.h"
 #include "common_exports.h"
-#include "common_timer_manager_common.h"
 
 // forward declaration(s)
 class ACE_Event_Handler;
 class ACE_Log_Msg_Backend;
 class ACE_Sig_Set;
 class ACE_Time_Value;
+class Common_ITimer;
 
 ACE_THR_FUNC_RETURN threadpool_event_dispatcher_function (void*);
 
@@ -47,7 +47,7 @@ class Common_Export Common_Tools
   static void initialize ();
 
   // --- singleton ---
-  static Common_Timer_Manager_t* getTimerManager ();
+  static Common_ITimer* getTimerManager ();
 
   // --- strings ---
   // use this to generate a "condensed" period string

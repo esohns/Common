@@ -1,5 +1,5 @@
 @rem //%%%FILE%%%////////////////////////////////////////////////////////////////////
-@rem // File Name: init_ACE.bat
+@rem // File Name: initialize_ACE.bat
 @rem //
 @rem #// arguments: linux | solaris | win32
 @rem #// History:
@@ -27,20 +27,28 @@ if NOT "%1"=="linux" if NOT "%1"=="solaris" if NOT "%1"=="win32" (
  goto Print_Usage
 )
 
+set PROJECT_ROOT=%~dp0..
+
 @rem copy config.h
-set SourceDirectory=%~dp0\..\3rd_party\ACE_wrappers\ace
+set SourceDirectory=%PROJECT_ROOT%\3rd_party\ACE_wrappers\ace
 if NOT exist "%SourceDirectory%" (
  echo invalid directory ^(was: "%SourceDirectory%"^)^, exiting
  goto Failed
 )
-set ACE_ROOT=D:\projects\ATCD\ACE
+set ACE_ROOT_DEFAULT=%PROJECT_ROOT%\..\ATCD\ACE
+if "%ACE_ROOT%" == "" (
+ set ACE_ROOT=%ACE_ROOT_DEFAULT%
+ echo "^%ACE_ROOT^%" not set^, default to ^"%ACE_ROOT_DEFAULT%^"
+) else (
+ echo "^%ACE_ROOT^%" set to ^"%ACE_ROOT%^"...
+)
 if NOT exist "%ACE_ROOT%" (
  echo invalid directory ^(was: "%ACE_ROOT%"^)^, exiting
  goto Failed
 )
 set TargetDirectory=%ACE_ROOT%\ace
 if NOT exist "%TargetDirectory%" (
- echo invalid directory ^(was: "%TargetDirectory%"^)^, exiting
+ echo invalid directory ^(was: ^"%TargetDirectory%^"^)^, exiting
  goto Failed
 )
 
@@ -50,31 +58,32 @@ if NOT exist "%OriginalConfigFile%" (
  goto Failed
 )
 set ConfigFile=config.h
-@copy /Y %OriginalConfigFile% %SourceDirectory%\%ConfigFile% >NUL
+@copy /Y "%OriginalConfigFile%" "%SourceDirectory%\%ConfigFile%" >NUL
 if %ERRORLEVEL% NEQ 0 (
- echo failed to copy %ConfigFile% file, exiting
+ echo failed to copy ^"%ConfigFile%^" file, exiting
  set RC=%ERRORLEVEL%
  goto Failed
 )
 
-@move /Y %SourceDirectory%\%ConfigFile% %TargetDirectory%\%ConfigFile% >NUL
+@move /Y "%SourceDirectory%\%ConfigFile%" "%TargetDirectory%\%ConfigFile%" >NUL
 if %ERRORLEVEL% NEQ 0 (
- echo failed to move %ConfigFile% file, exiting
+ echo failed to move ^"%ConfigFile%^" file, exiting
  set RC=%ERRORLEVEL%
  goto Failed
 )
 
+echo copied ^"%OriginalConfigFile%^" to ^"%TargetDirectory%\%ConfigFile%^"...
 echo processing %ConfigFile%...DONE
 
 @rem copy platform_macros.GNU
-set SourceDirectory=%~dp0\..\3rd_party\ACE_wrappers\include\makeinclude
+set SourceDirectory=%PROJECT_ROOT%\3rd_party\ACE_wrappers\include\makeinclude
 if NOT exist "%SourceDirectory%" (
- echo invalid directory ^(was: "%SourceDirectory%"^)^, exiting
+ echo invalid directory ^(was: ^"%SourceDirectory%^"^)^, exiting
  goto Failed
 )
 set TargetDirectory=%ACE_ROOT%\include\makeinclude
 if NOT exist "%TargetDirectory%" (
- echo invalid directory ^(was: "%TargetDirectory%"^)^, exiting
+ echo invalid directory ^(was: ^"%TargetDirectory%^"^)^, exiting
  goto Failed
 )
 
@@ -83,24 +92,25 @@ if "%1"=="win32" (
  set OriginalMacrosFile=%SourceDirectory%\platform_macros_%1_msvc.GNU
 )
 if NOT exist "%OriginalMacrosFile%" (
- echo invalid file ^(was: "%OriginalMacrosFile%"^)^, exiting
+ echo invalid file ^(was: ^"%OriginalMacrosFile%^"^)^, exiting
  goto Failed
 )
 set MacrosFile=platform_macros.GNU
-@copy /Y %OriginalMacrosFile% %SourceDirectory%\%MacrosFile% >NUL
+@copy /Y "%OriginalMacrosFile%" "%SourceDirectory%\%MacrosFile%" >NUL
 if %ERRORLEVEL% NEQ 0 (
- echo failed to copy %MacrosFile% file, exiting
+ echo failed to copy ^"%MacrosFile%^" file, exiting
  set RC=%ERRORLEVEL%
  goto Failed
 )
 
-@move /Y %SourceDirectory%\%MacrosFile% %TargetDirectory%\%MacrosFile% >NUL
+@move /Y "%SourceDirectory%\%MacrosFile%" "%TargetDirectory%\%MacrosFile%" >NUL
 if %ERRORLEVEL% NEQ 0 (
- echo failed to move %MacrosFile% file, exiting
+ echo failed to move ^"%MacrosFile%^" file, exiting
  set RC=%ERRORLEVEL%
  goto Failed
 )
 
+echo copied ^"%OriginalMacrosFile%^" to ^"%TargetDirectory%\%MacrosFile%^"...
 echo processing %MacrosFile%...DONE
 
 timeout /T 2 /NOBREAK >NUL

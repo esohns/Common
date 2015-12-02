@@ -24,13 +24,13 @@
 #include "ace/Log_Msg.h"
 
 #include "common_macros.h"
-#include "common_itimer.h"
+#include "common_itimerhandler.h"
 
-Common_TimerHandler::Common_TimerHandler (Common_ITimer* interfaceHandle_in,
+Common_TimerHandler::Common_TimerHandler (Common_ITimerHandler* handler_in,
                                           bool isOneShot_in)
  : inherited (NULL,                           // no reactor
               ACE_Event_Handler::LO_PRIORITY) // priority
- , interfaceHandle_ (interfaceHandle_in)
+ , handler_ (handler_in)
  , isOneShot_ (isOneShot_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TimerHandler::Common_TimerHandler"));
@@ -54,12 +54,12 @@ Common_TimerHandler::handle_timeout (const ACE_Time_Value& tv_in,
 
   try
   {
-    interfaceHandle_->handleTimeout (arg_in);
+    handler_->handleTimeout (arg_in);
   }
   catch (...)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("caught an exception in Common_ITimer::handleTimeout(), continuing\n")));
+                ACE_TEXT ("caught an exception in Common_ITimerHandler::handleTimeout(), continuing\n")));
   }
 
   return (isOneShot_ ? -1 : 0);

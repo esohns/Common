@@ -31,37 +31,38 @@
 #include "common_icontrol.h"
 #include "common_idumpstate.h"
 #include "common_iinitialize.h"
+#include "common_itimer.h"
 #include "common_timer_common.h"
 
-template <typename TimerQueueType,
-          typename TimerQueueAdapterType>
+template <typename TimerQueueAdapterType>
 class Common_Timer_Manager_T
  : public TimerQueueAdapterType
+ , public Common_ITimer
  , public Common_IControl
  , public Common_IDumpState
  , public Common_IInitialize_T<Common_TimerConfiguration>
 {
   // singleton needs access to the ctor/dtors
-  friend class ACE_Singleton<Common_Timer_Manager_T<TimerQueueType,
-                                                    TimerQueueAdapterType>,
+  friend class ACE_Singleton<Common_Timer_Manager_T<TimerQueueAdapterType>,
                              ACE_SYNCH_MUTEX>;
 
  public:
+  // implement Common_ITimer
   // proactor version
-  long schedule_timer (ACE_Handler&,                                  // event handler
-                       const void*,                                   // act
-                       const ACE_Time_Value&,                         // delay
-                       const ACE_Time_Value& = ACE_Time_Value::zero); // interval
+  virtual long schedule_timer (ACE_Handler&,                                  // event handler
+                               const void*,                                   // act
+                               const ACE_Time_Value&,                         // delay
+                               const ACE_Time_Value& = ACE_Time_Value::zero); // interval
   // *NOTE*: API adopted from ACE_Reactor_Timer_Interface
-  long schedule_timer (ACE_Event_Handler*,                            // event handler
-                       const void*,                                   // act
-                       const ACE_Time_Value&,                         // delay
-                       const ACE_Time_Value& = ACE_Time_Value::zero); // interval
-  int reset_timer_interval (long,                   // timer id
-                            const ACE_Time_Value&); // interval
-  int cancel_timer (long,             // timer id
-                    const void** = 0, // return value: act
-                    int = 1);         // don't call handle_close()
+  virtual long schedule_timer (ACE_Event_Handler*,                            // event handler
+                               const void*,                                   // act
+                               const ACE_Time_Value&,                         // delay
+                               const ACE_Time_Value& = ACE_Time_Value::zero); // interval
+  virtual int reset_timer_interval (long,                   // timer id
+                                    const ACE_Time_Value&); // interval
+  virtual int cancel_timer (long,             // timer id
+                            const void** = 0, // return value: act
+                            int = 1);         // don't call handle_close()
 
   // implement (part of) Common_IControl
   virtual void start ();
@@ -79,8 +80,8 @@ class Common_Timer_Manager_T
   typedef TimerQueueAdapterType inherited;
 
   // convenience types
-  typedef Common_Timer_Manager_T<TimerQueueType,
-                                 TimerQueueAdapterType> OWN_TYPE_T;
+  typedef typename TimerQueueAdapterType::TIMER_QUEUE TIMER_QUEUE_T;
+  typedef Common_Timer_Manager_T<TimerQueueAdapterType> OWN_TYPE_T;
 
   Common_Timer_Manager_T ();
   ACE_UNIMPLEMENTED_FUNC (Common_Timer_Manager_T (const Common_Timer_Manager_T&))
@@ -99,7 +100,7 @@ class Common_Timer_Manager_T
   // *NOTE*: this is only the functor, individual handlers are managed in the
   //        queue
   Common_TimeoutUpcall_t    timerHandler_;
-  TimerQueueType*           timerQueue_;
+  TIMER_QUEUE_T*            timerQueue_;
 };
 
 // include template implementation

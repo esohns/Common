@@ -99,7 +99,7 @@ Common_Tools::initialize ()
   randomSeed_ = COMMON_TIME_NOW.usec ();
 }
 
-Common_Timer_Manager_t*
+Common_ITimer*
 Common_Tools::getTimerManager ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::getTimerManager"));

@@ -28,12 +28,9 @@
 #include "common_timer_common.h"
 #include "common_timer_manager.h"
 
-typedef Common_Timer_Manager_T<Common_TimerQueueHeapImpl_t,
-                               Common_TimerManagerHeapBase_t> Common_Timer_ManagerHeap_t;
-typedef Common_Timer_Manager_T<Common_TimerQueueListImpl_t,
-                               Common_TimerManagerListBase_t> Common_Timer_ManagerList_t;
-typedef Common_Timer_Manager_T<Common_TimerQueueWheelImpl_t,
-                               Common_TimerManagerWheelBase_t> Common_Timer_ManagerWheel_t;
+typedef Common_Timer_Manager_T<Common_TimerManagerHeapBase_t> Common_Timer_ManagerHeap_t;
+typedef Common_Timer_Manager_T<Common_TimerManagerListBase_t> Common_Timer_ManagerList_t;
+typedef Common_Timer_Manager_T<Common_TimerManagerWheelBase_t> Common_Timer_ManagerWheel_t;
 // *NOTE*: this specifies the (default) strategy
 typedef Common_Timer_ManagerHeap_t Common_Timer_Manager_t;
 
