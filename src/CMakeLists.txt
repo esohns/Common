@@ -26,8 +26,9 @@ if (UNIX)
  if (DEFINED ENV{ACE_ROOT})
   find_library (ACE_LIBRARY ${ACE_LIB_FILE}
                 PATHS ENV ACE_ROOT
-                PATH_SUFFIXES lib
-                DOC "searching for ${ACE_LIB_FILE}")
+                PATH_SUFFIXES ace build/linux/ace
+                DOC "searching for ${ACE_LIB_FILE}"
+                NO_DEFAULT_PATH)
  else ()
   find_library (ACE_LIBRARY ${ACE_LIB_FILE}
                 DOC "searching for ${ACE_LIB_FILE} (system paths)")
