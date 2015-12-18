@@ -40,9 +40,9 @@ class Common_UI_Export Common_UI_GladeDefinition
   virtual void finalize ();
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_GladeDefinition ());
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_GladeDefinition (const Common_UI_GladeDefinition&));
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_GladeDefinition& operator= (const Common_UI_GladeDefinition&));
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_GladeDefinition ())
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_GladeDefinition (const Common_UI_GladeDefinition&))
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_GladeDefinition& operator= (const Common_UI_GladeDefinition&))
 
   int                 argc_;
   ACE_TCHAR**         argv_;

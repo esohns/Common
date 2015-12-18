@@ -364,7 +364,7 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::initializeTimerQueue ()
 
 template <typename TimerQueueAdapterType>
 long
-Common_Timer_Manager_T<TimerQueueAdapterType>::schedule_timer (ACE_Handler& handler_in,
+Common_Timer_Manager_T<TimerQueueAdapterType>::schedule_timer (ACE_Handler* handler_in,
                                                                const void* act_in,
                                                                const ACE_Time_Value& delay_in,
                                                                const ACE_Time_Value& interval_in)

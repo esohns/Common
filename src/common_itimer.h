@@ -22,7 +22,6 @@
 #define COMMON_ITIMER_H
 
 #include "ace/Asynch_IO.h"
-//#include "ace/Event_Handler.h"
 #include "ace/Time_Value.h"
 
 // forward declarations
@@ -35,7 +34,7 @@ class Common_ITimer
 
   // exposed interface
   // proactor version
-  virtual long schedule_timer (ACE_Handler&,                                      // event handler
+  virtual long schedule_timer (ACE_Handler*,                                      // event handler
                                const void*,                                       // act
                                const ACE_Time_Value&,                             // delay
                                const ACE_Time_Value& = ACE_Time_Value::zero) = 0; // interval
