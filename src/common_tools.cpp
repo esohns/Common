@@ -569,6 +569,13 @@ Common_Tools::error2String (DWORD error_in)
   } // end IF
   result = ACE_TEXT_ALWAYS_CHAR (buffer);
 
+  // strip trailing newline
+  if (result[result.size () - 1] == '\n')
+  {
+    result.erase (--result.end ());
+    result.erase (--result.end ());
+  } // end IF
+
   return result;
 }
 #endif

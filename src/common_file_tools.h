@@ -24,6 +24,7 @@
 #include <string>
 
 #include "ace/Global_Macros.h"
+#include "ace/FILE_IO.h"
 
 #include "common_exports.h"
 
@@ -31,6 +32,7 @@ class Common_Export Common_File_Tools
 //class Common_File_Tools
 {
  public:
+  static bool create (const std::string&); // FQ file name
   static bool createDirectory (const std::string&); // directory
   static bool copyFile (const std::string&,  // FQ file name
                         const std::string&); // directory
@@ -42,8 +44,11 @@ class Common_Export Common_File_Tools
   static bool isValidFileName (const std::string&); // (FQ) file name
   static bool isValidPath (const std::string&); // (FQ) path
   // *NOTE*: users need to free (delete[]) the returned buffer
-  static bool loadFile (const std::string&, // FQ file name
-                        unsigned char*&);   // return value: memory buffer (array)
+  static bool load (const std::string&, // FQ file name
+                    unsigned char*&);   // return value: memory buffer (array)
+  static bool open (const std::string&, // FQ file name
+                    int,                // flags
+                    ACE_FILE_IO&);      // return value: file stream
   static unsigned int size (const std::string&); // (FQ) file name
 
   static std::string realPath (const std::string&); // path

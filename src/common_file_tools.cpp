@@ -28,6 +28,7 @@
 
 #include "ace/ACE.h"
 #include "ace/Dirent_Selector.h"
+#include "ace/FILE_Addr.h"
 #include "ace/FILE_Connector.h"
 #include "ace/FILE_IO.h"
 #include "ace/OS_NS_sys_sendfile.h"
@@ -222,6 +223,39 @@ Common_File_Tools::isValidPath (const std::string& string_in)
           Common_File_Tools::isDirectory (directory));
 }
 
+bool
+Common_File_Tools::create (const std::string& fileName_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::create"));
+
+  // sanity check(s)
+  if (Common_File_Tools::isReadable (fileName_in))
+    return true; // nothing to do
+
+  int result = -1;
+  FILE* file_p = NULL;
+  file_p = ACE_OS::fopen (ACE_TEXT (fileName_in.c_str ()),
+                          ACE_TEXT ("wb"));
+  if (!file_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (fileName_in.c_str ())));
+    return false;
+  } // end IF
+  result = ACE_OS::fclose (file_p);
+  if (result == -1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::fclose(): \"%m\", aborting\n")));
+    return false;
+  } // end IF
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("created: \"%s\"...\n"),
+              ACE_TEXT (fileName_in.c_str ())));
+
+  return true;
+}
 bool
 Common_File_Tools::createDirectory (const std::string& directory_in)
 {
@@ -534,10 +568,10 @@ Common_File_Tools::deleteFile (const std::string& filename_in)
 }
 
 bool
-Common_File_Tools::loadFile (const std::string& filename_in,
-                             unsigned char*& file_out)
+Common_File_Tools::load (const std::string& filename_in,
+                         unsigned char*& file_out)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::loadFile"));
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::load"));
 
   int result = -1;
 
@@ -643,6 +677,46 @@ Common_File_Tools::loadFile (const std::string& filename_in,
     delete [] file_out;
     file_out = NULL;
 
+    return false;
+  } // end IF
+
+  return true;
+}
+
+bool
+Common_File_Tools::open (const std::string& fileName_in,
+                         int flags_in,
+                         ACE_FILE_IO& stream_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::open"));
+
+  int result = -1;
+
+  ACE_FILE_Addr file_address;
+  result = file_address.set (fileName_in.c_str ());
+  if (result == -1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_FILE_Addr::set(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (fileName_in.c_str ())));
+    return false;
+  } // end IF
+
+  ACE_FILE_Connector file_connector;
+  result =
+    file_connector.connect (stream_out,              // stream
+                            file_address,            // filename
+                            NULL,                    // timeout (block)
+                            ACE_Addr::sap_any,       // (local) filename: N/A
+                            0,                       // reuse_addr: N/A
+                            flags_in,                // flags
+                            ACE_DEFAULT_FILE_PERMS); // permissions
+  if (result == -1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_FILE_Connector::connect(\"%s\",%d): \"%m\", aborting\n"),
+                ACE_TEXT (fileName_in.c_str ()),
+                flags_in));
     return false;
   } // end IF
 

@@ -58,7 +58,7 @@ if (WIN32)
  target_link_libraries (${PROJECT_NAME}UI ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk/lib/gdk-win32-2.0.lib)
  target_link_libraries (${PROJECT_NAME}UI ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk/lib/gtk-win32-2.0.lib)
 # libglade
- target_link_libraries (${PROJECT_NAME}UI ${CMAKE_CURRENT_SOURCE_DIR}/../../../libglade/lib/libglade-2.0.dll.a)
+ target_link_libraries (${PROJECT_NAME}UI ${CMAKE_CURRENT_SOURCE_DIR}/../../../libglade-2.6.4/glade/.libs/libglade-2.0.dll.a)
 
  target_link_libraries (${PROJECT_NAME}UI ${COMMON_TARGET_NAME})
 endif ()
