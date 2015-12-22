@@ -562,7 +562,7 @@ Common_Tools::error2String (DWORD error_in)
   if (!result_2)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to FormatMessage(%d): \"%s\", aborting\n"),
+                ACE_TEXT ("failed to FormatMessage(%u): \"%s\", aborting\n"),
                 error_in,
                 ACE_TEXT (Common_Tools::error2String (::GetLastError ()).c_str ())));
     return result;
