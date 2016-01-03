@@ -31,6 +31,7 @@
 #include "ace/FILE_Addr.h"
 #include "ace/FILE_Connector.h"
 #include "ace/FILE_IO.h"
+#include "ace/OS.h"
 #include "ace/OS_NS_sys_sendfile.h"
 
 #include "common_defines.h"
@@ -190,9 +191,9 @@ Common_File_Tools::isEmptyDirectory (const std::string& directory_in)
 }
 
 bool
-Common_File_Tools::isValidFileName (const std::string& string_in)
+Common_File_Tools::isValidFilename (const std::string& string_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isValidFileName"));
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isValidFilename"));
 
   std::string directory, file_name;
   directory =
@@ -231,16 +232,40 @@ Common_File_Tools::create (const std::string& fileName_in)
   // sanity check(s)
   if (Common_File_Tools::isReadable (fileName_in))
     return true; // nothing to do
+  if (fileName_in.empty ())
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("invalid argument (was empty), aborting\n")));
+    return false;
+  } // end IF
+  // *TODO*
 
+  std::string file_name = fileName_in;
   int result = -1;
+  if (!Common_File_Tools::isValidFilename (file_name))
+  {
+    ACE_TCHAR buffer[PATH_MAX];
+    ACE_OS::memset (buffer, 0, sizeof (buffer));
+    if (!ACE_OS::getcwd (buffer, sizeof (buffer)))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::getcwd(): \"%m\", aborting\n")));
+      return false;
+    } // end IF
+
+    file_name = ACE_TEXT_ALWAYS_CHAR (buffer);
+    file_name += ACE_DIRECTORY_SEPARATOR_STR_A;
+    file_name += fileName_in;
+  } // end IF
+
   FILE* file_p = NULL;
-  file_p = ACE_OS::fopen (ACE_TEXT (fileName_in.c_str ()),
+  file_p = ACE_OS::fopen (ACE_TEXT (file_name.c_str ()),
                           ACE_TEXT ("wb"));
   if (!file_p)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (fileName_in.c_str ())));
+                ACE_TEXT (file_name.c_str ())));
     return false;
   } // end IF
   result = ACE_OS::fclose (file_p);
@@ -252,7 +277,7 @@ Common_File_Tools::create (const std::string& fileName_in)
   } // end IF
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("created: \"%s\"...\n"),
-              ACE_TEXT (fileName_in.c_str ())));
+              ACE_TEXT (file_name.c_str ())));
 
   return true;
 }

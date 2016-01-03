@@ -41,7 +41,7 @@ class Common_Export Common_File_Tools
   static bool isEmpty (const std::string&); // FQ file name
   static bool isDirectory (const std::string&); // directory
   static bool isEmptyDirectory (const std::string&); // directory
-  static bool isValidFileName (const std::string&); // (FQ) file name
+  static bool isValidFilename (const std::string&); // (FQ) file name
   static bool isValidPath (const std::string&); // (FQ) path
   // *NOTE*: users need to free (delete[]) the returned buffer
   static bool load (const std::string&, // FQ file name
