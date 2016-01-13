@@ -71,7 +71,7 @@ class Common_StateMachine_Base_T
   bool                     isInitialized_;
 };
 
-// include template implementation
+// include template definitions
 #include "common_statemachine_base.inl"
 
 #endif
