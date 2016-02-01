@@ -1186,7 +1186,20 @@ Common_File_Tools::getLogFilename (const std::string& packageName_in,
   // sanity check(s)
   ACE_ASSERT (!programName_in.empty ());
 
-  std::string result = Common_File_Tools::getLogDirectory (packageName_in);
+  unsigned int fallback_level = 0;
+  std::string result;
+fallback:
+  result = Common_File_Tools::getLogDirectory (packageName_in,
+                                               fallback_level);
+
+  if (result.empty ())
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_File_Tools::getLogDirectory(\"%s\",%d), aborting\n"),
+                ACE_TEXT (packageName_in.c_str ()),
+                fallback_level));
+    return result;
+  } // end IF
   result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   result += programName_in;
   result += COMMON_LOG_FILENAME_SUFFIX;
@@ -1197,14 +1210,13 @@ Common_File_Tools::getLogFilename (const std::string& packageName_in,
   {
     if (!Common_File_Tools::deleteFile (result))
     {
-      ACE_DEBUG((LM_ERROR,
-                 ACE_TEXT ("failed to Common_File_Tools::deleteFile(\"%s\"), aborting\n"),
-                 ACE_TEXT (result.c_str ())));
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_File_Tools::deleteFile(\"%s\"), falling back\n"),
+                  ACE_TEXT (result.c_str ())));
 
-      // clean up
-      result.clear ();
+      ++fallback_level;
 
-      return result;
+      goto fallback;
     } // end IF
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("deleted file: \"%s\"...\n"),
@@ -1215,21 +1227,29 @@ Common_File_Tools::getLogFilename (const std::string& packageName_in,
 }
 
 std::string
-Common_File_Tools::getLogDirectory (const std::string& packageName_in)
+Common_File_Tools::getLogDirectory (const std::string& packageName_in,
+                                    unsigned int fallbackLevel_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getLogDirectory"));
 
   // initialize return value(s)
   std::string result;
 
-  unsigned int fallback_level = 0;
+  unsigned int fallback_level = fallbackLevel_in;
   std::string environment_variable;
   const ACE_TCHAR* string_p = NULL;
+
+  if (fallback_level)
+  {
+    --fallback_level;
+    goto fallback;
+  } // end IF
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   environment_variable =
       ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE);
 #else
-  result = ACE_TEXT_CHAR_TO_TCHAR (COMMON_LOG_DEFAULT_DIRECTORY);
+  result = ACE_TEXT_ALWAYS_CHAR (COMMON_LOG_DEFAULT_DIRECTORY);
   goto use_path;
 #endif
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -1252,7 +1272,7 @@ use_path:
 #endif
   if (!packageName_in.empty ())
   {
-    result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
+    result += ACE_DIRECTORY_SEPARATOR_STR_A;
     result += packageName_in;
   } // end IF
 
@@ -1285,7 +1305,7 @@ fallback:
   } // end IF
   ACE_ASSERT (false);
   // *TODO*: implement fallback levels dependent on host Windows (TM) version
-  //         see e.g.: https://en.wikipedia.org/wiki/Environment_variable#Windows
+  //         see e.g.: http://en.wikipedia.org/wiki/Environment_variable#Windows
 #else
   switch (fallback_level)
   {
@@ -1302,7 +1322,7 @@ fallback:
   } // end SWITCH
   ACE_ASSERT (false);
   // *TODO*: implement fallback levels dependent on host platform/version
-  //         see e.g. https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
+  //         see e.g. http://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
 #endif
 
   return result;

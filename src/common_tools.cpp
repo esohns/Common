@@ -33,13 +33,18 @@ using namespace std;
 //                       prevent ace/iosfwd.h from causing any harm
 #define ACE_IOSFWD_H
 
-#if defined (_MSC_VER)
+#include "ace/config-lite.h"
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <Security.h>
-// *NOTE*: Solaris (11)-specific
+#elif defined (ACE_LINUX)
+#include <sys/capability.h>
+#include <sys/prctl.h>
+#include <linux/capability.h>
+#include <linux/prctl.h>
+#include <linux/securebits.h>
 #elif defined (__sun) && defined (__SVR4)
+// *NOTE*: Solaris (11)-specific
 #include <rctl.h>
-#else
-//#include <syscall.h>
 #endif
 
 #include "ace/High_Res_Timer.h"
@@ -249,8 +254,217 @@ Common_Tools::isLinux ()
 //               name.release,
 //               name.version));
 
-  std::string kernel (name.sysname);
-  return (kernel.find (ACE_TEXT_ALWAYS_CHAR ("Linux"), 0) == 0);
+  std::string kernel_name_string (name.sysname);
+  return (kernel_name_string.find (ACE_TEXT_ALWAYS_CHAR ("Linux"), 0) == 0);
+}
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+void
+Common_Tools::printCapabilities ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::printCapabilities"));
+
+  int result = -1;
+
+  // step1: read 'securebits' flags of the calling thread
+  result = ::prctl (PR_GET_SECUREBITS,
+                    0, 0, 0, 0);
+  if (result == -1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::prctl(PR_GET_SECUREBITS): \"%m\", returning\n")));
+    return;
+  } // end IF
+  ACE_DEBUG ((LM_INFO,
+              ACE_TEXT ("%P:%t: securebit set/locked:\nSECURE_NOROOT:\t\t%s/%s\nSECURE_NO_SETUID_FIXUP:\t%s/%s\nSECURE_KEEP_CAPS:\t%s/%s\nSECURE_NO_CAP_AMBIENT_RAISE:\t%s/%s...\n"),
+              ((result & SECBIT_NOROOT) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+              ((result & SECBIT_NOROOT_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+              ((result & SECBIT_NO_SETUID_FIXUP) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+              ((result & SECBIT_NO_SETUID_FIXUP_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+              ((result & SECBIT_KEEP_CAPS) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+              ((result & SECBIT_KEEP_CAPS_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+              ((result & SECBIT_NO_CAP_AMBIENT_RAISE) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+              ((result & SECBIT_NO_CAP_AMBIENT_RAISE_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no"))));
+
+  cap_t capabilities_p = NULL;
+//  capabilities_p = cap_init ();
+  capabilities_p = cap_get_proc ();
+  if (!capabilities_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to ::cap_init(): \"%m\", returning\n")));
+                ACE_TEXT ("failed to ::cap_get_proc(): \"%m\", returning\n")));
+    return;
+  } // end IF
+
+  // step2: in bounding/ambient set of the calling thread ?
+  ACE_DEBUG ((LM_INFO,
+              ACE_TEXT ("%P:%t: capability bounding/ambient:effective/inheritable/permitted\n")));
+  bool in_bounding_set, in_ambient_set;
+  cap_flag_value_t in_effective_set, in_inheritable_set, in_permitted_set;
+  char* capability_name_string_p = NULL;
+  for (unsigned long capability = 0;
+       capability <= CAP_LAST_CAP;
+       ++capability)
+  {
+    capability_name_string_p = cap_to_name (capability);
+    if (!capability_name_string_p)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ::cap_to_name(%d): \"%m\", continuing\n"),
+                  capability));
+      continue;
+    } // end IF
+
+    result = ::prctl (PR_CAPBSET_READ,
+                      capability, 0, 0, 0);
+    if (result == -1)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ::prctl(PR_CAPBSET_READ,\"%s\"): \"%m\", continuing\n"),
+                  capability_name_string_p));
+      goto continue_;
+    } // end IF
+    in_bounding_set = (result == 1);
+
+    // *TODO*: currently, this fails on Linux (Debian)...
+    result = ::prctl (PR_CAP_AMBIENT,
+                      PR_CAP_AMBIENT_IS_SET, capability, 0, 0);
+    if (result == -1)
+    {
+//      ACE_DEBUG ((LM_ERROR,
+//                  ACE_TEXT ("failed to ::prctl(PR_CAP_AMBIENT,PR_CAP_AMBIENT_IS_SET,\"%s\"): \"%m\", returning\n"),
+//                  capability_name_string_p));
+//      goto continue_;
+    } // end IF
+    in_ambient_set = (result == 1);
+
+    result = ::cap_get_flag (capabilities_p, capability,
+                             CAP_EFFECTIVE, &in_effective_set);
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ::cap_get_flag(CAP_EFFECTIVE,\"%s\"): \"%m\", continuing\n"),
+                  capability_name_string_p));
+    result = ::cap_get_flag (capabilities_p, capability,
+                             CAP_INHERITABLE, &in_inheritable_set);
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ::cap_get_flag(CAP_INHERITABLE,\"%s\"): \"%m\", continuing\n"),
+                  capability_name_string_p));
+    result = ::cap_get_flag (capabilities_p, capability,
+                             CAP_PERMITTED, &in_permitted_set);
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ::cap_get_flag(CAP_PERMITTED,\"%s\"): \"%m\", continuing\n"),
+                  capability_name_string_p));
+
+    ACE_DEBUG ((LM_INFO,
+                ACE_TEXT ("\"%s\" (%d):\t%s/%s\t%s/%s/%s\n"),
+                ACE_TEXT (capability_name_string_p), capability,
+                (in_bounding_set ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+                (in_ambient_set ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+                ((in_effective_set == CAP_SET) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+                ((in_inheritable_set == CAP_SET) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+                ((in_permitted_set == CAP_SET) ? ACE_TEXT ("yes") : ACE_TEXT ("no"))));
+
+    // clean up
+continue_:
+    result = cap_free (capability_name_string_p);
+    if (result == -1)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
+  } // end FOR
+
+  // clean up
+  result = cap_free (capabilities_p);
+  if (result == -1)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
+}
+#endif
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+bool
+Common_Tools::setRootPriviledges ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::setRootPriviledges"));
+
+  uid_t effective_user_id = 0; // <-- root
+  // *IMPORTANT NOTE*: (on Linux) the process requires the CAP_SETUID capability
+  //                   for this to work
+  int result = ACE_OS::seteuid (effective_user_id);
+  if (result == -1)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::seteuid(%d): \"%m\", aborting\n"),
+                effective_user_id));
+  else
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("set effective user id to: %d...\n"),
+                effective_user_id));
+
+  return (result == 0);
+}
+void
+Common_Tools::dropRootPriviledges ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::dropRootPriviledges"));
+
+  uid_t real_user_id = ACE_OS::getuid ();
+  int result = ACE_OS::seteuid (real_user_id);
+  if (result == -1)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::seteuid(%d): \"%m\", continuing\n"),
+                real_user_id));
+  else
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("reset effective user id to: %d...\n"),
+                real_user_id));
+}
+void
+Common_Tools::printPriviledges ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::printPriviledges"));
+
+  uid_t real_user_id = ACE_OS::getuid ();
+  uid_t effective_user_id = ACE_OS::geteuid ();
+  gid_t real_user_group = ACE_OS::getgid ();
+  gid_t effective_user_group = ACE_OS::getegid ();
+
+  ACE_DEBUG ((LM_INFO,
+              ACE_TEXT ("%P:%t: real/effective user id/group: %d/%d\t%d/%d\n"),
+              real_user_id, effective_user_id,
+              real_user_group, effective_user_group));
+}
+#endif
+
+bool
+Common_Tools::enableCoreDump (bool enable_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::enableCoreDump"));
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  ACE_ASSERT (false);
+  ACE_NOTSUP_RETURN (false);
+  ACE_NOTREACHED (return false;)
+#else
+  int result =
+      ::prctl (PR_SET_DUMPABLE,
+               (enable_in ? 1 : 0), 0, 0, 0);
+//               (enable_in ? SUID_DUMP_USER : SUID_DUMP_DISABLE), 0, 0, 0);
+  if (result == -1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::prctl(PR_SET_DUMPABLE): \"%m\", returning\n")));
+    return false;
+  } // end IF
+#endif
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("%s core dump...\n"),
+              (enable_in ? ACE_TEXT ("enabled") : ACE_TEXT ("disabled"))));
+
+  return true;
 }
 
 bool
@@ -615,15 +829,16 @@ Common_Tools::initializeLogging (const std::string& programName_in,
 //                                  ACE_TEXT_ALWAYS_CHAR ("w"));
     if (!log_stream_p)
     {
-      //ACE_DEBUG ((LM_CRITICAL,
-      //            ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_OS::fopen(): \"%m\", aborting\n")));
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
+//      ACE_DEBUG ((LM_ERROR,
+//                  ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
+//                  ACE_TEXT (logFile_in.c_str ())));
       return false;
     } // end IF
-//    if (log_stream->open (logFile_in.c_str (),
-//                          open_mode))
     if (log_stream_p->fail ())
+//    if (log_stream_p->open (logFile_in.c_str (),
+//                            open_mode))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to create log file (was: \"%s\"): \"%m\", aborting\n"),
@@ -856,8 +1071,8 @@ Common_Tools::initializeSignals (const ACE_Sig_Set& signals_in,
   previousActions_out.clear ();
 
   // *NOTE*: "The signal disposition is a per-process attribute: in a
-  // multithreaded application, the disposition of a particular signal is the
-  // same for all threads." (see man(7) signal)
+  //         multithreaded application, the disposition of a particular signal
+  //         is the same for all threads." (see man(7) signal)
 
   // step1: backup previous actions
   ACE_Sig_Action previous_action;
@@ -967,7 +1182,7 @@ Common_Tools::initializeSignals (const ACE_Sig_Set& signals_in,
 //                      ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%S): \"%m\", continuing\n"),
 //                      i));
 //      } // end IF
-//    } // end IF
+//    } // end IFfailed to Common_Tools::initializeSignals
 //    result = ACE_OS::thr_sigsetmask (SIG_BLOCK,
 //                                     &rt_signal_set,
 //                                     &originalMask_out);
@@ -2044,7 +2259,7 @@ Common_Tools::dispatchEvents (bool useReactor_in,
 
   int result = -1;
 
-  // *NOTE*: when using a thread pool, handle things differently...
+  // *NOTE*: when using a thread pool, handle things differently
   if (groupID_in != -1)
   {
     ACE_Thread_Manager* thread_manager_p = ACE_Thread_Manager::instance ();

@@ -61,6 +61,23 @@ class Common_Export Common_Tools
   // --- platform ---
   static bool isLinux ();
 
+  // --- capabilities ---
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  static void printCapabilities ();
+#endif
+
+  // --- user ---
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  // *IMPORTANT NOTE*: (on Linux) the process requires the CAP_SETUID capability
+  //                   for this to work
+  static bool setRootPriviledges ();
+  static void dropRootPriviledges ();
+#endif
+  static void printPriviledges ();
+
+  static bool enableCoreDump (bool = true); // enable ? : disable
   static bool setResourceLimits (bool = false,  // #file descriptors (i.e. open handles)
                                  bool = true,   // stack trace/sizes (i.e. core file sizes)
                                  bool = false); // pending (rt) signals

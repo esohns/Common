@@ -89,7 +89,7 @@
 #if defined (__GNUG__)
 #define COMMON_COMPILER_UNUSED_SYMBOL_PREFIX         __attribute__ ((unused))
 #else
-#define COMMON_COMPILER_UNUSED_SYMBOL_PREFIX         
+#define COMMON_COMPILER_UNUSED_SYMBOL_PREFIX
 #endif // defined (__GNUG__)
 
 /////////////////////////////////////////

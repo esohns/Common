@@ -218,15 +218,15 @@ Common_SignalHandler::handle_exception (ACE_HANDLE handle_in)
       // *PORTABILITY*: tracing in a signal handler context is not portable
       // *TODO*
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("caught exception in Common_ISignal::handleSignal(%S): \"%m\", continuing\n"),
-                  signal));
+                  ACE_TEXT ("caught exception in Common_ISignal::handleSignal(), continuing\n")));
+      result = false;
     }
     // *PORTABILITY*: tracing in a signal handler context is not portable
     // *TODO*
     if (!result)
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to Common_ISignal::handleSignal(%S): \"%m\", continuing\n"),
-                  signal));
+                  ACE_TEXT ("failed to Common_ISignal::handleSignal() (was: %d --> \"%S\"): \"%m\", aborting\n"),
+                  signal, signal));
   } // end IF
 
 //  signal_ = -1;
