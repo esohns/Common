@@ -64,7 +64,10 @@ class Common_Export Common_Tools
   // --- capabilities ---
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
+  static bool hasCapability (unsigned long); // capability
   static void printCapabilities ();
+  static bool setCapability (unsigned long); // capability
+  static bool dropCapability (unsigned long); // capability
 #endif
 
   // --- user ---
@@ -121,15 +124,16 @@ class Common_Export Common_Tools
                                   std::string&);           // return value: info
 
   // --- event loop ---
-  static bool initializeEventDispatch (bool,         // use reactor ? : proactor
-                                       bool,         // use thread pool ?
-                                       unsigned int, // number of (dispatching) threads
-                                       bool&);       // return value: output requires serialization
+  static bool initializeEventDispatch (bool,                 // use reactor ? : proactor
+                                       bool,                 // use thread pool ?
+                                       unsigned int,         // number of (dispatching) threads
+                                       Common_ProactorType&, // return value: proactor type
+                                       Common_ReactorType&,  // return value: reactor type
+                                       bool&);               // return value: output requires serialization
   // *NOTE*: the first argument is passed to the thread function as argument,
   //         so must reside on the stack (hence the reference)
-  static bool startEventDispatch (const bool*,  // use reactor ? : proactor (thread argument)
-                                  unsigned int, // # dispatching threads
-                                  int&);        // return value: thread group id
+  static bool startEventDispatch (const struct Common_DispatchThreadData&, // thread data
+                                  int&);                                   // return value: thread group id
   static void dispatchEvents (bool,      // use reactor ? : proactor
                               int = -1); // thread group id
   // *NOTE*: this call blocks until all dispatching threads have joined

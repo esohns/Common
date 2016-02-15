@@ -260,6 +260,64 @@ Common_Tools::isLinux ()
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
+bool
+Common_Tools::hasCapability (unsigned long capability_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::hasCapability"));
+
+  // sanity check(s)
+  if (!CAP_IS_SUPPORTED (capability_in))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("capability (was: %d) not supported: \"%m\", aborting\n"),
+                capability_in));
+    return false;
+  } // end IF
+
+  cap_t capabilities_p = NULL;
+//  capabilities_p = cap_init ();
+  capabilities_p = ::cap_get_proc ();
+  if (!capabilities_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to ::cap_init(): \"%m\", returning\n")));
+                ACE_TEXT ("failed to ::cap_get_proc(): \"%m\", aborting\n")));
+    return false;
+  } // end IF
+
+  cap_flag_value_t in_effective_set;
+  int result_2 = ::cap_get_flag (capabilities_p, capability_in,
+                                 CAP_EFFECTIVE, &in_effective_set);
+  if (result_2 == -1)
+  {
+    char* capability_name_string_p = ::cap_to_name (capability_in);
+    if (!capability_name_string_p)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ::cap_to_name(%d): \"%m\", continuing\n"),
+                  capability_in));
+
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::cap_get_flag(CAP_EFFECTIVE,\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (capability_name_string_p)));
+
+    // clean up
+    result_2 = ::cap_free (capability_name_string_p);
+    if (result_2 == -1)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
+
+    goto clean;
+  } // end IF
+
+clean:
+  result_2 = ::cap_free (capabilities_p);
+  if (result_2 == -1)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
+
+  return (in_effective_set == CAP_SET);
+}
+
 void
 Common_Tools::printCapabilities ()
 {
@@ -323,7 +381,7 @@ Common_Tools::printCapabilities ()
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ::prctl(PR_CAPBSET_READ,\"%s\"): \"%m\", continuing\n"),
-                  capability_name_string_p));
+                  ACE_TEXT (capability_name_string_p)));
       goto continue_;
     } // end IF
     in_bounding_set = (result == 1);
@@ -345,19 +403,19 @@ Common_Tools::printCapabilities ()
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ::cap_get_flag(CAP_EFFECTIVE,\"%s\"): \"%m\", continuing\n"),
-                  capability_name_string_p));
+                  ACE_TEXT (capability_name_string_p)));
     result = ::cap_get_flag (capabilities_p, capability,
                              CAP_INHERITABLE, &in_inheritable_set);
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ::cap_get_flag(CAP_INHERITABLE,\"%s\"): \"%m\", continuing\n"),
-                  capability_name_string_p));
+                  ACE_TEXT (capability_name_string_p)));
     result = ::cap_get_flag (capabilities_p, capability,
                              CAP_PERMITTED, &in_permitted_set);
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ::cap_get_flag(CAP_PERMITTED,\"%s\"): \"%m\", continuing\n"),
-                  capability_name_string_p));
+                  ACE_TEXT (capability_name_string_p)));
 
     ACE_DEBUG ((LM_INFO,
                 ACE_TEXT ("\"%s\" (%d):\t%s/%s\t%s/%s/%s\n"),
@@ -382,6 +440,132 @@ continue_:
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
 }
+
+bool
+Common_Tools::setCapability (unsigned long capability_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::setCapability"));
+
+  bool result = false;
+
+  // sanity check(s)
+  if (!CAP_IS_SUPPORTED (capability_in))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("capability (was: %d) not supported: \"%m\", aborting\n"),
+                capability_in));
+    return false;
+  } // end IF
+
+  cap_t capabilities_p = NULL;
+//  capabilities_p = cap_init ();
+  capabilities_p = ::cap_get_proc ();
+  if (!capabilities_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to ::cap_init(): \"%m\", returning\n")));
+                ACE_TEXT ("failed to ::cap_get_proc(): \"%m\", aborting\n")));
+    return false;
+  } // end IF
+
+  cap_value_t capabilities_a[CAP_LAST_CAP + 1];
+  capabilities_a[0] = capability_in;
+  int result_2 = ::cap_set_flag (capabilities_p, CAP_EFFECTIVE,
+                                 1, capabilities_a,
+                                 CAP_SET);
+  if (result_2 == -1)
+  {
+    char* capability_name_string_p = ::cap_to_name (capability_in);
+    if (!capability_name_string_p)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ::cap_to_name(%d): \"%m\", continuing\n"),
+                  capability_in));
+
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::cap_set_flag(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (capability_name_string_p)));
+
+    // clean up
+    result_2 = ::cap_free (capability_name_string_p);
+    if (result_2 == -1)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
+
+    goto clean;
+  } // end IF
+  result = true;
+
+clean:
+  result_2 = ::cap_free (capabilities_p);
+  if (result_2 == -1)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
+
+  return result;
+}
+bool
+Common_Tools::dropCapability (unsigned long capability_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::dropCapability"));
+
+  bool result = false;
+
+  // sanity check(s)
+  if (!CAP_IS_SUPPORTED (capability_in))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("capability (was: %d) not supported: \"%m\", aborting\n"),
+                capability_in));
+    return false;
+  } // end IF
+
+  cap_t capabilities_p = NULL;
+//  capabilities_p = cap_init ();
+  capabilities_p = ::cap_get_proc ();
+  if (!capabilities_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to ::cap_init(): \"%m\", returning\n")));
+                ACE_TEXT ("failed to ::cap_get_proc(): \"%m\", aborting\n")));
+    return false;
+  } // end IF
+
+  cap_value_t capabilities_a[CAP_LAST_CAP + 1];
+  capabilities_a[0] = capability_in;
+  int result_2 = ::cap_set_flag (capabilities_p, CAP_EFFECTIVE,
+                                 1, capabilities_a,
+                                 CAP_CLEAR);
+  if (result_2 == -1)
+  {
+    char* capability_name_string_p = ::cap_to_name (capability_in);
+    if (!capability_name_string_p)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ::cap_to_name(%d): \"%m\", continuing\n"),
+                  capability_in));
+
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::cap_set_flag(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (capability_name_string_p)));
+
+    // clean up
+    result_2 = ::cap_free (capability_name_string_p);
+    if (result_2 == -1)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
+
+    goto clean;
+  } // end IF
+  result = true;
+
+clean:
+  result_2 = ::cap_free (capabilities_p);
+  if (result_2 == -1)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
+
+  return result;
+}
+
 #endif
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -1664,6 +1848,8 @@ bool
 Common_Tools::initializeEventDispatch (bool useReactor_in,
                                        bool useThreadPool_in,
                                        unsigned int numberOfThreads_in,
+                                       Common_ProactorType& proactorType_out,
+                                       Common_ReactorType& reactorType_out,
                                        bool& serializeOutput_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::initializeEventDispatch"));
@@ -1678,17 +1864,17 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
   //         - envisioned application type (i.e. library, plugin)
   // *TODO*: the chosen event dispatch implementation should be based on
   //         #defines only (!, see above, common.h)
-  Common_ReactorType reactor_type = COMMON_EVENT_REACTOR_TYPE;
-  Common_ProactorType proactor_type = COMMON_EVENT_PROACTOR_TYPE;
+  reactorType_out = COMMON_EVENT_REACTOR_TYPE;
+  proactorType_out = COMMON_EVENT_PROACTOR_TYPE;
   if (useReactor_in)
-    reactor_type = (useThreadPool_in ? COMMON_REACTOR_THREAD_POOL
-                                     : reactor_type);
+    reactorType_out = (useThreadPool_in ? COMMON_REACTOR_THREAD_POOL
+                                        : reactorType_out);
 
   // step1: initialize reactor/proactor
   if (useReactor_in)
   {
     ACE_Reactor_Impl* reactor_impl_p = NULL;
-    switch (reactor_type)
+    switch (reactorType_out)
     {
       case COMMON_REACTOR_ACE_DEFAULT:
       {
@@ -1778,7 +1964,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("invalid/unknown reactor type (was: %d), aborting\n"),
-                    reactor_type));
+                    reactorType_out));
         return false;
       }
     } // end SWITCH
@@ -1825,7 +2011,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
 #endif
 
     ACE_Proactor_Impl* proactor_impl_p = NULL;
-    switch (proactor_type)
+    switch (proactorType_out)
     {
       case COMMON_PROACTOR_ACE_DEFAULT:
       {
@@ -1902,7 +2088,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("invalid/unknown proactor type (was: %d), aborting\n"),
-                    proactor_type));
+                    proactorType_out));
         return false;
       }
     } // end SWITCH
@@ -1945,7 +2131,9 @@ threadpool_event_dispatcher_function (void* arg_in)
 #else
   result = arg_in;
 #endif
-  bool use_reactor = *reinterpret_cast<bool*> (arg_in);
+  struct Common_DispatchThreadData* thread_data_p =
+    reinterpret_cast<struct Common_DispatchThreadData*> (arg_in);
+  ACE_ASSERT (thread_data_p);
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 //  ACE_DEBUG ((LM_DEBUG,
@@ -1967,10 +2155,26 @@ threadpool_event_dispatcher_function (void* arg_in)
 
   // handle any events
   int result_2 = -1;
-  if (use_reactor)
+  if (thread_data_p->useReactor)
   {
     ACE_Reactor* reactor_p = ACE_Reactor::instance ();
     ACE_ASSERT (reactor_p);
+
+    // *NOTE*: transfer 'ownership' of the (select) reactor ?
+    // *TODO*: determining the default ACE reactor type is not specified
+    //         (platform-specific)
+    if ((thread_data_p->numberOfDispatchThreads == 1) &&
+        ((thread_data_p->reactorType == COMMON_REACTOR_ACE_DEFAULT) ||
+         (thread_data_p->reactorType == COMMON_REACTOR_SELECT)))
+    {
+      ACE_thread_t thread_id = ACE_Thread::self ();
+      ACE_thread_t thread_2 = -1;
+      result_2 = reactor_p->owner (thread_id, &thread_2);
+      if (result_2 == -1)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_Reactor::owner(%t): \"%m\", continuing\n")));
+    } // end IF
+
     result_2 = reactor_p->run_reactor_event_loop (NULL);
   } // end IF
   else
@@ -2016,23 +2220,18 @@ threadpool_event_dispatcher_function (void* arg_in)
 }
 
 bool
-Common_Tools::startEventDispatch (const bool* useReactor_in,
-                                  unsigned int numberOfDispatchThreads_in,
+Common_Tools::startEventDispatch (const struct Common_DispatchThreadData& threadData_in,
                                   int& groupID_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::startEventDispatch"));
 
-  // sanity check(s)
-  ACE_ASSERT (useReactor_in);
-
   int result = -1;
-  bool use_reactor = *useReactor_in;
 
   // initialize return value(s)
   groupID_out = -1;
 
   // reset event dispatch
-  if (use_reactor)
+  if (threadData_in.useReactor)
   {
     ACE_Reactor* reactor_p = ACE_Reactor::instance ();
     ACE_ASSERT (reactor_p);
@@ -2051,7 +2250,7 @@ Common_Tools::startEventDispatch (const bool* useReactor_in,
   // spawn worker(s) ?
   // *NOTE*: if #dispatch threads == 0, event dispatch takes place in the main
   //         thread --> do not spawn any workers
-  if (numberOfDispatchThreads_in == 0)
+  if (threadData_in.numberOfDispatchThreads == 0)
     return true;
 
   // start a (group of) worker thread(s)...
@@ -2059,12 +2258,12 @@ Common_Tools::startEventDispatch (const bool* useReactor_in,
   // *TODO*: use ACE_NEW_MALLOC_ARRAY (as soon as the NORETURN variant becomes
   //         available)
   ACE_NEW_NORETURN (thread_handles_p,
-                    ACE_hthread_t[numberOfDispatchThreads_in]);
+                    ACE_hthread_t[threadData_in.numberOfDispatchThreads]);
   if (!thread_handles_p)
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory(%u), aborting\n"),
-                (sizeof (ACE_hthread_t) * numberOfDispatchThreads_in)));
+                (sizeof (ACE_hthread_t) * threadData_in.numberOfDispatchThreads)));
     return false;
   } // end IF
 //  ACE_OS::memset (thread_handles_p, 0, sizeof (thread_handles_p));
@@ -2072,12 +2271,12 @@ Common_Tools::startEventDispatch (const bool* useReactor_in,
   // *TODO*: use ACE_NEW_MALLOC_ARRAY (as soon as the NORETURN variant becomes
   //         available)
   ACE_NEW_NORETURN (thread_names_p,
-                    const char*[numberOfDispatchThreads_in]);
+                    const char*[threadData_in.numberOfDispatchThreads]);
   if (!thread_names_p)
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory(%u), aborting\n"),
-                (sizeof (char*) * numberOfDispatchThreads_in)));
+                (sizeof (char*) * threadData_in.numberOfDispatchThreads)));
 
     // clean up
     delete [] thread_handles_p;
@@ -2089,7 +2288,7 @@ Common_Tools::startEventDispatch (const bool* useReactor_in,
   std::string buffer;
   std::ostringstream converter;
   for (unsigned int i = 0;
-       i < numberOfDispatchThreads_in;
+       i < threadData_in.numberOfDispatchThreads;
        i++)
   {
     thread_name_p = NULL;
@@ -2124,30 +2323,30 @@ Common_Tools::startEventDispatch (const bool* useReactor_in,
   ACE_ASSERT (thread_manager_p);
   ACE_THR_FUNC function_p =
     static_cast<ACE_THR_FUNC> (::threadpool_event_dispatcher_function);
-  void* arg_p = const_cast<bool*> (useReactor_in);
+  void* arg_p = &const_cast<struct Common_DispatchThreadData&> (threadData_in);
   groupID_out =
-    thread_manager_p->spawn_n (numberOfDispatchThreads_in,   // # threads
-                               function_p,                   // function
-                               arg_p,                        // argument
-                               (THR_NEW_LWP     |
-                               THR_JOINABLE     |
-                               THR_INHERIT_SCHED),           // flags
-                               ACE_DEFAULT_THREAD_PRIORITY,  // priority
-                               COMMON_EVENT_THREAD_GROUP_ID, // group id
-                               NULL,                         // task
-                               thread_handles_p,             // handle(s)
-                               NULL,                         // stack(s)
-                               NULL,                         // stack size(s)
-                               thread_names_p);              // name(s)
+    thread_manager_p->spawn_n (threadData_in.numberOfDispatchThreads, // # threads
+                               function_p,                            // function
+                               arg_p,                                 // argument
+                               (THR_NEW_LWP      |
+                                THR_JOINABLE     |
+                                THR_INHERIT_SCHED),                   // flags
+                               ACE_DEFAULT_THREAD_PRIORITY,           // priority
+                               COMMON_EVENT_THREAD_GROUP_ID,          // group id
+                               NULL,                                  // task
+                               thread_handles_p,                      // handle(s)
+                               NULL,                                  // stack(s)
+                               NULL,                                  // stack size(s)
+                               thread_names_p);                       // name(s)
   if (groupID_out == -1)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Thread_Manager::spawn_n(%u): \"%m\", aborting\n"),
-                numberOfDispatchThreads_in));
+                threadData_in.numberOfDispatchThreads));
 
     // clean up
     delete [] thread_handles_p;
-    for (unsigned int i = 0; i < numberOfDispatchThreads_in; i++)
+    for (unsigned int i = 0; i < threadData_in.numberOfDispatchThreads; i++)
       delete [] thread_names_p[i];
     delete [] thread_names_p;
 
@@ -2159,7 +2358,7 @@ Common_Tools::startEventDispatch (const bool* useReactor_in,
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
 //    __uint64_t thread_id = 0;
 #endif
-  for (unsigned int i = 0; i < numberOfDispatchThreads_in; i++)
+  for (unsigned int i = 0; i < threadData_in.numberOfDispatchThreads; i++)
   {
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)
 //    ::pthread_getthreadid_np (&thread_handles_p[i], &thread_id);
@@ -2182,7 +2381,7 @@ Common_Tools::startEventDispatch (const bool* useReactor_in,
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s) spawned %u worker thread(s) (group: %d):\n%s"),
               ACE_TEXT (COMMON_EVENT_THREAD_NAME),
-              numberOfDispatchThreads_in,
+              threadData_in.numberOfDispatchThreads,
               groupID_out,
               ACE_TEXT (buffer.c_str ())));
 

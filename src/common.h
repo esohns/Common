@@ -134,6 +134,21 @@ enum Common_ReactorType
   COMMON_REACTOR_INVALID
 };
 
+struct Common_DispatchThreadData
+{
+  inline Common_DispatchThreadData ()
+   : numberOfDispatchThreads (0)
+   , proactorType (COMMON_EVENT_PROACTOR_TYPE)
+   , reactorType (COMMON_EVENT_REACTOR_TYPE)
+   , useReactor (true)
+  {};
+
+  unsigned int        numberOfDispatchThreads;
+  Common_ProactorType proactorType;
+  Common_ReactorType  reactorType;
+  bool                useReactor;
+};
+
 // *** log ***
 typedef std::deque<std::string> Common_MessageStack_t;
 typedef Common_MessageStack_t::const_iterator Common_MessageStackConstIterator_t;
