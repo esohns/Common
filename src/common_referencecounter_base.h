@@ -54,13 +54,13 @@ class Common_Export Common_ReferenceCounterBase
   Common_ReferenceCounterBase (long,  // initial reference count
                                bool); // delete on 0 ?
 
+  mutable ACE_SYNCH_MUTEX        lock_;
+
  private:
   typedef ACE_Refcountable_T<ACE_SYNCH_MUTEX> inherited;
 
-  //ACE_Condition<ACE_SYNCH_MUTEX> condition_;
   ACE_SYNCH_CONDITION            condition_;
   bool                           deleteOnZero_;
-  mutable ACE_SYNCH_MUTEX        lock_;
 };
 
 #endif

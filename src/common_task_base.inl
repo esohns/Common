@@ -314,7 +314,7 @@ Common_TaskBase_T<TaskSynchStrategyType,
 
     if (message_block_p->msg_type () == ACE_Message_Block::MB_STOP)
     {
-      if (inherited::thr_count_ > 1)
+      if (inherited::thr_count_ > 0)
       {
         result = inherited::putq (message_block_p, NULL);
         if (result == -1)
