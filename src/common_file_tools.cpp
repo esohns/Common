@@ -203,8 +203,7 @@ Common_File_Tools::isValidFilename (const std::string& string_in)
 
   // *TODO*: this isn't entirely accurate
   return (!Common_File_Tools::isDirectory (string_in) &&
-          ((directory != ACE_TEXT_ALWAYS_CHAR ("."))  &&
-           Common_File_Tools::isDirectory (directory) &&
+          (Common_File_Tools::isDirectory (directory) &&
            !file_name.empty ()));
 }
 
