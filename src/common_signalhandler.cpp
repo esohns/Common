@@ -23,7 +23,6 @@
 
 #include <string>
 
-//#include "ace/Assert.h"
 #include "ace/Log_Msg.h"
 
 #include "common_isignal.h"

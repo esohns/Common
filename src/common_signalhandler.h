@@ -25,7 +25,8 @@
 #include "ace/config-macros.h"
 #include "ace/Event_Handler.h"
 #include "ace/Global_Macros.h"
-#include "ace/OS.h"
+#include "ace/os_include/os_ucontext.h"
+#include "ace/OS_NS_signal.h"
 
 #include "common_exports.h"
 
@@ -33,7 +34,6 @@
 class Common_ISignal;
 
 class Common_Export Common_SignalHandler
-//class Common_SignalHandler
  : public ACE_Handler
  , public ACE_Event_Handler
 {
