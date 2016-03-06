@@ -958,11 +958,10 @@ Common_Tools::error2String (DWORD error_in)
                             sizeof (buffer),                            // nSize
                             NULL);                                      // Arguments
   if (!result_2)
-  { // *TODO*: %u does not work on Win32
+  {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to FormatMessage(0x%x): \"%s\", aborting\n"),
-                error_in,
-                ACE_TEXT (Common_Tools::error2String (::GetLastError ()).c_str ())));
+                ACE_TEXT ("failed to FormatMessage(0x%x), aborting\n"),
+                error_in));
     return result;
   } // end IF
   result = ACE_TEXT_ALWAYS_CHAR (buffer);
