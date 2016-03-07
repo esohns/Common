@@ -37,6 +37,7 @@ class Common_Export Common_File_Tools
   static bool copyFile (const std::string&,  // FQ file name
                         const std::string&); // directory
   static bool deleteFile (const std::string&); // FQ file name
+  // *NOTE*: also checks whether the file is 'regular' (i.e. not a symlink, ...)
   static bool isReadable (const std::string&); // FQ file name
   static bool isEmpty (const std::string&); // FQ file name
   static bool isDirectory (const std::string&); // directory
@@ -53,22 +54,23 @@ class Common_Export Common_File_Tools
 
   static std::string realPath (const std::string&); // path
 
-  static std::string getWorkingDirectory ();
 //  // *PORTABILITY*: - on UNIX, this should be passed as a BASEDIR macro at compile time
 //  //                - on WIN32, this should default to the working directory (*TODO*)
 //  static std::string getConfigurationDataDirectory (const std::string&, // base directory
 //                                                    bool);              // config ? : data
 
-  static std::string getUserHomeDirectory (const std::string&); // user
+  static std::string getHomeDirectory (const std::string&); // user name
   // *NOTE*: (try to) create the directory if it doesn't exist
   static std::string getUserConfigurationDirectory ();
+  static std::string getWorkingDirectory ();
 
-  static std::string getTempDirectory ();
   static std::string getLogDirectory (const std::string&, // package name
                                       unsigned int = 0);  // fallback level {0: default}
+  static std::string getLogFilename (const std::string&,    // package name
+                                       const std::string&); // program name
 
-  static std::string getLogFilename (const std::string&,  // package name
-                                     const std::string&); // program name
+  static std::string getTempDirectory ();
+  static std::string getTempFilename (const std::string&); // program name
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_File_Tools ())

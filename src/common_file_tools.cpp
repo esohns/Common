@@ -877,9 +877,9 @@ Common_File_Tools::getWorkingDirectory ()
 //}
 
 std::string
-Common_File_Tools::getUserHomeDirectory (const std::string& user_in)
+Common_File_Tools::getHomeDirectory (const std::string& user_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getUserHomeDirectory"));
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getHomeDirectory"));
 
   // initialize result value(s)
   std::string result;
@@ -1020,11 +1020,11 @@ Common_File_Tools::getUserConfigurationDirectory ()
     goto fallback;
   } // end IF
 
-  result = Common_File_Tools::getUserHomeDirectory (user_name);
+  result = Common_File_Tools::getHomeDirectory (user_name);
   if (result.empty ())
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT("failed to Common_File_Tools::getUserHomeDirectory(\"%s\"), falling back\n"),
+                ACE_TEXT("failed to Common_File_Tools::getHomeDirectory(\"%s\"), falling back\n"),
                 ACE_TEXT (user_name.c_str ())));
     goto fallback;
   } // end IF
@@ -1177,6 +1177,46 @@ fallback:
 }
 
 std::string
+Common_File_Tools::getTempFilename (const std::string& programName_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getTempFilename"));
+
+  std::string result = Common_File_Tools::getTempDirectory ();
+  if (result.empty ())
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_File_Tools::getTempDirectory(), aborting\n")));
+    return result;
+  } // end IF
+  result += ACE_DIRECTORY_SEPARATOR_STR;
+
+  // sanity check(s)
+  ACE_ASSERT (programName_in.size () <= (BUFSIZ - 6 + 1));
+
+  // *NOTE*: see also: man 3 mkstemp
+  ACE_TCHAR buffer[BUFSIZ];
+  if (!programName_in.empty ())
+    ACE_OS::strcpy (buffer, programName_in.c_str ());
+  ACE_OS::strcpy (buffer + programName_in.size (), ACE_TEXT ("XXXXXX"));
+  ACE_HANDLE file_handle = ACE_OS::mkstemp (buffer);
+  if (file_handle == ACE_INVALID_HANDLE)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::mkstemp(): \"%m\", aborting\n")));
+    return std::string ();
+  } // end IF
+  result += buffer;
+
+  // clean up
+  int result_2 = ACE_OS::close (file_handle);
+  if (result_2 == -1)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::close(): \"%m\", continuing\n")));
+
+  return result;
+}
+
+std::string
 Common_File_Tools::getLogFilename (const std::string& packageName_in,
                                    const std::string& programName_in)
 {
@@ -1193,33 +1233,55 @@ fallback:
 
   if (result.empty ())
   {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_File_Tools::getLogDirectory(\"%s\",%d), aborting\n"),
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("failed to Common_File_Tools::getLogDirectory(\"%s\",%d), falling back\n"),
                 ACE_TEXT (packageName_in.c_str ()),
                 fallback_level));
+
+    result = Common_File_Tools::getWorkingDirectory ();
+    if (result.empty ())
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_File_Tools::getWorkingDirectory(), aborting\n")));
+      return result;
+    } // end IF
+    result += ACE_DIRECTORY_SEPARATOR_STR;
+    std::string filename = Common_File_Tools::getTempFilename (programName_in);
+    if (filename.empty ())
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_File_Tools::getTempFilename(\"%s\"), aborting\n"),
+                  ACE_TEXT (programName_in.c_str ())));
+      return result;
+    } // end IF
+    result +=
+        ACE_TEXT_ALWAYS_CHAR (ACE::basename (filename.c_str (),
+                                             ACE_DIRECTORY_SEPARATOR_CHAR));
+    result += COMMON_LOG_FILENAME_SUFFIX;
+
     return result;
   } // end IF
   result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   result += programName_in;
   result += COMMON_LOG_FILENAME_SUFFIX;
 
-  // sanity check(s): log file exists ?
-  // Yes ? --> (try to) delete it then
-  if (Common_File_Tools::isReadable (result))
+  // sanity check(s)
+  if (!Common_File_Tools::create (result))
   {
-    if (!Common_File_Tools::deleteFile (result))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to Common_File_Tools::deleteFile(\"%s\"), falling back\n"),
-                  ACE_TEXT (result.c_str ())));
-
-      ++fallback_level;
-
-      goto fallback;
-    } // end IF
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("deleted file: \"%s\"...\n"),
+                ACE_TEXT ("failed to Common_File_Tools::create(\"%s\"), falling back\n"),
                 ACE_TEXT (result.c_str ())));
+
+    ++fallback_level;
+
+    goto fallback;
+  } // end IF
+  if (!Common_File_Tools::deleteFile (result))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_File_Tools::deleteFile(\"%s\"), aborting\n"),
+                ACE_TEXT (result.c_str ())));
+    return std::string ();
   } // end IF
 
   return result;
@@ -1276,7 +1338,7 @@ use_path:
   } // end IF
 
   // sanity check(s): directory exists ?
-  // No ? --> (try to) create it then
+  // --> (try to) create it
   if (!Common_File_Tools::isDirectory (result))
   {
     if (!Common_File_Tools::createDirectory (result))
