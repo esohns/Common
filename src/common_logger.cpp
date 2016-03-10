@@ -25,8 +25,8 @@
 
 #include "ace/Guard_T.h"
 #include "ace/Log_Msg.h"
-//#include "ace/OS.h"
-#include "ace/Recursive_Thread_Mutex.h"
+//#include "ace/Reverse_Lock_T.h"
+#include "ace/Synch.h"
 
 #include "common_defines.h"
 #include "common_macros.h"
@@ -140,9 +140,30 @@ Common_Logger::log (ACE_Log_Record& record_in)
   //} // end IF
   //string_stream << buffer_;
 
-  ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (*lock_);
+  // *IMPORTANT NOTE*: this is called by the ACE logger (ACE_Log_Msg::log()).
+  //                   At this time, the calling thread is holding onto
+  //                   ACE_Log_Msg_Manager::lock_ (see: Log_Msg.cpp:2895). Note
+  //                   how this could deadlock if a different thread has lock_
+  //                   and tries to log something
+  //                   --> temporarily release ACE_Log_Msg_Manager::lock_
+  ACE_Log_Msg* log_msg_p = ACE_LOG_MSG;
+  ACE_ASSERT (log_msg_p);
+  result = log_msg_p->release ();
+  if (result == -1)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Log_Msg::release(): \"%m\", continuing\n")));
+  //ACE_Reverse_Lock<ACE_SYNCH_RECURSIVE_MUTEX> reverse_lock (ACE_Log_Msg_Manager::get_lock ());
+  //{
+    //ACE_Guard<ACE_Reverse_Lock<ACE_SYNCH_RECURSIVE_MUTEX> > aGuard (reverse_lock);
 
-  messageStack_->push_back (string_stream.str ());
+    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard_2 (*lock_);
+
+    messageStack_->push_back (string_stream.str ());
+  //} // end lock scope
+  result = log_msg_p->acquire ();
+  if (result == -1)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Log_Msg::acquire(): \"%m\", continuing\n")));
 
   return 0;
 }
