@@ -28,13 +28,13 @@
 
 Common_ReferenceCounterBase::Common_ReferenceCounterBase (long initialCount_in)
  : inherited (initialCount_in)
+ , lock_ (NULL, // name
+          NULL) // attributes
  , condition_ (lock_,
                USYNC_THREAD,
                NULL,
                NULL)
  , deleteOnZero_ (false)
- , lock_ (NULL, // name
-          NULL) // attributes
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
 
@@ -42,13 +42,13 @@ Common_ReferenceCounterBase::Common_ReferenceCounterBase (long initialCount_in)
 
 Common_ReferenceCounterBase::Common_ReferenceCounterBase (const Common_ReferenceCounterBase& counter_in)
  : inherited (counter_in)
+ , lock_ (NULL, // name
+          NULL) // attributes
  , condition_ (counter_in.lock_, // *NOTE*: use the same lock
                USYNC_THREAD,
                NULL,
                NULL)
  , deleteOnZero_ (counter_in.deleteOnZero_)
- , lock_ (NULL, // name
-          NULL) // attributes
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
 
@@ -62,13 +62,13 @@ Common_ReferenceCounterBase::~Common_ReferenceCounterBase ()
 
 Common_ReferenceCounterBase::Common_ReferenceCounterBase ()
  : inherited (1)
+ , lock_ (NULL, // name
+          NULL) // attributes
  , condition_ (lock_,
                USYNC_THREAD,
                NULL,
                NULL)
  , deleteOnZero_ (true)
- , lock_ (NULL, // name
-          NULL) // attributes
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
 
@@ -77,13 +77,13 @@ Common_ReferenceCounterBase::Common_ReferenceCounterBase ()
 Common_ReferenceCounterBase::Common_ReferenceCounterBase (long initialCount_in,
                                                           bool deleteOnZero_in)
  : inherited (initialCount_in)
+ , lock_ (NULL, // name
+          NULL) // attributes
  , condition_ (lock_,
                USYNC_THREAD,
                NULL,
                NULL)
  , deleteOnZero_ (deleteOnZero_in)
- , lock_ (NULL, // name
-          NULL) // attributes
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
 
