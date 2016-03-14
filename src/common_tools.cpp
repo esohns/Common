@@ -335,15 +335,16 @@ Common_Tools::printCapabilities ()
     return;
   } // end IF
   ACE_DEBUG ((LM_INFO,
-              ACE_TEXT ("%P:%t: securebit set/locked:\nSECURE_NOROOT:\t\t%s/%s\nSECURE_NO_SETUID_FIXUP:\t%s/%s\nSECURE_KEEP_CAPS:\t%s/%s\nSECURE_NO_CAP_AMBIENT_RAISE:\t%s/%s...\n"),
+              ACE_TEXT ("%P:%t: securebit set/locked:\nSECURE_NOROOT:\t\t%s/%s\nSECURE_NO_SETUID_FIXUP:\t%s/%s\nSECURE_KEEP_CAPS:\t%s/%s...\n"),
+//              ACE_TEXT ("%P:%t: securebit set/locked:\nSECURE_NOROOT:\t\t%s/%s\nSECURE_NO_SETUID_FIXUP:\t%s/%s\nSECURE_KEEP_CAPS:\t%s/%s\nSECURE_NO_CAP_AMBIENT_RAISE:\t%s/%s...\n"),
               ((result & SECBIT_NOROOT) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
               ((result & SECBIT_NOROOT_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
               ((result & SECBIT_NO_SETUID_FIXUP) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
               ((result & SECBIT_NO_SETUID_FIXUP_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
               ((result & SECBIT_KEEP_CAPS) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
-              ((result & SECBIT_KEEP_CAPS_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
-              ((result & SECBIT_NO_CAP_AMBIENT_RAISE) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
-              ((result & SECBIT_NO_CAP_AMBIENT_RAISE_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no"))));
+              ((result & SECBIT_KEEP_CAPS_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no"))));
+//              ((result & SECBIT_NO_CAP_AMBIENT_RAISE) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+//              ((result & SECBIT_NO_CAP_AMBIENT_RAISE_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no"))));
 
   cap_t capabilities_p = NULL;
 //  capabilities_p = cap_init ();
@@ -387,15 +388,16 @@ Common_Tools::printCapabilities ()
     in_bounding_set = (result == 1);
 
     // *TODO*: currently, this fails on Linux (Debian)...
-    result = ::prctl (PR_CAP_AMBIENT,
-                      PR_CAP_AMBIENT_IS_SET, capability, 0, 0);
-    if (result == -1)
-    {
+    result = 0;
+//    result = ::prctl (PR_CAP_AMBIENT,
+//                      PR_CAP_AMBIENT_IS_SET, capability, 0, 0);
+//    if (result == -1)
+//    {
 //      ACE_DEBUG ((LM_ERROR,
 //                  ACE_TEXT ("failed to ::prctl(PR_CAP_AMBIENT,PR_CAP_AMBIENT_IS_SET,\"%s\"): \"%m\", returning\n"),
 //                  capability_name_string_p));
 //      goto continue_;
-    } // end IF
+//    } // end IF
     in_ambient_set = (result == 1);
 
     result = ::cap_get_flag (capabilities_p, capability,

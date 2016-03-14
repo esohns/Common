@@ -51,7 +51,10 @@ else ()
  message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
 endif ()
 
-#include (FindPkgConfig)
+include (FindPkgConfig)
+if (UNIX)
+ pkg_check_modules (PKG_LIBCAP REQUIRED libcap)
+endif ()
 #pkg_check_modules (PKG_ACE REQUIRED ACE)
 
 add_definitions (-DHAVE_CONFIG_H)
