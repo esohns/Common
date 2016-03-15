@@ -83,8 +83,8 @@ Common_SignalHandler::handle_signal (int signal_in,
                                     information);
   // *PORTABILITY*: tracing in a signal handler context is not portable
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("%D: received [%S]: %s\n"),
-              signal_in,
+              ACE_TEXT ("%D: received [%u/\"%S\"]: %s\n"),
+              signal_in, signal_in,
               ACE_TEXT (information.c_str ())));
 
   // *IMPORTANT NOTE*: in signal context, many actions are forbidden (e.g.
