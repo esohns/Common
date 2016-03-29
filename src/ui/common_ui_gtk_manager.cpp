@@ -364,8 +364,11 @@ Common_UI_GTK_Manager::initializeGTK ()
     } // end FOR
   } // end FOR
 
-  g_thread_init (NULL);
-  gdk_threads_init ();
+  if (g_thread_supported ())
+  {
+    g_thread_init (NULL);
+    gdk_threads_init ();
+  } // end IF
   if (!gtk_init_check (&argc_,
                        &argv_))
   {
