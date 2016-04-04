@@ -21,16 +21,20 @@
 #ifndef COMMON_INOTIFY_H
 #define COMMON_INOTIFY_H
 
-template <typename ConfigurationType,
+template <typename SessionIdType,
+          typename SessionDataType,
           typename MessageType,
           typename SessionMessageType>
 class Common_INotify_T
 {
  public:
-  virtual void start (const ConfigurationType&) = 0; // configuration
-  virtual void notify (const MessageType&) = 0; // (protocol) data
-  virtual void notify (const SessionMessageType&) = 0; // session message
-  virtual void end () = 0;
+  virtual void start (SessionIdType,                   // session id
+                      const SessionDataType&) = 0;     // session data
+  virtual void notify (SessionIdType,                  // session id
+                       const MessageType&) = 0;        // (protocol) data
+  virtual void notify (SessionIdType,                  // session id
+                       const SessionMessageType&) = 0; // session message
+  virtual void end (SessionIdType) = 0;                // session id
 };
 
 #endif
