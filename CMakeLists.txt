@@ -55,18 +55,21 @@ endforeach ()
 # (this registers the build-tree with a global CMake-registry)
 export (PACKAGE lib${PROJECT_NAME})
 
-# Create the libCommonConfig.cmake and libCommonConfigVersion.cmake files
+# Create the CommonConfig.cmake and CommonConfigVersion.cmake files
 file (RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}")
 # ... for the build tree
 set (CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
-configure_file (${PROJECT_NAME}Config.cmake.in "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" @ONLY)
+configure_file (${PROJECT_NAME}Config.cmake.in
+                "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" @ONLY)
 # ... for the install tree
 set (CONF_INCLUDE_DIRS "\${LIBCOMMON_CMAKE_DIR}/${REL_INCLUDE_DIR}")
-configure_file (${PROJECT_NAME}Config.cmake.in "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PROJECT_NAME}Config.cmake" @ONLY)
+configure_file (${PROJECT_NAME}Config.cmake.in
+                "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PROJECT_NAME}Config.cmake" @ONLY)
 # ... for both
-configure_file (${PROJECT_NAME}ConfigVersion.cmake.in "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake" @ONLY)
+configure_file (${PROJECT_NAME}ConfigVersion.cmake.in
+                "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake" @ONLY)
 
-# Install the libCommonConfig.cmake and libCommonConfigVersion.cmake
+# Install the CommonConfig.cmake and CommonConfigVersion.cmake
 install (FILES
          "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PROJECT_NAME}Config.cmake"
          "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
@@ -115,12 +118,12 @@ endif ()
 
 option (VALGRIND_SUPPORT
         "enable valgrind support" OFF)
-include (CheckIncludeFiles)
-include (FindPkgConfig)
 if (VALGRIND_SUPPORT)
+ include (CheckIncludeFiles)
  check_include_files (valgrind/valgrind.h HAVE_VALGRIND_H)
 #  include (CheckLibraryExists)
 #  check_library_exists (libvalgrind "" "" HAVE_LIB_VALGRIND)
+ include (FindPkgConfig)
  pkg_check_modules (PKGVALGRIND REQUIRED valgrind)
  add_definitions (-DLIBCOMMON_ENABLE_VALGRIND_SUPPORT)
 #  set_property (SOURCE PROPERTY COMPILE_DEFINITIONS LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
@@ -149,3 +152,4 @@ set (CPACK_RESOURCE_FILE_README ${CMAKE_CURRENT_SOURCE_DIR}/README)
 include (CPack)
 
 add_subdirectory (src)
+
