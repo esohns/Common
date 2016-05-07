@@ -31,12 +31,12 @@
 
 #include "gtk/gtk.h"
 
-#include "glade/glade.h"
+//#include "glade/glade.h"
 
 #include "common_ui_igtk.h"
 
-//// forward declarations
-//struct GladeXML;
+// forward declarations
+struct _GladeXML;
 
 //enum Common_UI_GTKDefinitionType
 //{
@@ -58,7 +58,7 @@ typedef std::map<std::string, Common_UI_GTKBuilder_t> Common_UI_GTKBuilders_t;
 typedef Common_UI_GTKBuilders_t::iterator Common_UI_GTKBuildersIterator_t;
 typedef Common_UI_GTKBuilders_t::const_iterator Common_UI_GTKBuildersConstIterator_t;
 
-typedef std::pair<std::string, GladeXML*> Common_UI_GTKGladeXML_t;
+typedef std::pair<std::string, struct _GladeXML*> Common_UI_GTKGladeXML_t;
 typedef std::map<std::string, Common_UI_GTKGladeXML_t> Common_UI_GladeXMLs_t;
 typedef Common_UI_GladeXMLs_t::iterator Common_UI_GladeXMLsIterator_t;
 typedef Common_UI_GladeXMLs_t::const_iterator Common_UI_GladeXMLsConstIterator_t;
