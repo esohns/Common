@@ -80,7 +80,8 @@ class Common_Timer_Manager_T
   typedef TimerQueueAdapterType inherited;
 
   // convenience types
-  typedef typename TimerQueueAdapterType::TIMER_QUEUE_T TIMER_QUEUE_T;
+  typedef typename TimerQueueAdapterType::TIMER_QUEUE TIMER_QUEUE_T;
+  //typedef typename TimerQueueAdapterType::TIMER_QUEUE_T TIMER_QUEUE_T;
   typedef Common_Timer_Manager_T<TimerQueueAdapterType> OWN_TYPE_T;
 
   Common_Timer_Manager_T ();

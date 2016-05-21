@@ -377,9 +377,12 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::schedule_timer (ACE_Handler* hand
   {
     case COMMON_TIMER_MODE_PROACTOR:
     {
+      // sanity check(s)
       ACE_Proactor* proactor_p = ACE_Proactor::instance ();
       ACE_ASSERT (proactor_p);
-      result = proactor_p->schedule_timer (handler_in,
+      ACE_ASSERT (handler_in);
+
+      result = proactor_p->schedule_timer (*handler_in,
                                            act_in,
                                            delay_in,
                                            interval_in);
@@ -428,6 +431,9 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::schedule_timer (ACE_Event_Handler
     }
     case COMMON_TIMER_MODE_QUEUE:
     {
+      // sanity check(s)
+      ACE_ASSERT (handler_in);
+
       result = inherited::schedule (handler_in,
                                     act_in,
                                     delay_in,

@@ -27,6 +27,8 @@
 #include "ace/OS.h"
 #include "ace/Thread.h"
 
+#include "glade/glade.h"
+
 #include "common_macros.h"
 #include "common_timer_manager.h"
 
