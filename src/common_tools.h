@@ -25,7 +25,7 @@
 
 #include <string>
 
-#include "ace/config-macros.h"
+#include "ace/config-lite.h"
 #include "ace/Global_Macros.h"
 
 #include "common.h"

@@ -19,6 +19,8 @@
  ***************************************************************************/
 #include "stdafx.h"
 
+#include "common_tools.h"
+
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -33,9 +35,10 @@ using namespace std;
 //                       prevent ace/iosfwd.h from causing any harm
 #define ACE_IOSFWD_H
 
-#include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <Security.h>
+
+#include "dxerr.h"
 #elif defined (ACE_LINUX)
 #include <sys/capability.h>
 #include <sys/prctl.h>
@@ -74,8 +77,6 @@ using namespace std;
 #if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
 #include "valgrind/memcheck.h"
 #endif
-
-#include "common_tools.h"
 
 #include "common_defines.h"
 #include "common_macros.h"
@@ -959,12 +960,43 @@ Common_Tools::error2String (DWORD error_in)
                             buffer,                                     // lpBuffer
                             sizeof (buffer),                            // nSize
                             NULL);                                      // Arguments
-  if (!result_2)
+  if (result_2 == 0)
   {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to FormatMessage(0x%x), aborting\n"),
-                error_in));
-    return result;
+    DWORD error = ::GetLastError ();
+    if (error != ERROR_MR_MID_NOT_FOUND)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to FormatMessage(0x%x): \"%s\", continuing\n"),
+                  error_in,
+                  ACE_TEXT (Common_Tools::error2String (error).c_str ())));
+      return result;
+    } // end IF
+
+    // try DirectX error messages
+    // *TODO*: implement ascii variants of DXGetErrorString
+    //ACE_TCHAR* string_p = ACE_TEXT_WCHAR_TO_TCHAR (DXGetErrorString (error_in));
+    //if (!string_p)
+    //{
+    //  ACE_DEBUG ((LM_ERROR,
+    //              ACE_TEXT ("failed to DXGetErrorString(0x%x): \"%s\", aborting\n"),
+    //              error_in,
+    //              ACE_TEXT (Common_Tools::error2String (::GetLastError ()).c_str ())));
+    //  return result;
+    //} // end IF
+    //result = ACE_TEXT_ALWAYS_CHAR (string_p);
+    //result += ACE_TEXT_ALWAYS_CHAR (": ");
+
+    WCHAR buffer_2[BUFSIZ];
+    ACE_OS::memset (buffer_2, 0, sizeof (buffer_2));
+    DXGetErrorDescription (error_in, buffer_2, BUFSIZ);
+    ACE_Wide_To_Ascii converter (buffer_2);
+    if (!ACE_OS::strcpy (buffer,
+                         ACE_TEXT_CHAR_TO_TCHAR (converter.char_rep ())))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::strcpy(): \"%m\", aborting\n")));
+      return result;
+    } // end IF
   } // end IF
   result = ACE_TEXT_ALWAYS_CHAR (buffer);
 

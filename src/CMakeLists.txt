@@ -1,5 +1,3 @@
-#cmake_minimum_required (VERSION 2.8)
-
 # target system introspection (see configure.ac)
 include (CheckFunctionExists)
 check_function_exists (strerror HAVE_FUNC_STRERROR)
@@ -64,6 +62,7 @@ if (UNIX)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE)
 elseif (WIN32)
  include_directories ($ENV{ACE_ROOT})
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/err)
 endif ()
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/..)
 
@@ -124,9 +123,10 @@ set_target_properties (${PROJECT_NAME} PROPERTIES DEFINE_SYMBOL COMMON_BUILD_DLL
 set_target_properties (${PROJECT_NAME} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 if (WIN32)
- target_link_libraries (${PROJECT_NAME} ${ACE_LIBRARY})
  target_link_libraries (${PROJECT_NAME} Secur32.lib)
  target_link_libraries (${PROJECT_NAME} Userenv.lib)
+ target_link_libraries (${PROJECT_NAME} ${ACE_LIBRARY})
+ target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}ERR)
 endif ()
 
 # add all targets to the build-tree export set
@@ -177,4 +177,7 @@ install (TARGETS ${PROJECT_NAME}
          RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
          COMPONENT dev)
 
+if (WIN32)
+ add_subdirectory (err)
+endif ()
 add_subdirectory (ui)

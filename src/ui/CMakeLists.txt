@@ -1,8 +1,38 @@
-cmake_minimum_required (VERSION 2.8)
+#cmake_minimum_required (VERSION 2.8)
 
 #include (CheckLibraryExists)
 #check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
 #find_library (HAVE_LIB_ACE libACE)
+
+set (ACE_LIB_FILE libACE.so)
+if (UNIX)
+ if (DEFINED ENV{ACE_ROOT})
+  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
+                PATHS ENV ACE_ROOT
+                PATH_SUFFIXES ace build/linux/ace
+                DOC "searching for ${ACE_LIB_FILE}"
+                NO_DEFAULT_PATH)
+ else ()
+  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
+                DOC "searching for ${ACE_LIB_FILE} (system paths)")
+ endif ()
+elseif (WIN32)
+ if (CMAKE_BUILD_TYPE STREQUAL Debug)
+  set (LIB_FILE_SUFFIX d)
+ endif ()
+ unset (ACE_LIB_FILE)
+ set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
+ find_library (ACE_LIBRARY ${ACE_LIB_FILE}
+               PATHS ENV ACE_ROOT
+               PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
+               DOC "searching for ${ACE_LIB_FILE}")
+endif ()
+#if (NOT EXISTS ACE_LIBRARY)
+if (NOT ACE_LIBRARY)
+ message (FATAL_ERROR "Could not find ${ACE_LIB_FILE} (was: \"${ACE_LIBRARY}\"), aborting")
+else ()
+ message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
+endif ()
 
 include (FindPkgConfig)
 #pkg_check_modules (PKG_ACE REQUIRED ACE)
@@ -10,8 +40,10 @@ pkg_check_modules (PKG_GTK_GLADE REQUIRED libpng gmodule-2.0 gthread-2.0 gtk+-2.
 
 if (UNIX)
  include_directories (${PKG_GTK_GLADE_INCLUDE_DIRS})
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
 elseif (WIN32)
 #*TODO*: use pkg-config instead
+ include_directories ($ENV{ACE_ROOT})
 # gtk
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk/include/glib-2.0)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk/lib/glib-2.0/include)
