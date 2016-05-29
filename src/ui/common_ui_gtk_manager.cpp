@@ -299,9 +299,9 @@ Common_UI_GTK_Manager::svc (void)
     } // end IF
   } // end IF
 
-  gdk_threads_enter ();
+  //gdk_threads_enter ();
   gtk_main ();
-  gdk_threads_leave ();
+  //gdk_threads_leave ();
 
   // stop() (close() --> gtk_main_quit ()) was called...
 
@@ -317,9 +317,12 @@ Common_UI_GTK_Manager::initializeGTK ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager::initializeGTK"));
 
+  // sanity check(s)
   ACE_ASSERT (state_);
 
-  // step1: initialize GTK
+  u_long process_priority_mask =
+    ACE_LOG_MSG->priority_mask (ACE_Log_Msg::PROCESS);
+
   char* locale_p = ::setlocale (LC_ALL, "");
   if (locale_p)
     ACE_DEBUG ((LM_DEBUG,
@@ -328,6 +331,16 @@ Common_UI_GTK_Manager::initializeGTK ()
   else
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::setlocale(): \"%m\", continuing\n")));
+
+  // step1: initialize GLib
+  //GTypeDebugFlags debug_flags =
+  //  static_cast <GTypeDebugFlags> (G_TYPE_DEBUG_OBJECTS       |
+  //                                 G_TYPE_DEBUG_SIGNALS       |
+  //                                 G_TYPE_DEBUG_INSTANCE_COUNT);
+  //if (!(process_priority_mask & LM_DEBUG))
+  //  debug_flags = G_TYPE_DEBUG_NONE;
+  //g_type_init_with_debug_flags (debug_flags);
+  g_type_init ();
 
   // step1a: set log handlers
   //g_set_print_handler (glib_print_debug_handler);
@@ -342,8 +355,6 @@ Common_UI_GTK_Manager::initializeGTK ()
                                   G_LOG_LEVEL_MESSAGE  |
                                   G_LOG_LEVEL_INFO     |
                                   G_LOG_LEVEL_DEBUG);
-  u_long process_priority_mask =
-      ACE_LOG_MSG->priority_mask (ACE_Log_Msg::PROCESS);
   if (!(process_priority_mask & LM_DEBUG))
     log_level = static_cast <GLogLevelFlags> (log_level & ~G_LOG_LEVEL_DEBUG);
   g_log_set_handler (G_LOG_DOMAIN,
@@ -362,15 +373,15 @@ Common_UI_GTK_Manager::initializeGTK ()
 //      gtk_rc_add_default_file_utf8 ((*iterator).c_str ());
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("#%u: added GTK .rc file \"%s\"...\n"),
-                  i, ACE_TEXT (ACE::basename ((*iterator).c_str ()))));
+                  i, ACE::basename ((*iterator).c_str ())));
     } // end FOR
   } // end FOR
 
-  if (g_thread_supported ())
-  {
-    g_thread_init (NULL);
-    gdk_threads_init ();
-  } // end IF
+  //if (g_thread_supported ())
+  //{
+  //  g_thread_init (NULL);
+  //  gdk_threads_init ();
+  //} // end IF
   if (!gtk_init_check (&argc_,
                        &argv_))
   {
@@ -400,7 +411,7 @@ Common_UI_GTK_Manager::initializeGTK ()
 //  } // end IF
 
   // step2: initialize (lib)glade
-  glade_init ();
+  //glade_init ();
 
   //// step3: initialize GNOME
   //   GnomeClient* gnomeSession = NULL;
