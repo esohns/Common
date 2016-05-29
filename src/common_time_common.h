@@ -21,6 +21,7 @@
 #ifndef COMMON_TIME_COMMON_H
 #define COMMON_TIME_COMMON_H
 
+#include "ace/config-lite.h"
 #include "ace/Version.h"
 
 #include "common_defines.h"
@@ -28,8 +29,24 @@
 #if ((ACE_MAJOR_VERSION >= 6) && \
      ((ACE_MINOR_VERSION > 1) || (ACE_BETA_VERSION > 6)))
 #include "ace/Time_Policy.h"
-// *NOTE*: use the high resolution time for accuracy and low latency
+// *NOTE*: (where possible) use high-resolution timestamps for accuracy and low
+//         latency timers
+// *IMPORTANT NOTE*: currently, the high resolution time policy is not
+//                   compatible with the ACE timer queue implementations.
+//                   The thread timer queue adapter uses a timed wait on a
+//                   condition to sleep between scheduled timers (see:
+//                   Timer_Queue_Adapters.cpp:282). Eventually, this invokes
+//                   ACE_OS::cond_timedwait(), which, on WIN32 (!), invokes
+//                   ACE_Time_Value::to_relative_time() (see:
+//                   Time_Value.cpp:151). This call then subtracts a 'system'
+//                   i.e. "wall-clock" time from a 'high-res' i.e. processor-
+//                   specific "tick" (counter) time, resulting in garbage (and a
+//                   tight loop of the timer queue dispatching thread)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+typedef ACE_System_Time_Policy Common_TimePolicy_t;
+#else
 typedef ACE_HR_Time_Policy Common_TimePolicy_t;
+#endif
 #else
 #error "ACE version > 6.1.6 required"
 typedef ACE_System_Time_Policy Common_TimePolicy_t;

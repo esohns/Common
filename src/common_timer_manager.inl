@@ -414,7 +414,7 @@ template <typename TimerQueueAdapterType>
 long
 Common_Timer_Manager_T<TimerQueueAdapterType>::schedule_timer (ACE_Event_Handler* handler_in,
                                                                const void* act_in,
-                                                               const ACE_Time_Value& delay_in,
+                                                               const ACE_Time_Value& wakeUpTime_in,
                                                                const ACE_Time_Value& interval_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::schedule_timer"));
@@ -426,6 +426,7 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::schedule_timer (ACE_Event_Handler
     case COMMON_TIMER_MODE_PROACTOR:
     {
       ACE_ASSERT (false);
+      ACE_NOTSUP_RETURN (-1);
       ACE_NOTREACHED (return -1);
       break;
     }
@@ -436,7 +437,7 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::schedule_timer (ACE_Event_Handler
 
       result = inherited::schedule (handler_in,
                                     act_in,
-                                    delay_in,
+                                    wakeUpTime_in,
                                     interval_in);
       if (result == -1)
       {
@@ -452,7 +453,7 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::schedule_timer (ACE_Event_Handler
       ACE_ASSERT (reactor_p);
       result = reactor_p->schedule_timer (handler_in,
                                           act_in,
-                                          delay_in,
+                                          wakeUpTime_in,
                                           interval_in);
       if (result == -1)
       {
