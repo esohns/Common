@@ -114,6 +114,16 @@ set (${PROJECT_NAME}_LIB_SRCS
      stdafx.cpp
      stdafx.h)
 
+if (WIN32)
+ add_definitions (-DWIN32)
+ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc") # C++ exception handling
+ if (CMAKE_BUILD_TYPE STREQUAL Debug)
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MDd") # multithreaded debug dll
+ else ()
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")  # multithreaded dll
+ endif ()
+endif ()
+
 add_library (${PROJECT_NAME} SHARED ${Common_LIB_SRCS})
 
 #add_dependencies (${PROJECT_NAME} ACE)
@@ -123,9 +133,16 @@ set_target_properties (${PROJECT_NAME} PROPERTIES DEFINE_SYMBOL COMMON_BUILD_DLL
 set_target_properties (${PROJECT_NAME} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 if (WIN32)
+ if (CMAKE_BUILD_TYPE STREQUAL Debug)
+  target_link_libraries (${PROJECT_NAME} Msvcrtd.lib)
+ else ()
+  target_link_libraries (${PROJECT_NAME} Msvcrt.lib)
+ endif ()
  target_link_libraries (${PROJECT_NAME} Secur32.lib)
  target_link_libraries (${PROJECT_NAME} Userenv.lib)
+
  target_link_libraries (${PROJECT_NAME} ${ACE_LIBRARY})
+
  target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}ERR)
 endif ()
 

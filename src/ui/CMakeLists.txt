@@ -94,6 +94,12 @@ add_library (${PROJECT_NAME}UI SHARED ${CommonUI_LIB_SRCS})
 
 #*TODO*: use pkg-config instead
 if (WIN32)
+ if (CMAKE_BUILD_TYPE STREQUAL Debug)
+  target_link_libraries (${PROJECT_NAME}UI Msvcrtd.lib)
+ else ()
+  target_link_libraries (${PROJECT_NAME}UI Msvcrt.lib)
+ endif ()
+
  target_link_libraries (${PROJECT_NAME}UI ${ACE_LIBRARY})
 
 # gtk
