@@ -120,15 +120,13 @@ Common_ReferenceCounterBase::decrease ()
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::decrease"));
 
   long result = inherited::decrement ();
-
-  // awaken any waiter(s)...
   int result_2 = -1;
 
   // synch access
   {
     ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
 
-    // (final) signal
+    // awaken any waiter(s)
     result_2 = condition_.broadcast ();
     if (result_2 == -1)
       ACE_DEBUG ((LM_ERROR,
