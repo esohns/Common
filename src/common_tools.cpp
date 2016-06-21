@@ -119,10 +119,10 @@ Common_Tools::period2String (const ACE_Time_Value& period_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::period2String"));
 
-  // init return value(s)
+  // initialize return value(s)
   timeString_out.clear ();
 
-  // extract hours and minutes...
+  // extract hours and minutes
   ACE_Time_Value temp = period_in;
   int hours = static_cast<int> (temp.sec()) / (60 * 60);
   temp.sec (temp.sec () % (60 * 60));
@@ -142,7 +142,48 @@ Common_Tools::period2String (const ACE_Time_Value& period_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::snprintf(): \"%m\", aborting\n")));
+    return false;
+  } // end IF
 
+  timeString_out = time_string;
+
+  return true;
+}
+bool
+Common_Tools::timestamp2String (const ACE_Time_Value& timeStamp_in,
+                                std::string& timeString_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::timestamp2String"));
+
+  // initialize return value(s)
+  timeString_out.clear ();
+
+  time_t timestamp = timeStamp_in.sec ();
+  struct tm tm_s;
+  ACE_OS::memset (&tm_s, 0, sizeof (struct tm));
+  if (!ACE_OS::gmtime_r (&timestamp, &tm_s))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::gmtime_r(): \"%m\", aborting\n")));
+    return false;
+  } // end IF
+
+  char time_string[BUFSIZ];
+  ACE_OS::memset (time_string, 0, BUFSIZ);
+  // *TODO*: rewrite this in C++...
+  if (ACE_OS::snprintf (time_string,
+                        sizeof (time_string),
+                        ACE_TEXT_ALWAYS_CHAR ("%u-%u-%u %u:%u:%u.%u"),
+                        tm_s.tm_year + 1900,
+                        tm_s.tm_mon + 1,
+                        tm_s.tm_mday,
+                        tm_s.tm_hour,
+                        tm_s.tm_min,
+                        tm_s.tm_sec,
+                        timeStamp_in.usec ()) < 0)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::snprintf(): \"%m\", aborting\n")));
     return false;
   } // end IF
 

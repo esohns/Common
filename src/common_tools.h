@@ -49,10 +49,12 @@ class Common_Export Common_Tools
   static Common_ITimer* getTimerManager ();
 
   // --- strings ---
-  // use this to generate a "condensed" period string
-  // - uses snprintf internally: "%H:%M:%S.usec"
+  // *NOTE*: uses ::snprintf internally: "HH:MM:SS.usec"
   static bool period2String (const ACE_Time_Value&, // period
                              std::string&);         // return value: corresp. string
+  // *NOTE*: uses ::snprintf internally: "YYYY-MM-DD HH:MM:SS.usec"
+  static bool timestamp2String (const ACE_Time_Value&, // period
+                                std::string&);         // return value: corresp. string
 
   static std::string sanitizeURI (const std::string&); // URI
   static std::string sanitize (const std::string&); // string
