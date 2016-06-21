@@ -95,6 +95,7 @@ set (${PROJECT_NAME}_LIB_SRCS
      common_referencecounter_base.h
      common_signalhandler.cpp
      common_signalhandler.h
+     common_signalhandler.inl
      common_statemachine_base.cpp
      common_statemachine_base.h
      common_statemachine_base.inl
@@ -173,8 +174,8 @@ install (FILES
          common_logger.h
          common_macros.h
          common_referencecounter_base.h
-         common_signalhandler.cpp
          common_signalhandler.h
+         common_signalhandler.inl
          common_statemachine_base.h
          common_statemachine_base.inl
          common_task_base.h

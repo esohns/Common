@@ -33,7 +33,7 @@
 
 #include "common_defines.h"
 
-// forward declarations
+// forward declaration(s)
 class ACE_Sig_Action;
 
 struct Common_SignalInformation
@@ -41,23 +41,31 @@ struct Common_SignalInformation
   Common_SignalInformation ()
    : signal (-1)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  , sigInfo (ACE_INVALID_HANDLE)
-  , uContext (-1)
+  , siginfo (ACE_INVALID_HANDLE)
+  , ucontext (-1)
 #else
-  , sigInfo ()
-  , uContext ()
+  , siginfo ()
+  , ucontext ()
 #endif
   {
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-    ACE_OS::memset (&sigInfo, 0, sizeof (sigInfo));
-    ACE_OS::memset (&uContext, 0, sizeof (uContext));
+    ACE_OS::memset (&siginfo, 0, sizeof (siginfo));
+    ACE_OS::memset (&ucontext, 0, sizeof (ucontext));
 #endif
   };
 
   int        signal;
-  siginfo_t  sigInfo;
-  ucontext_t uContext;
+  siginfo_t  siginfo;
+  ucontext_t ucontext;
+};
+struct Common_SignalHandlerConfiguration
+{
+  Common_SignalHandlerConfiguration ()
+   : useReactor (true)
+  {};
+
+  bool useReactor;
 };
 
 enum Common_TimerMode

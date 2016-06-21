@@ -29,16 +29,19 @@
 #include "ace/OS_NS_signal.h"
 
 #include "common_exports.h"
+#include "common_iinitialize.h"
 
 // forward declaration(s)
 class Common_ISignal;
 
-class Common_Export Common_SignalHandler
+template <typename ConfigurationType>
+class Common_SignalHandler_T
  : public ACE_Handler
  , public ACE_Event_Handler
+ , public Common_IInitialize_T<ConfigurationType>
 {
  public:
-  virtual ~Common_SignalHandler ();
+  virtual ~Common_SignalHandler_T ();
 
 //  // *NOTE*: proactor code: invoke handle_exception
 //  virtual void handle_time_out (const ACE_Time_Value&, // target time
@@ -48,24 +51,29 @@ class Common_Export Common_SignalHandler
                              siginfo_t* = NULL,   // not needed on UNIX
                              ucontext_t* = NULL); // not used
 
- protected:
-  Common_SignalHandler (Common_ISignal*, // event handler handle
-                        bool = true);    // use reactor ?
+  // implement Common_IInitialize_T
+  virtual bool initialize (const ConfigurationType&);
 
-  bool            useReactor_;
+ protected:
+  Common_SignalHandler_T (Common_ISignal*); // event handler handle
+
+  ConfigurationType* configuration_;
 
  private:
   typedef ACE_Handler inherited;
   typedef ACE_Event_Handler inherited2;
 
-  ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler ())
-  ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler (const Common_SignalHandler&))
-  ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler& operator= (const Common_SignalHandler&))
+  ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler_T ())
+  ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler_T (const Common_SignalHandler_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler_T& operator= (const Common_SignalHandler_T&))
 
   // *NOTE*: implement specific behaviour
   virtual int handle_exception (ACE_HANDLE = ACE_INVALID_HANDLE); // handle
 
-  Common_ISignal* interfaceHandle_;
+  Common_ISignal*    callback_;
 };
+
+// include template implementation
+#include "common_signalhandler.inl"
 
 #endif
