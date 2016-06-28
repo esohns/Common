@@ -47,7 +47,7 @@ build/
 cmake/
 
 # QtCreator
-CMakeLists.txt.user
+CMakeLists.txt.user*
 
 # MSVC
 Debug

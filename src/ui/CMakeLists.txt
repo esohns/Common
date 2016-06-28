@@ -1,5 +1,15 @@
 #cmake_minimum_required (VERSION 2.8)
 
+# *NOTE*: on Win32 systems, the (binary) gtk3 applications have linkage issues
+#         with the latest (2.6.4) libglade distribution (specifically, the
+#         libxml2 dll cannot be easily shared between these two packages; also,
+#         the 'embedded' library names do not match ('lib'-prefixes))
+#         --> disable libglade support when targeting gtk3
+# *TODO*: retrieve the available gtk version number(s) from the pkg-config
+#         output and pre-set this option accordingly
+option (LIBGLADE_SUPPORT "compile libglade support (early versions of gtk do not support GtkBuilder)"
+        OFF)
+
 #include (CheckLibraryExists)
 #check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
 #find_library (HAVE_LIB_ACE libACE)
@@ -37,12 +47,18 @@ endif ()
 include (FindPkgConfig)
 #pkg_check_modules (PKG_ACE REQUIRED ACE)
 if (UNIX)
- pkg_check_modules (PKG_GTK_GLADE REQUIRED libpng gmodule-2.0 gthread-2.0 gtk+-2.0 libglade-2.0)
+ pkg_check_modules (PKG_GTK REQUIRED libpng gmodule-2.0 gthread-2.0 gtk+-2.0)
+ if (LIBGLADE_SUPPORT)
+  pkg_check_modules (PKG_GLADE REQUIRED libglade-2.0)
+ endif ()
 endif ()
 # *TODO*: repair WIN32 pkgconfig support
 
 if (UNIX)
- include_directories (${PKG_GTK_GLADE_INCLUDE_DIRS})
+ include_directories (${PKG_GTK_INCLUDE_DIRS})
+ if (LIBGLADE_SUPPORT)
+  include_directories (${PKG_GLADE_INCLUDE_DIRS})
+ endif ()
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
 elseif (WIN32)
 #*TODO*: use pkg-config instead
@@ -50,14 +66,6 @@ elseif (WIN32)
  include_directories ($ENV{ACE_ROOT})
 
 # gtk
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk2/include/glib-2.0)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk2/lib/glib-2.0/include)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk2/include/gtk-2.0)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk2/lib/gtk-2.0/include)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk2/include/gdk-pixbuf-2.0)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk2/include/atk-1.0)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk2/include/cairo)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk2/include/pango-1.0)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk3/include/glib-2.0)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk3/lib/glib-2.0/include)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk3/include/gtk-2.0)
@@ -66,8 +74,11 @@ elseif (WIN32)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk3/include/atk-1.0)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk3/include)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk3/include/pango-1.0)
+
+ if (LIBGLADE_SUPPORT)
 # libglade
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../libglade/include/libglade-2.0)
+  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../libglade-2.6.4/include/libglade-2.0)
+ endif ()
 endif ()
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../)
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/../../)
@@ -77,8 +88,6 @@ set (${PROJECT_NAME}UI_LIB_SRCS
      common_ui_common.h
      common_ui_defines.h
      common_ui_exports.h
-     common_ui_glade_definition.cpp
-     common_ui_glade_definition.h
      common_ui_gtk_builder_definition.cpp
      common_ui_gtk_builder_definition.h
      common_ui_gtk_manager.cpp
@@ -89,8 +98,17 @@ set (${PROJECT_NAME}UI_LIB_SRCS
      common_ui_types.h
      stdafx.cpp
      stdafx.h)
+set (${PROJECT_NAME}UI_LIB_GLADE_SRCS
+     common_ui_glade_definition.cpp
+     common_ui_glade_definition.h)
 
-add_library (${PROJECT_NAME}UI SHARED ${CommonUI_LIB_SRCS})
+if (LIBGLADE_SUPPORT)
+ add_definitions (-DLIBGLADE_SUPPORT)
+ add_library (${PROJECT_NAME}UI SHARED
+              ${CommonUI_LIB_SRCS} ${CommonUI_LIB_GLADE_SRCS})
+else ()
+ add_library (${PROJECT_NAME}UI SHARED ${CommonUI_LIB_SRCS})
+endif ()
 
 #*TODO*: use pkg-config instead
 if (WIN32)
@@ -103,20 +121,18 @@ if (WIN32)
  target_link_libraries (${PROJECT_NAME}UI ${ACE_LIBRARY})
 
 # gtk
-# target_link_libraries (${PROJECT_NAME}UI ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk/lib/glib-2.0.lib)
-# target_link_libraries (${PROJECT_NAME}UI ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk/lib/gobject-2.0.lib)
-# target_link_libraries (${PROJECT_NAME}UI ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk/lib/gthread-2.0.lib)
-# target_link_libraries (${PROJECT_NAME}UI ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk/lib/gdk-win32-2.0.lib)
-# target_link_libraries (${PROJECT_NAME}UI ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk/lib/gtk-win32-2.0.lib)
  target_link_libraries (${PROJECT_NAME}UI ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk3/lib/glib-2.0.lib)
  target_link_libraries (${PROJECT_NAME}UI ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk3/lib/gobject-2.0.lib)
  target_link_libraries (${PROJECT_NAME}UI ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk3/lib/gthread-2.0.lib)
  target_link_libraries (${PROJECT_NAME}UI ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk3/lib/gdk-win32-2.0.lib)
  target_link_libraries (${PROJECT_NAME}UI ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk3/lib/gtk-win32-2.0.lib)
-# libglade
- target_link_libraries (${PROJECT_NAME}UI ${CMAKE_CURRENT_SOURCE_DIR}/../../../libglade-2.6.4/glade/.libs/libglade-2.0.dll.a)
 
- target_link_libraries (${PROJECT_NAME}UI ${COMMON_TARGET_NAME})
+ if (LIBGLADE_SUPPORT)
+# libglade
+  target_link_libraries (${PROJECT_NAME}UI ${CMAKE_CURRENT_SOURCE_DIR}/../../../libglade-2.6.4/lib/libglade-2.0.dll.a)
+ endif ()
+
+# target_link_libraries (${PROJECT_NAME}UI ${COMMON_TARGET_NAME})
 endif ()
 
 # *WARNING*: linking libglade-2.dll(.a) requires "/SAFESEH:NO""
@@ -131,17 +147,26 @@ export (TARGETS ${PROJECT_NAME}UI
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
+set (${PROJECT_NAME}UI_LIB_HDRS
+     common_ui_common.h
+     common_ui_defines.h
+     common_ui_exports.h
+     common_ui_gtk_builder_definition.h
+     common_ui_gtk_manager.h
+     common_ui_igtk.h
+     common_ui_tools.h
+     common_ui_types.h)
+set (${PROJECT_NAME}UI_LIB_GLADE_HDRS
+     common_ui_glade_definition.h)
+if (LIBGLADE_SUPPORT)
 install (FILES
-         common_ui_common.h
-         common_ui_defines.h
-         common_ui_exports.h
-         common_ui_glade_definition.h
-         common_ui_gtk_builder_definition.h
-         common_ui_gtk_manager.h
-         common_ui_igtk.h
-         common_ui_tools.h
-         common_ui_types.h
+         ${CommonUI_LIB_HDRS} ${CommonUI_LIB_GLADE_HDRS}
          DESTINATION include)
+else ()
+install (FILES
+         ${CommonUI_LIB_HDRS}
+         DESTINATION include)
+endif ()
 install (TARGETS ${PROJECT_NAME}UI
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib

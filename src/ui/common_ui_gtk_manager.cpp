@@ -27,7 +27,9 @@
 #include "ace/OS.h"
 #include "ace/Thread.h"
 
+#if defined (LIBGLADE_SUPPORT)
 #include "glade/glade.h"
+#endif
 
 #include "common_macros.h"
 #include "common_timer_manager.h"
@@ -38,7 +40,7 @@
 void
 glib_print_debug_handler (const gchar* message_in)
 {
-  //COMMON_TRACE (ACE_TEXT ("::glib_print_debug_handler"));
+  COMMON_TRACE (ACE_TEXT ("::glib_print_debug_handler"));
 
   glib_log_handler (NULL,
                     G_LOG_LEVEL_DEBUG,
@@ -47,7 +49,7 @@ glib_print_debug_handler (const gchar* message_in)
 void
 glib_print_error_handler (const gchar* message_in)
 {
-  //COMMON_TRACE (ACE_TEXT ("::glib_print_error_handler"));
+  COMMON_TRACE (ACE_TEXT ("::glib_print_error_handler"));
 
   glib_log_handler (NULL,
                     G_LOG_LEVEL_ERROR,
@@ -59,7 +61,7 @@ glib_log_handler (const gchar* logDomain_in,
                   const gchar* message_in,
                   gpointer userData_in)
 {
-  //COMMON_TRACE (ACE_TEXT ("::glib_log_handler"));
+  COMMON_TRACE (ACE_TEXT ("::glib_log_handler"));
 
   ACE_UNUSED_ARG (logDomain_in);
   ACE_UNUSED_ARG (userData_in);
@@ -410,8 +412,10 @@ Common_UI_GTK_Manager::initializeGTK ()
 //    return false;
 //  } // end IF
 
+#if defined (LIBGLADE_SUPPORT)
   // step2: initialize (lib)glade
-  //glade_init ();
+  glade_init ();
+#endif
 
   //// step3: initialize GNOME
   //   GnomeClient* gnomeSession = NULL;

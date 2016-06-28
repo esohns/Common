@@ -19,4 +19,4 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include "common_signalHandler.h"
+#include "common_signalhandler.h"

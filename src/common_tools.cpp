@@ -173,7 +173,7 @@ Common_Tools::timestamp2String (const ACE_Time_Value& timeStamp_in,
   // *TODO*: rewrite this in C++...
   if (ACE_OS::snprintf (time_string,
                         sizeof (time_string),
-                        ACE_TEXT_ALWAYS_CHAR ("%u-%u-%u %u:%u:%u.%u"),
+                        ACE_TEXT_ALWAYS_CHAR ("%u-%u-%u %u:%u:%u.%ld"),
                         tm_s.tm_year + 1900,
                         tm_s.tm_mon + 1,
                         tm_s.tm_mday,
