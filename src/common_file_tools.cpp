@@ -218,7 +218,8 @@ Common_File_Tools::isValidPath (const std::string& string_in)
   file_name =
     ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (string_in.c_str ())));
 
-  // *TODO*: this isn't entirely accurate
+  // *TODO*: ACE::dirname() returns '.' on an empty argument; this isn't
+  //         entirely accurate
   return ((directory != ACE_TEXT_ALWAYS_CHAR (".")) &&
           Common_File_Tools::isDirectory (directory));
 }
