@@ -31,12 +31,14 @@
 
 #include "gtk/gtk.h"
 
-//#include "glade/glade.h"
+#include "common.h"
 
 #include "common_ui_igtk.h"
 
 // forward declarations
+#if defined (LIGBGLADE_SUPPORT)
 struct _GladeXML;
+#endif
 
 //enum Common_UI_GTKDefinitionType
 //{
@@ -58,10 +60,12 @@ typedef std::map<std::string, Common_UI_GTKBuilder_t> Common_UI_GTKBuilders_t;
 typedef Common_UI_GTKBuilders_t::iterator Common_UI_GTKBuildersIterator_t;
 typedef Common_UI_GTKBuilders_t::const_iterator Common_UI_GTKBuildersConstIterator_t;
 
+#if defined (LIGBGLADE_SUPPORT)
 typedef std::pair<std::string, struct _GladeXML*> Common_UI_GTKGladeXML_t;
 typedef std::map<std::string, Common_UI_GTKGladeXML_t> Common_UI_GladeXMLs_t;
 typedef Common_UI_GladeXMLs_t::iterator Common_UI_GladeXMLsIterator_t;
 typedef Common_UI_GladeXMLs_t::const_iterator Common_UI_GladeXMLsConstIterator_t;
+#endif
 
 struct Common_UI_GTKState
 {
@@ -70,8 +74,11 @@ struct Common_UI_GTKState
    , cursor (NULL)
    , eventSourceIds ()
    , finalizationHook ()
+#if defined (LIGBGLADE_SUPPORT)
    , gladeXML ()
+#endif
    , initializationHook ()
+   , logStack ()
    , lock ()
    , RCFiles ()
    //////////////////////////////////////
@@ -82,10 +89,12 @@ struct Common_UI_GTKState
   GdkCursor*                    cursor;
   Common_UI_GTKEventSourceIds_t eventSourceIds;
   GSourceFunc                   finalizationHook;
+#if defined (LIGBGLADE_SUPPORT)
   Common_UI_GladeXMLs_t         gladeXML;
+#endif
   GSourceFunc                   initializationHook;
+  Common_MessageStack_t         logStack;
   // *NOTE*: needs to be recursive so logging works correctly
-  // *TODO*: remove this ASAP
   ACE_SYNCH_RECURSIVE_MUTEX     lock;
   Common_UI_UIRCFiles_t         RCFiles;
   ///////////////////////////////////////

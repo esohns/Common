@@ -27,8 +27,9 @@
 #include "ace/Log_Msg.h"
 #include "ace/Synch.h"
 
-#include "glade/glade.h"
 #include "gtk/gtk.h"
+
+#include "glade/glade.h"
 
 #include "common_file_tools.h"
 
