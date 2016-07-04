@@ -21,12 +21,13 @@
 #ifndef COMMON_TOOLS_H
 #define COMMON_TOOLS_H
 
-#include <signal.h>
+//#include "signal.h"
 
 #include <string>
 
 #include "ace/config-lite.h"
 #include "ace/Global_Macros.h"
+#include "ace/OS.h"
 
 #include "common.h"
 #include "common_exports.h"
