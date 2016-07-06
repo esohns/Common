@@ -1074,6 +1074,9 @@ Common_File_Tools::getTempDirectory ()
   unsigned int fallback_level = 0;
   std::string environment_variable =
       ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE);
+  DWORD result_2 = 0;
+  std::string::size_type position = std::string::npos;
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 use_environment:
 #endif
@@ -1093,7 +1096,6 @@ use_environment:
   ACE_TCHAR buffer[PATH_MAX];
   ACE_OS::memset (buffer, 0, sizeof (buffer));
   //HRESULT result_2 = S_OK;
-  DWORD result_3 = 0;
 
   //result_2 =
   //  SHGetFolderPath (NULL,                                         // hwndOwner
@@ -1101,27 +1103,26 @@ use_environment:
   //                   NULL,                                         // hToken
   //                   SHGFP_TYPE_CURRENT,                           // dwFlags
   //                   buffer);                                      // pszPath
-  result_3 = ACE_TEXT_GetTempPath (sizeof (buffer), buffer);
+  result_2 = ACE_TEXT_GetTempPath (sizeof (buffer), buffer);
   //if (FAILED (result_2))
-  if (result_3 == 0)
+  if (result_2 == 0)
   {
-    result_3 = GetLastError ();
     //ACE_DEBUG ((LM_ERROR,
     //            ACE_TEXT ("failed to SHGetFolderPath(CSIDL_LOCAL_APPDATA): \"%s\", falling back\n"),
     //            buffer));
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to GetTempPath(): \"%s\", falling back\n"),
-                ACE_TEXT (Common_Tools::error2String (result_3).c_str ())));
+                ACE_TEXT (Common_Tools::error2String (GetLastError ()).c_str ())));
     goto fallback;
   } // end IF
   result = ACE_TEXT_ALWAYS_CHAR (buffer);
 
-  // strip trailing backslashes...
-  std::string::size_type last_backslash_pos =
+  // strip trailing backslashes
+  position =
     result.find_last_of ('\\',
                          std::string::npos); // begin searching at the end !
-  if (last_backslash_pos != std::string::npos)
-    result = result.substr (0, last_backslash_pos);
+  if (position != std::string::npos)
+    result = result.substr (0, position);
 #else
 use_path:
 #endif
