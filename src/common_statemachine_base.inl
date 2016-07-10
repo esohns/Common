@@ -135,12 +135,9 @@ Common_StateMachine_Base_T<LockType,
   // *IMPORTANT NOTE*: note that the stateLock_ is NOT held during the callback
   // *TODO*: implement a consistent (thread-safe/reentrant) policy
   bool result = true;
-  try
-  {
+  try {
     this->onChange (newState_in);
-  }
-  catch (...)
-  {
+  } catch (...) {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("caught exception in Common_IStateMachine_T::onChange(\"%s\"), aborting\n"),
                 ACE_TEXT (this->state2String (newState_in).c_str ())));
