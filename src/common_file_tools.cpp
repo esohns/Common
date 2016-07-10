@@ -1074,10 +1074,10 @@ Common_File_Tools::getTempDirectory ()
   unsigned int fallback_level = 0;
   std::string environment_variable =
       ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE);
-  DWORD result_2 = 0;
   std::string::size_type position = std::string::npos;
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+  DWORD result_2 = 0;
 use_environment:
 #endif
   ACE_TCHAR* string_p =
