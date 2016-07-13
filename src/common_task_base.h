@@ -35,10 +35,10 @@ class ACE_Time_Value;
 template <ACE_SYNCH_DECL, class TIME_POLICY>
 class ACE_Module;
 
-template <typename TaskSynchStrategyType,
+template <ACE_SYNCH_DECL,
           typename TimePolicyType>
 class Common_TaskBase_T
- : public ACE_Task<TaskSynchStrategyType,
+ : public ACE_Task<ACE_SYNCH_USE,
                    TimePolicyType>
  , public Common_IDumpState
 {
@@ -54,7 +54,7 @@ class Common_TaskBase_T
 
  protected:
   // convenient types
-  typedef ACE_Module<TaskSynchStrategyType,
+  typedef ACE_Module<ACE_SYNCH_USE,
                      TimePolicyType> MODULE_T;
 
   Common_TaskBase_T (const std::string&,                         // thread name
@@ -62,7 +62,7 @@ class Common_TaskBase_T
                      unsigned int = 1,                           // # thread(s)
                      bool = true,                                // auto-start ?
                      ////////////////////
-                     ACE_Message_Queue<TaskSynchStrategyType,
+                     ACE_Message_Queue<ACE_SYNCH_USE,
                                        TimePolicyType>* = NULL); // queue handle
 
   // override ACE_Task_Base members
@@ -77,7 +77,7 @@ class Common_TaskBase_T
   unsigned int threadCount_;
 
  private:
-  typedef ACE_Task<TaskSynchStrategyType,
+  typedef ACE_Task<ACE_SYNCH_USE,
                    TimePolicyType> inherited;
 
   // override/hide ACE_Task_Base members

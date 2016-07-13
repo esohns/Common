@@ -7,6 +7,13 @@
 
 // Windows Header Files
 #include <windows.h>
+
+#if defined (_DEBUG)
+// *TODO*: currently, these do not work well with ACE...
+//#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#endif
 #endif
 
 // *NOTE*: nmake complains (see also:

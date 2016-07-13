@@ -28,15 +28,15 @@
 #include "common_defines.h"
 #include "common_macros.h"
 
-template <typename TaskSynchStrategyType,
+template <ACE_SYNCH_DECL,
           typename TimePolicyType>
-Common_TaskBase_T<TaskSynchStrategyType,
+Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType>::Common_TaskBase_T (const std::string& threadName_in,
                                                       int threadGroupID_in,
                                                       unsigned int threadCount_in,
                                                       bool autoStart_in,
 
-                                                      ACE_Message_Queue<TaskSynchStrategyType,
+                                                      ACE_Message_Queue<ACE_SYNCH_USE,
                                                                         TimePolicyType>* queue_in)
  : inherited (NULL,     // thread manager instance
               queue_in) // message queue handle
@@ -58,9 +58,9 @@ Common_TaskBase_T<TaskSynchStrategyType,
   } // end IF
 }
 
-template <typename TaskSynchStrategyType,
+template <ACE_SYNCH_DECL,
           typename TimePolicyType>
-Common_TaskBase_T<TaskSynchStrategyType,
+Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType>::~Common_TaskBase_T ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::~Common_TaskBase_T"));
@@ -86,10 +86,10 @@ Common_TaskBase_T<TaskSynchStrategyType,
   } // end IF
 }
 
-template <typename TaskSynchStrategyType,
+template <ACE_SYNCH_DECL,
           typename TimePolicyType>
 int
-Common_TaskBase_T<TaskSynchStrategyType,
+Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType>::open (void* arg_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::open"));
@@ -237,10 +237,10 @@ Common_TaskBase_T<TaskSynchStrategyType,
   return result;
 }
 
-template <typename TaskSynchStrategyType,
+template <ACE_SYNCH_DECL,
           typename TimePolicyType>
 int
-Common_TaskBase_T<TaskSynchStrategyType,
+Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType>::close (u_long arg_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::close"));
@@ -281,10 +281,10 @@ Common_TaskBase_T<TaskSynchStrategyType,
   return 0;
 }
 
-template <typename TaskSynchStrategyType,
+template <ACE_SYNCH_DECL,
           typename TimePolicyType>
 int
-Common_TaskBase_T<TaskSynchStrategyType,
+Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType>::put (ACE_Message_Block* messageBlock_in,
                                         ACE_Time_Value* timeout_in)
 {
@@ -294,10 +294,10 @@ Common_TaskBase_T<TaskSynchStrategyType,
 }
 
 // *** dummy stub methods ***
-template <typename TaskSynchStrategyType,
+template <ACE_SYNCH_DECL,
           typename TimePolicyType>
 int
-Common_TaskBase_T<TaskSynchStrategyType,
+Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType>::svc (void)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::svc"));
@@ -348,10 +348,10 @@ done:
   return result;
 }
 
-template <typename TaskSynchStrategyType,
+template <ACE_SYNCH_DECL,
           typename TimePolicyType>
 int
-Common_TaskBase_T<TaskSynchStrategyType,
+Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType>::module_closed (void)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::module_closed"));
@@ -362,10 +362,10 @@ Common_TaskBase_T<TaskSynchStrategyType,
   ACE_NOTREACHED (return -1;)
 }
 
-template <typename TaskSynchStrategyType,
+template <ACE_SYNCH_DECL,
           typename TimePolicyType>
 void
-Common_TaskBase_T<TaskSynchStrategyType,
+Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType>::dump_state () const
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::dump_state"));
@@ -373,10 +373,10 @@ Common_TaskBase_T<TaskSynchStrategyType,
 }
 // *** END dummy stub methods ***
 
-template <typename TaskSynchStrategyType,
+template <ACE_SYNCH_DECL,
           typename TimePolicyType>
 void
-Common_TaskBase_T<TaskSynchStrategyType,
+Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType>::shutdown ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::shutdown"));

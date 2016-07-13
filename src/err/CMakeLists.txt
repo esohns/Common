@@ -68,6 +68,10 @@ endif ()
 set_target_properties (${PROJECT_NAME}ERR PROPERTIES DEFINE_SYMBOL COMMONERR_BUILD_DLL)
 set_target_properties (${PROJECT_NAME}ERR PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
+# add PCH
+set_target_properties (${PROJECT_NAME}ERR PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+cotire (${PROJECT_NAME}ERR)
+
 # add all targets to the build-tree export set
 export (TARGETS ${PROJECT_NAME}ERR
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")

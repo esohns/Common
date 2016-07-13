@@ -147,6 +147,10 @@ if (WIN32)
  target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}ERR)
 endif ()
 
+# add PCH
+set_target_properties (${PROJECT_NAME} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+cotire (${PROJECT_NAME})
+
 # add all targets to the build-tree export set
 export (TARGETS ${PROJECT_NAME}
         FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")

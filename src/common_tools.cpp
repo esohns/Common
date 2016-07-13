@@ -90,6 +90,22 @@ Common_Tools::initialize ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::initialize"));
 
+#if defined (_DEBUG)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  int default_debug_heap_flags = _CrtSetDbgFlag (_CRTDBG_REPORT_FLAG);
+  int debug_heap_flags = (_CRTDBG_ALLOC_MEM_DF      |
+                          //_CRTDBG_CHECK_ALWAYS_DF   |
+                          _CRTDBG_CHECK_CRT_DF      |
+                          _CRTDBG_DELAY_FREE_MEM_DF |
+                          _CRTDBG_LEAK_CHECK_DF);
+  debug_heap_flags =
+    (debug_heap_flags & 0x0000FFFF) | _CRTDBG_CHECK_EVERY_16_DF;
+  _CrtSetDbgFlag (debug_heap_flags);
+  //_CrtSetReportFile (_CRT_ERROR, _CRTDBG_FILE_STDERR);
+  //_CrtSetReportMode (_CRT_ERROR, _CRTDBG_MODE_DEBUG);
+#endif
+#endif
+
 #if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
   if (RUNNING_ON_VALGRIND)
     ACE_DEBUG ((LM_INFO,

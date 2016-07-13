@@ -40,7 +40,7 @@ if "%ACE_ROOT%" == "" (
  set ACE_ROOT=%ACE_ROOT_DEFAULT%
  echo "^%ACE_ROOT^%" not set^, default to ^"%ACE_ROOT_DEFAULT%^"
 ) else (
- echo "^%ACE_ROOT^%" set to ^"%ACE_ROOT%^"...
+ echo "%%ACE_ROOT%%" set to ^"%ACE_ROOT%^"...
 )
 if NOT exist "%ACE_ROOT%" (
  echo invalid directory ^(was: "%ACE_ROOT%"^)^, exiting
