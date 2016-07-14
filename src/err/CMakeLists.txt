@@ -48,13 +48,21 @@ endif ()
 
 ############## next target ################
 set (${PROJECT_NAME}ERR_LIB_SRCS
+     stdafx.cpp
+     stdafx.h
      common_err_exports.h
      dxerr.cpp
-     dxerr.h
-     stdafx.cpp
-     stdafx.h)
+     dxerr.h)
 
 add_library (${PROJECT_NAME}ERR SHARED ${CommonERR_LIB_SRCS})
+
+if (WIN32)
+## set (CMAKE_GENERATOR_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE) 
+# set (CMAKE_VS_PLATFORM_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE)
+ if (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)
+  add_compile_options (-Wno-c++11-narrowing)
+ endif ()
+endif ()
 
 #*TODO*: use pkg-config instead
 if (WIN32)

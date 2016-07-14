@@ -68,6 +68,8 @@ include_directories (${CMAKE_CURRENT_BINARY_DIR}/..)
 
 ############## next target ################
 set (${PROJECT_NAME}_LIB_SRCS
+     stdafx.cpp
+     stdafx.h
      common.h
      common_defines.h
      common_exports.h
@@ -111,9 +113,7 @@ set (${PROJECT_NAME}_LIB_SRCS
      common_timer_manager.inl
      common_timer_manager_common.h
      common_tools.cpp
-     common_tools.h
-     stdafx.cpp
-     stdafx.h)
+     common_tools.h)
 
 if (WIN32)
  add_definitions (-DWIN32)

@@ -85,6 +85,8 @@ include_directories (${CMAKE_CURRENT_BINARY_DIR}/../../)
 
 ############## next target ################
 set (${PROJECT_NAME}UI_LIB_SRCS
+     stdafx.cpp
+     stdafx.h
      common_ui_common.h
      common_ui_defines.h
      common_ui_exports.h
@@ -95,9 +97,7 @@ set (${PROJECT_NAME}UI_LIB_SRCS
      common_ui_igtk.h
      common_ui_tools.cpp
      common_ui_tools.h
-     common_ui_types.h
-     stdafx.cpp
-     stdafx.h)
+     common_ui_types.h)
 set (${PROJECT_NAME}UI_LIB_GLADE_SRCS
      common_ui_glade_definition.cpp
      common_ui_glade_definition.h)
