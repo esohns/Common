@@ -31,19 +31,12 @@ template <typename TimerQueueAdapterType>
 Common_Timer_Manager_T<TimerQueueAdapterType>::Common_Timer_Manager_T ()
  : inherited (ACE_Thread_Manager::instance (), // thread manager --> use default
               NULL)                            // timer queue --> allocate (dummy) temp first :( *TODO*
- , configuration_ ()
+ , configuration_ (NULL)
  , timerHandler_ ()
  , timerQueue_ (NULL)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::Common_Timer_Manager_T"));
 
-  // initialize timer queue ?
-  if (configuration_.mode == COMMON_TIMER_MODE_QUEUE)
-    if (!initializeTimerQueue ())
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to initialize timer queue: \"%m\", continuing\n")));
-
-//  start ();
 }
 
 template <typename TimerQueueAdapterType>
@@ -83,13 +76,12 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::start ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::start"));
 
-  int result = -1;
-
   // sanity check(s)
   if (isRunning ())
     return;
 
   // spawn the dispatching worker thread
+  int result = -1;
   ACE_thread_t thread_ids[1];
   thread_ids[0] = 0;
   ACE_hthread_t thread_handles[1];
@@ -139,7 +131,7 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::stop (bool waitForCompletion_in,
   // *NOTE*: deactivate the timer queue and wake up the worker thread
   inherited::deactivate ();
 
-  // *TODO*: this doesn't look quite correct yet...
+  // *TODO*: this doesn't look quite correct yet
   if (waitForCompletion_in)
   {
     result = inherited::wait ();
@@ -177,8 +169,13 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::flushTimers (bool lockedAccess_in
   // initialize return value(s)
   unsigned int return_value = 0;
 
+  // sanity check(s)
+  ACE_ASSERT (configuration_);
+
   int result = -1;
-  switch (configuration_.mode)
+
+  // *TODO*: remove type inference
+  switch (configuration_->mode)
   {
     case COMMON_TIMER_MODE_PROACTOR:
     case COMMON_TIMER_MODE_REACTOR:
@@ -240,7 +237,7 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::flushTimers (bool lockedAccess_in
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("invalid/unknown mode (was: %d), continuing\n"),
-                  configuration_.mode));
+                  configuration_->mode));
       break;
     }
   } // end SWITCH
@@ -260,6 +257,7 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::initializeTimerQueue ()
   bool was_running = isRunning ();
   if (was_running)
     stop (true);
+  ACE_ASSERT (configuration_);
 
   if (timerQueue_)
   {
@@ -274,7 +272,7 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::initializeTimerQueue ()
   } // end IF
 
   Common_ITimerQueue_t* timer_queue_p = NULL;
-  switch (configuration_.queueType)
+  switch (configuration_->queueType)
   {
     case COMMON_TIMER_QUEUE_HEAP:
     {
@@ -322,7 +320,7 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::initializeTimerQueue ()
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("invalid/unknown timer queue type (was: %d), aborting\n"),
-                  configuration_.queueType));
+                  configuration_->queueType));
       return false;
     }
   } // end SWITCH
@@ -373,7 +371,11 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::schedule_timer (ACE_Handler* hand
 
   long result = -1;
 
-  switch (configuration_.mode)
+  // sanity check(s)
+  ACE_ASSERT (configuration_);
+
+  // *TODO*: remove type inference
+  switch (configuration_->mode)
   {
     case COMMON_TIMER_MODE_PROACTOR:
     {
@@ -400,7 +402,7 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::schedule_timer (ACE_Handler* hand
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("invalid/unknown mode (was: %d), aborting\n"),
-                  configuration_.mode));
+                  configuration_->mode));
       return -1;
     }
   } // end SWITCH
@@ -421,7 +423,11 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::schedule_timer (ACE_Event_Handler
 
   long result = -1;
 
-  switch (configuration_.mode)
+  // sanity check(s)
+  ACE_ASSERT (configuration_);
+
+  // *TODO*: remove type inference
+  switch (configuration_->mode)
   {
     case COMMON_TIMER_MODE_PROACTOR:
     {
@@ -467,7 +473,7 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::schedule_timer (ACE_Event_Handler
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("invalid/unknown mode (was: %d), aborting\n"),
-                  configuration_.mode));
+                  configuration_->mode));
       return -1;
     }
   } // end SWITCH
@@ -487,17 +493,22 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::reset_timer_interval (long timerI
 
   int result = -1;
 
-  switch (configuration_.mode)
+  // sanity check(s)
+  ACE_ASSERT (configuration_);
+
+  // *TODO*: remove type inference
+  switch (configuration_->mode)
   {
     case COMMON_TIMER_MODE_PROACTOR:
     {
       ACE_ASSERT (false);
+      ACE_NOTSUP_RETURN (-1);
+
       ACE_NOTREACHED (return -1);
-      break;
     }
     case COMMON_TIMER_MODE_QUEUE:
     {
-      ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (inherited::mutex ());
+      ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, inherited::mutex (), -1);
 
       Common_ITimerQueue_t* timer_queue_p = inherited::timer_queue ();
       ACE_ASSERT (timer_queue_p);
@@ -514,14 +525,15 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::reset_timer_interval (long timerI
     case COMMON_TIMER_MODE_REACTOR:
     {
       ACE_ASSERT (false);
+      ACE_NOTSUP_RETURN (-1);
+
       ACE_NOTREACHED (return -1);
-      break;
     }
     default:
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("invalid/unknown mode (was: %d), aborting\n"),
-                  configuration_.mode));
+                  configuration_->mode));
       return -1;
     }
   } // end SWITCH
@@ -541,9 +553,14 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::cancel_timer (long timerID_in,
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::cancel_timer"));
 
   ACE_UNUSED_ARG (dontCallHandleClose_in);
+
   int result = -1;
 
-  switch (configuration_.mode)
+  // sanity check(s)
+  ACE_ASSERT (configuration_);
+
+  // *TODO*: remove type inference
+  switch (configuration_->mode)
   {
     case COMMON_TIMER_MODE_PROACTOR:
     {
@@ -589,7 +606,7 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::cancel_timer (long timerID_in,
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("invalid/unknown mode (was: %d), aborting\n"),
-                  configuration_.mode));
+                  configuration_->mode));
       return -1;
     }
   } // end SWITCH
@@ -607,7 +624,7 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::dump_state () const
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::dump_state"));
 
   {
-    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (const_cast<OWN_TYPE_T*> (this)->mutex ());
+    ACE_GUARD (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, const_cast<OWN_TYPE_T*> (this)->mutex ());
 
     // *TODO*: print some meaningful data
     ACE_ASSERT (false);
@@ -625,16 +642,17 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::initialize (const Common_TimerCon
   if (was_running)
     stop (true);
 
-  configuration_ = configuration_in;
+  configuration_ = &const_cast<Common_TimerConfiguration&> (configuration_in);
 
   // sanity check(s)
-  switch (configuration_.mode)
+  // *TODO*: remove type inference
+  switch (configuration_->mode)
   {
     case COMMON_TIMER_MODE_PROACTOR:
       break;
     case COMMON_TIMER_MODE_QUEUE:
     {
-      ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (inherited::mutex ());
+      ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, inherited::mutex (), false);
 
 //      Common_ITimerQueue_t* timer_queue_p = inherited::timer_queue ();
 //      ACE_ASSERT (timer_queue_p);
@@ -658,7 +676,7 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::initialize (const Common_TimerCon
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("invalid/unknown mode (was: %d), aborting\n"),
-                  configuration_.mode));
+                  configuration_->mode));
       return false;
     }
   } // end SWITCH

@@ -41,13 +41,14 @@ class Common_ITimer;
 
 ACE_THR_FUNC_RETURN threadpool_event_dispatcher_function (void*);
 
-class Common_Export Common_Tools
+//class Common_Export Common_Tools
+class Common_Tools
 {
  public:
   static void initialize ();
 
-  // --- singleton ---
-  static Common_ITimer* getTimerManager ();
+  //// --- singleton ---
+  //static Common_ITimer* getTimerManager ();
 
   // --- strings ---
   // *NOTE*: uses ::snprintf internally: "HH:MM:SS.usec"

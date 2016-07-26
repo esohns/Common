@@ -96,15 +96,15 @@ class Common_Timer_Manager_T
   unsigned int flushTimers (bool = true); // locked access ?
   bool initializeTimerQueue ();
 
-  Common_TimerConfiguration configuration_;
+  Common_TimerConfiguration* configuration_;
 
   // *NOTE*: this is only the functor, individual handlers are managed in the
   //        queue
-  Common_TimeoutUpcall_t    timerHandler_;
-  TIMER_QUEUE_T*            timerQueue_;
+  Common_TimeoutUpcall_t     timerHandler_;
+  TIMER_QUEUE_T*             timerQueue_;
 };
 
-// include template implementation
+// include template definition
 #include "common_timer_manager.inl"
 
 #endif

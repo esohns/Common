@@ -16,11 +16,19 @@ endif ()
 
 if (UNIX)
  include (CheckLibraryExists)
+ #*TODO*: why isn't the function found ?
+ check_library_exists (aio aio_init "" HAVE_LIB_AIO)
  check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
 endif ()
 
 set (ACE_LIB_FILE libACE.so)
 if (UNIX)
+ set (AIO_LIB_FILE libaio.so)
+ find_library (AIO_LIBRARY ${AIO_LIB_FILE}
+               PATHS /lib /usr/lib
+               PATH_SUFFIXES x86_64-linux-gnu
+               DOC "searching for ${AIO_LIB_FILE}")
+
  if (DEFINED ENV{ACE_ROOT})
   find_library (ACE_LIBRARY ${ACE_LIB_FILE}
                 PATHS ENV ACE_ROOT
@@ -125,7 +133,7 @@ if (WIN32)
  endif ()
 endif ()
 
-add_library (${PROJECT_NAME} SHARED ${Common_LIB_SRCS})
+add_library (${PROJECT_NAME} STATIC ${Common_LIB_SRCS})
 
 #add_dependencies (${PROJECT_NAME} ACE)
 
@@ -133,7 +141,9 @@ set_target_properties (${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DL
 set_target_properties (${PROJECT_NAME} PROPERTIES DEFINE_SYMBOL COMMON_BUILD_DLL)
 set_target_properties (${PROJECT_NAME} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
-if (WIN32)
+if (UNIX)
+# target_link_libraries (${PROJECT_NAME} ${AIO_LIBRARY})
+elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
   target_link_libraries (${PROJECT_NAME} Msvcrtd.lib)
  else ()
@@ -149,7 +159,7 @@ endif ()
 
 # add PCH
 set_target_properties (${PROJECT_NAME} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${PROJECT_NAME})
+#cotire (${PROJECT_NAME})
 
 # add all targets to the build-tree export set
 export (TARGETS ${PROJECT_NAME}

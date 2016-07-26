@@ -377,17 +377,17 @@ template <ACE_SYNCH_DECL,
           typename TimePolicyType>
 void
 Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::shutdown ()
+                  TimePolicyType>::control (int messageType_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::shutdown"));
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::control"));
 
   int result = -1;
 
-  // drop a control message into the queue...
+  // drop a control message into the queue
   ACE_Message_Block* message_block_p = NULL;
   ACE_NEW_NORETURN (message_block_p,
                     ACE_Message_Block (0,                                  // size
-                                       ACE_Message_Block::MB_STOP,         // type
+                                       messageType_in,                     // type
                                        NULL,                               // continuation
                                        NULL,                               // data
                                        NULL,                               // buffer allocator
@@ -413,4 +413,15 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     // clean up
     message_block_p->release ();
   } // end IF
+}
+
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType>
+void
+Common_TaskBase_T<ACE_SYNCH_USE,
+                  TimePolicyType>::shutdown ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::shutdown"));
+
+  control (ACE_Message_Block::MB_STOP);
 }

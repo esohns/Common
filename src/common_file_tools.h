@@ -28,8 +28,8 @@
 
 #include "common_exports.h"
 
-class Common_Export Common_File_Tools
-//class Common_File_Tools
+//class Common_Export Common_File_Tools
+class Common_File_Tools
 {
  public:
   static bool create (const std::string&); // FQ file name

@@ -31,7 +31,8 @@
 #include "common.h"
 #include "common_exports.h"
 
-class Common_Export Common_Logger
+//class Common_Export Common_Logger
+class Common_Logger
  : public ACE_Log_Msg_Backend
 {
  public:

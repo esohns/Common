@@ -36,8 +36,8 @@ typedef Common_Timer_ManagerHeap_t Common_Timer_Manager_t;
 
 typedef ACE_Singleton<Common_Timer_Manager_t,
                       ACE_SYNCH_MUTEX> COMMON_TIMERMANAGER_SINGLETON;
-COMMON_SINGLETON_DECLARE (ACE_Singleton,
-                          Common_Timer_Manager_t,
-                          ACE_SYNCH_MUTEX);
+//COMMON_SINGLETON_DECLARE (ACE_Singleton,
+//                          Common_Timer_Manager_t,
+//                          ACE_SYNCH_MUTEX);
 
 #endif

@@ -30,14 +30,14 @@
 // forward declarations
 class ACE_Time_Value;
 
-template <typename LockType,
+template <ACE_SYNCH_DECL,
           typename StateType>
 class Common_StateMachine_Base_T
  : virtual public Common_IStateMachine_T<StateType>
- , public Common_IInitialize_T<LockType>
+ , public Common_IInitialize_T<ACE_SYNCH_MUTEX_T>
 {
  public:
-  Common_StateMachine_Base_T (LockType*,                                // lock handle
+  Common_StateMachine_Base_T (ACE_SYNCH_MUTEX_T*,                       // lock handle
                               StateType = static_cast<StateType> (-1)); // (default) state
   virtual ~Common_StateMachine_Base_T ();
 
@@ -45,7 +45,7 @@ class Common_StateMachine_Base_T
   virtual StateType current () const;
 
   // implement Common_IIinitialize_T
-  virtual bool initialize (const LockType&);
+  virtual bool initialize (const ACE_SYNCH_MUTEX_T&);
 
  protected:
   virtual bool change (StateType); // new state
@@ -54,10 +54,10 @@ class Common_StateMachine_Base_T
   //                     retrieve the current state from within change()
   //                     without deadlocking
   //ACE_SYNCH_RECURSIVE_CONDITION     condition_;
-  ACE_Condition<LockType>* condition_;
-  mutable LockType*        stateLock_;
+  ACE_SYNCH_CONDITION_T*     condition_;
+  mutable ACE_SYNCH_MUTEX_T* stateLock_;
 
-  StateType                state_;
+  StateType                  state_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_StateMachine_Base_T ())
@@ -68,10 +68,10 @@ class Common_StateMachine_Base_T
   virtual bool wait (StateType,
                      const ACE_Time_Value* = NULL);
 
-  bool                     isInitialized_;
+  bool                       isInitialized_;
 };
 
-// include template definitions
+// include template definition
 #include "common_statemachine_base.inl"
 
 #endif

@@ -73,7 +73,7 @@ class Common_SignalHandler_T
   Common_ISignal*    callback_;
 };
 
-// include template implementation
+// include template definition
 #include "common_signalhandler.inl"
 
 #endif

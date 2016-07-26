@@ -30,7 +30,8 @@
 // forward declarations
 class Common_ITimerHandler;
 
-class Common_Export Common_TimerHandler
+//class Common_Export Common_TimerHandler
+class Common_TimerHandler
  : public ACE_Event_Handler
 {
  public:

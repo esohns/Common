@@ -23,10 +23,10 @@
 
 #include "common_macros.h"
 
-template <typename LockType,
+template <ACE_SYNCH_DECL,
           typename StateType>
-Common_StateMachine_Base_T<LockType,
-                           StateType>::Common_StateMachine_Base_T (LockType* lock_in,
+Common_StateMachine_Base_T<ACE_SYNCH_USE,
+                           StateType>::Common_StateMachine_Base_T (ACE_SYNCH_MUTEX_T* lock_in,
                                                                    StateType state_in)
  : condition_ (NULL)
  , stateLock_ (NULL)
@@ -47,9 +47,9 @@ Common_StateMachine_Base_T<LockType,
   } // end IF
 }
 
-template <typename LockType,
+template <ACE_SYNCH_DECL,
           typename StateType>
-Common_StateMachine_Base_T<LockType,
+Common_StateMachine_Base_T<ACE_SYNCH_USE,
                            StateType>::~Common_StateMachine_Base_T ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::~Common_StateMachine_Base_T"));
@@ -59,10 +59,10 @@ Common_StateMachine_Base_T<LockType,
     delete condition_;
 }
 
-template <typename LockType,
+template <ACE_SYNCH_DECL,
           typename StateType>
 StateType
-Common_StateMachine_Base_T<LockType,
+Common_StateMachine_Base_T<ACE_SYNCH_USE,
                            StateType>::current () const
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::current"));
@@ -73,7 +73,7 @@ Common_StateMachine_Base_T<LockType,
   StateType result = static_cast<StateType> (-1);
 
   {
-    ACE_Guard<LockType> aGuard (*stateLock_);
+    ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, result);
 
     result = state_;
   } // end lock scope
@@ -81,11 +81,11 @@ Common_StateMachine_Base_T<LockType,
   return result;
 }
 
-template <typename LockType,
+template <ACE_SYNCH_DECL,
           typename StateType>
 bool
-Common_StateMachine_Base_T<LockType,
-                           StateType>::initialize (const LockType& lock_in)
+Common_StateMachine_Base_T<ACE_SYNCH_USE,
+                           StateType>::initialize (const ACE_SYNCH_MUTEX_T& lock_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::initialize"));
 
@@ -97,25 +97,25 @@ Common_StateMachine_Base_T<LockType,
   } // end IF
 
   ACE_NEW_NORETURN (condition_,
-                    ACE_Condition<LockType> (const_cast<LockType&> (lock_in), // lock
-                                             USYNC_THREAD, // mode
-                                             NULL,         // name
-                                             NULL));       // arg
+                    ACE_SYNCH_CONDITION_T (const_cast<ACE_SYNCH_MUTEX_T&> (lock_in), // lock
+                                           USYNC_THREAD,                             // mode
+                                           NULL,                                     // name
+                                           NULL));                                   // arg
   if (!condition_)
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory, aborting\n")));
     return false;
   } // end IF
-  stateLock_ = &const_cast<LockType&> (lock_in);
+  stateLock_ = &const_cast<ACE_SYNCH_MUTEX_T&> (lock_in);
 
   return true;
 }
 
-template <typename LockType,
+template <ACE_SYNCH_DECL,
           typename StateType>
 bool
-Common_StateMachine_Base_T<LockType,
+Common_StateMachine_Base_T<ACE_SYNCH_USE,
                            StateType>::change (StateType newState_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::change"));
@@ -126,7 +126,7 @@ Common_StateMachine_Base_T<LockType,
 
   StateType previous_state;
   {
-    ACE_Guard<LockType> aGuard (*stateLock_);
+    ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, false);
 
     previous_state = state_;
   } // end lock scope
@@ -146,7 +146,7 @@ Common_StateMachine_Base_T<LockType,
 
   bool signal = true;
   {
-    ACE_Guard<LockType> aGuard (*stateLock_);
+    ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, false);
 
     // *NOTE*: if the implementation is 'passive', the whole operation
     //         pertaining to newState_in may have been processed 'inline' by the
@@ -174,10 +174,10 @@ Common_StateMachine_Base_T<LockType,
   return result;
 }
 
-template <typename LockType,
+template <ACE_SYNCH_DECL,
           typename StateType>
 bool
-Common_StateMachine_Base_T<LockType,
+Common_StateMachine_Base_T<ACE_SYNCH_USE,
                            StateType>::wait (StateType state_in,
                                              const ACE_Time_Value* timeout_in)
 {

@@ -25,15 +25,14 @@
 
 #include "ace/Global_Macros.h"
 #include "ace/Message_Queue_T.h"
-#include "ace/Task.h"
+#include "ace/Module.h"
+#include "ace/Task_T.h"
 
 #include "common_idumpstate.h"
 
 // forward declaration(s)
 class ACE_Message_Block;
 class ACE_Time_Value;
-template <ACE_SYNCH_DECL, class TIME_POLICY>
-class ACE_Module;
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType>
@@ -49,11 +48,13 @@ class Common_TaskBase_T
   virtual int close (u_long = 0);
 
   // implement Common_IDumpState
-  // *NOTE*: this is just a default stub...
+  // *NOTE*: this is just a default stub
   virtual void dump_state () const;
 
  protected:
   // convenient types
+  typedef ACE_Task<ACE_SYNCH_USE,
+                   TimePolicyType> TASK_T;
   typedef ACE_Module<ACE_SYNCH_USE,
                      TimePolicyType> MODULE_T;
 
@@ -61,7 +62,7 @@ class Common_TaskBase_T
                      int,                                        // (thread) group id
                      unsigned int = 1,                           // # thread(s)
                      bool = true,                                // auto-start ?
-                     ////////////////////
+                     /////////////////////
                      ACE_Message_Queue<ACE_SYNCH_USE,
                                        TimePolicyType>* = NULL); // queue handle
 
@@ -71,9 +72,12 @@ class Common_TaskBase_T
                    ACE_Time_Value*);
 
   // helper methods
+  void control (int); // message type
   // enqueue MB_STOP --> stop worker thread(s)
   void shutdown ();
 
+  // *NOTE*: this is the 'configured' thread count, not the 'current'
+  //         --> see ACE_Task::thr_count_
   unsigned int threadCount_;
 
  private:
@@ -91,7 +95,7 @@ class Common_TaskBase_T
   std::string threadName_;
 };
 
-// include template implementation
+// include template definition
 #include "common_task_base.inl"
 
 #endif

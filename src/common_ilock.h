@@ -21,6 +21,8 @@
 #ifndef COMMON_ILOCK_H
 #define COMMON_ILOCK_H
 
+#include "ace/Global_Macros.h"
+
 class Common_ILock
 {
  public:
@@ -29,6 +31,17 @@ class Common_ILock
   // exposed interface
   virtual void lock () = 0;
   virtual void unlock () = 0;
+};
+
+template <ACE_SYNCH_DECL>
+class Common_ILock_T
+ : public Common_ILock
+{
+ public:
+  virtual ~Common_ILock_T () {}
+
+  // exposed interface
+  virtual ACE_SYNCH_MUTEX_T& getLock () = 0;
 };
 
 #endif

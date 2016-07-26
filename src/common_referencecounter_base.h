@@ -28,10 +28,11 @@
 #include "common_exports.h"
 #include "common_ireferencecount.h"
 
-class Common_Export Common_ReferenceCounterBase
+//class Common_Export Common_ReferenceCounterBase
+class Common_ReferenceCounterBase
  : public ACE_Refcountable_T<ACE_SYNCH_MUTEX>
  , virtual public Common_IReferenceCount
- {
+{
  public:
   Common_ReferenceCounterBase (long); // initial count (no delete on 0)
   Common_ReferenceCounterBase (const Common_ReferenceCounterBase&);

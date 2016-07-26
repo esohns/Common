@@ -121,13 +121,13 @@ Common_Tools::initialize ()
   randomSeed_ = COMMON_TIME_NOW.usec ();
 }
 
-Common_ITimer*
-Common_Tools::getTimerManager ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::getTimerManager"));
-
-  return COMMON_TIMERMANAGER_SINGLETON::instance ();
-}
+//Common_ITimer*
+//Common_Tools::getTimerManager ()
+//{
+//  COMMON_TRACE (ACE_TEXT ("Common_Tools::getTimerManager"));
+//
+//  return COMMON_TIMERMANAGER_SINGLETON::instance ();
+//}
 
 bool
 Common_Tools::period2String (const ACE_Time_Value& period_in,
