@@ -22,6 +22,7 @@
 #define COMMON_ILOCK_H
 
 #include "ace/Global_Macros.h"
+#include "ace/Synch_Traits.h"
 
 class Common_ILock
 {
@@ -29,8 +30,11 @@ class Common_ILock
   virtual ~Common_ILock () {}
 
   // exposed interface
-  virtual void lock () = 0;
-  virtual void unlock () = 0;
+  // *NOTE*: this returns whether unlock() needs to be called
+  virtual bool lock (bool = true) = 0; // block ?
+  // *NOTE*: this returns the new nesting level (or -1, if the lock is not held
+  //         by the caller)
+  virtual int unlock (bool = false) = 0; // unlock ?
 };
 
 template <ACE_SYNCH_DECL>
@@ -41,7 +45,15 @@ class Common_ILock_T
   virtual ~Common_ILock_T () {}
 
   // exposed interface
-  virtual ACE_SYNCH_MUTEX_T& getLock () = 0;
+  virtual ACE_SYNCH_RECURSIVE_MUTEX& getLock () = 0;
 };
+
+#define COMMON_ILOCK_ACQUIRE_N(ilock, count) \
+  do { \
+    ACE_ASSERT (ilock); \
+    ACE_ASSERT (count > 0); \
+    for (int i = 0; i < count; ++i) \
+      ilock->lock (true); \
+  } while (0)
 
 #endif

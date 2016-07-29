@@ -35,7 +35,6 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                                                       int threadGroupID_in,
                                                       unsigned int threadCount_in,
                                                       bool autoStart_in,
-
                                                       ACE_Message_Queue<ACE_SYNCH_USE,
                                                                         TimePolicyType>* queue_in)
  : inherited (NULL,     // thread manager instance
@@ -253,8 +252,8 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   switch (arg_in)
   {
     case 0:
-    { // check specifically for the second case...
-      if (ACE_OS::thr_equal (ACE_Thread::self (),
+    { // check specifically for the second case
+      if (ACE_OS::thr_equal (ACE_OS::thr_self (),
                              inherited::last_thread ()))
         break;
 

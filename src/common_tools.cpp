@@ -92,17 +92,23 @@ Common_Tools::initialize ()
 
 #if defined (_DEBUG)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  int default_debug_heap_flags = _CrtSetDbgFlag (_CRTDBG_REPORT_FLAG);
-  int debug_heap_flags = (_CRTDBG_ALLOC_MEM_DF      |
-                          //_CRTDBG_CHECK_ALWAYS_DF   |
-                          _CRTDBG_CHECK_CRT_DF      |
-                          _CRTDBG_DELAY_FREE_MEM_DF |
-                          _CRTDBG_LEAK_CHECK_DF);
-  debug_heap_flags =
-    (debug_heap_flags & 0x0000FFFF) | _CRTDBG_CHECK_EVERY_16_DF;
-  _CrtSetDbgFlag (debug_heap_flags);
+  int current_debug_heap_flags = _CrtSetDbgFlag (_CRTDBG_REPORT_FLAG);
+  int debug_heap_flags = current_debug_heap_flags;
+  //int debug_heap_flags = (_CRTDBG_ALLOC_MEM_DF      |
+  //                        //_CRTDBG_CHECK_ALWAYS_DF   |
+  //                        //_CRTDBG_CHECK_CRT_DF      |
+  //                        _CRTDBG_DELAY_FREE_MEM_DF |
+  //                        _CRTDBG_LEAK_CHECK_DF);
+  //debug_heap_flags =
+  //  (debug_heap_flags & 0x0000FFFF) | _CRTDBG_CHECK_EVERY_16_DF;
+  // Turn off CRT block checking bit
+  debug_heap_flags &= ~_CRTDBG_CHECK_CRT_DF;
+  int previous_heap_flags = _CrtSetDbgFlag (debug_heap_flags);
   //_CrtSetReportFile (_CRT_ERROR, _CRTDBG_FILE_STDERR);
   //_CrtSetReportMode (_CRT_ERROR, _CRTDBG_MODE_DEBUG);
+  ACE_DEBUG ((LM_INFO,
+              ACE_TEXT ("configured debug heap: %d...\n"),
+              debug_heap_flags));
 #endif
 #endif
 
