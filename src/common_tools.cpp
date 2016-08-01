@@ -173,6 +173,7 @@ Common_Tools::period2String (const ACE_Time_Value& period_in,
 }
 bool
 Common_Tools::timestamp2String (const ACE_Time_Value& timeStamp_in,
+                                bool UTC_in,
                                 std::string& timeString_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::timestamp2String"));
@@ -183,12 +184,22 @@ Common_Tools::timestamp2String (const ACE_Time_Value& timeStamp_in,
   time_t timestamp = timeStamp_in.sec ();
   struct tm tm_s;
   ACE_OS::memset (&tm_s, 0, sizeof (struct tm));
-  if (!ACE_OS::gmtime_r (&timestamp, &tm_s))
+  if (UTC_in)
   {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::gmtime_r(): \"%m\", aborting\n")));
-    return false;
+    if (!ACE_OS::gmtime_r (&timestamp, &tm_s))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::gmtime_r(): \"%m\", aborting\n")));
+      return false;
+    } // end IF
   } // end IF
+  else
+    if (!ACE_OS::localtime_r (&timestamp, &tm_s))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::localtime_r(): \"%m\", aborting\n")));
+      return false;
+    } // end IF
 
   char time_string[BUFSIZ];
   ACE_OS::memset (time_string, 0, BUFSIZ);

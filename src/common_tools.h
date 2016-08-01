@@ -55,7 +55,8 @@ class Common_Tools
   static bool period2String (const ACE_Time_Value&, // period
                              std::string&);         // return value: corresp. string
   // *NOTE*: uses ::snprintf internally: "YYYY-MM-DD HH:MM:SS.usec"
-  static bool timestamp2String (const ACE_Time_Value&, // period
+  static bool timestamp2String (const ACE_Time_Value&, // timestamp
+                                bool,                  // UTC ? : localtime
                                 std::string&);         // return value: corresp. string
 
   static std::string sanitizeURI (const std::string&); // URI
