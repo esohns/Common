@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_LOGGER_H
-#define COMMON_LOGGER_H
+#ifndef Common_Logger_T_H
+#define Common_Logger_T_H
 
 //#include <cstdlib>
 
@@ -31,14 +31,15 @@
 #include "common.h"
 #include "common_exports.h"
 
-//class Common_Export Common_Logger
-class Common_Logger
+template <ACE_SYNCH_DECL>
+class Common_Logger_T
  : public ACE_Log_Msg_Backend
 {
  public:
-  Common_Logger (Common_MessageStack_t*,      // message stack handle
-                 ACE_SYNCH_RECURSIVE_MUTEX*); // lock handle
-  virtual ~Common_Logger ();
+  Common_Logger_T (Common_MessageStack_t*,     // message stack handle
+                   ACE_SYNCH_MUTEX_T* = NULL); // message stack lock handle (NULL --> don't lock)
+  //                 ACE_Lock* = NULL);      // message stack lock handle (NULL --> don't lock)
+  virtual ~Common_Logger_T ();
 
   // implement ACE_Log_Msg_Backend interface
   virtual int open (const ACE_TCHAR*); // logger key
@@ -49,14 +50,22 @@ class Common_Logger
  private:
   typedef ACE_Log_Msg_Backend inherited;
 
-  ACE_UNIMPLEMENTED_FUNC (Common_Logger ())
-  ACE_UNIMPLEMENTED_FUNC (Common_Logger (const Common_Logger&))
-  ACE_UNIMPLEMENTED_FUNC (Common_Logger& operator= (const Common_Logger&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Logger_T ())
+  ACE_UNIMPLEMENTED_FUNC (Common_Logger_T (const Common_Logger_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Logger_T& operator= (const Common_Logger_T&))
 
 //  FILE*                  buffer_;
 
-  ACE_SYNCH_RECURSIVE_MUTEX* lock_;
-  Common_MessageStack_t*     messageStack_;
+  //ACE_Lock*              lock_;
+  ACE_SYNCH_MUTEX_T*     lock_;
+  Common_MessageStack_t* messageStack_;
 };
+
+// include template definition
+#include "common_logger.inl"
+
+//////////////////////////////////////////
+
+typedef Common_Logger_T<ACE_MT_SYNCH> Common_Logger_t;
 
 #endif

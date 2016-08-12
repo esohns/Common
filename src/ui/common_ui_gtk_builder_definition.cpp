@@ -47,7 +47,7 @@ Common_UI_GtkBuilderDefinition::~Common_UI_GtkBuilderDefinition ()
   // clean up
   if (GTKState_)
   {
-    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (GTKState_->lock);
+    ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, GTKState_->lock);
 
     // step1: free widget tree(s)
     for (Common_UI_GTKBuildersIterator_t iterator = GTKState_->builders.begin ();
@@ -147,7 +147,7 @@ Common_UI_GtkBuilderDefinition::finalize ()
   if (GTKState_)
   {
     // schedule UI finalization
-    ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (GTKState_->lock);
+    ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, GTKState_->lock);
 
     guint event_source_id = g_idle_add (GTKState_->finalizationHook,
                                         GTKState_->userData);

@@ -50,6 +50,8 @@ using namespace std;
 #include <rctl.h>
 #endif
 
+#include "ace/FILE_Addr.h"
+#include "ace/FILE_Connector.h"
 #include "ace/High_Res_Timer.h"
 #include "ace/Log_Msg.h"
 #include "ace/Log_Msg_Backend.h"
@@ -79,11 +81,57 @@ using namespace std;
 #endif
 
 #include "common_defines.h"
+#include "common_file_tools.h"
 #include "common_macros.h"
 #include "common_timer_manager_common.h"
 
 // initialize statics
 unsigned int Common_Tools::randomSeed_ = 0;
+#if defined (_DEBUG)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+ACE_HANDLE Common_Tools::debugHeapLogFileHandle_ = ACE_INVALID_HANDLE;
+
+int
+common_tools_win32_debugheap_hook (int reportType_in,
+                                   char* message_in,
+                                   int* returnValue_out)
+{
+  COMMON_TRACE (ACE_TEXT ("::common_tools_win32_debugheap_hook"));
+
+  // translate loglevel
+  ACE_Log_Priority log_priority = LM_ERROR;
+  switch (reportType_in)
+  {
+    case _CRT_ASSERT:
+    case _CRT_ERROR:
+    case _CRT_ERRCNT:
+      break;
+    case _CRT_WARN:
+      log_priority = LM_WARNING;
+      break;
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown debug heap log level (was: %d), continuing"),
+                  reportType_in));
+      break;
+    }
+  } // end SWITCH
+
+  // *WARNING*: this call holds the CRT lock. The logger waits for its lock,
+  //            causing deadlock if another thread has the lock and tries to
+  //            free objects to the CRT...
+  ACE_DEBUG ((log_priority,
+              ACE_TEXT ("debug heap: %s"),
+              ACE_TEXT (message_in)));
+
+  if (returnValue_out)
+    *returnValue_out = 0;
+
+  return FALSE; // <-- do not stop
+}
+#endif
+#endif
 
 void
 Common_Tools::initialize ()
@@ -92,23 +140,128 @@ Common_Tools::initialize ()
 
 #if defined (_DEBUG)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  int current_debug_heap_flags = _CrtSetDbgFlag (_CRTDBG_REPORT_FLAG);
-  int debug_heap_flags = current_debug_heap_flags;
-  //int debug_heap_flags = (_CRTDBG_ALLOC_MEM_DF      |
-  //                        //_CRTDBG_CHECK_ALWAYS_DF   |
-  //                        //_CRTDBG_CHECK_CRT_DF      |
-  //                        _CRTDBG_DELAY_FREE_MEM_DF |
-  //                        _CRTDBG_LEAK_CHECK_DF);
-  //debug_heap_flags =
-  //  (debug_heap_flags & 0x0000FFFF) | _CRTDBG_CHECK_EVERY_16_DF;
+  int previous_heap_flags = -1;
+  ACE_FILE_Addr file_address;
+  ACE_FILE_Connector file_connector;
+  ACE_FILE_IO file_IO;
+  int result = -1;
+  std::string package_name, file_name;
+  ACE_HANDLE previous_file_handle = ACE_INVALID_HANDLE;
+
+  if (!COMMON_DEBUG_DEBUGHEAP_DEFAULT_ENABLE) goto continue_;
+
+  ACE_ASSERT (debugHeapLogFileHandle_ == ACE_INVALID_HANDLE);
+
+  //int current_debug_heap_flags = _CrtSetDbgFlag (_CRTDBG_REPORT_FLAG);
+  //int debug_heap_flags = current_debug_heap_flags;
+  int debug_heap_flags = (_CRTDBG_ALLOC_MEM_DF      |
+                          _CRTDBG_CHECK_ALWAYS_DF   |
+                          _CRTDBG_CHECK_CRT_DF      |
+                          _CRTDBG_DELAY_FREE_MEM_DF |
+                          _CRTDBG_LEAK_CHECK_DF);
+  debug_heap_flags =
+    (debug_heap_flags | _CRTDBG_CHECK_EVERY_16_DF);
   // Turn off CRT block checking bit
-  debug_heap_flags &= ~_CRTDBG_CHECK_CRT_DF;
-  int previous_heap_flags = _CrtSetDbgFlag (debug_heap_flags);
-  //_CrtSetReportFile (_CRT_ERROR, _CRTDBG_FILE_STDERR);
-  //_CrtSetReportMode (_CRT_ERROR, _CRTDBG_MODE_DEBUG);
-  ACE_DEBUG ((LM_INFO,
-              ACE_TEXT ("configured debug heap: %d...\n"),
-              debug_heap_flags));
+  //debug_heap_flags &= ~_CRTDBG_CHECK_CRT_DF;
+  previous_heap_flags = _CrtSetDbgFlag (debug_heap_flags);
+  // output to debug window
+  file_name = Common_File_Tools::getLogDirectory (package_name, 0);
+  file_name += ACE_DIRECTORY_SEPARATOR_STR;
+  file_name += ACE_TEXT_ALWAYS_CHAR (COMMON_DEBUG_DEBUGHEAP_LOG_FILE);
+  result = file_address.set (ACE_TEXT (file_name.c_str ()));
+  if (result == -1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_FILE_Addr::set(\"%s\"): \"%m\", returning\n"),
+                ACE_TEXT (file_name.c_str ())));
+    return;
+  } // end IF
+  result =
+    file_connector.connect (file_IO,                 // stream
+                            file_address,            // filename
+                            NULL,                    // timeout (block)
+                            ACE_Addr::sap_any,       // (local) filename: N/A
+                            0,                       // reuse_addr: N/A
+                            (O_RDWR  |
+                             O_TEXT  |
+                             O_CREAT |
+                             O_TRUNC),               // flags --> open
+                            ACE_DEFAULT_FILE_PERMS); // permissions --> open
+  if (result == -1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_FILE_Connector::connect(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (file_name.c_str ())));
+    return;
+  } // end IF
+  debugHeapLogFileHandle_ = file_IO.get_handle ();
+  ACE_ASSERT (debugHeapLogFileHandle_ != ACE_INVALID_HANDLE);
+
+  //result = _CrtSetReportHook2 (_CRT_RPTHOOK_INSTALL,
+  //                             common_tools_win32_debugheap_hook);
+  //if (result == -1)
+  //{
+  //  ACE_DEBUG ((LM_ERROR,
+  //              ACE_TEXT ("failed to _CrtSetReportHook2(): \"%m\", aborting\n")));
+  //  return;
+  //} // end IF
+  //ACE_ASSERT (result == 1);
+  _CrtSetReportMode (_CRT_ASSERT, _CRTDBG_MODE_FILE);
+  _CrtSetReportMode (_CRT_ERROR,  _CRTDBG_MODE_FILE);
+  _CrtSetReportMode (_CRT_WARN,   _CRTDBG_MODE_FILE);
+  previous_file_handle =
+    _CrtSetReportFile (_CRT_ASSERT, debugHeapLogFileHandle_);
+  ACE_ASSERT (previous_file_handle != _CRTDBG_HFILE_ERROR);
+  previous_file_handle =
+    _CrtSetReportFile (_CRT_ERROR,  debugHeapLogFileHandle_);
+  ACE_ASSERT (previous_file_handle != _CRTDBG_HFILE_ERROR);
+  previous_file_handle =
+    _CrtSetReportFile (_CRT_WARN,   debugHeapLogFileHandle_);
+  ACE_ASSERT (previous_file_handle != _CRTDBG_HFILE_ERROR);
+
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("debug heap configuration:\n%s\t: %s\n%s\t: %s\n%s\t: %s\n%s\t: %s\n%s\t: %s\n%s\t: %s\n\n"),
+              ACE_TEXT ("_CRTDBG_ALLOC_MEM_DF"),
+              ((debug_heap_flags & _CRTDBG_ALLOC_MEM_DF) ? ACE_TEXT ("on")
+                                                         : ACE_TEXT ("off")),
+              ACE_TEXT ("_CRTDBG_DELAY_FREE_MEM_DF"),
+              ((debug_heap_flags & _CRTDBG_DELAY_FREE_MEM_DF) ? ACE_TEXT ("on")
+                                                              : ACE_TEXT ("off")),
+              ACE_TEXT ("_CRTDBG_CHECK_ALWAYS_DF"),
+              ((debug_heap_flags & _CRTDBG_CHECK_ALWAYS_DF) ? ACE_TEXT ("on")
+                                                            : ACE_TEXT ("off")),
+              ACE_TEXT ("_CRTDBG_RESERVED_DF"),
+              ((debug_heap_flags & _CRTDBG_RESERVED_DF) ? ACE_TEXT ("on")
+                                                        : ACE_TEXT ("off")),
+              ACE_TEXT ("_CRTDBG_CHECK_CRT_DF"),
+              ((debug_heap_flags & _CRTDBG_CHECK_CRT_DF) ? ACE_TEXT ("on")
+                                                         : ACE_TEXT ("off")),
+              ACE_TEXT ("_CRTDBG_LEAK_CHECK_DF"),
+              ((debug_heap_flags & _CRTDBG_LEAK_CHECK_DF) ? ACE_TEXT ("on")
+                                                          : ACE_TEXT ("off"))));
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("debug heap checking-frequency configuration:\n%s\t: %s\n%s\t: %s\n%s\t: %s\n%s\t: %s\n\n"),
+              ACE_TEXT ("_CRTDBG_CHECK_EVERY_16_DF"),
+              ((debug_heap_flags & _CRTDBG_CHECK_EVERY_16_DF) ? ACE_TEXT ("on")
+                                                              : ACE_TEXT ("off")),
+              ACE_TEXT ("_CRTDBG_CHECK_EVERY_128_DF"),
+              ((debug_heap_flags & _CRTDBG_CHECK_EVERY_128_DF) ? ACE_TEXT ("on")
+                                                               : ACE_TEXT ("off")),
+              ACE_TEXT ("_CRTDBG_CHECK_EVERY_1024_DF"),
+              ((debug_heap_flags & _CRTDBG_CHECK_EVERY_1024_DF) ? ACE_TEXT ("on")
+                                                                : ACE_TEXT ("off")),
+              ACE_TEXT ("_CRTDBG_CHECK_DEFAULT_DF"),
+              (((debug_heap_flags & 0xFFFF0000) == _CRTDBG_CHECK_DEFAULT_DF) ? ACE_TEXT ("on")
+                                                                             : ACE_TEXT ("off"))));
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("configured debug heap (%x, log file: \"%s\")...\n"),
+              debug_heap_flags,
+              ACE_TEXT (file_name.c_str ())));
+  //ACE_DEBUG ((LM_DEBUG,
+  //            ACE_TEXT ("configured debug heap (%x)...\n"),
+  //            debug_heap_flags));
+
+continue_:
 #endif
 #endif
 
@@ -125,6 +278,36 @@ Common_Tools::initialize ()
   //            ACE_TEXT ("calibrating high-resolution timer...done\n")));
 
   randomSeed_ = COMMON_TIME_NOW.usec ();
+}
+void
+Common_Tools::finalize ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::finalize"));
+
+#if defined (_DEBUG)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  int result = _CrtSetReportHook2 (_CRT_RPTHOOK_REMOVE,
+                                   common_tools_win32_debugheap_hook);
+  if (result == -1)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to _CrtSetReportHook2(): \"%m\", continuing\n")));
+  else
+    ACE_ASSERT (result == 0);
+
+  if (debugHeapLogFileHandle_ != ACE_INVALID_HANDLE)
+  {
+    result = ACE_OS::close (debugHeapLogFileHandle_);
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::close(%@): \"%m\", continuing\n"),
+                  debugHeapLogFileHandle_));
+    else
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("closed debug heap log file...\n")));
+    debugHeapLogFileHandle_ = ACE_INVALID_HANDLE;
+  } // end IF
+#endif
+#endif
 }
 
 //Common_ITimer*

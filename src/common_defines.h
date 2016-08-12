@@ -94,6 +94,12 @@
 
 /////////////////////////////////////////
 
+// *** debug ***
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#define COMMON_DEBUG_DEBUGHEAP_DEFAULT_ENABLE        false
+#define COMMON_DEBUG_DEBUGHEAP_LOG_FILE              "debugheap.log"
+#endif
+
 // *** log ***
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 //#define COMMON_LOG_DEFAULT_DIRECTORY                 ACE_OS::getenv (COMMON_LOCATION_LOG_STORAGE_VARIABLE)

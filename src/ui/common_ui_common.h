@@ -71,33 +71,32 @@ struct Common_UI_GTKState
 {
   inline Common_UI_GTKState ()
    : builders ()
-   , cursor (NULL)
+   //, cursor (NULL)
    , eventSourceIds ()
    , finalizationHook ()
 #if defined (LIGBGLADE_SUPPORT)
    , gladeXML ()
 #endif
    , initializationHook ()
-   , logStack ()
    , lock ()
+   , logStack ()
    , RCFiles ()
-   //////////////////////////////////////
+   ///////////////////////////////////////
    , userData (NULL)
   {};
 
   Common_UI_GTKBuilders_t       builders;
-  GdkCursor*                    cursor;
+  //GdkCursor*                    cursor;
   Common_UI_GTKEventSourceIds_t eventSourceIds;
   GSourceFunc                   finalizationHook;
 #if defined (LIGBGLADE_SUPPORT)
   Common_UI_GladeXMLs_t         gladeXML;
 #endif
   GSourceFunc                   initializationHook;
+  ACE_SYNCH_MUTEX               lock;
   Common_MessageStack_t         logStack;
-  // *NOTE*: needs to be recursive so logging works correctly
-  ACE_SYNCH_RECURSIVE_MUTEX     lock;
   Common_UI_UIRCFiles_t         RCFiles;
-  ///////////////////////////////////////
+  ////////////////////////////////////////
   gpointer                      userData; // cb user data
 };
 

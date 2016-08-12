@@ -32,6 +32,8 @@
 class Common_UI_Export Common_UI_Tools
 {
  public:
+  inline virtual ~Common_UI_Tools () {};
+
   static std::string UTF82Locale (const std::string&); // string
   static std::string UTF82Locale (const gchar*,        // string
                                   const gssize& = -1); // length in bytes (-1: \0-terminated)
@@ -40,7 +42,7 @@ class Common_UI_Export Common_UI_Tools
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools ());
-  ACE_UNIMPLEMENTED_FUNC (~Common_UI_Tools ());
+  //ACE_UNIMPLEMENTED_FUNC (~Common_UI_Tools ());
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools (const Common_UI_Tools&));
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools& operator= (const Common_UI_Tools&));
 };

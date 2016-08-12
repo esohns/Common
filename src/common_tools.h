@@ -27,7 +27,6 @@
 
 #include "ace/config-lite.h"
 #include "ace/Global_Macros.h"
-#include "ace/OS.h"
 
 #include "common.h"
 #include "common_exports.h"
@@ -46,6 +45,7 @@ class Common_Tools
 {
  public:
   static void initialize ();
+  static void finalize ();
 
   //// --- singleton ---
   //static Common_ITimer* getTimerManager ();
@@ -147,6 +147,11 @@ class Common_Tools
                                      int); // thread group id
   //static void unblockRealtimeSignals (sigset_t&); // return value: original mask
 
+#if defined (_DEBUG)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static ACE_HANDLE   debugHeapLogFileHandle_;
+#endif
+#endif
   static unsigned int randomSeed_;
 
  private:

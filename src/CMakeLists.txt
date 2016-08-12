@@ -100,6 +100,7 @@ set (${PROJECT_NAME}_LIB_SRCS
      common_itimerhandler.h
      common_logger.cpp
      common_logger.h
+     common_logger.inl
      common_macros.h
      common_referencecounter_base.cpp
      common_referencecounter_base.h
@@ -186,6 +187,7 @@ install (FILES
          common_isubscribe.h
          common_itimer.h
          common_logger.h
+         common_logger.inl
          common_macros.h
          common_referencecounter_base.h
          common_signalhandler.h
