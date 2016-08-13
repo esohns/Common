@@ -187,9 +187,9 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::flushTimers (bool lockedAccess_in
     }
     case COMMON_TIMER_MODE_QUEUE:
     {
+      ACE_SYNCH_RECURSIVE_MUTEX& mutex_r = inherited::mutex ();
       if (lockedAccess_in)
       {
-        ACE_SYNCH_RECURSIVE_MUTEX& mutex_r = inherited::mutex ();
         result = mutex_r.acquire ();
         if (result == -1)
           ACE_DEBUG ((LM_ERROR,
@@ -224,7 +224,6 @@ Common_Timer_Manager_T<TimerQueueAdapterType>::flushTimers (bool lockedAccess_in
 
       if (lockedAccess_in)
       {
-        ACE_SYNCH_RECURSIVE_MUTEX& mutex_r = inherited::mutex ();
         result = mutex_r.release ();
         if (result == -1)
           ACE_DEBUG ((LM_ERROR,
