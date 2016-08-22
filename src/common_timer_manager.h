@@ -34,7 +34,8 @@
 #include "common_itimer.h"
 #include "common_timer_common.h"
 
-template <typename TimerQueueAdapterType>
+template <ACE_SYNCH_DECL,
+          typename TimerQueueAdapterType>
 class Common_Timer_Manager_T
  : public TimerQueueAdapterType
  , public Common_ITimer
@@ -43,7 +44,8 @@ class Common_Timer_Manager_T
  , public Common_IInitialize_T<Common_TimerConfiguration>
 {
   // singleton needs access to the ctor/dtors
-  friend class ACE_Singleton<Common_Timer_Manager_T<TimerQueueAdapterType>,
+  friend class ACE_Singleton<Common_Timer_Manager_T<ACE_SYNCH_USE,
+                                                    TimerQueueAdapterType>,
                              ACE_SYNCH_MUTEX>;
 
  public:
@@ -82,7 +84,8 @@ class Common_Timer_Manager_T
   // convenience types
   typedef typename TimerQueueAdapterType::TIMER_QUEUE TIMER_QUEUE_T;
   //typedef typename TimerQueueAdapterType::TIMER_QUEUE_T TIMER_QUEUE_T;
-  typedef Common_Timer_Manager_T<TimerQueueAdapterType> OWN_TYPE_T;
+  typedef Common_Timer_Manager_T<ACE_SYNCH_USE,
+                                 TimerQueueAdapterType> OWN_TYPE_T;
 
   Common_Timer_Manager_T ();
   ACE_UNIMPLEMENTED_FUNC (Common_Timer_Manager_T (const Common_Timer_Manager_T&))

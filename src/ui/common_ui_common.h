@@ -93,6 +93,7 @@ struct Common_UI_GTKState
   Common_UI_GladeXMLs_t         gladeXML;
 #endif
   GSourceFunc                   initializationHook;
+
   ACE_SYNCH_MUTEX               lock;
   Common_MessageStack_t         logStack;
   Common_UI_UIRCFiles_t         RCFiles;
