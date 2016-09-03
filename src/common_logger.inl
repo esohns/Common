@@ -147,31 +147,29 @@ Common_Logger_T<ACE_SYNCH_USE>::log (ACE_Log_Record& record_in)
   //                   how this could deadlock if a different thread has lock_
   //                   and tries to log something
   //                   --> temporarily release ACE_Log_Msg_Manager::lock_
-  //ACE_Reverse_Lock<ACE_SYNCH_RECURSIVE_MUTEX> reverse_lock (ACE_Log_Msg_Manager::get_lock ());
   ACE_Log_Msg* log_msg_p = ACE_LOG_MSG;
   ACE_ASSERT (log_msg_p);
+  bool acquire_lock = false;
   result = log_msg_p->release ();
-  if (result == -1)
+  if (result == 0)
+    acquire_lock = true;
+  else
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Log_Msg::release(): \"%m\", continuing\n")));
-  //{
-  //  ACE_GUARD_RETURN (ACE_Reverse_Lock<ACE_SYNCH_RECURSIVE_MUTEX, aGuard, reverse_lock, -1);
-    if (lock_)
-    {
-      result = lock_->acquire ();
-      ACE_ASSERT (result == 0);
-    } // end IF
+
+  {
+    ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *lock_, -1);
+
     messageStack_->push_back (string_stream.str ());
-    if (lock_)
-    {
-      result = lock_->release ();
-      ACE_ASSERT (result == 0);
-    } // end IF
-  //} // end lock scope
-  result = log_msg_p->acquire ();
-  if (result == -1)
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_Log_Msg::acquire(): \"%m\", continuing\n")));
+  } // end lock scope
+
+  if (acquire_lock)
+  {
+    result = log_msg_p->acquire ();
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Log_Msg::acquire(): \"%m\", continuing\n")));
+  } // end IF
 
   return 0;
 }
