@@ -80,6 +80,7 @@ struct Common_UI_GTKState
    , initializationHook ()
    , lock ()
    , logStack ()
+   , logStackLock ()
    , RCFiles ()
    ///////////////////////////////////////
    , userData (NULL)
@@ -95,6 +96,7 @@ struct Common_UI_GTKState
   GSourceFunc                   initializationHook;
   ACE_SYNCH_MUTEX               lock;
   Common_MessageStack_t         logStack;
+  ACE_SYNCH_MUTEX               logStackLock;
   Common_UI_UIRCFiles_t         RCFiles;
 
   ////////////////////////////////////////

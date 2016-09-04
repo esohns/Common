@@ -36,15 +36,11 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::Common_StateMachine_Base_T"));
 
   if (lock_in)
-  {
     if (!initialize (*lock_in))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_StateMachine_Base_T::initialize, continuing\n")));
     } // end IF
-    else
-      stateLock_ = lock_in;
-  } // end IF
 }
 
 template <ACE_SYNCH_DECL,
@@ -109,6 +105,8 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
   } // end IF
   stateLock_ = &const_cast<ACE_SYNCH_MUTEX_T&> (lock_in);
 
+  isInitialized_ = true;
+
   return true;
 }
 
@@ -121,6 +119,8 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::change"));
 
   // sanity check(s)
+  if (!isInitialized_)
+    return false;
   ACE_ASSERT (condition_);
   ACE_ASSERT (stateLock_);
 
