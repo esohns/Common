@@ -264,7 +264,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       if (inherited::thr_count_ == 0)
         break; // nothing to do
 
-      shutdown ();
+      stop (false, true);
 
       break;
     }
@@ -279,6 +279,183 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
   return 0;
 }
+
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType>
+void
+Common_TaskBase_T<ACE_SYNCH_USE,
+                  TimePolicyType>::start ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::start"));
+
+  // sanity check(s)
+  if (inherited::thr_count_ > 0)
+  {
+    if (inherited::mod_)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("%s: object already active (current thread pool size: %u), returning\n"),
+                  inherited::mod_->name (),
+                  inherited::thr_count_));
+    else
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("object already active (current thread pool size: %u), returning\n"),
+                  inherited::thr_count_));
+    return;
+  } // end IF
+
+  // spawn a worker thread
+  ACE_thread_t* thread_ids_p = NULL;
+  ACE_NEW_NORETURN (thread_ids_p,
+                    ACE_thread_t[1]);
+  if (!thread_ids_p)
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to allocate memory (%u), returning\n"),
+                sizeof (ACE_thread_t)));
+    return;
+  } // end IF
+  ACE_OS::memset (thread_ids_p, 0, sizeof (thread_ids_p));
+  ACE_hthread_t* thread_handles_p = NULL;
+  ACE_NEW_NORETURN (thread_handles_p,
+                    ACE_hthread_t[1]);
+  if (!thread_handles_p)
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to allocate memory (%u), returning\n"),
+                sizeof (ACE_hthread_t)));
+
+    // clean up
+    delete [] thread_ids_p;
+
+    return;
+  } // end IF
+  ACE_OS::memset (thread_handles_p, 0, sizeof (thread_handles_p));
+  const char** thread_names_p = NULL;
+  ACE_NEW_NORETURN (thread_names_p,
+                    const char*[1]);
+  if (!thread_names_p)
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to allocate memory (%u), returning\n"),
+                sizeof (const char*)));
+
+    // clean up
+    delete [] thread_ids_p;
+    delete [] thread_handles_p;
+
+    return;
+  } // end IF
+  ACE_OS::memset (thread_names_p, 0, sizeof (thread_names_p));
+  char* thread_name_p = NULL;
+  ACE_NEW_NORETURN (thread_name_p,
+                    char[BUFSIZ]);
+  if (!thread_name_p)
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to allocate memory (%u), returning\n"),
+                sizeof (char) * BUFSIZ));
+
+    // clean up
+    delete [] thread_ids_p;
+    delete [] thread_handles_p;
+    delete [] thread_names_p;
+
+    return;
+  } // end IF
+  ACE_OS::memset (thread_name_p, 0, sizeof (thread_name_p));
+  ACE_OS::strcpy (thread_name_p,
+                  threadName_.c_str ());
+  thread_names_p[0] = thread_name_p;
+
+  int result =
+    inherited::activate ((THR_NEW_LWP      |
+                          THR_JOINABLE     |
+                          THR_INHERIT_SCHED),         // flags
+                         1,                           // #threads
+                         0,                           // force active ?
+                         ACE_DEFAULT_THREAD_PRIORITY, // priority
+                         inherited::grp_id (),        // group id (see above)
+                         NULL,                        // task base
+                         thread_handles_p,            // thread handle(s)
+                         NULL,                        // stack(s)
+                         NULL,                        // stack size(s)
+                         thread_ids_p,                // thread id(s)
+                         thread_names_p);             // thread name(s)
+  if (result == -1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Task::activate(%u): \"%m\", returning\n"),
+                threadCount_));
+
+    // clean up
+    delete [] thread_ids_p;
+    delete [] thread_handles_p;
+    delete [] thread_names_p[0];
+    delete [] thread_names_p;
+
+    return;
+  } // end IF
+
+  //std::ostringstream string_stream;
+  //string_stream << thread_ids_p[0];
+  //ACE_DEBUG ((LM_DEBUG,
+  //            ACE_TEXT ("spawned a worker thread (\"%s\", id: %s, group: %d)\n"),
+  //            ACE_TEXT (threadName_.c_str ()),
+  //            ACE_TEXT (string_stream.str ().c_str ()),
+  //            inherited::grp_id ()));
+
+  // clean up
+  delete [] thread_ids_p;
+  delete [] thread_handles_p;
+  delete [] thread_names_p[0];
+  delete [] thread_names_p;
+}
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType>
+void
+Common_TaskBase_T<ACE_SYNCH_USE,
+                  TimePolicyType>::stop (bool waitForCompletion_in,
+                                         bool lockedAccess_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::stop"));
+
+  int result = -1;
+
+  ACE_UNUSED_ARG (lockedAccess_in);
+
+  control (ACE_Message_Block::MB_STOP);
+
+  if (waitForCompletion_in)
+  {
+    result = inherited::wait ();
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Task_Base::wait(): \"%m\", continuing\n")));
+  } // end IF
+}
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType>
+bool
+Common_TaskBase_T<ACE_SYNCH_USE,
+                  TimePolicyType>::isRunning () const
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::isRunning"));
+
+  return (inherited::thr_count_ > 0);
+}
+//template <ACE_SYNCH_DECL,
+//          typename TimePolicyType>
+//int
+//Common_TaskBase_T<ACE_SYNCH_USE,
+//                  TimePolicyType>::wait (void)
+//{
+//  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::wait"));
+
+//  int result = inherited::wait ();
+//  if (result == -1)
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to ACE_Task_Base::wait(): \"%m\", continuing\n")));
+//}
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType>
@@ -371,139 +548,6 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
 }
 // *** END dummy stub methods ***
-
-template <ACE_SYNCH_DECL,
-          typename TimePolicyType>
-bool
-Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::activate ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::activate"));
-
-  // sanity check(s)
-  if (inherited::thr_count_ > 0)
-  {
-    if (inherited::mod_)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("%s: object already active (current thread pool size: %u), aborting\n"),
-                  inherited::mod_->name (),
-                  inherited::thr_count_));
-    else
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("object already active (current thread pool size: %u), aborting\n"),
-                  inherited::thr_count_));
-    return false;
-  } // end IF
-
-  // spawn a worker thread
-  ACE_thread_t* thread_ids_p = NULL;
-  ACE_NEW_NORETURN (thread_ids_p,
-                    ACE_thread_t[1]);
-  if (!thread_ids_p)
-  {
-    ACE_DEBUG ((LM_CRITICAL,
-                ACE_TEXT ("failed to allocate memory (%u), aborting\n"),
-                sizeof (ACE_thread_t)));
-    return false;
-  } // end IF
-  ACE_OS::memset (thread_ids_p, 0, sizeof (thread_ids_p));
-  ACE_hthread_t* thread_handles_p = NULL;
-  ACE_NEW_NORETURN (thread_handles_p,
-                    ACE_hthread_t[1]);
-  if (!thread_handles_p)
-  {
-    ACE_DEBUG ((LM_CRITICAL,
-                ACE_TEXT ("failed to allocate memory (%u), aborting\n"),
-                sizeof (ACE_hthread_t)));
-
-    // clean up
-    delete [] thread_ids_p;
-
-    return false;
-  } // end IF
-  ACE_OS::memset (thread_handles_p, 0, sizeof (thread_handles_p));
-  const char** thread_names_p = NULL;
-  ACE_NEW_NORETURN (thread_names_p,
-                    const char*[1]);
-  if (!thread_names_p)
-  {
-    ACE_DEBUG ((LM_CRITICAL,
-                ACE_TEXT ("failed to allocate memory (%u), aborting\n"),
-                sizeof (const char*)));
-
-    // clean up
-    delete [] thread_ids_p;
-    delete [] thread_handles_p;
-
-    return false;
-  } // end IF
-  ACE_OS::memset (thread_names_p, 0, sizeof (thread_names_p));
-  char* thread_name_p = NULL;
-  ACE_NEW_NORETURN (thread_name_p,
-                    char[BUFSIZ]);
-  if (!thread_name_p)
-  {
-    ACE_DEBUG ((LM_CRITICAL,
-                ACE_TEXT ("failed to allocate memory (%u), aborting\n"),
-                sizeof (char) * BUFSIZ));
-
-    // clean up
-    delete [] thread_ids_p;
-    delete [] thread_handles_p;
-    delete [] thread_names_p;
-
-    return false;
-  } // end IF
-  ACE_OS::memset (thread_name_p, 0, sizeof (thread_name_p));
-  ACE_OS::strcpy (thread_name_p,
-                  threadName_.c_str ());
-  thread_names_p[0] = thread_name_p;
-
-  int result =
-    inherited::activate ((THR_NEW_LWP      |
-                          THR_JOINABLE     |
-                          THR_INHERIT_SCHED),         // flags
-                         1,                           // #threads
-                         0,                           // force active ?
-                         ACE_DEFAULT_THREAD_PRIORITY, // priority
-                         inherited::grp_id (),        // group id (see above)
-                         NULL,                        // task base
-                         thread_handles_p,            // thread handle(s)
-                         NULL,                        // stack(s)
-                         NULL,                        // stack size(s)
-                         thread_ids_p,                // thread id(s)
-                         thread_names_p);             // thread name(s)
-  if (result == -1)
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_Task::activate(%u): \"%m\", aborting\n"),
-                threadCount_));
-
-    // clean up
-    delete [] thread_ids_p;
-    delete [] thread_handles_p;
-    delete [] thread_names_p[0];
-    delete [] thread_names_p;
-
-    return false;
-  } // end IF
-
-  //std::ostringstream string_stream;
-  //string_stream << thread_ids_p[0];
-  //ACE_DEBUG ((LM_DEBUG,
-  //            ACE_TEXT ("spawned a worker thread (\"%s\", id: %s, group: %d)\n"),
-  //            ACE_TEXT (threadName_.c_str ()),
-  //            ACE_TEXT (string_stream.str ().c_str ()),
-  //            inherited::grp_id ()));
-
-  // clean up
-  delete [] thread_ids_p;
-  delete [] thread_handles_p;
-  delete [] thread_names_p[0];
-  delete [] thread_names_p;
-
-  return true;
-}
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType>

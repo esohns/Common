@@ -27,6 +27,11 @@
 #include "ace/OS.h"
 #include "ace/Thread.h"
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+#include "X11/Xlib.h"
+#endif
+
 #if defined (LIBGLADE_SUPPORT)
 #include "glade/glade.h"
 #endif
@@ -36,6 +41,7 @@
 
 #include "common_ui_defines.h"
 #include "common_ui_igtk.h"
+#include "common_ui_tools.h"
 
 void
 glib_print_debug_handler (const gchar* message_in)
@@ -331,6 +337,18 @@ Common_UI_GTK_Manager::initializeGTK ()
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::setlocale(): \"%m\", continuing\n")));
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  // step0: initialize X
+  Status result = XInitThreads ();
+  if (!result)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to XInitThreads(): \"%m\", aborting\n")));
+    return false;
+  } // end IF
+#endif
+
   // step1: initialize GLib
   //GTypeDebugFlags debug_flags =
   //  static_cast <GTypeDebugFlags> (G_TYPE_DEBUG_OBJECTS       |
@@ -423,6 +441,12 @@ Common_UI_GTK_Manager::initializeGTK ()
   //  g_thread_init (NULL);
   //  gdk_threads_init ();
   //} // end IF
+
+#if defined (_DEBUG)
+  // debug info
+  Common_UI_Tools::info ();
+#endif
+
   if (!gtk_init_check (&argc_,
                        &argv_))
   {

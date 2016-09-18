@@ -29,6 +29,7 @@
 #include "ace/Task_T.h"
 
 #include "common_idumpstate.h"
+#include "common_itask.h"
 
 // forward declaration(s)
 class ACE_Message_Block;
@@ -39,6 +40,7 @@ template <ACE_SYNCH_DECL,
 class Common_TaskBase_T
  : public ACE_Task<ACE_SYNCH_USE,
                    TimePolicyType>
+ , public Common_ITask
  , public Common_IDumpState
 {
  public:
@@ -46,6 +48,19 @@ class Common_TaskBase_T
 
   // override ACE_Task_Base members
   virtual int close (u_long = 0);
+
+  // implement Common_ITask
+  // *NOTE*: this wraps ACE_Task_Base::activate() to spawn a single thread;
+  //         returns false if the object was already 'active' (or something else
+  //         went wrong; check errno)
+  // *TODO*: callers may want to implement a dynamic thread pool
+  //         --> call ACE_Task_Base::activate() directly in this case
+  virtual void start ();
+  // enqueue MB_STOP --> stop worker thread(s)
+  virtual void stop (bool = true,  // wait for completion ?
+                     bool = true); // locked access ? (N/A)
+  virtual bool isRunning () const;
+  inline virtual int wait (void) { return ACE_Task_Base::wait (); };
 
   // implement Common_IDumpState
   // *NOTE*: this is just a default stub
@@ -72,15 +87,7 @@ class Common_TaskBase_T
                    ACE_Time_Value*);
 
   // helper methods
-  // *NOTE*: this wraps ACE_Task_Base::activate() to spawn a single thread;
-  //         returns false if the object was already 'active' (or something else
-  //         went wrong; check errno)
-  // *TODO*: callers may want to implement a dynamic thread pool
-  //         --> call ACE_Task_Base::activate() directly in this case
-  bool activate ();
   void control (int); // message type
-  // enqueue MB_STOP --> stop worker thread(s)
-  inline void shutdown () { control (ACE_Message_Block::MB_STOP); };
 
   // *NOTE*: this is the 'configured' (not the 'current') thread count
   //         --> see ACE_Task::thr_count_

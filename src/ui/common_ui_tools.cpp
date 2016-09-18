@@ -21,6 +21,8 @@
 
 #include "common_ui_tools.h"
 
+#include <sstream>
+
 #include "ace/Log_Msg.h"
 
 #include "common_macros.h"
@@ -96,4 +98,41 @@ Common_UI_Tools::Locale2UTF8 (const std::string& string_in)
   } // end IF
 
   return result_p;
+}
+
+void
+Common_UI_Tools::info ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::info"));
+
+  std::ostringstream converter;
+  std::string information_string =
+      ACE_TEXT_ALWAYS_CHAR ("Gtk library version: ");
+  converter << GTK_MAJOR_VERSION;
+  information_string += converter.str ();
+  information_string += ACE_TEXT_ALWAYS_CHAR (".");
+  converter.clear ();
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter << GTK_MINOR_VERSION;
+  information_string += converter.str ();
+  information_string += ACE_TEXT_ALWAYS_CHAR (".");
+  converter.clear ();
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter << GTK_MICRO_VERSION;
+  information_string += converter.str ();
+  information_string += ACE_TEXT_ALWAYS_CHAR (" [age (binary/interface): ");
+  converter.clear ();
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter << GTK_BINARY_AGE;
+  information_string += converter.str ();
+  information_string += ACE_TEXT_ALWAYS_CHAR (", ");
+  converter.clear ();
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter << GTK_INTERFACE_AGE;
+  information_string += converter.str ();
+  information_string += ACE_TEXT_ALWAYS_CHAR ("]");
+
+  ACE_DEBUG ((LM_INFO,
+              ACE_TEXT ("%s\n"),
+              ACE_TEXT (information_string.c_str ())));
 }

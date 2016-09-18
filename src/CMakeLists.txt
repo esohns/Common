@@ -96,6 +96,7 @@ set (${PROJECT_NAME}_LIB_SRCS
      common_istatemachine.h
      common_istatistic.h
      common_isubscribe.h
+     common_itask.h
      common_itimer.h
      common_itimerhandler.h
      common_logger.cpp
@@ -185,6 +186,7 @@ install (FILES
          common_istatemachine.h
          common_istatistic.h
          common_isubscribe.h
+         common_itask.h
          common_itimer.h
          common_logger.h
          common_logger.inl

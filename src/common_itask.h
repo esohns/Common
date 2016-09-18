@@ -18,35 +18,19 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_UI_TOOLS_H
-#define COMMON_UI_TOOLS_H
+#ifndef COMMON_ITASK_H
+#define COMMON_ITASK_H
 
-#include <string>
+#include "common_icontrol.h"
 
-#include "gtk/gtk.h"
-
-#include "ace/Global_Macros.h"
-
-#include "common_ui_exports.h"
-
-class Common_UI_Export Common_UI_Tools
+class Common_ITask
+ : public Common_IControl
 {
  public:
-  inline virtual ~Common_UI_Tools () {};
+  inline virtual ~Common_ITask () {};
 
-  static std::string UTF82Locale (const std::string&); // string
-  static std::string UTF82Locale (const gchar*,        // string
-                                  const gssize& = -1); // length in bytes (-1: \0-terminated)
-  // *IMPORTANT NOTE*: return value needs to be g_free()'d !
-  static gchar* Locale2UTF8 (const std::string&); // string
-
-  // print Gtk library information
-  static void info ();
- private:
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools ());
-  //ACE_UNIMPLEMENTED_FUNC (~Common_UI_Tools ());
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools (const Common_UI_Tools&));
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools& operator= (const Common_UI_Tools&));
+  // exposed interface
+  virtual int wait (void) = 0;
 };
 
 #endif

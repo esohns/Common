@@ -30,7 +30,7 @@ class Common_IControl
   //virtual void initialize () = 0;
   virtual void start () = 0;
   virtual void stop (bool = true,      // wait for completion ?
-                     bool = true) = 0; // locked access ?
+                     bool = true) = 0; // locked access ? (N/A)
   virtual bool isRunning () const = 0;
 };
 

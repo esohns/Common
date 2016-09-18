@@ -47,7 +47,6 @@ struct Common_UI_GTKState;
 class Common_UI_Export Common_UI_GTK_Manager
  : public Common_TaskBase_T<ACE_MT_SYNCH,
                             Common_TimePolicy_t>
- , public Common_IControl
 {
   // singleton requires access to the ctor/dtor
   friend class ACE_Singleton<Common_UI_GTK_Manager,

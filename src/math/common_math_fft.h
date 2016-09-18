@@ -39,15 +39,9 @@ class Common_Math_Export SampleIterator
 
 //////////////////////////////////////////
 
-//template <unsigned int BitsPerSample,   // resolution: bits per sample
-//          unsigned int SampleByteOrder> // sample byte order
 class Common_Math_Export Common_Math_FFT
 {
  public:
-  //typedef SampleIterator_T<false,
-  //                         BitsPerSample,
-  //                         SampleByteOrder> ITERATOR_T;
-
   Common_Math_FFT (unsigned int,  // #channels
                    unsigned int,  // #slots (must be a power of 2)
                    unsigned int); // sample rate (Hz)
@@ -62,33 +56,28 @@ class Common_Math_Export Common_Math_FFT
   inline unsigned int Slots () const { return slots_; }
   void                Transform (unsigned int); // channel
 
-  inline double       Intensity (unsigned int channel_in,
-                                 unsigned int slot_in) const
-  { 
+  inline double       Intensity (unsigned int slot_in,
+                                 unsigned int channel_in) const
+  { ACE_ASSERT (slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
-    ACE_ASSERT (slot_in < slots_);
     return (sqrt (norm (X_[channel_in][slot_in])) / sqrtSlots_);
+  }
+  inline int          Value (unsigned int slot_in,
+                             unsigned int channel_in) const
+  { ACE_ASSERT (slot_in < slots_);
+    ACE_ASSERT (channel_in < channels_);
+    return static_cast<int> (buffer_[channel_in][slot_in]);
   }
 
   // return frequency in Hz of a given slot
   inline unsigned int Frequency (unsigned int slot_in) const
-  {
-    ACE_ASSERT (slot_in < slots_);
+  { ACE_ASSERT (slot_in < slots_);
     return (static_cast<unsigned int> (sampleRate_ * slot_in) / slots_);
   }
-  inline unsigned int HzToSlot (unsigned int frequency_in) const 
+  inline unsigned int MaxFrequency () const { return sampleRate_; }
+  inline unsigned int HzToSlot (unsigned int frequency_in) const
   { 
     return (static_cast<unsigned int> (slots_ * frequency_in) / sampleRate_);
-  }
-
-  inline unsigned int MaxFrequency () const { return sampleRate_; }
-
-  inline int          Value (unsigned int channel_in,
-                             unsigned int slot_in) const
-  {
-    ACE_ASSERT (channel_in < channels_);
-    ACE_ASSERT (slot_in < slots_);
-    return static_cast<int> (buffer_[channel_in][slot_in]);
   }
 
  protected:
