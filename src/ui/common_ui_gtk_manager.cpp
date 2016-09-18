@@ -228,12 +228,9 @@ Common_UI_GTK_Manager::close (u_long arg_in)
 
       if (UIInterfaceHandle_)
       {
-        try
-        {
+        try {
           UIInterfaceHandle_->finalize ();
-        }
-        catch (...)
-        {
+        } catch (...) {
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("caught exception in Common_UI_IGTK_T::finalize, continuing\n")));
         }
@@ -379,6 +376,48 @@ Common_UI_GTK_Manager::initializeGTK ()
     } // end FOR
   } // end FOR
 
+#if defined (GTK_MAJOR_VERSION) && (GTK_MAJOR_VERSION >= 3)
+  // step1c: specify any .css files
+  GError* error_p = NULL;
+  if (!state_->CSSProviders.empty ())
+  {
+    int i = 1;
+    for (Common_UI_UICSSProvidersIterator_t iterator = state_->CSSProviders.begin ();
+         iterator != state_->CSSProviders.end ();
+         ++iterator, ++i)
+    {
+      ACE_ASSERT (!(*iterator).second);
+      (*iterator).second = gtk_css_provider_new ();
+      if (!(*iterator).second)
+      {
+        ACE_DEBUG ((LM_CRITICAL,
+                    ACE_TEXT ("failed to gtk_css_provider_new(), aborting\n")));
+        return false;
+      } // end IF
+
+      if (!gtk_css_provider_load_from_path ((*iterator).second,
+                                            (*iterator).first.c_str (),
+                                            &error_p))
+      { ACE_ASSERT (error_p);
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to gtk_css_provider_load_from_path(\"%s\"): \"%s\", continuing\n"),
+                    ACE_TEXT ((*iterator).first.c_str ()),
+                    ACE_TEXT (error_p->message)));
+
+        // clean up
+        g_object_unref ((*iterator).second);
+        (*iterator).second = NULL;
+        g_error_free (error_p);
+
+        continue;
+      } // end IF
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("#%u: added GTK .css file \"%s\"...\n"),
+                  i, ACE::basename ((*iterator).first.c_str ())));
+    } // end FOR
+  } // end FOR
+#endif
+
   //if (g_thread_supported ())
   //{
   //  g_thread_init (NULL);
@@ -394,7 +433,6 @@ Common_UI_GTK_Manager::initializeGTK ()
 //  gtk_init (&argc_,
 //            &argv_);
 //  GOptionEntry entries_a[] = { {NULL} };
-//  GError* error_p = NULL;
 //  if (!gtk_init_with_args (&argc_,    // argc
 //                           &argv_,    // argv
 //                           NULL,      // parameter string

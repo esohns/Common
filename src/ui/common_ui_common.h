@@ -54,6 +54,10 @@ typedef Common_UI_GTKEventSourceIds_t::iterator Common_UI_GTKEventSourceIdsItera
 
 typedef std::list<std::string> Common_UI_UIRCFiles_t;
 typedef Common_UI_UIRCFiles_t::const_iterator Common_UI_UIRCFilesIterator_t;
+#if defined (GTK_MAJOR_VERSION) && (GTK_MAJOR_VERSION >= 3)
+typedef std::map<std::string, GtkCssProvider*> Common_UI_UICSSProviders_t;
+typedef Common_UI_UICSSProviders_t::iterator Common_UI_UICSSProvidersIterator_t;
+#endif
 
 typedef std::pair<std::string, GtkBuilder*> Common_UI_GTKBuilder_t;
 typedef std::map<std::string, Common_UI_GTKBuilder_t> Common_UI_GTKBuilders_t;
@@ -81,6 +85,9 @@ struct Common_UI_GTKState
    , lock ()
    , logStack ()
    , logStackLock ()
+#if defined (GTK_MAJOR_VERSION) && (GTK_MAJOR_VERSION >= 3)
+   , CSSProviders ()
+#endif
    , RCFiles ()
    ///////////////////////////////////////
    , userData (NULL)
@@ -97,6 +104,9 @@ struct Common_UI_GTKState
   ACE_SYNCH_MUTEX               lock;
   Common_MessageStack_t         logStack;
   ACE_SYNCH_MUTEX               logStackLock;
+#if defined (GTK_MAJOR_VERSION) && (GTK_MAJOR_VERSION >= 3)
+  Common_UI_UICSSProviders_t    CSSProviders;
+#endif
   Common_UI_UIRCFiles_t         RCFiles;
 
   ////////////////////////////////////////

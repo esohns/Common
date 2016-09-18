@@ -72,13 +72,20 @@ class Common_TaskBase_T
                    ACE_Time_Value*);
 
   // helper methods
+  // *NOTE*: this wraps ACE_Task_Base::activate() to spawn a single thread;
+  //         returns false if the object was already 'active' (or something else
+  //         went wrong; check errno)
+  // *TODO*: callers may want to implement a dynamic thread pool
+  //         --> call ACE_Task_Base::activate() directly in this case
+  bool activate ();
   void control (int); // message type
   // enqueue MB_STOP --> stop worker thread(s)
-  void shutdown ();
+  inline void shutdown () { control (ACE_Message_Block::MB_STOP); };
 
-  // *NOTE*: this is the 'configured' thread count, not the 'current'
+  // *NOTE*: this is the 'configured' (not the 'current') thread count
   //         --> see ACE_Task::thr_count_
   unsigned int threadCount_;
+  std::string  threadName_;
 
  private:
   typedef ACE_Task<ACE_SYNCH_USE,
@@ -91,8 +98,6 @@ class Common_TaskBase_T
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T ())
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T (const Common_TaskBase_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T& operator= (const Common_TaskBase_T&))
-
-  std::string threadName_;
 };
 
 // include template definition

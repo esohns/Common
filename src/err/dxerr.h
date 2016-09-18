@@ -31,7 +31,7 @@ extern "C" {
 //--------------------------------------------------------------------------------------
 // DXGetErrorString
 //--------------------------------------------------------------------------------------
-CommonERR_Export const WCHAR*
+Common_Err_Export const WCHAR*
 WINAPI DXGetErrorStringW( _In_ HRESULT hr );
 
 #define DXGetErrorString DXGetErrorStringW
@@ -40,7 +40,7 @@ WINAPI DXGetErrorStringW( _In_ HRESULT hr );
 // DXGetErrorDescription has to be modified to return a copy in a buffer rather than
 // the original static string.
 //--------------------------------------------------------------------------------------
-CommonERR_Export void
+Common_Err_Export void
 WINAPI DXGetErrorDescriptionW( _In_ HRESULT hr, _Out_cap_(count) WCHAR* desc, _In_ size_t count );
 
 #define DXGetErrorDescription DXGetErrorDescriptionW
@@ -60,7 +60,7 @@ WINAPI DXGetErrorDescriptionW( _In_ HRESULT hr, _Out_cap_(count) WCHAR* desc, _I
 //
 //  Return: The hr that was passed in.  
 //--------------------------------------------------------------------------------------
-CommonERR_Export HRESULT
+Common_Err_Export HRESULT
 WINAPI DXTraceW( _In_z_ const WCHAR* strFile, _In_ DWORD dwLine, _In_ HRESULT hr, _In_opt_ const WCHAR* strMsg, _In_ bool bPopMsgBox );
 
 #define DXTrace DXTraceW

@@ -158,6 +158,7 @@ option (BUILD_MODULES
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cotire/CMake")
 #list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/scripts")
 include (cotire)
+set_directory_properties (PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 
 # build a CPack driven installer package
 include (InstallRequiredSystemLibraries)

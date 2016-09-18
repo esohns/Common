@@ -214,4 +214,5 @@ install (TARGETS ${PROJECT_NAME}
 if (WIN32)
  add_subdirectory (err)
 endif ()
+add_subdirectory (math)
 add_subdirectory (ui)

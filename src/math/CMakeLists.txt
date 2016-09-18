@@ -1,5 +1,3 @@
-#cmake_minimum_required (VERSION 2.8)
-
 #include (CheckLibraryExists)
 #check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
 #find_library (HAVE_LIB_ACE libACE)
@@ -45,16 +43,20 @@ elseif (WIN32)
 #*TODO*: use pkg-config instead
  include_directories ($ENV{ACE_ROOT})
 endif ()
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
+
+add_definitions (-D_USE_MATH_DEFINES)
 
 ############## next target ################
-set (${PROJECT_NAME}ERR_LIB_SRCS
+set (${PROJECT_NAME}Math_LIB_SRCS
      stdafx.cpp
      stdafx.h
-     common_err_exports.h
-     dxerr.cpp
-     dxerr.h)
+     common_math_complex.h
+     common_math_exports.h
+     common_math_fft.cpp
+     common_math_fft.h)
 
-add_library (${PROJECT_NAME}ERR SHARED ${CommonERR_LIB_SRCS})
+add_library (${PROJECT_NAME}Math SHARED ${CommonMath_LIB_SRCS})
 
 if (WIN32)
 ## set (CMAKE_GENERATOR_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE) 
@@ -66,30 +68,32 @@ endif ()
 
 #*TODO*: use pkg-config instead
 if (WIN32)
-# target_link_libraries (${PROJECT_NAME}ERR ${COMMON_TARGET_NAME})
+# target_link_libraries (${PROJECT_NAME}Math ${COMMON_TARGET_NAME})
+ target_link_libraries (${PROJECT_NAME}Math ${ACE_LIBRARY})
 endif ()
 
 # *WARNING*: linking libglade-2.dll(.a) requires "/SAFESEH:NO""
 if (WIN32)
 # set_target_properties (${PROJECT_NAME}ERR PROPERTIES LINK_FLAGS /SAFESEH:NO)
 endif ()
-set_target_properties (${PROJECT_NAME}ERR PROPERTIES DEFINE_SYMBOL COMMON_ERR_BUILD_DLL)
-set_target_properties (${PROJECT_NAME}ERR PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+set_target_properties (${PROJECT_NAME}Math PROPERTIES DEFINE_SYMBOL COMMON_MATH_BUILD_DLL)
+set_target_properties (${PROJECT_NAME}Math PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
-set_target_properties (${PROJECT_NAME}ERR PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${PROJECT_NAME}ERR)
+set_target_properties (${PROJECT_NAME}Math PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+cotire (${PROJECT_NAME}Math)
 
 # add all targets to the build-tree export set
-export (TARGETS ${PROJECT_NAME}ERR
+export (TARGETS ${PROJECT_NAME}Math
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
 install (FILES
-         common_err_exports.h
-         dxerr.h
+         common_math_complex.h
+         common_math_exports.h
+         common_math_fft.h
          DESTINATION include)
-install (TARGETS ${PROJECT_NAME}ERR
+install (TARGETS ${PROJECT_NAME}Math
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
          LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
