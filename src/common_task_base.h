@@ -57,8 +57,7 @@ class Common_TaskBase_T
   //         --> call ACE_Task_Base::activate() directly in this case
   virtual void start ();
   // enqueue MB_STOP --> stop worker thread(s)
-  virtual void stop (bool = true,  // wait for completion ?
-                     bool = true); // locked access ? (N/A)
+  virtual void stop (bool = false); // wait for completion ?
   virtual bool isRunning () const;
   inline virtual int wait (void) { return ACE_Task_Base::wait (); };
 
@@ -83,8 +82,8 @@ class Common_TaskBase_T
 
   // override ACE_Task_Base members
   virtual int open (void* = NULL);
-  virtual int put (ACE_Message_Block*,
-                   ACE_Time_Value*);
+  inline virtual int put (ACE_Message_Block* messageBlock_in,
+                          ACE_Time_Value* timeout_in) { return inherited::putq (messageBlock_in, timeout_in); }
 
   // helper methods
   void control (int); // message type

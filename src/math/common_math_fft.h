@@ -47,14 +47,15 @@ class Common_Math_Export Common_Math_FFT
                    unsigned int); // sample rate (Hz)
   virtual ~Common_Math_FFT ();
 
+  void Compute (unsigned int); // channel
+  //void CopyIn (unsigned int, // channel
+  //             ITERATOR_T*); // sample iterator
   bool Initialize (unsigned int,  // #channels
                    unsigned int,  // #slots (must be a power of 2)
                    unsigned int); // sample rate (Hz)
 
-  //void                CopyIn (unsigned int, // channel
-  //                            ITERATOR_T*); // sample iterator
+  inline unsigned int Channels () const { return channels_; }
   inline unsigned int Slots () const { return slots_; }
-  void                Transform (unsigned int); // channel
 
   inline double       Intensity (unsigned int slot_in,
                                  unsigned int channel_in) const
@@ -71,7 +72,7 @@ class Common_Math_Export Common_Math_FFT
 
   // return frequency in Hz of a given slot
   inline unsigned int Frequency (unsigned int slot_in) const
-  { ACE_ASSERT (slot_in < slots_);
+  { if (slot_in >= slots_) slot_in = slots_;
     return (static_cast<unsigned int> (sampleRate_ * slot_in) / slots_);
   }
   inline unsigned int MaxFrequency () const { return sampleRate_; }

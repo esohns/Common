@@ -21,15 +21,16 @@
 #ifndef COMMON_ITASK_H
 #define COMMON_ITASK_H
 
-#include "common_icontrol.h"
-
 class Common_ITask
- : public Common_IControl
 {
  public:
   inline virtual ~Common_ITask () {};
 
   // exposed interface
+  virtual void start () = 0;
+  virtual void stop (bool = false) = 0; // wait for completion ?
+
+  virtual bool isRunning () const = 0;
   virtual int wait (void) = 0;
 };
 

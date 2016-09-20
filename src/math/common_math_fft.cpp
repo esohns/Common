@@ -174,7 +174,7 @@ Common_Math_FFT::Initialize (unsigned int channels_in,
 
     if (bitReverseMap_)
     {
-      delete[] bitReverseMap_;
+      delete [] bitReverseMap_;
       bitReverseMap_ = NULL;
     } // end IF
     if (W_)
@@ -217,10 +217,10 @@ Common_Math_FFT::Initialize (unsigned int channels_in,
     } // end IF
   } // end FOR
 #if 0
-    // 1 kHz calibration wave
-    for (unsigned int i = 0; i < channels_in; ++i)
-      for (unsigned int j = 0; j < slots_in; ++j)
-          buffer_[i][j] = 1600 * sin (2.0 * M_PI * 1000.0 * j / sampleRate_in);
+  // 1 kHz calibration wave
+  for (unsigned int i = 0; i < channels_in; ++i)
+    for (unsigned int j = 0; j < slots_in; ++j)
+        buffer_[i][j] = 1600 * sin (2.0 * M_PI * 1000.0 * j / sampleRate_in);
 #else
   for (unsigned int i = 0; i < channels_in; ++i)
     for (unsigned int j = 0; j < slots_in; ++j)
@@ -241,11 +241,11 @@ Common_Math_FFT::Initialize (unsigned int channels_in,
 
   // set up bit-reverse mapping
   int rev = 0;
-  int halfPoints = slots_ / 2;
+  int half_slots = slots_ / 2;
   for (unsigned int i = 0; i < slots_ - 1; ++i)
   {
     bitReverseMap_[i] = rev;
-    int mask = halfPoints;
+    int mask = half_slots;
     // add 1 backwards
     while (rev >= mask)
     {
@@ -287,7 +287,7 @@ Common_Math_FFT::Initialize (unsigned int channels_in,
     } // end IF
 
     for (unsigned int i = 0; i < slots_; ++i)
-      W_[l][i] = std::complex<double> (cos  (2.0 * M_PI * i / _2_l),
+      W_[l][i] = std::complex<double> ( cos (2.0 * M_PI * i / _2_l),
                                        -sin (2.0 * M_PI * i / _2_l));
 
     _2_l *= 2;
@@ -373,9 +373,9 @@ Common_Math_FFT::Initialize (unsigned int channels_in,
 //
 
 void
-Common_Math_FFT::Transform (unsigned int channel_in)
+Common_Math_FFT::Compute (unsigned int channel_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Math_FFT::Transform"));
+  COMMON_TRACE (ACE_TEXT ("Common_Math_FFT::Compute"));
 
   // step = 2 ^ (level - 1)
   // increment = 2 ^ level;
@@ -395,9 +395,9 @@ Common_Math_FFT::Transform (unsigned int channel_in)
         //std::complex<double> T = U;
         std::complex<double> T = W_[level][j];
         T *= X_[channel_in][i + step];
-        X_[channel_in][i + step] = X_[channel_in][i];
+        X_[channel_in][i + step]  = X_[channel_in][i];
         X_[channel_in][i + step] -= T;
-        X_[channel_in][i] += T;
+        X_[channel_in][i]        += T;
       } // end FOR
     } // end FOR
     step *= 2;

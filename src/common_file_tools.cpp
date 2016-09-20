@@ -1179,7 +1179,7 @@ fallback:
 }
 
 std::string
-Common_File_Tools::getTempFilename (const std::string& programName_in)
+Common_File_Tools::getTempFilename (const std::string& prefix_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getTempFilename"));
 
@@ -1193,13 +1193,13 @@ Common_File_Tools::getTempFilename (const std::string& programName_in)
   result += ACE_DIRECTORY_SEPARATOR_STR;
 
   // sanity check(s)
-  ACE_ASSERT (programName_in.size () <= (BUFSIZ - 6 + 1));
+  ACE_ASSERT (prefix_in.size () <= (BUFSIZ - 6 + 1));
 
   // *NOTE*: see also: man 3 mkstemp
   ACE_TCHAR buffer[BUFSIZ];
-  if (!programName_in.empty ())
-    ACE_OS::strcpy (buffer, programName_in.c_str ());
-  ACE_OS::strcpy (buffer + programName_in.size (), ACE_TEXT ("XXXXXX"));
+  if (!prefix_in.empty ())
+    ACE_OS::strcpy (buffer, prefix_in.c_str ());
+  ACE_OS::strcpy (buffer + prefix_in.size (), ACE_TEXT ("XXXXXX"));
   ACE_HANDLE file_handle = ACE_OS::mkstemp (buffer);
   if (file_handle == ACE_INVALID_HANDLE)
   {

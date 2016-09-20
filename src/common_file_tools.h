@@ -70,7 +70,7 @@ class Common_File_Tools
                                        const std::string&); // program name
 
   static std::string getTempDirectory ();
-  static std::string getTempFilename (const std::string&); // program name
+  static std::string getTempFilename (const std::string&); // prefix
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_File_Tools ())
