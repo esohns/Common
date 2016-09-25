@@ -23,7 +23,19 @@
 
 #include <sstream>
 
-#include "ace/Log_Msg.h"
+#include <ace/Log_Msg.h>
+
+#include <gtk/gtk.h>
+#if defined (GTKGL_SUPPORT)
+//#include <gtkgl/gdkgl.h> // gtkgl
+
+#include <gdk/gdkglconfig.h>  // gtkglext
+#include <gdk/gdkglquery.h>   // gtkglext
+#include <gdk/gdkglversion.h> // gtkglext
+// *TODO*: find out why gcc cannot find these includes
+#include <gdk/gdkgl.h>        // gtkglext
+#include <gtk/gtkgl.h>        // gtkglext
+#endif
 
 #include "common_macros.h"
 
@@ -101,9 +113,9 @@ Common_UI_Tools::Locale2UTF8 (const std::string& string_in)
 }
 
 void
-Common_UI_Tools::info ()
+Common_UI_Tools::GtkInfo ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::info"));
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::GtkInfo"));
 
   std::ostringstream converter;
   std::string information_string =
@@ -132,6 +144,76 @@ Common_UI_Tools::info ()
   information_string += converter.str ();
   information_string += ACE_TEXT_ALWAYS_CHAR ("]");
 
+#if defined (GTKGL_SUPPORT)
+  information_string +=
+      ACE_TEXT_ALWAYS_CHAR ("\nGtk GL library version: ");
+  converter.clear ();
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter << GDKGLEXT_MAJOR_VERSION;
+  information_string += converter.str ();
+  information_string += ACE_TEXT_ALWAYS_CHAR (".");
+  converter.clear ();
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter << GDKGLEXT_MINOR_VERSION;
+  information_string += converter.str ();
+  information_string += ACE_TEXT_ALWAYS_CHAR (".");
+  converter.clear ();
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter << GDKGLEXT_MICRO_VERSION;
+  information_string += converter.str ();
+  information_string += ACE_TEXT_ALWAYS_CHAR (" [age (binary/interface): ");
+  converter.clear ();
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter << GDKGLEXT_BINARY_AGE;
+  information_string += converter.str ();
+  information_string += ACE_TEXT_ALWAYS_CHAR (", ");
+  converter.clear ();
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter << GDKGLEXT_INTERFACE_AGE;
+  information_string += converter.str ();
+  information_string += ACE_TEXT_ALWAYS_CHAR ("]");
+#endif
+
+  ACE_DEBUG ((LM_INFO,
+              ACE_TEXT ("%s\n"),
+              ACE_TEXT (information_string.c_str ())));
+}
+
+void
+Common_UI_Tools::OpenGLInfo ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::OpenGLInfo"));
+
+  std::ostringstream converter;
+  std::string information_string;
+
+#if defined (GTKGL_SUPPORT)
+  int version_major, version_minor;
+
+  information_string =
+      ACE_TEXT_ALWAYS_CHAR ("OpenGL version: ");
+  if (!gdk_gl_query_extension ())
+  {
+    information_string += ACE_TEXT_ALWAYS_CHAR ("not supported");
+    goto continue_;
+  } // end IF
+
+  if (!gdk_gl_query_version (&version_major, &version_minor))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to gdk_gl_query_version(), returning\n")));
+    return;
+  } // end IF
+  converter << version_major;
+  information_string += converter.str ();
+  information_string += ACE_TEXT_ALWAYS_CHAR (".");
+  converter.clear ();
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter << version_minor;
+  information_string += converter.str ();
+
+continue_:
+#endif
   ACE_DEBUG ((LM_INFO,
               ACE_TEXT ("%s\n"),
               ACE_TEXT (information_string.c_str ())));

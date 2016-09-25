@@ -42,17 +42,20 @@ if (UNIX)
 elseif (WIN32)
 #*TODO*: use pkg-config instead
  include_directories ($ENV{ACE_ROOT})
+
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25)
 endif ()
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 ############## next target ################
-set (${PROJECT_NAME}ERROR_LIB_SRCS
+set (${PROJECT_NAME}IMAGE_LIB_SRCS
      stdafx.cpp
      stdafx.h
-     common_err_exports.h
-     dxerr.cpp
-     dxerr.h)
+     common_image_exports.h
+     common_image_tools.cpp
+     common_image_tools.h)
 
-add_library (${PROJECT_NAME}Error SHARED ${CommonERROR_LIB_SRCS})
+add_library (${PROJECT_NAME}Image SHARED ${CommonIMAGE_LIB_SRCS})
 
 if (WIN32)
 ## set (CMAKE_GENERATOR_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE) 
@@ -64,30 +67,35 @@ endif ()
 
 #*TODO*: use pkg-config instead
 if (WIN32)
-# target_link_libraries (${PROJECT_NAME}Error ${COMMON_TARGET_NAME})
+ target_link_libraries (${PROJECT_NAME}Image ${ACE_LIBRARY})
+
+# libpng
+ target_link_libraries (${PROJECT_NAME}Image ${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25/projects/vstudio/Debug/libpng16.lib)
+
+# target_link_libraries (${PROJECT_NAME}Image ${COMMON_TARGET_NAME})
 endif ()
 
 # *WARNING*: linking libglade-2.dll(.a) requires "/SAFESEH:NO""
 if (WIN32)
-# set_target_properties (${PROJECT_NAME}Error PROPERTIES LINK_FLAGS /SAFESEH:NO)
+# set_target_properties (${PROJECT_NAME}Image PROPERTIES LINK_FLAGS /SAFESEH:NO)
 endif ()
-set_target_properties (${PROJECT_NAME}Error PROPERTIES DEFINE_SYMBOL COMMON_ERR_BUILD_DLL)
-set_target_properties (${PROJECT_NAME}Error PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+set_target_properties (${PROJECT_NAME}Image PROPERTIES DEFINE_SYMBOL COMMON_IMAGE_BUILD_DLL)
+set_target_properties (${PROJECT_NAME}Image PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
-set_target_properties (${PROJECT_NAME}Error PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${PROJECT_NAME}Error)
+set_target_properties (${PROJECT_NAME}Image PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+cotire (${PROJECT_NAME}Image)
 
 # add all targets to the build-tree export set
-export (TARGETS ${PROJECT_NAME}Error
+export (TARGETS ${PROJECT_NAME}Image
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
 install (FILES
-         common_err_exports.h
-         dxerr.h
+         common_image_exports.h
+         common_image_tools.h
          DESTINATION include)
-install (TARGETS ${PROJECT_NAME}Error
+install (TARGETS ${PROJECT_NAME}Image
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
          LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib

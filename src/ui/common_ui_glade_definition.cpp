@@ -23,16 +23,15 @@
 
 #include <fstream>
 
-#include "ace/Guard_T.h"
-#include "ace/Log_Msg.h"
-#include "ace/Synch.h"
+#include <ace/Guard_T.h>
+#include <ace/Log_Msg.h>
+#include <ace/Synch.h>
 
-#include "gtk/gtk.h"
+#include <gtk/gtk.h>
 
-#include "glade/glade.h"
+#include <glade/glade.h>
 
 #include "common_file_tools.h"
-
 #include "common_macros.h"
 
 Common_UI_GladeDefinition::Common_UI_GladeDefinition (int argc_in,
@@ -77,7 +76,11 @@ Common_UI_GladeDefinition::initialize (Common_UI_GTKState& GTKState_inout)
 
   GTKState_ = &GTKState_inout;
 
-  ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (GTKState_inout.lock);
+  ACE_Guard<ACE_SYNCH_MUTEX> aGuard (GTKState_inout.lock);
+
+#if defined (LIBGLADE_SUPPORT)
+  1 == 1;
+#endif
 
   // step1: load widget tree(s)
   GladeXML* glade_XML_p = NULL;
@@ -195,7 +198,7 @@ Common_UI_GladeDefinition::finalize ()
   // sanity check(s)
   ACE_ASSERT (GTKState_);
 
-  ACE_Guard<ACE_SYNCH_RECURSIVE_MUTEX> aGuard (GTKState_->lock);
+  ACE_Guard<ACE_SYNCH_MUTEX> aGuard (GTKState_->lock);
 
   // schedule UI finalization
   guint event_source_id = g_idle_add (GTKState_->finalizationHook,

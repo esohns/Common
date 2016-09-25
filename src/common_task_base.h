@@ -22,10 +22,12 @@
 #define COMMON_TASK_BASE_H
 
 #include <string>
+#include <vector>
 
 #include "ace/Global_Macros.h"
 #include "ace/Message_Queue_T.h"
 #include "ace/Module.h"
+#include "ace/OS_NS_Thread.h"
 #include "ace/Task_T.h"
 
 #include "common_idumpstate.h"
@@ -86,12 +88,20 @@ class Common_TaskBase_T
                           ACE_Time_Value* timeout_in) { return inherited::putq (messageBlock_in, timeout_in); }
 
   // helper methods
-  void control (int); // message type
+  // *NOTE*: 'high priority' effectively means that the message is enqueued at
+  //         the head end (i.e. will be the next to dequeue), whereas it would
+  //         be enqueued at the tail end otherwise
+  void control (int,           // message type
+                bool = false); // high-priority ?
 
   // *NOTE*: this is the 'configured' (not the 'current') thread count
   //         --> see ACE_Task::thr_count_
   unsigned int threadCount_;
   std::string  threadName_;
+
+  typedef std::vector<ACE_Thread_ID> THREAD_IDS_T;
+  typedef THREAD_IDS_T::const_iterator THREAD_IDS_ITERATOR_T;
+  THREAD_IDS_T threadIDs_;
 
  private:
   typedef ACE_Task<ACE_SYNCH_USE,

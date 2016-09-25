@@ -21,19 +21,25 @@
 
 #include "common_ui_gtk_manager.h"
 
-#include "ace/ACE.h"
-#include "ace/Log_Msg.h"
-#include "ace/Log_Priority.h"
-#include "ace/OS.h"
-#include "ace/Thread.h"
+#include <ace/ACE.h>
+#include <ace/Log_Msg.h>
+#include <ace/Log_Priority.h>
+#include <ace/OS.h>
+#include <ace/Thread.h>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-#include "X11/Xlib.h"
+#include <X11/Xlib.h>
+#endif
+
+#if defined (GTKGL_SUPPORT)
+#include <gdk/gdkglinit.h> // gtkglext
+// *TODO*: find out why gcc cannot find these includes
+#include <gdk/gdkgl.h>     // gtkglext
 #endif
 
 #if defined (LIBGLADE_SUPPORT)
-#include "glade/glade.h"
+#include <glade/glade.h>
 #endif
 
 #include "common_macros.h"
@@ -442,9 +448,22 @@ Common_UI_GTK_Manager::initializeGTK ()
   //  gdk_threads_init ();
   //} // end IF
 
+#if defined (GTK_MAJOR_VERSION) && (GTK_MAJOR_VERSION >= 3)
+#else
+#if defined (GTKGL_SUPPORT)
+  if (!gdk_gl_init_check (&argc_,
+                          &argv_))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to gdk_gl_init_check(), aborting\n")));
+    return false;
+  } // end IF
+#endif
+#endif
+
 #if defined (_DEBUG)
   // debug info
-  Common_UI_Tools::info ();
+  Common_UI_Tools::OpenGLInfo ();
 #endif
 
   if (!gtk_init_check (&argc_,
@@ -473,6 +492,11 @@ Common_UI_GTK_Manager::initializeGTK ()
 
 //    return false;
 //  } // end IF
+
+#if defined (_DEBUG)
+  // debug info
+  Common_UI_Tools::GtkInfo ();
+#endif
 
 #if defined (LIBGLADE_SUPPORT)
   // step2: initialize (lib)glade

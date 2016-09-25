@@ -27,9 +27,9 @@
 #include <string>
 #include <utility>
 
-#include "ace/Synch_Traits.h"
+#include <ace/Synch_Traits.h>
 
-#include "gtk/gtk.h"
+#include <gtk/gtk.h>
 
 #include "common.h"
 

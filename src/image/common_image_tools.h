@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010 by Erik Sohns   *
+ *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,35 +18,38 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_UI_GLADE_DEFINITION_H
-#define COMMON_UI_GLADE_DEFINITION_H
+#ifndef COMMON_IMAGE_TOOLS_H
+#define COMMON_IMAGE_TOOLS_H
 
-#include <ace/Global_Macros.h>
+#include <string>
 
-#include "common_ui_common.h"
-#include "common_ui_exports.h"
-#include "common_ui_igtk.h"
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "gl/GL.h"
+#else
+#include "GL/gl.h"
+#endif
 
-class Common_UI_Export Common_UI_GladeDefinition
- : public Common_UI_IGTK_T<Common_UI_GTKState>
+#include "ace/Global_Macros.h"
+
+#include "common_image_exports.h"
+
+class Common_Image_Export Common_Image_Tools
 {
  public:
-  Common_UI_GladeDefinition (int,          // argc
-                             ACE_TCHAR**); // argv
-  virtual ~Common_UI_GladeDefinition ();
+  inline virtual ~Common_Image_Tools () {};
 
-  // implement Common_UI_IGTK_T
-  virtual bool initialize (Common_UI_GTKState&); // return value: GTK state
-  virtual void finalize ();
+  // *IMPORTANT NOTE*: callers need to free() the allocated memory
+  static bool loadPNG2OpenGL (const std::string&, // string
+                              unsigned int&,      // return value: width
+                              unsigned int&,      // return value: height
+                              bool&,              // return value: has alpha channel ?
+                              GLubyte*&);         // return value: data
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_GladeDefinition ())
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_GladeDefinition (const Common_UI_GladeDefinition&))
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_GladeDefinition& operator= (const Common_UI_GladeDefinition&))
-
-  int                 argc_;
-  ACE_TCHAR**         argv_;
-  Common_UI_GTKState* GTKState_;
+  ACE_UNIMPLEMENTED_FUNC (Common_Image_Tools ());
+  //ACE_UNIMPLEMENTED_FUNC (~Common_Image_Tools ());
+  ACE_UNIMPLEMENTED_FUNC (Common_Image_Tools (const Common_Image_Tools&));
+  ACE_UNIMPLEMENTED_FUNC (Common_Image_Tools& operator= (const Common_Image_Tools&));
 };
 
 #endif

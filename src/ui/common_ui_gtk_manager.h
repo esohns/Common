@@ -21,11 +21,11 @@
 #ifndef COMMON_UI_GTK_MANAGER_H
 #define COMMON_UI_GTK_MANAGER_H
 
-#include "ace/Global_Macros.h"
-#include "ace/Singleton.h"
-#include "ace/Synch_Traits.h"
+#include <ace/Global_Macros.h>
+#include <ace/Singleton.h>
+#include <ace/Synch_Traits.h>
 
-#include "gtk/gtk.h"
+#include <gtk/gtk.h>
 
 #include "common_icontrol.h"
 #include "common_task_base.h"

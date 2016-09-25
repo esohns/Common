@@ -27,6 +27,9 @@
 
 #include "common_defines.h"
 #include "common_macros.h"
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "common_tools.h"
+#endif
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType>
@@ -41,6 +44,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
               queue_in) // message queue handle
  , threadCount_ (threadCount_in)
  , threadName_ (threadName_in)
+ , threadIDs_ ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::Common_TaskBase_T"));
 
@@ -70,9 +74,10 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   if (inherited::thr_count_ > 0)
   {
     ACE_DEBUG ((LM_WARNING,
-                ACE_TEXT ("%d active threads in dtor --> check implementation\n"),
+                ACE_TEXT ("%d active thread(s) in dtor --> check implementation\n"),
                 inherited::thr_count_));
 
+    // *WARNING*: there already may or may not be a message queue at this stage
     result = close (1);
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
@@ -83,6 +88,22 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Task::wait(): \"%m\", continuing\n")));
   } // end IF
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  ACE_hthread_t handle = ACE_INVALID_HANDLE;
+  for (THREAD_IDS_ITERATOR_T iterator = threadIDs_.begin ();
+       iterator != threadIDs_.end ();
+       ++iterator)
+  {
+    handle = (*iterator).handle ();
+    if (handle != ACE_INVALID_HANDLE)
+      if (!::CloseHandle (handle))
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
+                    handle,
+                    ACE_TEXT (Common_Tools::error2String (::GetLastError ()).c_str ())));
+  } // end FOR
+#endif
 }
 
 template <ACE_SYNCH_DECL,
@@ -104,7 +125,26 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     { // check specifically for the second case
       if (ACE_OS::thr_equal (ACE_OS::thr_self (),
                              inherited::last_thread ()))
+      {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+        ACE_hthread_t handle = ACE_INVALID_HANDLE;
+        for (THREAD_IDS_ITERATOR_T iterator = threadIDs_.begin ();
+             iterator != threadIDs_.end ();
+             ++iterator)
+        {
+          handle = (*iterator).handle ();
+          if (handle != ACE_INVALID_HANDLE)
+            if (!::CloseHandle (handle))
+              ACE_DEBUG ((LM_ERROR,
+                          ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
+                          handle,
+                          ACE_TEXT (Common_Tools::error2String (::GetLastError ()).c_str ())));
+        } // end FOR
+#endif
+        threadIDs_.clear ();
+
         break;
+      } // end IF
 
       // *WARNING*: falls through !
     }
@@ -113,7 +153,13 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       if (inherited::thr_count_ == 0)
         break; // nothing to do
 
-      stop (false);
+      // *NOTE*: make sure there is a message queue
+      if (inherited::msg_queue_)
+        stop (false);
+      else
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("cannot signal %d worker thread(s) (no message queue) --> check implementation\n"),
+                    inherited::thr_count_));
 
       break;
     }
@@ -252,6 +298,10 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   //            ACE_TEXT (threadName_.c_str ()),
   //            ACE_TEXT (string_stream.str ().c_str ()),
   //            inherited::grp_id ()));
+  ACE_Thread_ID thread_id;
+  thread_id.handle (thread_handles_p[0]);
+  thread_id.id (thread_ids_p[0]);
+  threadIDs_.push_back (thread_id);
 
   // clean up
   delete [] thread_ids_p;
@@ -269,7 +319,8 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
   int result = -1;
 
-  control (ACE_Message_Block::MB_STOP);
+  control (ACE_Message_Block::MB_STOP,
+           true);                      // high-priority
 
   if (waitForCompletion_in)
   {
@@ -501,6 +552,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   } // end IF
 
   std::ostringstream string_stream;
+  ACE_Thread_ID thread_id;
   for (unsigned int i = 0;
        i < threadCount_;
        i++)
@@ -512,14 +564,18 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
     // clean up
     delete [] thread_names_p[i];
+
+    thread_id.handle (thread_handles_p[i]);
+    thread_id.id (thread_ids_p[i]);
+    threadIDs_.push_back (thread_id);
   } // end FOR
-  std::string thread_ids_string = string_stream.str ();
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("(%s) spawned %u worker thread(s) (group: %d):\n%s"),
-              ACE_TEXT (threadName_.c_str ()),
-              threadCount_,
-              inherited::grp_id (),
-              ACE_TEXT (thread_ids_string.c_str ())));
+  //std::string thread_ids_string = string_stream.str ();
+  //ACE_DEBUG ((LM_DEBUG,
+  //            ACE_TEXT ("(%s) spawned %u worker thread(s) (group: %d):\n%s"),
+  //            ACE_TEXT (threadName_.c_str ()),
+  //            threadCount_,
+  //            inherited::grp_id (),
+  //            ACE_TEXT (thread_ids_string.c_str ())));
 
   // clean up
   delete [] thread_ids_p;
@@ -533,7 +589,8 @@ template <ACE_SYNCH_DECL,
           typename TimePolicyType>
 void
 Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::control (int messageType_in)
+                  TimePolicyType>::control (int messageType_in,
+                                            bool highPriority_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::control"));
 
@@ -560,7 +617,10 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     return;
   } // end IF
 
-  result = inherited::putq (message_block_p, NULL);
+  if (highPriority_in)
+    result = inherited::ungetq (message_block_p, NULL);
+  else
+    result = inherited::putq (message_block_p, NULL);
   if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,

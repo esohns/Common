@@ -41,7 +41,10 @@ class Common_UI_Export Common_UI_Tools
   static gchar* Locale2UTF8 (const std::string&); // string
 
   // print Gtk library information
-  static void info ();
+  static void GtkInfo ();
+  // print OpenGL library information
+  static void OpenGLInfo ();
+
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools ());
   //ACE_UNIMPLEMENTED_FUNC (~Common_UI_Tools ());

@@ -138,6 +138,9 @@ endif ()
 add_library (${PROJECT_NAME} STATIC ${Common_LIB_SRCS})
 
 #add_dependencies (${PROJECT_NAME} ACE)
+if (WIN32)
+ add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}Error)
+endif ()
 
 set_target_properties (${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
 set_target_properties (${PROJECT_NAME} PROPERTIES DEFINE_SYMBOL COMMON_BUILD_DLL)
@@ -156,7 +159,7 @@ elseif (WIN32)
 
  target_link_libraries (${PROJECT_NAME} ${ACE_LIBRARY})
 
- target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}ERR)
+ target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}Error)
 endif ()
 
 # add PCH
@@ -216,5 +219,6 @@ install (TARGETS ${PROJECT_NAME}
 if (WIN32)
  add_subdirectory (err)
 endif ()
+add_subdirectory (image)
 add_subdirectory (math)
 add_subdirectory (ui)

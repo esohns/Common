@@ -1,4 +1,7 @@
-#cmake_minimum_required (VERSION 2.8)
+option (GTK3_SUPPORT "compile Gtk3 support"
+        ON)
+option (GTKGL_SUPPORT "compile Gtk2 OpenGL support"
+        OFF)
 
 # *NOTE*: on Win32 systems, the (binary) gtk3 applications have linkage issues
 #         with the latest (2.6.4) libglade distribution (specifically, the
@@ -47,15 +50,37 @@ endif ()
 include (FindPkgConfig)
 #pkg_check_modules (PKG_ACE REQUIRED ACE)
 if (UNIX)
- pkg_check_modules (PKG_GTK REQUIRED libpng gmodule-2.0 gthread-2.0 gtk+-2.0)
+ if (GTK3_SUPPORT)
+  pkg_check_modules (PKG_GTK3 REQUIRED gtk+-3.0)
+ else ()
+  pkg_check_modules (PKG_GTK2 REQUIRED libpng gmodule-2.0 gthread-2.0 gtk+-2.0)
+  if (GTKGL_SUPPORT)
+#   pkg_check_modules (PKG_GTKGL REQUIRED gtkgl-2.0 gdkglext-1.0 gtkglext-1.0)
+   pkg_check_modules (PKG_GTKGL REQUIRED gdkglext-1.0 gtkglext-1.0)
+  endif ()
+ endif ()
  if (LIBGLADE_SUPPORT)
   pkg_check_modules (PKG_GLADE REQUIRED libglade-2.0)
  endif ()
 endif ()
 # *TODO*: repair WIN32 pkgconfig support
 
+if (GTKGL_SUPPORT)
+ add_definitions (-DGTKGL_SUPPORT)
+endif ()
+if (LIBGLADE_SUPPORT)
+ add_definitions (-DLIBGLADE_SUPPORT)
+endif ()
+
 if (UNIX)
- include_directories (${PKG_GTK_INCLUDE_DIRS})
+ if (GTK3_SUPPORT)
+  include_directories (${PKG_GTK3_INCLUDE_DIRS})
+ else ()
+  include_directories (${PKG_GTK2_INCLUDE_DIRS})
+  if (GTKGL_SUPPORT)
+   include_directories (${PKG_GTKGL_INCLUDE_DIRS})
+  endif ()
+ endif ()
  if (LIBGLADE_SUPPORT)
   include_directories (${PKG_GLADE_INCLUDE_DIRS})
  endif ()
@@ -102,7 +127,6 @@ set (${PROJECT_NAME}UI_LIB_GLADE_SRCS
      common_ui_glade_definition.h)
 
 if (LIBGLADE_SUPPORT)
- add_definitions (-DLIBGLADE_SUPPORT)
  add_library (${PROJECT_NAME}UI SHARED
               ${CommonUI_LIB_SRCS} ${CommonUI_LIB_GLADE_SRCS})
 else ()
@@ -111,6 +135,8 @@ endif ()
 
 #*TODO*: use pkg-config instead
 if (WIN32)
+ add_dependencies (${PROJECT_NAME}UI Common)
+
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
   target_link_libraries (${PROJECT_NAME}UI Msvcrtd.lib)
  else ()
@@ -131,7 +157,14 @@ if (WIN32)
   target_link_libraries (${PROJECT_NAME}UI ${CMAKE_CURRENT_SOURCE_DIR}/../../../libglade-2.6.4/lib/libglade-2.0.dll.a)
  endif ()
 
-# target_link_libraries (${PROJECT_NAME}UI ${COMMON_TARGET_NAME})
+ target_link_libraries (${PROJECT_NAME}UI Common)
+elseif (UNIX)
+ if (GTK3_SUPPORT)
+ else ()
+  if (GTKGL_SUPPORT)
+   target_link_libraries (${PROJECT_NAME}UI ${PKG_GTKGL_LIBRARIES})
+  endif ()
+ endif ()
 endif ()
 
 # *WARNING*: linking libglade-2.dll(.a) requires "/SAFESEH:NO""
