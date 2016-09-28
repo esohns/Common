@@ -396,7 +396,7 @@ Common_UI_GTK_Manager::initializeGTK ()
 //      gtk_rc_add_default_file_utf8 ((*iterator).c_str ());
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("#%u: added GTK .rc file \"%s\"...\n"),
-                  i, ACE::basename ((*iterator).c_str ())));
+                  i, ACE::basename ((*iterator).c_str (), '/')));
     } // end FOR
   } // end FOR
 
@@ -461,11 +461,6 @@ Common_UI_GTK_Manager::initializeGTK ()
 #endif
 #endif
 
-#if defined (_DEBUG)
-  // debug info
-  Common_UI_Tools::OpenGLInfo ();
-#endif
-
   if (!gtk_init_check (&argc_,
                        &argv_))
   {
@@ -496,6 +491,11 @@ Common_UI_GTK_Manager::initializeGTK ()
 #if defined (_DEBUG)
   // debug info
   Common_UI_Tools::GtkInfo ();
+#endif
+
+#if defined (_DEBUG)
+  // debug info
+  Common_UI_Tools::OpenGLInfo ();
 #endif
 
 #if defined (LIBGLADE_SUPPORT)

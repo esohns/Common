@@ -42,14 +42,16 @@ Common_Image_Tools::loadPNG2OpenGL (const std::string& filename_in,
   // sanity check(s)
   ACE_ASSERT (!data_out);
 
+  png_byte magic[8];
+  size_t bytes_read = 0;
+  int is_png = 0;
   png_structp png_p = NULL;
   png_infop png_info_p = NULL;
-  unsigned int sig_read = 0;
   int color_type, interlace_type;
   FILE* file_p = NULL;
   int result = -1;
   unsigned int row_bytes = 0;
-  png_bytepp row_pointers = NULL;
+  png_bytepp row_pointers_pp = NULL;
   png_uint_32 width, height;
   int bit_depth, compression_method, filter_method;
 
@@ -61,6 +63,22 @@ Common_Image_Tools::loadPNG2OpenGL (const std::string& filename_in,
     return false;
   } // end IF
  
+  // read the header magic, test if this could be a PNG file
+  bytes_read = ACE_OS::fread (magic, 1, 8, file_p);
+  if (bytes_read != 8)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::fread(8): \"%m\", aborting\n")));
+    goto error;
+  } // end IF
+  is_png = !png_sig_cmp (magic, 0, 8);
+  if (!is_png)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to png_sig_cmp(): \"%m\", aborting\n")));
+    goto error;
+  } // end IF
+
   /* Create and initialize the png_struct
    * with the desired error handler
    * functions.  If you want to use the
@@ -113,39 +131,25 @@ Common_Image_Tools::loadPNG2OpenGL (const std::string& filename_in,
  
   /* If we have already
    * read some of the signature */
-  png_set_sig_bytes (png_p, sig_read);
+  png_set_sig_bytes (png_p, bytes_read);
  
-  /*
-   * If you have enough memory to read
-   * in the entire image at once, and
-   * you need to specify only
-   * transforms that can be controlled
-   * with one of the PNG_TRANSFORM_*
-   * bits (this presently excludes
-   * dithering, filling, setting
-   * background, and doing gamma
-   * adjustment), then you can read the
-   * entire image (including pixels)
-   * into the info structure with this
-   * call
-   *
-   * PNG_TRANSFORM_STRIP_16 |
-   * PNG_TRANSFORM_PACKING  forces 8 bit
-   * PNG_TRANSFORM_EXPAND forces to
-   *  expand a palette into RGB
-   */
-  png_read_png (png_p, png_info_p,
-                PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND,
-                NULL);
- 
+  png_read_info (png_p, png_info_p);
+
   png_get_IHDR (png_p, png_info_p,
                 &width, &height,
-                &bit_depth, &color_type, &interlace_type,
-                &compression_method, &filter_method);
+                &bit_depth, &color_type,
+                &interlace_type, &compression_method, &filter_method);
   width_out = width; height_out = height;
- 
+  hasAlpha_out = (color_type == PNG_COLOR_TYPE_RGB_ALPHA);
+
+  // Update the png info struct.
+  png_read_update_info (png_p, png_info_p);
+
   row_bytes = png_get_rowbytes (png_p, png_info_p);
-  data_out = (unsigned char*)malloc (row_bytes * height_out);
+  // glTexImage2d requires rows to be 4-byte aligned
+  row_bytes += 3 - ((row_bytes - 1) % 4);
+
+  data_out = (GLubyte*)malloc (row_bytes * height_out);
   if (!data_out)
   {
     ACE_DEBUG ((LM_CRITICAL,
@@ -153,16 +157,25 @@ Common_Image_Tools::loadPNG2OpenGL (const std::string& filename_in,
     goto error;
   } // end IF
 
+  //row_pointers is for pointing to image_data for reading the png with libpng
+  row_pointers_pp = (png_bytepp)malloc (sizeof (png_bytep) * height_out);
+  if (!row_pointers_pp)
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to allocate memory, aborting\n")));
+    goto error;
+  }
+  // set the individual row_pointers to point at the correct offsets of image_data
   // note that png is ordered top to bottom, but OpenGL expect it bottom to top
-  // so the order or swapped
-  row_pointers = png_get_rows (png_p, png_info_p);
+  // so the order is swapped
   for (unsigned int i = 0; i < height_out; ++i)
-    ACE_OS::memcpy (data_out + (row_bytes * (height_out - 1 - i)),
-                    row_pointers[i],
-                    row_bytes);
- 
+    row_pointers_pp[height_out - 1 - i] = data_out + (i * row_bytes);
+
+  png_read_image (png_p, row_pointers_pp);
+
   /* Clean up after the read,
    * and free any memory allocated */
+  free (row_pointers_pp);
   png_destroy_read_struct (&png_p, &png_info_p, NULL);
  
   /* Close the file */

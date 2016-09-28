@@ -32,5 +32,3 @@
 
 // Local Header Files
 #include "common_macros.h"
-
-#define LIGBGLADE_SUPPORT

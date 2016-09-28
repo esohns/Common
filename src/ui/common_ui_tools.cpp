@@ -26,15 +26,20 @@
 #include <ace/Log_Msg.h>
 
 #include <gtk/gtk.h>
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
+#else
+#include <gtkgl/gdkgl.h>
+#endif
+#else
 #if defined (GTKGL_SUPPORT)
-//#include <gtkgl/gdkgl.h> // gtkgl
-
 #include <gdk/gdkglconfig.h>  // gtkglext
 #include <gdk/gdkglquery.h>   // gtkglext
 #include <gdk/gdkglversion.h> // gtkglext
 // *TODO*: find out why gcc cannot find these includes
 #include <gdk/gdkgl.h>        // gtkglext
 #include <gtk/gtkgl.h>        // gtkglext
+#endif
 #endif
 
 #include "common_macros.h"
@@ -187,6 +192,23 @@ Common_UI_Tools::OpenGLInfo ()
   std::ostringstream converter;
   std::string information_string;
 
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
+#else
+  gint result = ggla_query ();
+  if (!result)
+  {
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("OpenGL not supported\n")));
+    return;
+  } // end IF
+
+  gchar* info_string_p = ggla_get_info ();
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("OpenGL info: \"%s\"\n"),
+              ACE_TEXT (info_string_p)));
+#endif
+#else
 #if defined (GTKGL_SUPPORT)
   int version_major, version_minor;
 
@@ -214,6 +236,8 @@ Common_UI_Tools::OpenGLInfo ()
 
 continue_:
 #endif
+#endif
+
   ACE_DEBUG ((LM_INFO,
               ACE_TEXT ("%s\n"),
               ACE_TEXT (information_string.c_str ())));
