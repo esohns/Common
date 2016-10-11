@@ -54,7 +54,9 @@ set (${PROJECT_NAME}Math_LIB_SRCS
      common_math_complex.h
      common_math_exports.h
      common_math_fft.cpp
-     common_math_fft.h)
+     common_math_fft.h
+     common_math_sample.cpp
+     common_math_sample.h)
 
 add_library (${PROJECT_NAME}Math SHARED ${CommonMath_LIB_SRCS})
 
@@ -92,6 +94,7 @@ install (FILES
          common_math_complex.h
          common_math_exports.h
          common_math_fft.h
+         common_math_sample.h
          DESTINATION include)
 install (TARGETS ${PROJECT_NAME}Math
          EXPORT ${PROJECT_NAME}Targets

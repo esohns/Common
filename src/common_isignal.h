@@ -27,7 +27,7 @@ class Common_ISignal
   virtual ~Common_ISignal () {}
 
   // exposed interface
-  virtual bool handleSignal (int) = 0; // signal
+  virtual void handle (int) = 0; // signal
 };
 
 #endif

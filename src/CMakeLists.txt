@@ -84,7 +84,6 @@ set (${PROJECT_NAME}_LIB_SRCS
      common_file_tools.cpp
      common_file_tools.h
      common_iclone.h
-     common_icontrol.h
      common_icounter.h
      common_idumpstate.h
      common_iget.h
@@ -97,6 +96,7 @@ set (${PROJECT_NAME}_LIB_SRCS
      common_istatistic.h
      common_isubscribe.h
      common_itask.h
+     common_itaskcontrol.h
      common_itimer.h
      common_itimerhandler.h
      common_logger.cpp
@@ -190,6 +190,7 @@ install (FILES
          common_istatistic.h
          common_isubscribe.h
          common_itask.h
+         common_itaskcontrol.h
          common_itimer.h
          common_logger.h
          common_logger.inl

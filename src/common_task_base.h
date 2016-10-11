@@ -42,7 +42,7 @@ template <ACE_SYNCH_DECL,
 class Common_TaskBase_T
  : public ACE_Task<ACE_SYNCH_USE,
                    TimePolicyType>
- , public Common_ITask
+ , public Common_ITask_T<ACE_SYNCH_USE>
  , public Common_IDumpState
 {
  public:
@@ -59,7 +59,8 @@ class Common_TaskBase_T
   //         --> call ACE_Task_Base::activate() directly in this case
   virtual void start ();
   // enqueue MB_STOP --> stop worker thread(s)
-  virtual void stop (bool = false); // wait for completion ?
+  virtual void stop (bool = true,  // wait for completion ?
+                     bool = true); // locked access ?
   virtual bool isRunning () const;
   inline virtual int wait (void) { return ACE_Task_Base::wait (); };
 

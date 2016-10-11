@@ -313,9 +313,12 @@ template <ACE_SYNCH_DECL,
           typename TimePolicyType>
 void
 Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::stop (bool waitForCompletion_in)
+                  TimePolicyType>::stop (bool waitForCompletion_in,
+                                         bool lockedAccess_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::stop"));
+
+  ACE_UNUSED_ARG (lockedAccess_in);
 
   int result = -1;
 

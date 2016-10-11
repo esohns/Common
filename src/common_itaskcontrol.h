@@ -18,23 +18,21 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_INOTIFY_H
-#define COMMON_INOTIFY_H
+#ifndef COMMON_ITASKCONTROL_H
+#define COMMON_ITASKCONTROL_H
 
-template <typename EventType>
-class Common_IDispatch_T
-{
- public:
-  virtual void dispatch (const EventType&) = 0; // event (state/status change, ...)
-};
+#include "ace/Global_Macros.h"
 
-template <typename IdType,
-          typename EventType>
-class Common_INotify_T
-{
- public:
-  virtual void notify (IdType,                // (session) id
-                       const EventType&) = 0; // event (state/status change, ...)
-};
+// *TODO*: find out why this doesn't work
+//template <ACE_SYNCH_DECL>
+//class Common_ITaskControl_T
+//{
+// public:
+//  //virtual void initialize () = 0;
+//  virtual void start () = 0;
+//  virtual void stop (bool = true,      // wait for completion ?
+//                     bool = true) = 0; // locked access ?
+//  virtual bool isRunning () const = 0;
+//};
 
 #endif

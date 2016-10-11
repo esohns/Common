@@ -21,16 +21,27 @@
 #ifndef COMMON_ITASK_H
 #define COMMON_ITASK_H
 
-class Common_ITask
+#include "ace/Global_Macros.h"
+
+// *TODO*: find out why this doesn't work
+//#include "common_itaskcontrol.h"
+
+template <ACE_SYNCH_DECL>
+class Common_ITaskControl_T
 {
  public:
-  inline virtual ~Common_ITask () {};
-
-  // exposed interface
+  //virtual void initialize () = 0;
   virtual void start () = 0;
-  virtual void stop (bool = false) = 0; // wait for completion ?
-
+  virtual void stop (bool = true,      // wait for completion ?
+                     bool = true) = 0; // locked access ?
   virtual bool isRunning () const = 0;
+};
+
+template <ACE_SYNCH_DECL>
+class Common_ITask_T
+ : public Common_ITaskControl_T<ACE_SYNCH_USE>
+{
+ public:
   virtual int wait (void) = 0;
 };
 

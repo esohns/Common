@@ -24,8 +24,6 @@
 class Common_IReferenceCount
 {
  public:
-  inline virtual ~Common_IReferenceCount () {};
-
   // exposed interface
   virtual unsigned int increase () = 0;
   virtual unsigned int decrease () = 0;

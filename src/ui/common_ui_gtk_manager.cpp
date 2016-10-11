@@ -33,9 +33,18 @@
 #endif
 
 #if defined (GTKGL_SUPPORT)
-#include <gdk/gdkglinit.h> // gtkglext
-// *TODO*: find out why gcc cannot find these includes
-#include <gdk/gdkgl.h>     // gtkglext
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
+#else
+#include <gtkgl/gdkgl.h>
+#endif
+#else
+#include <gdk/gdkgl.h>        // gtkglext
+#include <gdk/gdkglconfig.h>  // gtkglext
+#include <gdk/gdkglquery.h>   // gtkglext
+#include <gdk/gdkglversion.h> // gtkglext
+#include <gtk/gtkgl.h>        // gtkglext
+#endif
 #endif
 
 #if defined (LIBGLADE_SUPPORT)
@@ -495,7 +504,13 @@ Common_UI_GTK_Manager::initializeGTK ()
 
 #if defined (_DEBUG)
   // debug info
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
+  Common_UI_Tools::OpenGLInfo (NULL);
+#else
   Common_UI_Tools::OpenGLInfo ();
+#endif
+#endif
 #endif
 
 #if defined (LIBGLADE_SUPPORT)

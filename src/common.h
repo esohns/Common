@@ -28,10 +28,12 @@
 #include <map>
 #include <string>
 
-#include "ace/OS.h"
-#include "ace/Signal.h"
+#include <ace/OS.h>
+#include <ace/Signal.h>
+#include <ace/Synch_Traits.h>
 
 #include "common_defines.h"
+#include "common_itask.h"
 
 // forward declaration(s)
 class ACE_Sig_Action;
@@ -156,6 +158,10 @@ struct Common_DispatchThreadData
   Common_ReactorType  reactorType;
   bool                useReactor;
 };
+
+// *** task ***
+typedef Common_ITaskControl_T<ACE_MT_SYNCH> Common_ITaskControl_t;
+typedef Common_ITask_T<ACE_MT_SYNCH> Common_ITask_t;
 
 // *** log ***
 typedef std::deque<std::string> Common_MessageStack_t;

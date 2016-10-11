@@ -1,7 +1,7 @@
 option (GTK3_SUPPORT "compile Gtk3 support"
         ON)
-option (GTKGL_SUPPORT "compile Gtk2 OpenGL support"
-        OFF)
+option (GTKGL_SUPPORT "compile Gtk OpenGL support"
+        ON)
 
 # *NOTE*: on Win32 systems, the (binary) gtk3 applications have linkage issues
 #         with the latest (2.6.4) libglade distribution (specifically, the
@@ -54,10 +54,10 @@ if (UNIX)
   pkg_check_modules (PKG_GTK3 REQUIRED gtk+-3.0)
  else ()
   pkg_check_modules (PKG_GTK2 REQUIRED libpng gmodule-2.0 gthread-2.0 gtk+-2.0)
-  if (GTKGL_SUPPORT)
+ endif ()
+ if (GTKGL_SUPPORT)
 #   pkg_check_modules (PKG_GTKGL REQUIRED gtkgl-2.0 gdkglext-1.0 gtkglext-1.0)
-   pkg_check_modules (PKG_GTKGL REQUIRED gdkglext-1.0 gtkglext-1.0)
-  endif ()
+  pkg_check_modules (PKG_GTKGL REQUIRED gdkglext-1.0 gtkglext-1.0)
  endif ()
  if (LIBGLADE_SUPPORT)
   pkg_check_modules (PKG_GLADE REQUIRED libglade-2.0)
@@ -77,13 +77,13 @@ if (UNIX)
   include_directories (${PKG_GTK3_INCLUDE_DIRS})
 # gtkgl
   include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtkglarea)
-
  else ()
   include_directories (${PKG_GTK2_INCLUDE_DIRS})
-  if (GTKGL_SUPPORT)
-   include_directories (${PKG_GTKGL_INCLUDE_DIRS})
-  endif ()
  endif ()
+ if (GTKGL_SUPPORT)
+  include_directories (${PKG_GTKGL_INCLUDE_DIRS})
+ endif ()
+
  if (LIBGLADE_SUPPORT)
   include_directories (${PKG_GLADE_INCLUDE_DIRS})
  endif ()

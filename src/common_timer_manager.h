@@ -28,9 +28,10 @@
 #include "ace/Time_Value.h"
 
 #include "common.h"
-#include "common_icontrol.h"
 #include "common_idumpstate.h"
 #include "common_iinitialize.h"
+//#include "common_itaskcontrol.h"
+#include "common_itask.h"
 #include "common_itimer.h"
 #include "common_timer_common.h"
 
@@ -38,10 +39,10 @@ template <ACE_SYNCH_DECL,
           typename TimerQueueAdapterType>
 class Common_Timer_Manager_T
  : public TimerQueueAdapterType
+ , public Common_ITaskControl_T<ACE_SYNCH_USE>
  , public Common_ITimer
- , public Common_IControl
- , public Common_IDumpState
  , public Common_IInitialize_T<Common_TimerConfiguration>
+ , public Common_IDumpState
 {
   // singleton needs access to the ctor/dtors
   friend class ACE_Singleton<Common_Timer_Manager_T<ACE_SYNCH_USE,

@@ -43,7 +43,13 @@ class Common_UI_Export Common_UI_Tools
   // print Gtk library information
   static void GtkInfo ();
   // print OpenGL library information
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
+  static void OpenGLInfo (GdkGLContext*); // OpenGL context handle
+#else
   static void OpenGLInfo ();
+#endif
+#endif
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools ());

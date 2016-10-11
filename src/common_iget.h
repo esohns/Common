@@ -25,8 +25,6 @@ template <typename Type>
 class Common_IGet_T
 {
  public:
-  inline virtual ~Common_IGet_T () {};
-
   virtual const Type& get () const = 0; // return value: type
 };
 
@@ -34,8 +32,6 @@ template <typename Type>
 class Common_IGetSet_T
 {
  public:
-  inline virtual ~Common_IGetSet_T () {};
-
   virtual const Type& get () const = 0; // return value: type
   virtual void set (const Type&) = 0;
 };
@@ -44,8 +40,6 @@ template <typename Type>
 class Common_IGetSetP_T
 {
  public:
-  inline virtual ~Common_IGetSetP_T () {};
-
   virtual const Type* const get () const = 0; // return value: type
   virtual void set (Type*) = 0;
 };

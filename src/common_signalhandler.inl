@@ -199,8 +199,6 @@ Common_SignalHandler_T<ConfigurationType>::handle_exception (ACE_HANDLE handle_i
 {
   COMMON_TRACE (ACE_TEXT ("Common_SignalHandler_T::handle_exception"));
 
-  bool result = true;
-
 //  ACE_UNUSED_ARG (handle_in);
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   int signal = static_cast<int> (reinterpret_cast<size_t> (handle_in));
@@ -221,20 +219,13 @@ Common_SignalHandler_T<ConfigurationType>::handle_exception (ACE_HANDLE handle_i
   if (callback_)
   {
     try {
-      result = callback_->handleSignal (signal);
+      callback_->handle (signal);
     } catch (...) {
       // *PORTABILITY*: tracing in a signal handler context is not portable
       // *TODO*
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("caught exception in Common_ISignal::handleSignal(), continuing\n")));
-      result = false;
+                  ACE_TEXT ("caught exception in Common_ISignal::handle(), continuing\n")));
     }
-    // *PORTABILITY*: tracing in a signal handler context is not portable
-    // *TODO*
-    if (!result)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to Common_ISignal::handleSignal() (was: %d --> \"%S\"): \"%m\", aborting\n"),
-                  signal, signal));
   } // end IF
 
 //  signal_ = -1;
@@ -246,5 +237,5 @@ Common_SignalHandler_T<ConfigurationType>::handle_exception (ACE_HANDLE handle_i
 //  ACE_OS::memset (&ucontext_, 0, sizeof (ucontext_));
 //#endif
 
-  return (result ? 0 : -1); // <-- -1: deregister from the proactor/reactor
+  return 0;
 }
