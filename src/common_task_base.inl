@@ -620,6 +620,18 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     return;
   } // end IF
 
+  ACE_Message_Queue_Base* message_queue_p = inherited::msg_queue_;
+  if (!message_queue_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("task has no message queue, returning\n")));
+
+    // clean up
+    message_block_p->release ();
+
+    return;
+  } // end IF
+
   if (highPriority_in)
     result = inherited::ungetq (message_block_p, NULL);
   else

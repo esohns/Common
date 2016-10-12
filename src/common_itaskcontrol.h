@@ -21,7 +21,7 @@
 #ifndef COMMON_ITASKCONTROL_H
 #define COMMON_ITASKCONTROL_H
 
-#include "ace/Global_Macros.h"
+#include <ace/Global_Macros.h>
 
 // *TODO*: find out why this doesn't work
 //template <ACE_SYNCH_DECL>
