@@ -200,6 +200,7 @@ Common_UI_Tools::OpenGLInfo ()
   std::ostringstream converter;
   std::string information_string;
 
+#if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
 #else
@@ -218,7 +219,6 @@ Common_UI_Tools::OpenGLInfo ()
 #endif
 #endif
 
-#if defined (GTKGL_SUPPORT)
   int version_major, version_minor;
 
   information_string = ACE_TEXT_ALWAYS_CHAR ("OpenGL version: ");
@@ -228,6 +228,7 @@ Common_UI_Tools::OpenGLInfo ()
                               &version_major,
                               &version_minor);
 #else
+  information_string.clear ();
   goto continue_;
 #endif
 #else
@@ -254,9 +255,9 @@ Common_UI_Tools::OpenGLInfo ()
   information_string += converter.str ();
 
 continue_:
+  if (!information_string.empty ())
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("%s\n"),
+                ACE_TEXT (information_string.c_str ())));
 #endif
-
-  ACE_DEBUG ((LM_INFO,
-              ACE_TEXT ("%s\n"),
-              ACE_TEXT (information_string.c_str ())));
 }

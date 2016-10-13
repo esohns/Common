@@ -21,7 +21,7 @@
 #ifndef COMMON_ITASK_H
 #define COMMON_ITASK_H
 
-#include "ace/Global_Macros.h"
+#include <ace/Global_Macros.h>
 
 // *TODO*: find out why this doesn't work
 //#include "common_itaskcontrol.h"

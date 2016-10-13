@@ -23,8 +23,6 @@
 
 #include <string>
 
-//#include "ace/Time_Value.h"
-
 // forward declarations
 class ACE_Time_Value;
 
@@ -41,7 +39,7 @@ class Common_IStateMachine_T
   virtual bool wait (StateType,
                      const ACE_Time_Value* = NULL) = 0; // timeout (absolute) ? : block
 
-  // *NOTE*: unfortunately, this cannot be static...
+  // *NOTE*: unfortunately, this cannot be static
   virtual std::string state2String (StateType) const = 0; // return value: state
 
  protected:

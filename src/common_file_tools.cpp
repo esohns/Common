@@ -19,20 +19,20 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include "ace/OS.h"
+#include <ace/config-lite.h>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include "Shlobj.h"
-#include "Userenv.h"
+#include <Shlobj.h>
+#include <Userenv.h>
 #endif
 
-#include "ace/ACE.h"
-#include "ace/Dirent_Selector.h"
-#include "ace/FILE_Addr.h"
-#include "ace/FILE_Connector.h"
-#include "ace/FILE_IO.h"
-#include "ace/OS.h"
-#include "ace/OS_NS_sys_sendfile.h"
+#include <ace/ACE.h>
+#include <ace/Dirent_Selector.h>
+#include <ace/FILE_Addr.h>
+#include <ace/FILE_Connector.h>
+#include <ace/FILE_IO.h>
+#include <ace/OS.h>
+#include <ace/OS_NS_sys_sendfile.h>
 
 #include "common_defines.h"
 #include "common_file_tools.h"

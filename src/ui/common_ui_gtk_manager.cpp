@@ -34,16 +34,8 @@
 
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
-#if GTK_CHECK_VERSION (3,16,0)
 #else
-#include <gtkgl/gdkgl.h>
-#endif
-#else
-#include <gdk/gdkgl.h>        // gtkglext
-#include <gdk/gdkglconfig.h>  // gtkglext
-#include <gdk/gdkglquery.h>   // gtkglext
-#include <gdk/gdkglversion.h> // gtkglext
-#include <gtk/gtkgl.h>        // gtkglext
+#include <gdk/gdkglinit.h> // gtkglext
 #endif
 #endif
 
@@ -393,6 +385,75 @@ Common_UI_GTK_Manager::initializeGTK ()
                      log_level,
                      glib_log_handler, NULL);
 
+  //if (g_thread_supported ())
+  //{
+  //  g_thread_init (NULL);
+  //  gdk_threads_init ();
+  //} // end IF
+
+#if defined (GTKGL_SUPPORT)
+#if GTK_CHECK_VERSION (3,0,0)
+#else
+  if (!gdk_gl_init_check (&argc_,
+                          &argv_))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to gdk_gl_init_check(), aborting\n")));
+    return false;
+  } // end IF
+#endif
+#endif
+
+  if (!gtk_init_check (&argc_,
+                       &argv_))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to gtk_init_check(), aborting\n")));
+    return false;
+  } // end IF
+//  gtk_init (&argc_,
+//            &argv_);
+//  GOptionEntry entries_a[] = { {NULL} };
+//  if (!gtk_init_with_args (&argc_,    // argc
+//                           &argv_,    // argv
+//                           NULL,      // parameter string
+//                           entries_a, // entries
+//                           NULL,      // translation domain
+//                           &error_p)) // error
+//  {
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to gtk_init_with_args(): \"%s\", aborting\n"),
+//                ACE_TEXT (error_p->message)));
+
+//    // clean up
+//    g_error_free (error_p);
+
+//    return false;
+//  } // end IF
+
+#if defined (GTKGL_SUPPORT)
+#if defined (_DEBUG)
+  // debug info
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
+  Common_UI_Tools::OpenGLInfo (NULL);
+#else
+  Common_UI_Tools::OpenGLInfo ();
+#endif
+#endif
+#endif
+#endif
+
+#if defined (_DEBUG)
+  // debug info
+  Common_UI_Tools::GtkInfo ();
+#endif
+
+#if defined (LIBGLADE_SUPPORT)
+  // step2: initialize (lib)glade
+  glade_init ();
+#endif
+
   // step1b: specify any .rc files
   if (!state_->RCFiles.empty ())
   {
@@ -409,7 +470,7 @@ Common_UI_GTK_Manager::initializeGTK ()
     } // end FOR
   } // end FOR
 
-#if defined (GTK_MAJOR_VERSION) && (GTK_MAJOR_VERSION >= 3)
+#if GTK_CHECK_VERSION (3,0,0)
   // step1c: specify any .css files
   GError* error_p = NULL;
   if (!state_->CSSProviders.empty ())
@@ -449,73 +510,6 @@ Common_UI_GTK_Manager::initializeGTK ()
                   i, ACE::basename ((*iterator).first.c_str ())));
     } // end FOR
   } // end FOR
-#endif
-
-  //if (g_thread_supported ())
-  //{
-  //  g_thread_init (NULL);
-  //  gdk_threads_init ();
-  //} // end IF
-
-#if defined (GTK_MAJOR_VERSION) && (GTK_MAJOR_VERSION >= 3)
-#else
-#if defined (GTKGL_SUPPORT)
-  if (!gdk_gl_init_check (&argc_,
-                          &argv_))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to gdk_gl_init_check(), aborting\n")));
-    return false;
-  } // end IF
-#endif
-#endif
-
-  if (!gtk_init_check (&argc_,
-                       &argv_))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to gtk_init_check(), aborting\n")));
-    return false;
-  } // end IF
-//  gtk_init (&argc_,
-//            &argv_);
-//  GOptionEntry entries_a[] = { {NULL} };
-//  if (!gtk_init_with_args (&argc_,    // argc
-//                           &argv_,    // argv
-//                           NULL,      // parameter string
-//                           entries_a, // entries
-//                           NULL,      // translation domain
-//                           &error_p)) // error
-//  {
-//    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("failed to gtk_init_with_args(): \"%s\", aborting\n"),
-//                ACE_TEXT (error_p->message)));
-
-//    // clean up
-//    g_error_free (error_p);
-
-//    return false;
-//  } // end IF
-
-#if defined (_DEBUG)
-  // debug info
-  Common_UI_Tools::GtkInfo ();
-#endif
-
-#if defined (_DEBUG)
-  // debug info
-#if GTK_CHECK_VERSION (3,0,0)
-#if GTK_CHECK_VERSION (3,16,0)
-  Common_UI_Tools::OpenGLInfo (NULL);
-#else
-  Common_UI_Tools::OpenGLInfo ();
-#endif
-#endif
-#endif
-
-#if defined (LIBGLADE_SUPPORT)
-  // step2: initialize (lib)glade
-  glade_init ();
 #endif
 
   //// step3: initialize GNOME

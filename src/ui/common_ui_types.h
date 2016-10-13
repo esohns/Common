@@ -23,7 +23,7 @@
 
 #include <vector>
 
-#include "gtk/gtk.h"
+#include <gtk/gtk.h>
 
 typedef std::vector<guint> Common_UI_GTK_EventSourceIDs_t;
 typedef Common_UI_GTK_EventSourceIDs_t::const_iterator Common_UI_GTK_EventSourceIDsIterator_t;

@@ -23,10 +23,10 @@
 
 #include <sstream>
 
-#include "png.h"
+#include <png.h>
 
-#include "ace/Log_Msg.h"
-#include "ace/OS.h"
+#include <ace/Log_Msg.h>
+#include <ace/OS.h>
 
 #include "common_macros.h"
 

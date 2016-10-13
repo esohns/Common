@@ -1,8 +1,8 @@
 #ifndef COMMON_MATH_SAMPLE_T
 #define COMMON_MATH_SAMPLE_T
 
-#include "ace/Assert.h"
-#include "ace/Global_Macros.h"
+#include <ace/Assert.h>
+#include <ace/Global_Macros.h>
 
 // *TODO*: 'macroize' this code. Data access should really have (nearly) zero
 //         overhead. If that is not possible, sub-class ASAP

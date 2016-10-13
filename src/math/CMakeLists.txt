@@ -51,12 +51,12 @@ add_definitions (-D_USE_MATH_DEFINES)
 set (${PROJECT_NAME}Math_LIB_SRCS
      stdafx.cpp
      stdafx.h
-     common_math_complex.h
      common_math_exports.h
      common_math_fft.cpp
      common_math_fft.h
      common_math_sample.cpp
-     common_math_sample.h)
+     common_math_sample.h
+     common_math_sample.inl)
 
 add_library (${PROJECT_NAME}Math SHARED ${CommonMath_LIB_SRCS})
 
@@ -91,10 +91,10 @@ export (TARGETS ${PROJECT_NAME}Math
 
 ############### install files ################
 install (FILES
-         common_math_complex.h
          common_math_exports.h
          common_math_fft.h
          common_math_sample.h
+         common_math_sample.inl
          DESTINATION include)
 install (TARGETS ${PROJECT_NAME}Math
          EXPORT ${PROJECT_NAME}Targets

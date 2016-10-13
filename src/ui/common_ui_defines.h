@@ -21,9 +21,7 @@
 #ifndef COMMON_UI_DEFINES_H
 #define COMMON_UI_DEFINES_H
 
-#include "ace/config-lite.h"
-
-//#include "SDL.h"
+#include <ace/config-lite.h>
 
 // *IMPORTANT NOTE*: for some reason, the glib 2 windows package does not define
 //                   these

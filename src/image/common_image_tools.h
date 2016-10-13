@@ -23,13 +23,15 @@
 
 #include <string>
 
+#include <ace/config-lite.h>
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include "gl/GL.h"
+#include <gl/GL.h>
 #else
-#include "GL/gl.h"
+#include <GL/gl.h>
 #endif
 
-#include "ace/Global_Macros.h"
+#include <ace/Global_Macros.h>
 
 #include "common_image_exports.h"
 

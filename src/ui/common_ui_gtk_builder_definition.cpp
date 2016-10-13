@@ -19,13 +19,15 @@
  ***************************************************************************/
 #include "stdafx.h"
 
+#include <ace/Synch.h>
+
 #include "common_ui_gtk_builder_definition.h"
 
-#include "ace/ACE.h"
-#include "ace/Guard_T.h"
-#include "ace/Log_Msg.h"
+#include <ace/ACE.h>
+#include <ace/Guard_T.h>
+#include <ace/Log_Msg.h>
 
-#include "gtk/gtk.h"
+#include <gtk/gtk.h>
 
 #include "common_file_tools.h"
 #include "common_macros.h"

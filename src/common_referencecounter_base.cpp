@@ -21,8 +21,8 @@
 
 #include "common_referencecounter_base.h"
 
-#include "ace/Guard_T.h"
-#include "ace/Log_Msg.h"
+#include <ace/Guard_T.h>
+#include <ace/Log_Msg.h>
 
 #include "common_macros.h"
 
