@@ -25,22 +25,6 @@
 
 #include <ace/Log_Msg.h>
 
-#include <gtk/gtk.h>
-#if defined (GTKGL_SUPPORT)
-#if GTK_CHECK_VERSION (3,0,0)
-#if GTK_CHECK_VERSION (3,16,0)
-#else
-#include <gtkgl/gdkgl.h>
-#endif
-#else
-#include <gdk/gdkgl.h>        // gtkglext
-#include <gdk/gdkglconfig.h>  // gtkglext
-#include <gdk/gdkglquery.h>   // gtkglext
-#include <gdk/gdkglversion.h> // gtkglext
-#include <gtk/gtkgl.h>        // gtkglext
-#endif
-#endif
-
 #include "common_macros.h"
 
 std::string
@@ -148,9 +132,11 @@ Common_UI_Tools::GtkInfo ()
   information_string += converter.str ();
   information_string += ACE_TEXT_ALWAYS_CHAR ("]");
 
+#if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
 #else
-#if defined (GTKGL_SUPPORT)
+#if defined (GTKGLAREA_SUPPORT)
+#else
   information_string +=
       ACE_TEXT_ALWAYS_CHAR ("\nGtk GL library version: ");
   converter.clear ();
@@ -180,18 +166,26 @@ Common_UI_Tools::GtkInfo ()
   information_string += ACE_TEXT_ALWAYS_CHAR ("]");
 #endif
 #endif
+#endif
 
   ACE_DEBUG ((LM_INFO,
               ACE_TEXT ("%s\n"),
               ACE_TEXT (information_string.c_str ())));
 }
 
+#if defined (GTKGL_SUPPORT)
 void
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
 Common_UI_Tools::OpenGLInfo (GdkGLContext* context_in)
 #else
 Common_UI_Tools::OpenGLInfo ()
+#endif
+#else
+#if defined (GTKGLAREA_SUPPORT)
+Common_UI_Tools::OpenGLInfo ()
+#else
+Common_UI_Tools::OpenGLInfo (GdkGLContext* context_in)
 #endif
 #endif
 {
@@ -200,7 +194,6 @@ Common_UI_Tools::OpenGLInfo ()
   std::ostringstream converter;
   std::string information_string;
 
-#if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
 #else
@@ -214,7 +207,7 @@ Common_UI_Tools::OpenGLInfo ()
 
   gchar* info_string_p = ggla_get_info ();
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("OpenGL info: \"%s\"\n"),
+              ACE_TEXT ("OpenGL information: \"%s\"\n"),
               ACE_TEXT (info_string_p)));
 #endif
 #endif
@@ -232,6 +225,10 @@ Common_UI_Tools::OpenGLInfo ()
   goto continue_;
 #endif
 #else
+#if defined (GTKGLAREA_SUPPORT)
+  information_string.clear ();
+  goto continue_;
+#else
   if (!gdk_gl_query_extension ())
   {
     information_string += ACE_TEXT_ALWAYS_CHAR ("not supported");
@@ -244,6 +241,7 @@ Common_UI_Tools::OpenGLInfo ()
                 ACE_TEXT ("failed to gdk_gl_query_version(), returning\n")));
     return;
   } // end IF
+#endif
 #endif
 
   converter << version_major;
@@ -259,5 +257,5 @@ continue_:
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("%s\n"),
                 ACE_TEXT (information_string.c_str ())));
-#endif
 }
+#endif

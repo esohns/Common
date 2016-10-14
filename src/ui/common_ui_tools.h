@@ -24,6 +24,20 @@
 #include <string>
 
 #include <gtk/gtk.h>
+#if defined (GTKGL_SUPPORT)
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
+#else
+#include <gtkgl/gdkgl.h>
+#endif
+#else
+#if defined (GTKGLAREA_SUPPORT)
+#include <gtkgl/gdkgl.h>
+#else
+#include <gtk/gtkgl.h> // gtkglext
+#endif
+#endif
+#endif
 
 #include <ace/Global_Macros.h>
 
@@ -42,12 +56,20 @@ class Common_UI_Export Common_UI_Tools
 
   // print Gtk library information
   static void GtkInfo ();
+#if defined (GTKGL_SUPPORT)
   // print OpenGL library information
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
   static void OpenGLInfo (GdkGLContext*); // OpenGL context handle
 #else
   static void OpenGLInfo ();
+#endif
+#else
+#if defined (GTKGLAREA_SUPPORT)
+  static void OpenGLInfo ();
+#else
+  static void OpenGLInfo (GdkGLContext*); // OpenGL context handle
+#endif
 #endif
 #endif
 

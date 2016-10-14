@@ -34,8 +34,16 @@
 
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
 #else
-#include <gdk/gdkglinit.h> // gtkglext
+#include <gtkgl/gdkgl.h>
+#endif
+#else
+#if defined (GTKGLAREA_SUPPORT)
+#include <gtkgl/gdkgl.h>
+#else
+#include <gtk/gtkgl.h> // gtkglext
+#endif
 #endif
 #endif
 
@@ -394,6 +402,8 @@ Common_UI_GTK_Manager::initializeGTK ()
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
 #else
+#if defined (GTKGLAREA_SUPPORT)
+#else
   if (!gdk_gl_init_check (&argc_,
                           &argv_))
   {
@@ -401,6 +411,7 @@ Common_UI_GTK_Manager::initializeGTK ()
                 ACE_TEXT ("failed to gdk_gl_init_check(), aborting\n")));
     return false;
   } // end IF
+#endif
 #endif
 #endif
 
@@ -439,6 +450,12 @@ Common_UI_GTK_Manager::initializeGTK ()
   Common_UI_Tools::OpenGLInfo (NULL);
 #else
   Common_UI_Tools::OpenGLInfo ();
+#endif
+#else
+#if defined (GTKGLAREA_SUPPORT)
+  Common_UI_Tools::OpenGLInfo ();
+#else
+  Common_UI_Tools::OpenGLInfo (NULL);
 #endif
 #endif
 #endif
