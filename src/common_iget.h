@@ -29,6 +29,13 @@ class Common_IGet_T
 };
 
 template <typename Type>
+class Common_ISetP_T
+{
+ public:
+  virtual void set (Type*) = 0;
+};
+
+template <typename Type>
 class Common_IGetSet_T
 {
  public:
