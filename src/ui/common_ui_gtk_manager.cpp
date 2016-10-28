@@ -550,3 +550,10 @@ Common_UI_GTK_Manager::initializeGTK ()
 
   return true;
 }
+
+//////////////////////////////////////////
+
+//*TODO*: template instantiations should be implemented into the corresponding
+//        library/executable translation unit(s)
+template class ACE_Singleton<Common_UI_GTK_Manager,
+                             ACE_Recursive_Thread_Mutex>;
