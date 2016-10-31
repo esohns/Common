@@ -31,8 +31,8 @@
 #include "common_task_base.h"
 #include "common_time_common.h"
 
-#include "common_ui_common.h"
 #include "common_ui_exports.h"
+#include "common_ui_gtk_common.h"
 
 void glib_print_debug_handler (const gchar*); // message
 void glib_print_error_handler (const gchar*); // message

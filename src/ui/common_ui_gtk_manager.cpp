@@ -475,7 +475,7 @@ Common_UI_GTK_Manager::initializeGTK ()
   if (!state_->RCFiles.empty ())
   {
     int i = 1;
-    for (Common_UI_UIRCFilesIterator_t iterator = state_->RCFiles.begin ();
+    for (Common_UI_GTKRCFilesIterator_t iterator = state_->RCFiles.begin ();
          iterator != state_->RCFiles.end ();
          ++iterator, ++i)
     {
@@ -493,7 +493,7 @@ Common_UI_GTK_Manager::initializeGTK ()
   if (!state_->CSSProviders.empty ())
   {
     int i = 1;
-    for (Common_UI_UICSSProvidersIterator_t iterator = state_->CSSProviders.begin ();
+    for (Common_UI_GTKCSSProvidersIterator_t iterator = state_->CSSProviders.begin ();
          iterator != state_->CSSProviders.end ();
          ++iterator, ++i)
     {

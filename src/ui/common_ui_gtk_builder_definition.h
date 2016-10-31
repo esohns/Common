@@ -23,8 +23,8 @@
 
 #include <ace/Global_Macros.h>
 
-#include "common_ui_common.h"
 #include "common_ui_exports.h"
+#include "common_ui_gtk_common.h"
 #include "common_ui_igtk.h"
 
 class Common_UI_Export Common_UI_GtkBuilderDefinition

@@ -166,6 +166,7 @@ typedef Common_ITask_T<ACE_MT_SYNCH> Common_ITask_t;
 // *** log ***
 typedef std::deque<std::string> Common_MessageStack_t;
 typedef Common_MessageStack_t::const_iterator Common_MessageStackConstIterator_t;
+typedef Common_MessageStack_t::const_reverse_iterator Common_MessageStackConstReverseIterator_t;
 //typedef std::deque<ACE_Log_Record> Common_LogRecordStack_t;
 
 #endif

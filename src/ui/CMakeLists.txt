@@ -140,6 +140,7 @@ set (${PROJECT_NAME}UI_LIB_SRCS
      common_ui_exports.h
      common_ui_gtk_builder_definition.cpp
      common_ui_gtk_builder_definition.h
+     common_ui_gtk_common.h
      common_ui_gtk_manager.cpp
      common_ui_gtk_manager.h
      common_ui_igtk.h
@@ -221,6 +222,7 @@ set (${PROJECT_NAME}UI_LIB_HDRS
      common_ui_defines.h
      common_ui_exports.h
      common_ui_gtk_builder_definition.h
+     common_ui_gtk_common.h
      common_ui_gtk_manager.h
      common_ui_igtk.h
      common_ui_tools.h

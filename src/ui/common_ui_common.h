@@ -21,99 +21,53 @@
 #ifndef COMMON_UI_COMMON_H
 #define COMMON_UI_COMMON_H
 
-#include <list>
-#include <map>
-#include <set>
-#include <string>
-#include <utility>
+#include <deque>
 
 #include <ace/Synch_Traits.h>
 
-#include <gtk/gtk.h>
-
 #include "common.h"
 
-#include "common_ui_igtk.h"
-
-// forward declarations
-#if defined (LIGBGLADE_SUPPORT)
-struct _GladeXML;
-#endif
-
-//enum Common_UI_GTKDefinitionType
-//{
-//  GTK_DEFINITIONTYPE_BUILDER = 0,
-//  GTK_DEFINITIONTYPE_GLADE,
-//  ///////////////////////////////////////
-//  GTK_DEFINITIONTYPE_INVALID,
-//  GTK_DEFINITIONTYPE_MAX
-//};
-
-typedef std::set<guint> Common_UI_GTKEventSourceIds_t;
-typedef Common_UI_GTKEventSourceIds_t::iterator Common_UI_GTKEventSourceIdsIterator_t;
-
-typedef std::list<std::string> Common_UI_UIRCFiles_t;
-typedef Common_UI_UIRCFiles_t::const_iterator Common_UI_UIRCFilesIterator_t;
-#if defined (GTK_MAJOR_VERSION) && (GTK_MAJOR_VERSION >= 3)
-typedef std::map<std::string, GtkCssProvider*> Common_UI_UICSSProviders_t;
-typedef Common_UI_UICSSProviders_t::iterator Common_UI_UICSSProvidersIterator_t;
-#endif
-
-typedef std::pair<std::string, GtkBuilder*> Common_UI_GTKBuilder_t;
-typedef std::map<std::string, Common_UI_GTKBuilder_t> Common_UI_GTKBuilders_t;
-typedef Common_UI_GTKBuilders_t::iterator Common_UI_GTKBuildersIterator_t;
-typedef Common_UI_GTKBuilders_t::const_iterator Common_UI_GTKBuildersConstIterator_t;
-
-#if defined (LIGBGLADE_SUPPORT)
-typedef std::pair<std::string, struct _GladeXML*> Common_UI_GTKGladeXML_t;
-typedef std::map<std::string, Common_UI_GTKGladeXML_t> Common_UI_GladeXMLs_t;
-typedef Common_UI_GladeXMLs_t::iterator Common_UI_GladeXMLsIterator_t;
-typedef Common_UI_GladeXMLs_t::const_iterator Common_UI_GladeXMLsConstIterator_t;
-#endif
-
-struct Common_UI_GTKState
+enum Common_UI_Event
 {
-  inline Common_UI_GTKState ()
-   : builders ()
-   //, cursor (NULL)
-   , eventSourceIds ()
-   , finalizationHook ()
-#if defined (LIGBGLADE_SUPPORT)
-   , gladeXML ()
-#endif
-   , initializationHook ()
+  COMMON_UI_EVENT_INVALID = -1,
+
+  // network & data
+  COMMON_UI_EVENT_NETWORK_DATA_BASE = 0x100,
+  COMMON_UI_EVENT_CONNECT,
+  COMMON_UI_EVENT_DATA,
+  COMMON_UI_EVENT_DISCONNECT,
+
+  // task
+  COMMON_UI_EVENT_TASK_BASE         = 0x200,
+  COMMON_UI_EVENT_FINISHED,
+  COMMON_UI_EVENT_PAUSED,
+  COMMON_UI_EVENT_STARTED,
+  COMMON_UI_EVENT_STOPPED,
+
+  // other
+  COMMON_UI_EVENT_OTHER_BASE        = 0x400,
+  COMMON_UI_EVENT_STATISTIC,
+
+  // -------------------------------------
+  COMMON_UI_EVENT_MAX
+};
+
+typedef std::deque<Common_UI_Event> Common_UI_Events_t;
+typedef Common_UI_Events_t::const_iterator Common_UI_EventsIterator_t;
+
+struct Common_UI_State
+{
+  inline Common_UI_State ()
+   : eventStack ()
    , lock ()
    , logStack ()
    , logStackLock ()
-#if defined (GTK_MAJOR_VERSION) && (GTK_MAJOR_VERSION >= 3)
-   , CSSProviders ()
-#endif
-   , RCFiles ()
-   ///////////////////////////////////////
-   , userData (NULL)
   {};
 
-  Common_UI_GTKBuilders_t       builders;
-  //GdkCursor*                    cursor;
-  Common_UI_GTKEventSourceIds_t eventSourceIds;
-  GSourceFunc                   finalizationHook;
-#if defined (LIGBGLADE_SUPPORT)
-  Common_UI_GladeXMLs_t         gladeXML;
-#endif
-  GSourceFunc                   initializationHook;
-  ACE_SYNCH_MUTEX               lock;
-  Common_MessageStack_t         logStack;
-  ACE_SYNCH_MUTEX               logStackLock;
-#if defined (GTK_MAJOR_VERSION) && (GTK_MAJOR_VERSION >= 3)
-  Common_UI_UICSSProviders_t    CSSProviders;
-#endif
-  Common_UI_UIRCFiles_t         RCFiles;
-
-  ////////////////////////////////////////
-
-  gpointer                      userData; // cb user data
+  Common_UI_Events_t    eventStack;
+  ACE_SYNCH_MUTEX       lock;
+  Common_MessageStack_t logStack;
+  ACE_SYNCH_MUTEX       logStackLock;
 };
-
-typedef Common_UI_IGTK_T<Common_UI_GTKState> Common_UI_IGTK_t;
 
 #endif
