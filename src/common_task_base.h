@@ -25,8 +25,6 @@
 #include <vector>
 
 #include <ace/Global_Macros.h>
-#include <ace/Message_Queue_T.h>
-#include <ace/Module.h>
 #include <ace/OS_NS_Thread.h>
 #include <ace/Task_T.h>
 
@@ -35,6 +33,10 @@
 
 // forward declaration(s)
 class ACE_Message_Block;
+template <ACE_SYNCH_DECL, class TIME_POLICY>
+class ACE_Message_Queue;
+template <ACE_SYNCH_DECL, class TIME_POLICY>
+class ACE_Module;
 class ACE_Time_Value;
 
 template <ACE_SYNCH_DECL,

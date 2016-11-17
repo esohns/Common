@@ -19,4 +19,5 @@
  ***************************************************************************/
 #include "stdafx.h"
 
+#include <ace/Synch.h>
 #include "common_timer_manager.h"

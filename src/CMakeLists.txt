@@ -147,6 +147,7 @@ set_target_properties (${PROJECT_NAME} PROPERTIES DEFINE_SYMBOL COMMON_BUILD_DLL
 set_target_properties (${PROJECT_NAME} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 if (UNIX)
+# target_link_libraries (${PROJECT_NAME} ${ACE_LIBRARY})
 # target_link_libraries (${PROJECT_NAME} ${AIO_LIBRARY})
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)

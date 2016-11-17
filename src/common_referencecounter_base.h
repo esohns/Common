@@ -21,15 +21,13 @@
 #ifndef COMMON_REFERENCECOUNTER_BASE_H
 #define COMMON_REFERENCECOUNTER_BASE_H
 
-#include <ace/Condition_Thread_Mutex.h>
 #include <ace/Refcountable_T.h>
 #include <ace/Synch_Traits.h>
 
 #include "common_exports.h"
 #include "common_ireferencecount.h"
 
-//class Common_Export Common_ReferenceCounterBase
-class Common_ReferenceCounterBase
+class Common_Export Common_ReferenceCounterBase
  : public ACE_Refcountable_T<ACE_SYNCH_MUTEX>
  , virtual public Common_IReferenceCount
 {

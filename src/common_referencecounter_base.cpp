@@ -19,6 +19,7 @@
  ***************************************************************************/
 #include "stdafx.h"
 
+#include <ace/Synch.h>
 #include "common_referencecounter_base.h"
 
 #include <ace/Guard_T.h>
