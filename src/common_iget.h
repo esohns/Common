@@ -29,6 +29,21 @@ class Common_IGet_T
 };
 
 template <typename Type>
+class Common_ISet_T
+{
+ public:
+  virtual void set (const Type&) = 0;
+};
+
+template <typename Type>
+class Common_IGetSet_T
+ : public Common_IGet_T<Type>
+ , public Common_ISet_T<Type>
+{};
+
+//////////////////////////////////////////
+
+template <typename Type>
 class Common_ISetP_T
 {
  public:
@@ -36,19 +51,29 @@ class Common_ISetP_T
 };
 
 template <typename Type>
-class Common_IGetSet_T
+class Common_IGetSetP_T
+ : public Common_ISetP_T<Type>
 {
  public:
-  virtual const Type& get () const = 0; // return value: type
-  virtual void set (const Type&) = 0;
+  virtual const Type* const get () const = 0; // return value: type handle
+};
+
+//////////////////////////////////////////
+
+template <typename Type>
+class Common_ISetPP_T
+{
+ public:
+  // *IMPORTANT NOTE*: fire-and-forget API
+  virtual void set (Type*&) = 0;
 };
 
 template <typename Type>
-class Common_IGetSetP_T
+class Common_IGetSetPP_T
+ : public Common_ISetPP_T<Type>
 {
  public:
-  virtual const Type* const get () const = 0; // return value: type
-  virtual void set (Type*) = 0;
+  virtual const Type* const get () const = 0; // return value: type handle
 };
 
 #endif
