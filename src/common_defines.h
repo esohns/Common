@@ -48,6 +48,9 @@
 
 // ----------- software -----------------
 
+// *** C/C++ locale ***
+#define COMMON_LOCALE_EN_US_STRING                    "en_US" // ASCII
+
 // *** default (system) "locations" ***
 
 // *HISTORY*: Contrary to UNIX-based systems (?), Windows (TM) systems have not
