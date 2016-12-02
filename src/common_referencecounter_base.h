@@ -27,7 +27,7 @@
 #include "common_exports.h"
 #include "common_ireferencecount.h"
 
-class Common_Export Common_ReferenceCounterBase
+class Common_ReferenceCounterBase
  : public ACE_Refcountable_T<ACE_SYNCH_MUTEX>
  , virtual public Common_IReferenceCount
 {
@@ -46,8 +46,7 @@ class Common_Export Common_ReferenceCounterBase
 
  protected:
   Common_ReferenceCounterBase ();
-  // *WARNING*: "delete on 0" may not work predictably if there are
-  //            any waiters (or in ANY multi-threaded context, for that matter)
+  // *TODO*: "delete on 0" may not work in a multi-threaded context
   Common_ReferenceCounterBase (long,  // initial reference count
                                bool); // delete on 0 ?
 

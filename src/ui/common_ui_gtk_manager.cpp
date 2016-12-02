@@ -38,7 +38,7 @@
 #if GTK_CHECK_VERSION (3,16,0)
 #else
 #include <gtkgl/gdkgl.h>
-#endif
+#endif /* gtk >= 3 && <= 3.16 */
 #else
 #if defined (GTKGLAREA_SUPPORT)
 #include <gtkgl/gdkgl.h>

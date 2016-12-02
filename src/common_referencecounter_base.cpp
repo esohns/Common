@@ -125,7 +125,7 @@ Common_ReferenceCounterBase::decrease ()
 
   // synch access
   {
-    ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
+    ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, lock_, 0);
 
     // awaken any waiter(s)
     result_2 = condition_.broadcast ();
@@ -159,7 +159,7 @@ Common_ReferenceCounterBase::wait (unsigned int count_in)
 
   // synch access
   {
-    ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
+    ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, lock_);
 
     while (inherited::refcount_.value () != static_cast<long> (count_in))
     {

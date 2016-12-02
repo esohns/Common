@@ -26,6 +26,8 @@
 #include <limits>
 #include <sstream>
 
+#include <ace/Synch.h>
+
 // *WORKAROUND*
 using namespace std;
 // *IMPORTANT NOTE*: several ACE headers inclue ace/iosfwd.h, which introduces

@@ -23,6 +23,21 @@
 
 #include <sstream>
 
+#if defined (GTKGL_SUPPORT)
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
+#else
+#include <gtkgl/gdkgl.h>
+#endif
+#else
+#if defined (GTKGLAREA_SUPPORT)
+#include <gtkgl/gdkgl.h>
+#else
+#include <gtk/gtkgl.h> // gtkglext
+#endif
+#endif
+#endif
+
 #include <ace/Log_Msg.h>
 
 #include "common_macros.h"
