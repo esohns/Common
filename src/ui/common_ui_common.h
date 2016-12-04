@@ -62,12 +62,14 @@ struct Common_UI_State
    , lock ()
    , logStack ()
    , logStackLock ()
+   , subscribersLock ()
   {};
 
-  Common_UI_Events_t    eventStack;
-  ACE_SYNCH_MUTEX       lock;
-  Common_MessageStack_t logStack;
-  ACE_SYNCH_MUTEX       logStackLock;
+  Common_UI_Events_t        eventStack;
+  ACE_SYNCH_MUTEX           lock;
+  Common_MessageStack_t     logStack;
+  ACE_SYNCH_MUTEX           logStackLock;
+  ACE_SYNCH_RECURSIVE_MUTEX subscribersLock;
 };
 
 #endif
