@@ -489,6 +489,91 @@ Common_Tools::strip (const std::string& string_in)
   return result;
 }
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+BOOL CALLBACK locale_cb_function (LPWSTR name_in,
+                                  DWORD flags_in,
+                                  LPARAM parameter_in)
+{
+
+
+  locals.push_back (ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (name_in)));
+
+  return TRUE;
+}
+#endif
+void
+Common_Tools::printLocales ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::printLocales"));
+
+  std::vector<std::string> locales;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  if (!EnumSystemLocalesEx (locale_cb_function, LOCALE_ALL, NULL, NULL))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to EnumSystemLocalesEx(): \"%s\", returning\n"),
+                ACE_TEXT (Common_Tools::error2String (GetLastError ()).c_str ())));
+    return;
+  } // end IF
+#else
+  // *TODO*: this should work on most Linux systems, but is really a bad idea:
+  //         - relies on local 'locale'
+  //         - temporary files
+  //         - system(3) call
+  //         --> extremely inefficient; remove ASAP
+  std::string filename_string =
+      Common_File_Tools::getTempFilename (ACE_TEXT_ALWAYS_CHAR (""));
+  std::string command_line_string =
+      ACE_TEXT_ALWAYS_CHAR ("locale -a >> ");
+  command_line_string += filename_string;
+
+  int result = ACE_OS::system (ACE_TEXT (command_line_string.c_str ()));
+  if ((result == -1)      ||
+      !WIFEXITED (result) ||
+      WEXITSTATUS (result))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::system(\"%s\"): \"%m\" (result was: %d), aborting\n"),
+                ACE_TEXT (command_line_string.c_str ()),
+                WEXITSTATUS (result)));
+    return;
+  } // end IF
+  unsigned char* data_p = NULL;
+  if (!Common_File_Tools::load (filename_string,
+                                data_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"): \"%m\", returning\n"),
+                ACE_TEXT (filename_string.c_str ())));
+    return;
+  } // end IF
+  if (!Common_File_Tools::deleteFile (filename_string))
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_File_Tools::deleteFile(\"%s\"), continuing\n"),
+                ACE_TEXT (filename_string.c_str ())));
+
+  std::string locales_string = reinterpret_cast<char*> (data_p);
+  delete [] data_p;
+
+  char buffer[BUFSIZ];
+  std::istringstream converter;
+  converter.str (locales_string);
+  do {
+    converter.getline (buffer, sizeof (buffer));
+    locales.push_back (buffer);
+  } while (!converter.fail ());
+#endif
+
+  int index = 1;
+  for (std::vector<std::string>::const_iterator iterator = locales.begin ();
+       iterator != locales.end ();
+       ++iterator, ++index)
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("%d: \"%s\"\n"),
+                index,
+                ACE_TEXT ((*iterator).c_str ())));
+}
+
 bool
 Common_Tools::isLinux ()
 {
@@ -2760,6 +2845,10 @@ Common_Tools::dispatchEvents (bool useReactor_in,
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Thread_Manager::wait_grp(%d): \"%m\", continuing\n"),
                   groupID_in));
+    else
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("joined dispatch thread group (id was: %d)\n"),
+                  groupID_in));
   } // end IF
   else
   {
@@ -2783,10 +2872,9 @@ Common_Tools::dispatchEvents (bool useReactor_in,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Proactor::proactor_run_event_loop(): \"%m\", continuing\n")));
     } // end ELSE
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("event dispatch complete...\n")));
   } // end ELSE
-
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("event dispatch complete...\n")));
 }
 
 //void

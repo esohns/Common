@@ -49,7 +49,10 @@
 // ----------- software -----------------
 
 // *** C/C++ locale ***
-#define COMMON_LOCALE_EN_US_STRING                    "en_US" // ASCII
+//#define COMMON_LOCALE_EN_US_STRING                    "en_US" // ASCII
+// *NOTE*: on UNIX, try 'locale -a', or 'localectl list-locales' to list
+//         supported values
+#define COMMON_LOCALE_EN_US_STRING                    "en_US.utf8" // ASCII
 
 // *** default (system) "locations" ***
 

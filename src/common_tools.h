@@ -62,6 +62,8 @@ class Common_Tools
   static std::string strip (const std::string&); // string
 
   // --- platform ---
+  static void printLocales ();
+
   static bool isLinux ();
 
   // --- capabilities ---

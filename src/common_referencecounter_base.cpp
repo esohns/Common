@@ -124,14 +124,13 @@ Common_ReferenceCounterBase::decrease ()
   int result_2 = -1;
 
   // synch access
-  {
-    ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, lock_, 0);
+  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, lock_, 0);
 
     // awaken any waiter(s)
     result_2 = condition_.broadcast ();
     if (result_2 == -1)
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Condition::broadcast(): \"%m\", continuing\n")));
+                  ACE_TEXT ("failed to ACE_SYNCH_CONDITION::broadcast(): \"%m\", continuing\n")));
   } // end lock scope
 
   if ((result == 0) && deleteOnZero_)
@@ -158,19 +157,18 @@ Common_ReferenceCounterBase::wait (unsigned int count_in)
   int result = -1;
 
   // synch access
-  {
-    ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, lock_);
+  { ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, lock_);
 
     while (inherited::refcount_.value () != static_cast<long> (count_in))
     {
       ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("waiting (count: %u)...\n"),
+                  ACE_TEXT ("waiting (reference count: %u)...\n"),
                   inherited::refcount_.value ()));
 
       result = condition_.wait ();
       if (result == -1)
         ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_Condition::wait(): \"%m\", continuing\n")));
+                    ACE_TEXT ("failed to ACE_SYNCH_CONDITION::wait(): \"%m\", continuing\n")));
     } // end WHILE
   } // end lock scope
 }
