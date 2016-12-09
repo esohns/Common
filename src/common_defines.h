@@ -21,11 +21,7 @@
 #ifndef COMMON_DEFINES_H
 #define COMMON_DEFINES_H
 
-//#include "ace/ACE.h"
-//#include "ace/Default_Constants.h"
-//#include "ace/POSIX_Proactor.h"
-
-//#include "common.h"
+#include <ace/config-lite.h>
 
 /////////////////////////////////////////
 
@@ -49,10 +45,13 @@
 // ----------- software -----------------
 
 // *** C/C++ locale ***
-//#define COMMON_LOCALE_EN_US_STRING                    "en_US" // ASCII
 // *NOTE*: on UNIX, try 'locale -a', or 'localectl list-locales' to list
 //         supported values
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#define COMMON_LOCALE_EN_US_STRING                    "en-US" // ASCII
+#else
 #define COMMON_LOCALE_EN_US_STRING                    "en_US.utf8" // ASCII
+#endif
 
 // *** default (system) "locations" ***
 

@@ -25,6 +25,8 @@
 #include <iostream>
 #include <limits>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #include <ace/Synch.h>
 
@@ -494,9 +496,18 @@ BOOL CALLBACK locale_cb_function (LPWSTR name_in,
                                   DWORD flags_in,
                                   LPARAM parameter_in)
 {
+  COMMON_TRACE (ACE_TEXT ("::locale_cb_function"));
 
+  // sanity check(s)
+  ACE_ASSERT (parameter_in);
 
-  locals.push_back (ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (name_in)));
+  std::vector<std::string>* locales_p =
+    reinterpret_cast<std::vector<std::string>*> (parameter_in);
+
+  // sanity check(s)
+  ACE_ASSERT (locales_p);
+
+  locales_p->push_back (ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (name_in)));
 
   return TRUE;
 }
@@ -508,7 +519,10 @@ Common_Tools::printLocales ()
 
   std::vector<std::string> locales;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  if (!EnumSystemLocalesEx (locale_cb_function, LOCALE_ALL, NULL, NULL))
+  if (!EnumSystemLocalesEx (locale_cb_function,
+                            LOCALE_ALL,
+                            reinterpret_cast<LPARAM> (&locales),
+                            NULL))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to EnumSystemLocalesEx(): \"%s\", returning\n"),
