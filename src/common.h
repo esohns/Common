@@ -36,7 +36,27 @@
 #include "common_itask.h"
 
 // forward declaration(s)
+class ACE_Message_Queue_Base;
 class ACE_Sig_Action;
+
+struct Common_ParserConfiguration
+{
+  Common_ParserConfiguration ()
+   : block (true)
+   , messageQueue (NULL)
+   , useYYScanBuffer (true)
+   , debugParser (COMMON_PARSER_DEFAULT_YACC_TRACE)
+   , debugScanner (COMMON_PARSER_DEFAULT_LEX_TRACE)
+  {};
+
+  bool                    block; // block in parse (i.e. wait for data in yywrap() ?)
+  ACE_Message_Queue_Base* messageQueue; // queue (if any) to use for yywrap
+  bool                    useYYScanBuffer; // yy_scan_buffer() ? : yy_scan_bytes() (C parsers only)
+
+  // debug
+  bool                    debugParser;
+  bool                    debugScanner;
+};
 
 struct Common_SignalInformation
 {

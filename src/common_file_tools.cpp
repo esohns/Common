@@ -810,72 +810,72 @@ Common_File_Tools::getWorkingDirectory ()
   return result;
 }
 
-//std::string
-//Common_File_Tools::getConfigurationDataDirectory (const std::string& baseDir_in,
-//                                                  bool isConfig_in)
-//{
-//  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getConfigurationDataDirectory"));
+std::string
+Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName_in,
+                                                  bool isConfiguration_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getConfigurationDataDirectory"));
 
-//  std::string result = baseDir_in;
+  std::string result;
 
-//  if (baseDir_in.empty ())
-//	{
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
-//    TCHAR buffer[PATH_MAX];
-//    ACE_OS::memset (buffer, 0, sizeof (buffer));
+  // sanity check(s)
+  ACE_ASSERT (!packageName_in.empty ());
 
-//    HRESULT win_result =
-//        SHGetFolderPath (NULL,                                         // hwndOwner
-//                         CSIDL_PROGRAM_FILES | CSIDL_FLAG_DONT_VERIFY, // nFolder
-//                         NULL,                                         // hToken
-//                         SHGFP_TYPE_CURRENT,                           // dwFlags
-//                         buffer);                                      // pszPath
-//    if (FAILED (win_result))
-//    {
-//      ACE_OS::memset (buffer, 0, sizeof (buffer));
-//      if (FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM,                // dwFlags
-//                         NULL,                                      // lpSource
-//                         win_result,                                // dwMessageId
-//                         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // dwLanguageId
-//                         buffer,                                    // lpBuffer
-//                         PATH_MAX,                                  // nSize
-//                         NULL) == 0)                                // Arguments
-//        ACE_DEBUG ((LM_ERROR,
-//                    ACE_TEXT ("failed to FormatMessage(%d): \"%m\", continuing\n"),
-//                    win_result));
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("failed to SHGetFolderPath(CSIDL_PROGRAM_FILES): \"%s\", falling back\n"),
-//                  buffer));
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  TCHAR buffer[PATH_MAX];
+  ACE_OS::memset (buffer, 0, sizeof (buffer));
 
-//      // fallback
-//      return Common_File_Tools::getWorkingDirectory ();
-//    } // end IF
+  HRESULT result_2 =
+// *TODO*: this is apparently inconsistent (see also config.h for details)
+#if defined (ACE_USES_WCHAR)
+    SHGetFolderPathW (NULL,                                   // hwndOwner
+#else
+    SHGetFolderPathA (NULL,                                   // hwndOwner
+#endif
+                      CSIDL_APPDATA | CSIDL_FLAG_DONT_VERIFY, // nFolder
+                      NULL,                                   // hToken
+                      SHGFP_TYPE_CURRENT,                     // dwFlags
+                      buffer);                                // pszPath
+  if (FAILED (result_2))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to SHGetFolderPath(CSIDL_APPDATA): \"%s\", falling back\n"),
+                ACE_TEXT (Common_Tools::error2String (static_cast<DWORD> (result_2)).c_str ())));
+    return Common_File_Tools::getWorkingDirectory ();
+  } // end IF
 
-//    result = ACE_TEXT_ALWAYS_CHAR(buffer);
-//    result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-//    result += ACE_TEXT_ALWAYS_CHAR(RPG_PACKAGE);
-//#else
-//    return Common_File_Tools::getWorkingDirectory ();
-//#endif
-//  } // end IF
+#if defined (ACE_USES_WCHAR)
+  result = ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (buffer));
+#else
+  result = ACE_TEXT_ALWAYS_CHAR (buffer);
+#endif
+#else
+#if defined (BASEDIR)
+  result = BASEDIR;
+#else
+  result = ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_APPLICATION_STORAGE_DIRECTORY);
+#endif
+#endif
+  result += ACE_DIRECTORY_SEPARATOR_STR;
+  result += packageName_in;
+  result += ACE_DIRECTORY_SEPARATOR_STR;
+  result +=
+      (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_DIRECTORY)
+                          : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_DIRECTORY));
 
-//  result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-//  result += (isConfig_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_CONFIG_SUB)
-//                         : ACE_TEXT_ALWAYS_CHAR (COMMON_DATA_SUB));
+  // sanity check(s)
+  if (!Common_File_Tools::isDirectory (result))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("not a directory: \"%s\", falling back\n"),
+                ACE_TEXT (result.c_str ())));
 
-//  // sanity check(s)
-//  if (!Common_File_Tools::isDirectory (result))
-//  {
-//    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("not a directory: \"%s\", falling back\n"),
-//                ACE_TEXT (result.c_str ())));
+    // fallback
+    return Common_File_Tools::getWorkingDirectory ();
+  } // end IF
 
-//    // fallback
-//    return Common_File_Tools::getWorkingDirectory ();
-//  } // end IF
-
-//  return result;
-//}
+  return result;
+}
 
 std::string
 Common_File_Tools::getHomeDirectory (const std::string& user_in)
@@ -942,7 +942,11 @@ Common_File_Tools::getHomeDirectory (const std::string& user_in)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to CloseHandle(), continuing\n")));
 
+#if defined (ACE_USES_WCHAR)
+  result = ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (buffer));
+#else
   result = ACE_TEXT_ALWAYS_CHAR (buffer);
+#endif
 #else
   ACE_OS::memset (buffer, 0, sizeof (BUFSIZ));
   result_2 = ACE_OS::getpwnam_r (user_name.c_str (), // user name
@@ -1008,7 +1012,11 @@ Common_File_Tools::getUserConfigurationDirectory ()
     goto fallback;
   } // end IF
 
+#if defined (ACE_USES_WCHAR)
+  result = ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (buffer));
+#else
   result = ACE_TEXT_ALWAYS_CHAR (buffer);
+#endif
   result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
 #else
   std::string user_name;
@@ -1115,7 +1123,11 @@ use_environment:
                 ACE_TEXT (Common_Tools::error2String (GetLastError ()).c_str ())));
     goto fallback;
   } // end IF
+#if defined (ACE_USES_WCHAR)
+  result = ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (buffer));
+#else
   result = ACE_TEXT_ALWAYS_CHAR (buffer);
+#endif
 
   // strip trailing backslashes
   position =

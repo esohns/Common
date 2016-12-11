@@ -54,10 +54,11 @@ class Common_File_Tools
 
   static std::string realPath (const std::string&); // path
 
-//  // *PORTABILITY*: - on UNIX, this should be passed as a BASEDIR macro at compile time
-//  //                - on WIN32, this should default to the working directory (*TODO*)
-//  static std::string getConfigurationDataDirectory (const std::string&, // base directory
-//                                                    bool);              // config ? : data
+//  // *PORTABILITY*: - on UNIX, this is passed as macro BASEDIR at compile time
+//                      (/usr/share/$PACKAGENAME/ as fallback)
+//  //                - on WIN32, this defaults to $APPDATA/$PACKAGENAME
+  static std::string getConfigurationDataDirectory (const std::string&, // package name
+                                                    bool);              // configuration ? : data
 
   static std::string getHomeDirectory (const std::string&); // user name
   // *NOTE*: (try to) create the directory if it doesn't exist

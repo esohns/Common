@@ -84,6 +84,7 @@
 #endif // defined (ACE_WIN32) || defined (ACE_WIN64)
 
 #define COMMON_LOCATION_CONFIGURATION_DIRECTORY       "etc"
+#define COMMON_LOCATION_DATA_DIRECTORY                "data"
 
 // // software
 
@@ -189,5 +190,10 @@
 #else
 #define COMMON_DEF_USER_LOGIN_BASE                   "USERNAME" // environment
 #endif // !defined (ACE_WIN32) && !defined (ACE_WIN64)
+
+// *** parser ***
+// output more debugging information ?
+#define COMMON_PARSER_DEFAULT_LEX_TRACE              false
+#define COMMON_PARSER_DEFAULT_YACC_TRACE             false
 
 #endif
