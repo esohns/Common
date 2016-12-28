@@ -23,46 +23,66 @@
 
 #include <ace/config-lite.h>
 
-// *IMPORTANT NOTE*: for some reason, the glib 2 windows package does not define
-//                   these
+// multimedia frameworks
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define G_SOURCE_CONTINUE                        TRUE
-#define G_SOURCE_REMOVE                          FALSE
+#define COMMON_UI_DEFAULT_WIN32_USE_MEDIAFOUNDATION              false // ? : DirectShow
+
+#define COMMON_UI_DEFAULT_WIN32_DIRECTSHOW_USE_PUSH              false // ? : asynch
+
+// *NOTE*: IMFMediaSession::SetTopology() is asynchronous; subsequent calls
+//         to retrieve the topology handle may fail (MF_E_INVALIDREQUEST)
+//         --> (try to) wait for the next MESessionTopologySet event
+#define COMMON_UI_WIN32_MEDIAFOUNDATION_TOPOLOGY_GET_TIMEOUT     10 // seconds
 #endif
 
-// interface definition (GTK)
-#define COMMON_UI_GTK_DEFINITION_DESCRIPTOR_MAIN "main"
+// window
+#define COMMON_UI_WINDOW_DEFAULT_WIDTH                           320
+#define COMMON_UI_WINDOW_DEFAULT_HEIGHT                          240
 
-// event dispatch (GTK)
-#define COMMON_UI_GTK_THREAD_GROUP_ID            200
-#define COMMON_UI_GTK_THREAD_NAME                "UI dispatch"
+// ************************************ SDL ************************************
 
-// event dispatch (SDL)
-#define COMMON_UI_SDL_EVENT_TIMER                SDL_USEREVENT
+// event dispatch
+#define COMMON_UI_SDL_EVENT_TIMER                                SDL_USEREVENT
 // *NOTE*: this defines the input resolution or "interactivity"
 // *WARNING*: apparently, the maximum SDL timer resolution is 10 ms
-#define COMMON_UI_SDL_EVENT_TIMEOUT              100 // ms
+#define COMMON_UI_SDL_EVENT_TIMEOUT                              100 // ms
 //// *NOTE*: sensible values are multiples of COMMON_UI_SDL_EVENT_TIMEOUT, as
 //// that is the resolution factor
 //#define COMMON_UI_SDL_EVENT_RESOLUTION           100 // ms
 
-// window
-#define COMMON_UI_WINDOW_DEFAULT_WIDTH           800
-#define COMMON_UI_WINDOW_DEFAULT_HEIGHT          600
-
-// video (SDL)
-#define COMMON_UI_SDL_VIDEO_DEFAULT_BPP          32
-#define COMMON_UI_SDL_VIDEO_DEFAULT_DOUBLEBUFFER false
-#define COMMON_UI_SDL_VIDEO_DEFAULT_OPENGL       false
-#define COMMON_UI_SDL_VIDEO_DEFAULT_FULLSCREEN   false
-#define COMMON_UI_SDL_VIDEO_DEFAULT_INIT         false
+// video
+#define COMMON_UI_SDL_VIDEO_DEFAULT_BPP                          32
+#define COMMON_UI_SDL_VIDEO_DEFAULT_DOUBLEBUFFER                 false
+#define COMMON_UI_SDL_VIDEO_DEFAULT_OPENGL                       false
+#define COMMON_UI_SDL_VIDEO_DEFAULT_FULLSCREEN                   false
+#define COMMON_UI_SDL_VIDEO_DEFAULT_INIT                         false
 //#define COMMON_UI_SDL_VIDEO_DEFAULT_FRAMERATE    30
-#define COMMON_UI_SDL_VIDEO_SCREENSHOT_PREFIX    "screenshot"
-#define COMMON_UI_SDL_VIDEO_SCREENSHOT_EXT       ".png"
+#define COMMON_UI_SDL_VIDEO_SCREENSHOT_PREFIX                    "screenshot"
+#define COMMON_UI_SDL_VIDEO_SCREENSHOT_EXT                       ".png"
 
-// text (SDL)
-#define COMMON_UI_SDL_TEXT_FONT                  FONT_MAIN_SMALL
-#define COMMON_UI_SDL_TEXT_COLOR                 COLOR_WHITE
-#define COMMON_UI_SDL_TEXT_SHADECOLOR            COLOR_BLACK
+// text
+#define COMMON_UI_SDL_TEXT_FONT                                  FONT_MAIN_SMALL
+#define COMMON_UI_SDL_TEXT_COLOR                                 COLOR_WHITE
+#define COMMON_UI_SDL_TEXT_SHADECOLOR                            COLOR_BLACK
+
+// ************************************ GTK ************************************
+
+// *IMPORTANT NOTE*: for some reason, the glib 2 windows package does not define
+//                   these
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#define G_SOURCE_CONTINUE                                        TRUE
+#define G_SOURCE_REMOVE                                          FALSE
+#endif
+
+// interface definition
+#define COMMON_UI_GTK_DEFINITION_DESCRIPTOR_MAIN                 "main"
+
+// event dispatch
+#define COMMON_UI_GTK_THREAD_GROUP_ID                            200
+#define COMMON_UI_GTK_THREAD_NAME                                "UI dispatch"
+
+// informative widget(s)/(log) text views, ...
+#define COMMON_UI_GTK_WIDGET_UPDATE_INTERVAL                     200 // ms --> 5 fps
+#define COMMON_UI_GTK_PROGRESSBAR_UPDATE_INTERVAL                27 // ms (?)
 
 #endif

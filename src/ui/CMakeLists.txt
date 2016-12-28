@@ -148,6 +148,8 @@ set (${PROJECT_NAME}UI_LIB_SRCS
      common_ui_gtk_common.h
      common_ui_gtk_manager.cpp
      common_ui_gtk_manager.h
+     common_ui_gtk_manager.inl
+     common_ui_gtk_manager_common.h
      common_ui_igtk.h
      common_ui_tools.cpp
      common_ui_tools.h
@@ -158,7 +160,8 @@ set (${PROJECT_NAME}UI_LIB_GLADE_SRCS
 
 if (LIBGLADE_SUPPORT)
  add_library (${PROJECT_NAME}UI SHARED
-              ${CommonUI_LIB_SRCS} ${CommonUI_LIB_GLADE_SRCS})
+              ${CommonUI_LIB_SRCS}
+              ${CommonUI_LIB_GLADE_SRCS})
 else ()
  add_library (${PROJECT_NAME}UI SHARED ${CommonUI_LIB_SRCS})
 endif ()
@@ -229,6 +232,8 @@ set (${PROJECT_NAME}UI_LIB_HDRS
      common_ui_gtk_builder_definition.h
      common_ui_gtk_common.h
      common_ui_gtk_manager.h
+     common_ui_gtk_manager.inl
+     common_ui_gtk_manager_common.h
      common_ui_igtk.h
      common_ui_tools.h
      common_ui_types.h)

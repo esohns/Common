@@ -585,9 +585,9 @@ Common_File_Tools::deleteFile (const std::string& filename_in)
                 ACE_TEXT (filename_in.c_str ())));
     return false;
   } // end IF
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("deleted \"%s\"...\n"),
-              ACE_TEXT (filename_in.c_str ())));
+  //ACE_DEBUG ((LM_DEBUG,
+  //            ACE_TEXT ("deleted \"%s\"...\n"),
+  //            ACE_TEXT (filename_in.c_str ())));
 
   return true;
 }

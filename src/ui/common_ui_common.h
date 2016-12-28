@@ -27,6 +27,8 @@
 
 #include "common.h"
 
+#include "common_ui_defines.h"
+
 enum Common_UI_Event
 {
   COMMON_UI_EVENT_INVALID = -1,
@@ -63,6 +65,9 @@ struct Common_UI_State
    , logStack ()
    , logStackLock ()
    , subscribersLock ()
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+   , useMediaFoundation (COMMON_UI_DEFAULT_WIN32_USE_MEDIAFOUNDATION)
+#endif
   {};
 
   Common_UI_Events_t        eventStack;
@@ -70,6 +75,9 @@ struct Common_UI_State
   Common_MessageStack_t     logStack;
   ACE_SYNCH_MUTEX           logStackLock;
   ACE_SYNCH_RECURSIVE_MUTEX subscribersLock;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  bool                      useMediaFoundation;
+#endif
 };
 
 #endif

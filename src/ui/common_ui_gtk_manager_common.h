@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2009 by Erik Sohns   *
+ *   Copyright (C) 2010 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,33 +18,23 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_IINITIALIZE_H
-#define COMMON_IINITIALIZE_H
+#ifndef COMMON_UI_GTK_MANAGER_COMMON_H
+#define COMMON_UI_GTK_MANAGER_COMMON_H
 
-class Common_IInitialize
-{
- public:
-  inline virtual ~Common_IInitialize () {};
+#include <ace/Singleton.h>
+#include <ace/Synch_Traits.h>
 
-  virtual bool initialize (const void*) = 0;
-};
+#include "common_ui_exports.h"
+#include "common_ui_gtk_common.h"
+#include "common_ui_gtk_manager.h"
 
-template <typename ConfigurationType>
-class Common_IInitialize_T
-{
- public:
-  inline virtual ~Common_IInitialize_T () {};
-
-  virtual bool initialize (const ConfigurationType&) = 0;
-};
-
-template <typename ConfigurationType>
-class Common_IInitializeP_T
-{
-public:
-  inline virtual ~Common_IInitializeP_T () {};
-
-  virtual bool initialize (const ConfigurationType*) = 0;
-};
+// *IMPORTANT NOTE*: these type definitions are instantiated in
+//                   common_ui_gtk_manager.cpp
+//#if defined (GTKGL_SUPPORT)
+//typedef ACE_Singleton<Common_UI_GTK_Manager_T<struct Common_UI_GTKGLState>,
+//                      typename ACE_MT_SYNCH::RECURSIVE_MUTEX> COMMON_UI_GTKGL_MANAGER_SINGLETON;
+//#endif
+typedef ACE_Singleton<Common_UI_GTK_Manager_T<struct Common_UI_GTKState>,
+                      typename ACE_MT_SYNCH::RECURSIVE_MUTEX> COMMON_UI_GTK_MANAGER_SINGLETON;
 
 #endif

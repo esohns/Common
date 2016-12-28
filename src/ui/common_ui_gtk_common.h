@@ -63,7 +63,7 @@ typedef std::map<std::string, Common_UI_GTKBuilder_t> Common_UI_GTKBuilders_t;
 typedef Common_UI_GTKBuilders_t::iterator Common_UI_GTKBuildersIterator_t;
 typedef Common_UI_GTKBuilders_t::const_iterator Common_UI_GTKBuildersConstIterator_t;
 
-#if defined (LIGBGLADE_SUPPORT)
+#if defined (LIBGLADE_SUPPORT)
 typedef std::pair<std::string, struct _GladeXML*> Common_UI_GTKGladeXML_t;
 typedef std::map<std::string, Common_UI_GTKGladeXML_t> Common_UI_GladeXMLs_t;
 typedef Common_UI_GladeXMLs_t::iterator Common_UI_GladeXMLsIterator_t;
@@ -75,32 +75,49 @@ struct Common_UI_GTKState
 {
   inline Common_UI_GTKState ()
    : Common_UI_State ()
+   , argc (0)
+   , argv (NULL)
    , builders ()
 //, cursor (NULL)
    , eventSourceIds ()
    , finalizationHook ()
-#if defined (LIGBGLADE_SUPPORT)
+#if defined (LIBGLADE_SUPPORT)
    , gladeXML ()
 #endif
    , initializationHook ()
  #if GTK_CHECK_VERSION (3,0,0)
    , CSSProviders ()
 #endif
+#if defined (GTKGL_SUPPORT)
+   , openGLContext (NULL)
+//, openGLDrawable (NULL)
+   , openGLWindow (NULL)
+#endif
    , RCFiles ()
    ///////////////////////////////////////
    , userData (NULL)
   {};
 
+  int                           argc;
+  ACE_TCHAR**                   argv;
   Common_UI_GTKBuilders_t       builders;
 //GdkCursor*                    cursor;
   Common_UI_GTKEventSourceIds_t eventSourceIds;
   GSourceFunc                   finalizationHook;
-#if defined (LIGBGLADE_SUPPORT)
+#if defined (LIBGLADE_SUPPORT)
   Common_UI_GladeXMLs_t         gladeXML;
 #endif
   GSourceFunc                   initializationHook;
 #if GTK_CHECK_VERSION (3,0,0)
   Common_UI_GTKCSSProviders_t   CSSProviders;
+#endif
+#if defined (GTKGL_SUPPORT)
+  // *TODO*: as an application may support multiple OpenGL-capable windows, and
+  //         each GdkGLContext is tied to a GdkWindow, it probably makes sense
+  //         to move all of this into a separate 'presentation manager' object
+  GdkGLContext*                 openGLContext;
+  //GdkGLDrawable* openGLDrawable;
+  GdkWindow*                    openGLWindow;
 #endif
   Common_UI_GTKRCFiles_t        RCFiles;
 
@@ -109,6 +126,43 @@ struct Common_UI_GTKState
   gpointer                      userData; // cb user data
 };
 
-typedef Common_UI_IGTK_T<Common_UI_GTKState> Common_UI_IGTK_t;
+typedef Common_UI_IGTK_T<struct Common_UI_GTKState> Common_UI_IGTK_t;
+
+//////////////////////////////////////////
+
+//#if defined (GTKGL_SUPPORT)
+//struct Common_UI_GTKGLState
+// : Common_UI_GTKState
+//{
+//  inline Common_UI_GTKGLState ()
+//   : Common_UI_GTKState ()
+//  {};
+//
+//};
+//#endif
+
+//////////////////////////////////////////
+
+typedef std::map<guint, ACE_Thread_ID> Common_UI_GTK_PendingActions_t;
+typedef Common_UI_GTK_PendingActions_t::iterator Common_UI_GTK_PendingActionsIterator_t;
+typedef std::set<guint> Common_UI_GTK_CompletedActions_t;
+typedef Common_UI_GTK_CompletedActions_t::iterator Common_UI_GTK_CompletedActionsIterator_t;
+
+struct Common_UI_GTK_ProgressData
+{
+  inline Common_UI_GTK_ProgressData ()
+    : completedActions ()
+    //   , cursorType (GDK_LAST_CURSOR)
+    , eventSourceID (0)
+    , GTKState (NULL)
+    , pendingActions ()
+  {};
+
+  Common_UI_GTK_CompletedActions_t completedActions;
+  //  GdkCursorType                      cursorType;
+  guint                            eventSourceID;
+  struct Common_UI_GTKState*       GTKState;
+  Common_UI_GTK_PendingActions_t   pendingActions;
+};
 
 #endif
