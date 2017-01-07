@@ -64,7 +64,7 @@ class Common_TaskBase_T
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?
   virtual bool isRunning () const;
-  inline virtual int wait (void) { return ACE_Task_Base::wait (); };
+  inline virtual int wait (void) { return inherited::wait (); };
 
   // implement Common_IDumpState
   // *NOTE*: this is just a default stub

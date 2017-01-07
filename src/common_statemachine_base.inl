@@ -68,8 +68,7 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
 
   StateType result = static_cast<StateType> (-1);
 
-  {
-    ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, result);
+  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, result);
 
     result = state_;
   } // end lock scope
@@ -125,8 +124,7 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
   ACE_ASSERT (stateLock_);
 
   StateType previous_state;
-  {
-    ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, false);
+  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, false);
 
     previous_state = state_;
   } // end lock scope
@@ -145,8 +143,7 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
   }
 
   bool signal = true;
-  {
-    ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, false);
+  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, false);
 
     // *NOTE*: if the implementation is 'passive', the whole operation
     //         pertaining to newState_in may have been processed 'inline' by the

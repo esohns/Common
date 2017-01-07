@@ -25,7 +25,7 @@ template <typename StateType>
 class Common_UI_IGTK_T
 {
  public:
-  virtual bool initialize (StateType&) = 0;    // return value: GTK state
+  virtual bool initialize (StateType&) = 0; // return value: GTK state
   virtual void finalize () = 0;
 };
 

@@ -87,7 +87,7 @@ bool
 Common_UI_GTK_Manager_T<StateType>::initialize (int argc_in,
                                                 ACE_TCHAR** argv_in,
                                                 StateType* state_in,
-                                                Common_UI_IGTK_t* interfaceHandle_in)
+                                                Common_UI_IGTK_T<StateType>* interfaceHandle_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::initialize"));
 

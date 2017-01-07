@@ -43,6 +43,27 @@
 #include "libCommon_config.h"
 #endif
 
+std::string
+Common_File_Tools::Address2String (const ACE_FILE_Addr& address_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isReadable"));
+
+  std::string result;
+
+  ACE_TCHAR buffer[PATH_MAX];
+  int result_2 = address_in.addr_to_string (buffer,
+                                            sizeof (buffer));
+  if (result_2 == -1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_FILE_Addr::addr_to_string(): \"%m\", aborting\n")));
+    return result;
+  } // end IF
+  result = ACE_TEXT_ALWAYS_CHAR (buffer);
+
+  return result;
+}
+
 bool
 Common_File_Tools::isReadable (const std::string& filename_in)
 {
@@ -100,7 +121,7 @@ Common_File_Tools::isDirectory (const std::string& directory_in)
                          &stat);
   if (result == -1)
   {
-    switch (errno)
+    switch (ACE_OS::last_error ())
     {
       case ENOENT:
       {
@@ -275,9 +296,9 @@ Common_File_Tools::create (const std::string& fileName_in)
                 ACE_TEXT ("failed to ACE_OS::fclose(): \"%m\", aborting\n")));
     return false;
   } // end IF
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("created: \"%s\"...\n"),
-              ACE_TEXT (file_name.c_str ())));
+  //ACE_DEBUG ((LM_DEBUG,
+  //            ACE_TEXT ("created: \"%s\"...\n"),
+  //            ACE_TEXT (file_name.c_str ())));
 
   return true;
 }
@@ -339,9 +360,9 @@ Common_File_Tools::createDirectory (const std::string& directory_in)
       }
     } // end SWITCH
   } // end IF
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("created: \"%s\"...\n"),
-              ACE_TEXT (directory_in.c_str ())));
+  //ACE_DEBUG ((LM_DEBUG,
+  //            ACE_TEXT ("created: \"%s\"...\n"),
+  //            ACE_TEXT (directory_in.c_str ())));
 
   return true;
 }
@@ -748,6 +769,68 @@ Common_File_Tools::open (const std::string& fileName_in,
   return true;
 }
 
+unsigned int
+Common_File_Tools::size (const ACE_FILE_Addr& address_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::size"));
+
+  int result = -1;
+  ACE_FILE_Connector file_connector;
+  ACE_FILE_IO file_io;
+  ACE_TCHAR buffer[PATH_MAX];
+  ACE_FILE_Info file_info;
+
+  result =
+    file_connector.connect (file_io,                 // stream
+                            address_in,              // filename
+                            NULL,                    // timeout (block)
+                            ACE_Addr::sap_any,       // (local) filename: N/A
+                            0,                       // reuse_addr: N/A
+                            (O_RDONLY |
+                             O_BINARY),              // flags --> open
+                            ACE_DEFAULT_FILE_PERMS); // permissions --> open
+  if (result == -1)
+  {
+    result = address_in.addr_to_string (buffer,
+                                        sizeof (buffer));
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_FILE_Addr::addr_to_string(): \"%m\", continuing\n")));
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_FILE_Connector::connect(\"%s\"): \"%m\", aborting\n"),
+                buffer));
+    return 0;
+  } // end IF
+
+  result = file_io.get_info (file_info);
+  if (result == -1)
+  {
+    result = address_in.addr_to_string (buffer,
+                                        sizeof (buffer));
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_FILE_Addr::addr_to_string(): \"%m\", continuing\n")));
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_FILE_Connector::connect(\"%s\"): \"%m\", aborting\n"),
+                buffer));
+
+    // clean up
+    result = file_io.close ();
+    if (result == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_FILE_IO::close(): \"%m\", continuing\n")));
+
+    return 0;
+  } // end IF
+
+  // clean up
+  result = file_io.close ();
+  if (result == -1)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_FILE_IO::close(): \"%m\", continuing\n")));
+
+  return static_cast<unsigned int> (file_info.size_);
+}
 unsigned int
 Common_File_Tools::size (const std::string& path_in)
 {
@@ -1280,6 +1363,7 @@ fallback:
   result += COMMON_LOG_FILENAME_SUFFIX;
 
   // sanity check(s)
+  // *TODO*: replace this with a permission check
   if (!Common_File_Tools::create (result))
   {
     ACE_DEBUG ((LM_DEBUG,
@@ -1363,7 +1447,7 @@ use_path:
       goto fallback;
     } // end IF
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("created directory: \"%s\"...\n"),
+                ACE_TEXT ("created log directory: \"%s\"...\n"),
                 ACE_TEXT (result.c_str ())));
   } // end IF
 

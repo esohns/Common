@@ -24,6 +24,7 @@
 #include <string>
 
 #include <ace/Global_Macros.h>
+#include <ace/FILE_Addr.h>
 #include <ace/FILE_IO.h>
 
 #include "common_exports.h"
@@ -32,6 +33,7 @@
 class Common_File_Tools
 {
  public:
+  static std::string Address2String (const ACE_FILE_Addr&); // file name
   static bool create (const std::string&); // FQ file name
   static bool createDirectory (const std::string&); // directory
   static bool copyFile (const std::string&,  // FQ file name
@@ -50,6 +52,7 @@ class Common_File_Tools
   static bool open (const std::string&, // FQ file name
                     int,                // flags
                     ACE_FILE_IO&);      // return value: file stream
+  static unsigned int size (const ACE_FILE_Addr&); // file name
   static unsigned int size (const std::string&); // (FQ) file name
 
   static std::string realPath (const std::string&); // path

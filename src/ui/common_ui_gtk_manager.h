@@ -50,10 +50,10 @@ class Common_UI_GTK_Manager_T
                              typename ACE_MT_SYNCH::RECURSIVE_MUTEX>;
 
  public:
-  bool initialize (int,                // argc
-                   ACE_TCHAR** ,       // argv
-                   StateType*,         // state handle
-                   Common_UI_IGTK_t*); // UI interface handle
+  bool initialize (int,                           // argc
+                   ACE_TCHAR** ,                  // argv
+                   StateType*,                    // state handle
+                   Common_UI_IGTK_T<StateType>*); // UI interface handle
 
   // implement (part of) Common_IControl
   virtual void start ();
@@ -79,18 +79,18 @@ class Common_UI_GTK_Manager_T
 
   bool initializeGTK ();
 
-  int               argc_;
-  ACE_TCHAR**       argv_;
-  bool              GTKIsInitialized_;
-  bool              isInitialized_;
+  int                          argc_;
+  ACE_TCHAR**                  argv_;
+  bool                         GTKIsInitialized_;
+  bool                         isInitialized_;
 //#if defined (GTKGL_SUPPORT)
 //  // *TODO*: as a 'GTK-' OpenGL context is tied to a GdkWindow, it probably
 //  //         makes sense to move this into the state_ (better: into a separate
 //  //         presentation manager)
 //  GdkGLContext*   openGLContext_;
 //#endif
-  StateType*        state_;
-  Common_UI_IGTK_t* UIInterfaceHandle_;
+  StateType*                   state_;
+  Common_UI_IGTK_T<StateType>* UIInterfaceHandle_;
 };
 
 // include template definition
