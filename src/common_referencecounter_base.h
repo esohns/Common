@@ -37,10 +37,10 @@ class Common_ReferenceCounterBase
   virtual ~Common_ReferenceCounterBase ();
 
   // implement Common_IReferenceCount
-  virtual unsigned int increase ();
+  inline virtual unsigned int increase () { return static_cast<unsigned int> (inherited::increment ()); };
   virtual unsigned int decrease ();
-  virtual unsigned int count () const;
-  virtual void wait (unsigned int = 0);
+  inline virtual unsigned int count () const { return static_cast<unsigned int> (inherited::refcount_.value ()); };
+  virtual void wait (unsigned int = 0) const;
 
   Common_ReferenceCounterBase& operator= (const Common_ReferenceCounterBase&);
 
@@ -55,8 +55,8 @@ class Common_ReferenceCounterBase
  private:
   typedef ACE_Refcountable_T<ACE_SYNCH_MUTEX> inherited;
 
-  ACE_SYNCH_CONDITION     condition_;
-  bool                    deleteOnZero_;
+  mutable ACE_SYNCH_CONDITION condition_;
+  bool                        deleteOnZero_;
 };
 
 #endif

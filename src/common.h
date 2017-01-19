@@ -84,9 +84,11 @@ struct Common_SignalInformation
 struct Common_SignalHandlerConfiguration
 {
   Common_SignalHandlerConfiguration ()
-   : useReactor (true)
+   : hasUI (false)
+   , useReactor (true)
   {};
 
+  bool hasUI;
   bool useReactor;
 };
 

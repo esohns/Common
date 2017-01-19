@@ -106,16 +106,6 @@ Common_ReferenceCounterBase::operator= (const Common_ReferenceCounterBase& rhs_i
 }
 
 unsigned int
-Common_ReferenceCounterBase::increase ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::increase"));
-
-  //ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
-
-  return static_cast<unsigned int> (inherited::increment ());
-}
-
-unsigned int
 Common_ReferenceCounterBase::decrease ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::decrease"));
@@ -139,18 +129,8 @@ Common_ReferenceCounterBase::decrease ()
   return static_cast<unsigned int> (result);
 }
 
-unsigned int
-Common_ReferenceCounterBase::count () const
-{
-  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::count"));
-
-  //ACE_Guard<ACE_SYNCH_MUTEX> aGuard (lock_);
-
-  return static_cast<unsigned int> (inherited::refcount_.value ());
-}
-
 void
-Common_ReferenceCounterBase::wait (unsigned int count_in)
+Common_ReferenceCounterBase::wait (unsigned int count_in) const
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::wait"));
 
@@ -162,7 +142,7 @@ Common_ReferenceCounterBase::wait (unsigned int count_in)
     while (inherited::refcount_.value () != static_cast<long> (count_in))
     {
       ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("waiting (reference count: %u)...\n"),
+                  ACE_TEXT ("waiting (reference count: %d)...\n"),
                   inherited::refcount_.value ()));
 
       result = condition_.wait ();

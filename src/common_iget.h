@@ -44,6 +44,13 @@ class Common_IGetSet_T
 //////////////////////////////////////////
 
 template <typename Type>
+class Common_IGetP_T
+{
+ public:
+  virtual const Type* const get () const = 0; // return value: type handle
+};
+
+template <typename Type>
 class Common_ISetP_T
 {
  public:
@@ -52,11 +59,9 @@ class Common_ISetP_T
 
 template <typename Type>
 class Common_IGetSetP_T
- : public Common_ISetP_T<Type>
-{
- public:
-  virtual const Type* const get () const = 0; // return value: type handle
-};
+ : public Common_IGetP_T<Type>
+ , public Common_ISetP_T<Type>
+{};
 
 //////////////////////////////////////////
 

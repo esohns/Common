@@ -84,8 +84,8 @@ Common_File_Tools::isReadable (const std::string& filename_in)
     return false;
   } // end IF
 
-  return (((stat.st_mode & S_IFMT) == S_IFREG) && // regular file ?
-          (stat.st_mode & S_IREAD));              // readable ?
+  return (((stat.st_mode & S_IFMT) & S_IFREG) && // regular file ?
+          (stat.st_mode & S_IREAD));             // readable ?
 }
 
 bool
@@ -114,35 +114,34 @@ Common_File_Tools::isDirectory (const std::string& directory_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isDirectory"));
 
+//  // *NOTE*: ACE_OS::stat does not currently work in Win32; this may (!) be
+//  //         related to i18n %APPDATA%/%PROGRAMFILES%... path quirkyness
+//  // *TODO*: find a portable solution and integrate it into ACE
+//#if defined (ACE_WIN32) || defined (ACE_WIN64)
+//  DWORD attributes = GetFileAttributes (directory_in.c_str ());
+//
+//  return (attributes != INVALID_FILE_ATTRIBUTES &&
+//         (attributes & FILE_ATTRIBUTE_DIRECTORY));
+//#else
   int result = -1;
   ACE_stat stat;
-  ACE_OS::memset (&stat, 0, sizeof (stat));
+  ACE_OS::memset (&stat, 0, sizeof (ACE_stat));
   result = ACE_OS::stat (directory_in.c_str (),
                          &stat);
   if (result == -1)
   {
-    switch (ACE_OS::last_error ())
-    {
-      case ENOENT:
-      {
-        //ACE_DEBUG ((LM_DEBUG,
-        //            ACE_TEXT ("\"%s\": \"%m\", aborting\n"),
-        //            ACE_TEXT (directory_in.c_str ())));
+    int error = ACE_OS::last_error ();
+    if (error != ENOENT) // 2:
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
+                  ACE_TEXT (directory_in.c_str ())));
 
-        // URI doesn't even exist --> NOT a directory !
-        return false;
-      }
-      default:
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
-                    ACE_TEXT (directory_in.c_str ())));
-        return false;
-      }
-    } // end SWITCH
+    // URI doesn't even exist --> NOT a directory !
+    return false;
   } // end IF
 
-  return ((stat.st_mode & S_IFMT) == S_IFDIR);
+  return ((stat.st_mode & S_IFMT) & S_IFDIR);
+//#endif
 }
 
 //int
@@ -921,7 +920,7 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
                       buffer);                                // pszPath
   if (FAILED (result_2))
   {
-    ACE_DEBUG ((LM_ERROR,
+    ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to SHGetFolderPath(CSIDL_APPDATA): \"%s\", falling back\n"),
                 ACE_TEXT (Common_Tools::error2String (static_cast<DWORD> (result_2)).c_str ())));
     return Common_File_Tools::getWorkingDirectory ();
@@ -949,7 +948,7 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
   // sanity check(s)
   if (!Common_File_Tools::isDirectory (result))
   {
-    ACE_DEBUG ((LM_ERROR,
+    ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("not a directory: \"%s\", falling back\n"),
                 ACE_TEXT (result.c_str ())));
 
@@ -987,7 +986,7 @@ Common_File_Tools::getHomeDirectory (const std::string& user_in)
     Common_Tools::getCurrentUserName (user_name, real_name);
     if (user_name.empty ())
     {
-      ACE_DEBUG ((LM_ERROR,
+      ACE_DEBUG ((LM_WARNING,
                   ACE_TEXT ("failed to Common_Tools::getCurrentUserName(), falling back\n")));
       goto fallback;
     } // end IF
@@ -996,7 +995,7 @@ Common_File_Tools::getHomeDirectory (const std::string& user_in)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   if (!OpenProcessToken (GetCurrentProcess (), TOKEN_QUERY, &token))
   {
-    ACE_DEBUG ((LM_ERROR,
+    ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to OpenProcessToken(), falling back\n")));
     goto fallback;
   } // end IF
@@ -1009,7 +1008,7 @@ Common_File_Tools::getHomeDirectory (const std::string& user_in)
   if (!GetUserProfileDirectoryA (token, buffer, &buffer_size))
 #endif
   {
-    ACE_DEBUG ((LM_ERROR,
+    ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to GetUserProfileDirectory(): \"%s\", falling back\n")));
 
     // clean up
@@ -1040,11 +1039,11 @@ Common_File_Tools::getHomeDirectory (const std::string& user_in)
   if (!result_p)
   {
     if (result_2 == 0)
-      ACE_DEBUG ((LM_ERROR,
+      ACE_DEBUG ((LM_WARNING,
                   ACE_TEXT ("user \"%s\" not found, falling back\n"),
                   ACE_TEXT (user_name.c_str ())));
     else
-      ACE_DEBUG ((LM_ERROR,
+      ACE_DEBUG ((LM_WARNING,
                   ACE_TEXT ("failed to ACE_OS::getpwnam_r(\"%s\"): \"%m\", falling back\n"),
                   ACE_TEXT (user_name.c_str ())));
     goto fallback;
@@ -1089,7 +1088,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
                       buffer);                                // pszPath
   if (FAILED (result_2))
   {
-    ACE_DEBUG ((LM_ERROR,
+    ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to SHGetFolderPath(CSIDL_APPDATA): \"%s\", falling back\n"),
                 ACE_TEXT (Common_Tools::error2String (static_cast<DWORD> (result_2)).c_str ())));
     goto fallback;
@@ -1107,7 +1106,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
   Common_Tools::getCurrentUserName (user_name, real_name);
   if (user_name.empty ())
   {
-    ACE_DEBUG ((LM_ERROR,
+    ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to Common_Tools::getCurrentUserName(), falling back\n")));
     goto fallback;
   } // end IF
@@ -1115,7 +1114,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
   result = Common_File_Tools::getHomeDirectory (user_name);
   if (result.empty ())
   {
-    ACE_DEBUG ((LM_ERROR,
+    ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT("failed to Common_File_Tools::getHomeDirectory(\"%s\"), falling back\n"),
                 ACE_TEXT (user_name.c_str ())));
     goto fallback;
@@ -1130,7 +1129,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
   {
     if (!Common_File_Tools::createDirectory (result))
     {
-      ACE_DEBUG ((LM_ERROR,
+      ACE_DEBUG ((LM_WARNING,
                   ACE_TEXT ("failed to Common_File_Tools::createDirectory(\"%s\"), falling back\n"),
                   ACE_TEXT (result.c_str ())));
       goto fallback;
@@ -1175,7 +1174,7 @@ use_environment:
       ACE_OS::getenv (ACE_TEXT (environment_variable.c_str ()));
   if (!string_p)
   {
-    ACE_DEBUG ((LM_DEBUG,
+    ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"): \"%m\", falling back\n"),
                 ACE_TEXT (environment_variable.c_str ())));
     goto fallback;
@@ -1198,10 +1197,10 @@ use_environment:
   //if (FAILED (result_2))
   if (result_2 == 0)
   {
-    //ACE_DEBUG ((LM_ERROR,
+    //ACE_DEBUG ((LM_WARNING,
     //            ACE_TEXT ("failed to SHGetFolderPath(CSIDL_LOCAL_APPDATA): \"%s\", falling back\n"),
     //            buffer));
-    ACE_DEBUG ((LM_ERROR,
+    ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to GetTempPath(): \"%s\", falling back\n"),
                 ACE_TEXT (Common_Tools::error2String (GetLastError ()).c_str ())));
     goto fallback;
@@ -1227,7 +1226,7 @@ use_path:
   {
     if (!Common_File_Tools::createDirectory (result))
     {
-      ACE_DEBUG ((LM_ERROR,
+      ACE_DEBUG ((LM_WARNING,
                   ACE_TEXT ("failed to Common_File_Tools::createDirectory(\"%s\"), falling back\n"),
                   ACE_TEXT (result.c_str ())));
       goto fallback;
@@ -1330,7 +1329,7 @@ fallback:
 
   if (result.empty ())
   {
-    ACE_DEBUG ((LM_DEBUG,
+    ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to Common_File_Tools::getLogDirectory(\"%s\",%d), falling back\n"),
                 ACE_TEXT (packageName_in.c_str ()),
                 fallback_level));
@@ -1366,7 +1365,7 @@ fallback:
   // *TODO*: replace this with a permission check
   if (!Common_File_Tools::create (result))
   {
-    ACE_DEBUG ((LM_DEBUG,
+    ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to Common_File_Tools::create(\"%s\"), falling back\n"),
                 ACE_TEXT (result.c_str ())));
 
@@ -1405,30 +1404,25 @@ Common_File_Tools::getLogDirectory (const std::string& packageName_in,
   } // end IF
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  environment_variable =
-      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE);
+  result = Common_File_Tools::getTempDirectory ();
 #else
   result = ACE_TEXT_ALWAYS_CHAR (COMMON_LOG_DEFAULT_DIRECTORY);
+#endif
   goto use_path;
-#endif
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
+
 use_environment:
-#endif
   string_p =
       ACE_OS::getenv (ACE_TEXT (environment_variable.c_str ()));
   if (!string_p)
   {
-    ACE_DEBUG ((LM_DEBUG,
+    ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"): \"%m\", falling back\n"),
                 ACE_TEXT (environment_variable.c_str ())));
     goto fallback;
   } // end IF
   result = ACE_TEXT_ALWAYS_CHAR (string_p);
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
 use_path:
-#endif
   if (!packageName_in.empty ())
   {
     result += ACE_DIRECTORY_SEPARATOR_STR_A;
@@ -1441,7 +1435,7 @@ use_path:
   {
     if (!Common_File_Tools::createDirectory (result))
     {
-      ACE_DEBUG ((LM_ERROR,
+      ACE_DEBUG ((LM_WARNING,
                   ACE_TEXT ("failed to Common_File_Tools::createDirectory(\"%s\"), falling back\n"),
                   ACE_TEXT (result.c_str ())));
       goto fallback;
@@ -1455,34 +1449,46 @@ use_path:
 
 fallback:
   ++fallback_level;
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  if (fallback_level == 1)
-  {
-    environment_variable =
-        ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE_2);
-    goto use_environment;
-  } // end IF
-  ACE_ASSERT (false);
-  // *TODO*: implement fallback levels dependent on host Windows (TM) version
-  //         see e.g.: http://en.wikipedia.org/wiki/Environment_variable#Windows
-#else
   switch (fallback_level)
   {
     case 1:
+    {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      environment_variable =
+        ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE);
+      goto use_environment;
+#else
       result =
-          ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY);
+        ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY);
       goto use_path;
-    case 2:
-      result =
-          ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY_2);
-      goto use_path;
-    default:
-      break;
-  } // end SWITCH
-  ACE_ASSERT (false);
-  // *TODO*: implement fallback levels dependent on host platform/version
-  //         see e.g. http://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
 #endif
+    }
+    case 2:
+    {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      environment_variable =
+        ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE_2);
+      goto use_environment;
+#else
+      result =
+        ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY_2);
+      goto use_path;
+#endif
+    }
+    default:
+    {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      ACE_ASSERT (false);
+      // *TODO*: implement fallback levels dependent on host Windows (TM) version
+      //         see e.g.: http://en.wikipedia.org/wiki/Environment_variable#Windows
+#else
+      ACE_ASSERT (false);
+      // *TODO*: implement fallback levels dependent on host platform/version
+      //         see e.g. http://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
+#endif
+      break;
+    }
+  } // end SWITCH
 
   return result;
 }

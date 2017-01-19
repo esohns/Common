@@ -42,6 +42,7 @@ using namespace std;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <Security.h>
 
+#include <errors.h>
 #include <dxerr.h>
 #elif defined (ACE_LINUX)
 #include <sys/capability.h>
@@ -290,6 +291,8 @@ Common_Tools::finalize ()
 
 #if defined (_DEBUG)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+  if (!COMMON_DEBUG_DEBUGHEAP_DEFAULT_ENABLE) goto continue_;
+
   int result = _CrtSetReportHook2 (_CRT_RPTHOOK_REMOVE,
                                    common_tools_win32_debugheap_hook);
   if (result == -1)
@@ -310,8 +313,10 @@ Common_Tools::finalize ()
                   ACE_TEXT ("closed debug heap log file...\n")));
     debugHeapLogFileHandle_ = ACE_INVALID_HANDLE;
   } // end IF
+continue_:
 #endif
 #endif
+  return;
 }
 
 //Common_ITimer*
@@ -1219,7 +1224,7 @@ Common_Tools::getCurrentUserName (std::string& username_out,
   ACE_OS::memset (user_name, 0, sizeof (user_name));
   if (!ACE_OS::cuserid (user_name, ACE_MAX_USERID))
   {
-    ACE_DEBUG ((LM_ERROR,
+    ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to ACE_OS::cuserid(): \"%m\", falling back\n")));
 
     username_out =
@@ -1249,11 +1254,11 @@ Common_Tools::getCurrentUserName (std::string& username_out,
   if (pwd_result == NULL)
   {
     if (success == 0)
-      ACE_DEBUG ((LM_ERROR,
+      ACE_DEBUG ((LM_WARNING,
                   ACE_TEXT ("user \"%u\" not found, falling back\n"),
                   user_id));
     else
-      ACE_DEBUG ((LM_ERROR,
+      ACE_DEBUG ((LM_WARNING,
                   ACE_TEXT ("failed to ACE_OS::getpwuid_r(%u): \"%m\", falling back\n"),
                   user_id));
     username_out = ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEF_USER_LOGIN_BASE)));
@@ -1302,15 +1307,37 @@ Common_Tools::getHostName ()
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 std::string
-Common_Tools::error2String (DWORD error_in)
+Common_Tools::error2String (DWORD error_in,
+                            bool useAMGetErrorText_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::error2String"));
 
   std::string result;
 
+  DWORD result_2 = 0;
+  if (useAMGetErrorText_in)
+  {
+    TCHAR buffer[MAX_ERROR_TEXT_LEN];
+    ACE_OS::memset (buffer, 0, sizeof (buffer));
+    result_2 = AMGetErrorText (static_cast<HRESULT> (error_in),
+                               buffer,
+                               MAX_ERROR_TEXT_LEN);
+    if (!result_2)
+    {
+      ACE_DEBUG ((LM_WARNING,
+                  ACE_TEXT ("failed to AMGetErrorText(0x%x): \"%s\", falling back\n"),
+                  error_in,
+                  ACE_TEXT (Common_Tools::error2String (::GetLastError ()).c_str ())));
+      goto fallback;
+    } // end IF
+    result = ACE_TEXT_ALWAYS_CHAR (buffer);
+
+    goto continue_;
+  } // end IF
+
   ACE_TCHAR buffer[BUFSIZ];
   ACE_OS::memset (buffer, 0, sizeof (buffer));
-  DWORD result_2 =
+  result_2 =
     ACE_TEXT_FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM,                 // dwFlags
                             NULL,                                       // lpSource
                             error_in,                                   // dwMessageId
@@ -1318,7 +1345,7 @@ Common_Tools::error2String (DWORD error_in)
                             buffer,                                     // lpBuffer
                             sizeof (buffer),                            // nSize
                             NULL);                                      // Arguments
-  if (result_2 == 0)
+  if (!result_2)
   {
     DWORD error = ::GetLastError ();
     if (error != ERROR_MR_MID_NOT_FOUND)
@@ -1330,6 +1357,7 @@ Common_Tools::error2String (DWORD error_in)
       return result;
     } // end IF
 
+fallback:
     // try DirectX error messages
     // *TODO*: implement ascii variants of DXGetErrorString
     //ACE_TCHAR* string_p = ACE_TEXT_WCHAR_TO_TCHAR (DXGetErrorString (error_in));
@@ -1365,6 +1393,7 @@ Common_Tools::error2String (DWORD error_in)
     result.erase (--result.end ());
   } // end IF
 
+continue_:
   return result;
 }
 #endif

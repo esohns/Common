@@ -63,8 +63,8 @@ class Common_TaskBase_T
   // enqueue MB_STOP --> stop worker thread(s)
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?
-  virtual bool isRunning () const;
-  inline virtual int wait (void) { return inherited::wait (); };
+  inline virtual bool isRunning () const { return (inherited::thr_count_ > 0); };
+  virtual int wait (void);
 
   // implement Common_IDumpState
   // *NOTE*: this is just a default stub

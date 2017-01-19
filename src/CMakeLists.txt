@@ -155,6 +155,7 @@ elseif (WIN32)
  else ()
   target_link_libraries (${PROJECT_NAME} Msvcrt.lib)
  endif ()
+ target_link_libraries (${PROJECT_NAME} Quartz.lib)
  target_link_libraries (${PROJECT_NAME} Secur32.lib)
  target_link_libraries (${PROJECT_NAME} Userenv.lib)
 

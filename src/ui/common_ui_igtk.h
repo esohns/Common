@@ -18,11 +18,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_UI_IGTK_H
-#define COMMON_UI_IGTK_H
+#ifndef COMMON_UI_IGTK_T_H
+#define COMMON_UI_IGTK_T_H
+
+//#include "common_iinitialize.h"
 
 template <typename StateType>
 class Common_UI_IGTK_T
+ //: public Common_IInitialize_T<StateType>
 {
  public:
   virtual bool initialize (StateType&) = 0; // return value: GTK state

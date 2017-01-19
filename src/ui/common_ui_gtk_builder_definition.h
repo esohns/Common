@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_UI_GTK_BUILDER_DEFINITION_H
-#define COMMON_UI_GTK_BUILDER_DEFINITION_H
+#ifndef COMMON_UI_GTK_BUILDER_DEFINITION_T_H
+#define COMMON_UI_GTK_BUILDER_DEFINITION_T_H
 
 #include <ace/Global_Macros.h>
 

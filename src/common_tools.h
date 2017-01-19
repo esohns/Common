@@ -95,7 +95,8 @@ class Common_Tools
   static std::string getHostName (); // return value: hostname
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  static std::string error2String (DWORD); // error
+  static std::string error2String (DWORD,         // error
+                                   bool = false); // ? AMGetErrorText : FormatMessage
 #endif
 
   // --- logging ---

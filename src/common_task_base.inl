@@ -333,15 +333,39 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                   ACE_TEXT ("failed to ACE_Task_Base::wait(): \"%m\", continuing\n")));
   } // end IF
 }
+
 template <ACE_SYNCH_DECL,
           typename TimePolicyType>
-bool
+int
 Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::isRunning () const
+                  TimePolicyType>::wait (void)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::isRunning"));
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::wait"));
 
-  return (inherited::thr_count_ > 0);
+  int result = -1;
+
+  try {
+    result = inherited::wait ();
+  } catch (...) {
+    // *NOTE*: on Win32 systems, ::CloseHandle() behaves 'funnily':
+    //         "...If the application is running under a debugger, the function
+    //         will throw an exception if it receives either a handle value that
+    //         is not valid or a pseudo-handle value. This can happen if you
+    //         close a handle twice, ..." (see OS_NS_Thread.inl:3027)
+    enum ACE_Log_Priority log_priority = LM_ERROR;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    log_priority = LM_DEBUG;
+#endif
+    if (inherited::mod_)
+      ACE_DEBUG ((log_priority,
+                  ACE_TEXT ("%s: caught exception in ACE_Task::wait(), aborting\n"),
+                  inherited::mod_->name ()));
+    else
+      ACE_DEBUG ((log_priority,
+                  ACE_TEXT ("caught exception in ACE_Task::wait(), aborting\n")));
+  }
+
+  return result;
 }
 
 template <ACE_SYNCH_DECL,

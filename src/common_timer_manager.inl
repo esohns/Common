@@ -593,8 +593,9 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       if (result <= 0)
       {
         ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_Proactor::cancel_timer() (timer ID was: %d): \"%m\", aborting\n"),
-                    timerID_in));
+                    ACE_TEXT ("failed to ACE_Proactor::cancel_timer() (id was: %d): \"%m\", %s\n"),
+                    timerID_in,
+                    (result == -1) ? ACE_TEXT ("aborting") : ACE_TEXT ("returning")));
         return result;
       } // end IF
       break;
@@ -605,8 +606,9 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       if (result <= 0)
       {
         ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::cancel() (timer ID was: %d): \"%m\", aborting\n"),
-                    timerID_in));
+                    ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::cancel() (id was: %d): \"%m\", %s\n"),
+                    timerID_in,
+                    (result == -1) ? ACE_TEXT ("aborting") : ACE_TEXT ("returning")));
         return result;
       } // end IF
       break;
@@ -619,8 +621,9 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       if (result <= 0)
       {
         ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_Reactor::cancel_timer() (timer ID was: %d): \"%m\", aborting\n"),
-                    timerID_in));
+                    ACE_TEXT ("failed to ACE_Reactor::cancel_timer() (id was: %d): \"%m\", %s\n"),
+                    timerID_in,
+                    (result == -1) ? ACE_TEXT ("aborting") : ACE_TEXT ("returning")));
         return result;
       } // end IF
       break;
@@ -634,7 +637,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
   } // end SWITCH
 //   ACE_DEBUG ((LM_DEBUG,
-//               ACE_TEXT ("cancelled timer (ID: %u)...\n"),
+//               ACE_TEXT ("cancelled timer (id was: %d)...\n"),
 //               timerID_in));
 
   return result;
