@@ -29,6 +29,12 @@
 
 #include <ace/Synch_Traits.h>
 
+#if defined (GTKGL_SUPPORT)
+#if defined (GTKGLAREA_SUPPORT)
+#else
+#include <gdk/gdkgl.h>
+#endif /* GTKGLAREA_SUPPORT */
+#endif /* GTKGL_SUPPORT */
 #include <gtk/gtk.h>
 
 #include "common_ui_common.h"
@@ -89,10 +95,13 @@ struct Common_UI_GTKState
    , CSSProviders ()
 #endif
 #if defined (GTKGL_SUPPORT)
+#if defined (GTKGLAREA_SUPPORT)
+#else
    , openGLContext (NULL)
+#endif /* GTKGLAREA_SUPPORT */
 //, openGLDrawable (NULL)
    , openGLWindow (NULL)
-#endif
+#endif /* GTKGL_SUPPORT */
    , RCFiles ()
    ///////////////////////////////////////
    , userData (NULL)
@@ -112,13 +121,16 @@ struct Common_UI_GTKState
   Common_UI_GTKCSSProviders_t   CSSProviders;
 #endif
 #if defined (GTKGL_SUPPORT)
+#if defined (GTKGLAREA_SUPPORT)
+#else
   // *TODO*: as an application may support multiple OpenGL-capable windows, and
   //         each GdkGLContext is tied to a GdkWindow, it probably makes sense
   //         to move all of this into a separate 'presentation manager' object
   GdkGLContext*                 openGLContext;
+#endif /* GTKGLAREA_SUPPORT */
   //GdkGLDrawable* openGLDrawable;
   GdkWindow*                    openGLWindow;
-#endif
+#endif /* GTKGL_SUPPORT */
   Common_UI_GTKRCFiles_t        RCFiles;
 
   ////////////////////////////////////////

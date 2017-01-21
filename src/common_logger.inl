@@ -157,8 +157,7 @@ Common_Logger_T<ACE_SYNCH_USE>::log (ACE_Log_Record& record_in)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Log_Msg::release(): \"%m\", continuing\n")));
 
-  {
-    ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *lock_, -1);
+  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *lock_, -1);
 
     messageStack_->push_back (string_stream.str ());
   } // end lock scope

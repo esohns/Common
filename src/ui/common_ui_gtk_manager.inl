@@ -216,6 +216,9 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
 //              ACE_TEXT ("(%t) GTK event dispatch starting\n")));
 
   int result = 0;
+#if defined (GTKGL_SUPPORT)
+  GError* error_p = NULL;
+#endif
 
   // step0: initialize GTK
   if (!GTKIsInitialized_)
@@ -253,50 +256,50 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
   // step2: initialize OpenGL
 #if defined (GTKGL_SUPPORT)
   // *TODO*: remove type inferences
-  if (state_->openGLWindow)
+  if (!state_->openGLWindow) goto continue_;
+
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("initializing OpenGL (window: 0x%@)...\n"),
+              state_->openGLWindow));
+
+#if defined (GTKGLAREA_SUPPORT)
+#else
+  // sanity check(s)
+  ACE_ASSERT (!state_->openGLContext);
+
+  state_->openGLContext = gdk_window_create_gl_context (state_->openGLWindow,
+                                                        &error_p);
+  if (!state_->openGLContext)
   {
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("initializing OpenGL (Gdk window: 0x%@)...\n"),
-                state_->openGLWindow));
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to gdk_window_create_gl_context(0x%@): \"%s\", aborting\n"),
+                state_->openGLWindow,
+                ACE_TEXT (error_p->message)));
 
-    // sanity check(s)
-    ACE_ASSERT (!state_->openGLContext);
+    // clean up
+    g_error_free (error_p);
 
-    GError* error_p = NULL;
-    state_->openGLContext = gdk_window_create_gl_context (state_->openGLWindow,
-                                                          &error_p);
-    if (!state_->openGLContext)
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to gdk_window_create_gl_context(0x%@): \"%s\", aborting\n"),
-                  state_->openGLWindow,
-                  ACE_TEXT (error_p->message)));
-
-      // clean up
-      g_error_free (error_p);
-
-      return false;
-    } // end IF
-  
-    error_p = NULL;
-    if (gdk_gl_context_realize (state_->openGLContext,
-                                &error_p))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to gdk_gl_context_realize(0x%@): \"%s\", aborting\n"),
-                  state_->openGLContext,
-                  ACE_TEXT (error_p->message)));
-
-      // clean up
-      g_error_free (error_p);
-
-      return false;
-    } // end IF
-
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("initializing OpenGL (Gdk window: 0x%@)...DONE\n"),
-                state_->openGLWindow));
+    return false;
   } // end IF
+
+  error_p = NULL;
+  if (gdk_gl_context_realize (state_->openGLContext,
+                              &error_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to gdk_gl_context_realize(0x%@): \"%s\", aborting\n"),
+                state_->openGLContext,
+                ACE_TEXT (error_p->message)));
+
+    // clean up
+    g_error_free (error_p);
+
+    return false;
+  } // end IF
+
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("initializing OpenGL...DONE\n")));
+#endif
 
 #if defined (_DEBUG)
     // debug info
@@ -316,6 +319,9 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
 #endif // _DEBUG
 #endif
 
+#if defined (GTKGL_SUPPORT)
+continue_:
+#endif
   //gdk_threads_enter ();
   gtk_main ();
   //gdk_threads_leave ();

@@ -68,7 +68,7 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
 //  signal_information.si_handle_ = ACE_INVALID_HANDLE;
 #else
   siginfo_t signal_information;
-  ACE_OS::memset (&signal_information, 0, sizeof (signal_information));
+//  ACE_OS::memset (&signal_information, 0, sizeof (siginfo_t));
   if (siginfo_in)
     signal_information = *siginfo_in;
 #endif

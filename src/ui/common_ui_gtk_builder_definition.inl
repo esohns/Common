@@ -27,6 +27,8 @@
 #include "common_file_tools.h"
 #include "common_macros.h"
 
+#include "common_ui_gtk_common.h"
+
 template <typename StateType>
 Common_UI_GtkBuilderDefinition_T<StateType>::Common_UI_GtkBuilderDefinition_T (int argc_in,
                                                                                ACE_TCHAR** argv_in)

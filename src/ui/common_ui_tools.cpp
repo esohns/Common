@@ -267,7 +267,7 @@ Common_UI_Tools::OpenGLInfo (GdkGLContext* context_in)
   converter << version_minor;
   information_string += converter.str ();
 
-//continue_:
+continue_:
   if (!information_string.empty ())
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("%s\n"),
