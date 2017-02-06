@@ -201,7 +201,7 @@ Common_UI_Tools::OpenGLInfo ()
 Common_UI_Tools::OpenGLInfo ()
 #else
 Common_UI_Tools::OpenGLInfo (GdkGLContext* context_in)
-#endif
+#endif /* GTKGLAREA_SUPPORT */
 #endif
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::OpenGLInfo"));
@@ -256,7 +256,7 @@ Common_UI_Tools::OpenGLInfo (GdkGLContext* context_in)
                 ACE_TEXT ("failed to gdk_gl_query_version(), returning\n")));
     return;
   } // end IF
-#endif
+#endif /* GTKGLAREA_SUPPORT */
 #endif
 
   converter << version_major;
@@ -267,7 +267,10 @@ Common_UI_Tools::OpenGLInfo (GdkGLContext* context_in)
   converter << version_minor;
   information_string += converter.str ();
 
+#if GTK_CHECK_VERSION (3,16,0)
+#else
 continue_:
+#endif
   if (!information_string.empty ())
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("%s\n"),

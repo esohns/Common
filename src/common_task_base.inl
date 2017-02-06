@@ -73,9 +73,15 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   // sanity check(s)
   if (inherited::thr_count_ > 0)
   {
-    ACE_DEBUG ((LM_WARNING,
-                ACE_TEXT ("%d active thread(s) in dtor --> check implementation\n"),
-                inherited::thr_count_));
+    if (inherited::mod_)
+      ACE_DEBUG ((LM_WARNING,
+                  ACE_TEXT ("%s: %d active thread(s) in dtor --> check implementation\n"),
+                  inherited::mod_->name (),
+                  inherited::thr_count_));
+    else
+      ACE_DEBUG ((LM_WARNING,
+                  ACE_TEXT ("%d active thread(s) in dtor --> check implementation\n"),
+                  inherited::thr_count_));
 
     // *WARNING*: there already may or may not be a message queue at this stage
     result = close (1);
@@ -157,9 +163,17 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       if (inherited::msg_queue_)
         stop (false);
       else
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("cannot signal %d worker thread(s) (no message queue) --> check implementation\n"),
-                    inherited::thr_count_));
+      {
+        if (inherited::mod_)
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("%s: cannot signal %d worker thread(s) (no message queue) --> check implementation\n"),
+                      inherited::mod_->name (),
+                      inherited::thr_count_));
+        else
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("cannot signal %d worker thread(s) (no message queue) --> check implementation\n"),
+                      inherited::thr_count_));
+      } // end ELSE
 
       break;
     }
@@ -187,15 +201,14 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   if (inherited::thr_count_ > 0)
   {
     if (inherited::mod_)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("%s: object already active (current thread pool size: %u), returning\n"),
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("%s: object already active (current thread pool size: %u), continuing\n"),
                   inherited::mod_->name (),
                   inherited::thr_count_));
     else
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("object already active (current thread pool size: %u), returning\n"),
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("object already active (current thread pool size: %u), continuing\n"),
                   inherited::thr_count_));
-    return;
   } // end IF
 
   // spawn a worker thread
@@ -262,12 +275,13 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                   threadName_.c_str ());
   thread_names_p[0] = thread_name_p;
 
+  // *TODO*: support (up to) threadCount_ worker threads
   int result =
     inherited::activate ((THR_NEW_LWP      |
                           THR_JOINABLE     |
                           THR_INHERIT_SCHED),         // flags
                          1,                           // #threads
-                         0,                           // force active ?
+                         1,                           // force active ?
                          ACE_DEFAULT_THREAD_PRIORITY, // priority
                          inherited::grp_id (),        // group id (see above)
                          NULL,                        // task base

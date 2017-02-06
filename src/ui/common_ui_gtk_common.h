@@ -95,12 +95,16 @@ struct Common_UI_GTKState
    , CSSProviders ()
 #endif
 #if defined (GTKGL_SUPPORT)
+#if GTK_CHECK_VERSION (3,0,0)
+   , OpenGLWindow (NULL)
+#else
 #if defined (GTKGLAREA_SUPPORT)
 #else
    , openGLContext (NULL)
 #endif /* GTKGLAREA_SUPPORT */
 //, openGLDrawable (NULL)
    , openGLWindow (NULL)
+#endif /* GTK_CHECK_VERSION (3,0,0) */
 #endif /* GTKGL_SUPPORT */
    , RCFiles ()
    ///////////////////////////////////////
@@ -121,6 +125,9 @@ struct Common_UI_GTKState
   Common_UI_GTKCSSProviders_t   CSSProviders;
 #endif
 #if defined (GTKGL_SUPPORT)
+#if GTK_CHECK_VERSION (3,0,0)
+  GtkGLArea*                    OpenGLWindow;
+#else
 #if defined (GTKGLAREA_SUPPORT)
 #else
   // *TODO*: as an application may support multiple OpenGL-capable windows, and
@@ -130,6 +137,7 @@ struct Common_UI_GTKState
 #endif /* GTKGLAREA_SUPPORT */
   //GdkGLDrawable* openGLDrawable;
   GdkWindow*                    openGLWindow;
+#endif /* GTK_CHECK_VERSION (3,0,0) */
 #endif /* GTKGL_SUPPORT */
   Common_UI_GTKRCFiles_t        RCFiles;
 
@@ -176,5 +184,7 @@ struct Common_UI_GTK_ProgressData
   struct Common_UI_GTKState*       GTKState;
   Common_UI_GTK_PendingActions_t   pendingActions;
 };
+
+void common_ui_gtk_opengl_cb (gpointer);
 
 #endif

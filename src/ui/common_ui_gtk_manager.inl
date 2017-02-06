@@ -235,12 +235,12 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
     } // end IF
   } // end IF
 
+  // sanity check(s)
+  ACE_ASSERT (state_);
+
   // step1: initialize UI
   if (!isInitialized_ && UIInterfaceHandle_)
   {
-    // sanity check(s)
-    ACE_ASSERT (state_);
-
     isInitialized_ = UIInterfaceHandle_->initialize (*state_);
     if (!isInitialized_)
     {
@@ -256,11 +256,11 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
   // step2: initialize OpenGL
 #if defined (GTKGL_SUPPORT)
   // *TODO*: remove type inferences
-  if (!state_->openGLWindow) goto continue_;
+  if (!state_->OpenGLWindow) goto continue_;
 
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("initializing OpenGL (window: 0x%@)...\n"),
-              state_->openGLWindow));
+              state_->OpenGLWindow));
 
 #if defined (GTKGLAREA_SUPPORT)
 #else
@@ -299,13 +299,18 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
 
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("initializing OpenGL...DONE\n")));
-#endif
+#endif /* GTKGLAREA_SUPPORT */
 
 #if defined (_DEBUG)
     // debug info
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
+#if defined (GTKGL_SUPPORT)
+#if defined (GTKGLAREA_SUPPORT)
+#else
   Common_UI_Tools::OpenGLInfo (state_->openGLContext);
+#endif /* GTKGLAREA_SUPPORT */
+#endif /* GTKGL_SUPPORT */
 #else
   Common_UI_Tools::OpenGLInfo ();
 #endif
@@ -397,11 +402,12 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
                      log_level,
                      glib_log_handler, NULL);
 
-  //if (g_thread_supported ())
-  //{
-  //  g_thread_init (NULL);
-  //  gdk_threads_init ();
-  //} // end IF
+  if (g_thread_supported ())
+  {
+    g_thread_init (NULL);
+    //g_thread_init_with_errorcheck_mutexes (NULL);
+    gdk_threads_init ();
+  } // end IF
 
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)

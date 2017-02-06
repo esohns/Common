@@ -66,7 +66,7 @@ struct Common_UI_State
    , logStackLock ()
    , subscribersLock ()
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-   , useMediaFoundation (COMMON_UI_DEFAULT_WIN32_USE_MEDIAFOUNDATION)
+   , useMediaFoundation (COMMON_DEFAULT_WIN32_MEDIA_FRAMEWORK == COMMON_WIN32_FRAMEWORK_MEDIAFOUNDATION)
 #endif
   {};
 

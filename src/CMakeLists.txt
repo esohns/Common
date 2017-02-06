@@ -91,6 +91,7 @@ set (${PROJECT_NAME}_LIB_SRCS
      common_ilock.h
      common_inotify.h
      common_ireferencecount.h
+     common_iscanner.h
      common_isignal.h
      common_istatemachine.h
      common_istatistic.h
@@ -187,6 +188,7 @@ install (FILES
          common_ilock.h
          common_inotify.h
          common_ireferencecount.h
+         common_iscanner.h
          common_isignal.h
          common_istatemachine.h
          common_istatistic.h

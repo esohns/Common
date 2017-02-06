@@ -62,6 +62,8 @@ class Common_Tools
   static std::string strip (const std::string&); // string
 
   // --- platform ---
+  static unsigned int getNumberOfCPUs (bool = true); // 'hyperthreading' ?
+
   static void printLocales ();
 
   static bool isLinux ();

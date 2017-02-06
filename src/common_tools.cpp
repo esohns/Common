@@ -517,6 +517,80 @@ BOOL CALLBACK locale_cb_function (LPWSTR name_in,
   return TRUE;
 }
 #endif
+
+unsigned int
+Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::getNumberOfCPUs"));
+
+  unsigned int result = 0;
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  if (logicalProcessors_in)
+  {
+    struct _SYSTEM_INFO system_info_s;
+    GetSystemInfo (&system_info_s);
+    result = system_info_s.dwNumberOfProcessors;
+  } // end IF
+  else
+  {
+    DWORD size = 0;
+    GetLogicalProcessorInformationEx (RelationProcessorPackage,
+                                      NULL,
+                                      &size);
+    DWORD error = GetLastError ();
+    if (error != ERROR_INSUFFICIENT_BUFFER)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to GetLogicalProcessorInformationEx(): \"%s\", returning\n"),
+                  ACE_TEXT (Common_Tools::error2String (error).c_str ())));
+      return 1;
+    } // end IF
+    BYTE* byte_p = NULL;
+    ACE_NEW_NORETURN (byte_p,
+                      BYTE[size]);
+    if (!byte_p)
+    {
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("failed to allocate memory: \"%m\", returning\n")));
+      return 1;
+    } // end IF
+    struct _SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX* processor_information_p =
+      reinterpret_cast<struct _SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX*> (byte_p);
+    if (!GetLogicalProcessorInformationEx (RelationProcessorCore,
+                                           processor_information_p,
+                                           &size))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to GetLogicalProcessorInformationEx(): \"%s\", returning\n"),
+                  ACE_TEXT (Common_Tools::error2String (GetLastError ()).c_str ())));
+  
+      // clean up
+      delete [] byte_p;
+
+      return 1;
+    } // end IF
+    for (DWORD offset = 0;
+         offset < (size / sizeof (struct _SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX));
+         ++offset, ++processor_information_p)
+    { ACE_ASSERT (processor_information_p);
+      switch (processor_information_p->Relationship)
+      {
+        case RelationProcessorCore:
+          ++result; break;
+        default:
+          break;
+      } // end SWITCH
+    } // end FOR
+    delete [] byte_p;
+  } // end ELSE
+#else
+  long result_2 = ACE_OS::sysconf (_SC_NPROCESSORS_ONLN);
+#endif
+
+  return result;
+}
+
 void
 Common_Tools::printLocales ()
 {
