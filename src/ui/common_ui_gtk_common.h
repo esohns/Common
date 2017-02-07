@@ -31,6 +31,10 @@
 
 #if defined (GTKGL_SUPPORT)
 #if defined (GTKGLAREA_SUPPORT)
+#if GTK_CHECK_VERSION (3,16,0)
+#else
+#include <gtkgl/gtkglarea.h>
+#endif /* GTK_CHECK_VERSION (3,16,0) */
 #else
 #include <gdk/gdkgl.h>
 #endif /* GTKGLAREA_SUPPORT */
@@ -95,15 +99,16 @@ struct Common_UI_GTKState
    , CSSProviders ()
 #endif
 #if defined (GTKGL_SUPPORT)
-#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
    , OpenGLWindow (NULL)
 #else
 #if defined (GTKGLAREA_SUPPORT)
+   , OpenGLWindow (NULL)
 #else
-   , openGLContext (NULL)
-#endif /* GTKGLAREA_SUPPORT */
+   , OpenGLContext (NULL)
 //, openGLDrawable (NULL)
-   , openGLWindow (NULL)
+   , OpenGLWindow (NULL)
+#endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,0,0) */
 #endif /* GTKGL_SUPPORT */
    , RCFiles ()
@@ -125,19 +130,20 @@ struct Common_UI_GTKState
   Common_UI_GTKCSSProviders_t   CSSProviders;
 #endif
 #if defined (GTKGL_SUPPORT)
-#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
   GtkGLArea*                    OpenGLWindow;
 #else
 #if defined (GTKGLAREA_SUPPORT)
+  GglaArea*                     OpenGLWindow;
 #else
   // *TODO*: as an application may support multiple OpenGL-capable windows, and
   //         each GdkGLContext is tied to a GdkWindow, it probably makes sense
   //         to move all of this into a separate 'presentation manager' object
-  GdkGLContext*                 openGLContext;
-#endif /* GTKGLAREA_SUPPORT */
+  GdkGLContext*                 OpenGLContext;
   //GdkGLDrawable* openGLDrawable;
-  GdkWindow*                    openGLWindow;
-#endif /* GTK_CHECK_VERSION (3,0,0) */
+  GdkWindow*                    OpenGLWindow;
+#endif /* GTKGLAREA_SUPPORT */
+#endif /* GTK_CHECK_VERSION (3,16,0) */
 #endif /* GTKGL_SUPPORT */
   Common_UI_GTKRCFiles_t        RCFiles;
 

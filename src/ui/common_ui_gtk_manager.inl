@@ -402,12 +402,15 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
                      log_level,
                      glib_log_handler, NULL);
 
+#if GTK_CHECK_VERSION (3,0,0)
+#else
   if (g_thread_supported ())
   {
     g_thread_init (NULL);
     //g_thread_init_with_errorcheck_mutexes (NULL);
-    gdk_threads_init ();
   } // end IF
+#endif
+  gdk_threads_init ();
 
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)

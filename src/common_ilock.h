@@ -30,10 +30,10 @@ class Common_ILock
   virtual ~Common_ILock () {}
 
   // exposed interface
-  // *NOTE*: this returns whether unlock() needs to be called
+  // *NOTE*: returns whether unlock() needs to be called
   virtual bool lock (bool = true) = 0; // block ?
-  // *NOTE*: this returns the new nesting level (or -1, if the lock is not held
-  //         by the caller)
+  // *NOTE*: returns the new nesting level (or -1, if the lock was not held by
+  //         the caller)
   virtual int unlock (bool = false) = 0; // unlock ?
 };
 
