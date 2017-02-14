@@ -37,13 +37,10 @@ class Common_IScanner
 
   virtual void error (const std::string&) = 0;
 
-  // *NOTE*: to be invoked by the scanner (ONLY !)
   virtual void offset (unsigned int) = 0; // offset (increment)
   virtual unsigned int offset () const = 0;
 
-  // *IMPORTANT NOTE*: when the parser detects a frame end, it inserts a new
-  //                   buffer to the continuation and passes 'true'
-  //                   --> separate the current frame from the next
+  // *IMPORTANT NOTE*: this appends a new buffer to the chain
   virtual bool switchBuffer (bool = false) = 0; // unlink current buffer ?
   virtual void waitBuffer () = 0;
 };

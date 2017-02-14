@@ -535,10 +535,14 @@ Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
   else
   {
     DWORD size = 0;
-    GetLogicalProcessorInformationEx (RelationProcessorPackage,
+    DWORD error = 0;
+    BYTE* byte_p = NULL;
+    struct _SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX* processor_information_p =
+      NULL;
+    GetLogicalProcessorInformationEx (RelationProcessorCore,
                                       NULL,
                                       &size);
-    DWORD error = GetLastError ();
+    error = GetLastError ();
     if (error != ERROR_INSUFFICIENT_BUFFER)
     {
       ACE_DEBUG ((LM_ERROR,
@@ -546,7 +550,6 @@ Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
                   ACE_TEXT (Common_Tools::error2String (error).c_str ())));
       return 1;
     } // end IF
-    BYTE* byte_p = NULL;
     ACE_NEW_NORETURN (byte_p,
                       BYTE[size]);
     if (!byte_p)
@@ -555,7 +558,7 @@ Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
                   ACE_TEXT ("failed to allocate memory: \"%m\", returning\n")));
       return 1;
     } // end IF
-    struct _SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX* processor_information_p =
+    processor_information_p =
       reinterpret_cast<struct _SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX*> (byte_p);
     if (!GetLogicalProcessorInformationEx (RelationProcessorCore,
                                            processor_information_p,

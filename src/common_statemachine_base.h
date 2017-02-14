@@ -58,6 +58,7 @@ class Common_StateMachine_Base_T
   mutable ACE_SYNCH_MUTEX_T* stateLock_;
 
   StateType                  state_;
+  bool                       isInitialized_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_StateMachine_Base_T ())
@@ -67,8 +68,6 @@ class Common_StateMachine_Base_T
   // implement (part of) Common_IStateMachine_T
   virtual bool wait (StateType,
                      const ACE_Time_Value* = NULL);
-
-  bool                       isInitialized_;
 };
 
 // include template definition

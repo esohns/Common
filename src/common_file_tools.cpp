@@ -1410,7 +1410,9 @@ Common_File_Tools::getLogDirectory (const std::string& packageName_in,
 #endif
   goto use_path;
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 use_environment:
+#endif
   string_p =
       ACE_OS::getenv (ACE_TEXT (environment_variable.c_str ()));
   if (!string_p)

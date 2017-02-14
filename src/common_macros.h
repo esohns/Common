@@ -21,6 +21,20 @@
 #ifndef COMMON_MACROS_H
 #define COMMON_MACROS_H
 
+#include <ace/config-lite.h>
+
+// branch prediction //
+
+#ifdef __GNUC__
+#define likely(X) __builtin_expect (!!(X), 1)
+#define unlikely(X) __builtin_expect (!!(X), 0)
+#else
+#define likely(X) X
+#define unlikely(X) X
+#endif
+
+// tracing //
+
 #define COMMON_TRACE_IMPL(X) ACE_Trace ____ (ACE_TEXT (X), __LINE__, ACE_TEXT (__FILE__))
 
 // by default tracing is turned off
@@ -34,7 +48,7 @@
 #  if !defined (COMMON_HAS_TRACE)
 #    define COMMON_HAS_TRACE
 #  endif /* COMMON_HAS_TRACE */
-#  define COMMON_TRACE(X) COMMON_TRACE_IMPL(X)
+#  define COMMON_TRACE (X) COMMON_TRACE_IMPL(X)
 #  include <ace/Trace.h>
 #endif /* COMMON_NTRACE */
 
