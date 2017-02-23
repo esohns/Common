@@ -1477,6 +1477,14 @@ fallback:
       goto use_path;
 #endif
     }
+    case 3:
+    {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      result = Common_File_Tools::getWorkingDirectory ();
+      goto use_path;
+#else
+#endif
+    }
     default:
     {
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

@@ -42,6 +42,36 @@
 
 #include "common_macros.h"
 
+void
+container_cb (GtkWidget* widget_in,
+              gpointer userData_in)
+{
+  COMMON_TRACE (ACE_TEXT ("::container_cb"));
+
+  // sanity check(s)
+  ACE_ASSERT (widget_in);
+  ACE_ASSERT (userData_in);
+
+  unsigned int* indent_p = reinterpret_cast<unsigned int*> (userData_in);
+
+  GList* list_p = gtk_container_get_children (GTK_CONTAINER (widget_in));
+  ACE_ASSERT (list_p);
+
+  std::string indent_string (*indent_p, '\t');
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("%s%s [%u children]:\n"),
+              ACE_TEXT (indent_string.c_str ()),
+              ACE_TEXT (gtk_widget_get_name (widget_in)),
+              g_list_length (list_p)));
+
+  unsigned int indent = *indent_p + 1;
+  gtk_container_foreach (GTK_CONTAINER (widget_in),
+                         container_cb,
+                         &indent);
+}
+
+// ---------------------------------------
+
 std::string
 Common_UI_Tools::UTF82Locale (const std::string& string_in)
 {
@@ -113,6 +143,28 @@ Common_UI_Tools::Locale2UTF8 (const std::string& string_in)
   } // end IF
 
   return result_p;
+}
+
+void
+Common_UI_Tools::dump (GtkWidget* widget_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::dump"));
+
+  // sanity check(s)
+  ACE_ASSERT (widget_in);
+
+  GList* list_p = gtk_container_get_children (GTK_CONTAINER (widget_in));
+  ACE_ASSERT (list_p);
+
+  unsigned int indent = 0;
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("%s [%u children]:\n"),
+              ACE_TEXT (gtk_widget_get_name (widget_in)),
+              g_list_length (list_p)));
+
+  gtk_container_foreach (GTK_CONTAINER (widget_in),
+                         container_cb,
+                         &indent);
 }
 
 void

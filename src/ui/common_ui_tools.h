@@ -54,6 +54,8 @@ class Common_UI_Export Common_UI_Tools
   // *IMPORTANT NOTE*: return value needs to be g_free()'d !
   static gchar* Locale2UTF8 (const std::string&); // string
 
+  static void dump (GtkWidget*); // widget handle
+
   // print Gtk library information
   static void GtkInfo ();
 #if defined (GTKGL_SUPPORT)
