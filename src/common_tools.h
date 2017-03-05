@@ -82,10 +82,10 @@ class Common_Tools
 #else
   // *IMPORTANT NOTE*: (on Linux) the process requires the CAP_SETUID capability
   //                   for this to work
-  static bool setRootPriviledges ();
-  static void dropRootPriviledges ();
+  static bool setRootPrivileges ();
+  static void dropRootPrivileges ();
 #endif
-  static void printPriviledges ();
+  static void printPrivileges ();
 
   static bool enableCoreDump (bool = true); // enable ? : disable
   static bool setResourceLimits (bool = false,  // #file descriptors (i.e. open handles)

@@ -1021,9 +1021,9 @@ clean:
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 bool
-Common_Tools::setRootPriviledges ()
+Common_Tools::setRootPrivileges ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::setRootPriviledges"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::setRootPrivileges"));
 
   uid_t effective_user_id = 0; // <-- root
   // *IMPORTANT NOTE*: (on Linux) the process requires the CAP_SETUID capability
@@ -1041,9 +1041,9 @@ Common_Tools::setRootPriviledges ()
   return (result == 0);
 }
 void
-Common_Tools::dropRootPriviledges ()
+Common_Tools::dropRootPrivileges ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::dropRootPriviledges"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::dropRootPrivileges"));
 
   uid_t real_user_id = ACE_OS::getuid ();
   int result = ACE_OS::seteuid (real_user_id);
@@ -1057,9 +1057,9 @@ Common_Tools::dropRootPriviledges ()
                 real_user_id));
 }
 void
-Common_Tools::printPriviledges ()
+Common_Tools::printPrivileges ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::printPriviledges"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::printPrivileges"));
 
   uid_t real_user_id = ACE_OS::getuid ();
   uid_t effective_user_id = ACE_OS::geteuid ();
