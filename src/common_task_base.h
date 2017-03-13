@@ -97,14 +97,16 @@ class Common_TaskBase_T
   void control (int,           // message type
                 bool = false); // high-priority ?
 
+  ACE_SYNCH_MUTEX lock_;
+
   // *NOTE*: this is the 'configured' (not the 'current') thread count
   //         --> see ACE_Task::thr_count_
-  unsigned int threadCount_;
-  std::string  threadName_;
+  unsigned int    threadCount_;
+  std::string     threadName_;
 
   typedef std::vector<ACE_Thread_ID> THREAD_IDS_T;
   typedef THREAD_IDS_T::const_iterator THREAD_IDS_ITERATOR_T;
-  THREAD_IDS_T threadIDs_;
+  THREAD_IDS_T    threadIDs_;
 
  private:
   typedef ACE_Task<ACE_SYNCH_USE,

@@ -25,20 +25,42 @@ template <typename Type>
 class Common_IGet_T
 {
  public:
-  virtual const Type& get () const = 0; // return value: type
+  virtual const Type get () const = 0; // return value: type
 };
 
 template <typename Type>
 class Common_ISet_T
 {
  public:
-  virtual void set (const Type&) = 0;
+  virtual void set (const Type) = 0;
 };
 
 template <typename Type>
 class Common_IGetSet_T
  : public Common_IGet_T<Type>
  , public Common_ISet_T<Type>
+{};
+
+//////////////////////////////////////////
+
+template <typename Type>
+class Common_IGetR_T
+{
+ public:
+  virtual const Type& get () const = 0; // return value: type
+};
+
+template <typename Type>
+class Common_ISetR_T
+{
+ public:
+  virtual void set (const Type&) = 0;
+};
+
+template <typename Type>
+class Common_IGetSetR_T
+ : public Common_IGetR_T<Type>
+ , public Common_ISetR_T<Type>
 {};
 
 //////////////////////////////////////////
