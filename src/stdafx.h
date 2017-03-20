@@ -43,5 +43,9 @@
 //#include <stack>
 //#include <vector>
 
+#if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
+#include <valgrind/memcheck.h>
+#endif
+
 // Local Header Files
 #include "common_macros.h"

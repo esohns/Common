@@ -81,10 +81,6 @@ using namespace std;
 #include <ace/Dev_Poll_Reactor.h>
 #endif
 
-#if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
-#include <valgrind/memcheck.h>
-#endif
-
 #include "common_defines.h"
 #include "common_file_tools.h"
 #include "common_macros.h"

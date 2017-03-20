@@ -54,7 +54,7 @@ enum Common_UI_Event
   COMMON_UI_EVENT_MAX
 };
 
-typedef std::deque<Common_UI_Event> Common_UI_Events_t;
+typedef std::deque<enum Common_UI_Event> Common_UI_Events_t;
 typedef Common_UI_Events_t::const_iterator Common_UI_EventsIterator_t;
 
 struct Common_UI_State

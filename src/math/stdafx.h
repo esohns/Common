@@ -10,3 +10,7 @@
 #endif
 
 //#define _USE_MATH_DEFINES
+
+#if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
+#include <valgrind/memcheck.h>
+#endif

@@ -8,3 +8,7 @@
 // Windows Header Files
 #include <windows.h>
 #endif
+
+#if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
+#include <valgrind/memcheck.h>
+#endif
