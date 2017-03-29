@@ -177,11 +177,11 @@ typedef Common_UI_GTK_CompletedActions_t::iterator Common_UI_GTK_CompletedAction
 struct Common_UI_GTK_ProgressData
 {
   inline Common_UI_GTK_ProgressData ()
-    : completedActions ()
-    //   , cursorType (GDK_LAST_CURSOR)
-    , eventSourceID (0)
-    , GTKState (NULL)
-    , pendingActions ()
+   : completedActions ()
+   //   , cursorType (GDK_LAST_CURSOR)
+   , eventSourceID (0)
+   , GTKState (NULL)
+   , pendingActions ()
   {};
 
   Common_UI_GTK_CompletedActions_t completedActions;

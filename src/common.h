@@ -85,7 +85,8 @@ struct Common_SignalHandlerConfiguration
 {
   Common_SignalHandlerConfiguration ()
    : hasUI (false)
-   , useReactor (true)
+   , useReactor (false)
+   //, useReactor (NET_EVENT_USE_REACTOR)
   {};
 
   bool hasUI;
