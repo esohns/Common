@@ -23,6 +23,13 @@
 
 #include <string>
 
+#ifdef __cplusplus
+extern "C"
+{
+#include <libavutil/pixfmt.h>
+}
+#endif /* __cplusplus */
+
 #include <ace/config-lite.h>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -46,6 +53,13 @@ class Common_Image_Export Common_Image_Tools
                               unsigned int&,      // return value: height
                               bool&,              // return value: has alpha channel ?
                               GLubyte*&);         // return value: data
+
+  // *NOTE*: format is PNG
+  static bool storeToFile (unsigned int,        // source width
+                           unsigned int,        // source height
+                           enum AVPixelFormat,  // source pixel format
+                           uint8_t*[],          // source buffer(s)
+                           const std::string&); // target file path
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Image_Tools ());
