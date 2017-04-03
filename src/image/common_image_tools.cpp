@@ -221,10 +221,134 @@ Common_Image_Tools::storeToFile (unsigned int width_in,
 
   bool result = false;
 
+  int result_2 = -1;
+  size_t result_3 = 0;
+  FILE* file_p = NULL;
+  int linesizes[AV_NUM_DATA_POINTERS];
+  result_2 = av_image_fill_linesizes (linesizes,
+                                      format_in,
+                                      width_in);
+  ACE_ASSERT (result_2 != -1);
+
+  file_p = ACE_OS::fopen (filename_in.c_str (),
+                          ACE_TEXT_ALWAYS_CHAR ("wb"));
+  if (!file_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (filename_in.c_str ())));
+    goto clean;
+  } // end IF
+
+  switch (format_in)
+  {
+    case AV_PIX_FMT_YUV420P:
+    { // write Y plane
+      for (unsigned int i = 0;
+           i < height_in;
+           ++i)
+      {
+        result_3 = ACE_OS::fwrite ((sourceBuffers_in[0] + (i * linesizes[0])),
+                                   width_in,
+                                   1,
+                                   file_p);
+        if (result_3 != 1)
+        {
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to ACE_OS::fwrite(%u) (file was: \"%s\"): \"%m\", aborting\n"),
+                      width_in,
+                      ACE_TEXT (filename_in.c_str ())));
+          goto clean;
+        } // end IF
+      } // end FOR
+      // write U plane
+      height_in >>= 1;
+      width_in >>= 1;
+      for (unsigned int i = 0;
+           i < height_in;
+           ++i)
+      {
+        result_3 = ACE_OS::fwrite ((sourceBuffers_in[1] + (i * linesizes[1])),
+                                   width_in,
+                                   1,
+                                   file_p);
+        if (result_3 != 1)
+        {
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to ACE_OS::fwrite(%u) (file was: \"%s\"): \"%m\", aborting\n"),
+                      width_in,
+                      ACE_TEXT (filename_in.c_str ())));
+          goto clean;
+        } // end IF
+      } // end FOR
+      // write V plane
+      for (unsigned int i = 0;
+           i < height_in;
+           ++i)
+      {
+        result_3 = ACE_OS::fwrite ((sourceBuffers_in[2] + (i * linesizes[2])),
+                                   width_in,
+                                   1,
+                                   file_p);
+        if (result_3 != 1)
+        {
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to ACE_OS::fwrite(%u) (file was: \"%s\"): \"%m\", aborting\n"),
+                      width_in,
+                      ACE_TEXT (filename_in.c_str ())));
+          goto clean;
+        } // end IF
+      } // end FOR
+
+      break;
+    }
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown pixel format (was: %d), aborting\n"),
+                  format_in));
+      goto clean;
+    }
+  } // end SWITCH
+
+  result = true;
+
+clean:
+  // clean up
+  if (file_p)
+  {
+    result_2 = ACE_OS::fclose (file_p);
+    if (result_2 == -1)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("ACE_OS::fclose(\"%s\") failed: \"%m\", aborting\n"),
+                  ACE_TEXT (filename_in.c_str ())));
+  } // end IF
+
+#if defined (_DEBUG)
+  if (result)
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("wrote file \"%s\"...\n"),
+                ACE_TEXT (filename_in.c_str ())));
+#endif
+
+  return result;
+}
+bool
+Common_Image_Tools::storeToPNG (unsigned int width_in,
+                                unsigned int height_in,
+                                enum AVPixelFormat format_in,
+                                uint8_t* sourceBuffers_in[],
+                                const std::string& filename_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::storeToPNG"));
+
+  bool result = false;
+
   // sanity check(s)
   ACE_ASSERT (format_in == AV_PIX_FMT_RGB24);
 
   int result_2 = -1;
+  size_t result_3 = 0;
   struct AVCodec* codec_p = NULL;
   struct AVCodecContext* codec_context_p = NULL;
   int got_picture = 0;
@@ -299,27 +423,22 @@ Common_Image_Tools::storeToFile (unsigned int width_in,
   if (!file_p)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("ACE_OS::fopen(\"%s\") failed: \"%m\", aborting\n"),
+                ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
                 ACE_TEXT (filename_in.c_str ())));
     goto clean;
   } // end IF
 
-  result_2 = ACE_OS::fwrite (packet_s.data, packet_s.size, 1, file_p);
-  if (result_2 != packet_s.size)
+  result_3 = ACE_OS::fwrite (packet_s.data, packet_s.size, 1, file_p);
+  if (result_3 != 1)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("ACE_OS::fwrite(%u) failed: \"%m\", aborting\n"),
-                packet_s.size));
+                ACE_TEXT ("failed to ACE_OS::fwrite(%u) (file was: \"%s\"): \"%m\", aborting\n"),
+                packet_s.size,
+                ACE_TEXT (filename_in.c_str ())));
     goto clean;
   } // end IF
 
   result = true;
-
-#if defined (_DEBUG)
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("wrote file \"%s\"...\n"),
-              ACE_TEXT (filename_in.c_str ())));
-#endif
 
 clean:
   // clean up
@@ -338,6 +457,13 @@ clean:
                   ACE_TEXT ("ACE_OS::fclose(\"%s\") failed: \"%m\", aborting\n"),
                   ACE_TEXT (filename_in.c_str ())));
   } // end IF
+
+#if defined (_DEBUG)
+  if (result)
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("wrote file \"%s\"...\n"),
+                ACE_TEXT (filename_in.c_str ())));
+#endif
 
   return result;
 }

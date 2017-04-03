@@ -54,12 +54,16 @@ class Common_Image_Export Common_Image_Tools
                               bool&,              // return value: has alpha channel ?
                               GLubyte*&);         // return value: data
 
-  // *NOTE*: format is PNG
   static bool storeToFile (unsigned int,        // source width
                            unsigned int,        // source height
                            enum AVPixelFormat,  // source pixel format
                            uint8_t*[],          // source buffer(s)
                            const std::string&); // target file path
+  static bool storeToPNG (unsigned int,        // source width
+                          unsigned int,        // source height
+                          enum AVPixelFormat,  // source pixel format
+                          uint8_t*[],          // source buffer(s)
+                          const std::string&); // target file path
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Image_Tools ());

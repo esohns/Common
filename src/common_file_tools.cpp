@@ -768,6 +768,66 @@ Common_File_Tools::open (const std::string& fileName_in,
   return true;
 }
 
+bool
+Common_File_Tools::store (const std::string& filename_in,
+                          const unsigned char* buffer_in,
+                          unsigned int size_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::store"));
+
+  // initialize return value(s)
+  bool result = false;
+
+  size_t result_2 = 0;
+  int result_3 = -1;
+  FILE* file_p = NULL;
+
+  file_p = ACE_OS::fopen (ACE_TEXT (filename_in.c_str ()),
+                          ACE_TEXT_ALWAYS_CHAR ("wb"));
+  if (!file_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (filename_in.c_str ())));
+    return false;
+  } // end IF
+
+  result_2 = ACE_OS::fwrite (buffer_in, size_in, 1, file_p);
+  if (result_2 != 1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::fwrite(%u) (file was: \"%s\"): \"%m\", aborting\n"),
+                size_in,
+                ACE_TEXT (filename_in.c_str ())));
+    goto clean;
+  } // end IF
+
+  result = true;
+
+clean:
+  // clean up
+  if (file_p)
+  {
+    result_3 = ACE_OS::fclose (file_p);
+    if (result_3 == -1)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", aborting\n"),
+                  ACE_TEXT (filename_in.c_str ())));
+      result = false;
+    } // end IF
+  } // end IF
+
+#if defined (_DEBUG)
+  if (result)
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("wrote file \"%s\"...\n"),
+                ACE_TEXT (filename_in.c_str ())));
+#endif
+
+  return result;
+}
+
 unsigned int
 Common_File_Tools::size (const ACE_FILE_Addr& address_in)
 {
