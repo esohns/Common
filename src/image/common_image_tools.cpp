@@ -373,11 +373,11 @@ Common_Image_Tools::storeToPNG (unsigned int width_in,
                               frame_p->linesize);
   ACE_ASSERT (result_2 != -1);
 
-  codec_p = avcodec_find_encoder (CODEC_ID_PNG);
+  codec_p = avcodec_find_encoder (AV_CODEC_ID_PNG);
   if (!codec_p)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("avcodec_find_encoder(CODEC_ID_PNG) failed, aborting\n")));
+                ACE_TEXT ("avcodec_find_encoder(AV_CODEC_ID_PNG) failed, aborting\n")));
     goto clean;
   } // end IF
   codec_context_p = avcodec_alloc_context3 (codec_p);

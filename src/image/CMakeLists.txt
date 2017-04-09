@@ -31,18 +31,20 @@ else ()
  message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
 endif ()
 
-#include (FindPkgConfig)
-#pkg_check_modules (PKG_ACE REQUIRED ACE)
-#pkg_check_modules (PKG_GTK_GLADE REQUIRED libpng gmodule-2.0 gthread-2.0 gtk+-2.0 libglade-2.0)
+include (FindPkgConfig)
+if (UNIX)
+ pkg_check_modules (PKG_LIBFFMPEG REQUIRED libavcodec libavformat libswscale)
+endif ()
 
 if (UNIX)
-# include_directories (${PKG_GTK_GLADE_INCLUDE_DIRS})
+ include_directories (${PKG_LIBFFMPEG_INCLUDE_DIRS})
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
 elseif (WIN32)
 #*TODO*: use pkg-config instead
- include_directories ($ENV{ACE_ROOT})
-
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25)
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../ffmpeg)
+
+ include_directories ($ENV{ACE_ROOT})
 endif ()
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
@@ -70,6 +72,9 @@ if (WIN32)
 
 # libpng
  target_link_libraries (${PROJECT_NAME}Image ${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25/projects/vstudio/Debug/libpng16.lib)
+# ffmpeg
+ target_link_libraries (${PROJECT_NAME}Image ${CMAKE_CURRENT_SOURCE_DIR}/../../../ffmpeg/libavcodec/avcodec.lib)
+ target_link_libraries (${PROJECT_NAME}Image ${CMAKE_CURRENT_SOURCE_DIR}/../../../ffmpeg/libavutil/avutil.lib)
 
 # target_link_libraries (${PROJECT_NAME}Image ${COMMON_TARGET_NAME})
 endif ()
