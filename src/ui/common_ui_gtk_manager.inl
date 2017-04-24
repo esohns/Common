@@ -217,7 +217,7 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
 
   int result = 0;
 #if defined (GTKGL_SUPPORT)
-  GError* error_p = NULL;
+//  GError* error_p = NULL;
 #endif
 
   // step0: initialize GTK

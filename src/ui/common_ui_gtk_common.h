@@ -29,17 +29,21 @@
 
 #include <ace/Synch_Traits.h>
 
+#include <gtk/gtk.h>
 #if defined (GTKGL_SUPPORT)
-#if defined (GTKGLAREA_SUPPORT)
+#if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
 #else
 #include <gtkgl/gtkglarea.h>
 #endif /* GTK_CHECK_VERSION (3,16,0) */
+#else /* GTK_CHECK_VERSION (3,0,0) */
+#if defined (GTKGLAREA_SUPPORT)
+#include <gtkgl/gtkglarea.h>
 #else
 #include <gdk/gdkgl.h>
 #endif /* GTKGLAREA_SUPPORT */
+#endif /* GTK_CHECK_VERSION (3,0,0) */
 #endif /* GTKGL_SUPPORT */
-#include <gtk/gtk.h>
 
 #include "common_ui_common.h"
 #include "common_ui_igtk.h"
@@ -130,11 +134,15 @@ struct Common_UI_GTKState
   Common_UI_GTKCSSProviders_t   CSSProviders;
 #endif
 #if defined (GTKGL_SUPPORT)
+#if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
   GtkGLArea*                    OpenGLWindow;
 #else
-#if defined (GTKGLAREA_SUPPORT)
   GglaArea*                     OpenGLWindow;
+#endif /* GTK_CHECK_VERSION (3,16,0) */
+#else /* GTK_CHECK_VERSION (3,0,0) */
+#if defined (GTKGLAREA_SUPPORT)
+  GtkGLArea*                    OpenGLWindow;
 #else
   // *TODO*: as an application may support multiple OpenGL-capable windows, and
   //         each GdkGLContext is tied to a GdkWindow, it probably makes sense
@@ -143,7 +151,7 @@ struct Common_UI_GTKState
   //GdkGLDrawable* openGLDrawable;
   GdkWindow*                    OpenGLWindow;
 #endif /* GTKGLAREA_SUPPORT */
-#endif /* GTK_CHECK_VERSION (3,16,0) */
+#endif /* GTK_CHECK_VERSION (3,0,0) */
 #endif /* GTKGL_SUPPORT */
   Common_UI_GTKRCFiles_t        RCFiles;
 

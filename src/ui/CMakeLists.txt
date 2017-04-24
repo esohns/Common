@@ -2,6 +2,8 @@ option (GTK3_SUPPORT "enable Gtk3 support"
         ON)
 option (GTKGL_SUPPORT "enable Gtk OpenGL support"
         ON)
+# *IMPORTANT NOTE*: to use gtkglarea on gtk2, check out the 'gtkglarea-2' branch
+#                   of the project
 option (GTKGLAREA_SUPPORT "enable GtkGLArea support"
         ON)
 
