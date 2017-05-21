@@ -216,6 +216,7 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
 //              ACE_TEXT ("(%t) GTK event dispatch starting\n")));
 
   int result = 0;
+  bool leave_gdk_threads = false;
 #if defined (GTKGL_SUPPORT)
 //  GError* error_p = NULL;
 #endif
@@ -256,7 +257,8 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
   // step2: initialize OpenGL
 #if defined (GTKGL_SUPPORT)
   // *TODO*: remove type inferences
-  if (!state_->OpenGLWindow) goto continue_;
+  if (!state_->OpenGLWindow)
+    goto continue_;
 
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("initializing OpenGL (window: 0x%@)...\n"),
@@ -327,9 +329,14 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
 #if defined (GTKGL_SUPPORT)
 continue_:
 #endif
-  //gdk_threads_enter ();
+  if (g_thread_get_initialized ())
+  {
+    gdk_threads_enter ();
+    leave_gdk_threads = true;
+  } // end IF
   gtk_main ();
-  //gdk_threads_leave ();
+  if (leave_gdk_threads)
+    gdk_threads_leave ();
 
   // stop() (close() --> gtk_main_quit ()) was called...
 
@@ -403,14 +410,19 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
                      glib_log_handler, NULL);
 
 #if GTK_CHECK_VERSION (3,0,0)
+  GError* error_p = NULL;
 #else
-  if (g_thread_supported ())
+  if (!g_thread_supported ())
   {
     g_thread_init (NULL);
     //g_thread_init_with_errorcheck_mutexes (NULL);
   } // end IF
 #endif
   gdk_threads_init ();
+
+  bool leave_gdk_threads = false;
+  gdk_threads_enter ();
+  leave_gdk_threads = true;
 
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
@@ -422,7 +434,7 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to gdk_gl_init_check(), aborting\n")));
-    return false;
+    goto error;
   } // end IF
 #endif
 #endif
@@ -433,7 +445,7 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to gtk_init_check(), aborting\n")));
-    return false;
+    goto error;
   } // end IF
 //  gtk_init (&argc_,
 //            &argv_);
@@ -452,7 +464,7 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
 //    // clean up
 //    g_error_free (error_p);
 
-//    return false;
+//    goto error;
 //  } // end IF
 
 #if defined (_DEBUG)
@@ -483,7 +495,6 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
 
 #if GTK_CHECK_VERSION (3,0,0)
   // step3b: specify any .css files
-  GError* error_p = NULL;
   if (!state_->CSSProviders.empty ())
   {
     int i = 1;
@@ -497,7 +508,7 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
       {
         ACE_DEBUG ((LM_CRITICAL,
                     ACE_TEXT ("failed to gtk_css_provider_new(), aborting\n")));
-        return false;
+        goto error;
       } // end IF
 
       if (!gtk_css_provider_load_from_path ((*iterator).second,
@@ -542,5 +553,13 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
   //                                    NULL);                               // property name(s)
   //  ACE_ASSERT(gnomeProgram);
 
+  gdk_threads_leave ();
+
   return true;
+
+error:
+  if (leave_gdk_threads)
+    gdk_threads_leave ();
+
+  return false;
 }

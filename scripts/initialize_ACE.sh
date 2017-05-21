@@ -6,6 +6,10 @@
 # parameters:   - (UNIX) platform [linux|solaris]
 # return value: - 0 success, 1 failure
 
+# sanity checks
+command -v dirname >/dev/null 2>&1 || { echo "dirname is not installed, aborting" >&2; exit 1; }
+command -v readlink >/dev/null 2>&1 || { echo "readlink is not installed, aborting" >&2; exit 1; }
+
 DEFAULT_PLATFORM="linux"
 PLATFORM=${DEFAULT_PLATFORM}
 if [ $# -lt 1 ]; then

@@ -54,6 +54,7 @@
 #define COMMON_UI_SDL_TEXT_SHADECOLOR                             COLOR_BLACK
 
 // ************************************ GTK ************************************
+#define COMMON_UI_GTK_INITIALIZATION_DELAY_MS                     100 // ms
 
 // *IMPORTANT NOTE*: for some reason, the glib 2 windows package does not define
 //                   these
