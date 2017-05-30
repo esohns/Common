@@ -481,7 +481,8 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   ACE_UNUSED_ARG (arg_in);
 
   // sanity check(s)
-  if (inherited::thr_count_ > 0) return 0; // nothing to do
+  if (inherited::thr_count_ > 0)
+    return 0; // nothing to do
 
   // spawn the worker thread(s)
   ACE_thread_t* thread_ids_p = NULL;
