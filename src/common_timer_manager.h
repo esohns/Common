@@ -21,11 +21,11 @@
 #ifndef COMMON_TIMER_MANAGER_H
 #define COMMON_TIMER_MANAGER_H
 
-#include <ace/Asynch_IO.h>
-#include <ace/Event_Handler.h>
-#include <ace/Singleton.h>
-#include <ace/Synch_Traits.h>
-#include <ace/Time_Value.h>
+#include "ace/Asynch_IO.h"
+#include "ace/Event_Handler.h"
+#include "ace/Singleton.h"
+#include "ace/Synch_Traits.h"
+#include "ace/Time_Value.h"
 
 #include "common.h"
 #include "common_idumpstate.h"
@@ -41,7 +41,7 @@ class Common_Timer_Manager_T
  : public TimerQueueAdapterType
  , public Common_ITaskControl_T<ACE_SYNCH_USE>
  , public Common_ITimer
- , public Common_IInitialize_T<Common_TimerConfiguration>
+ , public Common_IInitialize_T<struct Common_TimerConfiguration>
  , public Common_IDumpState
 {
   // singleton needs access to the ctor/dtors
@@ -71,7 +71,7 @@ class Common_Timer_Manager_T
   virtual void start ();
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?
-  virtual bool isRunning () const;
+  inline virtual bool isRunning () const { return (inherited::thr_count_ > 0); };
 
   // implement Common_IDumpState
   virtual void dump_state () const;
@@ -100,12 +100,12 @@ class Common_Timer_Manager_T
   unsigned int flushTimers (bool = true); // locked access ?
   bool initializeTimerQueue ();
 
-  Common_TimerConfiguration* configuration_;
+  struct Common_TimerConfiguration* configuration_;
 
   // *NOTE*: this is only the functor, individual handlers are managed in the
   //        queue
-  Common_TimeoutUpcall_t     timerHandler_;
-  TIMER_QUEUE_T*             timerQueue_;
+  Common_TimeoutUpcall_t            timerHandler_;
+  TIMER_QUEUE_T*                    timerQueue_;
 };
 
 // include template definition

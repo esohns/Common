@@ -18,10 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <ace/High_Res_Timer.h>
-#include <ace/Log_Msg.h>
-#include <ace/Proactor.h>
-#include <ace/Reactor.h>
+#include "ace/High_Res_Timer.h"
+#include "ace/Log_Msg.h"
+#include "ace/Proactor.h"
+#include "ace/Reactor.h"
 
 #include "common_defines.h"
 #include "common_itimer.h"
@@ -159,17 +159,6 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("flushed %u timer(s)...\n"),
                 flushed_timers));
-}
-
-template <ACE_SYNCH_DECL,
-          typename TimerQueueAdapterType>
-bool
-Common_Timer_Manager_T<ACE_SYNCH_USE,
-                       TimerQueueAdapterType>::isRunning () const
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::isRunning"));
-
-  return (inherited::thr_count () > 0);
 }
 
 template <ACE_SYNCH_DECL,
@@ -651,9 +640,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::dump_state"));
 
-  {
-    ACE_GUARD (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, const_cast<OWN_TYPE_T*> (this)->mutex ());
-
+  { ACE_GUARD (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, const_cast<OWN_TYPE_T*> (this)->mutex ());
     ACE_ASSERT (false);
     ACE_NOTSUP;
 
@@ -665,7 +652,7 @@ template <ACE_SYNCH_DECL,
           typename TimerQueueAdapterType>
 bool
 Common_Timer_Manager_T<ACE_SYNCH_USE,
-                       TimerQueueAdapterType>::initialize (const Common_TimerConfiguration& configuration_in)
+                       TimerQueueAdapterType>::initialize (const struct Common_TimerConfiguration& configuration_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::initialize"));
 
@@ -674,7 +661,8 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   if (was_running)
     stop (true);
 
-  configuration_ = &const_cast<Common_TimerConfiguration&> (configuration_in);
+  configuration_ =
+      &const_cast<struct Common_TimerConfiguration&> (configuration_in);
 
   // sanity check(s)
   // *TODO*: remove type inference
