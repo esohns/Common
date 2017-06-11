@@ -22,10 +22,10 @@ COMMIT_SCRIPT_PATH="${SCRIPTS_DIRECTORY}/${COMMIT_SCRIPT}"
 BACKUP_SCRIPT_PATH="${SCRIPTS_DIRECTORY}/${BACKUP_SCRIPT}"
 [ ! -x ${BACKUP_SCRIPT_PATH} ] && echo "ERROR: invalid backup script (was: \"${BACKUP_SCRIPT_PATH}\"), aborting" && exit 1
 
-$(${COMMIT_SCRIPT_PATH}) >/dev/null 2>&1
+$(${COMMIT_SCRIPT_PATH})
 [ $? -ne 0 ] && echo "ERROR: failed to commit changes, aborting" && exit 1
 echo "comitted changes...DONE"
-$(${BACKUP_SCRIPT_PATH}) >/dev/null 2>&1
+$(${BACKUP_SCRIPT_PATH})
 [ $? -ne 0 ] && echo "ERROR: failed to backup changes, aborting" && exit 1
 echo "backed up repositories...DONE"
 
