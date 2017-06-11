@@ -31,13 +31,13 @@ do
  [ $? -ne 0 ] && echo "ERROR: failed to cd to \"${CURRENT_DIRECTORY}\": $?, aborting" && exit 1
 
  git add --all >/dev/null 2>&1
- [ $? -ne 0 ] && echo "ERROR: failed to stage changes to \"${DIRECTORY}\", aborting" && exit 1
+ [ $? -ne 0 ] && echo "ERROR: failed to stage changes to \"${DIRECTORY}\": $?, aborting" && exit 1
  echo "staged changes to ${DIRECTORY}...DONE"
  git commit -am "minor changes" >/dev/null 2>&1
- [ $? -ne 0 ] && echo "ERROR: failed to commit changes to \"${DIRECTORY}\", aborting" && exit 1
+ [ $? -ne 0 ] && echo "ERROR: failed to commit changes to \"${DIRECTORY}\": $?, aborting" && exit 1
  echo "committed changes to ${DIRECTORY}...DONE"
  git push origin $DEFAULT_GIT_BRANCH >/dev/null 2>&1
- [ $? -ne 0 ] && echo "ERROR: failed to upstream changes to \"${DIRECTORY}\", aborting" && exit 1
+ [ $? -ne 0 ] && echo "ERROR: failed to upstream changes to \"${DIRECTORY}\": $?, aborting" && exit 1
  echo "upstreamed changes to ${DIRECTORY}...DONE"
 
  echo "\"$DIRECTORY\"...DONE"
