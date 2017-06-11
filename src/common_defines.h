@@ -21,7 +21,7 @@
 #ifndef COMMON_DEFINES_H
 #define COMMON_DEFINES_H
 
-#include <ace/config-lite.h>
+#include "ace/config-lite.h"
 
 /////////////////////////////////////////
 

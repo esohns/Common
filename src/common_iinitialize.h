@@ -38,10 +38,19 @@ class Common_IInitialize_T
   virtual bool initialize (const ConfigurationType&) = 0;
 };
 
+//template <typename ConfigurationType>
+//class Common_IInitialize_2
+//{
+// public:
+//  inline virtual ~Common_IInitialize_2 () {};
+//
+//  virtual bool initialize_2 (const ConfigurationType&) = 0;
+//};
+
 template <typename ConfigurationType>
 class Common_IInitializeP_T
 {
-public:
+ public:
   inline virtual ~Common_IInitializeP_T () {};
 
   virtual bool initialize (const ConfigurationType*) = 0;
