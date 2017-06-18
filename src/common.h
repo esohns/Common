@@ -28,9 +28,9 @@
 #include <map>
 #include <string>
 
-#include <ace/OS.h>
-#include <ace/Signal.h>
-#include <ace/Synch_Traits.h>
+#include "ace/OS.h"
+#include "ace/Signal.h"
+#include "ace/Synch_Traits.h"
 
 #include "common_defines.h"
 #include "common_itask.h"
