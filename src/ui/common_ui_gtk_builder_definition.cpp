@@ -19,5 +19,5 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include <ace/Synch.h>
+#include "ace/Synch.h"
 #include "common_ui_gtk_builder_definition.h"

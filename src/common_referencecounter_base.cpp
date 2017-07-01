@@ -19,11 +19,11 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include <ace/Synch.h>
+#include "ace/Synch.h"
 #include "common_referencecounter_base.h"
 
-#include <ace/Guard_T.h>
-#include <ace/Log_Msg.h>
+#include "ace/Guard_T.h"
+#include "ace/Log_Msg.h"
 
 #include "common_macros.h"
 
@@ -115,7 +115,6 @@ Common_ReferenceCounterBase::decrease ()
 
   // synch access
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, lock_, 0);
-
     // awaken any waiter(s)
     result_2 = condition_.broadcast ();
     if (result_2 == -1)
@@ -138,7 +137,6 @@ Common_ReferenceCounterBase::wait (unsigned int count_in) const
 
   // synch access
   { ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, lock_);
-
     while (inherited::refcount_.value () != static_cast<long> (count_in))
     {
       ACE_DEBUG ((LM_DEBUG,

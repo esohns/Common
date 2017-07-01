@@ -20,10 +20,10 @@
 
 #include <sstream>
 
-#include <ace/Log_Msg.h>
-#include <ace/Message_Block.h>
-#include <ace/OS_Memory.h>
-#include <ace/Time_Value.h>
+#include "ace/Log_Msg.h"
+#include "ace/Message_Block.h"
+#include "ace/OS_Memory.h"
+#include "ace/Time_Value.h"
 
 #include "common_defines.h"
 #include "common_macros.h"
@@ -107,7 +107,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
                     handle,
-                    ACE_TEXT (Common_Tools::error2String (::GetLastError ()).c_str ())));
+                    ACE_TEXT (Common_Tools::errorToString (::GetLastError ()).c_str ())));
   } // end FOR
 #endif
 }
@@ -144,7 +144,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
               ACE_DEBUG ((LM_ERROR,
                           ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
                           handle,
-                          ACE_TEXT (Common_Tools::error2String (::GetLastError ()).c_str ())));
+                          ACE_TEXT (Common_Tools::errorToString (::GetLastError ()).c_str ())));
         } // end FOR
 #endif
         threadIDs_.clear ();

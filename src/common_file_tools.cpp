@@ -19,20 +19,20 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include <ace/config-lite.h>
+#include "ace/config-lite.h"
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <Shlobj.h>
 #include <Userenv.h>
 #endif
 
-#include <ace/ACE.h>
-#include <ace/Dirent_Selector.h>
-#include <ace/FILE_Addr.h>
-#include <ace/FILE_Connector.h>
-#include <ace/FILE_IO.h>
-#include <ace/OS.h>
-#include <ace/OS_NS_sys_sendfile.h>
+#include "ace/ACE.h"
+#include "ace/Dirent_Selector.h"
+#include "ace/FILE_Addr.h"
+#include "ace/FILE_Connector.h"
+#include "ace/FILE_IO.h"
+#include "ace/OS.h"
+#include "ace/OS_NS_sys_sendfile.h"
 
 #include "common_defines.h"
 #include "common_file_tools.h"
@@ -982,7 +982,7 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to SHGetFolderPath(CSIDL_APPDATA): \"%s\", falling back\n"),
-                ACE_TEXT (Common_Tools::error2String (static_cast<DWORD> (result_2)).c_str ())));
+                ACE_TEXT (Common_Tools::errorToString (static_cast<DWORD> (result_2)).c_str ())));
     return Common_File_Tools::getWorkingDirectory ();
   } // end IF
 
@@ -1150,7 +1150,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to SHGetFolderPath(CSIDL_APPDATA): \"%s\", falling back\n"),
-                ACE_TEXT (Common_Tools::error2String (static_cast<DWORD> (result_2)).c_str ())));
+                ACE_TEXT (Common_Tools::errorToString (static_cast<DWORD> (result_2)).c_str ())));
     goto fallback;
   } // end IF
 
@@ -1262,7 +1262,7 @@ use_environment:
     //            buffer));
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to GetTempPath(): \"%s\", falling back\n"),
-                ACE_TEXT (Common_Tools::error2String (GetLastError ()).c_str ())));
+                ACE_TEXT (Common_Tools::errorToString (GetLastError ()).c_str ())));
     goto fallback;
   } // end IF
 #if defined (ACE_USES_WCHAR)

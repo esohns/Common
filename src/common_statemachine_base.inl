@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <ace/Guard_T.h>
-#include <ace/Log_Msg.h>
+#include "ace/Guard_T.h"
+#include "ace/Log_Msg.h"
 
 #include "common_macros.h"
 
@@ -69,7 +69,6 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
   StateType result = static_cast<StateType> (-1);
 
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, result);
-
     result = state_;
   } // end lock scope
 
@@ -125,7 +124,6 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
 
   StateType previous_state;
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, false);
-
     previous_state = state_;
   } // end lock scope
 
@@ -144,7 +142,6 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
 
   bool signal = true;
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, false);
-
     // *NOTE*: if the implementation is 'passive', the whole operation
     //         pertaining to newState_in may have been processed 'inline' by the
     //         current thread and may have completed by 'now'. In this case the

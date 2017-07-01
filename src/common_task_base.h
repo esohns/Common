@@ -24,9 +24,9 @@
 #include <string>
 #include <vector>
 
-#include <ace/Global_Macros.h>
-#include <ace/OS_NS_Thread.h>
-#include <ace/Task_T.h>
+#include "ace/Global_Macros.h"
+#include "ace/OS_NS_Thread.h"
+#include "ace/Task_T.h"
 
 #include "common_idumpstate.h"
 #include "common_itask.h"

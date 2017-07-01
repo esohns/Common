@@ -21,8 +21,8 @@
 #ifndef COMMON_UI_GTK_MANAGER_COMMON_H
 #define COMMON_UI_GTK_MANAGER_COMMON_H
 
-#include <ace/Singleton.h>
-#include <ace/Synch_Traits.h>
+#include "ace/Singleton.h"
+#include "ace/Synch_Traits.h"
 
 #include "common_ui_exports.h"
 #include "common_ui_gtk_common.h"

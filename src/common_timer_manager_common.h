@@ -21,8 +21,8 @@
 #ifndef COMMON_TIMER_MANAGER_COMMON_H
 #define COMMON_TIMER_MANAGER_COMMON_H
 
-#include <ace/Singleton.h>
-#include <ace/Synch_Traits.h>
+#include "ace/Singleton.h"
+#include "ace/Synch_Traits.h"
 
 #include "common_exports.h"
 #include "common_timer_common.h"

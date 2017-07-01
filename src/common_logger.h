@@ -21,10 +21,10 @@
 #ifndef Common_Logger_T_H
 #define Common_Logger_T_H
 
-#include <ace/Global_Macros.h>
-#include <ace/Log_Msg_Backend.h>
-#include <ace/Log_Record.h>
-#include <ace/Synch_Traits.h>
+#include "ace/Global_Macros.h"
+#include "ace/Log_Msg_Backend.h"
+#include "ace/Log_Record.h"
+#include "ace/Synch_Traits.h"
 
 #include "common.h"
 #include "common_exports.h"

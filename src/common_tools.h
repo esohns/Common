@@ -23,8 +23,12 @@
 
 #include <string>
 
-#include <ace/config-lite.h>
-#include <ace/Global_Macros.h>
+#include "ace/config-lite.h"
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include <guiddef.h>
+#endif
+
+#include "ace/Global_Macros.h"
 
 #include "common.h"
 #include "common_exports.h"
@@ -50,12 +54,12 @@ class Common_Tools
 
   // --- strings ---
   // *NOTE*: uses ::snprintf internally: "HH:MM:SS.usec"
-  static bool period2String (const ACE_Time_Value&, // period
-                             std::string&);         // return value: corresp. string
+  static bool periodToString (const ACE_Time_Value&, // period
+                              std::string&);         // return value: corresp. string
   // *NOTE*: uses ::snprintf internally: "YYYY-MM-DD HH:MM:SS.usec"
-  static bool timestamp2String (const ACE_Time_Value&, // timestamp
-                                bool,                  // UTC ? : localtime
-                                std::string&);         // return value: corresp. string
+  static bool timestampToString (const ACE_Time_Value&, // timestamp
+                                 bool,                  // UTC ? : localtime
+                                 std::string&);         // return value: corresp. string
 
   static std::string sanitizeURI (const std::string&); // URI
   static std::string sanitize (const std::string&); // string
@@ -97,8 +101,11 @@ class Common_Tools
   static std::string getHostName (); // return value: hostname
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  static std::string error2String (DWORD,         // error
-                                   bool = false); // ? AMGetErrorText : FormatMessage
+  static std::string GUIDToString (REFGUID);
+  static struct _GUID StringToGUID (const std::string&);
+
+  static std::string errorToString (DWORD,         // error
+                                    bool = false); // ? AMGetErrorText : FormatMessage
 #endif
 
   // --- logging ---

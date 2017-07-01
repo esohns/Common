@@ -21,12 +21,12 @@
 #ifndef COMMON_SIGNALHANDLER_H
 #define COMMON_SIGNALHANDLER_H
 
-#include <ace/Asynch_IO.h>
-#include <ace/config-macros.h>
-#include <ace/Event_Handler.h>
-#include <ace/Global_Macros.h>
-#include <ace/os_include/os_ucontext.h>
-#include <ace/OS_NS_signal.h>
+#include "ace/Asynch_IO.h"
+#include "ace/config-macros.h"
+#include "ace/Event_Handler.h"
+#include "ace/Global_Macros.h"
+#include "ace/os_include/os_ucontext.h"
+#include "ace/OS_NS_signal.h"
 
 #include "common_exports.h"
 #include "common_iinitialize.h"

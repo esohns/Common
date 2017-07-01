@@ -21,14 +21,14 @@
 #ifndef COMMON_TIME_COMMON_H
 #define COMMON_TIME_COMMON_H
 
-#include <ace/config-lite.h>
-#include <ace/Version.h>
+#include "ace/config-lite.h"
+#include "ace/Version.h"
 
 #include "common_defines.h"
 
 #if ((ACE_MAJOR_VERSION >= 6) && \
      ((ACE_MINOR_VERSION > 1) || (ACE_BETA_VERSION > 6)))
-#include <ace/Time_Policy.h>
+#include "ace/Time_Policy.h"
 // *NOTE*: (where possible) use high-resolution timestamps for accuracy and low
 //         latency timers
 // *IMPORTANT NOTE*: currently, the high resolution time policy is not

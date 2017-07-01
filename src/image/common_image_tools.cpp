@@ -34,8 +34,8 @@ extern "C"
 }
 #endif /* __cplusplus */
 
-#include <ace/Log_Msg.h>
-#include <ace/OS.h>
+#include "ace/Log_Msg.h"
+#include "ace/OS.h"
 
 #include "common_macros.h"
 

@@ -23,7 +23,7 @@
 
 #include <deque>
 
-#include <ace/Synch_Traits.h>
+#include "ace/Synch_Traits.h"
 
 #include "common.h"
 

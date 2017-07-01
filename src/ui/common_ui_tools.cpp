@@ -38,7 +38,7 @@
 #endif
 #endif
 
-#include <ace/Log_Msg.h>
+#include "ace/Log_Msg.h"
 
 #include "common_macros.h"
 

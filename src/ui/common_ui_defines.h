@@ -21,7 +21,7 @@
 #ifndef COMMON_UI_DEFINES_H
 #define COMMON_UI_DEFINES_H
 
-#include <ace/config-lite.h>
+#include "ace/config-lite.h"
 
 // window
 #define COMMON_UI_WINDOW_DEFAULT_WIDTH                            320

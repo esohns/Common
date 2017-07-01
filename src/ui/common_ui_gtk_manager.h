@@ -21,8 +21,8 @@
 #ifndef COMMON_UI_GTK_MANAGER_T_H
 #define COMMON_UI_GTK_MANAGER_T_H
 
-#include <ace/Global_Macros.h>
-#include <ace/Synch_Traits.h>
+#include "ace/Global_Macros.h"
+#include "ace/Synch_Traits.h"
 
 #include <gtk/gtk.h>
 

@@ -18,11 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <ace/ACE.h>
-#include <ace/Log_Msg.h>
-#include <ace/Log_Priority.h>
-#include <ace/OS.h>
-#include <ace/Thread.h>
+#include "ace/ACE.h"
+#include "ace/Log_Msg.h"
+#include "ace/Log_Priority.h"
+#include "ace/OS.h"
+#include "ace/Thread.h"
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else

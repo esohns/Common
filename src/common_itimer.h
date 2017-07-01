@@ -21,8 +21,8 @@
 #ifndef COMMON_ITIMER_H
 #define COMMON_ITIMER_H
 
-#include <ace/Asynch_IO.h>
-#include <ace/Time_Value.h>
+#include "ace/Asynch_IO.h"
+#include "ace/Time_Value.h"
 
 // forward declarations
 class ACE_Event_Handler;

@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-#include <ace/Synch.h>
+#include "ace/Synch.h"
 
 // *WORKAROUND*
 using namespace std;
@@ -40,10 +40,11 @@ using namespace std;
 #define ACE_IOSFWD_H
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include <Security.h>
-
-#include <errors.h>
+#include <combaseapi.h>
 #include <dxerr.h>
+#include <errors.h>
+#include <strmif.h>
+#include <Security.h>
 #elif defined (ACE_LINUX)
 #include <sys/capability.h>
 #include <sys/prctl.h>
@@ -55,30 +56,30 @@ using namespace std;
 #include <rctl.h>
 #endif
 
-#include <ace/FILE_Addr.h>
-#include <ace/FILE_Connector.h>
-#include <ace/High_Res_Timer.h>
-#include <ace/Log_Msg.h>
-#include <ace/Log_Msg_Backend.h>
-#include <ace/OS.h>
+#include "ace/FILE_Addr.h"
+#include "ace/FILE_Connector.h"
+#include "ace/High_Res_Timer.h"
+#include "ace/Log_Msg.h"
+#include "ace/Log_Msg_Backend.h"
+#include "ace/OS.h"
 // *NOTE*: Solaris (11)-specific
 #if defined (__sun) && defined (__SVR4)
-#include <ace/OS_Memory.h>
+#include "ace/OS_Memory.h"
 #endif
-#include <ace/POSIX_CB_Proactor.h>
-#include <ace/POSIX_Proactor.h>
-#include <ace/Proactor.h>
-#include <ace/Reactor.h>
+#include "ace/POSIX_CB_Proactor.h"
+#include "ace/POSIX_Proactor.h"
+#include "ace/Proactor.h"
+#include "ace/Reactor.h"
 #if defined (ACE_HAS_AIO_CALLS) && defined (sun)
-#include <ace/SUN_Proactor.h>
+#include "ace/SUN_Proactor.h"
 #endif
-#include <ace/Time_Value.h>
-#include <ace/TP_Reactor.h>
+#include "ace/Time_Value.h"
+#include "ace/TP_Reactor.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include <ace/WIN32_Proactor.h>
-#include <ace/WFMO_Reactor.h>
+#include "ace/WIN32_Proactor.h"
+#include "ace/WFMO_Reactor.h"
 #else
-#include <ace/Dev_Poll_Reactor.h>
+#include "ace/Dev_Poll_Reactor.h"
 #endif
 
 #include "common_defines.h"
@@ -324,10 +325,10 @@ continue_:
 //}
 
 bool
-Common_Tools::period2String (const ACE_Time_Value& period_in,
-                             std::string& timeString_out)
+Common_Tools::periodToString (const ACE_Time_Value& period_in,
+                              std::string& timeString_out)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::period2String"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::periodToString"));
 
   // initialize return value(s)
   timeString_out.clear ();
@@ -360,11 +361,11 @@ Common_Tools::period2String (const ACE_Time_Value& period_in,
   return true;
 }
 bool
-Common_Tools::timestamp2String (const ACE_Time_Value& timeStamp_in,
-                                bool UTC_in,
-                                std::string& timeString_out)
+Common_Tools::timestampToString (const ACE_Time_Value& timeStamp_in,
+                                 bool UTC_in,
+                                 std::string& timeString_out)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::timestamp2String"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::timestampToString"));
 
   // initialize return value(s)
   timeString_out.clear ();
@@ -543,7 +544,7 @@ Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to GetLogicalProcessorInformationEx(): \"%s\", returning\n"),
-                  ACE_TEXT (Common_Tools::error2String (error).c_str ())));
+                  ACE_TEXT (Common_Tools::errorToString (error).c_str ())));
       return 1;
     } // end IF
     ACE_NEW_NORETURN (byte_p,
@@ -562,7 +563,7 @@ Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to GetLogicalProcessorInformationEx(): \"%s\", returning\n"),
-                  ACE_TEXT (Common_Tools::error2String (GetLastError ()).c_str ())));
+                  ACE_TEXT (Common_Tools::errorToString (GetLastError ()).c_str ())));
 
       // clean up
       delete [] byte_p;
@@ -611,7 +612,7 @@ Common_Tools::printLocales ()
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to EnumSystemLocalesEx(): \"%s\", returning\n"),
-                ACE_TEXT (Common_Tools::error2String (GetLastError ()).c_str ())));
+                ACE_TEXT (Common_Tools::errorToString (GetLastError ()).c_str ())));
     return;
   } // end IF
 #else
@@ -1387,10 +1388,57 @@ Common_Tools::getHostName ()
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 std::string
-Common_Tools::error2String (DWORD error_in,
+Common_Tools::GUIDToString (REFGUID GUID_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::GUIDToString"));
+
+  std::string result;
+
+  OLECHAR GUID_string[CHARS_IN_GUID];
+  ACE_OS::memset (GUID_string, 0, sizeof (GUID_string));
+  int result_2 = StringFromGUID2 (GUID_in,
+                                  GUID_string, CHARS_IN_GUID);
+  ACE_ASSERT (result_2 == CHARS_IN_GUID);
+
+#if defined (OLE2ANSI)
+  result = GUID_string;
+#else
+  result = ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (GUID_string));
+#endif
+
+  return result;
+}
+struct _GUID
+Common_Tools::StringToGUID (const std::string& string_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::StringToGUID"));
+
+  struct _GUID result = GUID_NULL;
+
+  HRESULT result_2 = E_FAIL;
+#if defined (OLE2ANSI)
+  result_2 = CLSIDFromString (string_in.c_str (), &result);
+#else
+  result_2 =
+    CLSIDFromString (ACE_TEXT_ALWAYS_WCHAR (string_in.c_str ()), &result);
+#endif
+  if (FAILED (result_2))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to CLSIDFromString(\"%s\"): \"%s\", aborting\n"),
+                ACE_TEXT (string_in.c_str ()),
+                ACE_TEXT (Common_Tools::errorToString (result_2).c_str ())));
+    return GUID_NULL;
+  } // end IF
+
+  return result;
+}
+
+std::string
+Common_Tools::errorToString (DWORD error_in,
                             bool useAMGetErrorText_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::error2String"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::errorToString"));
 
   std::string result;
 
@@ -1407,7 +1455,7 @@ Common_Tools::error2String (DWORD error_in,
       ACE_DEBUG ((LM_WARNING,
                   ACE_TEXT ("failed to AMGetErrorText(0x%x): \"%s\", falling back\n"),
                   error_in,
-                  ACE_TEXT (Common_Tools::error2String (::GetLastError ()).c_str ())));
+                  ACE_TEXT (Common_Tools::errorToString (::GetLastError ()).c_str ())));
       goto fallback;
     } // end IF
     result = ACE_TEXT_ALWAYS_CHAR (buffer);
@@ -1433,7 +1481,7 @@ Common_Tools::error2String (DWORD error_in,
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to FormatMessage(0x%x): \"%s\", continuing\n"),
                   error_in,
-                  ACE_TEXT (Common_Tools::error2String (error).c_str ())));
+                  ACE_TEXT (Common_Tools::errorToString (error).c_str ())));
       return result;
     } // end IF
 
@@ -1446,7 +1494,7 @@ fallback:
     //  ACE_DEBUG ((LM_ERROR,
     //              ACE_TEXT ("failed to DXGetErrorString(0x%x): \"%s\", aborting\n"),
     //              error_in,
-    //              ACE_TEXT (Common_Tools::error2String (::GetLastError ()).c_str ())));
+    //              ACE_TEXT (Common_Tools::errorToString (::GetLastError ()).c_str ())));
     //  return result;
     //} // end IF
     //result = ACE_TEXT_ALWAYS_CHAR (string_p);

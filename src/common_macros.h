@@ -21,7 +21,7 @@
 #ifndef COMMON_MACROS_H
 #define COMMON_MACROS_H
 
-#include <ace/config-lite.h>
+#include "ace/config-lite.h"
 
 // branch prediction //
 
@@ -49,7 +49,7 @@
 #    define COMMON_HAS_TRACE
 #  endif /* COMMON_HAS_TRACE */
 #  define COMMON_TRACE (X) COMMON_TRACE_IMPL(X)
-#  include <ace/Trace.h>
+#  include "ace/Trace.h"
 #endif /* COMMON_NTRACE */
 
 #ifdef __GNUC__

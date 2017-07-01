@@ -21,8 +21,8 @@
 #ifndef COMMON_STATEMACHINE_BASE_H
 #define COMMON_STATEMACHINE_BASE_H
 
-#include <ace/Global_Macros.h>
-#include <ace/Synch_Traits.h>
+#include "ace/Global_Macros.h"
+#include "ace/Synch_Traits.h"
 
 #include "common_iinitialize.h"
 #include "common_istatemachine.h"

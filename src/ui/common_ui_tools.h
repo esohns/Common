@@ -39,7 +39,7 @@
 #endif
 #endif
 
-#include <ace/Global_Macros.h>
+#include "ace/Global_Macros.h"
 
 #include "common_ui_exports.h"
 

@@ -19,8 +19,8 @@
  ***************************************************************************/
 #include <sstream>
 
-#include <ace/Guard_T.h>
-#include <ace/Log_Msg.h>
+#include "ace/Guard_T.h"
+#include "ace/Log_Msg.h"
 
 #include "common_defines.h"
 #include "common_macros.h"

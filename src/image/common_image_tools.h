@@ -30,7 +30,7 @@ extern "C"
 }
 #endif /* __cplusplus */
 
-#include <ace/config-lite.h>
+#include "ace/config-lite.h"
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <gl/GL.h>
@@ -38,7 +38,7 @@ extern "C"
 #include <GL/gl.h>
 #endif
 
-#include <ace/Global_Macros.h>
+#include "ace/Global_Macros.h"
 
 #include "common_image_exports.h"
 
