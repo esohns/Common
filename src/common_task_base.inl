@@ -323,6 +323,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   delete [] thread_names_p[0];
   delete [] thread_names_p;
 }
+
 template <ACE_SYNCH_DECL,
           typename TimePolicyType>
 void
@@ -346,6 +347,20 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Task_Base::wait(): \"%m\", continuing\n")));
   } // end IF
+}
+
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType>
+void
+Common_TaskBase_T<ACE_SYNCH_USE,
+                  TimePolicyType>::finished ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::finished"));
+
+  int result = close (1);
+  if (result == -1)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_TaskBase_T::close(1): \"%m\", continuing\n")));
 }
 
 template <ACE_SYNCH_DECL,

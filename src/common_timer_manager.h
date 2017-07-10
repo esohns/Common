@@ -67,17 +67,18 @@ class Common_Timer_Manager_T
                             const void** = 0, // return value: act
                             int = 1);         // don't call handle_close()
 
-  // implement (part of) Common_IControl
+  // implement Common_ITaskControl_T
   virtual void start ();
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?
   inline virtual bool isRunning () const { return (inherited::thr_count_ > 0); };
-
-  // implement Common_IDumpState
-  virtual void dump_state () const;
+  inline virtual void finished () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) };
 
   // implement Common_IInitialize_T
   virtual bool initialize (const Common_TimerConfiguration&);
+
+  // implement Common_IDumpState
+  virtual void dump_state () const;
 
  private:
   typedef TimerQueueAdapterType inherited;

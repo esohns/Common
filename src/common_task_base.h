@@ -47,11 +47,11 @@ class Common_TaskBase_T
  , public Common_ITask_T<ACE_SYNCH_USE>
  , public Common_IDumpState
 {
+  typedef ACE_Task<ACE_SYNCH_USE,
+                   TimePolicyType> inherited;
+
  public:
   virtual ~Common_TaskBase_T ();
-
-  // override ACE_Task_Base members
-  virtual int close (u_long = 0);
 
   // implement Common_ITask
   // *NOTE*: this wraps ACE_Task_Base::activate() to spawn a single thread;
@@ -64,6 +64,7 @@ class Common_TaskBase_T
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?
   inline virtual bool isRunning () const { return (inherited::thr_count_ > 0); };
+  virtual void finished ();
   virtual int wait (void);
 
   // implement Common_IDumpState
@@ -109,16 +110,14 @@ class Common_TaskBase_T
   THREAD_IDS_T    threadIDs_;
 
  private:
-  typedef ACE_Task<ACE_SYNCH_USE,
-                   TimePolicyType> inherited;
-
-  // override/hide ACE_Task_Base members
-  virtual int module_closed (void);
-  virtual int svc (void);
-
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T ())
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T (const Common_TaskBase_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T& operator= (const Common_TaskBase_T&))
+
+  // override/hide ACE_Task_Base members
+  virtual int close (u_long = 0);
+  virtual int module_closed (void);
+  virtual int svc (void);
 };
 
 // include template definition

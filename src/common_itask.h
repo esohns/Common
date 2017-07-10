@@ -30,16 +30,18 @@ template <ACE_SYNCH_DECL>
 class Common_ITaskControl_T
 {
  public:
-  //virtual void initialize () = 0;
   virtual void start () = 0;
   virtual void stop (bool = true,      // wait for completion ?
                      bool = true) = 0; // locked access ?
   virtual bool isRunning () const = 0;
+
+  // *NOTE*: signal asynchronous completion
+  virtual void finished () = 0;
 };
 
 template <ACE_SYNCH_DECL>
 class Common_ITask_T
- : public Common_ITaskControl_T<ACE_SYNCH_USE>
+ : virtual public Common_ITaskControl_T<ACE_SYNCH_USE>
 {
  public:
   virtual int wait (void) = 0;
