@@ -161,7 +161,8 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
       // *NOTE*: make sure there is a message queue
       if (inherited::msg_queue_)
-        stop (false);
+        stop (false, // wait for completion ?
+              true); // N/A
       else
       {
         if (inherited::mod_)
@@ -397,6 +398,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   return result;
 }
 
+// *** BEGIN dummy stub methods ***
 template <ACE_SYNCH_DECL,
           typename TimePolicyType>
 int
@@ -406,7 +408,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::svc"));
 
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("(%s): worker thread (ID: %t) starting...\n"),
+              ACE_TEXT ("(%s): worker thread (id: %t) starting\n"),
               ACE_TEXT (threadName_.c_str ())));
 
   ACE_Message_Block* message_block_p = NULL;
@@ -457,31 +459,6 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   } while (true);
 
   return result;
-}
-
-// *** BEGIN dummy stub methods ***
-template <ACE_SYNCH_DECL,
-          typename TimePolicyType>
-int
-Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::module_closed (void)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::module_closed"));
-
-  ACE_ASSERT (false);
-  ACE_NOTSUP_RETURN (-1);
-
-  ACE_NOTREACHED (return -1;)
-}
-
-template <ACE_SYNCH_DECL,
-          typename TimePolicyType>
-void
-Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::dump_state () const
-{
-  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::dump_state"));
-
 }
 // *** END dummy stub methods ***
 

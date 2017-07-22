@@ -28,6 +28,15 @@ class Common_IGet_T
   virtual const Type get () const = 0; // return value: type
 };
 
+// *IMPORTANT NOTE*: use this to avoid C2555 on MSVC
+// *TODO*: remove ASAP
+template <typename Type>
+class Common_IGet_2_T
+{
+ public:
+  virtual const Type get_2 () const = 0; // return value: type handle
+};
+
 template <typename Type>
 class Common_ISet_T
 {
@@ -76,7 +85,7 @@ class Common_IGetP_T
 template <typename Type>
 class Common_IGetP_2_T
 {
-public:
+ public:
   virtual const Type* const get_2 () const = 0; // return value: type handle
 };
 

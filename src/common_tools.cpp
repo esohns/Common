@@ -1843,7 +1843,7 @@ Common_Tools::initializeSignals (const ACE_Sig_Set& signals_in,
         previousActions_out[i] = previous_action;
 
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("ignoring signal \"%S\"...\n"),
+                    ACE_TEXT ("ignoring signal \"%S\"\n"),
                     i));
       } // end IF
     } // end IF
@@ -2456,7 +2456,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
       case COMMON_REACTOR_ACE_DEFAULT:
       {
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("using ACE default (platform-specific) reactor...\n")));
+                    ACE_TEXT ("using ACE default (platform-specific) reactor\n")));
         break;
       }
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -2464,7 +2464,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
       case COMMON_REACTOR_DEV_POLL:
       {
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("using /dev/poll reactor...\n")));
+                    ACE_TEXT ("using /dev/poll reactor\n")));
 
         ACE_NEW_NORETURN (reactor_impl_p,
                           ACE_Dev_Poll_Reactor (COMMON_EVENT_MAXIMUM_HANDLES,    // max num handles
@@ -2484,7 +2484,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
       case COMMON_REACTOR_SELECT:
       {
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("using select reactor...\n")));
+                    ACE_TEXT ("using select reactor\n")));
 
         ACE_NEW_NORETURN (reactor_impl_p,
                           ACE_Select_Reactor (static_cast<size_t> (COMMON_EVENT_MAXIMUM_HANDLES), // max num handles
@@ -2501,7 +2501,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
       case COMMON_REACTOR_THREAD_POOL:
       {
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("using thread-pool reactor...\n")));
+                    ACE_TEXT ("using thread-pool reactor\n")));
 
         ACE_NEW_NORETURN (reactor_impl_p,
                           ACE_TP_Reactor (static_cast<size_t> (COMMON_EVENT_MAXIMUM_HANDLES), // max num handles
@@ -2519,7 +2519,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
       case COMMON_REACTOR_WFMO:
       {
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("using WFMO reactor...\n")));
+                    ACE_TEXT ("using WFMO reactor\n")));
 
         ACE_NEW_NORETURN (reactor_impl_p,
                           ACE_WFMO_Reactor (ACE_WFMO_Reactor::DEFAULT_SIZE, // max num handles (62 [+ 2])
@@ -2593,7 +2593,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
       case COMMON_PROACTOR_ACE_DEFAULT:
       {
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("using ACE default (platform-specific) proactor...\n")));
+                    ACE_TEXT ("using ACE default (platform-specific) proactor\n")));
         break;
       }
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -2601,7 +2601,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
       case COMMON_PROACTOR_POSIX_AIOCB:
       {
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("using POSIX AIOCB proactor...\n")));
+                    ACE_TEXT ("using POSIX AIOCB proactor\n")));
 
         ACE_NEW_NORETURN (proactor_impl_p,
                           ACE_POSIX_AIOCB_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
@@ -2611,7 +2611,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
       case COMMON_PROACTOR_POSIX_CB:
       {
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("using POSIX CB proactor...\n")));
+                    ACE_TEXT ("using POSIX CB proactor\n")));
 
         ACE_NEW_NORETURN (proactor_impl_p,
                           ACE_POSIX_CB_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
@@ -2621,7 +2621,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
       case COMMON_PROACTOR_POSIX_SIG:
       {
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("using POSIX RT-signal proactor...\n")));
+                    ACE_TEXT ("using POSIX RT-signal proactor\n")));
 
         ACE_NEW_NORETURN (proactor_impl_p,
                           ACE_POSIX_SIG_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
@@ -2632,7 +2632,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
       case COMMON_PROACTOR_POSIX_SUN:
       {
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("using SunOS proactor...\n")));
+                    ACE_TEXT ("using SunOS proactor\n")));
 
         ACE_NEW_NORETURN (proactor_impl_p,
                           ACE_SUN_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
@@ -2645,7 +2645,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
       case COMMON_PROACTOR_WIN32:
       {
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("using Win32 proactor...\n")));
+                    ACE_TEXT ("using Win32 proactor\n")));
 
         ACE_NEW_NORETURN (proactor_impl_p,
                           ACE_WIN32_Proactor (numberOfThreads_in, // parallel accesses [0: #processors]
@@ -2686,7 +2686,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
       } // end IF
     } // end IF
 
-    // make this the "default" proactor...
+    // make this the "default" proactor
     ACE_Proactor* previous_proactor_p =
         ACE_Proactor::instance (proactor_p, // proactor handle
                                 1);         // delete in dtor ?
@@ -2967,7 +2967,7 @@ Common_Tools::startEventDispatch (const struct Common_DispatchThreadData& thread
   delete [] thread_names_p;
 
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("started event dispatch...\n")));
+              ACE_TEXT ("started event dispatch\n")));
 
   return true;
 }
@@ -3024,7 +3024,7 @@ Common_Tools::finalizeEventDispatch (bool stopReactor_in,
   } // end IF
 
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("stopped event dispatch...\n")));
+              ACE_TEXT ("stopped event dispatch\n")));
 }
 
 void

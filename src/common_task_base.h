@@ -68,8 +68,7 @@ class Common_TaskBase_T
   virtual int wait (void);
 
   // implement Common_IDumpState
-  // *NOTE*: this is just a default stub
-  virtual void dump_state () const;
+  inline virtual void dump_state () const {};
 
  protected:
   // convenient types
@@ -116,7 +115,7 @@ class Common_TaskBase_T
 
   // override/hide ACE_Task_Base members
   virtual int close (u_long = 0);
-  virtual int module_closed (void);
+  inline virtual int module_closed (void) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (-1); ACE_NOTREACHED (return -1;) };
   virtual int svc (void);
 };
 

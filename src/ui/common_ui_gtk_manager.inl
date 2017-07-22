@@ -362,7 +362,7 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
   char* locale_p = ::setlocale (LC_ALL, "");
   if (locale_p)
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("set locale to \"%s\"...\n"),
+                ACE_TEXT ("set locale to \"%s\"\n"),
                 ACE_TEXT (locale_p)));
   else
     ACE_DEBUG ((LM_ERROR,

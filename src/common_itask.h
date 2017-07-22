@@ -22,6 +22,7 @@
 #define COMMON_ITASK_H
 
 #include "ace/Global_Macros.h"
+#include "ace/Synch_Traits.h"
 
 // *TODO*: find out why this doesn't work
 //#include "common_itaskcontrol.h"
@@ -38,6 +39,10 @@ class Common_ITaskControl_T
   // *NOTE*: signal asynchronous completion
   virtual void finished () = 0;
 };
+
+typedef Common_ITaskControl_T<ACE_MT_SYNCH> Common_ITaskControl_t;
+
+//////////////////////////////////////////
 
 template <ACE_SYNCH_DECL>
 class Common_ITask_T

@@ -121,7 +121,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     return;
   } // end IF
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("(%s) spawned worker thread (group: %d, id: %u)...\n"),
+              ACE_TEXT ("(%s) spawned worker thread (group: %d, id: %u)\n"),
               ACE_TEXT (COMMON_TIMER_THREAD_NAME),
               COMMON_TIMER_THREAD_GROUP_ID,
               thread_ids[0]));
@@ -281,7 +281,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     case COMMON_TIMER_QUEUE_HEAP:
     {
       ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("using heap timer queue...\n")));
+                  ACE_TEXT ("using heap timer queue\n")));
 
       ACE_NEW_NORETURN (timer_queue_p,
                         Common_TimerQueueHeapImpl_t ((COMMON_TIMER_PREALLOCATE_TIMER_SLOTS ? COMMON_TIMER_DEFAULT_NUM_TIMER_SLOTS
@@ -295,7 +295,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     case COMMON_TIMER_QUEUE_LIST:
     {
       ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("using list timer queue...\n")));
+                  ACE_TEXT ("using list timer queue\n")));
 
       ACE_NEW_NORETURN (timer_queue_p,
                         Common_TimerQueueListImpl_t (&timerHandler_,       // upcall functor
@@ -306,7 +306,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     case COMMON_TIMER_QUEUE_WHEEL:
     {
       ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("using wheel timer queue...\n")));
+                  ACE_TEXT ("using wheel timer queue\n")));
 
       ACE_NEW_NORETURN (timer_queue_p,
                         Common_TimerQueueWheelImpl_t (ACE_DEFAULT_TIMER_WHEEL_SIZE,
