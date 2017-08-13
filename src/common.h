@@ -121,8 +121,8 @@ struct Common_TimerConfiguration
    , queueType (COMMON_TIMER_DEFAULT_QUEUE)
   {};
 
-  Common_TimerMode      mode;
-  Common_TimerQueueType queueType;
+  enum Common_TimerMode      mode;
+  enum Common_TimerQueueType queueType;
 };
 
 // *** signals ***
@@ -176,10 +176,10 @@ struct Common_DispatchThreadData
    , useReactor (true)
   {};
 
-  unsigned int        numberOfDispatchThreads;
-  Common_ProactorType proactorType;
-  Common_ReactorType  reactorType;
-  bool                useReactor;
+  unsigned int             numberOfDispatchThreads;
+  enum Common_ProactorType proactorType;
+  enum Common_ReactorType  reactorType;
+  bool                     useReactor;
 };
 
 // *** task ***
@@ -191,16 +191,5 @@ typedef std::deque<std::string> Common_MessageStack_t;
 typedef Common_MessageStack_t::const_iterator Common_MessageStackConstIterator_t;
 typedef Common_MessageStack_t::const_reverse_iterator Common_MessageStackConstReverseIterator_t;
 //typedef std::deque<ACE_Log_Record> Common_LogRecordStack_t;
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-enum Common_MediaFrameWork
-{
-  COMMON_WIN32_FRAMEWORK_DIRECTSHOW,
-  COMMON_WIN32_FRAMEWORK_MEDIAFOUNDATION,
-  ////////////////////////////////////////
-  COMMON_WIN32_FRAMEWORK_MAX,
-  COMMON_WIN32_FRAMEWORK_INVALID
-};
-#endif
 
 #endif

@@ -41,7 +41,7 @@ class Common_IStateMachine_T
                      const ACE_Time_Value* = NULL) = 0; // timeout (absolute) ? : block
 
   // *NOTE*: unfortunately, this cannot be static
-  virtual std::string state2String (StateType) const = 0; // return value: state
+  virtual std::string stateToString (StateType) const = 0; // return value: state
 
  protected:
   virtual void onChange (StateType) = 0; // new state

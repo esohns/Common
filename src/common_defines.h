@@ -196,16 +196,4 @@
 #define COMMON_PARSER_DEFAULT_LEX_TRACE                        false
 #define COMMON_PARSER_DEFAULT_YACC_TRACE                       false
 
-// *** media framework ***
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define COMMON_DEFAULT_WIN32_MEDIA_FRAMEWORK                   COMMON_WIN32_FRAMEWORK_DIRECTSHOW
-
-#define COMMON_DEFAULT_WIN32_DIRECTSHOW_USE_PUSH_SOURCE_FILTER false // ? : asynch
-
-// *NOTE*: IMFMediaSession::SetTopology() is asynchronous; subsequent calls
-//         to retrieve the topology handle may fail (MF_E_INVALIDREQUEST)
-//         --> (try to) wait for the next MESessionTopologySet event
-#define COMMON_WIN32_MEDIAFOUNDATION_TOPOLOGY_GET_TIMEOUT      10 // seconds
-#endif
-
 #endif

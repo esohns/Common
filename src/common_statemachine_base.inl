@@ -127,7 +127,7 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
     previous_state = state_;
   } // end lock scope
 
-  // invoke callback...
+  // invoke callback
   // *IMPORTANT NOTE*: note that the stateLock_ is NOT held during the callback
   // *TODO*: implement a consistent (thread-safe/reentrant) policy
   bool result = true;
@@ -136,7 +136,7 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
   } catch (...) {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("caught exception in Common_IStateMachine_T::onChange(\"%s\"), aborting\n"),
-                ACE_TEXT (this->state2String (newState_in).c_str ())));
+                ACE_TEXT (this->stateToString (newState_in).c_str ())));
     result = false;
   }
 

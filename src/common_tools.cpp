@@ -482,13 +482,12 @@ Common_Tools::strip (const std::string& string_in)
   std::string result = string_in;
 
   // *TODO*: remove tabs & other non-printable characters
-  std::string::size_type current_space = std::string::npos;
-  while ((current_space = result.find (' ',
-                                       0)) == 0)
-    result.erase (current_space, 1);
-  while ((current_space = result.rfind (' ',
-                                        std::string::npos)) == (result.size () - 1))
-    result.erase (current_space, 1);
+  std::string::size_type position = result.find_first_not_of (' ', 0);
+  if (position != std::string::npos)
+    result.erase (0, position - 1);
+  while ((position = result.rfind (' ',
+                                   std::string::npos)) == (result.size () - 1))
+    result.erase (position, 1);
 
   return result;
 }

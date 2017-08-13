@@ -62,7 +62,9 @@ class Common_Tools
                                  std::string&);         // return value: corresp. string
 
   static std::string sanitizeURI (const std::string&); // URI
+  // replace ' ' with '_'
   static std::string sanitize (const std::string&); // string
+  // remove leading and trailing whitespace
   static std::string strip (const std::string&); // string
 
   // --- platform ---

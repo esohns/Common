@@ -34,7 +34,7 @@ class Common_ReferenceCounterBase
  public:
   Common_ReferenceCounterBase (long); // initial count (no delete on 0)
   Common_ReferenceCounterBase (const Common_ReferenceCounterBase&);
-  virtual ~Common_ReferenceCounterBase ();
+  inline virtual ~Common_ReferenceCounterBase () {};
 
   // implement Common_IReferenceCount
   inline virtual unsigned int increase () { return static_cast<unsigned int> (inherited::increment ()); };

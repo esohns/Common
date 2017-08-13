@@ -466,11 +466,11 @@ template <ACE_SYNCH_DECL,
           typename TimePolicyType>
 int
 Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::open (void* arg_in)
+                  TimePolicyType>::open (void* args_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::open"));
 
-  ACE_UNUSED_ARG (arg_in);
+  ACE_UNUSED_ARG (args_in);
 
   // sanity check(s)
   if (inherited::thr_count_ > 0)

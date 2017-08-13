@@ -55,12 +55,6 @@ Common_ReferenceCounterBase::Common_ReferenceCounterBase (const Common_Reference
 
 }
 
-Common_ReferenceCounterBase::~Common_ReferenceCounterBase ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::~Common_ReferenceCounterBase"));
-
-}
-
 Common_ReferenceCounterBase::Common_ReferenceCounterBase ()
  : inherited (1)
  , lock_ (NULL, // name
