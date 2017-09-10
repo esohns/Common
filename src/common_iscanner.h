@@ -29,8 +29,6 @@ class ACE_Message_Block;
 class Common_IScanner
 {
  public:
-  virtual ~Common_IScanner () {};
-
   virtual ACE_Message_Block* buffer () = 0;
   virtual bool debugScanner () const = 0;
   virtual bool isBlocking () const = 0;
