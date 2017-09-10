@@ -41,7 +41,7 @@ class Common_SignalHandler_T
  , public Common_IInitialize_T<ConfigurationType>
 {
  public:
-  virtual ~Common_SignalHandler_T ();
+  inline virtual ~Common_SignalHandler_T () {};
 
 //  // *NOTE*: proactor code: invoke handle_exception
 //  virtual void handle_time_out (const ACE_Time_Value&, // target time
@@ -58,6 +58,7 @@ class Common_SignalHandler_T
   Common_SignalHandler_T (Common_ISignal*); // event handler handle
 
   ConfigurationType* configuration_;
+  bool               isInitialized_;
 
  private:
   typedef ACE_Handler inherited;

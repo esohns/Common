@@ -29,16 +29,16 @@
 
 #include "ace/Synch_Traits.h"
 
-#include <gtk/gtk.h>
+#include "gtk/gtk.h"
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
-//#include <gtkgl/gdkgl.h>
-#include <gtkgl/gtkglarea.h>
+//#include "gtkgl/gdkgl.h"
+#include "gtkgl/gtkglarea.h"
 #else
 #if defined (GTKGLAREA_SUPPORT)
-#include <gtkgl/gtkglarea.h>
+#include "gtkgl/gtkglarea.h"
 #else
-#include <gdk/gdkgl.h>
+#include "gdk/gdkgl.h"
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,0,0) */
 #endif /* GTKGL_SUPPORT */
@@ -78,8 +78,9 @@ typedef Common_UI_GTKBuilders_t::const_iterator Common_UI_GTKBuildersConstIterat
 enum Common_UI_GTKStatusContextType
 {
   GTK_STATUSCONTEXT_INVALID = -1,
-  //GTK_STATUSCONTEXT_GLOBAL = 0, // *NOTE*: 0 is a predefined global context id
-  GTK_STATUSCONTEXT_DATA = 0,
+  // *NOTE*: '0' is also a predefined global context id
+  //GTK_STATUSCONTEXT_GLOBAL  = 0,
+  GTK_STATUSCONTEXT_DATA,
   GTK_STATUSCONTEXT_INFORMATION,
   ///////////////////////////////////////
   GTK_STATUSCONTEXT_MAX

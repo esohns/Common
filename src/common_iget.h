@@ -95,6 +95,14 @@ class Common_ISetP_T
  public:
   virtual void set (Type*) = 0;
 };
+// *IMPORTANT NOTE*: use this to avoid C2555 on MSVC
+// *TODO*: remove ASAP
+template <typename Type>
+class Common_ISetP_2_T
+{
+ public:
+  virtual void set_2 (Type*) = 0;
+};
 
 template <typename Type>
 class Common_IGetSetP_T
@@ -110,6 +118,13 @@ class Common_ISetPP_T
  public:
   // *IMPORTANT NOTE*: fire-and-forget API
   virtual void set (Type*&) = 0;
+};
+template <typename Type>
+class Common_ISetPP_2_T
+{
+ public:
+  // *IMPORTANT NOTE*: fire-and-forget API
+  virtual void set_2 (Type*&) = 0;
 };
 
 template <typename Type>

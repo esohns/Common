@@ -27,9 +27,6 @@
 class Common_ILock
 {
  public:
-  virtual ~Common_ILock () {}
-
-  // exposed interface
   // *NOTE*: returns whether unlock() needs to be called
   virtual bool lock (bool = true) = 0; // block ?
   // *NOTE*: returns the new nesting level (or -1, if the lock was not held by
@@ -42,9 +39,6 @@ class Common_ILock_T
  : public Common_ILock
 {
  public:
-  virtual ~Common_ILock_T () {}
-
-  // exposed interface
   virtual ACE_SYNCH_RECURSIVE_MUTEX& getLock () = 0;
 };
 

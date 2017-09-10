@@ -32,16 +32,10 @@ Common_SignalHandler_T<ConfigurationType>::Common_SignalHandler_T (Common_ISigna
  , inherited2 (NULL,                           // default reactor
                ACE_Event_Handler::LO_PRIORITY) // priority
  , configuration_ (NULL)
+ , isInitialized_ (false)
  , callback_ (callback_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_SignalHandler_T::Common_SignalHandler_T"));
-
-}
-
-template <typename ConfigurationType>
-Common_SignalHandler_T<ConfigurationType>::~Common_SignalHandler_T ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_SignalHandler_T::~Common_SignalHandler_T"));
 
 }
 
@@ -166,6 +160,7 @@ Common_SignalHandler_T<ConfigurationType>::initialize (const ConfigurationType& 
   COMMON_TRACE (ACE_TEXT ("Common_SignalHandler_T::initialize"));
 
   configuration_ = &const_cast<ConfigurationType&> (configuration_in);
+  isInitialized_ = true;
 
   return true;
 }

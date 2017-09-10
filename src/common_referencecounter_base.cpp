@@ -107,7 +107,6 @@ Common_ReferenceCounterBase::decrease ()
   long result = inherited::decrement ();
   int result_2 = -1;
 
-  // synch access
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, lock_, 0);
     // awaken any waiter(s)
     result_2 = condition_.broadcast ();
@@ -129,7 +128,6 @@ Common_ReferenceCounterBase::wait (unsigned int count_in) const
 
   int result = -1;
 
-  // synch access
   { ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, lock_);
     while (inherited::refcount_.value () != static_cast<long> (count_in))
     {

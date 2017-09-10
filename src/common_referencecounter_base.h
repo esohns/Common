@@ -31,6 +31,8 @@ class Common_ReferenceCounterBase
  : public ACE_Refcountable_T<ACE_SYNCH_MUTEX>
  , virtual public Common_IReferenceCount
 {
+  typedef ACE_Refcountable_T<ACE_SYNCH_MUTEX> inherited;
+
  public:
   Common_ReferenceCounterBase (long); // initial count (no delete on 0)
   Common_ReferenceCounterBase (const Common_ReferenceCounterBase&);
@@ -50,11 +52,9 @@ class Common_ReferenceCounterBase
   Common_ReferenceCounterBase (long,  // initial reference count
                                bool); // delete on 0 ?
 
-  mutable ACE_SYNCH_MUTEX lock_;
+  mutable ACE_SYNCH_MUTEX     lock_;
 
  private:
-  typedef ACE_Refcountable_T<ACE_SYNCH_MUTEX> inherited;
-
   mutable ACE_SYNCH_CONDITION condition_;
   bool                        deleteOnZero_;
 };
