@@ -8,15 +8,22 @@
 
 # sanity checks
 command -v dirname >/dev/null 2>&1 || { echo "dirname is not installed, aborting" >&2; exit 1; }
+command -v patch >/dev/null 2>&1 || { echo "patch is not installed, aborting" >&2; exit 1; }
 command -v readlink >/dev/null 2>&1 || { echo "readlink is not installed, aborting" >&2; exit 1; }
 
 DEFAULT_PLATFORM="win32"
 PLATFORM=${DEFAULT_PLATFORM}
-if [ $# -lt 1 ]; then
+if [ $# -lt 1 ]
+then
  echo "INFO: using default platform: \"${PLATFORM}\""
 else
  # parse any arguments
- if [ $# -ge 1 ]; then
+ if [ $# -ge 1 ]
+ then
+  if [ "$1" != "win32" -a "$1" != "linux" ]
+  then
+   echo "invalid argument (was: "$1"), aborting"; exit 1;
+  fi
   PLATFORM="$1"
  fi
 fi
@@ -29,7 +36,8 @@ then
  echo "INFO: using default mpc project type: \"${PROJECT_TYPE}\""
 else
  # parse any arguments
- if [ $# -ge 2 ]; then
+ if [ $# -ge 2 ]
+ then
   PROJECT_TYPE="$2"
  fi
 fi
@@ -48,13 +56,13 @@ then
   [ ! -d ${DEFAULT_MPC_DIRECTORY} ] && echo "ERROR: invalid MPC directory (was: \"${DEFAULT_MPC_DIRECTORY}\"), aborting" && exit 1
 fi
 MPC_DIRECTORY=${DEFAULT_MPC_DIRECTORY}
-if [ ! -v MPC_ROOT ]
+if [ -z ${MPC_ROOT} ]
 then
  MPC_ROOT=${MPC_DIRECTORY}
  export MPC_ROOT
  echo "INFO: exported MPC_ROOT (as: \"${MPC_ROOT}\")"
 fi
-echo "INFO: \$MPC_ROOT is: \"${MPC_ROOT}\")"
+#echo "INFO: \$MPC_ROOT is: \"${MPC_ROOT}\")"
 
 DEFAULT_ACE_DIRECTORY=/mnt/win_d/projects/ATCD/ACE # <-- UNIX
 if [ ! -d ${DEFAULT_ACE_DIRECTORY} ]
@@ -63,28 +71,36 @@ then
   [ ! -d ${DEFAULT_ACE_DIRECTORY} ] && echo "ERROR: invalid MPC directory (was: \"${DEFAULT_ACE_DIRECTORY}\"), aborting" && exit 1
 fi
 ACE_DIRECTORY=${DEFAULT_ACE_DIRECTORY}
-if [ ! -v ACE_ROOT ]
+if [ -z ${ACE_ROOT} ]
 then
  ACE_ROOT=${ACE_DIRECTORY}
  export ACE_ROOT
  echo "INFO: exported ACE_ROOT (as: \"${ACE_ROOT}\")"
 fi
-echo "INFO: \$ACE_ROOT is: \"${ACE_ROOT}\")"
+#echo "INFO: \$ACE_ROOT is: \"${ACE_ROOT}\")"
 
+# step1: apply patches
+PATCH_DIRECTORY=${PROJECT_DIRECTORY}/../libACEStream/3rd_party/ACE_wrappers/patches
+[ ! -d ${PATCH_DIRECTORY} ] && echo "ERROR: invalid ACE patch directory (was: \"${PATCH_DIRECTORY}\"), aborting" && exit 1
+#echo "DEBUG: ACE patch directory: \"${PATCH_DIRECTORY}\""
+cd ${ACE_DIRECTORY}
+for filename in ${PATCH_DIRECTORY}/*.patch; do
+ echo "INFO: applying patch \"$(basename ${filename})\"..."
+ patch -f -i$filename -p4 -s -u
+ [ $? -gt 1 ] && echo "ERROR: failed to apply patch \"${filename}\", aborting" && exit 1
+done
+
+# step2: generate Makefiles
 DEFAULT_ACE_BUILD_DIRECTORY=${ACE_DIRECTORY} # <-- win32
-if [ ! -d ${DEFAULT_ACE_DIRECTORY} ]
-then
-  DEFAULT_ACE_DIRECTORY=/d/projects/ATCD/ACE # <-- cygwin/mingw/msys
-  [ ! -d ${DEFAULT_ACE_DIRECTORY} ] && echo "ERROR: invalid MPC directory (was: \"${DEFAULT_ACE_DIRECTORY}\"), aborting" && exit 1
-fi
-ACE_DIRECTORY=${DEFAULT_ACE_DIRECTORY}
-if [ ! -v ACE_ROOT ]
-then
- ACE_ROOT=${ACE_DIRECTORY}
- export ACE_ROOT
- echo "INFO: exported ACE_ROOT (as: \"${ACE_ROOT}\")"
-fi
-echo "INFO: \$ACE_ROOT is: \"${ACE_ROOT}\")"
+case "${PLATFORM}" in
+ win32)
+  ;;
+ linux|*)
+  ACE_BUILD_DIRECTORY=${DEFAULT_ACE_DIRECTORY}/build/${PLATFORM}
+  ;;
+esac
+[ ! -d ${ACE_BUILD_DIRECTORY} ] && echo "ERROR: invalid ACE build directory (was: \"${ACE_BUILD_DIRECTORY}\"), aborting" && exit 1
+#echo "DEBUG: ACE build directory: \"${ACE_BUILD_DIRECTORY}\""
 
 FEATURES_FILE_DIRECTORY=${PROJECT_DIRECTORY}/3rd_party/ACE_wrappers
 [ ! -d ${FEATURES_FILE_DIRECTORY} ] && echo "ERROR: invalid feature file directory (was: \"${FEATURES_FILE_DIRECTORY}\"), aborting" && exit 1
@@ -92,13 +108,17 @@ LOCAL_FEATURES_FILE=${FEATURES_FILE_DIRECTORY}/local.features
 [ ! -r ${LOCAL_FEATURES_FILE} ] && echo "ERROR: invalid file (was: \"${LOCAL_FEATURES_FILE}\"), aborting" && exit 1
 echo "INFO: feature file is: \"${LOCAL_FEATURES_FILE}\")"
 
-ACE_MWC_FILE=${ACE_DIRECTORY}/ACE.mwc
+ACE_MWC_FILE=${ACE_BUILD_DIRECTORY}/ACE.mwc
 [ ! -r ${ACE_MWC_FILE} ] && echo "ERROR: invalid mpc configuration file (was: \"${ACE_MWC_FILE}\"), aborting" && exit 1
 
-MWC_PL=${ACE_DIRECTORY}/bin/mwc.pl
+MWC_PL=${ACE_BUILD_DIRECTORY}/bin/mwc.pl
 [ ! -x ${MWC_PL} ] && echo "ERROR: invalid mpc configuration script (was: \"${MWC_PL}\"), aborting" && exit 1
-
-cd ${ACE_DIRECTORY}
-${MWC_PL} -feature_file ${LOCAL_FEATURES_FILE} -type ${PROJECT_TYPE} ${ACE_MWC_FILE}
+MWC_PL_OPTIONS=
+#if [ "${PLATFORM}" = "linux" ]
+#then
+# MWC_PL_OPTIONS="-name_modifier *_gnu"
+#fi
+cd ${ACE_BUILD_DIRECTORY}
+${MWC_PL} -feature_file ${LOCAL_FEATURES_FILE} ${MWC_PL_OPTIONS} -type ${PROJECT_TYPE} ${ACE_MWC_FILE}
 [ $? -ne 0 ] && echo "ERROR: failed to mwc.pl \"${ACE_MWC_FILE}\", aborting" && exit 1
 echo "processing ${ACE_MWC_FILE}...DONE"
