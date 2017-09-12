@@ -30,8 +30,6 @@ template <typename StateType>
 class Common_IStateMachine_T
 {
  public:
-  virtual ~Common_IStateMachine_T () {}
-
   virtual bool change (StateType) = 0; // new state
   virtual StateType current () const = 0;
   virtual void initialize () = 0;

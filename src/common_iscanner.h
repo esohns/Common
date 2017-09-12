@@ -59,7 +59,7 @@ class Common_IScannerBase
 template <typename ParserInterfaceType> // implements Stream_IParser_T
 class Common_ILexScanner_T
  : public Common_IScannerBase
- , public Common_ISetP_T<ParserInterfaceType>
+ , public Common_IGetSetP_T<ParserInterfaceType>
 {
  public:
   // *NOTE*: this is the C-ish interface (not needed by C++ scanners)

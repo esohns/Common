@@ -56,14 +56,14 @@ template <typename Type>
 class Common_IGetR_T
 {
  public:
-  virtual const Type& get () const = 0; // return value: type
+  virtual const Type& getR () const = 0; // return value: type
 };
 
 template <typename Type>
 class Common_ISetR_T
 {
  public:
-  virtual void set (const Type&) = 0;
+  virtual void setR (const Type&) = 0;
 };
 
 template <typename Type>
@@ -78,7 +78,7 @@ template <typename Type>
 class Common_IGetP_T
 {
  public:
-  virtual const Type* const get () const = 0; // return value: type handle
+  virtual const Type* const getP () const = 0; // return value: type handle
 };
 // *IMPORTANT NOTE*: use this to avoid C2555 on MSVC
 // *TODO*: remove ASAP
@@ -86,14 +86,14 @@ template <typename Type>
 class Common_IGetP_2_T
 {
  public:
-  virtual const Type* const get_2 () const = 0; // return value: type handle
+  virtual const Type* const getP_2 () const = 0; // return value: type handle
 };
 
 template <typename Type>
 class Common_ISetP_T
 {
  public:
-  virtual void set (Type*) = 0;
+  virtual void setP (Type*) = 0;
 };
 // *IMPORTANT NOTE*: use this to avoid C2555 on MSVC
 // *TODO*: remove ASAP
@@ -101,7 +101,7 @@ template <typename Type>
 class Common_ISetP_2_T
 {
  public:
-  virtual void set_2 (Type*) = 0;
+  virtual void setP_2 (Type*) = 0;
 };
 
 template <typename Type>
@@ -113,26 +113,24 @@ class Common_IGetSetP_T
 //////////////////////////////////////////
 
 template <typename Type>
-class Common_ISetPP_T
+class Common_ISetPR_T
 {
  public:
   // *IMPORTANT NOTE*: fire-and-forget API
-  virtual void set (Type*&) = 0;
+  virtual void setPR (Type*&) = 0;
 };
 template <typename Type>
-class Common_ISetPP_2_T
+class Common_ISetPR_2_T
 {
  public:
   // *IMPORTANT NOTE*: fire-and-forget API
-  virtual void set_2 (Type*&) = 0;
+  virtual void setPR_2 (Type*&) = 0;
 };
 
 template <typename Type>
-class Common_IGetSetPP_T
- : public Common_ISetPP_T<Type>
-{
- public:
-  virtual const Type* const get () const = 0; // return value: type handle
-};
+class Common_IGetSetPR_T
+ : public Common_IGetP_T<Type>
+ , public Common_ISetPR_T<Type>
+{};
 
 #endif
