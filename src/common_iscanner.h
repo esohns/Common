@@ -23,24 +23,79 @@
 
 #include <string>
 
+#include "location.hh"
+
+#include "common_iget.h"
+#include "common_iinitialize.h"
+#include "common_idumpstate.h"
+
 // forward declarations
+typedef void* yyscan_t;
+struct yy_buffer_state;
 class ACE_Message_Block;
 
-class Common_IScanner
+class Common_IScannerBase
 {
  public:
   virtual ACE_Message_Block* buffer () = 0;
-  virtual bool debugScanner () const = 0;
+//  virtual bool debug () const = 0;
   virtual bool isBlocking () const = 0;
-
-  virtual void error (const std::string&) = 0;
 
   virtual void offset (unsigned int) = 0; // offset (increment)
   virtual unsigned int offset () const = 0;
 
-  // *IMPORTANT NOTE*: this appends a new buffer to the chain
+  virtual bool begin (const char*,       // buffer
+                      unsigned int) = 0; // size
+  virtual void end () = 0;
+
+  // *NOTE*: appends a new buffer to the ACE_Message_Block chain
   virtual bool switchBuffer (bool = false) = 0; // unlink current buffer ?
   virtual void waitBuffer () = 0;
+
+  ////////////////////////////////////////
+  virtual void error (const std::string&) = 0;
+};
+
+template <typename ParserInterfaceType> // implements Stream_IParser_T
+class Common_ILexScanner_T
+ : public Common_IScannerBase
+ , public Common_ISetP_T<ParserInterfaceType>
+{
+ public:
+  // *NOTE*: this is the C-ish interface (not needed by C++ scanners)
+  virtual void debug (yyscan_t,  // state handle
+                      bool) = 0; // toggle
+
+  virtual bool initialize (yyscan_t&) = 0; // return value: state handle
+  virtual void finalize (yyscan_t&) = 0; // state handle
+
+  virtual struct yy_buffer_state* create (yyscan_t,    // state handle
+                                          char*,       // buffer handle
+                                          size_t) = 0; // buffer size
+  virtual void destroy (yyscan_t,                      // state handle
+                        struct yy_buffer_state*&) = 0; // buffer handle
+};
+
+//////////////////////////////////////////
+
+template <typename ConfigurationType>
+class Common_IParser_T
+ : public Common_IInitialize_T<ConfigurationType>
+ , public Common_IDumpState
+{
+ public:
+  virtual bool parse (ACE_Message_Block*) = 0; // data buffer handle
+};
+
+template <typename ConfigurationType>
+class Common_IYaccParser_T
+ : public Common_IParser_T<ConfigurationType>
+{
+ public:
+  ////////////////////////////////////////
+//  virtual void error (const struct YYLTYPE&,
+  virtual void error (const yy::location&,
+                      const std::string&) = 0;
 };
 
 #endif
