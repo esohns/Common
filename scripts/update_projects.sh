@@ -25,7 +25,7 @@ BACKUP_SCRIPT_PATH="${SCRIPTS_DIRECTORY}/${BACKUP_SCRIPT}"
 ${COMMIT_SCRIPT_PATH}
 [ $? -ne 0 ] && echo "ERROR: failed to commit changes, aborting" && exit 1
 echo "comitted changes...DONE"
-$(${BACKUP_SCRIPT_PATH})
+${BACKUP_SCRIPT_PATH}
 [ $? -ne 0 ] && echo "ERROR: failed to backup changes, aborting" && exit 1
 echo "backed up repositories...DONE"
 
