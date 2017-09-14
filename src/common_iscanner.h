@@ -40,8 +40,6 @@ class Common_IScannerBase
   virtual ACE_Message_Block* buffer () = 0;
 //  virtual bool debug () const = 0;
   virtual bool isBlocking () const = 0;
-
-  virtual void offset (unsigned int) = 0; // offset (increment)
   virtual unsigned int offset () const = 0;
 
   virtual bool begin (const char*,       // buffer
@@ -53,20 +51,25 @@ class Common_IScannerBase
   virtual void waitBuffer () = 0;
 
   ////////////////////////////////////////
+  virtual void offset (unsigned int) = 0; // offset (/increment)
   virtual void error (const std::string&) = 0;
 };
 
-template <typename ParserInterfaceType> // implements Stream_IParser_T
+template <typename StateType, // implements struct Common_ScannerState
+          typename ParserInterfaceType> // implements Common_IParser_T
 class Common_ILexScanner_T
  : public Common_IScannerBase
- , public Common_IGetSetP_T<ParserInterfaceType>
+ , public Common_IGetR_2_T<StateType>
+// , public Common_IGetSetP_T<ParserInterfaceType>
+ , public Common_IGetP_2_T<ParserInterfaceType>
+ , public Common_ISetP_T<ParserInterfaceType>
 {
  public:
-  // *NOTE*: this is the C-ish interface (not needed by C++ scanners)
   virtual void debug (yyscan_t,  // state handle
                       bool) = 0; // toggle
 
-  virtual bool initialize (yyscan_t&) = 0; // return value: state handle
+  virtual bool initialize (yyscan_t&,       // return value: state handle
+                           StateType*) = 0; // 'extra' data handle
   virtual void finalize (yyscan_t&) = 0; // state handle
 
   virtual struct yy_buffer_state* create (yyscan_t,    // state handle
@@ -74,6 +77,9 @@ class Common_ILexScanner_T
                                           size_t) = 0; // buffer size
   virtual void destroy (yyscan_t,                      // state handle
                         struct yy_buffer_state*&) = 0; // buffer handle
+
+  // *NOTE*: this is the C interface (not needed by C++ scanners)
+  virtual bool lex () = 0;
 };
 
 //////////////////////////////////////////

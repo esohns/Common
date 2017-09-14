@@ -182,6 +182,15 @@ struct Common_DispatchThreadData
   bool                     useReactor;
 };
 
+struct Common_ScannerState
+{
+  inline Common_ScannerState ()
+   : offset (0)
+  {};
+
+  unsigned int offset;
+};
+
 // *** task ***
 typedef Common_ITaskControl_T<ACE_MT_SYNCH> Common_ITaskControl_t;
 typedef Common_ITask_T<ACE_MT_SYNCH> Common_ITask_t;
