@@ -21,33 +21,65 @@
 #ifndef COMMON_ITIMER_H
 #define COMMON_ITIMER_H
 
-#include "ace/Asynch_IO.h"
 #include "ace/Time_Value.h"
 
-// forward declarations
-class ACE_Event_Handler;
+#include "common_iget.h"
+#include "common_iinitialize.h"
 
-class Common_ITimer
+// forward declarations
+//class ACE_Event_Handler;
+//class ACE_Handler;
+class Common_TimerHandler;
+
+class Common_ITimerBase
 {
  public:
-  virtual ~Common_ITimer () {}
-
-  // exposed interface
-  // proactor version
-  virtual long schedule_timer (ACE_Handler*,                                      // event handler
-                               const void*,                                       // act
+  virtual long schedule_timer (Common_TimerHandler*,                              // event handler handle
+                               const void*,                                       // asynchronous completion token
                                const ACE_Time_Value&,                             // delay
                                const ACE_Time_Value& = ACE_Time_Value::zero) = 0; // interval
-  // *NOTE*: API adopted from ACE_Reactor_Timer_Interface
-  virtual long schedule_timer (ACE_Event_Handler*,                                // event handler
-                               const void*,                                       // act
-                               const ACE_Time_Value&,                             // delay
-                               const ACE_Time_Value& = ACE_Time_Value::zero) = 0; // interval
+  virtual int cancel_timer (long,             // timer id
+                            const void** = 0, // return value: asynchronous completion token
+                            int = 1) = 0;     // do not (!) call handle_close() ?
   virtual int reset_timer_interval (long,                       // timer id
                                     const ACE_Time_Value&) = 0; // interval
-  virtual int cancel_timer (long,             // timer id
-                            const void** = 0, // return value: act
-                            int = 1) = 0;     // don't call handle_close()
+
+//  virtual bool useReactor () const = 0; // ? : uses proactor
 };
+
+//////////////////////////////////////////
+
+//// *NOTE*: see also: ACE_Reactor_Timer_Interface.h
+//class Common_IReactorTimer
+// : virtual public Common_ITimerBase
+//{
+// public:
+//  virtual long schedule_timer (ACE_Event_Handler*,                                // event handler handle
+//                               const void*,                                       // asynchronous completion token
+//                               const ACE_Time_Value&,                             // delay
+//                               const ACE_Time_Value& = ACE_Time_Value::zero) = 0; // interval
+//};
+
+//// *NOTE*: see also: ACE_Proactor.h
+//class Common_IProactorTimer
+// : virtual public Common_ITimerBase
+//{
+// public:
+//  virtual long schedule_timer (ACE_Handler*,                                      // event handler handle
+//                               const void*,                                       // asynchronous completion token
+//                               const ACE_Time_Value&,                             // delay
+//                               const ACE_Time_Value& = ACE_Time_Value::zero) = 0; // interval
+//};
+
+//////////////////////////////////////////
+
+template <typename ConfigurationType>
+class Common_ITimer_T
+// : public Common_IReactorTimer
+// , public Common_IProactorTimer
+ : public Common_ITimerBase
+ , public Common_IInitialize_T<ConfigurationType>
+ , public Common_IGetR_T<ConfigurationType>
+{};
 
 #endif

@@ -24,10 +24,7 @@
 class Common_ITimerHandler
 {
  public:
-  virtual ~Common_ITimerHandler () {}
-
-  // exposed interface
-  virtual void handleTimeout (const void*) = 0; // argument
+  virtual void handle (const void*) = 0; // asynchronous completion token
 };
 
 #endif

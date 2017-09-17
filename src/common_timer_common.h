@@ -41,20 +41,22 @@
 #include "ace/Timer_Queue_Adapters.h"
 #include "ace/Timer_Queue_T.h"
 
+#include "common_itimer.h"
 #include "common_time_common.h"
 
-//// forward declarations
+// forward declarations
 //template <class TQ, class TYPE>
 //class ACE_Async_Timer_Queue_Adapter;
 //template <class TQ, class TYPE>
 //class ACE_Thread_Timer_Queue_Adapter;
+struct Common_TimerConfiguration;
 
 // *** timer queue ***
 // *NOTE*: ensure a minimal amount of locking
 //typedef ACE_Event_Handler_Handle_Timeout_Upcall<ACE_SYNCH_NULL_MUTEX> Common_TimeoutUpcall_t;
 typedef ACE_Event_Handler_Handle_Timeout_Upcall Common_TimeoutUpcall_t;
-//// *WARNING*: apparently, ACEs' timer heap implementation currently has some
-////            stability issue...
+// *WARNING*: apparently, ACEs' timer heap implementation currently has some
+//            stability issues
 typedef ACE_Timer_Heap_T<ACE_Event_Handler*,
                          Common_TimeoutUpcall_t,
                          ACE_SYNCH_NULL_MUTEX,
@@ -63,6 +65,7 @@ typedef ACE_Timer_Heap_Iterator_T<ACE_Event_Handler*,
                                   Common_TimeoutUpcall_t,
                                   ACE_SYNCH_NULL_MUTEX,
                                   Common_TimePolicy_t> Common_TimerQueueHeapImplIterator_t;
+
 typedef ACE_Timer_List_T<ACE_Event_Handler*,
                          Common_TimeoutUpcall_t,
                          ACE_SYNCH_NULL_MUTEX,
@@ -71,6 +74,7 @@ typedef ACE_Timer_List_Iterator_T<ACE_Event_Handler*,
                                   Common_TimeoutUpcall_t,
                                   ACE_SYNCH_NULL_MUTEX,
                                   Common_TimePolicy_t> Common_TimerQueueListImplIterator_t;
+
 typedef ACE_Timer_Wheel_T<ACE_Event_Handler*,
                           Common_TimeoutUpcall_t,
                           ACE_SYNCH_NULL_MUTEX,
@@ -79,12 +83,14 @@ typedef ACE_Timer_Wheel_Iterator_T<ACE_Event_Handler*,
                                    Common_TimeoutUpcall_t,
                                    ACE_SYNCH_NULL_MUTEX,
                                    Common_TimePolicy_t> Common_TimerQueueWheelImplIterator_t;
+
 typedef ACE_Async_Timer_Queue_Adapter<Common_TimerQueueHeapImpl_t,
                                       ACE_Event_Handler*> Common_TimerManagerAsynchHeapBase_t;
 typedef ACE_Async_Timer_Queue_Adapter<Common_TimerQueueListImpl_t,
                                       ACE_Event_Handler*> Common_TimerManagerAsynchListBase_t;
 typedef ACE_Async_Timer_Queue_Adapter<Common_TimerQueueWheelImpl_t,
                                       ACE_Event_Handler*> Common_TimerManagerAsynchWheelBase_t;
+
 typedef ACE_Thread_Timer_Queue_Adapter<Common_TimerQueueHeapImpl_t,
                                        ACE_Event_Handler*> Common_TimerManagerHeapBase_t;
 typedef ACE_Thread_Timer_Queue_Adapter<Common_TimerQueueListImpl_t,
@@ -93,5 +99,7 @@ typedef ACE_Thread_Timer_Queue_Adapter<Common_TimerQueueWheelImpl_t,
                                        ACE_Event_Handler*> Common_TimerManagerWheelBase_t;
 
 typedef ACE_Abstract_Timer_Queue<ACE_Event_Handler*> Common_ITimerQueue_t;
+
+typedef Common_ITimer_T<struct Common_TimerConfiguration> Common_ITimer_t;
 
 #endif

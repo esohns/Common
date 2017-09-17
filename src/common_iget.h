@@ -142,4 +142,23 @@ class Common_IGetSetPR_T
  , public Common_ISetPR_T<Type>
 {};
 
+//----------------------------------------
+
+template <typename Type>
+class Common_IGet1R_T
+{
+ public:
+  virtual const Type& get1R (const Type&) const = 0; // return value: type
+};
+
+//----------------------------------------
+
+template <typename Type>
+class Common_ISet2R_T
+{
+ public:
+  virtual void set2R (const Type&,
+                      const Type&) = 0;
+};
+
 #endif

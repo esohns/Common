@@ -24,10 +24,6 @@
 class Common_ICounter
 {
  public:
-  // *NOTE*: to shut up the compiler (gcc4) complaining about missing virtual dtors, set
-  // -Wno-non-virtual-dtor in the project settings...
-
-  // exposed interface
   virtual void reset () = 0;
 };
 

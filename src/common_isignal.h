@@ -24,9 +24,6 @@
 class Common_ISignal
 {
  public:
-  virtual ~Common_ISignal () {}
-
-  // exposed interface
   virtual void handle (int) = 0; // signal
 };
 

@@ -44,7 +44,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
               queue_in) // message queue handle
  , threadCount_ (threadCount_in)
  , threadName_ (threadName_in)
- , threadIDs_ ()
+ , threads_ ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::Common_TaskBase_T"));
 
@@ -97,8 +97,8 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   ACE_hthread_t handle = ACE_INVALID_HANDLE;
-  for (THREAD_IDS_ITERATOR_T iterator = threadIDs_.begin ();
-       iterator != threadIDs_.end ();
+  for (THREAD_IDS_ITERATOR_T iterator = threads_.begin ();
+       iterator != threads_.end ();
        ++iterator)
   {
     handle = (*iterator).handle ();
@@ -134,8 +134,8 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       {
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
         ACE_hthread_t handle = ACE_INVALID_HANDLE;
-        for (THREAD_IDS_ITERATOR_T iterator = threadIDs_.begin ();
-             iterator != threadIDs_.end ();
+        for (THREAD_IDS_ITERATOR_T iterator = threads_.begin ();
+             iterator != threads_.end ();
              ++iterator)
         {
           handle = (*iterator).handle ();
@@ -147,7 +147,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                           ACE_TEXT (Common_Tools::errorToString (::GetLastError ()).c_str ())));
         } // end FOR
 #endif
-        threadIDs_.clear ();
+        threads_.clear ();
 
         break;
       } // end IF
@@ -316,7 +316,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   ACE_Thread_ID thread_id;
   thread_id.handle (thread_handles_p[0]);
   thread_id.id (thread_ids_p[0]);
-  threadIDs_.push_back (thread_id);
+  threads_.push_back (thread_id);
 
   // clean up
   delete [] thread_ids_p;
@@ -601,7 +601,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
     thread_id.handle (thread_handles_p[i]);
     thread_id.id (thread_ids_p[i]);
-    threadIDs_.push_back (thread_id);
+    threads_.push_back (thread_id);
   } // end FOR
   //std::string thread_ids_string = string_stream.str ();
   //ACE_DEBUG ((LM_DEBUG,

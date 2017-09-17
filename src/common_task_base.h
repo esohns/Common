@@ -106,7 +106,7 @@ class Common_TaskBase_T
 
   typedef std::vector<ACE_Thread_ID> THREAD_IDS_T;
   typedef THREAD_IDS_T::const_iterator THREAD_IDS_ITERATOR_T;
-  THREAD_IDS_T    threadIDs_;
+  THREAD_IDS_T    threads_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T ())

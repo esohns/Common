@@ -30,37 +30,44 @@ Common_TimerHandler::Common_TimerHandler (Common_ITimerHandler* handler_in,
                                           bool isOneShot_in)
  : inherited (NULL,                           // no reactor
               ACE_Event_Handler::LO_PRIORITY) // priority
- , handler_ (handler_in)
+ , inherited2 (NULL) // no proactor
  , isOneShot_ (isOneShot_in)
+ , handler_ (handler_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TimerHandler::Common_TimerHandler"));
 
 }
 
-Common_TimerHandler::~Common_TimerHandler ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_TimerHandler::~Common_TimerHandler"));
-
-}
-
 int
-Common_TimerHandler::handle_timeout (const ACE_Time_Value& tv_in,
+Common_TimerHandler::handle_timeout (const ACE_Time_Value& dipatchTime_in,
                                      const void* arg_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TimerHandler::handle_timeout"));
 
-  ACE_UNUSED_ARG (tv_in);
-  ACE_UNUSED_ARG (arg_in);
+  ACE_UNUSED_ARG (dipatchTime_in);
 
-  try
-  {
-    handler_->handleTimeout (arg_in);
-  }
-  catch (...)
-  {
+  try {
+    handler_->handle (arg_in);
+  } catch (...) {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("caught an exception in Common_ITimerHandler::handleTimeout(), continuing\n")));
+                ACE_TEXT ("caught an exception in Common_ITimerHandler::handle(), continuing\n")));
   }
 
   return (isOneShot_ ? -1 : 0);
+}
+
+void
+Common_TimerHandler::handle_time_out (const ACE_Time_Value& requestedTime_in,
+                                      const void* arg_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TimerHandler::handle_time_out"));
+
+  ACE_UNUSED_ARG (requestedTime_in);
+
+  try {
+    handler_->handle (arg_in);
+  } catch (...) {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("caught an exception in Common_ITimerHandler::handle(), continuing\n")));
+  }
 }

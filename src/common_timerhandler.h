@@ -21,37 +21,43 @@
 #ifndef COMMON_TIMERHANDLER_H
 #define COMMON_TIMERHANDLER_H
 
+#include "ace/Asynch_IO.h"
 #include "ace/Global_Macros.h"
 #include "ace/Event_Handler.h"
 #include "ace/Time_Value.h"
 
-#include "common_exports.h"
-
 // forward declarations
 class Common_ITimerHandler;
 
-//class Common_Export Common_TimerHandler
 class Common_TimerHandler
  : public ACE_Event_Handler
+ , public ACE_Handler
 {
+  typedef ACE_Event_Handler inherited;
+  typedef ACE_Handler inherited2;
+
  public:
   Common_TimerHandler (Common_ITimerHandler*, // dispatch interface
                        bool = false);         // invoke only once ?
-  virtual ~Common_TimerHandler ();
+  inline virtual ~Common_TimerHandler () {};
 
-  // implement specific behaviour
-  virtual int handle_timeout (const ACE_Time_Value&, // current time
+  // override (part of) ACE_Event_Handler
+  virtual int handle_timeout (const ACE_Time_Value&, // dispatch time
                               const void*);          // asynchronous completion token
+  // override (part of) ACE_Handler
+  virtual void handle_time_out (const ACE_Time_Value&, // requested time
+                                const void* = NULL);   // asynchronous completion token
+
+ protected:
+  bool                  isOneShot_;
 
  private:
-  typedef ACE_Event_Handler inherited;
 
   ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler ())
   ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler (const Common_TimerHandler&))
   ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler& operator= (const Common_TimerHandler&))
 
   Common_ITimerHandler* handler_;
-  bool                  isOneShot_;
 };
 
 #endif

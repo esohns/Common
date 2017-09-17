@@ -21,51 +21,66 @@
 #ifndef COMMON_TIMER_MANAGER_H
 #define COMMON_TIMER_MANAGER_H
 
-#include "ace/Asynch_IO.h"
-#include "ace/Event_Handler.h"
 #include "ace/Singleton.h"
 #include "ace/Synch_Traits.h"
 #include "ace/Time_Value.h"
 
 #include "common.h"
 #include "common_idumpstate.h"
-#include "common_iinitialize.h"
-//#include "common_itaskcontrol.h"
 #include "common_itask.h"
 #include "common_itimer.h"
 #include "common_timer_common.h"
 
+// forward declarations
+class ACE_Event_Handler;
+class ACE_Handler;
+
 template <ACE_SYNCH_DECL,
+          typename ConfigurationType,
           typename TimerQueueAdapterType>
 class Common_Timer_Manager_T
  : public TimerQueueAdapterType
  , public Common_ITaskControl_T<ACE_SYNCH_USE>
- , public Common_ITimer
- , public Common_IInitialize_T<struct Common_TimerConfiguration>
+ , public Common_ITimer_T<ConfigurationType>
  , public Common_IDumpState
 {
+  typedef TimerQueueAdapterType inherited;
+
   // singleton needs access to the ctor/dtors
   friend class ACE_Singleton<Common_Timer_Manager_T<ACE_SYNCH_USE,
+                                                    ConfigurationType,
                                                     TimerQueueAdapterType>,
                              ACE_SYNCH_MUTEX>;
 
  public:
-  // implement Common_ITimer
-  // proactor version
-  virtual long schedule_timer (ACE_Handler*,                                  // event handler
-                               const void*,                                   // act
-                               const ACE_Time_Value&,                         // delay
-                               const ACE_Time_Value& = ACE_Time_Value::zero); // interval
-  // *NOTE*: API adopted from ACE_Reactor_Timer_Interface
-  virtual long schedule_timer (ACE_Event_Handler*,                            // event handler
-                               const void*,                                   // act
-                               const ACE_Time_Value&,                         // delay
-                               const ACE_Time_Value& = ACE_Time_Value::zero); // interval
+  // convenient types
+  typedef Common_ITimer_T<ConfigurationType> INTERFACE_T;
+  typedef ACE_Singleton<Common_Timer_Manager_T<ACE_SYNCH_USE,
+                                               ConfigurationType,
+                                               TimerQueueAdapterType>,
+                        ACE_SYNCH_MUTEX> SINGLETON_T;
+
+  // implement Common_ITimer_T
+  virtual int cancel_timer (long,             // timer id
+                            const void** = 0, // return value: asynchronous completion token
+                            int = 1);         // do not (!) call handle_close() ?
   virtual int reset_timer_interval (long,                   // timer id
                                     const ACE_Time_Value&); // interval
-  virtual int cancel_timer (long,             // timer id
-                            const void** = 0, // return value: act
-                            int = 1);         // don't call handle_close()
+//  inline virtual bool useReactor () const { ACE_ASSERT (configuration_); return (configuration_->mode != COMMON_TIMER_MODE_PROACTOR); }; // ? : uses proactor
+  virtual long schedule_timer (Common_TimerHandler*,                          // event handler handle
+                               const void*,                                   // asynchronous completion token
+                               const ACE_Time_Value&,                         // delay
+                               const ACE_Time_Value& = ACE_Time_Value::zero); // interval
+//  virtual long schedule_timer (ACE_Event_Handler*,                            // event handler handle
+//                               const void*,                                   // asynchronous completion token
+//                               const ACE_Time_Value&,                         // delay
+//                               const ACE_Time_Value& = ACE_Time_Value::zero); // interval
+//  virtual long schedule_timer (ACE_Handler*,                                  // event handler handle
+//                               const void*,                                   // asynchronous completion token
+//                               const ACE_Time_Value&,                         // delay
+//                               const ACE_Time_Value& = ACE_Time_Value::zero); // interval
+  virtual bool initialize (const ConfigurationType&);
+  inline virtual const ConfigurationType& getR () const { ACE_ASSERT (configuration_); return *configuration_; };
 
   // implement Common_ITaskControl_T
   virtual void start ();
@@ -74,19 +89,14 @@ class Common_Timer_Manager_T
   inline virtual bool isRunning () const { return (inherited::thr_count_ > 0); };
   inline virtual void finished () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) };
 
-  // implement Common_IInitialize_T
-  virtual bool initialize (const Common_TimerConfiguration&);
-
   // implement Common_IDumpState
   virtual void dump_state () const;
 
  private:
-  typedef TimerQueueAdapterType inherited;
-
-  // convenience types
+  // convenient types
   typedef typename TimerQueueAdapterType::TIMER_QUEUE TIMER_QUEUE_T;
-  //typedef typename TimerQueueAdapterType::TIMER_QUEUE_T TIMER_QUEUE_T;
   typedef Common_Timer_Manager_T<ACE_SYNCH_USE,
+                                 ConfigurationType,
                                  TimerQueueAdapterType> OWN_TYPE_T;
 
   Common_Timer_Manager_T ();
@@ -94,19 +104,16 @@ class Common_Timer_Manager_T
   ACE_UNIMPLEMENTED_FUNC (Common_Timer_Manager_T& operator= (const Common_Timer_Manager_T&))
   virtual ~Common_Timer_Manager_T ();
 
-  // implement (part of) Common_IControl
-  virtual void initialize ();
-
   // helper methods
   unsigned int flushTimers (bool = true); // locked access ?
   bool initializeTimerQueue ();
 
-  struct Common_TimerConfiguration* configuration_;
+  ConfigurationType*     configuration_;
 
   // *NOTE*: this is only the functor, individual handlers are managed in the
-  //        queue
-  Common_TimeoutUpcall_t            timerHandler_;
-  TIMER_QUEUE_T*                    timerQueue_;
+  //         queue
+  Common_TimeoutUpcall_t timerHandler_;
+  TIMER_QUEUE_T*         timerQueue_;
 };
 
 // include template definition

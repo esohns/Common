@@ -24,12 +24,11 @@
 class Common_IReferenceCount
 {
  public:
-  virtual ~Common_IReferenceCount () {};
-
-  // exposed interface
   virtual unsigned int increase () = 0;
   virtual unsigned int decrease () = 0;
+
   virtual unsigned int count () const = 0;
+
   // *NOTE*: should block iff the count is > 0, and wait until the count reaches
   //         x the next time
   virtual void wait (unsigned int = 0) const = 0;

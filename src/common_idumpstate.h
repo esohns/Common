@@ -24,9 +24,6 @@
 class Common_IDumpState
 {
  public:
-  inline virtual ~Common_IDumpState () {};
-
-  // exposed interface
   virtual void dump_state () const = 0;
 };
 
