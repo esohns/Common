@@ -42,6 +42,8 @@ class Common_ILock_T
   virtual ACE_SYNCH_RECURSIVE_MUTEX& getLock () = 0;
 };
 
+//////////////////////////////////////////
+
 #define COMMON_ILOCK_ACQUIRE_N(ilock, count) \
   do { \
     ACE_ASSERT (ilock); \
