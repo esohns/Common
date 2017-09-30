@@ -26,12 +26,11 @@
 #ifdef __cplusplus
 extern "C"
 {
-#include <libavutil/pixfmt.h>
+#include "libavutil/pixfmt.h"
 }
 #endif /* __cplusplus */
 
 #include "ace/config-lite.h"
-
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <gl/GL.h>
 #else
@@ -40,9 +39,9 @@ extern "C"
 
 #include "ace/Global_Macros.h"
 
-#include "common_image_exports.h"
+//#include "common_image_exports.h"
 
-class Common_Image_Export Common_Image_Tools
+class Common_Image_Tools
 {
  public:
   inline virtual ~Common_Image_Tools () {};

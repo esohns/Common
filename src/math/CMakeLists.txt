@@ -58,7 +58,9 @@ set (${PROJECT_NAME}Math_LIB_SRCS
      common_math_sample.h
      common_math_sample.inl)
 
-add_library (${PROJECT_NAME}Math SHARED ${CommonMath_LIB_SRCS})
+add_library (${PROJECT_NAME}Math
+             STATIC
+             ${CommonMath_LIB_SRCS})
 
 if (WIN32)
 ## set (CMAKE_GENERATOR_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE) 

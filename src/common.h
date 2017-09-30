@@ -21,23 +21,24 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-//#include <signal.h>
-//#include <ucontext.h>
-
 #include <deque>
 #include <map>
 #include <string>
 
-#include "ace/OS.h"
+#include "ace/config-lite.h"
+#include "ace/Global_Macros.h"
+#include "ace/os_include/os_ucontext.h"
+#include "ace/OS_NS_signal.h"
 #include "ace/Signal.h"
 #include "ace/Synch_Traits.h"
 
 #include "common_defines.h"
+#include "common_ilock.h"
 #include "common_itask.h"
+#include "common_itaskcontrol.h"
 
 // forward declaration(s)
 class ACE_Message_Queue_Base;
-class ACE_Sig_Action;
 
 struct Common_ParserConfiguration
 {
@@ -69,13 +70,7 @@ struct Common_SignalInformation
   , siginfo ()
   , ucontext ()
 #endif
-  {
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-    ACE_OS::memset (&siginfo, 0, sizeof (siginfo));
-    ACE_OS::memset (&ucontext, 0, sizeof (ucontext));
-#endif
-  };
+  {};
 
   int        signal;
   siginfo_t  siginfo;
@@ -86,7 +81,6 @@ struct Common_SignalHandlerConfiguration
   Common_SignalHandlerConfiguration ()
    : hasUI (false)
    , useReactor (false)
-   //, useReactor (NET_EVENT_USE_REACTOR)
   {};
 
   bool hasUI;
@@ -116,7 +110,7 @@ enum Common_TimerQueueType
 
 struct Common_TimerConfiguration
 {
-  inline Common_TimerConfiguration ()
+  Common_TimerConfiguration ()
    : mode (COMMON_TIMER_DEFAULT_MODE)
    , queueType (COMMON_TIMER_DEFAULT_QUEUE)
   {};
@@ -169,7 +163,7 @@ enum Common_ReactorType
 
 struct Common_DispatchThreadData
 {
-  inline Common_DispatchThreadData ()
+  Common_DispatchThreadData ()
    : numberOfDispatchThreads (0)
    , proactorType (COMMON_EVENT_PROACTOR_TYPE)
    , reactorType (COMMON_EVENT_REACTOR_TYPE)
@@ -184,7 +178,7 @@ struct Common_DispatchThreadData
 
 struct Common_ScannerState
 {
-  inline Common_ScannerState ()
+  Common_ScannerState ()
    : offset (0)
   {};
 
@@ -192,8 +186,14 @@ struct Common_ScannerState
 };
 
 // *** task ***
-typedef Common_ITaskControl_T<ACE_MT_SYNCH> Common_ITaskControl_t;
-typedef Common_ITask_T<ACE_MT_SYNCH> Common_ITask_t;
+typedef Common_ITaskControl_T<ACE_MT_SYNCH,
+                              Common_ILock_T<ACE_MT_SYNCH> > Common_ITaskControl_t;
+typedef Common_ITaskControl_T<ACE_MT_SYNCH,
+                              Common_IRecursiveLock_T<ACE_MT_SYNCH> > Common_IRecursiveTaskControl_t;
+typedef Common_ITask_T<ACE_MT_SYNCH,
+                       Common_ILock_T<ACE_MT_SYNCH> > Common_ITask_t;
+typedef Common_ITask_T<ACE_MT_SYNCH,
+                       Common_IRecursiveLock_T<ACE_MT_SYNCH> > Common_IRecursiveTask_t;
 
 // *** log ***
 typedef std::deque<std::string> Common_MessageStack_t;

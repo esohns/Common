@@ -22,7 +22,7 @@
 #include <windows.h>
 #include <sal.h>
 
-#include "common_err_exports.h"
+//#include "common_err_exports.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,7 +31,7 @@ extern "C" {
 //--------------------------------------------------------------------------------------
 // DXGetErrorString
 //--------------------------------------------------------------------------------------
-Common_Err_Export const WCHAR*
+const WCHAR*
 WINAPI DXGetErrorStringW( _In_ HRESULT hr );
 
 #define DXGetErrorString DXGetErrorStringW
@@ -40,7 +40,7 @@ WINAPI DXGetErrorStringW( _In_ HRESULT hr );
 // DXGetErrorDescription has to be modified to return a copy in a buffer rather than
 // the original static string.
 //--------------------------------------------------------------------------------------
-Common_Err_Export void
+void
 WINAPI DXGetErrorDescriptionW( _In_ HRESULT hr, _Out_cap_(count) WCHAR* desc, _In_ size_t count );
 
 #define DXGetErrorDescription DXGetErrorDescriptionW
@@ -60,7 +60,7 @@ WINAPI DXGetErrorDescriptionW( _In_ HRESULT hr, _Out_cap_(count) WCHAR* desc, _I
 //
 //  Return: The hr that was passed in.  
 //--------------------------------------------------------------------------------------
-Common_Err_Export HRESULT
+HRESULT
 WINAPI DXTraceW( _In_z_ const WCHAR* strFile, _In_ DWORD dwLine, _In_ HRESULT hr, _In_opt_ const WCHAR* strMsg, _In_ bool bPopMsgBox );
 
 #define DXTrace DXTraceW

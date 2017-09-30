@@ -33,19 +33,19 @@
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
 #else
-#include <gtkgl/gdkgl.h>
+#include "gtkgl/gdkgl.h"
 #endif /* gtk >= 3 && <= 3.16 */
 #else
 #if defined (GTKGLAREA_SUPPORT)
-#include <gtkgl/gdkgl.h>
+#include "gtkgl/gdkgl.h"
 #else
-#include <gtk/gtkgl.h> // gtkglext
+#include "gtk/gtkgl.h" // gtkglext
 #endif
 #endif
 #endif
 
 #if defined (LIBGLADE_SUPPORT)
-#include <glade/glade.h>
+#include "glade/glade.h"
 #endif
 
 #include "common_macros.h"
@@ -76,18 +76,11 @@ Common_UI_GTK_Manager_T<StateType>::Common_UI_GTK_Manager_T ()
 }
 
 template <typename StateType>
-Common_UI_GTK_Manager_T<StateType>::~Common_UI_GTK_Manager_T ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::~Common_UI_GTK_Manager_T"));
-
-}
-
-template <typename StateType>
 bool
 Common_UI_GTK_Manager_T<StateType>::initialize (int argc_in,
                                                 ACE_TCHAR** argv_in,
                                                 StateType* state_in,
-                                                Common_UI_IGTK_T<StateType>* interfaceHandle_in)
+                                                UI_INTERFACE_T* interfaceHandle_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::initialize"));
 
@@ -140,12 +133,7 @@ Common_UI_GTK_Manager_T<StateType>::stop (bool waitForCompletion_in,
                 ACE_TEXT ("failed to Common_UI_GTK_Manager_T::close(1): \"%m\", continuing\n")));
 
   if (waitForCompletion_in)
-  {
-    result = inherited::wait ();
-    if (result == -1)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Task_Base::wait(): \"%m\", continuing\n")));
-  } // end IF
+    inherited::wait ();
 }
 
 template <typename StateType>

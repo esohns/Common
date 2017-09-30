@@ -6,13 +6,13 @@
 #include "ace/Assert.h"
 #include "ace/Global_Macros.h"
 
-#include "common_math_exports.h"
+//#include "common_math_exports.h"
 
-class Common_Math_Export SampleIterator
+class Common_Math_FFT_SampleIterator
 {
  public:
-  SampleIterator (char*); // buffer
-  virtual ~SampleIterator ();
+  Common_Math_FFT_SampleIterator (char*); // buffer
+  inline virtual ~Common_Math_FFT_SampleIterator () {};
 
   bool initialize (unsigned int, // bytes / 'data sample' (i.e. sizeof ('sound sample') * channels)
                    unsigned int, // resolution: bytes per 'sound sample'
@@ -28,9 +28,9 @@ class Common_Math_Export SampleIterator
   unsigned int soundSampleSize_;
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (SampleIterator ())
-  ACE_UNIMPLEMENTED_FUNC (SampleIterator (const SampleIterator&))
-  ACE_UNIMPLEMENTED_FUNC (SampleIterator& operator= (const SampleIterator&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator ())
+  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator (const Common_Math_FFT_SampleIterator&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator& operator= (const Common_Math_FFT_SampleIterator&))
 
   bool         isInitialized_;
   bool         isSignedSampleFormat_;
@@ -39,7 +39,7 @@ class Common_Math_Export SampleIterator
 
 //////////////////////////////////////////
 
-class Common_Math_Export Common_Math_FFT
+class Common_Math_FFT
 {
  public:
   Common_Math_FFT (unsigned int,  // #channels

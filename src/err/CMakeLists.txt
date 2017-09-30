@@ -52,7 +52,9 @@ set (${PROJECT_NAME}ERROR_LIB_SRCS
      dxerr.cpp
      dxerr.h)
 
-add_library (${PROJECT_NAME}Error SHARED ${CommonERROR_LIB_SRCS})
+add_library (${PROJECT_NAME}Error
+             STATIC
+             ${CommonERROR_LIB_SRCS})
 
 if (WIN32)
 ## set (CMAKE_GENERATOR_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE) 

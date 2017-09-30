@@ -172,11 +172,14 @@ set (${PROJECT_NAME}UI_LIB_GLADE_SRCS
      common_ui_glade_definition.h)
 
 if (LIBGLADE_SUPPORT)
- add_library (${PROJECT_NAME}UI SHARED
+ add_library (${PROJECT_NAME}UI
+              STATIC
               ${CommonUI_LIB_SRCS}
               ${CommonUI_LIB_GLADE_SRCS})
 else ()
- add_library (${PROJECT_NAME}UI SHARED ${CommonUI_LIB_SRCS})
+ add_library (${PROJECT_NAME}UI
+              STATIC
+              ${CommonUI_LIB_SRCS})
 endif ()
 
 if (UNIX)

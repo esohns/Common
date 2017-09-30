@@ -56,7 +56,9 @@ set (${PROJECT_NAME}IMAGE_LIB_SRCS
      common_image_tools.cpp
      common_image_tools.h)
 
-add_library (${PROJECT_NAME}Image SHARED ${CommonIMAGE_LIB_SRCS})
+add_library (${PROJECT_NAME}Image
+             STATIC
+             ${CommonIMAGE_LIB_SRCS})
 
 if (WIN32)
 ## set (CMAKE_GENERATOR_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE) 

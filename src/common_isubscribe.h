@@ -21,6 +21,25 @@
 #ifndef COMMON_ISUBSCRIBE_H
 #define COMMON_ISUBSCRIBE_H
 
+class Common_IRegister
+{
+ public:
+  // *IMPORTANT NOTE*: 'register' is a keyword an cannot be used as identifier
+  virtual bool registerc () = 0;
+  virtual void deregister () = 0;
+};
+
+template <typename InterfaceType>
+class Common_IRegister_T
+{
+ public:
+  // *IMPORTANT NOTE*: 'register' is a keyword an cannot be used as identifier
+  virtual bool registerc (InterfaceType*) = 0;
+  virtual void deregister (InterfaceType*) = 0;
+};
+
+//////////////////////////////////////////
+
 template <typename InterfaceType>
 class Common_ISubscribe_T
 {

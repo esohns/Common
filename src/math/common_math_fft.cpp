@@ -10,7 +10,7 @@
 
 #include "common_macros.h"
 
-SampleIterator::SampleIterator (char* buffer_in)
+Common_Math_FFT_SampleIterator::Common_Math_FFT_SampleIterator (char* buffer_in)
  : buffer_ (buffer_in)
  , dataSampleSize_ (0)
  , reverseEndianness_ (false)
@@ -20,21 +20,15 @@ SampleIterator::SampleIterator (char* buffer_in)
  , isSignedSampleFormat_ (true)
  , sampleByteOrder_ (ACE_BYTE_ORDER)
 {
-  COMMON_TRACE (ACE_TEXT ("SampleIterator_T::SampleIterator_T"));
-
-}
-
-SampleIterator::~SampleIterator ()
-{
-  COMMON_TRACE (ACE_TEXT ("SampleIterator_T::~SampleIterator_T"));
+  COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_SampleIterator_T::Common_Math_FFT_SampleIterator_T"));
 
 }
 
 double
-SampleIterator::get (unsigned int index_in,
-                     unsigned int channel_in)
+Common_Math_FFT_SampleIterator::get (unsigned int index_in,
+                                     unsigned int channel_in)
 {
-  COMMON_TRACE (ACE_TEXT ("SampleIterator::get"));
+  COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_SampleIterator::get"));
 
   // sanity check(s)
   ACE_ASSERT (buffer_);
@@ -79,12 +73,12 @@ SampleIterator::get (unsigned int index_in,
 }
 
 bool
-SampleIterator::initialize (unsigned int dataSampleSize_in,
-                            unsigned int soundSampleSize_in,
-                            bool isSignedSampleFormat_in,
-                            int sampleByteOrder_in)
+Common_Math_FFT_SampleIterator::initialize (unsigned int dataSampleSize_in,
+                                            unsigned int soundSampleSize_in,
+                                            bool isSignedSampleFormat_in,
+                                            int sampleByteOrder_in)
 {
-  COMMON_TRACE (ACE_TEXT ("SampleIterator::initialize"));
+  COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_SampleIterator::initialize"));
 
   dataSampleSize_ = dataSampleSize_in;
   soundSampleSize_ = soundSampleSize_in;

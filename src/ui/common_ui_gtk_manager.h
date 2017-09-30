@@ -22,75 +22,87 @@
 #define COMMON_UI_GTK_MANAGER_T_H
 
 #include "ace/Global_Macros.h"
+#include "ace/Singleton.h"
 #include "ace/Synch_Traits.h"
 
-#include <gtk/gtk.h>
+#include "gtk/gtk.h"
 
-#include "common_icontrol.h"
+#include "common_ilock.h"
 #include "common_task_base.h"
 #include "common_time_common.h"
 
-#include "common_ui_exports.h"
+//#include "common_ui_exports.h"
 #include "common_ui_gtk_common.h"
 
-void Common_UI_Export glib_print_debug_handler (const gchar*); // message
-void Common_UI_Export glib_print_error_handler (const gchar*); // message
-void Common_UI_Export glib_log_handler (const gchar*,   // domain
-                                        GLogLevelFlags, // priority
-                                        const gchar*,   // message
-                                        gpointer);      // user data
+// GLib debug/log handler callbacks
+void glib_log_handler (const gchar*,   // domain
+                       GLogLevelFlags, // priority
+                       const gchar*,   // message
+                       gpointer);      // user data
+inline void glib_print_debug_handler (const gchar* message_in) { glib_log_handler (NULL, G_LOG_LEVEL_DEBUG, message_in, NULL); };
+inline void glib_print_error_handler (const gchar* message_in) { glib_log_handler (NULL, G_LOG_LEVEL_ERROR, message_in, NULL); };
 
 template <typename StateType>
 class Common_UI_GTK_Manager_T
  : public Common_TaskBase_T<ACE_MT_SYNCH,
-                            Common_TimePolicy_t>
+                            Common_TimePolicy_t,
+                            Common_IRecursiveLock_T<ACE_MT_SYNCH> >
 {
+  typedef Common_TaskBase_T<ACE_MT_SYNCH,
+                            Common_TimePolicy_t,
+                            Common_IRecursiveLock_T<ACE_MT_SYNCH> > inherited;
+
   // singleton requires access to the ctor/dtor
   friend class ACE_Singleton<Common_UI_GTK_Manager_T<StateType>,
                              typename ACE_MT_SYNCH::RECURSIVE_MUTEX>;
 
  public:
-  bool initialize (int,                           // argc
-                   ACE_TCHAR** ,                  // argv
-                   StateType*,                    // state handle
-                   Common_UI_IGTK_T<StateType>*); // UI interface handle
+  // convenient types
+  typedef Common_UI_IGTK_T<StateType> UI_INTERFACE_T;
+  typedef ACE_Singleton<Common_UI_GTK_Manager_T<StateType>,
+                        typename ACE_MT_SYNCH::RECURSIVE_MUTEX> SINGLETON_T;
 
-  // implement (part of) Common_IControl
+  bool initialize (int,              // argc
+                   ACE_TCHAR** ,     // argv
+                   StateType*,       // state handle
+                   UI_INTERFACE_T*); // UI interface handle
+
+  // override (part of) Common_ITask
   virtual void start ();
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?
-  inline virtual bool isRunning () const { return (inherited::thr_count_ > 0); };
 
  private:
-  typedef Common_TaskBase_T<ACE_MT_SYNCH,
-                            Common_TimePolicy_t> inherited;
-
   Common_UI_GTK_Manager_T ();
-  virtual ~Common_UI_GTK_Manager_T ();
+  inline virtual ~Common_UI_GTK_Manager_T () {};
   ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Manager_T (const Common_UI_GTK_Manager_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Manager_T& operator= (const Common_UI_GTK_Manager_T&))
 
-  // override ACE_Task_Base member(s)
+  // override/hide some ACE_Task_Base member(s)
   virtual int close (u_long = 0);
   virtual int svc (void);
 
-  // implement (part of) Common_IControl
-  inline virtual void initialize () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) };
+  // hide some Common_TaskBase_T member(s)
+  using inherited::lock;
+  using inherited::unlock;
+  using inherited::getR;
+  using inherited::finished;
 
+  // helper methods
   bool initializeGTK ();
 
-  int                          argc_;
-  ACE_TCHAR**                  argv_;
-  bool                         GTKIsInitialized_;
-  bool                         isInitialized_;
+  int             argc_;
+  ACE_TCHAR**     argv_;
+  bool            GTKIsInitialized_;
+  bool            isInitialized_;
 //#if defined (GTKGL_SUPPORT)
 //  // *TODO*: as a 'GTK-' OpenGL context is tied to a GdkWindow, it probably
 //  //         makes sense to move this into the state_ (better: into a separate
 //  //         presentation manager)
 //  GdkGLContext*   openGLContext_;
 //#endif
-  StateType*                   state_;
-  Common_UI_IGTK_T<StateType>* UIInterfaceHandle_;
+  StateType*      state_;
+  UI_INTERFACE_T* UIInterfaceHandle_;
 };
 
 // include template definition

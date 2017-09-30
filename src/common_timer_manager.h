@@ -27,7 +27,8 @@
 
 #include "common.h"
 #include "common_idumpstate.h"
-#include "common_itask.h"
+#include "common_ilock.h"
+#include "common_itaskcontrol.h"
 #include "common_itimer.h"
 #include "common_timer_common.h"
 
@@ -40,7 +41,8 @@ template <ACE_SYNCH_DECL,
           typename TimerQueueAdapterType>
 class Common_Timer_Manager_T
  : public TimerQueueAdapterType
- , public Common_ITaskControl_T<ACE_SYNCH_USE>
+ , public Common_ITaskControl_T<ACE_SYNCH_USE,
+                                Common_ILock_T<ACE_SYNCH_USE> >
  , public Common_ITimer_T<ConfigurationType>
  , public Common_IDumpState
 {
@@ -80,14 +82,14 @@ class Common_Timer_Manager_T
 //                               const ACE_Time_Value&,                         // delay
 //                               const ACE_Time_Value& = ACE_Time_Value::zero); // interval
   virtual bool initialize (const ConfigurationType&);
-  inline virtual const ConfigurationType& getR () const { ACE_ASSERT (configuration_); return *configuration_; };
+  inline virtual const ConfigurationType& getR_2 () const { ACE_ASSERT (configuration_); return *configuration_; };
 
-  // implement Common_ITaskControl_T
+  // implement (part of) Common_ITaskControl_T
   virtual void start ();
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?
   inline virtual bool isRunning () const { return (inherited::thr_count_ > 0); };
-  inline virtual void finished () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) };
+  inline virtual void wait () const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) };
 
   // implement Common_IDumpState
   virtual void dump_state () const;
@@ -95,6 +97,8 @@ class Common_Timer_Manager_T
  private:
   // convenient types
   typedef typename TimerQueueAdapterType::TIMER_QUEUE TIMER_QUEUE_T;
+  typedef Common_ITaskControl_T<ACE_SYNCH_USE,
+                                Common_ILock_T<ACE_SYNCH_USE> > ITASKCONTROL_T;
   typedef Common_Timer_Manager_T<ACE_SYNCH_USE,
                                  ConfigurationType,
                                  TimerQueueAdapterType> OWN_TYPE_T;
@@ -103,6 +107,12 @@ class Common_Timer_Manager_T
   ACE_UNIMPLEMENTED_FUNC (Common_Timer_Manager_T (const Common_Timer_Manager_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_Timer_Manager_T& operator= (const Common_Timer_Manager_T&))
   virtual ~Common_Timer_Manager_T ();
+
+  // hide (part of) Common_ITaskControl_T
+  inline virtual bool lock (bool = true) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) };
+  inline virtual int unlock (bool = false) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (-1); ACE_NOTREACHED (return -1;) };
+  inline virtual const typename ITASKCONTROL_T::MUTEX_T& getR () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (typename ITASKCONTROL_T::MUTEX_T ()); ACE_NOTREACHED (return typename ITASKCONTROL_T::MUTEX_T ();) };
+  inline virtual void finished () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) };
 
   // helper methods
   unsigned int flushTimers (bool = true); // locked access ?

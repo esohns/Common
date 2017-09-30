@@ -59,7 +59,7 @@ template <typename StateType, // implements struct Common_ScannerState
           typename ParserInterfaceType> // implements Common_IParser_T
 class Common_ILexScanner_T
  : public Common_IScannerBase
- , public Common_IGetR_2_T<StateType>
+ , public Common_IGetR_3_T<StateType>
 // , public Common_IGetSetP_T<ParserInterfaceType>
  , public Common_IGetP_2_T<ParserInterfaceType>
  , public Common_ISetP_T<ParserInterfaceType>

@@ -136,7 +136,9 @@ if (WIN32)
  endif ()
 endif ()
 
-add_library (${PROJECT_NAME} STATIC ${Common_LIB_SRCS})
+add_library (${PROJECT_NAME}
+             STATIC
+             ${Common_LIB_SRCS})
 
 #add_dependencies (${PROJECT_NAME} ACE)
 if (WIN32)

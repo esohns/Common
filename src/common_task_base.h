@@ -26,10 +26,11 @@
 
 #include "ace/Global_Macros.h"
 #include "ace/OS_NS_Thread.h"
+#include "ace/Synch_Traits.h"
 #include "ace/Task_T.h"
 
 #include "common_idumpstate.h"
-#include "common_itask.h"
+#include "common_itaskcontrol.h"
 
 // forward declaration(s)
 class ACE_Message_Block;
@@ -40,20 +41,29 @@ class ACE_Module;
 class ACE_Time_Value;
 
 template <ACE_SYNCH_DECL,
-          typename TimePolicyType>
+          typename TimePolicyType,
+          typename LockType> // implements Common_ILock_T/Common_IRecursiveLock_T
 class Common_TaskBase_T
  : public ACE_Task<ACE_SYNCH_USE,
                    TimePolicyType>
- , public Common_ITask_T<ACE_SYNCH_USE>
+ , public Common_ITaskControl_T<ACE_SYNCH_USE,
+                                LockType>
  , public Common_IDumpState
 {
   typedef ACE_Task<ACE_SYNCH_USE,
                    TimePolicyType> inherited;
 
  public:
+  // convenient types
+  typedef Common_ITaskControl_T<ACE_SYNCH_USE,
+                                LockType> ITASKCONTROL_T;
+
   virtual ~Common_TaskBase_T ();
 
-  // implement Common_ITask
+  // implement Common_ITaskControl_T
+  virtual bool lock (bool = true); // block ?
+  inline virtual int unlock (bool = false) { return lock_.release (); };
+  inline virtual const typename ITASKCONTROL_T::MUTEX_T& getR () const { return lock_; };
   // *NOTE*: this wraps ACE_Task_Base::activate() to spawn a single thread;
   //         returns false if the object was already 'active' (or something else
   //         went wrong; check errno)
@@ -65,7 +75,7 @@ class Common_TaskBase_T
                      bool = true); // locked access ?
   inline virtual bool isRunning () const { return (inherited::thr_count_ > 0); };
   virtual void finished ();
-  virtual int wait (void);
+  virtual void wait () const;
 
   // implement Common_IDumpState
   inline virtual void dump_state () const {};
@@ -97,21 +107,26 @@ class Common_TaskBase_T
   void control (int,           // message type
                 bool = false); // high-priority ?
 
-  ACE_SYNCH_MUTEX lock_;
+  typename ITASKCONTROL_T::MUTEX_T lock_;
 
   // *NOTE*: this is the 'configured' (not the 'current') thread count
   //         --> see ACE_Task::thr_count_
-  unsigned int    threadCount_;
-  std::string     threadName_;
+  unsigned int                     threadCount_;
+  std::string                      threadName_;
 
   typedef std::vector<ACE_Thread_ID> THREAD_IDS_T;
   typedef THREAD_IDS_T::const_iterator THREAD_IDS_ITERATOR_T;
-  THREAD_IDS_T    threads_;
+  THREAD_IDS_T                     threads_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T ())
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T (const Common_TaskBase_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T& operator= (const Common_TaskBase_T&))
+
+  // convenient types
+  typedef Common_TaskBase_T<ACE_SYNCH_USE,
+                            TimePolicyType,
+                            LockType> OWN_TYPE_T;
 
   // override/hide ACE_Task_Base members
   virtual int close (u_long = 0);

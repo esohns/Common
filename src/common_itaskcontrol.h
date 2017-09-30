@@ -23,16 +23,20 @@
 
 #include "ace/Global_Macros.h"
 
-// *TODO*: find out why this doesn't work
-//template <ACE_SYNCH_DECL>
-//class Common_ITaskControl_T
-//{
-// public:
-//  //virtual void initialize () = 0;
-//  virtual void start () = 0;
-//  virtual void stop (bool = true,      // wait for completion ?
-//                     bool = true) = 0; // locked access ?
-//  virtual bool isRunning () const = 0;
-//};
+#include "common_itask.h"
+
+template <ACE_SYNCH_DECL,
+          typename LockType> // implements Common_ILock_T/Common_IRecursiveLock_T
+class Common_ITaskControl_T
+ : virtual public Common_ITask_T<ACE_SYNCH_USE,
+                                 LockType>
+{
+ public:
+  // *NOTE*: signal asynchronous completion
+  virtual void finished () = 0;
+  virtual void wait () const = 0;
+};
+
+//////////////////////////////////////////
 
 #endif

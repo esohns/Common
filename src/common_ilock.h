@@ -24,6 +24,8 @@
 #include "ace/Global_Macros.h"
 #include "ace/Synch_Traits.h"
 
+#include "common_iget.h"
+
 class Common_ILock
 {
  public:
@@ -37,9 +39,21 @@ class Common_ILock
 template <ACE_SYNCH_DECL>
 class Common_ILock_T
  : public Common_ILock
+ , public Common_IGetR_T<ACE_SYNCH_MUTEX_T>
 {
  public:
-  virtual ACE_SYNCH_RECURSIVE_MUTEX& getLock () = 0;
+  // convenient types
+  typedef ACE_SYNCH_MUTEX_T MUTEX_T;
+};
+
+template <ACE_SYNCH_DECL>
+class Common_IRecursiveLock_T
+ : public Common_ILock
+ , public Common_IGetR_T<typename ACE_SYNCH_USE::RECURSIVE_MUTEX>
+{
+ public:
+  // convenient types
+  typedef typename ACE_SYNCH_USE::RECURSIVE_MUTEX MUTEX_T;
 };
 
 //////////////////////////////////////////

@@ -32,14 +32,16 @@
 #endif
 
 template <ACE_SYNCH_DECL,
-          typename TimePolicyType>
+          typename TimePolicyType,
+          typename LockType>
 Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::Common_TaskBase_T (const std::string& threadName_in,
-                                                      int threadGroupID_in,
-                                                      unsigned int threadCount_in,
-                                                      bool autoStart_in,
-                                                      ACE_Message_Queue<ACE_SYNCH_USE,
-                                                                        TimePolicyType>* queue_in)
+                  TimePolicyType,
+                  LockType>::Common_TaskBase_T (const std::string& threadName_in,
+                                                int threadGroupID_in,
+                                                unsigned int threadCount_in,
+                                                bool autoStart_in,
+                                                ACE_Message_Queue<ACE_SYNCH_USE,
+                                                                  TimePolicyType>* queue_in)
  : inherited (NULL,     // thread manager instance
               queue_in) // message queue handle
  , threadCount_ (threadCount_in)
@@ -62,9 +64,11 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 }
 
 template <ACE_SYNCH_DECL,
-          typename TimePolicyType>
+          typename TimePolicyType,
+          typename LockType>
 Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::~Common_TaskBase_T ()
+                  TimePolicyType,
+                  LockType>::~Common_TaskBase_T ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::~Common_TaskBase_T"));
 
@@ -113,10 +117,42 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 }
 
 template <ACE_SYNCH_DECL,
-          typename TimePolicyType>
+          typename TimePolicyType,
+          typename LockType>
+bool
+Common_TaskBase_T<ACE_SYNCH_USE,
+                  TimePolicyType,
+                  LockType>::lock (bool block_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::lock"));
+
+  int result = -1;
+
+  result = (block_in ? lock_.tryacquire () : lock_.acquire ());
+  if (result == -1)
+  {
+    int error = ACE_OS::last_error ();
+    if (block_in)
+    {
+      if (error != EBUSY)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_SYNCH_MUTEX::tryacquire(): \"%m\", aborting\n")));
+    } // end IF
+    else
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_SYNCH_MUTEX::acquire(): \"%m\", aborting\n")));
+  } // end IF
+
+  return (result == 0);
+}
+
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType,
+          typename LockType>
 int
 Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::close (u_long arg_in)
+                  TimePolicyType,
+                  LockType>::close (u_long arg_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::close"));
 
@@ -191,10 +227,12 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 }
 
 template <ACE_SYNCH_DECL,
-          typename TimePolicyType>
+          typename TimePolicyType,
+          typename LockType>
 void
 Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::start ()
+                  TimePolicyType,
+                  LockType>::start ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::start"));
 
@@ -326,35 +364,32 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 }
 
 template <ACE_SYNCH_DECL,
-          typename TimePolicyType>
+          typename TimePolicyType,
+          typename LockType>
 void
 Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::stop (bool waitForCompletion_in,
-                                         bool lockedAccess_in)
+                  TimePolicyType,
+                  LockType>::stop (bool waitForCompletion_in,
+                                   bool lockedAccess_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::stop"));
 
   ACE_UNUSED_ARG (lockedAccess_in);
 
-  int result = -1;
-
   control (ACE_Message_Block::MB_STOP,
            true);                      // high-priority
 
   if (waitForCompletion_in)
-  {
-    result = inherited::wait ();
-    if (result == -1)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Task_Base::wait(): \"%m\", continuing\n")));
-  } // end IF
+    wait ();
 }
 
 template <ACE_SYNCH_DECL,
-          typename TimePolicyType>
+          typename TimePolicyType,
+          typename LockType>
 void
 Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::finished ()
+                  TimePolicyType,
+                  LockType>::finished ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::finished"));
 
@@ -365,17 +400,20 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 }
 
 template <ACE_SYNCH_DECL,
-          typename TimePolicyType>
-int
+          typename TimePolicyType,
+          typename LockType>
+void
 Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::wait (void)
+                  TimePolicyType,
+                  LockType>::wait () const
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::wait"));
 
   int result = -1;
+  OWN_TYPE_T* this_p = const_cast<OWN_TYPE_T*> (this);
 
   try {
-    result = inherited::wait ();
+    result = this_p->TASK_T::wait ();
   } catch (...) {
     // *NOTE*: on Win32 systems, ::CloseHandle() behaves 'funnily':
     //         "...If the application is running under a debugger, the function
@@ -388,22 +426,25 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 #endif
     if (inherited::mod_)
       ACE_DEBUG ((log_priority,
-                  ACE_TEXT ("%s: caught exception in ACE_Task::wait(), aborting\n"),
+                  ACE_TEXT ("%s: caught exception in ACE_Task::wait(), returning\n"),
                   inherited::mod_->name ()));
     else
       ACE_DEBUG ((log_priority,
-                  ACE_TEXT ("caught exception in ACE_Task::wait(), aborting\n")));
+                  ACE_TEXT ("caught exception in ACE_Task::wait(), returning\n")));
   }
-
-  return result;
+  if (result == -1)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Task_Base::wait(): \"%m\", continuing\n")));
 }
 
 // *** BEGIN dummy stub methods ***
 template <ACE_SYNCH_DECL,
-          typename TimePolicyType>
+          typename TimePolicyType,
+          typename LockType>
 int
 Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::svc (void)
+                  TimePolicyType,
+                  LockType>::svc (void)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::svc"));
 
@@ -463,10 +504,12 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 // *** END dummy stub methods ***
 
 template <ACE_SYNCH_DECL,
-          typename TimePolicyType>
+          typename TimePolicyType,
+          typename LockType>
 int
 Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::open (void* args_in)
+                  TimePolicyType,
+                  LockType>::open (void* args_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::open"));
 
@@ -620,11 +663,13 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 }
 
 template <ACE_SYNCH_DECL,
-          typename TimePolicyType>
+          typename TimePolicyType,
+          typename LockType>
 void
 Common_TaskBase_T<ACE_SYNCH_USE,
-                  TimePolicyType>::control (int messageType_in,
-                                            bool highPriority_in)
+                  TimePolicyType,
+                  LockType>::control (int messageType_in,
+                                      bool highPriority_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::control"));
 

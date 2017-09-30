@@ -79,7 +79,7 @@ class Common_ITimer_T
 // , public Common_IProactorTimer
  : public Common_ITimerBase
  , public Common_IInitialize_T<ConfigurationType>
- , public Common_IGetR_T<ConfigurationType>
+ , public Common_IGetR_2_T<ConfigurationType>
 {};
 
 #endif

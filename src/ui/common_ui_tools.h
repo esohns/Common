@@ -23,27 +23,27 @@
 
 #include <string>
 
-#include <gtk/gtk.h>
+#include "gtk/gtk.h"
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
 //#if GTK_CHECK_VERSION (3,16,0)
 //#else
-//#include <gtkgl/gdkgl.h>
+//#include "gtkgl/gdkgl.h"
 //#endif
 #else
 #if defined (GTKGLAREA_SUPPORT)
-#include <gtkgl/gdkgl.h>
+#include "gtkgl/gdkgl.h"
 #else
-#include <gtk/gtkgl.h> // gtkglext
+#include "gtk/gtkgl.h" // gtkglext
 #endif
 #endif
 #endif
 
 #include "ace/Global_Macros.h"
 
-#include "common_ui_exports.h"
+//#include "common_ui_exports.h"
 
-class Common_UI_Export Common_UI_Tools
+class Common_UI_Tools
 {
  public:
   inline virtual ~Common_UI_Tools () {};

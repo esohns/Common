@@ -22,34 +22,19 @@
 #define COMMON_ITASK_H
 
 #include "ace/Global_Macros.h"
-#include "ace/Synch_Traits.h"
 
-// *TODO*: find out why this doesn't work
-//#include "common_itaskcontrol.h"
+#include "common_ilock.h"
 
-template <ACE_SYNCH_DECL>
-class Common_ITaskControl_T
+template <ACE_SYNCH_DECL,
+          typename LockType> // implements Common_ILock_T/Common_IRecursiveLock_T
+class Common_ITask_T
+ : virtual public LockType
 {
  public:
   virtual void start () = 0;
   virtual void stop (bool = true,      // wait for completion ?
                      bool = true) = 0; // locked access ?
   virtual bool isRunning () const = 0;
-
-  // *NOTE*: signal asynchronous completion
-  virtual void finished () = 0;
-};
-
-typedef Common_ITaskControl_T<ACE_MT_SYNCH> Common_ITaskControl_t;
-
-//////////////////////////////////////////
-
-template <ACE_SYNCH_DECL>
-class Common_ITask_T
- : virtual public Common_ITaskControl_T<ACE_SYNCH_USE>
-{
- public:
-  virtual int wait (void) = 0;
 };
 
 #endif

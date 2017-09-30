@@ -28,8 +28,8 @@
 #ifdef __cplusplus
 extern "C"
 {
-#include <libavcodec/avcodec.h>
-#include <libavutil/imgutils.h>
+#include "libavcodec/avcodec.h"
+#include "libavutil/imgutils.h"
 //#include <libswscale/swscale.h>
 }
 #endif /* __cplusplus */

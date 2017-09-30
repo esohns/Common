@@ -23,24 +23,6 @@
 #include "common_ui_gtk_manager.h"
 
 void
-glib_print_debug_handler (const gchar* message_in)
-{
-  COMMON_TRACE (ACE_TEXT ("::glib_print_debug_handler"));
-
-  glib_log_handler (NULL,
-                    G_LOG_LEVEL_DEBUG,
-                    message_in, NULL);
-}
-void
-glib_print_error_handler (const gchar* message_in)
-{
-  COMMON_TRACE (ACE_TEXT ("::glib_print_error_handler"));
-
-  glib_log_handler (NULL,
-                    G_LOG_LEVEL_ERROR,
-                    message_in, NULL);
-}
-void
 glib_log_handler (const gchar* logDomain_in,
                   GLogLevelFlags logLevel_in,
                   const gchar* message_in,
@@ -95,6 +77,6 @@ glib_log_handler (const gchar* logDomain_in,
 //                             Common_UI_GTK_Manager_T<struct Common_UI_GTKGLState>,
 //                             typename ACE_MT_SYNCH::RECURSIVE_MUTEX);
 //#endif
-COMMON_UI_SINGLETON_DECLARE (ACE_Singleton,
-                             Common_UI_GTK_Manager_T<struct Common_UI_GTKState>,
-                             typename ACE_MT_SYNCH::RECURSIVE_MUTEX);
+//COMMON_UI_SINGLETON_DECLARE (ACE_Singleton,
+//                             Common_UI_GTK_Manager_T<struct Common_UI_GTKState>,
+//                             typename ACE_MT_SYNCH::RECURSIVE_MUTEX);
