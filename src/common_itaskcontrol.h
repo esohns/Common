@@ -32,6 +32,9 @@ class Common_ITaskControl_T
                                  LockType>
 {
  public:
+  // convenient types
+//  typedef ACE_SYNCH_MUTEX_T MUTEX_T;
+
   // *NOTE*: signal asynchronous completion
   virtual void finished () = 0;
   virtual void wait () const = 0;
