@@ -33,8 +33,7 @@
 #include "common_timer_common.h"
 
 // forward declarations
-class ACE_Event_Handler;
-class ACE_Handler;
+class Common_TimerHandler;
 
 template <ACE_SYNCH_DECL,
           typename ConfigurationType,
@@ -44,6 +43,9 @@ class Common_Timer_Manager_T
  , public Common_ITaskControl_T<ACE_SYNCH_USE,
                                 Common_ILock_T<ACE_SYNCH_USE> >
  , public Common_ITimer_T<ConfigurationType>
+ , private Common_IGetR_3_T<ACE_SYNCH_RECURSIVE_MUTEX>
+ //, private Common_IGetR_4_T<typename TimerQueueAdapterType::TIMER_QUEUE>
+ , private Common_IGetR_5_T<ACE_Task_Base>
  , public Common_IDumpState
 {
   typedef TimerQueueAdapterType inherited;
@@ -82,14 +84,14 @@ class Common_Timer_Manager_T
 //                               const ACE_Time_Value&,                         // delay
 //                               const ACE_Time_Value& = ACE_Time_Value::zero); // interval
   virtual bool initialize (const ConfigurationType&);
-  inline virtual const ConfigurationType& getR_2 () const { ACE_ASSERT (configuration_); return *configuration_; };
+  inline virtual const ConfigurationType& getR_2 () const { ACE_ASSERT (configuration_); return *configuration_; }
 
   // implement (part of) Common_ITaskControl_T
   virtual void start ();
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?
-  inline virtual bool isRunning () const { return (inherited::thr_count_ > 0); };
-  inline virtual void wait () const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) };
+  virtual bool isRunning () const;
+  virtual void wait () const;
 
   // implement Common_IDumpState
   virtual void dump_state () const;
@@ -109,21 +111,28 @@ class Common_Timer_Manager_T
   virtual ~Common_Timer_Manager_T ();
 
   // hide (part of) Common_ITaskControl_T
-  inline virtual bool lock (bool = true) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) };
-  inline virtual int unlock (bool = false) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (-1); ACE_NOTREACHED (return -1;) };
-  inline virtual const typename ITASKCONTROL_T::MUTEX_T& getR () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (typename ITASKCONTROL_T::MUTEX_T ()); ACE_NOTREACHED (return typename ITASKCONTROL_T::MUTEX_T ();) };
-  inline virtual void finished () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) };
+  inline virtual bool lock (bool = true) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
+  inline virtual int unlock (bool = false) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (-1); ACE_NOTREACHED (return -1;) }
+  inline virtual const typename ITASKCONTROL_T::MUTEX_T& getR () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (typename ITASKCONTROL_T::MUTEX_T ()); ACE_NOTREACHED (return typename ITASKCONTROL_T::MUTEX_T ();) }
+  inline virtual void idle () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
+  inline virtual void finished () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
 
   // helper methods
   unsigned int flushTimers (bool = true); // locked access ?
+  virtual const ACE_SYNCH_RECURSIVE_MUTEX& getR_3 () const;
+  //virtual const typename TimerQueueAdapterType::TIMER_QUEUE& getR_4 () const;
+  virtual const ACE_Task_Base& getR_5 () const;
   bool initializeTimerQueue ();
 
-  ConfigurationType*     configuration_;
+  ConfigurationType*         configuration_;
+  bool                       isInitialized_;
+  enum Common_TimerMode      mode_;
+  enum Common_TimerQueueType queueType_;
 
   // *NOTE*: this is only the functor, individual handlers are managed in the
   //         queue
-  Common_TimeoutUpcall_t timerHandler_;
-  TIMER_QUEUE_T*         timerQueue_;
+  Common_TimeoutUpcall_t     timerHandler_;
+  TIMER_QUEUE_T*             timerQueue_;
 };
 
 // include template definition

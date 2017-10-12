@@ -44,16 +44,16 @@
 #endif
 
 std::string
-Common_File_Tools::Address2String (const ACE_FILE_Addr& address_in)
+Common_File_Tools::addressToString (const ACE_FILE_Addr& address_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isReadable"));
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::addressToString"));
 
   std::string result;
 
   ACE_TCHAR buffer[PATH_MAX];
   int result_2 = address_in.addr_to_string (buffer,
                                             sizeof (buffer));
-  if (result_2 == -1)
+  if (unlikely (result_2 == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Addr::addr_to_string(): \"%m\", aborting\n")));
@@ -74,7 +74,7 @@ Common_File_Tools::isReadable (const std::string& filename_in)
   ACE_OS::memset (&stat, 0, sizeof (stat));
   result = ACE_OS::stat (filename_in.c_str (),
                          &stat);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     int error = ACE_OS::last_error ();
     if (error != ENOENT)  // 2  : not found
@@ -98,7 +98,7 @@ Common_File_Tools::isEmpty (const std::string& filename_in)
   ACE_OS::memset (&stat, 0, sizeof(stat));
   result = ACE_OS::stat (filename_in.c_str (),
                          &stat);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
 //    ACE_DEBUG ((LM_DEBUG,
 //                ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
@@ -128,7 +128,7 @@ Common_File_Tools::isDirectory (const std::string& directory_in)
   ACE_OS::memset (&stat, 0, sizeof (ACE_stat));
   result = ACE_OS::stat (directory_in.c_str (),
                          &stat);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     int error = ACE_OS::last_error ();
     if (error != ENOENT) // 2:
@@ -191,7 +191,7 @@ Common_File_Tools::isEmptyDirectory (const std::string& directory_in)
 //                    &Common_File_Tools::dirent_comparator) == -1)
                          NULL,
                          NULL);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("failed to ACE_Dirent_Selector::open(\"%s\"): \"%m\", aborting\n"),
@@ -202,7 +202,7 @@ Common_File_Tools::isEmptyDirectory (const std::string& directory_in)
 
   // clean up
   result = entries.close ();
-  if (result == -1)
+  if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Dirent_Selector::close(\"%s\"): \"%m\", continuing\n"),
                 ACE_TEXT (directory_in.c_str ())));
@@ -250,9 +250,9 @@ Common_File_Tools::create (const std::string& fileName_in)
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::create"));
 
   // sanity check(s)
-  if (Common_File_Tools::isReadable (fileName_in))
+  if (unlikely (Common_File_Tools::isReadable (fileName_in)))
     return true; // nothing to do
-  if (fileName_in.empty ())
+  if (unlikely (fileName_in.empty ()))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("invalid argument (was empty), aborting\n")));
@@ -266,7 +266,7 @@ Common_File_Tools::create (const std::string& fileName_in)
   {
     ACE_TCHAR buffer[PATH_MAX];
     ACE_OS::memset (buffer, 0, sizeof (buffer));
-    if (!ACE_OS::getcwd (buffer, sizeof (buffer)))
+    if (unlikely (!ACE_OS::getcwd (buffer, sizeof (buffer))))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::getcwd(): \"%m\", aborting\n")));
@@ -281,7 +281,7 @@ Common_File_Tools::create (const std::string& fileName_in)
   FILE* file_p = NULL;
   file_p = ACE_OS::fopen (ACE_TEXT (file_name.c_str ()),
                           ACE_TEXT ("wb"));
-  if (!file_p)
+  if (unlikely (!file_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
@@ -289,14 +289,14 @@ Common_File_Tools::create (const std::string& fileName_in)
     return false;
   } // end IF
   result = ACE_OS::fclose (file_p);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fclose(): \"%m\", aborting\n")));
     return false;
   } // end IF
   //ACE_DEBUG ((LM_DEBUG,
-  //            ACE_TEXT ("created: \"%s\"...\n"),
+  //            ACE_TEXT ("created: \"%s\"\n"),
   //            ACE_TEXT (file_name.c_str ())));
 
   return true;
@@ -310,9 +310,10 @@ Common_File_Tools::createDirectory (const std::string& directory_in)
 
   result = ACE_OS::mkdir (ACE_TEXT (directory_in.c_str ()),
                           ACE_DEFAULT_DIR_PERMS);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
-    switch (errno)
+    int error = ACE_OS::last_error ();
+    switch (error)
     {
       case ENOENT:
       {
@@ -360,7 +361,7 @@ Common_File_Tools::createDirectory (const std::string& directory_in)
     } // end SWITCH
   } // end IF
   //ACE_DEBUG ((LM_DEBUG,
-  //            ACE_TEXT ("created: \"%s\"...\n"),
+  //            ACE_TEXT ("created: \"%s\"\n"),
   //            ACE_TEXT (directory_in.c_str ())));
 
   return true;
@@ -377,7 +378,7 @@ Common_File_Tools::copyFile (const std::string& filename_in,
   // connect to the file...
   ACE_FILE_Addr source_address, target_address;
   result = source_address.set (ACE_TEXT_CHAR_TO_TCHAR (filename_in.c_str ()));
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Addr::set() file \"%s\": \"%m\", aborting\n"),
@@ -387,7 +388,7 @@ Common_File_Tools::copyFile (const std::string& filename_in,
   const ACE_TCHAR* filename_p =
     ACE::basename (ACE_TEXT_CHAR_TO_TCHAR (filename_in.c_str ()),
                    ACE_DIRECTORY_SEPARATOR_CHAR);
-  if (!filename_p)
+  if (unlikely (!filename_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE::basename(\"%s\"): \"%m\", aborting\n"),
@@ -399,7 +400,7 @@ Common_File_Tools::copyFile (const std::string& filename_in,
   target_filename += ACE_TEXT_ALWAYS_CHAR (filename_p);
   result =
     target_address.set (ACE_TEXT_CHAR_TO_TCHAR (target_filename.c_str ()));
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Addr::set() file \"%s\": \"%m\", aborting\n"),
@@ -418,7 +419,7 @@ Common_File_Tools::copyFile (const std::string& filename_in,
                        0,                                                   // reuse address ?
                        (O_RDONLY | O_BINARY | O_EXCL),                      // flags
                        ACE_DEFAULT_FILE_PERMS);                             // permissions
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Connector::connect() to file \"%s\": \"%m\", aborting\n"),
@@ -433,7 +434,7 @@ Common_File_Tools::copyFile (const std::string& filename_in,
                       0,                                                   // reuse address ?
                       (O_WRONLY | O_CREAT | O_BINARY | O_TRUNC),           // flags
                       ACE_DEFAULT_FILE_PERMS);                             // permissions
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Connector::connect() to file \"%s\": \"%m\", aborting\n"),
@@ -492,7 +493,7 @@ Common_File_Tools::copyFile (const std::string& filename_in,
 //  } // end IF
   ACE_FILE_Info file_info;
   result = source_file.get_info (file_info);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_IO::get_info(\"%s\"): \"%m\", aborting\n"),
@@ -512,11 +513,12 @@ Common_File_Tools::copyFile (const std::string& filename_in,
 
     return false;
   } // end IF
-  ssize_t bytes_written = ACE_OS::sendfile (source_file.get_handle (),
-                                            target_file.get_handle (),
-                                            NULL,
-                                            static_cast<size_t> (file_info.size_));
-  if (bytes_written != file_info.size_)
+  ssize_t bytes_written =
+    ACE_OS::sendfile (source_file.get_handle (),
+                      target_file.get_handle (),
+                      NULL,
+                      static_cast<size_t> (file_info.size_));
+  if (unlikely (bytes_written != file_info.size_))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::sendfile(\"%s\",\"%s\"): \"%m\", aborting\n"),
@@ -541,18 +543,18 @@ Common_File_Tools::copyFile (const std::string& filename_in,
   // clean up
 //  delete[] io_vec.iov_base;
   result = source_file.close ();
-  if (result == -1)
+  if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE::close(\"%s\"): \"%m\", continuing\n"),
                 ACE_TEXT (filename_in.c_str ())));
   result = target_file.close ();
-  if (result == -1)
+  if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE::close(\"%s\"): \"%m\", continuing\n"),
                 ACE_TEXT (target_filename.c_str ())));
 
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("copied \"%s\" --> \"%s\"...\n"),
+              ACE_TEXT ("copied \"%s\" --> \"%s\"\n"),
               ACE_TEXT (filename_in.c_str ()),
               ACE_TEXT (target_filename.c_str ())));
 
@@ -569,7 +571,7 @@ Common_File_Tools::deleteFile (const std::string& filename_in)
   // connect to the file...
   ACE_FILE_Addr address;
   result = address.set (ACE_TEXT_CHAR_TO_TCHAR (filename_in.c_str ()));
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Addr::set() file \"%s\": \"%m\", aborting\n"),
@@ -588,7 +590,7 @@ Common_File_Tools::deleteFile (const std::string& filename_in)
                        0,
                        (O_WRONLY | O_BINARY),
                        ACE_DEFAULT_FILE_PERMS);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Connector::connect() to file \"%s\": \"%m\", aborting\n"),
@@ -598,7 +600,7 @@ Common_File_Tools::deleteFile (const std::string& filename_in)
 
   // delete file
   result = file.remove ();
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_IO::remove() file \"%s\": \"%m\", aborting\n"),
@@ -606,7 +608,7 @@ Common_File_Tools::deleteFile (const std::string& filename_in)
     return false;
   } // end IF
   //ACE_DEBUG ((LM_DEBUG,
-  //            ACE_TEXT ("deleted \"%s\"...\n"),
+  //            ACE_TEXT ("deleted \"%s\"\n"),
   //            ACE_TEXT (filename_in.c_str ())));
 
   return true;
@@ -626,7 +628,7 @@ Common_File_Tools::load (const std::string& filename_in,
   FILE* file_p =
     ACE_OS::fopen (ACE_TEXT (filename_in.c_str ()),
                    ACE_TEXT_ALWAYS_CHAR ("rb"));
-  if (!file_p)
+  if (unlikely (!file_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
@@ -636,7 +638,7 @@ Common_File_Tools::load (const std::string& filename_in,
 
   // obtain file size
   result = ACE_OS::fseek (file_p, 0, SEEK_END);
-  if (result)
+  if (unlikely (result))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fseek(\"%s\"): \"%m\", aborting\n"),
@@ -651,7 +653,7 @@ Common_File_Tools::load (const std::string& filename_in,
     return false;
   } // end IF
   long file_size = ACE_OS::ftell (file_p);
-  if (file_size == -1)
+  if (unlikely (file_size == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::ftell(\"%s\"): \"%m\", aborting\n"),
@@ -671,7 +673,7 @@ Common_File_Tools::load (const std::string& filename_in,
 //  file_out = new (std::nothrow) unsigned char[fsize];
   ACE_NEW_NORETURN (file_out,
                     unsigned char[static_cast<unsigned int> (file_size)]);
-  if (!file_out)
+  if (unlikely (!file_out))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory(%d): \"%m\", aborting\n"),
@@ -692,7 +694,7 @@ Common_File_Tools::load (const std::string& filename_in,
                                      static_cast<size_t> (file_size), // read everything ...
                                      1,                               // ... at once
                                      file_p));                        // handle
-  if (result != 1)
+  if (unlikely (result != 1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to read file(\"%s\"): \"%m\", aborting\n"),
@@ -712,7 +714,7 @@ Common_File_Tools::load (const std::string& filename_in,
 
   // clean up
   result = ACE_OS::fclose (file_p);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", aborting\n"),
@@ -739,7 +741,7 @@ Common_File_Tools::open (const std::string& fileName_in,
 
   ACE_FILE_Addr file_address;
   result = file_address.set (fileName_in.c_str ());
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Addr::set(\"%s\"): \"%m\", aborting\n"),
@@ -756,7 +758,7 @@ Common_File_Tools::open (const std::string& fileName_in,
                             0,                       // reuse_addr: N/A
                             flags_in,                // flags
                             ACE_DEFAULT_FILE_PERMS); // permissions
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Connector::connect(\"%s\",%d): \"%m\", aborting\n"),
@@ -784,7 +786,7 @@ Common_File_Tools::store (const std::string& filename_in,
 
   file_p = ACE_OS::fopen (ACE_TEXT (filename_in.c_str ()),
                           ACE_TEXT_ALWAYS_CHAR ("wb"));
-  if (!file_p)
+  if (unlikely (!file_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
@@ -793,7 +795,7 @@ Common_File_Tools::store (const std::string& filename_in,
   } // end IF
 
   result_2 = ACE_OS::fwrite (buffer_in, size_in, 1, file_p);
-  if (result_2 != 1)
+  if (unlikely (result_2 != 1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fwrite(%u) (file was: \"%s\"): \"%m\", aborting\n"),
@@ -806,10 +808,10 @@ Common_File_Tools::store (const std::string& filename_in,
 
 clean:
   // clean up
-  if (file_p)
+  if (likely (file_p))
   {
     result_3 = ACE_OS::fclose (file_p);
-    if (result_3 == -1)
+    if (unlikely (result_3 == -1))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", aborting\n"),
@@ -819,9 +821,9 @@ clean:
   } // end IF
 
 #if defined (_DEBUG)
-  if (result)
+  if (likely (result))
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("wrote file \"%s\"...\n"),
+                ACE_TEXT ("wrote file \"%s\"\n"),
                 ACE_TEXT (filename_in.c_str ())));
 #endif
 
@@ -848,7 +850,7 @@ Common_File_Tools::size (const ACE_FILE_Addr& address_in)
                             (O_RDONLY |
                              O_BINARY),              // flags --> open
                             ACE_DEFAULT_FILE_PERMS); // permissions --> open
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     result = address_in.addr_to_string (buffer,
                                         sizeof (buffer));
@@ -862,7 +864,7 @@ Common_File_Tools::size (const ACE_FILE_Addr& address_in)
   } // end IF
 
   result = file_io.get_info (file_info);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     result = address_in.addr_to_string (buffer,
                                         sizeof (buffer));
@@ -884,7 +886,7 @@ Common_File_Tools::size (const ACE_FILE_Addr& address_in)
 
   // clean up
   result = file_io.close ();
-  if (result == -1)
+  if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_IO::close(): \"%m\", continuing\n")));
 
@@ -899,7 +901,7 @@ Common_File_Tools::size (const std::string& path_in)
   ACE_stat stat;
   ACE_OS::memset (&stat, 0, sizeof (stat));
   result = ACE_OS::stat (path_in.c_str (), &stat);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", returning\n"),
@@ -919,7 +921,7 @@ Common_File_Tools::realPath (const std::string& path_in)
   std::string result;
 
   char path[PATH_MAX];
-  if (!ACE_OS::realpath (path_in.c_str (), path))
+  if (unlikely (!ACE_OS::realpath (path_in.c_str (), path)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::realpath(\"%s\"): %m, aborting\n"),
@@ -941,7 +943,7 @@ Common_File_Tools::getWorkingDirectory ()
   // retrieve working directory
   ACE_TCHAR buffer[PATH_MAX];
   ACE_OS::memset (buffer, 0, sizeof (buffer));
-  if (!ACE_OS::getcwd (buffer, sizeof (buffer)))
+  if (unlikely (!ACE_OS::getcwd (buffer, sizeof (buffer))))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::getcwd(): \"%m\", aborting\n")));
@@ -978,7 +980,7 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
                       NULL,                                   // hToken
                       SHGFP_TYPE_CURRENT,                     // dwFlags
                       buffer);                                // pszPath
-  if (FAILED (result_2))
+  if (unlikely (FAILED (result_2)))
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to SHGetFolderPath(CSIDL_APPDATA): \"%s\", falling back\n"),
@@ -1006,7 +1008,7 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
                           : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_DIRECTORY));
 
   // sanity check(s)
-  if (!Common_File_Tools::isDirectory (result))
+  if (unlikely (!Common_File_Tools::isDirectory (result)))
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("not a directory: \"%s\", falling back\n"),
@@ -1039,7 +1041,7 @@ Common_File_Tools::getHomeDirectory (const std::string& user_in)
 #endif
 
   std::string user_name = user_in;
-  if (user_name.empty ())
+  if (unlikely (user_name.empty ()))
   {
     // fallback --> use current user
     std::string real_name;
@@ -1053,42 +1055,44 @@ Common_File_Tools::getHomeDirectory (const std::string& user_in)
   } // end IF
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  if (!OpenProcessToken (GetCurrentProcess (), TOKEN_QUERY, &token))
+  if (unlikely (!OpenProcessToken (GetCurrentProcess (),
+                                   TOKEN_QUERY,
+                                   &token)))
   {
     ACE_DEBUG ((LM_WARNING,
-                ACE_TEXT ("failed to OpenProcessToken(), falling back\n")));
+                ACE_TEXT ("failed to ::OpenProcessToken(): \"%s\", falling back\n"),
+                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
     goto fallback;
   } // end IF
 
   ACE_OS::memset (buffer, 0, sizeof (buffer));
-  // *TODO*: this is apparently inconsistent (see also config.h for details)
+  // *TODO*: use ACE_TEXT_ macro for this (see also: ace_wchar.h)
 #if defined (ACE_USES_WCHAR)
-  if (!GetUserProfileDirectoryW (token, buffer, &buffer_size))
+  if (unlikely (!GetUserProfileDirectoryW (token, buffer, &buffer_size)))
 #else
-  if (!GetUserProfileDirectoryA (token, buffer, &buffer_size))
+  if (unlikely (!GetUserProfileDirectoryA (token, buffer, &buffer_size)))
 #endif
   {
     ACE_DEBUG ((LM_WARNING,
-                ACE_TEXT ("failed to GetUserProfileDirectory(): \"%s\", falling back\n")));
+                ACE_TEXT ("failed to GetUserProfileDirectory(): \"%s\", falling back\n"),
+                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
 
     // clean up
     if (!CloseHandle (token))
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to CloseHandle(), continuing\n")));
+                  ACE_TEXT ("failed to CloseHandle(): \"%s\", continuing\n"),
+                  ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
 
     goto fallback;
   } // end IF
 
   // clean up
-  if (!CloseHandle (token))
+  if (unlikely (!CloseHandle (token)))
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to CloseHandle(), continuing\n")));
+                ACE_TEXT ("failed to CloseHandle(): \"%s\", continuing\n"),
+                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
 
-#if defined (ACE_USES_WCHAR)
-  result = ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (buffer));
-#else
   result = ACE_TEXT_ALWAYS_CHAR (buffer);
-#endif
 #else
   ACE_OS::memset (buffer, 0, sizeof (BUFSIZ));
   result_2 = ACE_OS::getpwnam_r (user_name.c_str (), // user name
@@ -1096,7 +1100,7 @@ Common_File_Tools::getHomeDirectory (const std::string& user_in)
                                  buffer,             // buffer
                                  BUFSIZ,             // buffer size
                                  &result_p);         // result (handle)
-  if (!result_p)
+  if (unlikely (!result_p))
   {
     if (result_2 == 0)
       ACE_DEBUG ((LM_WARNING,
@@ -1108,7 +1112,8 @@ Common_File_Tools::getHomeDirectory (const std::string& user_in)
                   ACE_TEXT (user_name.c_str ())));
     goto fallback;
   } // end IF
-  else result = ACE_TEXT_ALWAYS_CHAR (pwd.pw_dir);
+
+  result = ACE_TEXT_ALWAYS_CHAR (pwd.pw_dir);
 #endif
 
   return result;
@@ -1116,11 +1121,12 @@ Common_File_Tools::getHomeDirectory (const std::string& user_in)
 fallback:
   ACE_TCHAR* string_p =
       ACE_OS::getenv (ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE));
-  if (!string_p)
+  if (unlikely (!string_p))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"): \"%m\", continuing\n"),
                 ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE)));
   result = ACE_TEXT_ALWAYS_CHAR (string_p);
+
   return result;
 }
 
@@ -1146,25 +1152,21 @@ Common_File_Tools::getUserConfigurationDirectory ()
                       NULL,                                   // hToken
                       SHGFP_TYPE_CURRENT,                     // dwFlags
                       buffer);                                // pszPath
-  if (FAILED (result_2))
+  if (unlikely (FAILED (result_2)))
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to SHGetFolderPath(CSIDL_APPDATA): \"%s\", falling back\n"),
-                ACE_TEXT (Common_Tools::errorToString (static_cast<DWORD> (result_2)).c_str ())));
+                ACE_TEXT (Common_Tools::errorToString (static_cast<DWORD> (result_2), false).c_str ())));
     goto fallback;
   } // end IF
 
-#if defined (ACE_USES_WCHAR)
-  result = ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (buffer));
-#else
   result = ACE_TEXT_ALWAYS_CHAR (buffer);
-#endif
   result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
 #else
   std::string user_name;
   std::string real_name;
   Common_Tools::getCurrentUserName (user_name, real_name);
-  if (user_name.empty ())
+  if (unlikely (user_name.empty ()))
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to Common_Tools::getCurrentUserName(), falling back\n")));
@@ -1172,7 +1174,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
   } // end IF
 
   result = Common_File_Tools::getHomeDirectory (user_name);
-  if (result.empty ())
+  if (unlikely (result.empty ()))
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT("failed to Common_File_Tools::getHomeDirectory(\"%s\"), falling back\n"),
@@ -1185,7 +1187,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
 #endif
   result += ACE_TEXT_ALWAYS_CHAR (LIBCOMMON_PACKAGE);
 
-  if (!Common_File_Tools::isDirectory (result))
+  if (unlikely (!Common_File_Tools::isDirectory (result)))
   {
     if (!Common_File_Tools::createDirectory (result))
     {
@@ -1196,7 +1198,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
     } // end IF
     else
       ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("created game directory \"%s\"\n"),
+                  ACE_TEXT ("created package directory \"%s\"\n"),
                   ACE_TEXT (result.c_str ())));
   } // end IF
 
@@ -1205,11 +1207,12 @@ Common_File_Tools::getUserConfigurationDirectory ()
 fallback:
   ACE_TCHAR* string_p =
       ACE_OS::getenv (ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE));
-  if (!string_p)
+  if (unlikely (!string_p))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"): \"%m\", continuing\n"),
                 ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE)));
   result = ACE_TEXT_ALWAYS_CHAR (string_p);
+
   return result;
 }
 
@@ -1232,7 +1235,7 @@ use_environment:
 #endif
   ACE_TCHAR* string_p =
       ACE_OS::getenv (ACE_TEXT (environment_variable.c_str ()));
-  if (!string_p)
+  if (unlikely (!string_p))
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"): \"%m\", falling back\n"),
@@ -1255,34 +1258,31 @@ use_environment:
   //                   buffer);                                      // pszPath
   result_2 = ACE_TEXT_GetTempPath (sizeof (buffer), buffer);
   //if (FAILED (result_2))
-  if (result_2 == 0)
+  if (unlikely (result_2 == 0))
   {
     //ACE_DEBUG ((LM_WARNING,
     //            ACE_TEXT ("failed to SHGetFolderPath(CSIDL_LOCAL_APPDATA): \"%s\", falling back\n"),
     //            buffer));
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to GetTempPath(): \"%s\", falling back\n"),
-                ACE_TEXT (Common_Tools::errorToString (GetLastError ()).c_str ())));
+                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
     goto fallback;
   } // end IF
-#if defined (ACE_USES_WCHAR)
-  result = ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (buffer));
-#else
+
   result = ACE_TEXT_ALWAYS_CHAR (buffer);
-#endif
 
   // strip trailing backslashes
   position =
     result.find_last_of ('\\',
                          std::string::npos); // begin searching at the end !
-  if (position != std::string::npos)
+  if (likely (position != std::string::npos))
     result = result.substr (0, position);
 #else
 use_path:
 #endif
   // sanity check(s): directory exists ?
   // No ? --> (try to) create it then
-  if (!Common_File_Tools::isDirectory (result))
+  if (unlikely (!Common_File_Tools::isDirectory (result)))
   {
     if (!Common_File_Tools::createDirectory (result))
     {
@@ -1292,7 +1292,7 @@ use_path:
       goto fallback;
     } // end IF
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("created directory: \"%s\"...\n"),
+                ACE_TEXT ("created directory: \"%s\"\n"),
                 ACE_TEXT (result.c_str ())));
   } // end IF
 
@@ -1338,7 +1338,7 @@ Common_File_Tools::getTempFilename (const std::string& prefix_in)
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getTempFilename"));
 
   std::string result = Common_File_Tools::getTempDirectory ();
-  if (result.empty ())
+  if (unlikely (result.empty ()))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_File_Tools::getTempDirectory(), aborting\n")));
@@ -1351,11 +1351,11 @@ Common_File_Tools::getTempFilename (const std::string& prefix_in)
 
   // *NOTE*: see also: man 3 mkstemp
   ACE_TCHAR buffer[BUFSIZ];
-  if (!prefix_in.empty ())
+  if (unlikely (!prefix_in.empty ()))
     ACE_OS::strcpy (buffer, prefix_in.c_str ());
   ACE_OS::strcpy (buffer + prefix_in.size (), ACE_TEXT ("XXXXXX"));
   ACE_HANDLE file_handle = ACE_OS::mkstemp (buffer);
-  if (file_handle == ACE_INVALID_HANDLE)
+  if (unlikely (file_handle == ACE_INVALID_HANDLE))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::mkstemp(): \"%m\", aborting\n")));
@@ -1365,7 +1365,7 @@ Common_File_Tools::getTempFilename (const std::string& prefix_in)
 
   // clean up
   int result_2 = ACE_OS::close (file_handle);
-  if (result_2 == -1)
+  if (unlikely (result_2 == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::close(): \"%m\", continuing\n")));
 
@@ -1387,7 +1387,7 @@ fallback:
   result = Common_File_Tools::getLogDirectory (packageName_in,
                                                fallback_level);
 
-  if (result.empty ())
+  if (unlikely (result.empty ()))
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to Common_File_Tools::getLogDirectory(\"%s\",%d), falling back\n"),
@@ -1395,7 +1395,7 @@ fallback:
                 fallback_level));
 
     result = Common_File_Tools::getWorkingDirectory ();
-    if (result.empty ())
+    if (unlikely (result.empty ()))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_File_Tools::getWorkingDirectory(), aborting\n")));
@@ -1403,7 +1403,7 @@ fallback:
     } // end IF
     result += ACE_DIRECTORY_SEPARATOR_STR;
     std::string filename = Common_File_Tools::getTempFilename (programName_in);
-    if (filename.empty ())
+    if (unlikely (filename.empty ()))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_File_Tools::getTempFilename(\"%s\"), aborting\n"),
@@ -1423,7 +1423,7 @@ fallback:
 
   // sanity check(s)
   // *TODO*: replace this with a permission check
-  if (!Common_File_Tools::create (result))
+  if (unlikely (!Common_File_Tools::create (result)))
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to Common_File_Tools::create(\"%s\"), falling back\n"),
@@ -1433,7 +1433,7 @@ fallback:
 
     goto fallback;
   } // end IF
-  if (!Common_File_Tools::deleteFile (result))
+  if (unlikely (!Common_File_Tools::deleteFile (result)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_File_Tools::deleteFile(\"%s\"), aborting\n"),
@@ -1475,7 +1475,7 @@ use_environment:
 #endif
   string_p =
       ACE_OS::getenv (ACE_TEXT (environment_variable.c_str ()));
-  if (!string_p)
+  if (unlikely (!string_p))
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"): \"%m\", falling back\n"),
@@ -1485,7 +1485,7 @@ use_environment:
   result = ACE_TEXT_ALWAYS_CHAR (string_p);
 
 use_path:
-  if (!packageName_in.empty ())
+  if (unlikely (!packageName_in.empty ()))
   {
     result += ACE_DIRECTORY_SEPARATOR_STR_A;
     result += packageName_in;
@@ -1493,7 +1493,7 @@ use_path:
 
   // sanity check(s): directory exists ?
   // --> (try to) create it
-  if (!Common_File_Tools::isDirectory (result))
+  if (unlikely (!Common_File_Tools::isDirectory (result)))
   {
     if (!Common_File_Tools::createDirectory (result))
     {
@@ -1503,7 +1503,7 @@ use_path:
       goto fallback;
     } // end IF
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("created log directory: \"%s\"...\n"),
+                ACE_TEXT ("created log directory: \"%s\"\n"),
                 ACE_TEXT (result.c_str ())));
   } // end IF
 

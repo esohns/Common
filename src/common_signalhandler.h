@@ -28,8 +28,9 @@
 #include "ace/os_include/os_ucontext.h"
 #include "ace/OS_NS_signal.h"
 
-#include "common_exports.h"
+//#include "common_exports.h"
 #include "common_iinitialize.h"
+#include "common_isignal.h"
 
 // forward declaration(s)
 class Common_ISignal;
@@ -38,8 +39,12 @@ template <typename ConfigurationType>
 class Common_SignalHandler_T
  : public ACE_Handler
  , public ACE_Event_Handler
+ , public Common_ISignal
  , public Common_IInitialize_T<ConfigurationType>
 {
+  typedef ACE_Handler inherited;
+  typedef ACE_Event_Handler inherited2;
+
  public:
   inline virtual ~Common_SignalHandler_T () {};
 
@@ -55,15 +60,12 @@ class Common_SignalHandler_T
   virtual bool initialize (const ConfigurationType&);
 
  protected:
-  Common_SignalHandler_T (Common_ISignal*); // event handler handle
+  Common_SignalHandler_T (Common_ISignal* = NULL); // event handler handle
 
   ConfigurationType* configuration_;
   bool               isInitialized_;
 
  private:
-  typedef ACE_Handler inherited;
-  typedef ACE_Event_Handler inherited2;
-
   ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler_T ())
   ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler_T (const Common_SignalHandler_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler_T& operator= (const Common_SignalHandler_T&))

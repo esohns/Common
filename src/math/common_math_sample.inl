@@ -23,15 +23,6 @@ SampleIterator_T<ValueType,
 
 template <typename ValueType,
           unsigned int Aggregation>
-SampleIterator_T<ValueType,
-                 Aggregation>::~SampleIterator_T ()
-{
-  COMMON_TRACE (ACE_TEXT ("SampleIterator_T_T::~SampleIterator_T_T"));
-
-}
-
-template <typename ValueType,
-          unsigned int Aggregation>
 ValueType
 SampleIterator_T<ValueType,
                  Aggregation>::get (unsigned int index_in,

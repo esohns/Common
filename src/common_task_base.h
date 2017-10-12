@@ -57,13 +57,14 @@ class Common_TaskBase_T
   // convenient types
   typedef Common_ITaskControl_T<ACE_SYNCH_USE,
                                 LockType> ITASKCONTROL_T;
+  typedef typename ITASKCONTROL_T::ITASK_T ITASK_T;
 
   virtual ~Common_TaskBase_T ();
 
   // implement Common_ITaskControl_T
   virtual bool lock (bool = true); // block ?
-  inline virtual int unlock (bool = false) { return lock_.release (); };
-  inline virtual const typename ITASKCONTROL_T::MUTEX_T& getR () const { return lock_; };
+  inline virtual int unlock (bool = false) { return lock_.release (); }
+  inline virtual const typename ITASKCONTROL_T::MUTEX_T& getR () const { return lock_; }
   // *NOTE*: this wraps ACE_Task_Base::activate() to spawn a single thread;
   //         returns false if the object was already 'active' (or something else
   //         went wrong; check errno)
@@ -73,32 +74,32 @@ class Common_TaskBase_T
   // enqueue MB_STOP --> stop worker thread(s)
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?
-  inline virtual bool isRunning () const { return (inherited::thr_count_ > 0); };
+  inline virtual bool isRunning () const { return (inherited::thr_count_ > 0); }
+  virtual void idle ();
   virtual void finished ();
   virtual void wait () const;
 
   // implement Common_IDumpState
-  inline virtual void dump_state () const {};
+  inline virtual void dump_state () const {}
 
  protected:
   // convenient types
+  typedef ACE_Message_Queue<ACE_SYNCH_USE,
+                            TimePolicyType> MESSAGE_QUEUE_T;
   typedef ACE_Task<ACE_SYNCH_USE,
                    TimePolicyType> TASK_T;
   typedef ACE_Module<ACE_SYNCH_USE,
                      TimePolicyType> MODULE_T;
 
-  Common_TaskBase_T (const std::string&,                         // thread name
-                     int,                                        // (thread) group id
-                     unsigned int = 1,                           // # thread(s)
-                     bool = true,                                // auto-start ?
-                     /////////////////////
-                     ACE_Message_Queue<ACE_SYNCH_USE,
-                                       TimePolicyType>* = NULL); // queue handle
+  Common_TaskBase_T (const std::string&,       // thread name
+                     int,                      // (thread) group id
+                     unsigned int = 1,         // # thread(s)
+                     bool = true,              // auto-start ?
+                     MESSAGE_QUEUE_T* = NULL); // queue handle
 
   // override ACE_Task_Base members
   virtual int open (void* = NULL);
-  inline virtual int put (ACE_Message_Block* messageBlock_in,
-                          ACE_Time_Value* timeout_in) { return inherited::putq (messageBlock_in, timeout_in); }
+  inline virtual int put (ACE_Message_Block* messageBlock_in, ACE_Time_Value* timeout_in) { return inherited::putq (messageBlock_in, timeout_in); }
 
   // helper methods
   // *NOTE*: 'high priority' effectively means that the message is enqueued at
@@ -107,16 +108,16 @@ class Common_TaskBase_T
   void control (int,           // message type
                 bool = false); // high-priority ?
 
-  typename ITASKCONTROL_T::MUTEX_T lock_;
+  mutable typename ITASKCONTROL_T::MUTEX_T lock_;
 
   // *NOTE*: this is the 'configured' (not the 'current') thread count
   //         --> see ACE_Task::thr_count_
-  unsigned int                     threadCount_;
-  std::string                      threadName_;
+  unsigned int                             threadCount_;
+  std::string                              threadName_;
 
   typedef std::vector<ACE_Thread_ID> THREAD_IDS_T;
   typedef THREAD_IDS_T::const_iterator THREAD_IDS_ITERATOR_T;
-  THREAD_IDS_T                     threads_;
+  THREAD_IDS_T                             threads_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T ())
@@ -130,7 +131,7 @@ class Common_TaskBase_T
 
   // override/hide ACE_Task_Base members
   virtual int close (u_long = 0);
-  inline virtual int module_closed (void) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (-1); ACE_NOTREACHED (return -1;) };
+  inline virtual int module_closed (void) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (-1); ACE_NOTREACHED (return -1;) }
   virtual int svc (void);
 };
 

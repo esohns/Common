@@ -11,6 +11,11 @@
 
 //#define _USE_MATH_DEFINES
 
+// System Library Header Files
+#include "ace/config-lite.h"
+#include "ace/Global_Macros.h"
+#include "ace/Log_Msg.h"
+
 #if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
 #include <valgrind/memcheck.h>
 #endif

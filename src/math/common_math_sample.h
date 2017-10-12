@@ -1,7 +1,6 @@
 #ifndef COMMON_MATH_SAMPLE_T
 #define COMMON_MATH_SAMPLE_T
 
-#include "ace/Assert.h"
 #include "ace/Global_Macros.h"
 
 // *TODO*: 'macroize' this code. Data access should really have (nearly) zero
@@ -12,7 +11,7 @@ class SampleIterator_T
 {
  public:
   SampleIterator_T (char*); // buffer
-  virtual ~SampleIterator_T ();
+  inline virtual ~SampleIterator_T () {};
 
   // *TODO*: needs more serious consideration
   bool initialize (unsigned int, // bytes / ('buffer'/'chunk'/'frame'/...) sample
@@ -69,10 +68,7 @@ class Common_Math_Sample_T
 //    return static_cast<int> (buffer_[subSlot_in][slot_in]);
 //  }
 
-  inline unsigned int HzToSlot (unsigned int frequency_in) const
-  {
-    return (static_cast<unsigned int> (slots_ * frequency_in) / sampleRate_);
-  }
+  inline unsigned int HzToSlot (unsigned int frequency_in) const { return (static_cast<unsigned int> (slots_ * frequency_in) / sampleRate_); }
 
  protected:
   ValueType**  buffer_;     // sample data (may contain n 'channels')

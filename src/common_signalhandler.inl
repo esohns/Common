@@ -36,7 +36,7 @@ Common_SignalHandler_T<ConfigurationType>::Common_SignalHandler_T (Common_ISigna
  , callback_ (callback_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_SignalHandler_T::Common_SignalHandler_T"));
-
+    
 }
 
 template <typename ConfigurationType>
@@ -50,7 +50,7 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
 //  // initialize return value
 //  int result = -1;
 
-  // *WARNING*: on Win32, the second/third arguments seem to be void
+  // *NOTE*: on Win32, the second/third arguments seem to be void
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   ACE_UNUSED_ARG (siginfo_in);
   ACE_UNUSED_ARG (ucontext_in);
@@ -146,8 +146,7 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
 
 //  return result;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  size_t fake_handle = static_cast<size_t> (signal_in);
-  return handle_exception (reinterpret_cast<ACE_HANDLE> (fake_handle));
+  return handle_exception (reinterpret_cast<ACE_HANDLE> (signal_in));
 #else
   return handle_exception (static_cast<ACE_HANDLE> (signal_in));
 #endif
@@ -194,9 +193,9 @@ Common_SignalHandler_T<ConfigurationType>::handle_exception (ACE_HANDLE handle_i
 {
   COMMON_TRACE (ACE_TEXT ("Common_SignalHandler_T::handle_exception"));
 
-//  ACE_UNUSED_ARG (handle_in);
+  Common_ISignal* callback_p = (callback_ ? callback_ : this);
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  int signal = static_cast<int> (reinterpret_cast<size_t> (handle_in));
+  int signal = reinterpret_cast<int> (handle_in);
 #else
   int signal = handle_in;
 #endif
@@ -211,17 +210,14 @@ Common_SignalHandler_T<ConfigurationType>::handle_exception (ACE_HANDLE handle_i
 //              signal_,
 //              ACE_TEXT (information_string.c_str ())));
 
-  if (callback_)
-  {
-    try {
-      callback_->handle (signal);
-    } catch (...) {
-      // *PORTABILITY*: tracing in a signal handler context is not portable
-      // *TODO*
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("caught exception in Common_ISignal::handle(), continuing\n")));
-    }
-  } // end IF
+  try {
+    callback_p->handle (signal);
+  } catch (...) {
+    // *PORTABILITY*: tracing in a signal handler context is not portable
+    // *TODO*
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("caught exception in Common_ISignal::handle(), continuing\n")));
+  }
 
 //  signal_ = -1;
 //#if defined (ACE_WIN32) || defined (ACE_WIN64)

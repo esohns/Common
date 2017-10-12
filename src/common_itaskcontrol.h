@@ -33,7 +33,8 @@ class Common_ITaskControl_T
 {
  public:
   // convenient types
-//  typedef ACE_SYNCH_MUTEX_T MUTEX_T;
+  typedef Common_ITask_T<ACE_SYNCH_USE,
+                         LockType> ITASK_T;
 
   // *NOTE*: signal asynchronous completion
   virtual void finished () = 0;

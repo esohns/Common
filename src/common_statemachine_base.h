@@ -43,6 +43,7 @@ class Common_StateMachine_Base_T
 
   // implement (part of) Common_IStateMachine_T
   virtual StateType current () const;
+  inline virtual bool wait (StateType, const ACE_Time_Value* = NULL) const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) };
 
   // implement Common_IIinitialize_T
   virtual bool initialize (const ACE_SYNCH_MUTEX_T&);
@@ -64,10 +65,6 @@ class Common_StateMachine_Base_T
   ACE_UNIMPLEMENTED_FUNC (Common_StateMachine_Base_T ())
   ACE_UNIMPLEMENTED_FUNC (Common_StateMachine_Base_T (const Common_StateMachine_Base_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_StateMachine_Base_T& operator= (const Common_StateMachine_Base_T&))
-
-  // implement (part of) Common_IStateMachine_T
-  virtual bool wait (StateType,
-                     const ACE_Time_Value* = NULL);
 };
 
 // include template definition

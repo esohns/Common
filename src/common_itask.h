@@ -35,6 +35,8 @@ class Common_ITask_T
   virtual void stop (bool = true,      // wait for completion ?
                      bool = true) = 0; // locked access ?
   virtual bool isRunning () const = 0;
+
+  virtual void idle () = 0;
 };
 
 #endif

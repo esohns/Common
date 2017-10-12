@@ -270,7 +270,7 @@ continue_:
 #if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
   if (RUNNING_ON_VALGRIND)
     ACE_DEBUG ((LM_INFO,
-                ACE_TEXT ("running on valgrind...\n")));
+                ACE_TEXT ("running on valgrind\n")));
 #endif
 
   //ACE_DEBUG ((LM_DEBUG,
@@ -1435,7 +1435,7 @@ Common_Tools::StringToGUID (const std::string& string_in)
 
 std::string
 Common_Tools::errorToString (DWORD error_in,
-                            bool useAMGetErrorText_in)
+                             bool useAMGetErrorText_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::errorToString"));
 
@@ -2421,6 +2421,147 @@ Common_Tools::retrieveSignalInfo (int signal_in,
 }
 
 bool
+Common_Tools::initializeTimers (const Common_TimerConfiguration& configuration_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::initializeTimers"));
+
+  Common_Timer_Manager_t* timer_manager_p =
+    COMMON_TIMERMANAGER_SINGLETON::instance ();
+  ACE_ASSERT (timer_manager_p);
+  //Common_Timer_Manager_Asynch_t* timer_manager_2 =
+  //  COMMON_ASYNCHTIMERMANAGER_SINGLETON::instance ();
+  //ACE_ASSERT (timer_manager_2);
+
+  switch (configuration_in.mode)
+  {
+    case COMMON_TIMER_MODE_PROACTOR:
+    {
+      if (!timer_manager_p->initialize (configuration_in))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to initialize timer manager, aborting\n")));
+        return false;
+      } // end IF
+
+      timer_manager_p->start ();
+
+      return true;
+    }
+    case COMMON_TIMER_MODE_QUEUE:
+    {
+      if (!timer_manager_p->initialize (configuration_in))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to initialize timer manager, aborting\n")));
+        return false;
+      } // end IF
+
+      timer_manager_p->start ();
+      if (!timer_manager_p->isRunning ())
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to start timer manager, aborting\n")));
+        return false;
+      } // end IF
+
+      return true;
+    }
+    case COMMON_TIMER_MODE_REACTOR:
+    {
+      if (!timer_manager_p->initialize (configuration_in))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to initialize timer manager, aborting\n")));
+        return false;
+      } // end IF
+
+      timer_manager_p->start ();
+
+      return true;
+    }
+    case COMMON_TIMER_MODE_SIGNAL:
+    {
+      ACE_ASSERT (false);
+      ACE_NOTSUP_RETURN (false);
+      
+      ACE_NOTREACHED (return false;)
+      //if (!timer_manager_2->initialize (configuration_in))
+      //{
+      //  ACE_DEBUG ((LM_ERROR,
+      //              ACE_TEXT ("failed to initialize timer manager, aborting\n")));
+      //  return false;
+      //} // end IF
+
+      //timer_manager_2->start ();
+
+      //return true;
+    }
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown timer mode (was: %d), returning\n"),
+                  configuration_in.mode));
+      break;
+    }
+  } // end SWITCH
+
+  return false;
+}
+
+void
+Common_Tools::finalizeTimers (const Common_TimerConfiguration& configuration_in,
+                              bool waitForCompletion_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::finalizeTimers"));
+
+  Common_Timer_Manager_t* timer_manager_p =
+    COMMON_TIMERMANAGER_SINGLETON::instance ();
+  ACE_ASSERT (timer_manager_p);
+  //Common_Timer_Manager_Asynch_t* timer_manager_2 =
+  //  COMMON_ASYNCHTIMERMANAGER_SINGLETON::instance ();
+  //ACE_ASSERT (timer_manager_2);
+
+  switch (configuration_in.mode)
+  {
+    case COMMON_TIMER_MODE_PROACTOR:
+    {
+      timer_manager_p->stop (waitForCompletion_in,
+                             true);
+      break;
+    }
+    case COMMON_TIMER_MODE_QUEUE:
+    {
+      timer_manager_p->stop (waitForCompletion_in,
+                             true);
+      break;
+    }
+    case COMMON_TIMER_MODE_REACTOR:
+    {
+      timer_manager_p->stop (waitForCompletion_in,
+                             true);
+      break;
+    }
+    case COMMON_TIMER_MODE_SIGNAL:
+    {
+      ACE_ASSERT (false);
+      ACE_NOTSUP;
+
+      ACE_NOTREACHED (return;)
+      //timer_manager_2->stop (waitForCompletion_in,
+      //                       true);
+      //break;
+    }
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown timer mode (was: %d), returning\n"),
+                  configuration_in.mode));
+      break;
+    }
+  } // end SWITCH
+}
+
+bool
 Common_Tools::initializeEventDispatch (bool useReactor_in,
                                        bool useThreadPool_in,
                                        unsigned int numberOfThreads_in,
@@ -2575,13 +2716,14 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
 #else
     struct aioinit aioinit_s;
     ACE_OS::memset (&aioinit_s, 0, sizeof (aioinit_s));
-    aioinit_s.aio_threads = numberOfThreads_in;                     // default: 20
-    aioinit_s.aio_num = COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS; // default: 64
+    aioinit_s.aio_threads = numberOfThreads_in;   // default: 20
+    aioinit_s.aio_num =
+      COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS; // default: 64
 //    aioinit_s.aio_locks = 0;
 //    aioinit_s.aio_usedba = 0;
 //    aioinit_s.aio_debug = 0;
 //    aioinit_s.aio_numusers = 0;
-    aioinit_s.aio_idle_time = 1;                                    // default: 1
+    aioinit_s.aio_idle_time = 1;                  // default: 1
 //    aioinit_s.aio_reserved = 0;
     aio_init (&aioinit_s);
 #endif
@@ -2647,8 +2789,8 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
                     ACE_TEXT ("using Win32 proactor\n")));
 
         ACE_NEW_NORETURN (proactor_impl_p,
-                          ACE_WIN32_Proactor (numberOfThreads_in, // parallel accesses [0: #processors]
-                                              false));            // N/A
+                          ACE_WIN32_Proactor (1,       // #concurrent thread(s)/I/O completion port [0: #processors]
+                                              false)); // N/A
 
         break;
       }

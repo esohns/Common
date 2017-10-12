@@ -23,14 +23,9 @@
 #endif
 
 // System Library Header Files
-//#include "ace/streams.h"
-#include "ace/Assert.h"
-//#include "ace/ACE.h"
-//#include "ace/CDR_Stream.h"
+#include "ace/config-lite.h"
+#include "ace/Global_Macros.h"
 #include "ace/Log_Msg.h"
-#include "ace/OS.h"
-//#include "ace/Singleton.h"
-//#include "ace/Synch.h"
 
 // C RunTime Header Files
 //#include <deque>
@@ -44,7 +39,7 @@
 //#include <vector>
 
 #if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
-#include <valgrind/memcheck.h>
+#include "valgrind/memcheck.h"
 #endif
 
 // Local Header Files

@@ -75,6 +75,22 @@ class Common_IGetR_3_T
  public:
   virtual const Type& getR_3 () const = 0; // return value: type
 };
+// *IMPORTANT NOTE*: use this to avoid C2555 on MSVC
+// *TODO*: remove ASAP
+template <typename Type>
+class Common_IGetR_4_T
+{
+ public:
+  virtual const Type& getR_4 () const = 0; // return value: type
+};
+// *IMPORTANT NOTE*: use this to avoid C2555 on MSVC
+// *TODO*: remove ASAP
+template <typename Type>
+class Common_IGetR_5_T
+{
+ public:
+  virtual const Type& getR_5 () const = 0; // return value: type
+};
 
 template <typename Type>
 class Common_ISetR_T

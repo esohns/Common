@@ -167,21 +167,3 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
 
   return result;
 }
-
-template <ACE_SYNCH_DECL,
-          typename StateType>
-bool
-Common_StateMachine_Base_T<ACE_SYNCH_USE,
-                           StateType>::wait (StateType state_in,
-                                             const ACE_Time_Value* timeout_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::wait"));
-
-  ACE_UNUSED_ARG (state_in);
-  ACE_UNUSED_ARG (timeout_in);
-
-  ACE_ASSERT (false);
-  ACE_NOTSUP_RETURN (false);
-
-  ACE_NOTREACHED (return false;)
-}

@@ -107,7 +107,7 @@ class Common_Tools
   static struct _GUID StringToGUID (const std::string&);
 
   static std::string errorToString (DWORD,         // error
-                                    bool = false); // ? AMGetErrorText : FormatMessage
+                                    bool = false); // ? use AMGetErrorText() : use FormatMessage()
 #endif
 
   // --- logging ---
@@ -139,6 +139,11 @@ class Common_Tools
 #endif
                                   const ucontext_t*,       // context
                                   std::string&);           // return value: info
+
+  // --- timers ---
+  static bool initializeTimers (const Common_TimerConfiguration&); // configuration
+  static void finalizeTimers (const Common_TimerConfiguration&, // configuration
+                              bool = true);                     // wait for completion ?
 
   // --- event loop ---
   static bool initializeEventDispatch (bool,                 // use reactor ? : proactor

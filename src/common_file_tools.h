@@ -33,7 +33,7 @@
 class Common_File_Tools
 {
  public:
-  static std::string Address2String (const ACE_FILE_Addr&); // file name
+  static std::string addressToString (const ACE_FILE_Addr&); // file name
   static bool create (const std::string&); // FQ file name
   static bool createDirectory (const std::string&); // directory
   static bool copyFile (const std::string&,  // FQ file name

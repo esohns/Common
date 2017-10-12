@@ -100,6 +100,8 @@ typedef ACE_Thread_Timer_Queue_Adapter<Common_TimerQueueWheelImpl_t,
 
 typedef ACE_Abstract_Timer_Queue<ACE_Event_Handler*> Common_ITimerQueue_t;
 
+//////////////////////////////////////////
+
 typedef Common_ITimer_T<struct Common_TimerConfiguration> Common_ITimer_t;
 
 #endif

@@ -104,13 +104,16 @@ Common_ReferenceCounterBase::decrease ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::decrease"));
 
+  // sanity check(s)
+  ACE_ASSERT (inherited::refcount_.value () > 0);
+
   long result = inherited::decrement ();
   int result_2 = -1;
 
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, lock_, 0);
     // awaken any waiter(s)
     result_2 = condition_.broadcast ();
-    if (result_2 == -1)
+    if (unlikely (result_2 == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_SYNCH_CONDITION::broadcast(): \"%m\", continuing\n")));
   } // end lock scope
@@ -136,7 +139,7 @@ Common_ReferenceCounterBase::wait (unsigned int count_in) const
                   inherited::refcount_.value ()));
 
       result = condition_.wait ();
-      if (result == -1)
+      if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_SYNCH_CONDITION::wait(): \"%m\", continuing\n")));
     } // end WHILE
