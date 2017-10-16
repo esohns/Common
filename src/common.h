@@ -137,12 +137,19 @@ enum Common_ProactorType
 {
   COMMON_PROACTOR_ACE_DEFAULT = 0, // --> (somewhat) platform-specific
   ///////////////////////////////////////
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   COMMON_PROACTOR_POSIX_AIOCB,     // POSIX only
   COMMON_PROACTOR_POSIX_SIG,       // POSIX only
+#if defined (ACE_HAS_AIO_CALLS) && defined (sun)
   COMMON_PROACTOR_POSIX_SUN,       // POSIX only
+#endif
   COMMON_PROACTOR_POSIX_CB,        // POSIX only
-  ///////////////////////////////////////
+#endif
+///////////////////////////////////////
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   COMMON_PROACTOR_WIN32,           // Win32 only
+#endif
   ///////////////////////////////////////
   COMMON_PROACTOR_MAX,
   COMMON_PROACTOR_INVALID
@@ -152,10 +159,15 @@ enum Common_ReactorType
 {
   COMMON_REACTOR_ACE_DEFAULT = 0, // --> (somewhat) platform-specific
   ///////////////////////////////////////
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   COMMON_REACTOR_DEV_POLL,        // POSIX only
+#endif
   COMMON_REACTOR_SELECT,
   COMMON_REACTOR_THREAD_POOL,     // *IMPORTANT NOTE*: currently, only a select()-based implementation is available
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   COMMON_REACTOR_WFMO,            // Win32 only
+#endif
   ///////////////////////////////////////
   COMMON_REACTOR_MAX,
   COMMON_REACTOR_INVALID

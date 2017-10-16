@@ -481,13 +481,21 @@ Common_Tools::strip (const std::string& string_in)
 
   std::string result = string_in;
 
-  // *TODO*: remove tabs & other non-printable characters
-  std::string::size_type position = result.find_first_not_of (' ', 0);
-  if (position != std::string::npos)
-    result.erase (0, position - 1);
-  while ((position = result.rfind (' ',
-                                   std::string::npos)) == (result.size () - 1))
-    result.erase (position, 1);
+  std::string::size_type position = std::string::npos;
+  position =
+    result.find_first_not_of (ACE_TEXT_ALWAYS_CHAR (" \t\f\v\n\r"),
+                              0);
+  if (position == std::string::npos)
+    result.clear (); // all whitespace
+  else if (position)
+    result.erase (0, position);
+  position =
+    result.find_last_not_of (ACE_TEXT_ALWAYS_CHAR (" \t\f\v\n\r"),
+                             std::string::npos);
+  if (position == std::string::npos)
+    result.clear (); // all whitespace
+  else
+    result.erase (position + 1, std::string::npos);
 
   return result;
 }
@@ -2670,11 +2678,8 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
 
         break;
       }
-      ///////////////////////////////////
-      case COMMON_REACTOR_DEV_POLL:
-#else
-      case COMMON_REACTOR_WFMO:
 #endif
+      ///////////////////////////////////
       case COMMON_REACTOR_INVALID:
       case COMMON_REACTOR_MAX:
       default:
@@ -2794,12 +2799,8 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
 
         break;
       }
-      ///////////////////////////////////
-      case COMMON_PROACTOR_POSIX_AIOCB:
-      case COMMON_PROACTOR_POSIX_CB:
-      case COMMON_PROACTOR_POSIX_SIG:
-      case COMMON_PROACTOR_POSIX_SUN:
 #endif
+      ///////////////////////////////////
       case COMMON_PROACTOR_INVALID:
       case COMMON_PROACTOR_MAX:
       default:
@@ -2885,9 +2886,8 @@ threadpool_event_dispatcher_function (void* arg_in)
         ((thread_data_p->reactorType == COMMON_REACTOR_ACE_DEFAULT) ||
          (thread_data_p->reactorType == COMMON_REACTOR_SELECT)))
     {
-      ACE_thread_t thread_id = ACE_Thread::self ();
       ACE_thread_t thread_2 = -1;
-      result_2 = reactor_p->owner (thread_id, &thread_2);
+      result_2 = reactor_p->owner (ACE_Thread::self (), &thread_2);
       if (result_2 == -1)
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Reactor::owner(%t): \"%m\", continuing\n")));

@@ -140,6 +140,7 @@ Common_Image_Tools::loadPNG2OpenGL (const std::string& filename_in,
 
   /* If we have already
    * read some of the signature */
+  ACE_ASSERT (bytes_read <= 8);
   png_set_sig_bytes (png_p, bytes_read);
 
   png_read_info (png_p, png_info_p);
