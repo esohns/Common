@@ -323,7 +323,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       inherited::activate ((THR_NEW_LWP      |
                             THR_JOINABLE     |
                             THR_INHERIT_SCHED),         // flags
-                           1,                           // #threads
+                           threadCount_,                // #threads
                            1,                           // force active ?
                            ACE_DEFAULT_THREAD_PRIORITY, // priority
                            inherited::grp_id (),        // group id (see above)
@@ -509,7 +509,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       error = ACE_OS::last_error ();
       if (error != ESHUTDOWN)
         ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("(%s): worker thread (ID: %t) failed to ACE_Task::getq(): \"%m\", aborting\n"),
+                    ACE_TEXT ("(%s): worker thread (id: %t) failed to ACE_Task::getq(): \"%m\", aborting\n"),
                     ACE_TEXT (threadName_.c_str ())));
       break;
     } // end IF
