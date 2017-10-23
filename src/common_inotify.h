@@ -33,7 +33,7 @@ template <typename IdType,
 class Common_INotify_T
 {
  public:
-  virtual void notify (IdType,                // (session) id
+  virtual void notify (IdType,                // event id
                        const EventType&) = 0; // event (state/status change, ...)
 };
 
