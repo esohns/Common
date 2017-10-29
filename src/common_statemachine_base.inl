@@ -153,8 +153,8 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
   } // end lock scope
   //ACE_DEBUG ((LM_DEBUG,
   //            ACE_TEXT ("\"%s\" --> \"%s\"\n"),
-  //            ACE_TEXT (this->state2String (previous_state).c_str ()),
-  //            ACE_TEXT (this->state2String (newState_in).c_str ())));
+  //            ACE_TEXT (this->stateToString (previous_state).c_str ()),
+  //            ACE_TEXT (this->stateToString (newState_in).c_str ())));
 
   // signal any waiting threads
   if (signal)

@@ -404,15 +404,17 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
   ACE_Time_Value one_second (1, 0);
   int result = -1;
+  size_t count = 0;
   
   do
   {
-    if (likely (inherited::msg_queue_->is_empty ()))
+    count = inherited::msg_queue_->message_count ();
+    if (likely (!count))
       break;
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("%s: waiting for %u message(s)...\n"),
                 (inherited::mod_ ? inherited::mod_->name () : ACE_TEXT ("")),
-                inherited::msg_queue_->message_count ()));
+                count));
 
     result = ACE_OS::sleep (one_second);
     if (unlikely (result == -1))
