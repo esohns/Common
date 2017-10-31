@@ -65,9 +65,8 @@ class Common_TaskBase_T
   virtual bool lock (bool = true); // block ?
   inline virtual int unlock (bool = false) { return lock_.release (); }
   inline virtual const typename ITASKCONTROL_T::MUTEX_T& getR () const { return lock_; }
-  // *NOTE*: this wraps ACE_Task_Base::activate() to spawn a single thread;
-  //         returns false if the object was already 'active' (or something else
-  //         went wrong; check errno)
+  // *NOTE*: wraps ACE_Task_Base::activate() to spawn one (!) worker thread (up
+  //         to threadCount_)
   // *TODO*: callers may want to implement a dynamic thread pool
   //         --> call ACE_Task_Base::activate() directly in this case
   virtual void start ();
@@ -98,6 +97,7 @@ class Common_TaskBase_T
                      MESSAGE_QUEUE_T* = NULL); // queue handle
 
   // override ACE_Task_Base members
+  // *NOTE*: spawns threadCount_ worker thread(s)
   virtual int open (void* = NULL);
   inline virtual int put (ACE_Message_Block* messageBlock_in, ACE_Time_Value* timeout_in) { return inherited::putq (messageBlock_in, timeout_in); }
 
