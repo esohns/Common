@@ -73,12 +73,12 @@ class Common_TaskBase_T
   // enqueue MB_STOP --> stop worker thread(s)
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?
-  inline virtual bool isRunning () const { return (inherited::thr_count_ > 0); }
+  inline virtual bool isRunning () const { return (threadCount_ ? (inherited::thr_count_ > 0) : false); }
   virtual void idle ();
   virtual void finished ();
   virtual void wait () const;
 
-  // implement Common_IDumpState
+  // stub Common_IDumpState
   inline virtual void dump_state () const {}
 
  protected:
@@ -114,20 +114,19 @@ class Common_TaskBase_T
   //         --> see ACE_Task::thr_count_
   unsigned int                             threadCount_;
   std::string                              threadName_;
-
   typedef std::vector<ACE_Thread_ID> THREAD_IDS_T;
   typedef THREAD_IDS_T::const_iterator THREAD_IDS_ITERATOR_T;
   THREAD_IDS_T                             threads_;
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T ())
-  ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T (const Common_TaskBase_T&))
-  ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T& operator= (const Common_TaskBase_T&))
-
   // convenient types
   typedef Common_TaskBase_T<ACE_SYNCH_USE,
                             TimePolicyType,
                             LockType> OWN_TYPE_T;
+
+  ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T ())
+  ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T (const Common_TaskBase_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_TaskBase_T& operator= (const Common_TaskBase_T&))
 
   // override/hide ACE_Task_Base members
   virtual int close (u_long = 0);

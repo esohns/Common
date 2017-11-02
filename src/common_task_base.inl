@@ -160,33 +160,64 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::close"));
 
   // *NOTE*: this method may be invoked
-  //         - by an external thread closing down the active object (1)
-  //         - by the worker thread which calls this after returning from
-  //           svc() (0)
-  //           --> in this case, this should be a NOP
+  //         - by external threads shutting down the active object (arg_in: 1)
+  //         - by worker thread(s) upon returning from svc() (arg_in: 0)
   switch (arg_in)
   {
     case 0:
-    { // check specifically for the second case
+    {
+      // final thread ? --> clean up
       if (likely (ACE_OS::thr_equal (ACE_OS::thr_self (),
                                      inherited::last_thread ())))
       {
+        { ACE_GUARD_RETURN (typename ITASKCONTROL_T::MUTEX_T, aGuard, lock_, -1);
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-        ACE_hthread_t handle = ACE_INVALID_HANDLE;
-        for (THREAD_IDS_ITERATOR_T iterator = threads_.begin ();
-             iterator != threads_.end ();
-             ++iterator)
-        {
-          handle = (*iterator).handle ();
-          if (unlikely (handle != ACE_INVALID_HANDLE))
-            if (!::CloseHandle (handle))
-              ACE_DEBUG ((LM_ERROR,
-                          ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
-                          handle,
-                          ACE_TEXT (Common_Tools::errorToString (::GetLastError ()).c_str ())));
-        } // end FOR
+          ACE_hthread_t handle = ACE_INVALID_HANDLE;
+          for (THREAD_IDS_ITERATOR_T iterator = threads_.begin ();
+               iterator != threads_.end ();
+               ++iterator)
+          {
+            handle = (*iterator).handle ();
+            if (unlikely (handle != ACE_INVALID_HANDLE))
+              if (!::CloseHandle (handle))
+                ACE_DEBUG ((LM_ERROR,
+                            ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
+                            handle,
+                            ACE_TEXT (Common_Tools::errorToString (::GetLastError ()).c_str ())));
+          } // end FOR
 #endif
-        threads_.clear ();
+          threads_.clear ();
+        } // end lock scope
+
+        // *NOTE*: iff the task had several worker thread(s), there will
+        //         potentially still be STOP message(s) in the queue (see below)
+        //         --> remove them
+        if (likely (inherited::msg_queue_))
+        {
+          int result = inherited::msg_queue_->flush ();
+          if (unlikely (result == -1))
+          {
+            if (inherited::mod_)
+              ACE_DEBUG ((LM_ERROR,
+                          ACE_TEXT ("%s: failed to ACE_Message_Queue::flush(): \"%m\", continuing\n"),
+                          inherited::mod_->name ()));
+            else
+              ACE_DEBUG ((LM_ERROR,
+                          ACE_TEXT ("failed to ACE_Message_Queue::flush(): \"%m\", continuing\n")));
+          } // end IF
+          if (unlikely (result))
+          {
+            if (inherited::mod_)
+              ACE_DEBUG ((LM_DEBUG,
+                          ACE_TEXT ("%s: flushed %u message(s)\n"),
+                          inherited::mod_->name (),
+                          result));
+            else
+              ACE_DEBUG ((LM_DEBUG,
+                          ACE_TEXT ("flushed %u message(s)\n"),
+                          result));
+          } // end IF
+        } // end IF
 
         break;
       } // end IF
@@ -362,17 +393,18 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       return;
     } // end IF
 
-    //std::ostringstream string_stream;
-    //string_stream << thread_ids_p[0];
-    //ACE_DEBUG ((LM_DEBUG,
-    //            ACE_TEXT ("spawned a worker thread (\"%s\", id: %s, group: %d)\n"),
-    //            ACE_TEXT (threadName_.c_str ()),
-    //            ACE_TEXT (string_stream.str ().c_str ()),
-    //            inherited::grp_id ()));
     ACE_Thread_ID thread_id;
     thread_id.handle (thread_handles_p[0]);
     thread_id.id (thread_ids_p[0]);
     threads_.push_back (thread_id);
+
+    std::ostringstream string_stream;
+    string_stream << thread_ids_p[0];
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("spawned a worker thread (\"%s\", group: %d, id: %s)\n"),
+                ACE_TEXT (threadName_.c_str ()),
+                inherited::grp_id_,
+                ACE_TEXT (string_stream.str ().c_str ())));
   } // end lock scope
 
   // clean up
@@ -691,16 +723,16 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       return result;
     } // end IF
 
-//    std::ostringstream string_stream;
+    std::ostringstream string_stream;
     ACE_Thread_ID thread_id;
     for (unsigned int i = 0;
          i < threadCount_;
          i++)
     {
-//      string_stream << ACE_TEXT_ALWAYS_CHAR ("#") << (i + 1)
-//                    << ACE_TEXT_ALWAYS_CHAR (" ")
-//                    << thread_ids_p[i]
-//                    << ACE_TEXT_ALWAYS_CHAR ("\n");
+      string_stream << ACE_TEXT_ALWAYS_CHAR ("#") << (i + 1)
+                    << ACE_TEXT_ALWAYS_CHAR (" ")
+                    << thread_ids_p[i]
+                    << ACE_TEXT_ALWAYS_CHAR ("\n");
 
       // clean up
       delete [] thread_names_p[i];
@@ -709,13 +741,13 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       thread_id.id (thread_ids_p[i]);
       threads_.push_back (thread_id);
     } // end FOR
-    //std::string thread_ids_string = string_stream.str ();
-    //ACE_DEBUG ((LM_DEBUG,
-    //            ACE_TEXT ("(%s) spawned %u worker thread(s) (group: %d):\n%s"),
-    //            ACE_TEXT (threadName_.c_str ()),
-    //            threadCount_,
-    //            inherited::grp_id (),
-    //            ACE_TEXT (thread_ids_string.c_str ())));
+    std::string thread_ids_string = string_stream.str ();
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("spawned %u worker thread(s) (\"%s\", group: %d):\n%s"),
+                threadCount_,
+                ACE_TEXT (threadName_.c_str ()),
+                inherited::grp_id_,
+                ACE_TEXT (thread_ids_string.c_str ())));
   } // end lock scope
 
   // clean up

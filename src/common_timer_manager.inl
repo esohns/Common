@@ -130,10 +130,9 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
         return;
       } // end IF
       ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("(%s) spawned worker thread (group: %d, id: %u)\n"),
+                  ACE_TEXT ("(%s): spawned dispatch thread (group: %d)\n"),
                   ACE_TEXT (COMMON_TIMER_THREAD_NAME),
-                  COMMON_TIMER_THREAD_GROUP_ID,
-                  thread_ids[0]));
+                  inherited::grp_id_));
 
       break;
     }

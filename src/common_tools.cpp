@@ -127,7 +127,7 @@ common_tools_win32_debugheap_hook (int reportType_in,
               ACE_TEXT ("debug heap: %s"),
               ACE_TEXT (message_in)));
 
-  if (returnValue_out)
+  if (likely (returnValue_out))
     *returnValue_out = 0;
 
   return FALSE; // <-- do not stop
@@ -171,7 +171,7 @@ Common_Tools::initialize ()
   file_name += ACE_DIRECTORY_SEPARATOR_STR;
   file_name += ACE_TEXT_ALWAYS_CHAR (COMMON_DEBUG_DEBUGHEAP_LOG_FILE);
   result = file_address.set (ACE_TEXT (file_name.c_str ()));
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Addr::set(\"%s\"): \"%m\", returning\n"),
@@ -189,7 +189,7 @@ Common_Tools::initialize ()
                              O_CREAT |
                              O_TRUNC),               // flags --> open
                             ACE_DEFAULT_FILE_PERMS); // permissions --> open
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Connector::connect(\"%s\"): \"%m\", aborting\n"),
@@ -256,11 +256,11 @@ Common_Tools::initialize ()
               (((debug_heap_flags & 0xFFFF0000) == _CRTDBG_CHECK_DEFAULT_DF) ? ACE_TEXT ("on")
                                                                              : ACE_TEXT ("off"))));
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("configured debug heap (%x, log file: \"%s\")...\n"),
+              ACE_TEXT ("configured debug heap (%x, log file: \"%s\")\n"),
               debug_heap_flags,
               ACE_TEXT (file_name.c_str ())));
   //ACE_DEBUG ((LM_DEBUG,
-  //            ACE_TEXT ("configured debug heap (%x)...\n"),
+  //            ACE_TEXT ("configured debug heap (%x)\n"),
   //            debug_heap_flags));
 
 continue_:
@@ -292,7 +292,7 @@ Common_Tools::finalize ()
 
   int result = _CrtSetReportHook2 (_CRT_RPTHOOK_REMOVE,
                                    common_tools_win32_debugheap_hook);
-  if (result == -1)
+  if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to _CrtSetReportHook2(): \"%m\", continuing\n")));
   else
@@ -301,13 +301,13 @@ Common_Tools::finalize ()
   if (debugHeapLogFileHandle_ != ACE_INVALID_HANDLE)
   {
     result = ACE_OS::close (debugHeapLogFileHandle_);
-    if (result == -1)
+    if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::close(%@): \"%m\", continuing\n"),
                   debugHeapLogFileHandle_));
     else
       ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("closed debug heap log file...\n")));
+                  ACE_TEXT ("closed debug heap log file\n")));
     debugHeapLogFileHandle_ = ACE_INVALID_HANDLE;
   } // end IF
 continue_:
@@ -343,13 +343,13 @@ Common_Tools::periodToString (const ACE_Time_Value& period_in,
 
   char time_string[BUFSIZ];
   // *TODO*: rewrite this in C++...
-  if (ACE_OS::snprintf (time_string,
-                        sizeof (time_string),
-                        ACE_TEXT_ALWAYS_CHAR ("%d:%d:%d.%d"),
-                        hours,
-                        minutes,
-                        static_cast<int> (temp.sec ()),
-                        static_cast<int> (temp.usec ())) < 0)
+  if (unlikely (ACE_OS::snprintf (time_string,
+                                  sizeof (time_string),
+                                  ACE_TEXT_ALWAYS_CHAR ("%d:%d:%d.%d"),
+                                  hours,
+                                  minutes,
+                                  static_cast<int> (temp.sec ()),
+                                  static_cast<int> (temp.usec ())) < 0))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::snprintf(): \"%m\", aborting\n")));
@@ -375,7 +375,7 @@ Common_Tools::timestampToString (const ACE_Time_Value& timeStamp_in,
   ACE_OS::memset (&tm_s, 0, sizeof (struct tm));
   if (UTC_in)
   {
-    if (!ACE_OS::gmtime_r (&timestamp, &tm_s))
+    if (unlikely (!ACE_OS::gmtime_r (&timestamp, &tm_s)))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::gmtime_r(): \"%m\", aborting\n")));
@@ -383,7 +383,7 @@ Common_Tools::timestampToString (const ACE_Time_Value& timeStamp_in,
     } // end IF
   } // end IF
   else
-    if (!ACE_OS::localtime_r (&timestamp, &tm_s))
+    if (unlikely (!ACE_OS::localtime_r (&timestamp, &tm_s)))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::localtime_r(): \"%m\", aborting\n")));
@@ -393,16 +393,16 @@ Common_Tools::timestampToString (const ACE_Time_Value& timeStamp_in,
   char time_string[BUFSIZ];
   ACE_OS::memset (time_string, 0, BUFSIZ);
   // *TODO*: rewrite this in C++...
-  if (ACE_OS::snprintf (time_string,
-                        sizeof (time_string),
+  if (unlikely (ACE_OS::snprintf (time_string,
+                                  sizeof (time_string),
                         ACE_TEXT_ALWAYS_CHAR ("%u-%u-%u %u:%u:%u.%ld"),
-                        tm_s.tm_year + 1900,
-                        tm_s.tm_mon + 1,
-                        tm_s.tm_mday,
-                        tm_s.tm_hour,
-                        tm_s.tm_min,
-                        tm_s.tm_sec,
-                        timeStamp_in.usec ()) < 0)
+                                  tm_s.tm_year + 1900,
+                                  tm_s.tm_mon + 1,
+                                  tm_s.tm_mday,
+                                  tm_s.tm_hour,
+                                  tm_s.tm_min,
+                                  tm_s.tm_sec,
+                                  timeStamp_in.usec ()) < 0))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::snprintf(): \"%m\", aborting\n")));
@@ -485,14 +485,14 @@ Common_Tools::strip (const std::string& string_in)
   position =
     result.find_first_not_of (ACE_TEXT_ALWAYS_CHAR (" \t\f\v\n\r"),
                               0);
-  if (position == std::string::npos)
+  if (unlikely (position == std::string::npos))
     result.clear (); // all whitespace
   else if (position)
     result.erase (0, position);
   position =
     result.find_last_not_of (ACE_TEXT_ALWAYS_CHAR (" \t\f\v\n\r"),
                              std::string::npos);
-  if (position == std::string::npos)
+  if (unlikely (position == std::string::npos))
     result.clear (); // all whitespace
   else
     result.erase (position + 1, std::string::npos);
@@ -547,7 +547,7 @@ Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
                                       NULL,
                                       &size);
     error = GetLastError ();
-    if (error != ERROR_INSUFFICIENT_BUFFER)
+    if (unlikely (error != ERROR_INSUFFICIENT_BUFFER))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to GetLogicalProcessorInformationEx(): \"%s\", returning\n"),
@@ -556,7 +556,7 @@ Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
     } // end IF
     ACE_NEW_NORETURN (byte_p,
                       BYTE[size]);
-    if (!byte_p)
+    if (unlikely (!byte_p))
     {
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("failed to allocate memory: \"%m\", returning\n")));
@@ -564,9 +564,9 @@ Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
     } // end IF
     processor_information_p =
       reinterpret_cast<struct _SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX*> (byte_p);
-    if (!GetLogicalProcessorInformationEx (RelationProcessorCore,
-                                           processor_information_p,
-                                           &size))
+    if (unlikely (!GetLogicalProcessorInformationEx (RelationProcessorCore,
+                                                     processor_information_p,
+                                                     &size)))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to GetLogicalProcessorInformationEx(): \"%s\", returning\n"),
@@ -593,7 +593,7 @@ Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
   } // end ELSE
 #else
   long result_2 = ACE_OS::sysconf (_SC_NPROCESSORS_ONLN);
-  if (result_2 == -1)
+  if (unlikely (result_2 == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::sysconf(_SC_NPROCESSORS_ONLN): \"%m\", returning\n")));
@@ -612,10 +612,10 @@ Common_Tools::printLocales ()
 
   std::vector<std::string> locales;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  if (!EnumSystemLocalesEx (locale_cb_function,
-                            LOCALE_ALL,
-                            reinterpret_cast<LPARAM> (&locales),
-                            NULL))
+  if (unlikely (!EnumSystemLocalesEx (locale_cb_function,
+                                      LOCALE_ALL,
+                                      reinterpret_cast<LPARAM> (&locales),
+                                      NULL)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to EnumSystemLocalesEx(): \"%s\", returning\n"),
@@ -635,9 +635,9 @@ Common_Tools::printLocales ()
   command_line_string += filename_string;
 
   int result = ACE_OS::system (ACE_TEXT (command_line_string.c_str ()));
-  if ((result == -1)      ||
-      !WIFEXITED (result) ||
-      WEXITSTATUS (result))
+  if (unlikely ((result == -1)      ||
+                !WIFEXITED (result) ||
+                WEXITSTATUS (result)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::system(\"%s\"): \"%m\" (result was: %d), aborting\n"),
@@ -646,15 +646,15 @@ Common_Tools::printLocales ()
     return;
   } // end IF
   unsigned char* data_p = NULL;
-  if (!Common_File_Tools::load (filename_string,
-                                data_p))
+  if (unlikely (!Common_File_Tools::load (filename_string,
+                                          data_p)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"): \"%m\", returning\n"),
                 ACE_TEXT (filename_string.c_str ())));
     return;
   } // end IF
-  if (!Common_File_Tools::deleteFile (filename_string))
+  if (unlikely (!Common_File_Tools::deleteFile (filename_string)))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_File_Tools::deleteFile(\"%s\"), continuing\n"),
                 ACE_TEXT (filename_string.c_str ())));
@@ -691,7 +691,7 @@ Common_Tools::isLinux ()
   // get system information
   ACE_utsname name;
   result = ACE_OS::uname (&name);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::uname(): \"%m\", aborting\n")));
@@ -718,10 +718,10 @@ Common_Tools::hasCapability (unsigned long capability_in)
   COMMON_TRACE (ACE_TEXT ("Common_Tools::hasCapability"));
 
   // sanity check(s)
-  if (!CAP_IS_SUPPORTED (capability_in))
+  if (unlikely (!CAP_IS_SUPPORTED (capability_in)))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("capability (was: %d) not supported: \"%m\", aborting\n"),
+                ACE_TEXT ("capability (was: %u) not supported: \"%m\", aborting\n"),
                 capability_in));
     return false;
   } // end IF
@@ -729,7 +729,7 @@ Common_Tools::hasCapability (unsigned long capability_in)
   cap_t capabilities_p = NULL;
 //  capabilities_p = cap_init ();
   capabilities_p = ::cap_get_proc ();
-  if (!capabilities_p)
+  if (unlikely (!capabilities_p))
   {
     ACE_DEBUG ((LM_ERROR,
 //                ACE_TEXT ("failed to ::cap_init(): \"%m\", returning\n")));
@@ -740,7 +740,7 @@ Common_Tools::hasCapability (unsigned long capability_in)
   cap_flag_value_t in_effective_set;
   int result_2 = ::cap_get_flag (capabilities_p, capability_in,
                                  CAP_EFFECTIVE, &in_effective_set);
-  if (result_2 == -1)
+  if (unlikely (result_2 == -1))
   {
     char* capability_name_string_p = ::cap_to_name (capability_in);
     if (!capability_name_string_p)
@@ -763,7 +763,7 @@ Common_Tools::hasCapability (unsigned long capability_in)
 
 clean:
   result_2 = ::cap_free (capabilities_p);
-  if (result_2 == -1)
+  if (unlikely (result_2 == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
 
@@ -780,7 +780,7 @@ Common_Tools::printCapabilities ()
   // step1: read 'securebits' flags of the calling thread
   result = ::prctl (PR_GET_SECUREBITS,
                     0, 0, 0, 0);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::prctl(PR_GET_SECUREBITS): \"%m\", returning\n")));
@@ -801,7 +801,7 @@ Common_Tools::printCapabilities ()
   cap_t capabilities_p = NULL;
 //  capabilities_p = cap_init ();
   capabilities_p = cap_get_proc ();
-  if (!capabilities_p)
+  if (unlikely (!capabilities_p))
   {
     ACE_DEBUG ((LM_ERROR,
 //                ACE_TEXT ("failed to ::cap_init(): \"%m\", returning\n")));
@@ -820,7 +820,7 @@ Common_Tools::printCapabilities ()
        ++capability)
   {
     capability_name_string_p = cap_to_name (capability);
-    if (!capability_name_string_p)
+    if (unlikely (!capability_name_string_p))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ::cap_to_name(%d): \"%m\", continuing\n"),
@@ -830,7 +830,7 @@ Common_Tools::printCapabilities ()
 
     result = ::prctl (PR_CAPBSET_READ,
                       capability, 0, 0, 0);
-    if (result == -1)
+    if (unlikely (result == -1))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ::prctl(PR_CAPBSET_READ,\"%s\"): \"%m\", continuing\n"),
@@ -854,19 +854,19 @@ Common_Tools::printCapabilities ()
 
     result = ::cap_get_flag (capabilities_p, capability,
                              CAP_EFFECTIVE, &in_effective_set);
-    if (result == -1)
+    if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ::cap_get_flag(CAP_EFFECTIVE,\"%s\"): \"%m\", continuing\n"),
                   ACE_TEXT (capability_name_string_p)));
     result = ::cap_get_flag (capabilities_p, capability,
                              CAP_INHERITABLE, &in_inheritable_set);
-    if (result == -1)
+    if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ::cap_get_flag(CAP_INHERITABLE,\"%s\"): \"%m\", continuing\n"),
                   ACE_TEXT (capability_name_string_p)));
     result = ::cap_get_flag (capabilities_p, capability,
                              CAP_PERMITTED, &in_permitted_set);
-    if (result == -1)
+    if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ::cap_get_flag(CAP_PERMITTED,\"%s\"): \"%m\", continuing\n"),
                   ACE_TEXT (capability_name_string_p)));
@@ -883,14 +883,14 @@ Common_Tools::printCapabilities ()
     // clean up
 continue_:
     result = cap_free (capability_name_string_p);
-    if (result == -1)
+    if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
   } // end FOR
 
   // clean up
   result = cap_free (capabilities_p);
-  if (result == -1)
+  if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
 }
@@ -903,7 +903,7 @@ Common_Tools::setCapability (unsigned long capability_in)
   bool result = false;
 
   // sanity check(s)
-  if (!CAP_IS_SUPPORTED (capability_in))
+  if (unlikely (!CAP_IS_SUPPORTED (capability_in)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("capability (was: %d) not supported: \"%m\", aborting\n"),
@@ -914,7 +914,7 @@ Common_Tools::setCapability (unsigned long capability_in)
   cap_t capabilities_p = NULL;
 //  capabilities_p = cap_init ();
   capabilities_p = ::cap_get_proc ();
-  if (!capabilities_p)
+  if (unlikely (!capabilities_p))
   {
     ACE_DEBUG ((LM_ERROR,
 //                ACE_TEXT ("failed to ::cap_init(): \"%m\", returning\n")));
@@ -927,7 +927,7 @@ Common_Tools::setCapability (unsigned long capability_in)
   int result_2 = ::cap_set_flag (capabilities_p, CAP_EFFECTIVE,
                                  1, capabilities_a,
                                  CAP_SET);
-  if (result_2 == -1)
+  if (unlikely (result_2 == -1))
   {
     char* capability_name_string_p = ::cap_to_name (capability_in);
     if (!capability_name_string_p)
@@ -951,7 +951,7 @@ Common_Tools::setCapability (unsigned long capability_in)
 
 clean:
   result_2 = ::cap_free (capabilities_p);
-  if (result_2 == -1)
+  if (unlikely (result_2 == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
 
@@ -965,7 +965,7 @@ Common_Tools::dropCapability (unsigned long capability_in)
   bool result = false;
 
   // sanity check(s)
-  if (!CAP_IS_SUPPORTED (capability_in))
+  if (unlikely (!CAP_IS_SUPPORTED (capability_in)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("capability (was: %d) not supported: \"%m\", aborting\n"),
@@ -976,7 +976,7 @@ Common_Tools::dropCapability (unsigned long capability_in)
   cap_t capabilities_p = NULL;
 //  capabilities_p = cap_init ();
   capabilities_p = ::cap_get_proc ();
-  if (!capabilities_p)
+  if (unlikely (!capabilities_p))
   {
     ACE_DEBUG ((LM_ERROR,
 //                ACE_TEXT ("failed to ::cap_init(): \"%m\", returning\n")));
@@ -989,7 +989,7 @@ Common_Tools::dropCapability (unsigned long capability_in)
   int result_2 = ::cap_set_flag (capabilities_p, CAP_EFFECTIVE,
                                  1, capabilities_a,
                                  CAP_CLEAR);
-  if (result_2 == -1)
+  if (unlikely (result_2 == -1))
   {
     char* capability_name_string_p = ::cap_to_name (capability_in);
     if (!capability_name_string_p)
@@ -1013,7 +1013,7 @@ Common_Tools::dropCapability (unsigned long capability_in)
 
 clean:
   result_2 = ::cap_free (capabilities_p);
-  if (result_2 == -1)
+  if (unlikely (result_2 == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
 
@@ -1033,13 +1033,13 @@ Common_Tools::setRootPrivileges ()
   // *IMPORTANT NOTE*: (on Linux) the process requires the CAP_SETUID capability
   //                   for this to work
   int result = ACE_OS::seteuid (effective_user_id);
-  if (result == -1)
+  if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::seteuid(%d): \"%m\", aborting\n"),
+                ACE_TEXT ("failed to ACE_OS::seteuid(%u): \"%m\", aborting\n"),
                 effective_user_id));
   else
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("set effective user id to: %d...\n"),
+                ACE_TEXT ("set effective user id to: %u\n"),
                 effective_user_id));
 
   return (result == 0);
@@ -1051,13 +1051,13 @@ Common_Tools::dropRootPrivileges ()
 
   uid_t real_user_id = ACE_OS::getuid ();
   int result = ACE_OS::seteuid (real_user_id);
-  if (result == -1)
+  if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::seteuid(%d): \"%m\", continuing\n"),
+                ACE_TEXT ("failed to ACE_OS::seteuid(%u): \"%m\", continuing\n"),
                 real_user_id));
   else
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("reset effective user id to: %d...\n"),
+                ACE_TEXT ("reset effective user id to: %u\n"),
                 real_user_id));
 }
 void
@@ -1071,7 +1071,7 @@ Common_Tools::printPrivileges ()
   gid_t effective_user_group = ACE_OS::getegid ();
 
   ACE_DEBUG ((LM_INFO,
-              ACE_TEXT ("%P:%t: real/effective user id/group: %d/%d\t%d/%d\n"),
+              ACE_TEXT ("%P:%t: real/effective user id/group: %u/%u\t%u/%u\n"),
               real_user_id, effective_user_id,
               real_user_group, effective_user_group));
 }
@@ -1091,7 +1091,7 @@ Common_Tools::enableCoreDump (bool enable_in)
       ::prctl (PR_SET_DUMPABLE,
                (enable_in ? 1 : 0), 0, 0, 0);
 //               (enable_in ? SUID_DUMP_USER : SUID_DUMP_DISABLE), 0, 0, 0);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::prctl(PR_SET_DUMPABLE): \"%m\", returning\n")));
@@ -1099,7 +1099,7 @@ Common_Tools::enableCoreDump (bool enable_in)
   } // end IF
 #endif
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("%s core dump...\n"),
+              ACE_TEXT ("%s core dump\n"),
               (enable_in ? ACE_TEXT ("enabled") : ACE_TEXT ("disabled"))));
 
   return true;
@@ -1127,7 +1127,7 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
 #else
     result = ACE_OS::getrlimit (RLIMIT_NOFILE,
                                 &resource_limit);
-    if (result == -1)
+    if (unlikely (result == -1))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_NOFILE): \"%m\", aborting\n")));
@@ -1147,7 +1147,7 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
     //      resource_limit.rlim_max = RLIM_INFINITY;
     result = ACE_OS::setrlimit (RLIMIT_NOFILE,
                                 &resource_limit);
-    if (result == -1)
+    if (unlikely (result == -1))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::setrlimit(RLIMIT_NOFILE): \"%m\", aborting\n")));
@@ -1157,15 +1157,14 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
     // verify...
     result = ACE_OS::getrlimit (RLIMIT_NOFILE,
                                 &resource_limit);
-    if (result == -1)
+    if (unlikely (result == -1))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_NOFILE): \"%m\", aborting\n")));
       return false;
     } // end IF
-
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("unset file descriptor limits, now: [soft: %u, hard: %u]...\n"),
+                ACE_TEXT ("unset file descriptor limits, now: [soft: %u, hard: %u]\n"),
                 resource_limit.rlim_cur,
                 resource_limit.rlim_max));
 #endif
@@ -1198,7 +1197,7 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
     resource_limit.rlim_max = RLIM_INFINITY;
     result = ACE_OS::setrlimit (RLIMIT_CORE,
                                 &resource_limit);
-    if (result == -1)
+    if (unlikely (result == -1))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::setrlimit(RLIMIT_CORE): \"%m\", aborting\n")));
@@ -1208,15 +1207,14 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
     // verify...
     result = ACE_OS::getrlimit (RLIMIT_CORE,
                                 &resource_limit);
-    if (result == -1)
+    if (unlikely (result == -1))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_CORE): \"%m\", aborting\n")));
       return false;
     } // end IF
-
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("unset corefile limits, now: [soft: %u, hard: %u]...\n"),
+                ACE_TEXT ("unset corefile limits, now: [soft: %u, hard: %u]\n"),
                 resource_limit.rlim_cur,
                 resource_limit.rlim_max));
 #endif
@@ -1262,7 +1260,7 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
 #if defined (__sun) && defined (__SVR4)
     rctlblk_t* block_p =
         static_cast<rctlblk_t*> (ACE_CALLOC_FUNC (1, rctlblk_size ()));
-    if (!block_p)
+    if (unlikely (!block_p))
     {
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
@@ -1281,15 +1279,14 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
     result = ACE_OS::getrlimit (RLIMIT_SIGPENDING,
                                 &resource_limit);
 #endif
-    if (result == -1)
+    if (unlikely (result == -1))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_SIGPENDING): \"%m\", aborting\n")));
       return false;
     } // end IF
-
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("unset pending signal limits, now: [soft: %u, hard: %u]...\n"),
+                ACE_TEXT ("unset pending signal limits, now: [soft: %u, hard: %u]\n"),
                 resource_limit.rlim_cur,
                 resource_limit.rlim_max));
 #endif
@@ -1310,7 +1307,8 @@ Common_Tools::getCurrentUserName (std::string& username_out,
 
   char user_name[ACE_MAX_USERID];
   ACE_OS::memset (user_name, 0, sizeof (user_name));
-  if (!ACE_OS::cuserid (user_name, ACE_MAX_USERID))
+  if (unlikely (!ACE_OS::cuserid (user_name,
+                                  ACE_MAX_USERID)))
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to ACE_OS::cuserid(): \"%m\", falling back\n")));
@@ -1339,7 +1337,7 @@ Common_Tools::getCurrentUserName (std::string& username_out,
                           buffer,          // buffer
                           sizeof (buffer), // buffer size
                           &pwd_result);    // result (handle)
-  if (pwd_result == NULL)
+  if (unlikely (!pwd_result))
   {
     if (success == 0)
       ACE_DEBUG ((LM_WARNING,
@@ -1357,9 +1355,9 @@ Common_Tools::getCurrentUserName (std::string& username_out,
   ACE_TCHAR buffer[BUFSIZ];
   ACE_OS::memset (buffer, 0, sizeof (buffer));
   DWORD buffer_size = sizeof (buffer);
-  if (!ACE_TEXT_GetUserNameEx (NameDisplay, // EXTENDED_NAME_FORMAT
-                               buffer,
-                               &buffer_size))
+  if (unlikely (!ACE_TEXT_GetUserNameEx (NameDisplay, // EXTENDED_NAME_FORMAT
+                                         buffer,
+                                         &buffer_size)))
   {
     DWORD error = GetLastError ();
     if (error != ERROR_NONE_MAPPED)
@@ -1384,7 +1382,7 @@ Common_Tools::getHostName ()
   ACE_TCHAR host_name[MAXHOSTNAMELEN + 1];
   ACE_OS::memset (host_name, 0, sizeof (host_name));
   result = ACE_OS::hostname (host_name, sizeof (host_name));
-  if (result == -1)
+  if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::hostname(): \"%m\", aborting\n")));
   else
@@ -1429,7 +1427,7 @@ Common_Tools::StringToGUID (const std::string& string_in)
   result_2 =
     CLSIDFromString (ACE_TEXT_ALWAYS_WCHAR (string_in.c_str ()), &result);
 #endif
-  if (FAILED (result_2))
+  if (unlikely (FAILED (result_2)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to CLSIDFromString(\"%s\"): \"%s\", aborting\n"),
@@ -1483,7 +1481,7 @@ Common_Tools::errorToString (DWORD error_in,
   if (!result_2)
   {
     DWORD error = ::GetLastError ();
-    if (error != ERROR_MR_MID_NOT_FOUND)
+    if (unlikely (error != ERROR_MR_MID_NOT_FOUND))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to FormatMessage(0x%x): \"%s\", continuing\n"),
@@ -1511,8 +1509,8 @@ fallback:
     ACE_OS::memset (buffer_2, 0, sizeof (buffer_2));
     DXGetErrorDescription (error_in, buffer_2, BUFSIZ);
     ACE_Wide_To_Ascii converter (buffer_2);
-    if (!ACE_OS::strcpy (buffer,
-                         ACE_TEXT_CHAR_TO_TCHAR (converter.char_rep ())))
+    if (unlikely (!ACE_OS::strcpy (buffer,
+                                   ACE_TEXT_CHAR_TO_TCHAR (converter.char_rep ()))))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::strcpy(): \"%m\", aborting\n")));
@@ -1566,7 +1564,7 @@ Common_Tools::initializeLogging (const std::string& programName_in,
                                      open_mode));
 //    log_stream_p = ACE_OS::fopen (logFile_in.c_str (),
 //                                  ACE_TEXT_ALWAYS_CHAR ("w"));
-    if (!log_stream_p)
+    if (unlikely (!log_stream_p))
     {
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
@@ -1575,7 +1573,7 @@ Common_Tools::initializeLogging (const std::string& programName_in,
 //                  ACE_TEXT (logFile_in.c_str ())));
       return false;
     } // end IF
-    if (log_stream_p->fail ())
+    if (unlikely (log_stream_p->fail ()))
 //    if (log_stream_p->open (logFile_in.c_str (),
 //                            open_mode))
     {
@@ -1596,7 +1594,7 @@ Common_Tools::initializeLogging (const std::string& programName_in,
   result = ACE_LOG_MSG->open (ACE_TEXT (programName_in.c_str ()),
                               options_flags,
                               NULL);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Log_Msg::open(\"%s\", %u): \"%m\", aborting\n"),
@@ -1653,7 +1651,7 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
   // initialize return value(s)
   previousActions_out.clear ();
   result = ACE_OS::sigemptyset (&originalMask_out);
-  if (result == - 1)
+  if (unlikely (result == - 1))
   {
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", aborting\n")));
@@ -1676,7 +1674,7 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
   ACE_Sig_Action previous_action;
   result = ignore_action.register_action (SIGPIPE,
                                           &previous_action);
-  if (result == -1)
+  if (unlikely (result == -1))
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("failed to ACE_Sig_Action::register_action(%S): \"%m\", continuing\n"),
                 SIGPIPE));
@@ -1725,9 +1723,9 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
 
     sigset_t rt_signal_set;
     result = ACE_OS::sigemptyset (&rt_signal_set);
-    if (result == - 1)
+    if (unlikely (result == - 1))
     {
-      ACE_DEBUG ((LM_DEBUG,
+      ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", aborting\n")));
       return false;
     } // end IF
@@ -1737,7 +1735,7 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
          i++, number++)
     {
       result = ACE_OS::sigaddset (&rt_signal_set, i);
-      if (result == -1)
+      if (unlikely (result == -1))
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_OS::sigaddset(%S): \"%m\", continuing\n"),
@@ -1751,7 +1749,7 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
       {
         result = signals_inout.sig_del (i); // <-- let the event dispatch handle
                                             //     all realtime signals
-        if (result == -1)
+        if (unlikely (result == -1))
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%S): \"%m\", continuing\n"),
                       i));
@@ -1764,14 +1762,14 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
     result = ACE_OS::thr_sigsetmask (SIG_BLOCK,
                                      &rt_signal_set,
                                      &originalMask_out);
-    if (result == -1)
+    if (unlikely (result == -1))
     {
-      ACE_DEBUG ((LM_DEBUG,
+      ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", aborting\n")));
       return false;
     } // end IF
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("[%u-%u]: blocked %d real-time signals...\n"),
+                ACE_TEXT ("[%u-%u]: blocked %d real-time signals\n"),
                 ACE_SIGRTMIN, ACE_SIGRTMAX,
                 number));
   } // end IF
@@ -1784,13 +1782,13 @@ _continue:
   if (signals_inout.is_member (SIGSEGV))
   {
     result = signals_inout.sig_del (SIGSEGV);
-    if (result == -1)
+    if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%S): \"%m\", continuing\n"),
                   SIGSEGV));
     else
       ACE_DEBUG ((LM_WARNING,
-                  ACE_TEXT ("removed %S from handled signals...\n"),
+                  ACE_TEXT ("removed %S from handled signals\n"),
                   SIGSEGV));
   } // end IF
 #endif
@@ -1841,8 +1839,8 @@ Common_Tools::initializeSignals (const ACE_Sig_Set& signals_in,
     {
       result = ignore_action.register_action (i,
                                               &previous_action);
-      if (result == -1)
-        ACE_DEBUG ((LM_DEBUG,
+      if (unlikely (result == -1))
+        ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Sig_Action::register_action(%S): \"%m\", continuing\n"),
                     i));
       else
@@ -1946,7 +1944,7 @@ Common_Tools::initializeSignals (const ACE_Sig_Set& signals_in,
   result = reactor_p->register_handler (signals_in,
                                         eventHandler_in,
                                         &new_action);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Reactor::register_handler(): \"%m\", aborting\n")));
@@ -1959,7 +1957,7 @@ Common_Tools::initializeSignals (const ACE_Sig_Set& signals_in,
   //     i++)
   //  if (signals_in.is_member (i))
   //    ACE_DEBUG ((LM_DEBUG,
-  //                ACE_TEXT ("handling signal %u: \"%S\"...\n"),
+  //                ACE_TEXT ("handling signal %u: \"%S\"\n"),
   //                i, i));
 
   return true;
@@ -1980,7 +1978,7 @@ Common_Tools::finalizeSignals (const ACE_Sig_Set& signals_in,
   ACE_Reactor* reactor_p = ACE_Reactor::instance ();
   ACE_ASSERT (reactor_p);
   result = reactor_p->remove_handler (signals_in);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Reactor::remove_handler(): \"%m\", returning\n")));
@@ -1994,7 +1992,7 @@ Common_Tools::finalizeSignals (const ACE_Sig_Set& signals_in,
     result =
         const_cast<ACE_Sig_Action&> ((*iterator).second).register_action ((*iterator).first,
                                                                           NULL);
-    if (result == -1)
+    if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Sig_Action::register_action(%S): \"%m\", continuing\n"),
                   (*iterator).first));
@@ -2005,7 +2003,7 @@ Common_Tools::finalizeSignals (const ACE_Sig_Set& signals_in,
   result = ACE_OS::thr_sigsetmask (SIG_SETMASK,
                                    &previousMask_in,
                                    NULL);
-  if (result == -1)
+  if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", continuing\n")));
 #endif
@@ -2092,7 +2090,7 @@ Common_Tools::retrieveSignalInfo (int signal_in,
                          buffer,
                          sizeof (buffer),
                          &passwd_p);
-  if (result || !passwd_p)
+  if (unlikely (result || !passwd_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::getpwuid_r(%u) : \"%m\", continuing\n"),
@@ -2185,7 +2183,7 @@ Common_Tools::retrieveSignalInfo (int signal_in,
               information_out += ACE_TEXT_ALWAYS_CHAR ("ILL_BADSTK"); break;
             default:
             {
-              ACE_DEBUG ((LM_DEBUG,
+              ACE_DEBUG ((LM_ERROR,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
                           info_in.si_code));
               break;
@@ -2216,7 +2214,7 @@ Common_Tools::retrieveSignalInfo (int signal_in,
               information_out += ACE_TEXT_ALWAYS_CHAR ("FPE_FLTSUB"); break;
             default:
             {
-              ACE_DEBUG ((LM_DEBUG,
+              ACE_DEBUG ((LM_ERROR,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
                           info_in.si_code));
               break;
@@ -2235,7 +2233,7 @@ Common_Tools::retrieveSignalInfo (int signal_in,
               information_out += ACE_TEXT_ALWAYS_CHAR ("SEGV_ACCERR"); break;
             default:
             {
-              ACE_DEBUG ((LM_DEBUG,
+              ACE_DEBUG ((LM_ERROR,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
                           info_in.si_code));
               break;
@@ -2256,7 +2254,7 @@ Common_Tools::retrieveSignalInfo (int signal_in,
               information_out += ACE_TEXT_ALWAYS_CHAR ("BUS_OBJERR"); break;
             default:
             {
-              ACE_DEBUG ((LM_DEBUG,
+              ACE_DEBUG ((LM_ERROR,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
                           info_in.si_code));
               break;
@@ -2275,7 +2273,7 @@ Common_Tools::retrieveSignalInfo (int signal_in,
               information_out += ACE_TEXT_ALWAYS_CHAR ("TRAP_TRACE"); break;
             default:
             {
-              ACE_DEBUG ((LM_DEBUG,
+              ACE_DEBUG ((LM_ERROR,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
                           info_in.si_code));
               break;
@@ -2302,7 +2300,7 @@ Common_Tools::retrieveSignalInfo (int signal_in,
               information_out += ACE_TEXT_ALWAYS_CHAR ("CLD_CONTINUED"); break;
             default:
             {
-              ACE_DEBUG ((LM_DEBUG,
+              ACE_DEBUG ((LM_ERROR,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
                           info_in.si_code));
               break;
@@ -2329,7 +2327,7 @@ Common_Tools::retrieveSignalInfo (int signal_in,
               information_out += ACE_TEXT_ALWAYS_CHAR ("POLL_HUP"); break;
             default:
             {
-              ACE_DEBUG ((LM_DEBUG,
+              ACE_DEBUG ((LM_ERROR,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
                           info_in.si_code));
               break;
@@ -2340,7 +2338,7 @@ Common_Tools::retrieveSignalInfo (int signal_in,
         }
         default:
         {
-          ACE_DEBUG ((LM_DEBUG,
+          ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
                       info_in.si_code));
           break;
@@ -2420,7 +2418,7 @@ Common_Tools::retrieveSignalInfo (int signal_in,
     {
       // *TODO*: handle more signals here ?
 //       ACE_DEBUG ((LM_DEBUG,
-//                   ACE_TEXT ("no additional information for signal: \"%S\"...\n"),
+//                   ACE_TEXT ("no additional information for signal: \"%S\"\n"),
 //                   signal_in));
       break;
     }
@@ -2444,7 +2442,7 @@ Common_Tools::initializeTimers (const Common_TimerConfiguration& configuration_i
   {
     case COMMON_TIMER_MODE_PROACTOR:
     {
-      if (!timer_manager_p->initialize (configuration_in))
+      if (unlikely (!timer_manager_p->initialize (configuration_in)))
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to initialize timer manager, aborting\n")));
@@ -2457,7 +2455,7 @@ Common_Tools::initializeTimers (const Common_TimerConfiguration& configuration_i
     }
     case COMMON_TIMER_MODE_QUEUE:
     {
-      if (!timer_manager_p->initialize (configuration_in))
+      if (unlikely (!timer_manager_p->initialize (configuration_in)))
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to initialize timer manager, aborting\n")));
@@ -2465,7 +2463,7 @@ Common_Tools::initializeTimers (const Common_TimerConfiguration& configuration_i
       } // end IF
 
       timer_manager_p->start ();
-      if (!timer_manager_p->isRunning ())
+      if (unlikely (!timer_manager_p->isRunning ()))
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to start timer manager, aborting\n")));
@@ -2476,7 +2474,7 @@ Common_Tools::initializeTimers (const Common_TimerConfiguration& configuration_i
     }
     case COMMON_TIMER_MODE_REACTOR:
     {
-      if (!timer_manager_p->initialize (configuration_in))
+      if (unlikely (!timer_manager_p->initialize (configuration_in)))
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to initialize timer manager, aborting\n")));
@@ -2691,12 +2689,12 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
       }
     } // end SWITCH
     ACE_Reactor* reactor_p = NULL;
-    if (reactor_impl_p)
+    if (likely (reactor_impl_p))
     {
       ACE_NEW_NORETURN (reactor_p,
                         ACE_Reactor (reactor_impl_p, // implementation handle
                                      1));            // delete in dtor ?
-      if (!reactor_p)
+      if (unlikely (!reactor_p))
       {
         ACE_DEBUG ((LM_CRITICAL,
                     ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
@@ -2812,7 +2810,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
       }
     } // end SWITCH
     ACE_Proactor* proactor_p = NULL;
-    if (proactor_impl_p)
+    if (likely (proactor_impl_p))
     {
       ACE_NEW_NORETURN (proactor_p,
                         ACE_Proactor (proactor_impl_p, // implementation handle --> create new ?
@@ -2820,7 +2818,7 @@ Common_Tools::initializeEventDispatch (bool useReactor_in,
 //                                              // (see finalizeEventDispatch() below)
                                       true,            // delete in dtor ?
                                       NULL));          // timer queue handle --> create new
-      if (!proactor_p)
+      if (unlikely (!proactor_p))
       {
         ACE_DEBUG ((LM_CRITICAL,
                     ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
@@ -2888,7 +2886,7 @@ threadpool_event_dispatcher_function (void* arg_in)
     {
       ACE_thread_t thread_2 = -1;
       result_2 = reactor_p->owner (ACE_Thread::self (), &thread_2);
-      if (result_2 == -1)
+      if (unlikely (result_2 == -1))
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Reactor::owner(%t): \"%m\", continuing\n")));
     } // end IF
@@ -2920,12 +2918,12 @@ threadpool_event_dispatcher_function (void* arg_in)
 #endif
     result_2 = proactor_p->proactor_run_event_loop (NULL);
   } // end ELSE
-  if (result_2 == -1)
+  if (unlikely (result_2 == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("(%t) failed to handle events: \"%m\", aborting\n")));
 
 //  ACE_DEBUG ((LM_DEBUG,
-//              ACE_TEXT ("(%t) worker leaving...\n")));
+//              ACE_TEXT ("(%t) worker leaving\n")));
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   if (result_2 != -1)
@@ -2939,14 +2937,14 @@ threadpool_event_dispatcher_function (void* arg_in)
 
 bool
 Common_Tools::startEventDispatch (const struct Common_DispatchThreadData& threadData_in,
-                                  int& groupID_out)
+                                  int& groupId_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::startEventDispatch"));
 
   int result = -1;
 
   // initialize return value(s)
-  groupID_out = -1;
+  groupId_out = -1;
 
   // reset event dispatch
   if (threadData_in.useReactor)
@@ -2960,7 +2958,7 @@ Common_Tools::startEventDispatch (const struct Common_DispatchThreadData& thread
     ACE_Proactor* proactor_p = ACE_Proactor::instance ();
     ACE_ASSERT (proactor_p);
     result = proactor_p->proactor_reset_event_loop ();
-    if (result == -1)
+    if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Proactor::proactor_reset_event_loop: \"%m\", continuing\n")));
   } // end ELSE
@@ -2977,7 +2975,7 @@ Common_Tools::startEventDispatch (const struct Common_DispatchThreadData& thread
   //         available)
   ACE_NEW_NORETURN (thread_handles_p,
                     ACE_hthread_t[threadData_in.numberOfDispatchThreads]);
-  if (!thread_handles_p)
+  if (unlikely (!thread_handles_p))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory(%u), aborting\n"),
@@ -2990,7 +2988,7 @@ Common_Tools::startEventDispatch (const struct Common_DispatchThreadData& thread
   //         available)
   ACE_NEW_NORETURN (thread_names_p,
                     const char*[threadData_in.numberOfDispatchThreads]);
-  if (!thread_names_p)
+  if (unlikely (!thread_names_p))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory(%u), aborting\n"),
@@ -3014,7 +3012,7 @@ Common_Tools::startEventDispatch (const struct Common_DispatchThreadData& thread
     //         available)
     ACE_NEW_NORETURN (thread_name_p,
                       char[BUFSIZ]);
-    if (!thread_name_p)
+    if (unlikely (!thread_name_p))
     {
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("failed to allocate memory, aborting\n")));
@@ -3042,7 +3040,7 @@ Common_Tools::startEventDispatch (const struct Common_DispatchThreadData& thread
   ACE_THR_FUNC function_p =
     static_cast<ACE_THR_FUNC> (::threadpool_event_dispatcher_function);
   void* arg_p = &const_cast<struct Common_DispatchThreadData&> (threadData_in);
-  groupID_out =
+  groupId_out =
     thread_manager_p->spawn_n (threadData_in.numberOfDispatchThreads, // # threads
                                function_p,                            // function
                                arg_p,                                 // argument
@@ -3056,7 +3054,7 @@ Common_Tools::startEventDispatch (const struct Common_DispatchThreadData& thread
                                NULL,                                  // stack(s)
                                NULL,                                  // stack size(s)
                                thread_names_p);                       // name(s)
-  if (groupID_out == -1)
+  if (unlikely (groupId_out == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Thread_Manager::spawn_n(%u): \"%m\", aborting\n"),
@@ -3093,14 +3091,14 @@ Common_Tools::startEventDispatch (const struct Common_DispatchThreadData& thread
 
     // also: clean up
     delete [] thread_names_p[i];
-  } // end IF
+  } // end FOR
 
   buffer = converter.str ();
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("(%s) spawned %u worker thread(s) (group: %d):\n%s"),
+              ACE_TEXT ("(%s): spawned %u dispatch thread(s) (group: %d):\n%s"),
               ACE_TEXT (COMMON_EVENT_THREAD_NAME),
               threadData_in.numberOfDispatchThreads,
-              groupID_out,
+              groupId_out,
               ACE_TEXT (buffer.c_str ())));
 
   // clean up
@@ -3116,21 +3114,21 @@ Common_Tools::startEventDispatch (const struct Common_DispatchThreadData& thread
 void
 Common_Tools::finalizeEventDispatch (bool stopReactor_in,
                                      bool stopProactor_in,
-                                     int groupID_in)
+                                     int groupId_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::finalizeEventDispatch"));
 
   int result = -1;
 
   // step1: stop reactor/proactor
-  // *IMPORTANT NOTE*: current proactor implementations start a pseudo-task
-  //                   that runs the reactor --> stop that as well
+  // *IMPORTANT NOTE*: some proactor implementations start a pseudo-task that
+  //                   runs the (default) reactor --> stop that as well
   if (stopReactor_in || stopProactor_in)
   {
     ACE_Reactor* reactor_p = ACE_Reactor::instance ();
     ACE_ASSERT (reactor_p);
     result = reactor_p->end_event_loop ();
-    if (result == -1)
+    if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Reactor::end_event_loop: \"%m\", continuing\n")));
   } // end IF
@@ -3140,7 +3138,7 @@ Common_Tools::finalizeEventDispatch (bool stopReactor_in,
     ACE_Proactor* proactor_p = ACE_Proactor::instance ();
     ACE_ASSERT (proactor_p);
     result = proactor_p->end_event_loop ();
-    if (result == -1)
+    if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Proactor::end_event_loop: \"%m\", continuing\n")));
 
@@ -3153,15 +3151,15 @@ Common_Tools::finalizeEventDispatch (bool stopReactor_in,
   } // end IF
 
   // step2: wait for any worker(s) ?
-  if (groupID_in != -1)
+  if (groupId_in != -1)
   {
     ACE_Thread_Manager* thread_manager_p = ACE_Thread_Manager::instance ();
     ACE_ASSERT (thread_manager_p);
-    result = thread_manager_p->wait_grp (groupID_in);
-    if (result == -1)
+    result = thread_manager_p->wait_grp (groupId_in);
+    if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Thread_Manager::wait_grp(%d): \"%m\", continuing\n"),
-                  groupID_in));
+                  groupId_in));
   } // end IF
 
   ACE_DEBUG ((LM_DEBUG,
@@ -3170,26 +3168,26 @@ Common_Tools::finalizeEventDispatch (bool stopReactor_in,
 
 void
 Common_Tools::dispatchEvents (bool useReactor_in,
-                              int groupID_in)
+                              int groupId_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::dispatchEvents"));
 
   int result = -1;
 
   // *NOTE*: when using a thread pool, handle things differently
-  if (groupID_in != -1)
+  if (groupId_in != -1)
   {
     ACE_Thread_Manager* thread_manager_p = ACE_Thread_Manager::instance ();
     ACE_ASSERT (thread_manager_p);
-    result = thread_manager_p->wait_grp (groupID_in);
-    if (result == -1)
+    result = thread_manager_p->wait_grp (groupId_in);
+    if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Thread_Manager::wait_grp(%d): \"%m\", continuing\n"),
-                  groupID_in));
+                  groupId_in));
     else
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("joined dispatch thread group (id was: %d)\n"),
-                  groupID_in));
+                  groupId_in));
   } // end IF
   else
   {
@@ -3200,7 +3198,7 @@ Common_Tools::dispatchEvents (bool useReactor_in,
       //// *WARNING*: restart system calls (after e.g. SIGINT) for the reactor
       //reactor_p->restart (1);
       result = reactor_p->run_reactor_event_loop (0);
-      if (result == -1)
+      if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Reactor::run_reactor_event_loop(): \"%m\", continuing\n")));
     } // end IF
@@ -3209,12 +3207,12 @@ Common_Tools::dispatchEvents (bool useReactor_in,
       ACE_Proactor* proactor_p = ACE_Proactor::instance ();
       ACE_ASSERT (proactor_p);
       result = proactor_p->proactor_run_event_loop (0);
-      if (result == -1)
+      if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Proactor::proactor_run_event_loop(): \"%m\", continuing\n")));
     } // end ELSE
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("event dispatch complete...\n")));
+                ACE_TEXT ("event dispatch complete\n")));
   } // end ELSE
 }
 
