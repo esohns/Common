@@ -1,0 +1,2 @@
+/usr/bin/ar qc libCommonUI.a  CMakeFiles/CommonUI.dir/stdafx.cpp.o CMakeFiles/CommonUI.dir/common_ui_gtk_builder_definition.cpp.o CMakeFiles/CommonUI.dir/common_ui_gtk_manager.cpp.o CMakeFiles/CommonUI.dir/common_ui_tools.cpp.o
+/usr/bin/ranlib libCommonUI.a

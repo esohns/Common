@@ -1,0 +1,2 @@
+/usr/bin/ar qc libCommonImage.a  CMakeFiles/CommonImage.dir/stdafx.cpp.o CMakeFiles/CommonImage.dir/common_image_tools.cpp.o
+/usr/bin/ranlib libCommonImage.a

@@ -15,10 +15,17 @@ if (UNIX)
 endif ()
 
 if (UNIX)
+# include (CheckLibraryExists)
+# check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
+ set (CMAKE_THREAD_PREFER_PTHREAD ON)
+ find_package (Threads)
+endif ()
+
+if (UNIX)
  include (CheckLibraryExists)
  #*TODO*: why isn't the function found ?
  check_library_exists (aio aio_init "" HAVE_LIB_AIO)
- check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
+# check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
 endif ()
 
 set (ACE_LIB_FILE libACE.so)
@@ -28,17 +35,17 @@ if (UNIX)
                PATHS /lib /usr/lib
                PATH_SUFFIXES x86_64-linux-gnu
                DOC "searching for ${AIO_LIB_FILE}")
-
- if (DEFINED ENV{ACE_ROOT})
-  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-                PATHS ENV ACE_ROOT
-                PATH_SUFFIXES ace build/linux/ace
-                DOC "searching for ${ACE_LIB_FILE}"
-                NO_DEFAULT_PATH)
- else ()
-  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-                DOC "searching for ${ACE_LIB_FILE} (system paths)")
- endif ()
+# message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
+ find_library (ACE_LIBRARY ${ACE_LIB_FILE}
+               HINTS ${CMAKE_CURRENT_BINARY_DIR}/../../../ATCD/ACE /usr/local
+               PATHS ENV ACE_ROOT
+               PATH_SUFFIXES lib
+               DOC "searching for ${ACE_LIB_FILE}"
+               NO_DEFAULT_PATH)
+# else ()
+#  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
+#                DOC "searching for ${ACE_LIB_FILE} (system paths)")
+# endif ()
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
   set (LIB_FILE_SUFFIX d)
@@ -125,6 +132,16 @@ set (${PROJECT_NAME}_LIB_SRCS
      common_timer_manager_common.h
      common_tools.cpp
      common_tools.h)
+
+set (LLVM_COMPILER_ID_STRING "Clang")
+string (TOLOWER "${LLVM_COMPILER_ID_STRING}" LLVM_COMPILER_ID_STRING_LOWER)
+string (TOLOWER "${CMAKE_CXX_COMPILER_ID}" CXX_COMPILER_ID_STRING_LOWER)
+if (CXX_COMPILER_ID_STRING_LOWER STREQUAL LLVM_COMPILER_ID_STRING_LOWER)
+ add_compile_options (-fPIC)
+endif ()
+if (UNIX)
+ add_definitions (-D_GLIBCXX_USE_CXX11_ABI=0)
+endif ()
 
 if (WIN32)
  add_definitions (-DWIN32)

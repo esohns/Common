@@ -82,7 +82,7 @@ Common_Math_FFT_SampleIterator::initialize (unsigned int dataSampleSize_in,
 
   dataSampleSize_ = dataSampleSize_in;
   soundSampleSize_ = soundSampleSize_in;
-  isSignedSampleFormat_ = isSignedSampleFormat_;
+  isSignedSampleFormat_ = isSignedSampleFormat_in;
   sampleByteOrder_ = sampleByteOrder_in;
 
   reverseEndianness_ =
