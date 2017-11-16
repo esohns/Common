@@ -1,2 +1,0 @@
-/usr/bin/ar qc libCommon.a  CMakeFiles/Common.dir/stdafx.cpp.o CMakeFiles/Common.dir/common_file_tools.cpp.o CMakeFiles/Common.dir/common_logger.cpp.o CMakeFiles/Common.dir/common_referencecounter_base.cpp.o CMakeFiles/Common.dir/common_signalhandler.cpp.o CMakeFiles/Common.dir/common_statemachine_base.cpp.o CMakeFiles/Common.dir/common_task_base.cpp.o CMakeFiles/Common.dir/common_timerhandler.cpp.o CMakeFiles/Common.dir/common_timer_manager.cpp.o CMakeFiles/Common.dir/common_tools.cpp.o
-/usr/bin/ranlib libCommon.a
