@@ -31,7 +31,7 @@
 #include "ace/Global_Macros.h"
 
 #include "common.h"
-#include "common_exports.h"
+//#include "common_exports.h"
 
 // forward declaration(s)
 class ACE_Event_Handler;

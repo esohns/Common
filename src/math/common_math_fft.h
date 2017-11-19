@@ -12,7 +12,7 @@ class Common_Math_FFT_SampleIterator
 {
  public:
   Common_Math_FFT_SampleIterator (char*); // buffer
-  inline virtual ~Common_Math_FFT_SampleIterator () {};
+  inline virtual ~Common_Math_FFT_SampleIterator () {}
 
   bool initialize (unsigned int, // bytes / 'data sample' (i.e. sizeof ('sound sample') * channels)
                    unsigned int, // resolution: bytes per 'sound sample'

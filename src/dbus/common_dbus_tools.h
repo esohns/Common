@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010 by Erik Sohns   *
+ *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,52 +18,37 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef Common_Logger_T_H
-#define Common_Logger_T_H
+#ifndef COMMON_DBUS_TOOLS_H
+#define COMMON_DBUS_TOOLS_H
+
+#include "ace/config-lite.h"
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+#include "dbus/dbus.h"
+#endif
 
 #include "ace/Global_Macros.h"
-#include "ace/Log_Msg_Backend.h"
-#include "ace/Log_Record.h"
-#include "ace/Synch_Traits.h"
 
-#include "common.h"
 //#include "common_exports.h"
 
-template <ACE_SYNCH_DECL>
-class Common_Logger_T
- : public ACE_Log_Msg_Backend
+//class Common_Export Common_DBus_Tools
+class Common_DBus_Tools
 {
-  typedef ACE_Log_Msg_Backend inherited;
-
  public:
-  Common_Logger_T (Common_MessageStack_t*,     // message stack handle
-                   ACE_SYNCH_MUTEX_T* = NULL); // message stack lock handle (NULL --> don't lock)
-  //                 ACE_Lock* = NULL);      // message stack lock handle (NULL --> don't lock)
-  virtual ~Common_Logger_T ();
+  inline virtual ~Common_DBus_Tools () {}
 
-  // implement ACE_Log_Msg_Backend interface
-  virtual int open (const ACE_TCHAR*); // logger key
-  virtual int reset (void);
-  virtual int close (void);
-  virtual ssize_t log (ACE_Log_Record&); // record
+  // *IMPORTANT NOTE* fire-and-forget the second argument
+  static struct DBusMessage* exchange (struct DBusConnection*,       // connection handle
+                                       struct DBusMessage*&,         // outbound message handle
+                                       int = DBUS_TIMEOUT_INFINITE); // timeout (ms) {default: block}
+  static bool validateType (struct DBusMessageIter&,  // message iterator
+                            int = DBUS_TYPE_INVALID); // expected type
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_Logger_T ())
-  ACE_UNIMPLEMENTED_FUNC (Common_Logger_T (const Common_Logger_T&))
-  ACE_UNIMPLEMENTED_FUNC (Common_Logger_T& operator= (const Common_Logger_T&))
-
-//  FILE*                  buffer_;
-
-  //ACE_Lock*              lock_;
-  ACE_SYNCH_MUTEX_T*     lock_;
-  Common_MessageStack_t* messageStack_;
+  ACE_UNIMPLEMENTED_FUNC (Common_DBus_Tools ())
+//  ACE_UNIMPLEMENTED_FUNC (virtual ~Common_DBus_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (Common_DBus_Tools (const Common_DBus_Tools&))
+  ACE_UNIMPLEMENTED_FUNC (Common_DBus_Tools& operator= (const Common_DBus_Tools&))
 };
-
-// include template definition
-#include "common_logger.inl"
-
-//////////////////////////////////////////
-
-typedef Common_Logger_T<ACE_MT_SYNCH> Common_Logger_t;
 
 #endif

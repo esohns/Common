@@ -46,7 +46,7 @@ class Common_SignalHandler_T
   typedef ACE_Event_Handler inherited2;
 
  public:
-  inline virtual ~Common_SignalHandler_T () {};
+  inline virtual ~Common_SignalHandler_T () {}
 
 //  // *NOTE*: proactor code: invoke handle_exception
 //  virtual void handle_time_out (const ACE_Time_Value&, // target time

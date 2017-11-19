@@ -50,14 +50,13 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 ############## next target ################
 set (${PROJECT_NAME}IMAGE_LIB_SRCS
-     stdafx.cpp
-     stdafx.h
      common_image_exports.h
      common_image_tools.cpp
-     common_image_tools.h)
+     common_image_tools.h
+     stdafx.cpp
+     stdafx.h)
 
-add_library (${PROJECT_NAME}Image
-             STATIC
+add_library (${PROJECT_NAME}Image STATIC
              ${CommonIMAGE_LIB_SRCS})
 
 if (WIN32)
@@ -85,11 +84,14 @@ endif ()
 if (WIN32)
 # set_target_properties (${PROJECT_NAME}Image PROPERTIES LINK_FLAGS /SAFESEH:NO)
 endif ()
-set_target_properties (${PROJECT_NAME}Image PROPERTIES DEFINE_SYMBOL COMMON_IMAGE_BUILD_DLL)
-set_target_properties (${PROJECT_NAME}Image PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+#set_target_properties (${PROJECT_NAME}Image PROPERTIES DEFINE_SYMBOL COMMON_IMAGE_BUILD_DLL)
+set_target_properties (${PROJECT_NAME}Image PROPERTIES
+                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
+                       SOVERSION 1)
 
 # add PCH
-set_target_properties (${PROJECT_NAME}Image PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+set_target_properties (${PROJECT_NAME}Image PROPERTIES
+                       COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
 cotire (${PROJECT_NAME}Image)
 
 # add all targets to the build-tree export set
@@ -100,10 +102,11 @@ export (TARGETS ${PROJECT_NAME}Image
 install (FILES
          common_image_exports.h
          common_image_tools.h
-         DESTINATION include)
+         stdafx.h
+         DESTINATION ${INSTALL_INCLUDE_DIR})
 install (TARGETS ${PROJECT_NAME}Image
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
          LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
-         RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
+#         RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
          COMPONENT dev)

@@ -63,15 +63,13 @@ if (NOT ACE_LIBRARY)
 else ()
  message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
 endif ()
+add_definitions (-DACE_HAS_DLL)
 
 include (FindPkgConfig)
 if (UNIX)
  pkg_check_modules (PKG_LIBCAP REQUIRED libcap)
 endif ()
 #pkg_check_modules (PKG_ACE REQUIRED ACE)
-
-add_definitions (-DHAVE_CONFIG_H)
-#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
 
 if (UNIX)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE)
@@ -141,6 +139,9 @@ if (CXX_COMPILER_ID_STRING_LOWER STREQUAL LLVM_COMPILER_ID_STRING_LOWER)
  add_definitions (-D_GLIBCXX_USE_CXX11_ABI=0)
 endif ()
 
+add_definitions (-DHAVE_CONFIG_H)
+#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
+
 if (WIN32)
  add_definitions (-DWIN32)
  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc") # C++ exception handling
@@ -151,8 +152,7 @@ if (WIN32)
  endif ()
 endif ()
 
-add_library (${PROJECT_NAME}
-             STATIC
+add_library (${PROJECT_NAME} STATIC
              ${Common_LIB_SRCS})
 
 #add_dependencies (${PROJECT_NAME} ACE)
@@ -160,9 +160,12 @@ if (WIN32)
  add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}Error)
 endif ()
 
-set_target_properties (${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
-set_target_properties (${PROJECT_NAME} PROPERTIES DEFINE_SYMBOL COMMON_BUILD_DLL)
-set_target_properties (${PROJECT_NAME} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+#set_target_properties (${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
+#set_target_properties (${PROJECT_NAME} PROPERTIES
+#                       DEFINE_SYMBOL COMMON_BUILD_DLL)
+set_target_properties (${PROJECT_NAME} PROPERTIES
+                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
+                       SOVERSION 1)
 
 if (UNIX)
 # target_link_libraries (${PROJECT_NAME} ${ACE_LIBRARY})
@@ -183,7 +186,8 @@ elseif (WIN32)
 endif ()
 
 # add PCH
-set_target_properties (${PROJECT_NAME} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+set_target_properties (${PROJECT_NAME} PROPERTIES
+                       COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
 cotire (${PROJECT_NAME})
 
 # add all targets to the build-tree export set
@@ -230,15 +234,17 @@ install (FILES
          common_timer_manager.inl
          common_timer_manager_common.h
          common_tools.h
-         DESTINATION include)
+         DESTINATION ${INSTALL_INCLUDE_DIR})
 install (TARGETS ${PROJECT_NAME}
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
          LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
-         RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
+#         RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
          COMPONENT dev)
 
-if (WIN32)
+if (UNIX)
+ add_subdirectory (dbus)
+elseif (WIN32)
  add_subdirectory (err)
 endif ()
 add_subdirectory (image)

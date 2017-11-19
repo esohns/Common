@@ -44,7 +44,7 @@ extern "C"
 class Common_Image_Tools
 {
  public:
-  inline virtual ~Common_Image_Tools () {};
+  inline virtual ~Common_Image_Tools () {}
 
   // *IMPORTANT NOTE*: callers need to free() the allocated memory
   static bool loadPNG2OpenGL (const std::string&, // string

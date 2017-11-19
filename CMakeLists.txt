@@ -40,7 +40,7 @@ set (INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header f
 if (WIN32 AND NOT CYGWIN)
  set (DEF_INSTALL_CMAKE_DIR CMake)
 else ()
- set (DEF_INSTALL_CMAKE_DIR lib/CMake/FooBar)
+ set (DEF_INSTALL_CMAKE_DIR lib/CMake/lib${PROJECT_NAME})
 endif ()
 set (INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH "Installation directory for CMake files")
 
@@ -59,7 +59,7 @@ export (PACKAGE lib${PROJECT_NAME})
 # Create the CommonConfig.cmake and CommonConfigVersion.cmake files
 file (RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}")
 # ... for the build tree
-set (CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
+set (CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/src" "${PROJECT_BINARY_DIR}")
 configure_file (${PROJECT_NAME}Config.cmake.in
                 "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" @ONLY)
 # ... for the install tree
@@ -145,7 +145,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 #  set_property (SOURCE PROPERTY COMPILE_DEFINITIONS _GNU_SOURCE)
 endif ()
 if (MSVC)
- set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")  
+ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 
  set (MSVC_INCREMENTAL_YES_FLAG "/INCREMENTAL:NO")
  foreach (FLAG_TYPE EXE MODULE SHARED STATIC)

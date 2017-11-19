@@ -11,7 +11,7 @@ class SampleIterator_T
 {
  public:
   SampleIterator_T (char*); // buffer
-  inline virtual ~SampleIterator_T () {};
+  inline virtual ~SampleIterator_T () {}
 
   // *TODO*: needs more serious consideration
   bool initialize (unsigned int, // bytes / ('buffer'/'chunk'/'frame'/...) sample
