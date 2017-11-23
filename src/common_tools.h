@@ -26,6 +26,8 @@
 #include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <guiddef.h>
+#else
+#include <sys/capability.h>
 #endif
 
 #include "ace/Global_Macros.h"
@@ -77,10 +79,14 @@ class Common_Tools
   // --- capabilities ---
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-  static bool hasCapability (unsigned long); // capability
+  static std::string capabilityToString (unsigned long); // capability
+  static bool hasCapability (unsigned long,               // capability
+                             cap_flag_t = CAP_EFFECTIVE); // set
+  static bool setCapability (unsigned long,               // capability
+                             cap_flag_t = CAP_EFFECTIVE); // set
+  static bool dropCapability (unsigned long,               // capability
+                              cap_flag_t = CAP_EFFECTIVE); // set
   static void printCapabilities ();
-  static bool setCapability (unsigned long); // capability
-  static bool dropCapability (unsigned long); // capability
 #endif
 
   // --- user ---
