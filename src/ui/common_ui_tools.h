@@ -62,7 +62,8 @@ class Common_UI_Tools
   // print OpenGL library information
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
-  static void OpenGLInfo (GdkGLContext*); // OpenGL context handle
+  // *NOTE*: the context has to be realized before calling this function
+  static void OpenGLInfo (GdkGLContext*); // context handle
 #else
   static void OpenGLInfo ();
 #endif

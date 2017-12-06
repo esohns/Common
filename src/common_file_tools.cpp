@@ -19,8 +19,10 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include "ace/config-lite.h"
+#include "ace/Synch.h"
+#include "common_file_tools.h"
 
+#include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <Shlobj.h>
 #include <Userenv.h>
@@ -35,7 +37,6 @@
 #include "ace/OS_NS_sys_sendfile.h"
 
 #include "common_defines.h"
-#include "common_file_tools.h"
 #include "common_macros.h"
 #include "common_tools.h"
 

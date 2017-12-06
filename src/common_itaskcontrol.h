@@ -38,7 +38,7 @@ class Common_ITaskControl_T
 
   // *NOTE*: signal asynchronous completion
   virtual void finished () = 0;
-  virtual void wait () const = 0;
+  virtual void wait (bool = true) const = 0; // wait for the message queue ? : worker thread(s) only
 };
 
 //////////////////////////////////////////

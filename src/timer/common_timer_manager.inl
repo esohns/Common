@@ -28,7 +28,8 @@
 #include "common.h"
 #include "common_defines.h"
 #include "common_macros.h"
-#include "common_timerhandler.h"
+
+#include "common_timer_handler.h"
 
 template <ACE_SYNCH_DECL,
           typename ConfigurationType,
@@ -306,9 +307,11 @@ template <ACE_SYNCH_DECL,
 void
 Common_Timer_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
-                       TimerQueueAdapterType>::wait () const
+                       TimerQueueAdapterType>::wait (bool waitForMessageQueue_in) const
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::wait"));
+
+  ACE_UNUSED_ARG (waitForMessageQueue_in);
 
   int result = -1;
 

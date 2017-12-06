@@ -87,38 +87,6 @@ struct Common_SignalHandlerConfiguration
   bool useReactor;
 };
 
-enum Common_TimerMode
-{
-  COMMON_TIMER_MODE_PROACTOR = 0,
-  COMMON_TIMER_MODE_QUEUE,
-  COMMON_TIMER_MODE_REACTOR,
-  COMMON_TIMER_MODE_SIGNAL,
-  /////////////////////////////////////
-  COMMON_TIMER_MODE_MAX,
-  COMMON_TIMER_MODE_INVALID
-};
-
-enum Common_TimerQueueType
-{
-  COMMON_TIMER_QUEUE_HEAP = 0,
-  COMMON_TIMER_QUEUE_LIST,
-  COMMON_TIMER_QUEUE_WHEEL,
-  ///////////////////////////////////////
-  COMMON_TIMER_QUEUE_MAX,
-  COMMON_TIMER_QUEUE_INVALID
-};
-
-struct Common_TimerConfiguration
-{
-  Common_TimerConfiguration ()
-   : mode (COMMON_TIMER_DEFAULT_MODE)
-   , queueType (COMMON_TIMER_DEFAULT_QUEUE)
-  {};
-
-  enum Common_TimerMode      mode;
-  enum Common_TimerQueueType queueType;
-};
-
 // *** signals ***
 typedef std::map<int, ACE_Sig_Action> Common_SignalActions_t;
 typedef Common_SignalActions_t::const_iterator Common_SignalActionsIterator_t;

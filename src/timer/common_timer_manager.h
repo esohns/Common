@@ -91,7 +91,7 @@ class Common_Timer_Manager_T
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?
   virtual bool isRunning () const;
-  virtual void wait () const;
+  virtual void wait (bool = true) const; // wait for the message queue ? : worker thread(s) only
 
   // implement Common_IDumpState
   virtual void dump_state () const;
@@ -126,7 +126,7 @@ class Common_Timer_Manager_T
 
   ConfigurationType*         configuration_;
   bool                       isInitialized_;
-  enum Common_TimerMode      mode_;
+  enum Common_TimerModeType  mode_;
   enum Common_TimerQueueType queueType_;
 
   // *NOTE*: this is only the functor, individual handlers are managed in the

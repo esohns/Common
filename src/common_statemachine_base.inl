@@ -24,19 +24,21 @@
 #include "common_macros.h"
 
 template <ACE_SYNCH_DECL,
-          typename StateType>
+          typename StateType,
+          typename InterfaceType>
 Common_StateMachine_Base_T<ACE_SYNCH_USE,
-                           StateType>::Common_StateMachine_Base_T (ACE_SYNCH_MUTEX_T* lock_in,
-                                                                   StateType state_in)
+                           StateType,
+                           InterfaceType>::Common_StateMachine_Base_T (ACE_SYNCH_MUTEX_T* lock_in,
+                                                                       StateType state_in)
  : condition_ (NULL)
- , stateLock_ (NULL)
+ , stateLock_ (lock_in)
  , state_ (state_in)
  , isInitialized_ (false)
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::Common_StateMachine_Base_T"));
 
-  if (lock_in)
-    if (!initialize (*lock_in))
+  if (likely (stateLock_))
+    if (unlikely (!initialize (*stateLock_)))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_StateMachine_Base_T::initialize, continuing\n")));
@@ -44,29 +46,33 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
 }
 
 template <ACE_SYNCH_DECL,
-          typename StateType>
+          typename StateType,
+          typename InterfaceType>
 Common_StateMachine_Base_T<ACE_SYNCH_USE,
-                           StateType>::~Common_StateMachine_Base_T ()
+                           StateType,
+                           InterfaceType>::~Common_StateMachine_Base_T ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::~Common_StateMachine_Base_T"));
 
   // clean up
-  if (condition_)
+  if (likely (condition_))
     delete condition_;
 }
 
 template <ACE_SYNCH_DECL,
-          typename StateType>
+          typename StateType,
+          typename InterfaceType>
 StateType
 Common_StateMachine_Base_T<ACE_SYNCH_USE,
-                           StateType>::current () const
+                           StateType,
+                           InterfaceType>::current () const
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::current"));
 
-  if (!stateLock_)
-    return state_;
-
   StateType result = static_cast<StateType> (-1);
+
+  if (unlikely (!stateLock_))
+    return state_;
 
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, result);
     result = state_;
@@ -76,15 +82,69 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
 }
 
 template <ACE_SYNCH_DECL,
-          typename StateType>
+          typename StateType,
+          typename InterfaceType>
 bool
 Common_StateMachine_Base_T<ACE_SYNCH_USE,
-                           StateType>::initialize (const ACE_SYNCH_MUTEX_T& lock_in)
+                           StateType,
+                           InterfaceType>::wait (StateType state_in,
+                                                 const ACE_Time_Value* timeout_in) const
+{
+  COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::wait"));
+
+  bool result = false;
+
+  // sanity check(s)
+  ACE_ASSERT (isInitialized_);
+  ACE_ASSERT (stateLock_);
+
+  int result_2 = -1;
+  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, false);
+    while (state_ < state_in)
+    { ACE_ASSERT (condition_);
+      result_2 = condition_->wait (timeout_in);
+      if (unlikely (result_2 == -1))
+      {
+        int error = ACE_OS::last_error ();
+        if (error != ETIME) // 137: timed out
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to ACE_Condition::wait(%#T): \"%m\", aborting\n"),
+                      timeout_in));
+        goto continue_; // timed out ?
+      } // end IF
+    } // end WHILE
+    if (unlikely (state_ != state_in))
+    {
+      ACE_DEBUG ((LM_WARNING,
+                  ACE_TEXT ("reached state \"%s\" (requested: \"%s\"), continuing\n"),
+                  ACE_TEXT (this->stateToString (state_).c_str ()),
+                  ACE_TEXT (this->stateToString (state_in).c_str ())));
+    } // end IF
+    //else
+    //{
+    //  ACE_DEBUG ((LM_DEBUG,
+    //              ACE_TEXT ("reached state \"%s\"\n"),
+    //              ACE_TEXT (this->stateToString (state_in).c_str ())));
+    //} // end ELSE
+  } // end lock scope
+  result = true;
+
+continue_:
+  return result;
+}
+
+template <ACE_SYNCH_DECL,
+          typename StateType,
+          typename InterfaceType>
+bool
+Common_StateMachine_Base_T<ACE_SYNCH_USE,
+                           StateType,
+                           InterfaceType>::initialize (const ACE_SYNCH_MUTEX_T& lock_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::initialize"));
 
-  //*NOTE*: unfortunately, ACE conditions cannot be reinitialized yet
-  if (condition_)
+  // *NOTE*: (unfortunately,) ACE conditions cannot be reinitialized yet
+  if (unlikely (condition_))
   {
     delete condition_;
     condition_ = NULL;
@@ -95,7 +155,7 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
                                            USYNC_THREAD,                             // mode
                                            NULL,                                     // name
                                            NULL));                                   // arg
-  if (!condition_)
+  if (unlikely (!condition_))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory, aborting\n")));
@@ -109,15 +169,17 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
 }
 
 template <ACE_SYNCH_DECL,
-          typename StateType>
+          typename StateType,
+          typename InterfaceType>
 bool
 Common_StateMachine_Base_T<ACE_SYNCH_USE,
-                           StateType>::change (StateType newState_in)
+                           StateType,
+                           InterfaceType>::change (StateType newState_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::change"));
 
   // sanity check(s)
-  if (!isInitialized_)
+  if (unlikely (!isInitialized_))
     return false;
   ACE_ASSERT (condition_);
   ACE_ASSERT (stateLock_);
@@ -148,7 +210,7 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
     //         callback has updated the state already
     //         --> leave the state alone (*TODO*: signal waiters in this case ?)
     // *TODO*: this may not be the best way to implement that case (see above)
-    if (previous_state == state_)
+    if (likely (previous_state == state_))
       state_ = newState_in;
   } // end lock scope
   //ACE_DEBUG ((LM_DEBUG,
@@ -157,10 +219,10 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
   //            ACE_TEXT (this->stateToString (newState_in).c_str ())));
 
   // signal any waiting threads
-  if (signal)
+  if (likely (signal))
   {
     int result_2 = condition_->broadcast ();
-    if (result_2 == -1)
+    if (unlikely (result_2 == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Condition::broadcast(): \"%m\", continuing\n")));
   } // end IF

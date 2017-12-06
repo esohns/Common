@@ -61,7 +61,7 @@ endif ()
 if (NOT ACE_LIBRARY)
  message (FATAL_ERROR "Could not find ${ACE_LIB_FILE} (was: \"${ACE_LIBRARY}\"), aborting")
 else ()
- message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
+ #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
 endif ()
 add_definitions (-DACE_HAS_DLL)
 
@@ -77,6 +77,8 @@ elseif (WIN32)
  include_directories ($ENV{ACE_ROOT})
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/err)
 endif ()
+include_directories (${CMAKE_CURRENT_SOURCE_DIR})
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/timer)
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/..)
 
 ############## next target ################
@@ -103,8 +105,6 @@ set (${PROJECT_NAME}_LIB_SRCS
      common_isubscribe.h
      common_itask.h
      common_itaskcontrol.h
-     common_itimer.h
-     common_itimerhandler.h
      common_logger.cpp
      common_logger.h
      common_logger.inl
@@ -121,13 +121,6 @@ set (${PROJECT_NAME}_LIB_SRCS
      common_task_base.h
      common_task_base.inl
      common_time_common.h
-     common_timer_common.h
-     common_timerhandler.cpp
-     common_timerhandler.h
-     common_timer_manager.cpp
-     common_timer_manager.h
-     common_timer_manager.inl
-     common_timer_manager_common.h
      common_tools.cpp
      common_tools.h)
 
@@ -159,6 +152,7 @@ add_library (${PROJECT_NAME} STATIC
 if (WIN32)
  add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}Error)
 endif ()
+add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}Timer)
 
 #set_target_properties (${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
 #set_target_properties (${PROJECT_NAME} PROPERTIES
@@ -216,7 +210,6 @@ install (FILES
          common_isubscribe.h
          common_itask.h
          common_itaskcontrol.h
-         common_itimer.h
          common_logger.h
          common_logger.inl
          common_macros.h
@@ -228,11 +221,6 @@ install (FILES
          common_task_base.h
          common_task_base.inl
          common_time_common.h
-         common_timer_common.h
-         common_timerhandler.h
-         common_timer_manager.h
-         common_timer_manager.inl
-         common_timer_manager_common.h
          common_tools.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
 install (TARGETS ${PROJECT_NAME}
@@ -247,6 +235,8 @@ if (UNIX)
 elseif (WIN32)
  add_subdirectory (err)
 endif ()
+add_subdirectory (gl)
 add_subdirectory (image)
 add_subdirectory (math)
+add_subdirectory (timer)
 add_subdirectory (ui)

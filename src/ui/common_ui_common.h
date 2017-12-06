@@ -21,17 +21,16 @@
 #ifndef COMMON_UI_COMMON_H
 #define COMMON_UI_COMMON_H
 
-#include <deque>
+//#include <vector>
 
+#include "ace/Containers_T.h"
 #include "ace/Synch_Traits.h"
 
 #include "common.h"
 
-//#include "common_ui_defines.h"
-
-enum Common_UI_Event
+enum Common_UI_Event : int
 {
-  COMMON_UI_EVENT_INVALID = -1,
+  COMMON_UI_EVENT_INVALID           = -1,
 
   // network & data
   COMMON_UI_EVENT_NETWORK_DATA_BASE = 0x100,
@@ -54,20 +53,17 @@ enum Common_UI_Event
   // -------------------------------------
   COMMON_UI_EVENT_MAX
 };
-typedef std::deque<enum Common_UI_Event> Common_UI_Events_t;
-typedef Common_UI_Events_t::const_iterator Common_UI_EventsIterator_t;
+typedef ACE_Unbounded_Stack<enum Common_UI_Event> Common_UI_Events_t;
+typedef typename ACE_Unbounded_Stack<enum Common_UI_Event>::ITERATOR Common_UI_EventsIterator_t;
 
 struct Common_UI_State
 {
-  inline Common_UI_State ()
-   : eventStack ()
+  Common_UI_State ()
+   : eventStack (NULL)
    , lock ()
    , logStack ()
    , logStackLock ()
    , subscribersLock ()
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
-//   , useMediaFoundation (COMMON_DEFAULT_WIN32_MEDIA_FRAMEWORK == COMMON_WIN32_FRAMEWORK_MEDIAFOUNDATION)
-//#endif
   {};
 
   Common_UI_Events_t        eventStack;
@@ -75,9 +71,6 @@ struct Common_UI_State
   Common_MessageStack_t     logStack;
   ACE_SYNCH_MUTEX           logStackLock;
   ACE_SYNCH_RECURSIVE_MUTEX subscribersLock;
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
-//  bool                      useMediaFoundation;
-//#endif
 };
 
 #endif

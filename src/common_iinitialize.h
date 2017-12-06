@@ -24,6 +24,12 @@
 class Common_IInitialize
 {
  public:
+  virtual bool initialize () = 0;
+};
+
+class Common_IInitializeP
+{
+ public:
   virtual bool initialize (const void*) = 0;
 };
 

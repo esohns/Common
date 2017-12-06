@@ -159,7 +159,7 @@ Common_Image_Tools::loadPNG2OpenGL (const std::string& filename_in,
   // glTexImage2d requires rows to be 4-byte aligned
   row_bytes += 3 - ((row_bytes - 1) % 4);
 
-  data_out = (GLubyte*)malloc (row_bytes * height_out);
+  data_out = static_cast<GLubyte*> (malloc (row_bytes * height_out));
   if (!data_out)
   {
     ACE_DEBUG ((LM_CRITICAL,
@@ -168,16 +168,18 @@ Common_Image_Tools::loadPNG2OpenGL (const std::string& filename_in,
   } // end IF
 
   //row_pointers is for pointing to image_data for reading the png with libpng
-  row_pointers_pp = (png_bytepp)malloc (sizeof (png_bytep) * height_out);
+  row_pointers_pp =
+    static_cast<png_bytepp> (malloc (sizeof (png_bytep) * height_out));
   if (!row_pointers_pp)
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory, aborting\n")));
     goto error;
   }
-  // set the individual row_pointers to point at the correct offsets of image_data
-  // note that png is ordered top to bottom, but OpenGL expect it bottom to top
-  // so the order is swapped
+  // set the individual row_pointers to point at the correct offsets of
+  // image_data
+  // *NOTE*: png is ordered top to bottom; OpenGL expects it bottom to top
+  //         --> swap the order
   for (unsigned int i = 0; i < height_out; ++i)
     row_pointers_pp[height_out - 1 - i] = data_out + (i * row_bytes);
 

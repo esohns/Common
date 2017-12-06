@@ -96,10 +96,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_TaskBase_T::close(1): \"%m\", continuing\n")));
 
-    result = inherited::wait ();
-    if (result == -1)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Task::wait(): \"%m\", continuing\n")));
+    wait (false);
   } // end IF
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -431,7 +428,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
            true);                      // high-priority
 
   if (waitForCompletion_in)
-    wait ();
+    wait (true);
 }
 
 template <ACE_SYNCH_DECL,
@@ -493,17 +490,18 @@ template <ACE_SYNCH_DECL,
 void
 Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType,
-                  LockType>::wait () const
+                  LockType>::wait (bool waitForMessageQueue_in) const
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::wait"));
 
   int result = -1;
   OWN_TYPE_T* this_p = const_cast<OWN_TYPE_T*> (this);
 
-  // step1: wait for queue to flush
-  this_p->idle ();
+  // step1: wait for the message queue to empty
+  if (likely (waitForMessageQueue_in))
+    this_p->idle ();
 
-  // step2: wait for any workers
+  // step2: wait for any worker thread(s)
   try {
     result = this_p->TASK_T::wait ();
   } catch (...) {
@@ -770,9 +768,22 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::control"));
 
   int result = -1;
-
-  // drop a control message into the queue
   ACE_Message_Block* message_block_p = NULL;
+
+  // sanity check(s)
+  if (unlikely (!inherited::msg_queue_))
+  {
+    if (inherited::mod_)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("%s: task has no message queue, returning\n"),
+                  inherited::mod_->name ()));
+    else
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("task has no message queue, returning\n")));
+    return;
+  } // end IF
+
+  // enqueue a control message
   ACE_NEW_NORETURN (message_block_p,
                     ACE_Message_Block (0,                                  // size
                                        messageType_in,                     // type
@@ -787,31 +798,27 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                                        NULL));                             // message allocator
   if (unlikely (!message_block_p))
   {
-    ACE_DEBUG ((LM_CRITICAL,
-                ACE_TEXT ("failed to allocate ACE_Message_Block: \"%m\", returning\n")));
+    if (inherited::mod_)
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("%s: failed to allocate ACE_Message_Block: \"%m\", returning\n"),
+                  inherited::mod_->name ()));
+    else
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("failed to allocate ACE_Message_Block: \"%m\", returning\n")));
     return;
   } // end IF
 
-  ACE_Message_Queue_Base* message_queue_p = inherited::msg_queue_;
-  if (unlikely (!message_queue_p))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("task has no message queue, returning\n")));
-
-    // clean up
-    message_block_p->release ();
-
-    return;
-  } // end IF
-
-  if (unlikely (highPriority_in))
-    result = inherited::ungetq (message_block_p, NULL);
-  else
-    result = inherited::putq (message_block_p, NULL);
+  result = (highPriority_in ? inherited::ungetq (message_block_p, NULL)
+                            : inherited::putq (message_block_p, NULL));
   if (unlikely (result == -1))
   {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_Task::putq(): \"%m\", continuing\n")));
+    if (inherited::mod_)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("%s: failed to ACE_Task::putq(): \"%m\", continuing\n"),
+                  inherited::mod_->name ()));
+    else
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Task::putq(): \"%m\", continuing\n")));
 
     // clean up
     message_block_p->release ();

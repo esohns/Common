@@ -28,7 +28,7 @@ endif ()
 if (NOT ACE_LIBRARY)
  message (FATAL_ERROR "Could not find ${ACE_LIB_FILE} (was: \"${ACE_LIBRARY}\"), aborting")
 else ()
- message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
+ #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
 endif ()
 
 include (FindPkgConfig)

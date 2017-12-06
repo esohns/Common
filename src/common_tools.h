@@ -35,6 +35,8 @@
 #include "common.h"
 //#include "common_exports.h"
 
+#include "common_timer_common.h"
+
 // forward declaration(s)
 class ACE_Event_Handler;
 class ACE_Log_Msg_Backend;
@@ -147,9 +149,9 @@ class Common_Tools
                                   std::string&);           // return value: info
 
   // --- timers ---
-  static bool initializeTimers (const Common_TimerConfiguration&); // configuration
-  static void finalizeTimers (const Common_TimerConfiguration&, // configuration
-                              bool = true);                     // wait for completion ?
+  static bool initializeTimers (const struct Common_TimerConfiguration&); // configuration
+  static void finalizeTimers (const struct Common_TimerConfiguration&, // configuration
+                              bool = true);                            // wait for completion ?
 
   // --- event loop ---
   static bool initializeEventDispatch (bool,                 // use reactor ? : proactor

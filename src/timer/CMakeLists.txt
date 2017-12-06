@@ -1,10 +1,5 @@
 set (ACE_LIB_FILE libACE.so)
 if (UNIX)
- set (AIO_LIB_FILE libaio.so)
- find_library (AIO_LIBRARY ${AIO_LIB_FILE}
-               PATHS /lib /usr/lib
-               PATH_SUFFIXES x86_64-linux-gnu
-               DOC "searching for ${AIO_LIB_FILE}")
 # message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
                HINTS ${CMAKE_CURRENT_BINARY_DIR}/../../../ATCD/ACE /usr/local
@@ -33,78 +28,90 @@ if (NOT ACE_LIBRARY)
 else ()
  #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
 endif ()
-
-include (FindPkgConfig)
-if (UNIX)
- pkg_check_modules (PKG_DBUS REQUIRED dbus-1)
- pkg_check_modules (PKG_NETWORKMANAGER REQUIRED NetworkManager)
-endif ()
-#pkg_check_modules (PKG_ACE REQUIRED ACE)
+add_definitions (-DACE_HAS_DLL)
 
 if (UNIX)
- include_directories (${PKG_DBUS_INCLUDE_DIRS})
- #include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../dbus)
- include_directories (${PKG_NETWORKMANAGER_INCLUDE_DIRS})
-
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE)
 elseif (WIN32)
  include_directories ($ENV{ACE_ROOT})
+# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/err)
 endif ()
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/..)
 
 ############## next target ################
-set (${PROJECT_NAME}_DBus_LIB_SRCS
-     common_dbus_tools.cpp
-     common_dbus_tools.h
+set (${PROJECT_NAME}Timer_LIB_SRCS
+     common_itimer.h
+     common_itimerhandler.h
+     common_timer_common.h
+     common_timer_handler.cpp
+     common_timer_handler.h
+     common_timer_manager.cpp
+     common_timer_manager.h
+     common_timer_manager.inl
+     common_timer_manager_common.h
      stdafx.cpp
      stdafx.h)
 
-add_library (${PROJECT_NAME}_DBus STATIC
-             ${Common_DBus_LIB_SRCS})
+#set (LLVM_COMPILER_ID_STRING "Clang")
+#string (TOLOWER "${LLVM_COMPILER_ID_STRING}" LLVM_COMPILER_ID_STRING_LOWER)
+#string (TOLOWER "${CMAKE_CXX_COMPILER_ID}" CXX_COMPILER_ID_STRING_LOWER)
+#if (CXX_COMPILER_ID_STRING_LOWER STREQUAL LLVM_COMPILER_ID_STRING_LOWER)
+# add_compile_options (-fPIC)
+# add_definitions (-D_GLIBCXX_USE_CXX11_ABI=0)
+#endif ()
 
-#add_dependencies (${PROJECT_NAME} ACE)
+add_definitions (-DHAVE_CONFIG_H)
+#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
 
-#set_target_properties (${PROJECT_NAME}_DBus PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
-#set_target_properties (${PROJECT_NAME}_DBus PROPERTIES DEFINE_SYMBOL COMMON_DBUS_BUILD_DLL)
-set_target_properties (${PROJECT_NAME}_DBus PROPERTIES
+add_library (${PROJECT_NAME}Timer STATIC
+             ${CommonTimer_LIB_SRCS})
+
+#add_dependencies (${PROJECT_NAME}Timer ACE)
+
+#set_target_properties (${PROJECT_NAME}Timer PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
+#set_target_properties (${PROJECT_NAME}Timer PROPERTIES
+#                       DEFINE_SYMBOL COMMON_BUILD_DLL)
+set_target_properties (${PROJECT_NAME}Timer PROPERTIES
                        VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
                        SOVERSION 1)
 
 if (UNIX)
-# target_link_libraries (${PROJECT_NAME}_DBus ${ACE_LIBRARY})
-# target_link_libraries (${PROJECT_NAME}_DBus ${PKG_DBUS_LIBRARIES})
- #link_directories (/usr/local/lib/dbus-1.0)
- #link_directories (${CMAKE_CURRENT_BINARY_DIR}/../../../dbus/dbus/.libs)
- #target_link_libraries (${PROJECT_NAME} libdbus-1.so.3)
 elseif (WIN32)
-# if (CMAKE_BUILD_TYPE STREQUAL Debug)
-#  target_link_libraries (${PROJECT_NAME}_DBus Msvcrtd.lib)
-# else ()
-#  target_link_libraries (${PROJECT_NAME}_DBus Msvcrt.lib)
-# endif ()
-# target_link_libraries (${PROJECT_NAME}_DBus Quartz.lib)
-# target_link_libraries (${PROJECT_NAME}_DBus Secur32.lib)
-# target_link_libraries (${PROJECT_NAME_DBus} Userenv.lib)
+ if (CMAKE_BUILD_TYPE STREQUAL Debug)
+#  target_link_libraries (${PROJECT_NAME}Timer Msvcrtd.lib)
+ else ()
+#  target_link_libraries (${PROJECT_NAME}Timer Msvcrt.lib)
+ endif ()
+# target_link_libraries (${PROJECT_NAME}Timer Quartz.lib)
+# target_link_libraries (${PROJECT_NAME}Timer Secur32.lib)
+# target_link_libraries (${PROJECT_NAME}Timer Userenv.lib)
 
- target_link_libraries (${PROJECT_NAME}_DBus ${ACE_LIBRARY})
+# target_link_libraries (${PROJECT_NAME}Timer ${ACE_LIBRARY})
+
+# target_link_libraries (${PROJECT_NAME}Timer ${PROJECT_NAME}Error)
 endif ()
 
 # add PCH
-set_target_properties (${PROJECT_NAME}_DBus PROPERTIES
+set_target_properties (${PROJECT_NAME}Timer PROPERTIES
                        COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${PROJECT_NAME}_DBus)
+cotire (${PROJECT_NAME}Timer)
 
 # add all targets to the build-tree export set
-export (TARGETS ${PROJECT_NAME}_DBus
+export (TARGETS ${PROJECT_NAME}Timer
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
 install (FILES
-         common_dbus_tools.h
-         stdafx.h
+         common_itimer.h
+         common_itimerhandler.h
+         common_timer_common.h
+         common_timer_handler.h
+         common_timer_manager.h
+         common_timer_manager.inl
+         common_timer_manager_common.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
-install (TARGETS ${PROJECT_NAME}_DBus
+install (TARGETS ${PROJECT_NAME}Timer
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
          LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib

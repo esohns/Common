@@ -279,7 +279,7 @@ Common_UI_Tools::OpenGLInfo (GdkGLContext* context_in)
 #endif
 #endif
 
-  int version_major, version_minor;
+  int version_major = 0, version_minor = 0;
 
   information_string = ACE_TEXT_ALWAYS_CHAR ("OpenGL version: ");
 #if GTK_CHECK_VERSION (3,0,0)

@@ -59,8 +59,6 @@ class Common_TaskBase_T
                                 LockType> ITASKCONTROL_T;
   typedef typename ITASKCONTROL_T::ITASK_T ITASK_T;
 
-  virtual ~Common_TaskBase_T ();
-
   // implement Common_ITaskControl_T
   virtual bool lock (bool = true); // block ?
   inline virtual int unlock (bool = false) { return lock_.release (); }
@@ -76,7 +74,7 @@ class Common_TaskBase_T
   inline virtual bool isRunning () const { return (threadCount_ ? (inherited::thr_count_ > 0) : false); }
   virtual void idle ();
   virtual void finished ();
-  virtual void wait () const;
+  virtual void wait (bool = true) const; // wait for the message queue ? : worker thread(s) only
 
   // stub Common_IDumpState
   inline virtual void dump_state () const {}
@@ -95,6 +93,7 @@ class Common_TaskBase_T
                      unsigned int = 1,         // # thread(s)
                      bool = true,              // auto-start ?
                      MESSAGE_QUEUE_T* = NULL); // queue handle
+  virtual ~Common_TaskBase_T ();
 
   // override ACE_Task_Base members
   // *NOTE*: spawns threadCount_ worker thread(s)
@@ -132,6 +131,7 @@ class Common_TaskBase_T
   virtual int close (u_long = 0);
   inline virtual int module_closed (void) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (-1); ACE_NOTREACHED (return -1;) }
   virtual int svc (void);
+  //inline virtual int wait (void) { return inherited::wait (); }
 };
 
 // include template definition

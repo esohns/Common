@@ -23,17 +23,22 @@
 
 #include <string>
 
+#include "common_iinitialize.h"
+
 // forward declarations
 class ACE_Time_Value;
 
+class Common_IStateMachineBase
+ : public Common_IInitialize
+ , public Common_IReset
+{};
+
 template <typename StateType>
 class Common_IStateMachine_T
+  : public Common_IStateMachineBase
 {
  public:
-  virtual bool change (StateType) = 0; // new state
   virtual StateType current () const = 0;
-  virtual void initialize () = 0;
-  virtual void reset () = 0;
   // *NOTE*: users need to provide absolute (!) values (i.e. deadline)
   virtual bool wait (StateType,
                      const ACE_Time_Value* = NULL) const = 0; // timeout (absolute) ? : block
@@ -42,7 +47,20 @@ class Common_IStateMachine_T
   virtual std::string stateToString (StateType) const = 0; // return value: state
 
  protected:
+  virtual bool change (StateType) = 0; // new state
+
+  ////////////////////////////////////////
+
   virtual void onChange (StateType) = 0; // new state
+};
+
+template <typename StateType>
+class Common_IStateMachine_2
+ : public Common_IStateMachine_T<StateType>
+{
+  public:
+  // *NOTE*: signal asynchronous completion
+  virtual void finished () = 0;
 };
 
 #endif

@@ -31,29 +31,37 @@
 class ACE_Time_Value;
 
 template <ACE_SYNCH_DECL,
-          typename StateType>
+          typename StateType,     // implements enum
+          typename InterfaceType> // implements Common_IStateMachine_T<StateType>
 class Common_StateMachine_Base_T
- : virtual public Common_IStateMachine_T<StateType>
+ : virtual public InterfaceType
  , public Common_IInitialize_T<ACE_SYNCH_MUTEX_T>
 {
  public:
-  Common_StateMachine_Base_T (ACE_SYNCH_MUTEX_T*,                       // lock handle
-                              StateType = static_cast<StateType> (-1)); // (default) state
+  // convenient types
+  typedef InterfaceType INTERFACE_T;
+ 
   virtual ~Common_StateMachine_Base_T ();
 
   // implement (part of) Common_IStateMachine_T
   virtual StateType current () const;
-  inline virtual bool wait (StateType, const ACE_Time_Value* = NULL) const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) };
+  inline virtual bool initialize () { reset (); return true; }
+  inline virtual void reset () { change (static_cast<StateType> (0)); }
+  virtual bool wait (StateType,
+                     const ACE_Time_Value* = NULL) const; // timeout (absolute) ? : block
+
+ protected:
+  Common_StateMachine_Base_T (ACE_SYNCH_MUTEX_T*,                       // lock handle
+                              StateType = static_cast<StateType> (-1)); // (default) state
+ 
+ // implement (part of) Common_IStateMachine_T
+  virtual bool change (StateType); // new state
 
   // implement Common_IIinitialize_T
   virtual bool initialize (const ACE_SYNCH_MUTEX_T&);
 
- protected:
-  virtual bool change (StateType); // new state
-
-  //   *IMPORTANT NOTE*: SHOULD probably be recursive, so derived classes can
-  //                     retrieve the current state from within change()
-  //                     without deadlocking
+  // *TODO*: SHOULD probably be recursive, so derived classes can retrieve the
+  //         current state from within change() without deadlocking
   //ACE_SYNCH_RECURSIVE_CONDITION     condition_;
   ACE_SYNCH_CONDITION_T*     condition_;
   mutable ACE_SYNCH_MUTEX_T* stateLock_;

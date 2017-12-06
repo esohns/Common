@@ -71,6 +71,7 @@ class Common_UI_GTK_Manager_T
   virtual void start ();
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?
+  //using inherited::wait;
 
  private:
   Common_UI_GTK_Manager_T ();

@@ -41,15 +41,47 @@
 #include "ace/Timer_Queue_Adapters.h"
 #include "ace/Timer_Queue_T.h"
 
-#include "common_itimer.h"
 #include "common_time_common.h"
+
+#include "common_itimer.h"
 
 // forward declarations
 //template <class TQ, class TYPE>
 //class ACE_Async_Timer_Queue_Adapter;
 //template <class TQ, class TYPE>
 //class ACE_Thread_Timer_Queue_Adapter;
-struct Common_TimerConfiguration;
+
+enum Common_TimerModeType : int
+{
+  COMMON_TIMER_MODE_PROACTOR = 0,
+  COMMON_TIMER_MODE_QUEUE,
+  COMMON_TIMER_MODE_REACTOR,
+  COMMON_TIMER_MODE_SIGNAL,
+  /////////////////////////////////////
+  COMMON_TIMER_MODE_MAX,
+  COMMON_TIMER_MODE_INVALID
+};
+
+enum Common_TimerQueueType : int
+{
+  COMMON_TIMER_QUEUE_HEAP = 0,
+  COMMON_TIMER_QUEUE_LIST,
+  COMMON_TIMER_QUEUE_WHEEL,
+  ///////////////////////////////////////
+  COMMON_TIMER_QUEUE_MAX,
+  COMMON_TIMER_QUEUE_INVALID
+};
+
+struct Common_TimerConfiguration
+{
+  Common_TimerConfiguration ()
+   : mode (COMMON_TIMER_DEFAULT_MODE)
+   , queueType (COMMON_TIMER_DEFAULT_QUEUE)
+  {};
+
+  enum Common_TimerModeType  mode;
+  enum Common_TimerQueueType queueType;
+};
 
 // *** timer queue ***
 // *NOTE*: ensure a minimal amount of locking

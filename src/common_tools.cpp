@@ -19,6 +19,7 @@
  ***************************************************************************/
 #include "stdafx.h"
 
+#include "ace/Synch.h"
 #include "common_tools.h"
 
 #include <fstream>
@@ -27,8 +28,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include "ace/Synch.h"
 
 // *WORKAROUND*
 using namespace std;
@@ -85,6 +84,8 @@ using namespace std;
 #include "common_defines.h"
 #include "common_file_tools.h"
 #include "common_macros.h"
+#include "common_time_common.h"
+
 #include "common_timer_manager_common.h"
 
 // initialize statics
@@ -2456,7 +2457,7 @@ Common_Tools::retrieveSignalInfo (int signal_in,
 }
 
 bool
-Common_Tools::initializeTimers (const Common_TimerConfiguration& configuration_in)
+Common_Tools::initializeTimers (const struct Common_TimerConfiguration& configuration_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::initializeTimers"));
 
@@ -2544,7 +2545,7 @@ Common_Tools::initializeTimers (const Common_TimerConfiguration& configuration_i
 }
 
 void
-Common_Tools::finalizeTimers (const Common_TimerConfiguration& configuration_in,
+Common_Tools::finalizeTimers (const struct Common_TimerConfiguration& configuration_in,
                               bool waitForCompletion_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::finalizeTimers"));

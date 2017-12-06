@@ -18,12 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "ace/ACE.h"
-#include "ace/Log_Msg.h"
-#include "ace/Log_Priority.h"
-#include "ace/OS.h"
-#include "ace/Thread.h"
-
+#include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 #include <X11/Xlib.h>
@@ -48,8 +43,11 @@
 #include "glade/glade.h"
 #endif
 
+#include "ace/Log_Msg.h"
+#include "ace/OS.h"
+#include "ace/Thread.h"
+
 #include "common_macros.h"
-#include "common_timer_manager.h"
 
 #include "common_ui_defines.h"
 #include "common_ui_igtk.h"
@@ -92,10 +90,10 @@ Common_UI_GTK_Manager_T<StateType>::initialize (int argc_in,
   state_ = state_in;
   UIInterfaceHandle_ = interfaceHandle_in;
 
-  if (!GTKIsInitialized_)
+  if (likely (!GTKIsInitialized_))
   {
     GTKIsInitialized_ = initializeGTK ();
-    if (!GTKIsInitialized_)
+    if (unlikely (!GTKIsInitialized_))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_UI_GTK_Manager_T::initializeGTK(): \"%m\", aborting\n")));
@@ -113,7 +111,7 @@ Common_UI_GTK_Manager_T<StateType>::start ()
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::start"));
 
   int result = inherited::open (NULL);
-  if (result == -1)
+  if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_TaskBase_T::open(NULL): \"%m\", continuing\n")));
 }
@@ -128,7 +126,7 @@ Common_UI_GTK_Manager_T<StateType>::stop (bool waitForCompletion_in,
   ACE_UNUSED_ARG (lockedAccess_in);
 
   int result = close (1);
-  if (result == -1)
+  if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_UI_GTK_Manager_T::close(1): \"%m\", continuing\n")));
 
@@ -151,18 +149,18 @@ Common_UI_GTK_Manager_T<StateType>::close (u_long arg_in)
   {
     case 0:
     { // check specifically for the second case
-      if (ACE_OS::thr_equal (ACE_Thread::self (),
-                             inherited::last_thread ()))
+      if (likely (ACE_OS::thr_equal (ACE_Thread::self (),
+                                     inherited::last_thread ())))
         break;
 
       // *WARNING*: falls through !
     }
     case 1:
     {
-      if (inherited::thr_count_ == 0)
+      if (unlikely (inherited::thr_count_ == 0))
         return 0; // nothing to do
 
-      if (UIInterfaceHandle_)
+      if (likely (UIInterfaceHandle_))
       {
         try {
           UIInterfaceHandle_->finalize ();
@@ -210,7 +208,7 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
 #endif
 
   // step0: initialize GTK
-  if (!GTKIsInitialized_)
+  if (unlikely (!GTKIsInitialized_))
   {
     GTKIsInitialized_ = initializeGTK ();
     if (!GTKIsInitialized_)
@@ -228,10 +226,10 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
   ACE_ASSERT (state_);
 
   // step1: initialize UI
-  if (!isInitialized_ && UIInterfaceHandle_)
+  if (likely (!isInitialized_ && UIInterfaceHandle_))
   {
     isInitialized_ = UIInterfaceHandle_->initialize (*state_);
-    if (!isInitialized_)
+    if (unlikely (!isInitialized_))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_UI_IGTK_t::initialize(): \"%m\", aborting\n")));
@@ -245,11 +243,11 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
   // step2: initialize OpenGL
 #if defined (GTKGL_SUPPORT)
   // *TODO*: remove type inferences
-  if (!state_->OpenGLWindow)
+  if (unlikely (!state_->OpenGLWindow))
     goto continue_;
 
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("initializing OpenGL (window: 0x%@)...\n"),
+              ACE_TEXT ("initializing OpenGL (window handle: 0x%@)...\n"),
               state_->OpenGLWindow));
 
 #if defined (GTKGLAREA_SUPPORT)
@@ -259,7 +257,7 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
 
   state_->openGLContext = gdk_window_create_gl_context (state_->openGLWindow,
                                                         &error_p);
-  if (!state_->openGLContext)
+  if (unlikely (!state_->openGLContext))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to gdk_window_create_gl_context(0x%@): \"%s\", aborting\n"),
@@ -273,8 +271,8 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
   } // end IF
 
   error_p = NULL;
-  if (gdk_gl_context_realize (state_->openGLContext,
-                              &error_p))
+  if (unlikely (gdk_gl_context_realize (state_->openGLContext,
+                                        &error_p)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to gdk_gl_context_realize(0x%@): \"%s\", aborting\n"),
@@ -286,10 +284,9 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
 
     return false;
   } // end IF
-
+#endif /* GTKGLAREA_SUPPORT */
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("initializing OpenGL...DONE\n")));
-#endif /* GTKGLAREA_SUPPORT */
 
 #if defined (_DEBUG)
     // debug info
@@ -317,13 +314,13 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
 #if defined (GTKGL_SUPPORT)
 continue_:
 #endif
-  if (g_thread_get_initialized ())
+  if (likely (g_thread_get_initialized ()))
   {
     gdk_threads_enter ();
     leave_gdk_threads = true;
   } // end IF
   gtk_main ();
-  if (leave_gdk_threads)
+  if (likely (leave_gdk_threads))
     gdk_threads_leave ();
 
   // stop() (close() --> gtk_main_quit ()) was called...
@@ -348,7 +345,7 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
     ACE_LOG_MSG->priority_mask (ACE_Log_Msg::PROCESS);
 
   char* locale_p = ::setlocale (LC_ALL, "");
-  if (locale_p)
+  if (likely (locale_p))
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("set locale to \"%s\"\n"),
                 ACE_TEXT (locale_p)));
@@ -360,7 +357,7 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
 #else
   // step0: initialize X
   Status result = XInitThreads ();
-  if (!result)
+  if (unlikely (!result))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to XInitThreads(): \"%m\", aborting\n")));
@@ -400,7 +397,7 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
 #if GTK_CHECK_VERSION (3,0,0)
   GError* error_p = NULL;
 #else
-  if (!g_thread_supported ())
+  if (likely (g_thread_supported ()))
   {
     g_thread_init (NULL);
     //g_thread_init_with_errorcheck_mutexes (NULL);
@@ -411,14 +408,15 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
   bool leave_gdk_threads = false;
   gdk_threads_enter ();
   leave_gdk_threads = true;
+  int i = 1;
 
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
 #else
-  if (!gdk_gl_init_check (&argc_,
-                          &argv_))
+  if (unlikely (!gdk_gl_init_check (&argc_,
+                                    &argv_)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to gdk_gl_init_check(), aborting\n")));
@@ -428,8 +426,8 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
 #endif
 #endif
 
-  if (!gtk_init_check (&argc_,
-                       &argv_))
+  if (unlikely (!gtk_init_check (&argc_,
+                                 &argv_)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to gtk_init_check(), aborting\n")));
@@ -438,12 +436,12 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
 //  gtk_init (&argc_,
 //            &argv_);
 //  GOptionEntry entries_a[] = { {NULL} };
-//  if (!gtk_init_with_args (&argc_,    // argc
-//                           &argv_,    // argv
-//                           NULL,      // parameter string
-//                           entries_a, // entries
-//                           NULL,      // translation domain
-//                           &error_p)) // error
+//  if (unlikely (!gtk_init_with_args (&argc_,     // argc
+//                                     &argv_,     // argv
+//                                     NULL,       // parameter string
+//                                     entries_a,  // entries
+//                                     NULL,       // translation domain
+//                                     &error_p))) // error
 //  {
 //    ACE_DEBUG ((LM_ERROR,
 //                ACE_TEXT ("failed to gtk_init_with_args(): \"%s\", aborting\n"),
@@ -466,59 +464,51 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
 #endif
 
   // step3a: specify any .rc files
-  if (!state_->RCFiles.empty ())
+  for (Common_UI_GTKRCFilesIterator_t iterator = state_->RCFiles.begin ();
+       iterator != state_->RCFiles.end ();
+       ++iterator, ++i)
   {
-    int i = 1;
-    for (Common_UI_GTKRCFilesIterator_t iterator = state_->RCFiles.begin ();
-         iterator != state_->RCFiles.end ();
-         ++iterator, ++i)
-    {
-      gtk_rc_add_default_file ((*iterator).c_str ());
+    gtk_rc_add_default_file ((*iterator).c_str ());
 //      gtk_rc_add_default_file_utf8 ((*iterator).c_str ());
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("#%u: added GTK .rc file \"%s\"...\n"),
-                  i, ACE::basename ((*iterator).c_str (), '/')));
-    } // end FOR
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("#%u: added GTK .rc file \"%s\"...\n"),
+                i, ACE::basename ((*iterator).c_str (), '/')));
   } // end FOR
 
 #if GTK_CHECK_VERSION (3,0,0)
   // step3b: specify any .css files
-  if (!state_->CSSProviders.empty ())
-  {
-    int i = 1;
-    for (Common_UI_GTKCSSProvidersIterator_t iterator = state_->CSSProviders.begin ();
-         iterator != state_->CSSProviders.end ();
-         ++iterator, ++i)
+  i = 1;
+  for (Common_UI_GTKCSSProvidersIterator_t iterator = state_->CSSProviders.begin ();
+       iterator != state_->CSSProviders.end ();
+       ++iterator, ++i)
+  { ACE_ASSERT (!(*iterator).second);
+    (*iterator).second = gtk_css_provider_new ();
+    if (unlikely (!(*iterator).second))
     {
-      ACE_ASSERT (!(*iterator).second);
-      (*iterator).second = gtk_css_provider_new ();
-      if (!(*iterator).second)
-      {
-        ACE_DEBUG ((LM_CRITICAL,
-                    ACE_TEXT ("failed to gtk_css_provider_new(), aborting\n")));
-        goto error;
-      } // end IF
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("failed to gtk_css_provider_new(), aborting\n")));
+      goto error;
+    } // end IF
 
-      if (!gtk_css_provider_load_from_path ((*iterator).second,
-                                            (*iterator).first.c_str (),
-                                            &error_p))
-      { ACE_ASSERT (error_p);
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to gtk_css_provider_load_from_path(\"%s\"): \"%s\", continuing\n"),
-                    ACE_TEXT ((*iterator).first.c_str ()),
-                    ACE_TEXT (error_p->message)));
+    if (unlikely (!gtk_css_provider_load_from_path ((*iterator).second,
+                                                    (*iterator).first.c_str (),
+                                                    &error_p)))
+    { ACE_ASSERT (error_p);
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to gtk_css_provider_load_from_path(\"%s\"): \"%s\", continuing\n"),
+                  ACE_TEXT ((*iterator).first.c_str ()),
+                  ACE_TEXT (error_p->message)));
 
-        // clean up
-        g_object_unref ((*iterator).second);
-        (*iterator).second = NULL;
-        g_error_free (error_p);
+      // clean up
+      g_object_unref ((*iterator).second);
+      (*iterator).second = NULL;
+      g_error_free (error_p);
 
-        continue;
-      } // end IF
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("#%u: added GTK .css file \"%s\"...\n"),
-                  i, ACE::basename ((*iterator).first.c_str ())));
-    } // end FOR
+      continue;
+    } // end IF
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("#%u: added GTK .css file \"%s\"...\n"),
+                i, ACE::basename ((*iterator).first.c_str ())));
   } // end FOR
 #endif
 

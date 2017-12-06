@@ -47,7 +47,7 @@ endif ()
 if (NOT ACE_LIBRARY)
  message (FATAL_ERROR "Could not find ${ACE_LIB_FILE} (was: \"${ACE_LIBRARY}\"), aborting")
 else ()
- message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
+ #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
 endif ()
 
 include (FindPkgConfig)
@@ -137,7 +137,7 @@ elseif (WIN32)
 
  if (GTKGL_SUPPORT AND GTKGLAREA_SUPPORT)
   include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../gtkglarea)
-  message (STATUS "directory \"${CMAKE_CURRENT_SOURCE_DIR}/../../../gtkglarea\"")
+  #message (STATUS "directory \"${CMAKE_CURRENT_SOURCE_DIR}/../../../gtkglarea\"")
  endif ()
 
  if (LIBGLADE_SUPPORT)
