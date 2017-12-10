@@ -32,8 +32,13 @@
 #include "gtk/gtk.h"
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
+#else
+#if defined (GTKGLAREA_SUPPORT)
 //#include "gtkgl/gdkgl.h"
 #include "gtkgl/gtkglarea.h"
+#endif /* GTKGLAREA_SUPPORT */
+#endif /* GTK_CHECK_VERSION (3,16,0) */
 #else
 #if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gtkglarea.h"

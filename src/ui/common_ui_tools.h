@@ -46,13 +46,13 @@
 class Common_UI_Tools
 {
  public:
-  inline virtual ~Common_UI_Tools () {};
+  inline virtual ~Common_UI_Tools () {}
 
-  static std::string UTF82Locale (const std::string&); // string
-  static std::string UTF82Locale (const gchar*,        // string
-                                  const gssize& = -1); // length in bytes (-1: \0-terminated)
+  static std::string UTF8ToLocale (const std::string&); // string
+  static std::string UTF8ToLocale (const gchar*,        // string
+                                   const gssize& = -1); // length in bytes (-1: \0-terminated)
   // *IMPORTANT NOTE*: return value needs to be g_free()'d !
-  static gchar* Locale2UTF8 (const std::string&); // string
+  static gchar* LocaleToUTF8 (const std::string&); // string
 
   static void dump (GtkWidget*); // widget handle
 

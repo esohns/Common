@@ -73,19 +73,19 @@ container_cb (GtkWidget* widget_in,
 // ---------------------------------------
 
 std::string
-Common_UI_Tools::UTF82Locale (const std::string& string_in)
+Common_UI_Tools::UTF8ToLocale (const std::string& string_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::UTF82Locale"));
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::UTF8ToLocale"));
 
-  return Common_UI_Tools::UTF82Locale (string_in.c_str (),
-                                       -1);
+  return Common_UI_Tools::UTF8ToLocale (string_in.c_str (),
+                                        -1);
 }
 
 std::string
-Common_UI_Tools::UTF82Locale (const gchar* string_in,
-                              const gssize& length_in)
+Common_UI_Tools::UTF8ToLocale (const gchar* string_in,
+                               const gssize& length_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::UTF82Locale"));
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::UTF8ToLocale"));
 
   // initialize result
   std::string result;
@@ -116,9 +116,9 @@ Common_UI_Tools::UTF82Locale (const gchar* string_in,
 }
 
 gchar*
-Common_UI_Tools::Locale2UTF8 (const std::string& string_in)
+Common_UI_Tools::LocaleToUTF8 (const std::string& string_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::Locale2UTF8"));
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::LocaleToUTF8"));
 
   // initialize result
   gchar* result_p = NULL;

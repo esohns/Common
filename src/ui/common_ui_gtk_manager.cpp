@@ -64,7 +64,7 @@ glib_log_handler (const gchar* logDomain_in,
   } // end SWITCH
 
   ACE_DEBUG ((log_priority,
-              ACE_TEXT ("GLib: %s"),
+              ACE_TEXT ("GLib: %s\n"),
               ACE_TEXT (message_in)));
 }
 

@@ -171,6 +171,10 @@ set (${PROJECT_NAME}UI_LIB_GLADE_SRCS
      common_ui_glade_definition.cpp
      common_ui_glade_definition.h)
 
+if (UNIX)
+ add_definitions (-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS)
+endif ()
+
 if (LIBGLADE_SUPPORT)
  add_library (${PROJECT_NAME}UI
               STATIC
