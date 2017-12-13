@@ -3,6 +3,13 @@ if (NOT OPENGL_FOUND)
  message (FATAL_ERROR "OpenGL support not found on this system, aborting")
 endif ()
 
+include (FindPkgConfig)
+if (UNIX)
+ pkg_check_modules (PKG_ASSIMP REQUIRED assimp)
+ pkg_check_modules (PKG_GLM REQUIRED glm)
+endif ()
+#pkg_check_modules (PKG_ACE REQUIRED ACE)
+
 set (ACE_LIB_FILE libACE.so)
 if (UNIX)
  set (AIO_LIB_FILE libaio.so)
@@ -41,19 +48,23 @@ endif ()
 add_definitions (-DACE_HAS_DLL)
 
 if (UNIX)
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE)
+  include_directories (${PKG_ASSIMP_INCLUDE_DIRS})
+  include_directories (${PKG_GLM_INCLUDE_DIRS})
+  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE)
 elseif (WIN32)
- include_directories ($ENV{ACE_ROOT})
+  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../glm)
+  include_directories ($ENV{ACE_ROOT})
 # include_directories (${CMAKE_CURRENT_SOURCE_DIR}/err)
 endif ()
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../image)
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/..)
 
 ############## next target ################
 set (${PROJECT_NAME}OpenGL_LIB_SRCS
      stdafx.cpp
      stdafx.h
-     common_gl.h
+     common_gl_common.h
      common_gl_defines.h
      common_gl_exports.h
      common_gl_tools.cpp
@@ -83,6 +94,7 @@ set_target_properties (${PROJECT_NAME}OpenGL PROPERTIES
                        SOVERSION 1)
 
 if (UNIX)
+ target_link_libraries (${PROJECT_NAME}OpenGL ${PKG_ASSIMP_LIBRARIES})
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
 #  target_link_libraries (${PROJECT_NAME}OpenGL Msvcrtd.lib)
@@ -109,7 +121,7 @@ export (TARGETS ${PROJECT_NAME}OpenGL
 
 ############### install files ################
 install (FILES
-         common_gl.h
+         common_gl_common.h
          common_gl_defines.h
          common_gl_exports.h
          common_gl_tools.h

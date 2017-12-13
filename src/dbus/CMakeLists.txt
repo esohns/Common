@@ -1,3 +1,10 @@
+include (FindPkgConfig)
+if (UNIX)
+ pkg_check_modules (PKG_DBUS REQUIRED dbus-1)
+ pkg_check_modules (PKG_NETWORKMANAGER REQUIRED NetworkManager)
+endif ()
+#pkg_check_modules (PKG_ACE REQUIRED ACE)
+
 set (ACE_LIB_FILE libACE.so)
 if (UNIX)
  set (AIO_LIB_FILE libaio.so)
@@ -34,13 +41,6 @@ else ()
  #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
 endif ()
 
-include (FindPkgConfig)
-if (UNIX)
- pkg_check_modules (PKG_DBUS REQUIRED dbus-1)
- pkg_check_modules (PKG_NETWORKMANAGER REQUIRED NetworkManager)
-endif ()
-#pkg_check_modules (PKG_ACE REQUIRED ACE)
-
 if (UNIX)
  include_directories (${PKG_DBUS_INCLUDE_DIRS})
  #include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../dbus)
@@ -54,20 +54,20 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/..)
 
 ############## next target ################
-set (${PROJECT_NAME}_DBus_LIB_SRCS
+set (${PROJECT_NAME}DBus_LIB_SRCS
      common_dbus_tools.cpp
      common_dbus_tools.h
      stdafx.cpp
      stdafx.h)
 
-add_library (${PROJECT_NAME}_DBus STATIC
-             ${Common_DBus_LIB_SRCS})
+add_library (${PROJECT_NAME}DBus STATIC
+             ${CommonDBus_LIB_SRCS})
 
 #add_dependencies (${PROJECT_NAME} ACE)
 
 #set_target_properties (${PROJECT_NAME}_DBus PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
 #set_target_properties (${PROJECT_NAME}_DBus PROPERTIES DEFINE_SYMBOL COMMON_DBUS_BUILD_DLL)
-set_target_properties (${PROJECT_NAME}_DBus PROPERTIES
+set_target_properties (${PROJECT_NAME}DBus PROPERTIES
                        VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
                        SOVERSION 1)
 
@@ -87,16 +87,16 @@ elseif (WIN32)
 # target_link_libraries (${PROJECT_NAME}_DBus Secur32.lib)
 # target_link_libraries (${PROJECT_NAME_DBus} Userenv.lib)
 
- target_link_libraries (${PROJECT_NAME}_DBus ${ACE_LIBRARY})
+ target_link_libraries (${PROJECT_NAME}DBus ${ACE_LIBRARY})
 endif ()
 
 # add PCH
-set_target_properties (${PROJECT_NAME}_DBus PROPERTIES
+set_target_properties (${PROJECT_NAME}DBus PROPERTIES
                        COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${PROJECT_NAME}_DBus)
+cotire (${PROJECT_NAME}DBus)
 
 # add all targets to the build-tree export set
-export (TARGETS ${PROJECT_NAME}_DBus
+export (TARGETS ${PROJECT_NAME}DBus
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
@@ -104,7 +104,7 @@ install (FILES
          common_dbus_tools.h
          stdafx.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
-install (TARGETS ${PROJECT_NAME}_DBus
+install (TARGETS ${PROJECT_NAME}DBus
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
          LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib

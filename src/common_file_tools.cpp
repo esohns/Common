@@ -65,15 +65,32 @@ Common_File_Tools::addressToString (const ACE_FILE_Addr& address_in)
   return result;
 }
 
+std::string
+Common_File_Tools::fileExtension (const std::string& path_in,
+                                  bool returnLeadingDot_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::fileExtension"));
+
+  std::string return_value;
+
+  std::string::size_type position =
+      path_in.find_last_of ('.', std::string::npos);
+  if (position != std::string::npos)
+    return_value = path_in.substr ((returnLeadingDot_in ? position : position + 1),
+                                   std::string::npos);
+
+  return return_value;
+}
+
 bool
-Common_File_Tools::isReadable (const std::string& filename_in)
+Common_File_Tools::isReadable (const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isReadable"));
 
   int result = -1;
   ACE_stat stat;
   ACE_OS::memset (&stat, 0, sizeof (stat));
-  result = ACE_OS::stat (filename_in.c_str (),
+  result = ACE_OS::stat (path_in.c_str (),
                          &stat);
   if (unlikely (result == -1))
   {
@@ -81,7 +98,7 @@ Common_File_Tools::isReadable (const std::string& filename_in)
     if (error != ENOENT)  // 2  : not found
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
-                  ACE_TEXT (filename_in.c_str ())));
+                  ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
 
@@ -90,20 +107,20 @@ Common_File_Tools::isReadable (const std::string& filename_in)
 }
 
 bool
-Common_File_Tools::isEmpty (const std::string& filename_in)
+Common_File_Tools::isEmpty (const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isEmpty"));
 
   int result = -1;
   ACE_stat stat;
   ACE_OS::memset (&stat, 0, sizeof(stat));
-  result = ACE_OS::stat (filename_in.c_str (),
+  result = ACE_OS::stat (path_in.c_str (),
                          &stat);
   if (unlikely (result == -1))
   {
 //    ACE_DEBUG ((LM_DEBUG,
 //                ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
-//                ACE_TEXT (filename_in.c_str ())));
+//                ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
 
@@ -246,14 +263,14 @@ Common_File_Tools::isValidPath (const std::string& string_in)
 }
 
 bool
-Common_File_Tools::create (const std::string& fileName_in)
+Common_File_Tools::create (const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::create"));
 
   // sanity check(s)
-  if (unlikely (Common_File_Tools::isReadable (fileName_in)))
+  if (unlikely (Common_File_Tools::isReadable (path_in)))
     return true; // nothing to do
-  if (unlikely (fileName_in.empty ()))
+  if (unlikely (path_in.empty ()))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("invalid argument (was empty), aborting\n")));
@@ -261,7 +278,7 @@ Common_File_Tools::create (const std::string& fileName_in)
   } // end IF
   // *TODO*
 
-  std::string file_name = fileName_in;
+  std::string file_name = path_in;
   int result = -1;
   if (!Common_File_Tools::isValidFilename (file_name))
   {
@@ -276,7 +293,7 @@ Common_File_Tools::create (const std::string& fileName_in)
 
     file_name = ACE_TEXT_ALWAYS_CHAR (buffer);
     file_name += ACE_DIRECTORY_SEPARATOR_STR_A;
-    file_name += fileName_in;
+    file_name += path_in;
   } // end IF
 
   FILE* file_p = NULL;
@@ -369,7 +386,7 @@ Common_File_Tools::createDirectory (const std::string& directory_in)
 }
 
 bool
-Common_File_Tools::copyFile (const std::string& filename_in,
+Common_File_Tools::copyFile (const std::string& path_in,
                              const std::string& directory_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::createDirectory"));
@@ -378,22 +395,22 @@ Common_File_Tools::copyFile (const std::string& filename_in,
 
   // connect to the file...
   ACE_FILE_Addr source_address, target_address;
-  result = source_address.set (ACE_TEXT_CHAR_TO_TCHAR (filename_in.c_str ()));
+  result = source_address.set (ACE_TEXT_CHAR_TO_TCHAR (path_in.c_str ()));
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Addr::set() file \"%s\": \"%m\", aborting\n"),
-                ACE_TEXT (filename_in.c_str ())));
+                ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
   const ACE_TCHAR* filename_p =
-    ACE::basename (ACE_TEXT_CHAR_TO_TCHAR (filename_in.c_str ()),
+    ACE::basename (ACE_TEXT_CHAR_TO_TCHAR (path_in.c_str ()),
                    ACE_DIRECTORY_SEPARATOR_CHAR);
   if (unlikely (!filename_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE::basename(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (filename_in.c_str ())));
+                ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
   std::string target_filename = directory_in;
@@ -424,7 +441,7 @@ Common_File_Tools::copyFile (const std::string& filename_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Connector::connect() to file \"%s\": \"%m\", aborting\n"),
-                ACE_TEXT (filename_in.c_str ())));
+                ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
   result =
@@ -446,7 +463,7 @@ Common_File_Tools::copyFile (const std::string& filename_in,
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_FILE::close(\"%s\"): \"%m\", continuing\n"),
-                  ACE_TEXT (filename_in.c_str ())));
+                  ACE_TEXT (path_in.c_str ())));
 
     return false;
   } // end IF
@@ -458,13 +475,13 @@ Common_File_Tools::copyFile (const std::string& filename_in,
 //  {
 //    ACE_DEBUG ((LM_ERROR,
 //                ACE_TEXT ("failed to ACE_FILE_IO::recvv() file \"%s\": \"%m\", aborting\n"),
-//                ACE_TEXT (filename_in.c_str())));
+//                ACE_TEXT (path_in.c_str())));
 
 //    // clean up
 //    if (source_file.close () == -1)
 //      ACE_DEBUG ((LM_ERROR,
 //                  ACE_TEXT ("failed to ACE_FILE::close(\"%s\"): \"%m\", continuing\n"),
-//                  ACE_TEXT (filename_in.c_str ())));
+//                  ACE_TEXT (path_in.c_str ())));
 //    if (target_file.remove () == -1)
 //      ACE_DEBUG ((LM_ERROR,
 //                  ACE_TEXT ("failed to ACE_FILE::remove(\"%s\"): \"%m\", continuing\n"),
@@ -484,7 +501,7 @@ Common_File_Tools::copyFile (const std::string& filename_in,
 //    if (source_file.close () == -1)
 //      ACE_DEBUG ((LM_ERROR,
 //                  ACE_TEXT ("failed to ACE_FILE::close(\"%s\"): \"%m\", continuing\n"),
-//                  ACE_TEXT (filename_in.c_str ())));
+//                  ACE_TEXT (path_in.c_str ())));
 //    if (target_file.remove () == -1)
 //      ACE_DEBUG ((LM_ERROR,
 //                  ACE_TEXT ("failed to ACE_FILE::remove(\"%s\"): \"%m\", continuing\n"),
@@ -498,14 +515,14 @@ Common_File_Tools::copyFile (const std::string& filename_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_IO::get_info(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (filename_in.c_str ())));
+                ACE_TEXT (path_in.c_str ())));
 
     // clean up
     result = source_file.close ();
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_FILE::close(\"%s\"): \"%m\", continuing\n"),
-                  ACE_TEXT (filename_in.c_str ())));
+                  ACE_TEXT (path_in.c_str ())));
     result = target_file.remove ();
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
@@ -523,7 +540,7 @@ Common_File_Tools::copyFile (const std::string& filename_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::sendfile(\"%s\",\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (filename_in.c_str ()),
+                ACE_TEXT (path_in.c_str ()),
                 ACE_TEXT (target_filename.c_str ())));
 
     // clean up
@@ -531,7 +548,7 @@ Common_File_Tools::copyFile (const std::string& filename_in,
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_FILE::close(\"%s\"): \"%m\", continuing\n"),
-                  ACE_TEXT (filename_in.c_str ())));
+                  ACE_TEXT (path_in.c_str ())));
     result = target_file.remove ();
     if (result == -1)
       ACE_DEBUG  ((LM_ERROR,
@@ -547,7 +564,7 @@ Common_File_Tools::copyFile (const std::string& filename_in,
   if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE::close(\"%s\"): \"%m\", continuing\n"),
-                ACE_TEXT (filename_in.c_str ())));
+                ACE_TEXT (path_in.c_str ())));
   result = target_file.close ();
   if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
@@ -556,14 +573,14 @@ Common_File_Tools::copyFile (const std::string& filename_in,
 
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("copied \"%s\" --> \"%s\"\n"),
-              ACE_TEXT (filename_in.c_str ()),
+              ACE_TEXT (path_in.c_str ()),
               ACE_TEXT (target_filename.c_str ())));
 
   return true;
 }
 
 bool
-Common_File_Tools::deleteFile (const std::string& filename_in)
+Common_File_Tools::deleteFile (const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::deleteFile"));
 
@@ -571,12 +588,12 @@ Common_File_Tools::deleteFile (const std::string& filename_in)
 
   // connect to the file...
   ACE_FILE_Addr address;
-  result = address.set (ACE_TEXT_CHAR_TO_TCHAR (filename_in.c_str ()));
+  result = address.set (ACE_TEXT_CHAR_TO_TCHAR (path_in.c_str ()));
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Addr::set() file \"%s\": \"%m\", aborting\n"),
-                ACE_TEXT (filename_in.c_str ())));
+                ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
 
@@ -595,7 +612,7 @@ Common_File_Tools::deleteFile (const std::string& filename_in)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Connector::connect() to file \"%s\": \"%m\", aborting\n"),
-                ACE_TEXT (filename_in.c_str ())));
+                ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
 
@@ -605,18 +622,18 @@ Common_File_Tools::deleteFile (const std::string& filename_in)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_IO::remove() file \"%s\": \"%m\", aborting\n"),
-                ACE_TEXT (filename_in.c_str ())));
+                ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
   //ACE_DEBUG ((LM_DEBUG,
   //            ACE_TEXT ("deleted \"%s\"\n"),
-  //            ACE_TEXT (filename_in.c_str ())));
+  //            ACE_TEXT (path_in.c_str ())));
 
   return true;
 }
 
 bool
-Common_File_Tools::load (const std::string& filename_in,
+Common_File_Tools::load (const std::string& path_in,
                          unsigned char*& file_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::load"));
@@ -627,13 +644,13 @@ Common_File_Tools::load (const std::string& filename_in,
   file_out = NULL;
 
   FILE* file_p =
-    ACE_OS::fopen (ACE_TEXT (filename_in.c_str ()),
+    ACE_OS::fopen (ACE_TEXT (path_in.c_str ()),
                    ACE_TEXT_ALWAYS_CHAR ("rb"));
   if (unlikely (!file_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (filename_in.c_str ())));
+                ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
 
@@ -643,14 +660,14 @@ Common_File_Tools::load (const std::string& filename_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fseek(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (filename_in.c_str ())));
+                ACE_TEXT (path_in.c_str ())));
 
     // clean up
     result = ACE_OS::fclose (file_p);
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
-                  ACE_TEXT (filename_in.c_str ())));
+                  ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
   long file_size = ACE_OS::ftell (file_p);
@@ -658,14 +675,14 @@ Common_File_Tools::load (const std::string& filename_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::ftell(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (filename_in.c_str ())));
+                ACE_TEXT (path_in.c_str ())));
 
     // clean up
     result = ACE_OS::fclose (file_p);
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
-                  ACE_TEXT (filename_in.c_str ())));
+                  ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
   ACE_OS::rewind (file_p);
@@ -685,7 +702,7 @@ Common_File_Tools::load (const std::string& filename_in,
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
-                  ACE_TEXT (filename_in.c_str ())));
+                  ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
 
@@ -699,14 +716,14 @@ Common_File_Tools::load (const std::string& filename_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to read file(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (filename_in.c_str ())));
+                ACE_TEXT (path_in.c_str ())));
 
     // clean up
     result = ACE_OS::fclose (file_p);
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
-                  ACE_TEXT (filename_in.c_str ())));
+                  ACE_TEXT (path_in.c_str ())));
     delete [] file_out;
     file_out = NULL;
 
@@ -719,7 +736,7 @@ Common_File_Tools::load (const std::string& filename_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (filename_in.c_str ())));
+                ACE_TEXT (path_in.c_str ())));
 
     // clean up
     delete [] file_out;
@@ -732,7 +749,7 @@ Common_File_Tools::load (const std::string& filename_in,
 }
 
 bool
-Common_File_Tools::open (const std::string& fileName_in,
+Common_File_Tools::open (const std::string& path_in,
                          int flags_in,
                          ACE_FILE_IO& stream_out)
 {
@@ -741,12 +758,12 @@ Common_File_Tools::open (const std::string& fileName_in,
   int result = -1;
 
   ACE_FILE_Addr file_address;
-  result = file_address.set (fileName_in.c_str ());
+  result = file_address.set (path_in.c_str ());
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Addr::set(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (fileName_in.c_str ())));
+                ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
 
@@ -763,7 +780,7 @@ Common_File_Tools::open (const std::string& fileName_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Connector::connect(\"%s\",%d): \"%m\", aborting\n"),
-                ACE_TEXT (fileName_in.c_str ()),
+                ACE_TEXT (path_in.c_str ()),
                 flags_in));
     return false;
   } // end IF
@@ -772,7 +789,7 @@ Common_File_Tools::open (const std::string& fileName_in,
 }
 
 bool
-Common_File_Tools::store (const std::string& filename_in,
+Common_File_Tools::store (const std::string& path_in,
                           const unsigned char* buffer_in,
                           unsigned int size_in)
 {
@@ -785,13 +802,13 @@ Common_File_Tools::store (const std::string& filename_in,
   int result_3 = -1;
   FILE* file_p = NULL;
 
-  file_p = ACE_OS::fopen (ACE_TEXT (filename_in.c_str ()),
+  file_p = ACE_OS::fopen (ACE_TEXT (path_in.c_str ()),
                           ACE_TEXT_ALWAYS_CHAR ("wb"));
   if (unlikely (!file_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (filename_in.c_str ())));
+                ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
 
@@ -801,7 +818,7 @@ Common_File_Tools::store (const std::string& filename_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fwrite(%u) (file was: \"%s\"): \"%m\", aborting\n"),
                 size_in,
-                ACE_TEXT (filename_in.c_str ())));
+                ACE_TEXT (path_in.c_str ())));
     goto clean;
   } // end IF
 
@@ -816,7 +833,7 @@ clean:
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", aborting\n"),
-                  ACE_TEXT (filename_in.c_str ())));
+                  ACE_TEXT (path_in.c_str ())));
       result = false;
     } // end IF
   } // end IF
@@ -825,7 +842,7 @@ clean:
   if (likely (result))
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("wrote file \"%s\"\n"),
-                ACE_TEXT (filename_in.c_str ())));
+                ACE_TEXT (path_in.c_str ())));
 #endif
 
   return result;

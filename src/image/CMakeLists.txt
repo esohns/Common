@@ -50,6 +50,7 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 ############## next target ################
 set (${PROJECT_NAME}IMAGE_LIB_SRCS
+     common_image_defines.h
      common_image_exports.h
      common_image_tools.cpp
      common_image_tools.h
@@ -100,6 +101,7 @@ export (TARGETS ${PROJECT_NAME}Image
 
 ############### install files ################
 install (FILES
+         common_image_defines.h
          common_image_exports.h
          common_image_tools.h
          stdafx.h

@@ -30,13 +30,6 @@ extern "C"
 }
 #endif /* __cplusplus */
 
-#include "ace/config-lite.h"
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include <gl/GL.h>
-#else
-#include <GL/gl.h>
-#endif
-
 #include "ace/Global_Macros.h"
 
 //#include "common_image_exports.h"
@@ -44,20 +37,15 @@ extern "C"
 class Common_Image_Tools
 {
  public:
-  inline virtual ~Common_Image_Tools () {}
+//  inline virtual ~Common_Image_Tools () {}
 
-  // *IMPORTANT NOTE*: callers need to free() the allocated memory
-  static bool loadPNG2OpenGL (const std::string&, // string
-                              unsigned int&,      // return value: width
-                              unsigned int&,      // return value: height
-                              bool&,              // return value: has alpha channel ?
-                              GLubyte*&);         // return value: data
-
+  // *TODO*: currently supports AV_PIX_FMT_YUV420P only
   static bool storeToFile (unsigned int,        // source width
                            unsigned int,        // source height
                            enum AVPixelFormat,  // source pixel format
                            uint8_t*[],          // source buffer(s)
                            const std::string&); // target file path
+  // *TODO*: currently supports AV_PIX_FMT_RGB24 only
   static bool storeToPNG (unsigned int,        // source width
                           unsigned int,        // source height
                           enum AVPixelFormat,  // source pixel format
@@ -66,7 +54,7 @@ class Common_Image_Tools
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Image_Tools ());
-  //ACE_UNIMPLEMENTED_FUNC (~Common_Image_Tools ());
+  ACE_UNIMPLEMENTED_FUNC (~Common_Image_Tools ());
   ACE_UNIMPLEMENTED_FUNC (Common_Image_Tools (const Common_Image_Tools&));
   ACE_UNIMPLEMENTED_FUNC (Common_Image_Tools& operator= (const Common_Image_Tools&));
 };
