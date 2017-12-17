@@ -54,16 +54,20 @@ struct Common_GL_Camera
 struct Common_GL_Scene
 {
   Common_GL_Scene ()
-   : boundingBox ()
-   , camera ()
+   : camera ()
+   , boundingBox ()
    , center ()
+   , orientation ()
   {};
 
   inline void resetCamera () { ACE_OS::memset (&camera, 0, sizeof (struct Common_GL_Camera)); camera.zoom = COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR; }
 
-  Common_GL_BoundingBox_t boundingBox;
   struct Common_GL_Camera camera;
+
+  // scene
+  Common_GL_BoundingBox_t boundingBox;
   glm::vec3               center;
+  glm::vec3               orientation; // model/scene-
 };
 
 #endif
