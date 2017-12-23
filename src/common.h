@@ -24,6 +24,7 @@
 #include <deque>
 #include <map>
 #include <string>
+#include <vector>
 
 #include "ace/config-lite.h"
 #include "ace/Global_Macros.h"
@@ -59,9 +60,19 @@ struct Common_ParserConfiguration
   bool                    debugScanner;
 };
 
-struct Common_SignalInformation
+enum Common_SignalDispatchType : int
 {
-  Common_SignalInformation ()
+  COMMON_SIGNAL_DISPATCH_PROACTOR = 0,
+  COMMON_SIGNAL_DISPATCH_REACTOR,
+  COMMON_SIGNAL_DISPATCH_SIGNAL, // inline (i.e. signal handler context restrictions apply)
+  /////////////////////////////////////
+  COMMON_SIGNAL_DISPATCH_MAX,
+  COMMON_SIGNAL_DISPATCH_INVALID
+};
+
+struct Common_Signal
+{
+  Common_Signal ()
    : signal (-1)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   , siginfo (ACE_INVALID_HANDLE)
@@ -72,10 +83,17 @@ struct Common_SignalInformation
 #endif
   {};
 
-  int        signal;
-  siginfo_t  siginfo;
-  ucontext_t ucontext;
+  int              signal;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  struct siginfo_t siginfo;
+#else
+  siginfo_t        siginfo;
+#endif
+  ucontext_t       ucontext;
 };
+typedef std::vector <struct Common_Signal> Common_Signals_t;
+typedef Common_Signals_t::const_iterator Common_SignalsIterator_t;
+
 struct Common_SignalHandlerConfiguration
 {
   Common_SignalHandlerConfiguration ()

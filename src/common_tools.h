@@ -139,14 +139,7 @@ class Common_Tools
   static void finalizeSignals (const ACE_Sig_Set&,            // signal set
                                const Common_SignalActions_t&, // previous actions
                                const sigset_t&);              // previous mask
-  static void retrieveSignalInfo (int,                     // signal
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-                                  const struct siginfo_t&, // info
-#else
-                                  const siginfo_t&,        // info
-#endif
-                                  const ucontext_t*,       // context
-                                  std::string&);           // return value: info
+  static std::string signalToString (const struct Common_Signal&); // signal information
 
   // --- timers ---
   static bool initializeTimers (const struct Common_TimerConfiguration&); // configuration

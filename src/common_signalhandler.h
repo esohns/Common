@@ -27,13 +27,11 @@
 #include "ace/Global_Macros.h"
 #include "ace/os_include/os_ucontext.h"
 #include "ace/OS_NS_signal.h"
+#include "ace/Synch_Traits.h"
 
-//#include "common_exports.h"
+#include "common.h"
 #include "common_iinitialize.h"
 #include "common_isignal.h"
-
-// forward declaration(s)
-class Common_ISignal;
 
 template <typename ConfigurationType>
 class Common_SignalHandler_T
@@ -48,32 +46,41 @@ class Common_SignalHandler_T
  public:
   inline virtual ~Common_SignalHandler_T () {}
 
-//  // *NOTE*: proactor code: invoke handle_exception
-//  virtual void handle_time_out (const ACE_Time_Value&, // target time
-//                                const void* = NULL);   // act
-  // *NOTE*: notifies the proactor/reactor
+  // *NOTE*: the signal is dispatched according to dispatchMode_
   virtual int handle_signal (int,                 // signal
                              siginfo_t* = NULL,   // not needed on UNIX
                              ucontext_t* = NULL); // not used
+
+  // *NOTE*: proactor code
+  virtual void handle_time_out (const ACE_Time_Value&, // target time
+                                const void* = NULL);   // act
+  // *NOTE*: reactor code
+  virtual int handle_exception (ACE_HANDLE = ACE_INVALID_HANDLE); // handle
 
   // implement Common_IInitialize_T
   virtual bool initialize (const ConfigurationType&);
 
  protected:
-  Common_SignalHandler_T (Common_ISignal* = NULL); // event handler handle
+  Common_SignalHandler_T (enum Common_SignalDispatchType, // dispatch mode
+                          ACE_SYNCH_MUTEX*,               // lock handle
+                          Common_ISignal* = NULL);        // event handler handle
 
-  ConfigurationType* configuration_;
-  bool               isInitialized_;
+
+  ConfigurationType*             configuration_;
+  enum Common_SignalDispatchType dispatchMode_;
+  bool                           isInitialized_;
+  ACE_SYNCH_MUTEX*               lock_;
+  Common_Signals_t               signals_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler_T ())
   ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler_T (const Common_SignalHandler_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler_T& operator= (const Common_SignalHandler_T&))
 
-  // *NOTE*: implement specific behaviour
-  virtual int handle_exception (ACE_HANDLE = ACE_INVALID_HANDLE); // handle
+  // implement Common_ISignal
+  inline virtual void handle (const struct Common_Signal& signal_in) { ACE_UNUSED_ARG (signal_in); ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
 
-  Common_ISignal*    callback_;
+  Common_ISignal*                callback_;
 };
 
 // include template definition

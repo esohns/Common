@@ -115,25 +115,11 @@
 #define COMMON_LOG_FILENAME_SUFFIX                             ".log"
 #define COMMON_LOG_VERBOSE                                     false
 
-// *** timers ***
-#define COMMON_TIMER_DEFAULT_MODE                              COMMON_TIMER_MODE_QUEUE
-#define COMMON_TIMER_DEFAULT_QUEUE                             COMMON_TIMER_QUEUE_HEAP
-
-// *IMPORTANT NOTE*: make sure group IDs are consistent across the entire (!)
-//                   application
-#define COMMON_TIMER_THREAD_GROUP_ID                           100
-#define COMMON_TIMER_THREAD_NAME                               "timer dispatch"
-// *IMPORTANT NOTE*: currently used for (initial !) slot pre-allocation only;
-//                   ultimately, the total number of available concurrent slots
-//                   depends on the actual implementation
-//                   --> check the code, don't rely on ACE_DEFAULT_TIMERS
-//#define COMMON_TIMER_DEFAULT_NUM_TIMER_SLOTS    ACE_DEFAULT_TIMERS
-#define COMMON_TIMER_DEFAULT_NUM_TIMER_SLOTS                   32768
-#define COMMON_TIMER_PREALLOCATE_TIMER_SLOTS                   true
+// *** signals ***
+#define COMMON_SIGNAL_DEFAULT_DISPATCH_MODE                    COMMON_SIGNAL_DISPATCH_SIGNAL
 
 // *** event loop ***
 #define COMMON_EVENT_MAXIMUM_HANDLES                           ACE::max_handles ()
-
 
 // "proactor"-based
 #define COMMON_EVENT_PROACTOR_TYPE                             COMMON_PROACTOR_ACE_DEFAULT

@@ -124,15 +124,15 @@ class Common_Timer_Manager_T
   virtual const ACE_Task_Base& getR_5 () const;
   bool initializeTimerQueue ();
 
-  ConfigurationType*         configuration_;
-  bool                       isInitialized_;
-  enum Common_TimerModeType  mode_;
-  enum Common_TimerQueueType queueType_;
+  ConfigurationType*            configuration_;
+  enum Common_TimerDispatchType dispatch_;
+  bool                          isInitialized_;
+  enum Common_TimerQueueType    queueType_;
 
   // *NOTE*: this is only the functor, individual handlers are managed in the
   //         queue
-  Common_TimeoutUpcall_t     timerHandler_;
-  TIMER_QUEUE_T*             timerQueue_;
+  Common_TimeoutUpcall_t        timerHandler_;
+  TIMER_QUEUE_T*                timerQueue_;
 };
 
 // include template definition

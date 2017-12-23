@@ -2075,183 +2075,174 @@ Common_Tools::finalizeSignals (const ACE_Sig_Set& signals_in,
 #endif
 }
 
-void
-Common_Tools::retrieveSignalInfo (int signal_in,
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-                                  const struct siginfo_t& info_in,
-#else
-                                  const siginfo_t& info_in,
-#endif
-                                  const ucontext_t* context_in,
-                                  std::string& information_out)
+std::string
+Common_Tools::signalToString (const Common_Signal& signal_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::retrieveSignalInfo"));
-
-  ACE_UNUSED_ARG (context_in);
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::signalToString"));
 
   // initialize return value
-  information_out.clear ();
+  std::string result;
 
   std::ostringstream converter;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  switch (signal_in)
+  switch (signal_in.signal)
   {
     case SIGINT:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SIGINT"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SIGINT"); break;
     case SIGILL:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SIGILL"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SIGILL"); break;
     case SIGFPE:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SIGFPE"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SIGFPE"); break;
     case SIGSEGV:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SIGSEGV"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SIGSEGV"); break;
     case SIGTERM:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SIGTERM"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SIGTERM"); break;
     case SIGBREAK:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SIGBREAK"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SIGBREAK"); break;
     case SIGABRT:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SIGABRT"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SIGABRT"); break;
     case SIGABRT_COMPAT:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SIGABRT_COMPAT"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SIGABRT_COMPAT"); break;
     default:
     {
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("invalid/unknown signal: %S, continuing\n"),
-                  signal_in));
+                  signal_in.signal));
       break;
     }
   } // end SWITCH
 
-  information_out += ACE_TEXT_ALWAYS_CHAR (", signalled handle: ");
+  result += ACE_TEXT_ALWAYS_CHAR (", signalled handle: ");
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  information_out += ACE_TEXT_ALWAYS_CHAR ("0x");
+  result += ACE_TEXT_ALWAYS_CHAR ("0x");
 #endif
-  converter << info_in.si_handle_;
-  information_out += converter.str ();
-  //information_out += ACE_TEXT_ALWAYS_CHAR (", array of signalled handle(s): ");
-  //information_out += info_in.si_handles_;
+  converter << signal_in.siginfo.si_handle_;
+  result += converter.str ();
+  //result += ACE_TEXT_ALWAYS_CHAR (", array of signalled handle(s): ");
+  //result += signal_in.siginfo.si_handles_;
 #else
-  int result = -1;
+  int result_2 = -1;
 
   // step0: common information (on POSIX.1b)
-  information_out += ACE_TEXT_ALWAYS_CHAR ("PID/UID: ");
-  converter << info_in.si_pid;
-  information_out += converter.str ();
-  information_out += ACE_TEXT_ALWAYS_CHAR ("/");
+  result += ACE_TEXT_ALWAYS_CHAR ("PID/UID: ");
+  converter << signal_in.siginfo.si_pid;
+  result += converter.str ();
+  result += ACE_TEXT_ALWAYS_CHAR ("/");
   converter.str (ACE_TEXT_ALWAYS_CHAR (""));
   converter.clear ();
-  converter << info_in.si_uid;
-  information_out += converter.str ();
+  converter << signal_in.siginfo.si_uid;
+  result += converter.str ();
 
   // (try to) get user name
-  char buffer[BUFSIZ];
-  //  char buffer[L_cuserid];
-  ACE_OS::memset (buffer, 0, sizeof (buffer));
-//  char* result_p = ACE_OS::cuserid (buffer);
+  ACE_TCHAR buffer_a[BUFSIZ];
+  //  ACE_TCHAR buffer[L_cuserid];
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[BUFSIZ]));
+//  char* result_p = ACE_OS::cuserid (buffer_a);
 //  if (!result_p)
   struct passwd passwd_s;
   struct passwd* passwd_p = NULL;
 // *PORTABILITY*: this isn't very portable (man getpwuid_r)
-  result = ::getpwuid_r (info_in.si_uid,
-                         &passwd_s,
-                         buffer,
-                         sizeof (buffer),
-                         &passwd_p);
-  if (unlikely (result || !passwd_p))
+  result_2 = ::getpwuid_r (signal_in.siginfo.si_uid,
+                           &passwd_s,
+                           buffer_a,
+                           sizeof (ACE_TCHAR[BUFSIZ]),
+                           &passwd_p);
+  if (unlikely (result_2 || !passwd_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::getpwuid_r(%u) : \"%m\", continuing\n"),
-                info_in.si_uid));
+                signal_in.siginfo.si_uid));
 //    ACE_DEBUG ((LM_ERROR,
 //                ACE_TEXT ("failed to ACE_OS::cuserid() : \"%m\", continuing\n")));
   } // end IF
   else
   {
-    information_out += ACE_TEXT_ALWAYS_CHAR ("[\"");
-    information_out += passwd_s.pw_name;
+    result += ACE_TEXT_ALWAYS_CHAR ("[\"");
+    result += passwd_s.pw_name;
 //    information << buffer;
-    information_out += ACE_TEXT_ALWAYS_CHAR ("\"]");
+    result += ACE_TEXT_ALWAYS_CHAR ("\"]");
   } // end ELSE
 
   // "si_signo,  si_errno  and  si_code are defined for all signals..."
-  information_out += ACE_TEXT_ALWAYS_CHAR (", errno: ");
+  result += ACE_TEXT_ALWAYS_CHAR (", errno: ");
   converter.str (ACE_TEXT_ALWAYS_CHAR (""));
   converter.clear ();
-  converter << info_in.si_errno;
-  information_out += converter.str ();
-  information_out += ACE_TEXT_ALWAYS_CHAR ("[\"");
-  information_out += ACE_OS::strerror (info_in.si_errno);
-  information_out += ACE_TEXT_ALWAYS_CHAR ("\"], code: ");
+  converter << signal_in.siginfo.si_errno;
+  result += converter.str ();
+  result += ACE_TEXT_ALWAYS_CHAR ("[\"");
+  result += ACE_OS::strerror (signal_in.siginfo.si_errno);
+  result += ACE_TEXT_ALWAYS_CHAR ("\"], code: ");
 
-  // step1: retrieve signal code...
-  switch (info_in.si_code)
+  // step1: retrieve signal code
+  switch (signal_in.siginfo.si_code)
   {
 // *NOTE*: Solaris (11)-specific
 #if defined (__sun) && defined (__SVR4)
   case SI_NOINFO:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SI_NOINFO"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SI_NOINFO"); break;
   case SI_DTRACE:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SI_DTRACE"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SI_DTRACE"); break;
   case SI_RCTL:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SI_RCTL"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SI_RCTL"); break;
 /////////////////////////////////////////
 #endif
   case SI_USER:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SI_USER"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SI_USER"); break;
 // *NOTE*: Solaris (11)-specific
 #if defined (__sun) && defined (__SVR4)
   case SI_LWP:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SI_LWP"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SI_LWP"); break;
 #else
   case SI_KERNEL:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SI_KERNEL"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SI_KERNEL"); break;
 #endif
     case SI_QUEUE:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SI_QUEUE"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SI_QUEUE"); break;
     case SI_TIMER:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SI_TIMER"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SI_TIMER"); break;
     case SI_ASYNCIO:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SI_ASYNCIO"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SI_ASYNCIO"); break;
     case SI_MESGQ:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SI_MESGQ"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SI_MESGQ"); break;
 // *NOTE*: Solaris (11)-specific
 #if defined (__sun) && defined (__SVR4)
   case SI_LWP_QUEUE:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SI_LWP_QUEUE"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SI_LWP_QUEUE"); break;
 #else
   case SI_SIGIO:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SI_SIGIO"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SI_SIGIO"); break;
     case SI_TKILL:
-      information_out += ACE_TEXT_ALWAYS_CHAR ("SI_TKILL"); break;
+      result += ACE_TEXT_ALWAYS_CHAR ("SI_TKILL"); break;
 #endif
   default:
     { // (signal-dependant) codes...
-      switch (signal_in)
+      switch (signal_in.signal)
       {
         case SIGILL:
         {
-          switch (info_in.si_code)
+          switch (signal_in.siginfo.si_code)
           {
             case ILL_ILLOPC:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("ILL_ILLOPC"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("ILL_ILLOPC"); break;
             case ILL_ILLOPN:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("ILL_ILLOPN"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("ILL_ILLOPN"); break;
             case ILL_ILLADR:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("ILL_ILLADR"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("ILL_ILLADR"); break;
             case ILL_ILLTRP:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("ILL_ILLTRP"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("ILL_ILLTRP"); break;
             case ILL_PRVOPC:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("ILL_PRVOPC"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("ILL_PRVOPC"); break;
             case ILL_PRVREG:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("ILL_PRVREG"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("ILL_PRVREG"); break;
             case ILL_COPROC:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("ILL_COPROC"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("ILL_COPROC"); break;
             case ILL_BADSTK:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("ILL_BADSTK"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("ILL_BADSTK"); break;
             default:
             {
               ACE_DEBUG ((LM_ERROR,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
-                          info_in.si_code));
+                          signal_in.siginfo.si_code));
               break;
             }
           } // end SWITCH
@@ -2260,29 +2251,29 @@ Common_Tools::retrieveSignalInfo (int signal_in,
         }
         case SIGFPE:
         {
-          switch (info_in.si_code)
+          switch (signal_in.siginfo.si_code)
           {
             case FPE_INTDIV:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("FPE_INTDIV"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("FPE_INTDIV"); break;
             case FPE_INTOVF:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("FPE_INTOVF"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("FPE_INTOVF"); break;
             case FPE_FLTDIV:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("FPE_FLTDIV"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("FPE_FLTDIV"); break;
             case FPE_FLTOVF:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("FPE_FLTOVF"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("FPE_FLTOVF"); break;
             case FPE_FLTUND:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("FPE_FLTUND"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("FPE_FLTUND"); break;
             case FPE_FLTRES:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("FPE_FLTRES"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("FPE_FLTRES"); break;
             case FPE_FLTINV:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("FPE_FLTINV"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("FPE_FLTINV"); break;
             case FPE_FLTSUB:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("FPE_FLTSUB"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("FPE_FLTSUB"); break;
             default:
             {
               ACE_DEBUG ((LM_ERROR,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
-                          info_in.si_code));
+                          signal_in.siginfo.si_code));
               break;
             }
           } // end SWITCH
@@ -2291,17 +2282,17 @@ Common_Tools::retrieveSignalInfo (int signal_in,
         }
         case SIGSEGV:
         {
-          switch (info_in.si_code)
+          switch (signal_in.siginfo.si_code)
           {
             case SEGV_MAPERR:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("SEGV_MAPERR"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("SEGV_MAPERR"); break;
             case SEGV_ACCERR:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("SEGV_ACCERR"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("SEGV_ACCERR"); break;
             default:
             {
               ACE_DEBUG ((LM_ERROR,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
-                          info_in.si_code));
+                          signal_in.siginfo.si_code));
               break;
             }
           } // end SWITCH
@@ -2310,19 +2301,19 @@ Common_Tools::retrieveSignalInfo (int signal_in,
         }
         case SIGBUS:
         {
-          switch (info_in.si_code)
+          switch (signal_in.siginfo.si_code)
           {
             case BUS_ADRALN:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("BUS_ADRALN"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("BUS_ADRALN"); break;
             case BUS_ADRERR:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("BUS_ADRERR"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("BUS_ADRERR"); break;
             case BUS_OBJERR:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("BUS_OBJERR"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("BUS_OBJERR"); break;
             default:
             {
               ACE_DEBUG ((LM_ERROR,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
-                          info_in.si_code));
+                          signal_in.siginfo.si_code));
               break;
             }
           } // end SWITCH
@@ -2331,17 +2322,17 @@ Common_Tools::retrieveSignalInfo (int signal_in,
         }
         case SIGTRAP:
         {
-          switch (info_in.si_code)
+          switch (signal_in.siginfo.si_code)
           {
             case TRAP_BRKPT:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("TRAP_BRKPT"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("TRAP_BRKPT"); break;
             case TRAP_TRACE:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("TRAP_TRACE"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("TRAP_TRACE"); break;
             default:
             {
               ACE_DEBUG ((LM_ERROR,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
-                          info_in.si_code));
+                          signal_in.siginfo.si_code));
               break;
             }
           } // end SWITCH
@@ -2350,25 +2341,25 @@ Common_Tools::retrieveSignalInfo (int signal_in,
         }
         case SIGCHLD:
         {
-          switch (info_in.si_code)
+          switch (signal_in.siginfo.si_code)
           {
             case CLD_EXITED:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("CLD_EXITED"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("CLD_EXITED"); break;
             case CLD_KILLED:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("CLD_KILLED"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("CLD_KILLED"); break;
             case CLD_DUMPED:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("CLD_DUMPED"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("CLD_DUMPED"); break;
             case CLD_TRAPPED:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("CLD_TRAPPED"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("CLD_TRAPPED"); break;
             case CLD_STOPPED:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("CLD_STOPPED"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("CLD_STOPPED"); break;
             case CLD_CONTINUED:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("CLD_CONTINUED"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("CLD_CONTINUED"); break;
             default:
             {
               ACE_DEBUG ((LM_ERROR,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
-                          info_in.si_code));
+                          signal_in.siginfo.si_code));
               break;
             }
           } // end SWITCH
@@ -2377,25 +2368,25 @@ Common_Tools::retrieveSignalInfo (int signal_in,
         }
         case SIGPOLL:
         {
-          switch (info_in.si_code)
+          switch (signal_in.siginfo.si_code)
           {
             case POLL_IN:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("POLL_IN"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("POLL_IN"); break;
             case POLL_OUT:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("POLL_OUT"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("POLL_OUT"); break;
             case POLL_MSG:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("POLL_MSG"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("POLL_MSG"); break;
             case POLL_ERR:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("POLL_ERR"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("POLL_ERR"); break;
             case POLL_PRI:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("POLL_PRI"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("POLL_PRI"); break;
             case POLL_HUP:
-              information_out += ACE_TEXT_ALWAYS_CHAR ("POLL_HUP"); break;
+              result += ACE_TEXT_ALWAYS_CHAR ("POLL_HUP"); break;
             default:
             {
               ACE_DEBUG ((LM_ERROR,
                           ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
-                          info_in.si_code));
+                          signal_in.siginfo.si_code));
               break;
             }
           } // end SWITCH
@@ -2406,7 +2397,7 @@ Common_Tools::retrieveSignalInfo (int signal_in,
         {
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("invalid/unknown signal code: %d, continuing\n"),
-                      info_in.si_code));
+                      signal_in.siginfo.si_code));
           break;
         }
       } // end SWITCH
@@ -2416,41 +2407,41 @@ Common_Tools::retrieveSignalInfo (int signal_in,
   } // end SWITCH
 
   // step2: retrieve more (signal-dependant) information
-  switch (signal_in)
+  switch (signal_in.signal)
   {
     case SIGALRM:
     {
 #if defined (__linux__)
-      information_out += ACE_TEXT_ALWAYS_CHAR (", overrun: ");
+      result += ACE_TEXT_ALWAYS_CHAR (", overrun: ");
       converter.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter.clear ();
-      converter << info_in.si_overrun;
-      information_out += converter.str ();
-      information_out += ACE_TEXT_ALWAYS_CHAR (", (internal) id: ");
+      converter << signal_in.siginfo.si_overrun;
+      result += converter.str ();
+      result += ACE_TEXT_ALWAYS_CHAR (", (internal) id: ");
       converter.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter.clear ();
-      converter << info_in.si_timerid;
-      information_out += converter.str ();
+      converter << signal_in.siginfo.si_timerid;
+      result += converter.str ();
 #endif
       break;
     }
     case SIGCHLD:
     {
-      information_out += ACE_TEXT_ALWAYS_CHAR (", (exit) status: ");
+      result += ACE_TEXT_ALWAYS_CHAR (", (exit) status: ");
       converter.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter.clear ();
-      converter << info_in.si_status;
-      information_out += converter.str ();
-      information_out += ACE_TEXT_ALWAYS_CHAR (", time consumed (user): ");
+      converter << signal_in.siginfo.si_status;
+      result += converter.str ();
+      result += ACE_TEXT_ALWAYS_CHAR (", time consumed (user): ");
       converter.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter.clear ();
-      converter << info_in.si_utime;
-      information_out += converter.str ();
-      information_out += ACE_TEXT_ALWAYS_CHAR (" / (system): ");
+      converter << signal_in.siginfo.si_utime;
+      result += converter.str ();
+      result += ACE_TEXT_ALWAYS_CHAR (" / (system): ");
       converter.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter.clear ();
-      converter << info_in.si_stime;
-      information_out += converter.str ();
+      converter << signal_in.siginfo.si_stime;
+      result += converter.str ();
       break;
     }
     case SIGILL:
@@ -2459,25 +2450,25 @@ Common_Tools::retrieveSignalInfo (int signal_in,
     case SIGBUS:
     {
       // *TODO*: more data ?
-      information_out += ACE_TEXT_ALWAYS_CHAR (", fault at address: ");
+      result += ACE_TEXT_ALWAYS_CHAR (", fault at address: ");
       converter.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter.clear ();
-      converter << info_in.si_addr;
-      information_out += converter.str ();
+      converter << signal_in.siginfo.si_addr;
+      result += converter.str ();
       break;
     }
     case SIGPOLL:
     {
-      information_out += ACE_TEXT_ALWAYS_CHAR (", band event: ");
+      result += ACE_TEXT_ALWAYS_CHAR (", band event: ");
       converter.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter.clear ();
-      converter << info_in.si_band;
-      information_out += converter.str ();
-      information_out += ACE_TEXT_ALWAYS_CHAR (", (file) descriptor: ");
+      converter << signal_in.siginfo.si_band;
+      result += converter.str ();
+      result += ACE_TEXT_ALWAYS_CHAR (", (file) descriptor: ");
       converter.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter.clear ();
-      converter << info_in.si_fd;
-      information_out += converter.str ();
+      converter << signal_in.siginfo.si_fd;
+      result += converter.str ();
       break;
     }
     default:
@@ -2485,11 +2476,13 @@ Common_Tools::retrieveSignalInfo (int signal_in,
       // *TODO*: handle more signals here ?
 //       ACE_DEBUG ((LM_DEBUG,
 //                   ACE_TEXT ("no additional information for signal: \"%S\"\n"),
-//                   signal_in));
+//                   signal_in.signal));
       break;
     }
   } // end SWITCH
 #endif
+
+  return result;
 }
 
 bool
@@ -2504,9 +2497,9 @@ Common_Tools::initializeTimers (const struct Common_TimerConfiguration& configur
   //  COMMON_ASYNCHTIMERMANAGER_SINGLETON::instance ();
   //ACE_ASSERT (timer_manager_2);
 
-  switch (configuration_in.mode)
+  switch (configuration_in.dispatch)
   {
-    case COMMON_TIMER_MODE_PROACTOR:
+    case COMMON_TIMER_DISPATCH_PROACTOR:
     {
       if (unlikely (!timer_manager_p->initialize (configuration_in)))
       {
@@ -2519,7 +2512,7 @@ Common_Tools::initializeTimers (const struct Common_TimerConfiguration& configur
 
       return true;
     }
-    case COMMON_TIMER_MODE_QUEUE:
+    case COMMON_TIMER_DISPATCH_QUEUE:
     {
       if (unlikely (!timer_manager_p->initialize (configuration_in)))
       {
@@ -2538,7 +2531,7 @@ Common_Tools::initializeTimers (const struct Common_TimerConfiguration& configur
 
       return true;
     }
-    case COMMON_TIMER_MODE_REACTOR:
+    case COMMON_TIMER_DISPATCH_REACTOR:
     {
       if (unlikely (!timer_manager_p->initialize (configuration_in)))
       {
@@ -2551,7 +2544,7 @@ Common_Tools::initializeTimers (const struct Common_TimerConfiguration& configur
 
       return true;
     }
-    case COMMON_TIMER_MODE_SIGNAL:
+    case COMMON_TIMER_DISPATCH_SIGNAL:
     {
       ACE_ASSERT (false);
       ACE_NOTSUP_RETURN (false);
@@ -2571,8 +2564,8 @@ Common_Tools::initializeTimers (const struct Common_TimerConfiguration& configur
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown timer mode (was: %d), returning\n"),
-                  configuration_in.mode));
+                  ACE_TEXT ("invalid/unknown timer dispatch (was: %d), returning\n"),
+                  configuration_in.dispatch));
       break;
     }
   } // end SWITCH
@@ -2593,27 +2586,27 @@ Common_Tools::finalizeTimers (const struct Common_TimerConfiguration& configurat
   //  COMMON_ASYNCHTIMERMANAGER_SINGLETON::instance ();
   //ACE_ASSERT (timer_manager_2);
 
-  switch (configuration_in.mode)
+  switch (configuration_in.dispatch)
   {
-    case COMMON_TIMER_MODE_PROACTOR:
+    case COMMON_TIMER_DISPATCH_PROACTOR:
     {
       timer_manager_p->stop (waitForCompletion_in,
                              true);
       break;
     }
-    case COMMON_TIMER_MODE_QUEUE:
+    case COMMON_TIMER_DISPATCH_QUEUE:
     {
       timer_manager_p->stop (waitForCompletion_in,
                              true);
       break;
     }
-    case COMMON_TIMER_MODE_REACTOR:
+    case COMMON_TIMER_DISPATCH_REACTOR:
     {
       timer_manager_p->stop (waitForCompletion_in,
                              true);
       break;
     }
-    case COMMON_TIMER_MODE_SIGNAL:
+    case COMMON_TIMER_DISPATCH_SIGNAL:
     {
       ACE_ASSERT (false);
       ACE_NOTSUP;
@@ -2626,8 +2619,8 @@ Common_Tools::finalizeTimers (const struct Common_TimerConfiguration& configurat
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown timer mode (was: %d), returning\n"),
-                  configuration_in.mode));
+                  ACE_TEXT ("invalid/unknown timer dispatch (was: %d), returning\n"),
+                  configuration_in.dispatch));
       break;
     }
   } // end SWITCH

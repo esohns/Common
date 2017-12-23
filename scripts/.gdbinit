@@ -20,7 +20,7 @@ set breakpoint auto-hw
 
 # signals
 handle SIGCHLD pass nostop print
-handle SIGINT pass nostop print
+handle SIGINT pass stop print
 handle SIGQUIT pass nostop print
 handle SIGPIPE pass nostop print
 handle SIGUSR1 pass nostop print

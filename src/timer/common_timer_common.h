@@ -44,6 +44,7 @@
 #include "common_time_common.h"
 
 #include "common_itimer.h"
+#include "common_timer_defines.h"
 
 // forward declarations
 //template <class TQ, class TYPE>
@@ -51,15 +52,15 @@
 //template <class TQ, class TYPE>
 //class ACE_Thread_Timer_Queue_Adapter;
 
-enum Common_TimerModeType : int
+enum Common_TimerDispatchType : int
 {
-  COMMON_TIMER_MODE_PROACTOR = 0,
-  COMMON_TIMER_MODE_QUEUE,
-  COMMON_TIMER_MODE_REACTOR,
-  COMMON_TIMER_MODE_SIGNAL,
+  COMMON_TIMER_DISPATCH_PROACTOR = 0,
+  COMMON_TIMER_DISPATCH_QUEUE,
+  COMMON_TIMER_DISPATCH_REACTOR,
+  COMMON_TIMER_DISPATCH_SIGNAL,
   /////////////////////////////////////
-  COMMON_TIMER_MODE_MAX,
-  COMMON_TIMER_MODE_INVALID
+  COMMON_TIMER_DISPATCH_MAX,
+  COMMON_TIMER_DISPATCH_INVALID
 };
 
 enum Common_TimerQueueType : int
@@ -75,12 +76,12 @@ enum Common_TimerQueueType : int
 struct Common_TimerConfiguration
 {
   Common_TimerConfiguration ()
-   : mode (COMMON_TIMER_DEFAULT_MODE)
+   : dispatch (COMMON_TIMER_DEFAULT_DISPATCH)
    , queueType (COMMON_TIMER_DEFAULT_QUEUE)
   {};
 
-  enum Common_TimerModeType  mode;
-  enum Common_TimerQueueType queueType;
+  enum Common_TimerDispatchType dispatch;
+  enum Common_TimerQueueType    queueType;
 };
 
 // *** timer queue ***
