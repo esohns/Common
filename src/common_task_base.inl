@@ -690,6 +690,9 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     thread_names_p[i] = thread_name_p;
   } // end FOR
 
+#if defined (_DEBUG)
+  std::ostringstream string_stream;
+#endif
   { ACE_GUARD_RETURN (typename ITASKCONTROL_T::MUTEX_T, aGuard, lock_, -1);
     result =
       inherited::activate ((THR_NEW_LWP      |
@@ -721,16 +724,17 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       return result;
     } // end IF
 
-    std::ostringstream string_stream;
     ACE_Thread_ID thread_id;
     for (unsigned int i = 0;
          i < threadCount_;
          i++)
     {
+#if defined (_DEBUG)
       string_stream << ACE_TEXT_ALWAYS_CHAR ("#") << (i + 1)
                     << ACE_TEXT_ALWAYS_CHAR (" ")
                     << thread_ids_p[i]
                     << ACE_TEXT_ALWAYS_CHAR ("\n");
+#endif
 
       // clean up
       delete [] thread_names_p[i];
@@ -739,6 +743,9 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       thread_id.id (thread_ids_p[i]);
       threads_.push_back (thread_id);
     } // end FOR
+  } // end lock scope
+#if defined (_DEBUG)
+  { ACE_GUARD_RETURN (typename ITASKCONTROL_T::MUTEX_T, aGuard, lock_, -1);
     std::string thread_ids_string = string_stream.str ();
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("spawned %u worker thread(s) (\"%s\", group: %d):\n%s"),
@@ -747,6 +754,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                 inherited::grp_id_,
                 ACE_TEXT (thread_ids_string.c_str ())));
   } // end lock scope
+#endif
 
   // clean up
   delete [] thread_ids_p;

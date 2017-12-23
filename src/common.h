@@ -80,7 +80,7 @@ struct Common_SignalHandlerConfiguration
 {
   Common_SignalHandlerConfiguration ()
    : hasUI (false)
-   , useReactor (false)
+   , useReactor (COMMON_EVENT_USE_REACTOR)
   {};
 
   bool hasUI;
@@ -163,6 +163,15 @@ struct Common_ScannerState
   {};
 
   unsigned int offset;
+};
+
+enum Common_StatisticActionType : int
+{
+  STATISTIC_ACTION_COLLECT = 0,
+  STATISTIC_ACTION_REPORT,
+  ////////////////////////////////////////
+  STATISTIC_ACTION_MAX,
+  STATISTIC_ACTION_INVALID
 };
 
 // *** task ***

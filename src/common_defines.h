@@ -134,8 +134,6 @@
 // *** event loop ***
 #define COMMON_EVENT_MAXIMUM_HANDLES                           ACE::max_handles ()
 
-#define COMMON_EVENT_THREAD_GROUP_ID                           101
-#define COMMON_EVENT_THREAD_NAME                               "event dispatch"
 
 // "proactor"-based
 #define COMMON_EVENT_PROACTOR_TYPE                             COMMON_PROACTOR_ACE_DEFAULT
@@ -183,6 +181,11 @@
 #undef COMMON_EVENT_REACTOR_TYPE
 #define COMMON_EVENT_REACTOR_TYPE                              COMMON_REACTOR_DEV_POLL
 #endif // defined (ACE_WIN32) || defined (ACE_WIN64)
+
+#define COMMON_EVENT_THREAD_GROUP_ID                           101
+#define COMMON_EVENT_THREAD_NAME                               "event dispatch"
+
+#define COMMON_EVENT_USE_REACTOR                               false
 
 // *** environment ***
 #if !defined (ACE_WIN32) && !defined (ACE_WIN64)

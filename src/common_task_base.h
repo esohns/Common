@@ -46,8 +46,8 @@ template <ACE_SYNCH_DECL,
 class Common_TaskBase_T
  : public ACE_Task<ACE_SYNCH_USE,
                    TimePolicyType>
- , public Common_ITaskControl_T<ACE_SYNCH_USE,
-                                LockType>
+ , virtual public Common_ITaskControl_T<ACE_SYNCH_USE,
+                                        LockType>
  , public Common_IDumpState
 {
   typedef ACE_Task<ACE_SYNCH_USE,

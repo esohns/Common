@@ -18,46 +18,48 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_TIMERHANDLER_H
-#define COMMON_TIMERHANDLER_H
+#ifndef COMMON_STATISTIC_HANDLER_H
+#define COMMON_STATISTIC_HANDLER_H
 
-#include "ace/Asynch_IO.h"
 #include "ace/Global_Macros.h"
-#include "ace/Event_Handler.h"
 #include "ace/Time_Value.h"
 
-// forward declarations
-class Common_ITimerHandler;
+#include "common.h"
+#include "common_istatistic.h"
 
-class Common_TimerHandler
- : public ACE_Event_Handler
- , public ACE_Handler
+#include "common_itimerhandler.h"
+#include "common_timer_handler.h"
+
+template <typename StatisticContainerType>
+class Common_StatisticHandler_T
+ : public Common_TimerHandler
+ , public Common_ITimerHandler
 {
-  typedef ACE_Event_Handler inherited;
-  typedef ACE_Handler inherited2;
+  typedef Common_TimerHandler inherited;
 
  public:
-  Common_TimerHandler (Common_ITimerHandler*, // dispatch interface
-                       bool = false);         // invoke only once ?
-  inline virtual ~Common_TimerHandler () {}
+  // convenient types
+  typedef Common_IStatistic_T<StatisticContainerType> ISTATISTIC_T;
 
-  // override (part of) ACE_Event_Handler
-  virtual int handle_timeout (const ACE_Time_Value&, // dispatch time
-                              const void*);          // asynchronous completion token
-  // override (part of) ACE_Handler
-  virtual void handle_time_out (const ACE_Time_Value&, // requested time
-                                const void* = NULL);   // asynchronous completion token
+  Common_StatisticHandler_T (enum Common_StatisticActionType,              // handler action
+                             Common_IStatistic_T<StatisticContainerType>*, // interface handle
+                             bool = false);                                // report on collect ?
+  inline virtual ~Common_StatisticHandler_T () {}
 
- protected:
-  bool                  isOneShot_;
+  // implement Common_ITimerHandler
+  virtual void handle (const void*); // asynchronous completion token
 
  private:
+  ACE_UNIMPLEMENTED_FUNC (Common_StatisticHandler_T ())
+  ACE_UNIMPLEMENTED_FUNC (Common_StatisticHandler_T (const Common_StatisticHandler_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_StatisticHandler_T& operator= (const Common_StatisticHandler_T&))
 
-  ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler ())
-  ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler (const Common_TimerHandler&))
-  ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler& operator= (const Common_TimerHandler&))
-
-  Common_ITimerHandler* handler_;
+  enum Common_StatisticActionType action_;
+  ISTATISTIC_T*                   interfaceHandle_;
+  bool                            reportOnCollect_;
 };
+
+// include template definition
+#include "common_statistic_handler.inl"
 
 #endif

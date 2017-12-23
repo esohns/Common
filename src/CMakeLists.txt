@@ -117,6 +117,9 @@ set (${PROJECT_NAME}_LIB_SRCS
      common_statemachine_base.cpp
      common_statemachine_base.h
      common_statemachine_base.inl
+     common_statistic_handler.cpp
+     common_statistic_handler.h
+     common_statistic_handler.inl
      common_task_base.cpp
      common_task_base.h
      common_task_base.inl
@@ -222,6 +225,8 @@ install (FILES
          common_signalhandler.inl
          common_statemachine_base.h
          common_statemachine_base.inl
+         common_statistic_handler.h
+         common_statistic_handler.inl
          common_task_base.h
          common_task_base.inl
          common_time_common.h

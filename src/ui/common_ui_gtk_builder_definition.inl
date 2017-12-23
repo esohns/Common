@@ -21,6 +21,8 @@
 #include "ace/ACE.h"
 #include "ace/Guard_T.h"
 #include "ace/Log_Msg.h"
+#include "ace/Reverse_Lock_T.h"
+#include "ace/Synch_Traits.h"
 
 #include "gtk/gtk.h"
 
@@ -86,6 +88,7 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
   // step1: load widget tree(s)
   GtkBuilder* builder_p = NULL;
   GError* error_p = NULL;
+  ACE_Reverse_Lock<ACE_SYNCH_MUTEX> reverse_lock (state_->lock);
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_->lock, false);
     for (Common_UI_GTKBuildersIterator_t iterator = state_->builders.begin ();
          iterator != state_->builders.end ();
@@ -96,7 +99,7 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
 
       builder_p = gtk_builder_new ();
       if (unlikely (!builder_p))
-      {
+      { ACE_GUARD_RETURN (ACE_Reverse_Lock<ACE_SYNCH_MUTEX>, aGuard_2, reverse_lock, false);
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to gtk_builder_new(): \"%m\", aborting\n")));
         return false;
@@ -106,7 +109,7 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
                                  (*iterator).second.first.c_str (), // definition file,
                                  &error_p);                         // error
       if (unlikely (error_p))
-      {
+      { ACE_GUARD_RETURN (ACE_Reverse_Lock<ACE_SYNCH_MUTEX>, aGuard_2, reverse_lock, false);
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to gtk_builder_add_from_file(\"%s\"): \"%s\", aborting\n"),
                     ACE_TEXT (ACE::basename (ACE_TEXT ((*iterator).second.first.c_str ()), ACE_DIRECTORY_SEPARATOR_CHAR)),
@@ -118,11 +121,14 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
 
         return false;
       } // end IF
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("loaded widget tree \"%s\": \"%s\"\n"),
-                  ACE_TEXT ((*iterator).first.c_str ()),
-                  ACE_TEXT ((*iterator).second.first.c_str ())));
-
+#if defined (_DEBUG)
+      { ACE_GUARD_RETURN (ACE_Reverse_Lock<ACE_SYNCH_MUTEX>, aGuard_2, reverse_lock, false);
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("loaded widget tree \"%s\": \"%s\"\n"),
+                    ACE_TEXT ((*iterator).first.c_str ()),
+                    ACE_TEXT ((*iterator).second.first.c_str ())));
+      } // end lock scope
+#endif
       state_->builders[(*iterator).first] =
         std::make_pair ((*iterator).second.first, builder_p);
     } // end FOR
@@ -135,7 +141,7 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
     guint event_source_id = g_idle_add (state_->initializationHook,
                                         state_->userData);
     if (unlikely (!event_source_id))
-    {
+    { ACE_GUARD_RETURN (ACE_Reverse_Lock<ACE_SYNCH_MUTEX>, aGuard_2, reverse_lock, false);
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to g_idle_add(): \"%m\", aborting\n")));
       return false;
@@ -160,12 +166,13 @@ Common_UI_GtkBuilderDefinition_T<StateType>::finalize ()
   // sanity check(s)
   ACE_ASSERT (state_->finalizationHook);
 
+  ACE_Reverse_Lock<ACE_SYNCH_MUTEX> reverse_lock (state_->lock);
   guint event_source_id = 0;
   { ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, state_->lock);
     event_source_id = g_idle_add (state_->finalizationHook,
                                   state_->userData);
     if (unlikely (!event_source_id))
-    {
+    { ACE_GUARD (ACE_Reverse_Lock<ACE_SYNCH_MUTEX>, aGuard_2, reverse_lock);
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to g_idle_add(): \"%m\", returning")));
       return;

@@ -114,18 +114,19 @@ Common_Logger_T<ACE_SYNCH_USE>::log (ACE_Log_Record& record_in)
   ACE_ASSERT (lock_);
   ACE_ASSERT (messageStack_);
 
+  static std::string hostname_string = Common_Tools::getHostName ();
   std::ostringstream string_stream;
   result =
-      record_in.print (ACE_TEXT (Common_Tools::getHostName ().c_str ()),
+      record_in.print (ACE_TEXT (hostname_string.c_str ()),
                        (COMMON_LOG_VERBOSE ? ACE_Log_Msg::VERBOSE
                                            : ACE_Log_Msg::VERBOSE_LITE),
                        string_stream);
   //result =
-  //  record_in.print (ACE_TEXT (Common_Tools::getHostName ().c_str ()),
+  //  record_in.print (ACE_TEXT (hostname_string.c_str ()),
   //                   (COMMON_LOG_VERBOSE ? ACE_Log_Msg::VERBOSE
   //                                       : ACE_Log_Msg::VERBOSE_LITE),
   //                   buffer_);
-  if (result == -1)
+  if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Log_Record::print(): \"%m\", aborting\n")));
@@ -151,18 +152,17 @@ Common_Logger_T<ACE_SYNCH_USE>::log (ACE_Log_Record& record_in)
   ACE_ASSERT (log_msg_p);
   bool acquire_lock = false;
   result = log_msg_p->release ();
-  if (result == 0)
+  if (likely (result == 0))
     acquire_lock = true;
   else
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Log_Msg::release(): \"%m\", continuing\n")));
 
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *lock_, -1);
-
     messageStack_->push_back (string_stream.str ());
   } // end lock scope
 
-  if (acquire_lock)
+  if (likely (acquire_lock))
   {
     result = log_msg_p->acquire ();
     if (result == -1)

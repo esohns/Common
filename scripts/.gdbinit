@@ -19,7 +19,8 @@ set print vtbl on
 set breakpoint auto-hw
 
 # signals
-handle SIGINT pass stop print
+handle SIGCHLD pass nostop print
+handle SIGINT pass nostop print
 handle SIGQUIT pass nostop print
 handle SIGPIPE pass nostop print
 handle SIGUSR1 pass nostop print
@@ -28,7 +29,7 @@ handle SIG33 pass nostop noprint
 handle SIG34 pass nostop noprint
 
 # source paths / debug symbols
-directory /home/esohns/libxml2-2.9.2+zdfsg1
+#directory /home/esohns/libxml2-2.9.2+zdfsg1
 #set debug-file-directory
 
 # python
@@ -46,3 +47,4 @@ show directories
 show auto-load safe-path
 info auto-load python-scripts
 info pretty-printer
+

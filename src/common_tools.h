@@ -50,7 +50,7 @@ ACE_THR_FUNC_RETURN threadpool_event_dispatcher_function (void*);
 class Common_Tools
 {
  public:
-  static void initialize ();
+  static void initialize (bool = false); // initialize random number generator ?
   static void finalize ();
 
   //// --- singleton ---
@@ -178,6 +178,10 @@ class Common_Tools
 #endif
 #endif
   static unsigned int randomSeed_;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  static char         randomStateBuffer_[BUFSIZ];
+#endif
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Tools ())

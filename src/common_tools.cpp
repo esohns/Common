@@ -90,6 +90,7 @@ using namespace std;
 
 // initialize statics
 unsigned int Common_Tools::randomSeed_ = 0;
+char Common_Tools::randomStateBuffer_[BUFSIZ];
 #if defined (_DEBUG)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 ACE_HANDLE Common_Tools::debugHeapLogFileHandle_ = ACE_INVALID_HANDLE;
@@ -137,7 +138,7 @@ common_tools_win32_debugheap_hook (int reportType_in,
 #endif
 
 void
-Common_Tools::initialize ()
+Common_Tools::initialize (bool initializeRandomNumberGenerator_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::initialize"));
 
@@ -265,14 +266,14 @@ Common_Tools::initialize ()
   //            debug_heap_flags));
 
 continue_:
-#endif
-#endif
+#endif /* ACE_WIN32 || ACE_WIN64 */
+#endif /* _DEBUG */
 
 #if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
   if (RUNNING_ON_VALGRIND)
     ACE_DEBUG ((LM_INFO,
                 ACE_TEXT ("running on valgrind\n")));
-#endif
+#endif /* LIBCOMMON_ENABLE_VALGRIND_SUPPORT */
 
   //ACE_DEBUG ((LM_DEBUG,
   //            ACE_TEXT ("calibrating high-resolution timer...\n")));
@@ -280,7 +281,42 @@ continue_:
   //ACE_DEBUG ((LM_DEBUG,
   //            ACE_TEXT ("calibrating high-resolution timer...done\n")));
 
-  randomSeed_ = COMMON_TIME_NOW.usec ();
+  if (initializeRandomNumberGenerator_in)
+  {
+    // *TODO*: use STL functionality here
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("initializing random seed (RAND_MAX: %d)...\n"),
+                RAND_MAX));
+    Common_Tools::randomSeed_ = COMMON_TIME_NOW.usec ();
+    // *PORTABILITY*: outside glibc, this is not very portable
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    ACE_OS::srand (static_cast<u_int> (randomSeed_));
+#else
+    ACE_OS::memset (&Common_Tools::randomStateBuffer_,
+                    0,
+                    sizeof (char[BUFSIZ]));
+    struct random_data random_data_s;
+    ACE_OS::memset (&random_data_s, 0, sizeof (struct random_data));
+    int result = ::initstate_r (Common_Tools::randomSeed_,
+                                Common_Tools::randomStateBuffer_, sizeof (char[BUFSIZ]),
+                                &random_data_s);
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to initstate_r(): \"%s\", returning\n")));
+      return;
+    } // end IF
+    result = ::srandom_r (Common_Tools::randomSeed_, &random_data_s);
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to initialize random seed: \"%s\", returning\n")));
+      return;
+    } // end IF
+#endif
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("initializing random seed...DONE\n")));
+  } // end IF
 }
 void
 Common_Tools::finalize ()
@@ -312,8 +348,8 @@ Common_Tools::finalize ()
     debugHeapLogFileHandle_ = ACE_INVALID_HANDLE;
   } // end IF
 continue_:
-#endif
-#endif
+#endif /* ACE_WIN32 || ACE_WIN64 */
+#endif /* _DEBUG */
   return;
 }
 
