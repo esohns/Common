@@ -31,6 +31,7 @@
 #endif
 
 #include "ace/Global_Macros.h"
+#include "ace/Sig_Handler.h"
 
 #include "common.h"
 //#include "common_exports.h"
@@ -55,6 +56,9 @@ class Common_Tools
 
   //// --- singleton ---
   //static Common_ITimer* getTimerManager ();
+
+  // --- strings ---
+  static bool inDebugSession ();
 
   // --- strings ---
   // *NOTE*: uses ::snprintf internally: "HH:MM:SS.usec"
@@ -128,17 +132,26 @@ class Common_Tools
   static void finalizeLogging ();
 
   // --- signals ---
-  static bool preInitializeSignals (ACE_Sig_Set&,            // signal set (*NOTE*: IN/OUT)
-                                    bool,                    // use reactor ?
-                                    Common_SignalActions_t&, // return value: previous actions
+  // *NOTE*: this does the following:
+  //         - ignore SIGPIPE
+  //         - on non-Win32 systems, iff the proactor framework is used with the
+  //           ACE_POSIX_Proactor::PROACTOR_SIG, block RT signals
+  //         - on non-Win32 systems, remove SIGSEGV to enable core dumps
+  // *NOTE*: call this in the 'main' thread as early as possible; the signal
+  //         disposition is inherited by all threads spawned thereafter
+  static bool preInitializeSignals (ACE_Sig_Set&,            // signal set (to handle) (*NOTE*: IN/OUT)
+                                    bool,                    // use reactor ? : proactor
+                                    Common_SignalActions_t&, // return value: previous action(s)
                                     sigset_t&);              // return value: previous mask
-  static bool initializeSignals (const ACE_Sig_Set&,       // signal set (to handle)
-                                 const ACE_Sig_Set&,       // signal set (to ignore)
-                                 ACE_Event_Handler*,       // event handler handle
-                                 Common_SignalActions_t&); // return value: previous actions
-  static void finalizeSignals (const ACE_Sig_Set&,            // signal set
-                               const Common_SignalActions_t&, // previous actions
-                               const sigset_t&);              // previous mask
+  static bool initializeSignals (enum Common_SignalDispatchType, // dispatch mode
+                                 const ACE_Sig_Set&,             // signal set (to handle)
+                                 const ACE_Sig_Set&,             // signal set (to ignore)
+                                 ACE_Event_Handler*,             // event handler handle
+                                 Common_SignalActions_t&);       // return value: previous action(s)
+  static void finalizeSignals (enum Common_SignalDispatchType, // dispatch mode
+                               const ACE_Sig_Set&,             // signal set (handled)
+                               const Common_SignalActions_t&,  // previous action(s)
+                               const sigset_t&);               // previous mask
   static std::string signalToString (const struct Common_Signal&); // signal information
 
   // --- timers ---
@@ -147,12 +160,12 @@ class Common_Tools
                               bool = true);                            // wait for completion ?
 
   // --- event loop ---
-  static bool initializeEventDispatch (bool,                 // use reactor ? : proactor
-                                       bool,                 // use thread pool ?
-                                       unsigned int,         // number of (dispatching) threads
-                                       Common_ProactorType&, // return value: proactor type
-                                       Common_ReactorType&,  // return value: reactor type
-                                       bool&);               // return value: output requires serialization
+  static bool initializeEventDispatch (bool,                      // use reactor ? : proactor
+                                       bool,                      // use thread pool ?
+                                       unsigned int,              // number of (dispatching) threads
+                                       enum Common_ProactorType&, // return value: proactor type
+                                       enum Common_ReactorType&,  // return value: reactor type
+                                       bool&);                    // return value: output requires serialization
   // *NOTE*: the first argument is passed to the thread function as argument,
   //         so must reside on the stack (hence the reference)
   static bool startEventDispatch (const struct Common_DispatchThreadData&, // thread data
@@ -167,14 +180,17 @@ class Common_Tools
 
 #if defined (_DEBUG)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  static ACE_HANDLE   debugHeapLogFileHandle_;
+  static ACE_HANDLE      debugHeapLogFileHandle_;
 #endif
-#endif
-  static unsigned int randomSeed_;
+#endif /* _DEBUG */
+
+  static unsigned int    randomSeed_;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-  static char         randomStateBuffer_[BUFSIZ];
+  static char            randomStateBuffer_[BUFSIZ];
 #endif
+
+  static ACE_Sig_Handler signalHandler_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Tools ())

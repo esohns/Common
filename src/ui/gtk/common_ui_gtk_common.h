@@ -49,6 +49,7 @@
 #endif /* GTKGL_SUPPORT */
 
 #include "common_ui_common.h"
+
 #include "common_ui_igtk.h"
 
 // forward declarations
@@ -80,7 +81,7 @@ typedef std::map<std::string, Common_UI_GTKBuilder_t> Common_UI_GTKBuilders_t;
 typedef Common_UI_GTKBuilders_t::iterator Common_UI_GTKBuildersIterator_t;
 typedef Common_UI_GTKBuilders_t::const_iterator Common_UI_GTKBuildersConstIterator_t;
 
-enum Common_UI_GTKStatusContextType
+enum Common_UI_GTK_StatusContextType : int
 {
   GTK_STATUSCONTEXT_INVALID = -1,
   // *NOTE*: '0' is also a predefined global context id
@@ -90,7 +91,7 @@ enum Common_UI_GTKStatusContextType
   ///////////////////////////////////////
   GTK_STATUSCONTEXT_MAX
 };
-typedef std::map<enum Common_UI_GTKStatusContextType, guint> Common_UI_GTK_StatusContextIds_t;
+typedef std::map<enum Common_UI_GTK_StatusContextType, guint> Common_UI_GTK_StatusContextIds_t;
 typedef Common_UI_GTK_StatusContextIds_t::iterator Common_UI_GTK_Common_UI_GTK_StatusContextIdsIterator_t;
 
 #if defined (LIBGLADE_SUPPORT)

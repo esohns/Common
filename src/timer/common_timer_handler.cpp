@@ -28,7 +28,7 @@
 
 Common_TimerHandler::Common_TimerHandler (Common_ITimerHandler* handler_in,
                                           bool isOneShot_in)
- : inherited (NULL,                           // no reactor
+ : inherited (NULL,                           // --> default reactor
               ACE_Event_Handler::LO_PRIORITY) // priority
  , inherited2 (NULL) // no proactor
  , isOneShot_ (isOneShot_in)

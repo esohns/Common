@@ -21,64 +21,15 @@
 #ifndef COMMON_UI_TOOLS_H
 #define COMMON_UI_TOOLS_H
 
-#include <string>
-
-#include "gtk/gtk.h"
-#if defined (GTKGL_SUPPORT)
-#if GTK_CHECK_VERSION (3,0,0)
-//#if GTK_CHECK_VERSION (3,16,0)
-//#else
-//#include "gtkgl/gdkgl.h"
-//#endif
-#else
-#if defined (GTKGLAREA_SUPPORT)
-#include "gtkgl/gdkgl.h"
-#else
-#include "gtk/gtkgl.h" // gtkglext
-#endif
-#endif
-#endif
-
 #include "ace/Global_Macros.h"
 
 //#include "common_ui_exports.h"
 
 class Common_UI_Tools
 {
- public:
-  inline virtual ~Common_UI_Tools () {}
-
-  static std::string UTF8ToLocale (const std::string&); // string
-  static std::string UTF8ToLocale (const gchar*,        // string
-                                   const gssize& = -1); // length in bytes (-1: \0-terminated)
-  // *IMPORTANT NOTE*: return value needs to be g_free()'d !
-  static gchar* LocaleToUTF8 (const std::string&); // string
-
-  static void dump (GtkWidget*); // widget handle
-
-  // print Gtk library information
-  static void GtkInfo ();
-#if defined (GTKGL_SUPPORT)
-  // print OpenGL library information
-#if GTK_CHECK_VERSION (3,0,0)
-#if GTK_CHECK_VERSION (3,16,0)
-  // *NOTE*: the context has to be realized before calling this function
-  static void OpenGLInfo (GdkGLContext*); // context handle
-#else
-  static void OpenGLInfo ();
-#endif
-#else
-#if defined (GTKGLAREA_SUPPORT)
-  static void OpenGLInfo ();
-#else
-  static void OpenGLInfo (GdkGLContext*); // OpenGL context handle
-#endif
-#endif
-#endif
-
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools ());
-  //ACE_UNIMPLEMENTED_FUNC (~Common_UI_Tools ());
+  ACE_UNIMPLEMENTED_FUNC (~Common_UI_Tools ());
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools (const Common_UI_Tools&));
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools& operator= (const Common_UI_Tools&));
 };

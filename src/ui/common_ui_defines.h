@@ -21,7 +21,11 @@
 #ifndef COMMON_UI_DEFINES_H
 #define COMMON_UI_DEFINES_H
 
-#include "ace/config-lite.h"
+//#include "ace/config-lite.h"
+
+// event dispatch
+#define COMMON_UI_EVENT_THREAD_GROUP_ID                           200
+#define COMMON_UI_EVENT_THREAD_NAME                               "UI dispatch"
 
 // window
 #define COMMON_UI_WINDOW_DEFAULT_WIDTH                            320
@@ -52,27 +56,5 @@
 #define COMMON_UI_SDL_TEXT_FONT                                   FONT_MAIN_SMALL
 #define COMMON_UI_SDL_TEXT_COLOR                                  COLOR_WHITE
 #define COMMON_UI_SDL_TEXT_SHADECOLOR                             COLOR_BLACK
-
-// ************************************ GTK ************************************
-#define COMMON_UI_GTK_INITIALIZATION_DELAY_MS                     100 // ms
-
-// *IMPORTANT NOTE*: for some reason, the glib 2 Win32 package does not define
-//                   these
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define G_SOURCE_CONTINUE                                         TRUE
-#define G_SOURCE_REMOVE                                           FALSE
-#endif
-
-// interface definition
-#define COMMON_UI_GTK_DEFINITION_DESCRIPTOR_MAIN                  "main"
-
-// event dispatch
-#define COMMON_UI_GTK_THREAD_GROUP_ID                             200
-#define COMMON_UI_GTK_THREAD_NAME                                 "UI dispatch"
-
-// informative widget(s)/(log) text views, ...
-#define COMMON_UI_GTK_OPENGL_UPDATE_INTERVAL                      33 // ms --> ~30 fps
-#define COMMON_UI_GTK_PROGRESSBAR_UPDATE_INTERVAL                 33 // ms --> ~30 fps
-#define COMMON_UI_GTK_WIDGET_UPDATE_INTERVAL                      200 // ms --> 5 fps
 
 #endif

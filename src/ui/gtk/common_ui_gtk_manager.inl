@@ -50,15 +50,17 @@
 #include "common_macros.h"
 
 #include "common_ui_defines.h"
+
+#include "common_ui_gtk_defines.h"
+#include "common_ui_gtk_tools.h"
 #include "common_ui_igtk.h"
-#include "common_ui_tools.h"
 
 template <typename StateType>
 Common_UI_GTK_Manager_T<StateType>::Common_UI_GTK_Manager_T ()
- : inherited (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_GTK_THREAD_NAME), // thread name
-              COMMON_UI_GTK_THREAD_GROUP_ID,                    // group id
-              1,                                                // # threads
-              false)                                            // do NOT auto-start !
+ : inherited (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_EVENT_THREAD_NAME), // thread name
+              COMMON_UI_EVENT_THREAD_GROUP_ID,                    // group id
+              1,                                                  // # threads
+              false)                                              // do NOT auto-start !
  , argc_ (0)
  , argv_ (NULL)
  , GTKIsInitialized_ (false)
@@ -459,8 +461,7 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
 //  } // end IF
 
 #if defined (_DEBUG)
-  // debug info
-  Common_UI_Tools::GtkInfo ();
+  Common_UI_GTK_Tools::dumpGtkLibraryInfo ();
 #endif
 
 #if defined (LIBGLADE_SUPPORT)

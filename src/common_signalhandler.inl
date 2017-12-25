@@ -30,7 +30,7 @@ Common_SignalHandler_T<ConfigurationType>::Common_SignalHandler_T (enum Common_S
                                                                    ACE_SYNCH_MUTEX* lock_in,
                                                                    Common_ISignal* callback_in)
  : inherited ()
- , inherited2 (NULL,                           // default reactor
+ , inherited2 (NULL,                           // -->  default reactor
                ACE_Event_Handler::LO_PRIORITY) // priority
  , configuration_ (NULL)
  , dispatchMode_ (dispatchMode_in)
@@ -125,11 +125,11 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
     case COMMON_SIGNAL_DISPATCH_SIGNAL:
     {
 #if defined (_DEBUG)
-      //  // *PORTABILITY*: tracing in a signal handler context is not portable
-      //  ACE_DEBUG ((LM_DEBUG,
-      //              ACE_TEXT ("%D: received [%u/\"%S\"]: %s\n"),
-      //              signal_in, signal_in,
-      //              ACE_TEXT (Common_Tools::signalToString (signal_s).c_str ())));
+//      // *PORTABILITY*: tracing in a signal handler context is not portable
+//      ACE_DEBUG ((LM_DEBUG,
+//                  ACE_TEXT ("%D: received [%u/\"%S\"]: %s\n"),
+//                  signal_in, signal_in,
+//                  ACE_TEXT (Common_Tools::signalToString (signal_s).c_str ())));
 #endif
 
       Common_ISignal* callback_p = (callback_ ? callback_ : this);

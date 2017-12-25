@@ -64,7 +64,9 @@ glib_log_handler (const gchar* logDomain_in,
   } // end SWITCH
 
   ACE_DEBUG ((log_priority,
-              ACE_TEXT ("GLib: %s\n"),
+              ACE_TEXT ("GLib:%s%s%s\n"),
+              ((logLevel_in & G_LOG_FLAG_FATAL) ? ACE_TEXT (" [FATAL]") : ACE_TEXT ("")),
+              ((logLevel_in & G_LOG_FLAG_RECURSION) ? ACE_TEXT (" [RECURSION]") : ((logLevel_in & G_LOG_FLAG_FATAL) ? ACE_TEXT (" ") : ACE_TEXT (""))),
               ACE_TEXT (message_in)));
 }
 

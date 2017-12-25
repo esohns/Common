@@ -53,7 +53,7 @@
 #define COMMON_LOCALE_EN_US_STRING                             "en_US.utf8" // ASCII
 #endif
 
-// *** default (system) "locations" ***
+// *** default (system-) 'locations' ***
 
 // *HISTORY*: Contrary to UNIX-based systems (?), Windows (TM) systems have not
 //            (yet) implemented a consistent concept of a (system-wide)
@@ -117,6 +117,9 @@
 
 // *** signals ***
 #define COMMON_SIGNAL_DEFAULT_DISPATCH_MODE                    COMMON_SIGNAL_DISPATCH_SIGNAL
+
+// *** timeouts ***
+#define COMMON_TIMEOUT_DEFAULT_THREAD_SPAWN                    100 // ms
 
 // *** event loop ***
 #define COMMON_EVENT_MAXIMUM_HANDLES                           ACE::max_handles ()

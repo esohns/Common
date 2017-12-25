@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -17,6 +17,26 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "stdafx.h"
 
-#include "common_ui_tools.h"
+#ifndef COMMON_UI_GTK_DEFINES_H
+#define COMMON_UI_GTK_DEFINES_H
+
+#include "ace/config-lite.h"
+
+// *IMPORTANT NOTE*: for some reason, the glib 2 Win32 package does not define
+//                   these
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#define G_SOURCE_CONTINUE                            TRUE
+#define G_SOURCE_REMOVE                              FALSE
+#endif
+
+// interface definition
+#define COMMON_UI_GTK_DEFINITION_DESCRIPTOR_MAIN     "main"
+
+// timeouts / update intervals
+#define COMMON_UI_GTK_TIMEOUT_DEFAULT_INITIALIZATION 100 // ms
+#define COMMON_UI_GTK_UPDATE_OPENGL_INTERVAL         33 // ms --> ~30 fps
+#define COMMON_UI_GTK_UPDATE_PROGRESSBAR_INTERVAL    33 // ms --> ~30 fps
+#define COMMON_UI_GTK_UPDATE_WIDGET_INTERVAL         200 // ms --> 5 fps
+
+#endif
