@@ -70,6 +70,134 @@ gtk_container_dump_cb (GtkWidget* widget_in,
                          &indent_i);
 }
 
+gboolean
+gtk_tree_model_foreach_find_index_cb (GtkTreeModel* treeModel_in,
+                                      GtkTreePath* treePath_in,
+                                      GtkTreeIter* treeIterator_in,
+                                      gpointer userData_in)
+{
+  COMMON_TRACE (ACE_TEXT ("::gtk_tree_model_foreach_find_index_cb"));
+
+  ACE_UNUSED_ARG (treeModel_in);
+  ACE_UNUSED_ARG (treePath_in);
+
+  // sanity check(s)
+  ACE_ASSERT (treeModel_in);
+  ACE_ASSERT (treeIterator_in);
+  ACE_ASSERT (userData_in);
+
+  struct Common_UI_GTK_Tools::TreeModel_IndexSearch_CBData* cb_data_p =
+      reinterpret_cast<struct Common_UI_GTK_Tools::TreeModel_IndexSearch_CBData*> (userData_in);
+  // sanity check(s)
+  ACE_ASSERT (cb_data_p);
+
+  GValue value;
+#if GTK_CHECK_VERSION (3,0,0)
+  value = G_VALUE_INIT;
+//#else
+//  g_value_init (&value, G_VALUE_TYPE (&cb_data_s.value));
+#endif
+  gtk_tree_model_get_value (treeModel_in,
+                            treeIterator_in,
+                            cb_data_p->column, &value);
+  ACE_ASSERT (G_VALUE_HOLDS (&value, G_VALUE_TYPE (&cb_data_p->value)));
+  switch (G_VALUE_TYPE (&cb_data_p->value))
+  {
+    case G_TYPE_CHAR:
+    {
+      cb_data_p->found =
+          (g_value_get_char (&cb_data_p->value) == g_value_get_char (&value));
+      break;
+    }
+    case G_TYPE_UCHAR:
+    {
+      cb_data_p->found =
+          (g_value_get_uchar (&cb_data_p->value) == g_value_get_uchar (&value));
+      break;
+    }
+    case G_TYPE_BOOLEAN:
+    {
+      cb_data_p->found =
+          (g_value_get_boolean (&cb_data_p->value) == g_value_get_boolean (&value));
+      break;
+    }
+    case G_TYPE_INT:
+    {
+      cb_data_p->found =
+          (g_value_get_int (&cb_data_p->value) == g_value_get_int (&value));
+      break;
+    }
+    case G_TYPE_UINT:
+    {
+      cb_data_p->found =
+          (g_value_get_uint (&cb_data_p->value) == g_value_get_uint (&value));
+      break;
+    }
+    case G_TYPE_LONG:
+    {
+      cb_data_p->found =
+          (g_value_get_long (&cb_data_p->value) == g_value_get_long (&value));
+      break;
+    }
+    case G_TYPE_ULONG:
+    {
+      cb_data_p->found =
+          (g_value_get_ulong (&cb_data_p->value) == g_value_get_ulong (&value));
+      break;
+    }
+    case G_TYPE_INT64:
+    {
+      cb_data_p->found =
+          (g_value_get_int64 (&cb_data_p->value) == g_value_get_int64 (&value));
+      break;
+    }
+    case G_TYPE_UINT64:
+    {
+      cb_data_p->found =
+          (g_value_get_uint64 (&cb_data_p->value) == g_value_get_uint64 (&value));
+      break;
+    }
+    case G_TYPE_FLOAT:
+    {
+      cb_data_p->found =
+          (g_value_get_float (&cb_data_p->value) == g_value_get_float (&value));
+      break;
+    }
+    case G_TYPE_DOUBLE:
+    {
+      cb_data_p->found =
+          (g_value_get_double (&cb_data_p->value) == g_value_get_double (&value));
+      break;
+    }
+    case G_TYPE_STRING:
+    {
+      cb_data_p->found =
+          !ACE_OS::strcmp (g_value_get_string (&cb_data_p->value),
+                           g_value_get_string (&value));
+      break;
+    }
+    case G_TYPE_POINTER:
+    {
+      cb_data_p->found =
+          (g_value_get_pointer (&cb_data_p->value) == g_value_get_pointer (&value));
+      break;
+    }
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown value type (was: %d: %s), aborting\n"),
+                  G_VALUE_TYPE (&cb_data_p->value), ACE_TEXT (G_VALUE_TYPE_NAME (&cb_data_p->value))));
+      return TRUE;
+    }
+  } // end SWITCH
+  g_value_unset (&value);
+  if (cb_data_p->found)
+    return TRUE;
+
+  cb_data_p->index++;
+  return FALSE;
+}
+
 // ---------------------------------------
 
 std::string
@@ -137,124 +265,32 @@ Common_UI_GTK_Tools::localeToUTF8 (const std::string& string_in)
 }
 
 guint
-Common_UI_GTK_Tools::entryToIndex (GtkListStore* listStore_in,
+Common_UI_GTK_Tools::valueToIndex (GtkTreeModel* treeModel_in,
                                    const GValue& value_in,
                                    gint column_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::entryToIndex"));
-
-  // initialize return value(s)
-  guint result = std::numeric_limits<unsigned int>::max ();
+  COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::valueToIndex"));
 
   // sanity check(s)
-  ACE_ASSERT (listStore_in);
+  ACE_ASSERT (treeModel_in);
+  if (!gtk_tree_model_iter_n_children (treeModel_in,
+                                       NULL))
+    return std::numeric_limits<guint>::max ();
 
-  guint index_i = 0;
-  GValue value;
-#if GTK_CHECK_VERSION (3,0,0)
-  value = G_VALUE_INIT;
-#else
-  g_value_init (&value, G_VALUE_TYPE (&value_in));
-#endif
-  GtkTreeIter tree_iterator;
-  bool done = false;
-  for (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (listStore_in),
-                                      &tree_iterator);
-       gtk_tree_model_iter_next (GTK_TREE_MODEL (listStore_in),
-                                 &tree_iterator);
-       ++index_i)
-  {
-    gtk_tree_model_get_value (GTK_TREE_MODEL (listStore_in),
-                              &tree_iterator,
-                              column_in, &value);
-    ACE_ASSERT (G_VALUE_HOLDS (&value, G_VALUE_TYPE (&value_in)));
-    switch (G_VALUE_TYPE (&value_in))
-    {
-      case G_TYPE_CHAR:
-      {
-        done = (g_value_get_char (&value_in) == g_value_get_char (&value));
-        break;
-      }
-      case G_TYPE_UCHAR:
-      {
-        done = (g_value_get_uchar (&value_in) == g_value_get_uchar (&value));
-        break;
-      }
-      case G_TYPE_BOOLEAN:
-      {
-        done =
-            (g_value_get_boolean (&value_in) == g_value_get_boolean (&value));
-        break;
-      }
-      case G_TYPE_INT:
-      {
-        done = (g_value_get_int (&value_in) == g_value_get_int (&value));
-        break;
-      }
-      case G_TYPE_UINT:
-      {
-        done = (g_value_get_uint (&value_in) == g_value_get_uint (&value));
-        break;
-      }
-      case G_TYPE_LONG:
-      {
-        done = (g_value_get_long (&value_in) == g_value_get_long (&value));
-        break;
-      }
-      case G_TYPE_ULONG:
-      {
-        done = (g_value_get_ulong (&value_in) == g_value_get_ulong (&value));
-        break;
-      }
-      case G_TYPE_INT64:
-      {
-        done = (g_value_get_int64 (&value_in) == g_value_get_int64 (&value));
-        break;
-      }
-      case G_TYPE_UINT64:
-      {
-        done = (g_value_get_uint64 (&value_in) == g_value_get_uint64 (&value));
-        break;
-      }
-      case G_TYPE_FLOAT:
-      {
-        done = (g_value_get_float (&value_in) == g_value_get_float (&value));
-        break;
-      }
-      case G_TYPE_DOUBLE:
-      {
-        done = (g_value_get_double (&value_in) == g_value_get_double (&value));
-        break;
-      }
-      case G_TYPE_STRING:
-      {
-        done = !ACE_OS::strcmp (g_value_get_string (&value_in),
-                                g_value_get_string (&value));
-        break;
-      }
-      case G_TYPE_POINTER:
-      {
-        done =
-            (g_value_get_pointer (&value_in) == g_value_get_pointer (&value));
-        break;
-      }
-      default:
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("invalid/unknown value type (was: %d: %s), aborting\n"),
-                    G_VALUE_TYPE (&value_in), ACE_TEXT (G_VALUE_TYPE_NAME (&value_in))));
-        return result;
-      }
-    } // end SWITCH
-    g_value_unset (&value);
-    if (done)
-    {
-      result = index_i; // success
-      break;
-    } // end IF
-  } // end FOR
+  struct Common_UI_GTK_Tools::TreeModel_IndexSearch_CBData cb_data_s;
+  cb_data_s.column = column_in;
+  cb_data_s.index = 0;
+  g_value_init (&cb_data_s.value, G_VALUE_TYPE (&value_in));
+  g_value_copy (&value_in, &cb_data_s.value);
+  gtk_tree_model_foreach (treeModel_in,
+                          gtk_tree_model_foreach_find_index_cb,
+                          &cb_data_s);
 
-  return result;
+  // clean up
+  g_value_unset (&cb_data_s.value);
+
+  return (cb_data_s.found ? cb_data_s.index
+                          : std::numeric_limits<guint>::max ());
 }
 
 #if defined (_DEBUG)

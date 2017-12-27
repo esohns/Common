@@ -18,9 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef Common_UI_GTK_Tools_H
-#define Common_UI_GTK_Tools_H
+#ifndef COMMON_UI_GTK_TOOLS_H
+#define COMMON_UI_GTK_TOOLS_H
 
+#include <limits>
 #include <string>
 
 #include "gtk/gtk.h"
@@ -52,8 +53,26 @@ class Common_UI_GTK_Tools
   // *IMPORTANT NOTE*: return value needs to be g_free()'d !
   static gchar* localeToUTF8 (const std::string&); // string
 
-  // *IMPORTANT NOTE*: convert G_TYPE_STRING values to UTF8
-  static guint entryToIndex (GtkListStore*,
+  struct TreeModel_IndexSearch_CBData
+  {
+    TreeModel_IndexSearch_CBData ()
+     : column (0)
+     , found (false)
+     , index (std::numeric_limits<guint>::max ())
+     , value ()
+    {
+#if GTK_CHECK_VERSION (3,0,0)
+      value = G_VALUE_INIT;
+#endif
+    };
+
+    gint   column;
+    bool   found;
+    guint  index;
+    GValue value;
+  };
+  // *IMPORTANT NOTE*: convert G_TYPE_STRING values to UTF8 (second argument)
+  static guint valueToIndex (GtkTreeModel*,
                              const GValue&,
                              gint = 0);     // column
 

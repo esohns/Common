@@ -448,17 +448,23 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   ACE_Time_Value one_second (1, 0);
   int result = -1;
   size_t count = 0;
+#if defined (_DEBUG)
+  bool has_waited = false;
+#endif
   
   do
   {
     count = inherited::msg_queue_->message_count ();
     if (likely (!count))
       break;
+#if defined (_DEBUG)
+    has_waited = true;
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("%s%swaiting for %u message(s)...\n"),
                 (inherited::mod_ ? inherited::mod_->name () : ACE_TEXT ("")),
                 (inherited::mod_ ? ACE_TEXT (": ") : ACE_TEXT ("")),
                 count));
+#endif
 
     result = ACE_OS::sleep (one_second);
     if (unlikely (result == -1))
@@ -466,6 +472,14 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                   ACE_TEXT ("failed to ACE_OS::sleep(%#T): \"%m\", continuing\n"),
                   &one_second));
   } while (true);
+
+#if defined (_DEBUG)
+  if (has_waited)
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("%s%swaiting for message(s)...DONE\n"),
+                (inherited::mod_ ? inherited::mod_->name () : ACE_TEXT ("")),
+                (inherited::mod_ ? ACE_TEXT (": ") : ACE_TEXT (""))));
+#endif
 }
 
 template <ACE_SYNCH_DECL,
@@ -505,10 +519,10 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   try {
     result = this_p->TASK_T::wait ();
   } catch (...) {
-    // *NOTE*: on Win32 systems, ::CloseHandle() behaves 'funnily':
+    // *NOTE*: on Win32 systems, ::CloseHandle() behaves peculiarly:
     //         "...If the application is running under a debugger, the function
     //         will throw an exception if it receives either a handle value that
-    //         is not valid or a pseudo-handle value. This can happen if you
+    //         is not valid or a 'pseudo-handle' value. This can happen if you
     //         close a handle twice, ..." (see OS_NS_Thread.inl:3027)
     enum ACE_Log_Priority log_priority = LM_ERROR;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
