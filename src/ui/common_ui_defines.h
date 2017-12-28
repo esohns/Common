@@ -27,6 +27,9 @@
 #define COMMON_UI_EVENT_THREAD_GROUP_ID                           200
 #define COMMON_UI_EVENT_THREAD_NAME                               "UI dispatch"
 
+// video
+#define COMMON_UI_VIDEO_DEFAULT_REFRESH                           33 // ms --> ~30 fps
+
 // window
 #define COMMON_UI_WINDOW_DEFAULT_WIDTH                            320
 #define COMMON_UI_WINDOW_DEFAULT_HEIGHT                           240
@@ -35,12 +38,13 @@
 
 // event dispatch
 #define COMMON_UI_SDL_EVENT_TIMER                                 SDL_USEREVENT
-// *NOTE*: this defines the input resolution or "interactivity"
 // *WARNING*: apparently, the maximum SDL timer resolution is 10 ms
+#define COMMON_UI_SDL_EVENT_MAX_TIMER_RESOLUTION                  10 // ms
+// *NOTE*: defines the input event resolution, or UI 'interactivity'
+// *NOTE*: sensible values are multiples of
+//         COMMON_UI_SDL_EVENT_MAX_TIMER_RESOLUTION, as that is the resolution
+//         factor (see above)
 #define COMMON_UI_SDL_EVENT_TIMEOUT                               100 // ms
-//// *NOTE*: sensible values are multiples of COMMON_UI_SDL_EVENT_TIMEOUT, as
-//// that is the resolution factor
-//#define COMMON_UI_SDL_EVENT_RESOLUTION           100 // ms
 
 // video
 #define COMMON_UI_SDL_VIDEO_DEFAULT_BPP                           32

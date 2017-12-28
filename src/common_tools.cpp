@@ -1897,10 +1897,12 @@ Common_Tools::preInitializeSignals (ACE_Sig_Set& signals_inout,
                   ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", aborting\n")));
       return false;
     } // end IF
+#if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("[%d: %S - %d: %S]: blocked %d real-time signal(s)\n"),
+                ACE_TEXT ("%t: blocked %d real-time signal(s) [%d: %S - %d: %S]\n"),
                 ACE_SIGRTMIN, ACE_SIGRTMIN, ACE_SIGRTMAX, ACE_SIGRTMAX,
                 number));
+#endif
   } // end IF
 _continue:
 #endif

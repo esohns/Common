@@ -430,7 +430,13 @@ Common_GL_Tools::loadTexture (const std::string& path_in)
   GLuint return_value = 0;
 
   // sanity check(s)
-  ACE_ASSERT (Common_File_Tools::isReadable (path_in));
+  if (!Common_File_Tools::isReadable (path_in))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_File_Tools::isReadable(\"%s\"), aborting\n"),
+                ACE_TEXT (path_in.c_str ())));
+    return return_value;
+  } // end IF
   std::string file_extension_string =
       Common_File_Tools::fileExtension (path_in, false);
   ACE_ASSERT (!ACE_OS::strcmp (file_extension_string.c_str (), ACE_TEXT_ALWAYS_CHAR (COMMON_IMAGE_PNG_FILE_EXTENSION)));
