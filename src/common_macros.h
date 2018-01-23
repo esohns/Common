@@ -58,6 +58,7 @@
 #define COMPILER_NAME ACE::compiler_name()
 #define COMPILER_VERSION (ACE::compiler_major_version() * 10000 + ACE::compiler_minor_version() * 100 + ACE::compiler_beta_version())
 
-#define COMMON_STRINGIZE(X) #X
+#define COMMON_XSTRINGIZE(X) #X
+#define COMMON_STRINGIZE(X) COMMON_XSTRINGIZE(X)
 
 #endif

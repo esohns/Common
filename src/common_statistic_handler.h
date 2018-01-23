@@ -27,13 +27,11 @@
 #include "common.h"
 #include "common_istatistic.h"
 
-#include "common_itimerhandler.h"
 #include "common_timer_handler.h"
 
 template <typename StatisticContainerType>
 class Common_StatisticHandler_T
  : public Common_TimerHandler
- , public Common_ITimerHandler
 {
   typedef Common_TimerHandler inherited;
 
@@ -41,9 +39,9 @@ class Common_StatisticHandler_T
   // convenient types
   typedef Common_IStatistic_T<StatisticContainerType> ISTATISTIC_T;
 
-  Common_StatisticHandler_T (enum Common_StatisticActionType,              // handler action
-                             Common_IStatistic_T<StatisticContainerType>*, // interface handle
-                             bool = false);                                // report on collect ?
+  Common_StatisticHandler_T (enum Common_StatisticActionType, // handler action
+                             ISTATISTIC_T*,                   // interface handle
+                             bool = false);                   // report on collect ?
   inline virtual ~Common_StatisticHandler_T () {}
 
   // implement Common_ITimerHandler

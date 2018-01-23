@@ -86,10 +86,10 @@ class Common_UI_GTK_Tools
   // print OpenGL library information
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
+  static void dumpGtkOpenGLInfo (GdkWindow*); // GtkGLArea window handle
+#else
   // *NOTE*: the context has to be realized before calling this function
   static void dumpGtkOpenGLInfo (GdkGLContext*); // context handle
-#else
-  static void dumpGtkOpenGLInfo ();
 #endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)

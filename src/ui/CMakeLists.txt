@@ -1,3 +1,5 @@
+option (GTK_SUPPORT "enable GTK support" ON)
+
 ############## next target ################
 set (${PROJECT_NAME}UI_LIB_SRCS
      stdafx.cpp
@@ -51,5 +53,6 @@ install (TARGETS ${PROJECT_NAME}UI
          RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
          COMPONENT dev)
 
-add_subdirectory (gtk)
-
+if (GTK_SUPPORT)
+ add_subdirectory (gtk)
+endif ()

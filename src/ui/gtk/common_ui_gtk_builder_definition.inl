@@ -52,7 +52,7 @@ Common_UI_GtkBuilderDefinition_T<StateType>::~Common_UI_GtkBuilderDefinition_T (
 
   { ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, state_->lock);
     // step1: free widget tree(s)
-    for (Common_UI_GTKBuildersIterator_t iterator = state_->builders.begin ();
+    for (Common_UI_GTK_BuildersIterator_t iterator = state_->builders.begin ();
          iterator != state_->builders.end ();
          iterator++)
       if (likely ((*iterator).second.second))
@@ -64,7 +64,7 @@ Common_UI_GtkBuilderDefinition_T<StateType>::~Common_UI_GtkBuilderDefinition_T (
     // step2: clear active events
     gboolean result = false;
     // *TODO*: map source ids to the corresponding builder
-    for (Common_UI_GTKEventSourceIdsIterator_t iterator = state_->eventSourceIds.begin ();
+    for (Common_UI_GTK_EventSourceIdsIterator_t iterator = state_->eventSourceIds.begin ();
          iterator != state_->eventSourceIds.end ();
          iterator++)
     {
@@ -88,9 +88,9 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
   // step1: load widget tree(s)
   GtkBuilder* builder_p = NULL;
   GError* error_p = NULL;
-  ACE_Reverse_Lock<ACE_SYNCH_MUTEX> reverse_lock (state_->lock);
+  //ACE_Reverse_Lock<ACE_SYNCH_MUTEX> reverse_lock (state_->lock);
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_->lock, false);
-    for (Common_UI_GTKBuildersIterator_t iterator = state_->builders.begin ();
+    for (Common_UI_GTK_BuildersIterator_t iterator = state_->builders.begin ();
          iterator != state_->builders.end ();
          iterator++)
     {
@@ -99,7 +99,7 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
 
       builder_p = gtk_builder_new ();
       if (unlikely (!builder_p))
-      { ACE_GUARD_RETURN (ACE_Reverse_Lock<ACE_SYNCH_MUTEX>, aGuard_2, reverse_lock, false);
+      {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to gtk_builder_new(): \"%m\", aborting\n")));
         return false;
@@ -109,7 +109,7 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
                                  (*iterator).second.first.c_str (), // definition file,
                                  &error_p);                         // error
       if (unlikely (error_p))
-      { ACE_GUARD_RETURN (ACE_Reverse_Lock<ACE_SYNCH_MUTEX>, aGuard_2, reverse_lock, false);
+      {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to gtk_builder_add_from_file(\"%s\"): \"%s\", aborting\n"),
                     ACE_TEXT (ACE::basename (ACE_TEXT ((*iterator).second.first.c_str ()), ACE_DIRECTORY_SEPARATOR_CHAR)),
@@ -122,7 +122,7 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
         return false;
       } // end IF
 #if defined (_DEBUG)
-      { ACE_GUARD_RETURN (ACE_Reverse_Lock<ACE_SYNCH_MUTEX>, aGuard_2, reverse_lock, false);
+      {
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("loaded widget tree \"%s\": \"%s\"\n"),
                     ACE_TEXT ((*iterator).first.c_str ()),
@@ -141,7 +141,7 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
     guint event_source_id = g_idle_add (state_->initializationHook,
                                         state_->userData);
     if (unlikely (!event_source_id))
-    { ACE_GUARD_RETURN (ACE_Reverse_Lock<ACE_SYNCH_MUTEX>, aGuard_2, reverse_lock, false);
+    {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to g_idle_add(): \"%m\", aborting\n")));
       return false;

@@ -206,7 +206,7 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
   int result = 0;
   bool leave_gdk_threads = false;
 #if defined (GTKGL_SUPPORT)
-//  GError* error_p = NULL;
+  GError* error_p = NULL;
 #endif
 
   // step0: initialize GTK
@@ -242,8 +242,10 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
     } // end IF
   } // end IF
 
-  // step2: initialize OpenGL
 #if defined (GTKGL_SUPPORT)
+  // step2: initialize OpenGL ?
+#if GTK_CHECK_VERSION (3,0,0)
+#else
   // *TODO*: remove type inferences
   if (unlikely (!state_->OpenGLWindow))
     goto continue_;
@@ -289,32 +291,33 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
 #endif /* GTKGLAREA_SUPPORT */
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("initializing OpenGL...DONE\n")));
+#endif /* GTK_CHECK_VERSION (3,0,0) */
+#endif // GTKGL_SUPPORT
 
 #if defined (_DEBUG)
     // debug info
+#if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
-#if defined (GTKGL_SUPPORT)
-#if defined (GTKGLAREA_SUPPORT)
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo (state_->OpenGLWindow);
 #else
-  Common_UI_Tools::OpenGLInfo (state_->openGLContext);
-#endif /* GTKGLAREA_SUPPORT */
-#endif /* GTKGL_SUPPORT */
-#else
-  Common_UI_Tools::OpenGLInfo ();
-#endif
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo (NULL);
+#endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
-  Common_UI_Tools::OpenGLInfo ();
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo (NULL);
 #else
-  Common_UI_Tools::OpenGLInfo (NULL);
-#endif
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo (state_->openGLContext);
+#endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION (3,0,0)
+#endif // GTKGL_SUPPORT
 #endif // _DEBUG
-#endif
 
 #if defined (GTKGL_SUPPORT)
+#if GTK_CHECK_VERSION (3,0,0)
+#else
 continue_:
+#endif
 #endif
   if (likely (g_thread_get_initialized ()))
   {
@@ -470,21 +473,23 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
 #endif
 
   // step3a: specify any .rc files
-  for (Common_UI_GTKRCFilesIterator_t iterator = state_->RCFiles.begin ();
+  for (Common_UI_GTK_RCFilesIterator_t iterator = state_->RCFiles.begin ();
        iterator != state_->RCFiles.end ();
        ++iterator, ++i)
   {
     gtk_rc_add_default_file ((*iterator).c_str ());
 //      gtk_rc_add_default_file_utf8 ((*iterator).c_str ());
+#if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("#%u: added GTK .rc file \"%s\"...\n"),
+                ACE_TEXT ("#%u: added GTK .rc style file \"%s\"\n"),
                 i, ACE::basename ((*iterator).c_str (), '/')));
+#endif
   } // end FOR
 
 #if GTK_CHECK_VERSION (3,0,0)
   // step3b: specify any .css files
   i = 1;
-  for (Common_UI_GTKCSSProvidersIterator_t iterator = state_->CSSProviders.begin ();
+  for (Common_UI_GTK_CSSProvidersIterator_t iterator = state_->CSSProviders.begin ();
        iterator != state_->CSSProviders.end ();
        ++iterator, ++i)
   { ACE_ASSERT (!(*iterator).second);
@@ -512,9 +517,11 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
 
       continue;
     } // end IF
+#if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("#%u: added GTK .css file \"%s\"...\n"),
+                ACE_TEXT ("#%u: added GTK .css style file \"%s\"\n"),
                 i, ACE::basename ((*iterator).first.c_str ())));
+#endif
   } // end FOR
 #endif
 

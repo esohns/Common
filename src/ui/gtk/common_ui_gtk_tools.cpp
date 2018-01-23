@@ -21,27 +21,31 @@
 
 #include "common_ui_gtk_tools.h"
 
+#include <limits>
 #include <sstream>
+#include <string>
 
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
 #else
 #include "gtkgl/gdkgl.h"
-#endif
+#endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gdkgl.h"
 #else
 #include "gtk/gtkgl.h" // gtkglext
-#endif
-#endif
-#endif
+#endif // GTKGLAREA_SUPPORT
+#endif // GTK_CHECK_VERSION (3,0,0)
+#endif // GTKGL_SUPPORT
 
 #include "ace/Log_Msg.h"
+#include "ace/OS.h"
 
 #include "common_macros.h"
 
+#if defined (_DEBUG)
 void
 gtk_container_dump_cb (GtkWidget* widget_in,
                        gpointer userData_in)
@@ -69,6 +73,7 @@ gtk_container_dump_cb (GtkWidget* widget_in,
                          gtk_container_dump_cb,
                          &indent_i);
 }
+#endif
 
 gboolean
 gtk_tree_model_foreach_find_index_cb (GtkTreeModel* treeModel_in,
@@ -380,9 +385,9 @@ Common_UI_GTK_Tools::dumpGtkLibraryInfo ()
   converter << GDKGLEXT_INTERFACE_AGE;
   information_string += converter.str ();
   information_string += ACE_TEXT_ALWAYS_CHAR ("]");
-#endif
-#endif
-#endif
+#endif // GTKGLAREA_SUPPORT
+#endif // GTK_CHECK_VERSION (3,0,0)
+#endif // GTKGL_SUPPORT
 
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("%s\n"),
@@ -393,26 +398,113 @@ Common_UI_GTK_Tools::dumpGtkLibraryInfo ()
 void
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
-Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkGLContext* context_in)
+Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkWindow* window_in)
 #else
-Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
-#endif
+Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkGLContext* context_in)
+#endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
 Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
 #else
 Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkGLContext* context_in)
 #endif /* GTKGLAREA_SUPPORT */
-#endif
+#endif // GTK_CHECK_VERSION (3,0,0)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::dumpGtkOpenGLInfo"));
+
+  GdkWindow* window_p = NULL;
+  bool release_window = false;
+
+  // sanity check(s)
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
+  window_p = window_in;
+  if (unlikely (!window_p))
+  {
+    GdkWindowAttr window_attributes_s;
+    ACE_OS::memset (&window_attributes_s, 0, sizeof (GdkWindowAttr));
+    window_attributes_s.width = 100;
+    window_attributes_s.height = 100;
+    window_attributes_s.wclass = GDK_INPUT_OUTPUT;
+    window_attributes_s.window_type = GDK_WINDOW_TOPLEVEL;
+    gint attribute_mask = 0;
+    window_p = gdk_window_new (NULL,
+                               &window_attributes_s,
+                               attribute_mask);
+    if (!window_p)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to gdk_window_new(), returning\n")));
+      return;
+    } // end IF
+    release_window = true;
+  } // end IF
+  ACE_ASSERT (window_p);
+#else
+  ACE_ASSERT (context_in);
+#endif // GTK_CHECK_VERSION (3,16,0)
+#else
+#if defined (GTKGLAREA_SUPPORT)
+#else
+  ACE_ASSERT (context_in);
+#endif // GTKGLAREA_SUPPORT
+#endif // GTK_CHECK_VERSION (3,0,0)
 
   std::ostringstream converter;
   std::string information_string;
 
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
+  ACE_ASSERT (window_p);
+
+  GdkGLContext* gl_context_p = gdk_gl_context_get_current ();
+  bool release_context = false;
+  if (unlikely (!gl_context_p))
+  {
+    GError* error_p = NULL;
+    // *TODO*: this currently fails on Wayland (Gnome 3.22.24)
+    // *WORKAROUND*: set GDK_BACKEND=x11 environment to force XWayland
+    gl_context_p = gdk_window_create_gl_context (window_p,
+                                                 &error_p);
+    if (unlikely (!gl_context_p))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to gdk_window_create_gl_context(0x%@): \"%s\", returning\n"),
+                  window_in,
+                  ACE_TEXT (error_p->message)));
+
+      g_error_free (error_p);
+      if (release_window)
+        g_object_unref (window_p);
+
+      return;
+    } // end IF
+    release_context = true;
+#if defined (_DEBUG)
+    gdk_gl_context_set_debug_enabled (gl_context_p,
+                                      TRUE);
+#endif
+    if (!gdk_gl_context_realize (gl_context_p,
+                                 &error_p))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to gdk_gl_context_realize(0x%@): \"%s\", returning\n"),
+                  gl_context_p,
+                  ACE_TEXT (error_p->message)));
+
+      g_error_free (error_p);
+      if (release_window)
+        g_object_unref (window_p);
+      g_object_unref (gl_context_p);
+
+      return;
+    } // end IF
+  } // end IF
+  ACE_ASSERT (gl_context_p);
 #else
+#endif // GTK_CHECK_VERSION (3,16,0)
+#else
+#if defined (GTKGLAREA_SUPPORT)
   gint result = ggla_query ();
   if (!result)
   {
@@ -425,21 +517,24 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkGLContext* context_in)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("OpenGL information: \"%s\"\n"),
               ACE_TEXT (info_string_p)));
-#endif
-#endif
+#else
+#endif // GTKGLAREA_SUPPORT
+#endif // GTK_CHECK_VERSION (3,0,0)
 
   int version_major = 0, version_minor = 0;
 
   information_string = ACE_TEXT_ALWAYS_CHAR ("OpenGL version: ");
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
-  gdk_gl_context_get_version (context_in,
+  ACE_ASSERT (gl_context_p);
+
+  gdk_gl_context_get_version (gl_context_p,
                               &version_major,
                               &version_minor);
 #else
   information_string.clear ();
   goto continue_;
-#endif
+#endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
   information_string.clear ();
@@ -458,7 +553,7 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkGLContext* context_in)
     return;
   } // end IF
 #endif /* GTKGLAREA_SUPPORT */
-#endif
+#endif // GTK_CHECK_VERSION (3,0,0)
 
   converter << version_major;
   information_string += converter.str ();
@@ -471,11 +566,25 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkGLContext* context_in)
 #if GTK_CHECK_VERSION (3,16,0)
 #else
 continue_:
-#endif
+#endif // GTK_CHECK_VERSION (3,16,0)
   if (!information_string.empty ())
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("%s\n"),
                 ACE_TEXT (information_string.c_str ())));
+
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
+  if (release_context)
+    g_object_unref (gl_context_p);
+  if (release_window)
+    g_object_unref (window_p);
+#else
+#endif
+#else
+#if defined (GTKGLAREA_SUPPORT)
+#else
+#endif /* GTKGLAREA_SUPPORT */
+#endif // GTK_CHECK_VERSION (3,0,0)
 }
-#endif
-#endif
+#endif // GTKGL_SUPPORT
+#endif // _DEBUG

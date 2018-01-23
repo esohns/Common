@@ -24,7 +24,7 @@
 
 template <typename StatisticContainerType>
 Common_StatisticHandler_T<StatisticContainerType>::Common_StatisticHandler_T (enum Common_StatisticActionType action_in,
-                                                                              Common_IStatistic_T<StatisticContainerType>* interfaceHandle_in,
+                                                                              ISTATISTIC_T* interfaceHandle_in,
                                                                               bool reportOnCollect_in)
  : inherited (this,  // dispatch interface
               false) // invoke only once ?
@@ -46,7 +46,7 @@ Common_StatisticHandler_T<StatisticContainerType>::handle (const void* arg_in)
 
   switch (action_)
   {
-    case STATISTIC_ACTION_COLLECT:
+    case COMMON_STATISTIC_ACTION_COLLECT:
     {
       StatisticContainerType result;
       ACE_OS::memset (&result, 0, sizeof (StatisticContainerType));
@@ -64,7 +64,7 @@ Common_StatisticHandler_T<StatisticContainerType>::handle (const void* arg_in)
         break;
       // *WARNING*: falls through !
     }
-    case STATISTIC_ACTION_REPORT:
+    case COMMON_STATISTIC_ACTION_REPORT:
     {
       try {
         interfaceHandle_->report ();

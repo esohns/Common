@@ -34,7 +34,7 @@
 //typedef ACE_Singleton<Common_UI_GTK_Manager_T<struct Common_UI_GTKGLState>,
 //                      typename ACE_MT_SYNCH::RECURSIVE_MUTEX> COMMON_UI_GTKGL_MANAGER_SINGLETON;
 //#endif
-typedef ACE_Singleton<Common_UI_GTK_Manager_T<struct Common_UI_GTKState>,
+typedef ACE_Singleton<Common_UI_GTK_Manager_T<struct Common_UI_GTK_State>,
                       ACE_MT_SYNCH::RECURSIVE_MUTEX> COMMON_UI_GTK_MANAGER_SINGLETON;
 
 #endif

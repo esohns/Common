@@ -28,33 +28,39 @@
 
 #include "common.h"
 
-enum Common_UI_Event : int
+enum Common_UI_EventType : int
 {
-  COMMON_UI_EVENT_INVALID           = -1,
+  COMMON_UI_EVENT_INVALID              = -1,
 
-  // network & data
-  COMMON_UI_EVENT_NETWORK_DATA_BASE = 0x100,
-  COMMON_UI_EVENT_CONNECT,
+  // message & data
+  COMMON_UI_EVENT_MESSAGE_DATA_BASE    = 0x100,
   COMMON_UI_EVENT_CONTROL,
   COMMON_UI_EVENT_DATA,
-  COMMON_UI_EVENT_DISCONNECT,
+  COMMON_UI_EVENT_SESSION,
 
   // task
-  COMMON_UI_EVENT_TASK_BASE         = 0x200,
+  COMMON_UI_EVENT_TASK_BASE            = 0x200,
   COMMON_UI_EVENT_FINISHED,
   COMMON_UI_EVENT_PAUSED,
+  COMMON_UI_EVENT_RESET,
   COMMON_UI_EVENT_STARTED,
   COMMON_UI_EVENT_STOPPED,
 
-  // other
-  COMMON_UI_EVENT_OTHER_BASE        = 0x400,
+  // network & session
+  COMMON_UI_EVENT_NETWORK_SESSION_BASE = 0x400,
+  COMMON_UI_EVENT_CONNECT,
+  COMMON_UI_EVENT_DISCONNECT,
+  ////////////////////////////////////////
   COMMON_UI_EVENT_STATISTIC,
+
+  // other & user
+  COMMON_UI_EVENT_OTHER_USER_BASE      = 0x800,
 
   // -------------------------------------
   COMMON_UI_EVENT_MAX
 };
-typedef ACE_Unbounded_Stack<enum Common_UI_Event> Common_UI_Events_t;
-typedef typename ACE_Unbounded_Stack<enum Common_UI_Event>::ITERATOR Common_UI_EventsIterator_t;
+typedef ACE_Unbounded_Stack<enum Common_UI_EventType> Common_UI_Events_t;
+typedef typename ACE_Unbounded_Stack<enum Common_UI_EventType>::ITERATOR Common_UI_EventsIterator_t;
 
 struct Common_UI_State
 {

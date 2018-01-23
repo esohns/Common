@@ -21,6 +21,7 @@
 #ifndef COMMON_TIMER_MANAGER_H
 #define COMMON_TIMER_MANAGER_H
 
+#include "ace/Global_Macros.h"
 #include "ace/Singleton.h"
 #include "ace/Synch_Traits.h"
 #include "ace/Time_Value.h"
@@ -73,16 +74,16 @@ class Common_Timer_Manager_T
 //  inline virtual bool useReactor () const { ACE_ASSERT (configuration_); return (configuration_->mode != COMMON_TIMER_MODE_PROACTOR); }; // ? : uses proactor
   virtual long schedule_timer (Common_TimerHandler*,                          // event handler handle
                                const void*,                                   // asynchronous completion token
-                               const ACE_Time_Value&,                         // delay
-                               const ACE_Time_Value& = ACE_Time_Value::zero); // interval
+                               const ACE_Time_Value&,                         // expiration time (absolute)
+                               const ACE_Time_Value& = ACE_Time_Value::zero); // set periodic interval ?
 //  virtual long schedule_timer (ACE_Event_Handler*,                            // event handler handle
 //                               const void*,                                   // asynchronous completion token
-//                               const ACE_Time_Value&,                         // delay
-//                               const ACE_Time_Value& = ACE_Time_Value::zero); // interval
+//                               const ACE_Time_Value&,                         // expiration time (absolute)
+//                               const ACE_Time_Value& = ACE_Time_Value::zero); // set periodic interval ?
 //  virtual long schedule_timer (ACE_Handler*,                                  // event handler handle
 //                               const void*,                                   // asynchronous completion token
-//                               const ACE_Time_Value&,                         // delay
-//                               const ACE_Time_Value& = ACE_Time_Value::zero); // interval
+//                               const ACE_Time_Value&,                         // expiration time (absolute)
+//                               const ACE_Time_Value& = ACE_Time_Value::zero); // set periodic interval ?
   virtual bool initialize (const ConfigurationType&);
   inline virtual const ConfigurationType& getR_2 () const { ACE_ASSERT (configuration_); return *configuration_; }
 

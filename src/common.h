@@ -28,7 +28,6 @@
 
 #include "ace/config-lite.h"
 #include "ace/Global_Macros.h"
-#include "ace/os_include/os_ucontext.h"
 #include "ace/OS_NS_signal.h"
 #include "ace/Signal.h"
 #include "ace/Synch_Traits.h"
@@ -37,28 +36,6 @@
 #include "common_ilock.h"
 #include "common_itask.h"
 #include "common_itaskcontrol.h"
-
-// forward declaration(s)
-class ACE_Message_Queue_Base;
-
-struct Common_ParserConfiguration
-{
-  Common_ParserConfiguration ()
-   : block (true)
-   , messageQueue (NULL)
-   , useYYScanBuffer (true)
-   , debugParser (COMMON_PARSER_DEFAULT_YACC_TRACE)
-   , debugScanner (COMMON_PARSER_DEFAULT_LEX_TRACE)
-  {};
-
-  bool                    block; // block in parse (i.e. wait for data in yywrap() ?)
-  ACE_Message_Queue_Base* messageQueue; // queue (if any) to use for yywrap
-  bool                    useYYScanBuffer; // yy_scan_buffer() ? : yy_scan_bytes() (C parsers only)
-
-  // debug
-  bool                    debugParser;
-  bool                    debugScanner;
-};
 
 enum Common_SignalDispatchType : int
 {
@@ -94,29 +71,18 @@ struct Common_Signal
 typedef std::vector <struct Common_Signal> Common_Signals_t;
 typedef Common_Signals_t::const_iterator Common_SignalsIterator_t;
 
-struct Common_SignalHandlerConfiguration
-{
-  Common_SignalHandlerConfiguration ()
-   : hasUI (false)
-   , useReactor (COMMON_EVENT_USE_REACTOR)
-  {};
-
-  bool hasUI;
-  bool useReactor;
-};
-
 // *** signals ***
 typedef std::map<int, ACE_Sig_Action> Common_SignalActions_t;
 typedef Common_SignalActions_t::const_iterator Common_SignalActionsIterator_t;
 
 // *** (ACE) event-dispatch specific
-enum Common_DispatchType : int
+enum Common_EventDispatchType : int
 {
-  COMMON_DISPATCH_INVALID = -1,
-  COMMON_DISPATCH_PROACTOR = 0,
-  COMMON_DISPATCH_REACTOR,
+  COMMON_EVENT_DISPATCH_PROACTOR = 0,
+  COMMON_EVENT_DISPATCH_REACTOR,
   ///////////////////////////////////////
-  COMMON_DISPATCH_MAX
+  COMMON_EVENT_DISPATCH_INVALID,
+  COMMON_EVENT_DISPATCH_MAX
 };
 
 enum Common_ProactorType : int
@@ -159,13 +125,13 @@ enum Common_ReactorType : int
   COMMON_REACTOR_INVALID
 };
 
-struct Common_DispatchThreadData
+struct Common_EventDispatchThreadData
 {
-  Common_DispatchThreadData ()
+  Common_EventDispatchThreadData ()
    : numberOfDispatchThreads (0)
    , proactorType (COMMON_EVENT_PROACTOR_TYPE)
    , reactorType (COMMON_EVENT_REACTOR_TYPE)
-   , useReactor (true)
+   , useReactor (COMMON_EVENT_USE_REACTOR)
   {};
 
   unsigned int             numberOfDispatchThreads;
@@ -185,11 +151,11 @@ struct Common_ScannerState
 
 enum Common_StatisticActionType : int
 {
-  STATISTIC_ACTION_COLLECT = 0,
-  STATISTIC_ACTION_REPORT,
+  COMMON_STATISTIC_ACTION_COLLECT = 0,
+  COMMON_STATISTIC_ACTION_REPORT,
   ////////////////////////////////////////
-  STATISTIC_ACTION_MAX,
-  STATISTIC_ACTION_INVALID
+  COMMON_STATISTIC_ACTION_MAX,
+  COMMON_STATISTIC_ACTION_INVALID
 };
 
 // *** task ***

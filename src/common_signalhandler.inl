@@ -23,7 +23,8 @@
 
 #include "common_defines.h"
 #include "common_macros.h"
-#include "common_tools.h"
+
+#include "common_signal_tools.h"
 
 template <typename ConfigurationType>
 Common_SignalHandler_T<ConfigurationType>::Common_SignalHandler_T (enum Common_SignalDispatchType dispatchMode_in,
@@ -37,7 +38,7 @@ Common_SignalHandler_T<ConfigurationType>::Common_SignalHandler_T (enum Common_S
  , isInitialized_ (false)
  , lock_ (lock_in)
  , signals_ ()
- , callback_ (callback_in)
+ , callback_ (callback_in ? callback_in : this)
 {
   COMMON_TRACE (ACE_TEXT ("Common_SignalHandler_T::Common_SignalHandler_T"));
 
@@ -62,8 +63,12 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
   int result = -1;
   struct Common_Signal signal_s;
   signal_s.signal = signal_in;
+  // *TODO*: WIN32 apparently does not support siginfo
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   if (siginfo_in)
     signal_s.siginfo = *siginfo_in;
+#endif
   if (ucontext_in)
     signal_s.ucontext = *ucontext_in;
 
@@ -132,9 +137,9 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
 //                  ACE_TEXT (Common_Tools::signalToString (signal_s).c_str ())));
 #endif
 
-      Common_ISignal* callback_p = (callback_ ? callback_ : this);
+      ACE_ASSERT (callback_);
       try {
-        callback_p->handle (signal_s);
+        callback_->handle (signal_s);
       } catch (...) {
         // *PORTABILITY*: tracing in a signal handler context is not portable
         ACE_DEBUG ((LM_ERROR,
@@ -222,7 +227,7 @@ Common_SignalHandler_T<ConfigurationType>::handle_exception (ACE_HANDLE handle_i
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("%D: received [%u/\"%S\"]: %s\n"),
                 signal_r.signal, signal_r.signal,
-                ACE_TEXT (Common_Tools::signalToString (signal_r).c_str ())));
+                ACE_TEXT (Common_Signal_Tools::signalToString (signal_r).c_str ())));
 #endif
 
     try {

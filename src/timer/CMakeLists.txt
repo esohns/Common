@@ -51,6 +51,8 @@ set (${PROJECT_NAME}Timer_LIB_SRCS
      common_timer_manager.h
      common_timer_manager.inl
      common_timer_manager_common.h
+     common_timer_tools.cpp
+     common_timer_tools.h
      stdafx.cpp
      stdafx.h)
 
@@ -112,6 +114,7 @@ install (FILES
          common_timer_manager.h
          common_timer_manager.inl
          common_timer_manager_common.h
+         common_timer_tools.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
 install (TARGETS ${PROJECT_NAME}Timer
          EXPORT ${PROJECT_NAME}Targets

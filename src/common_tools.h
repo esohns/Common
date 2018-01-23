@@ -31,19 +31,13 @@
 #endif
 
 #include "ace/Global_Macros.h"
-#include "ace/Sig_Handler.h"
 
 #include "common.h"
 //#include "common_exports.h"
 
-#include "common_timer_common.h"
-
 // forward declaration(s)
 class ACE_Event_Handler;
 class ACE_Log_Msg_Backend;
-class ACE_Sig_Set;
-class ACE_Time_Value;
-class Common_ITimer;
 
 ACE_THR_FUNC_RETURN threadpool_event_dispatcher_function (void*);
 
@@ -54,21 +48,10 @@ class Common_Tools
   static void initialize (bool = false); // initialize random number generator ?
   static void finalize ();
 
-  //// --- singleton ---
-  //static Common_ITimer* getTimerManager ();
-
-  // --- strings ---
+  // --- debug ---
   static bool inDebugSession ();
 
   // --- strings ---
-  // *NOTE*: uses ::snprintf internally: "HH:MM:SS.usec"
-  static bool periodToString (const ACE_Time_Value&, // period
-                              std::string&);         // return value: corresp. string
-  // *NOTE*: uses ::snprintf internally: "YYYY-MM-DD HH:MM:SS.usec"
-  static bool timestampToString (const ACE_Time_Value&, // timestamp
-                                 bool,                  // UTC ? : localtime
-                                 std::string&);         // return value: corresp. string
-
   static std::string sanitizeURI (const std::string&); // URI
   // replace ' ' with '_'
   static std::string sanitize (const std::string&); // string
@@ -77,6 +60,11 @@ class Common_Tools
 
   // --- platform ---
   static unsigned int getNumberOfCPUs (bool = true); // 'hyperthreading' ?
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  //// *WARNING*: limited to 9 characters
+  static void setThreadName (const std::string&, // thread name
+                             DWORD = 0);         // thread id (0: current)
+#endif
 
   static void printLocales ();
 
@@ -131,34 +119,6 @@ class Common_Tools
                                  ACE_Log_Msg_Backend* = NULL); // logger backend {NULL --> disable}
   static void finalizeLogging ();
 
-  // --- signals ---
-  // *NOTE*: this does the following:
-  //         - ignore SIGPIPE
-  //         - on non-Win32 systems, iff the proactor framework is used with the
-  //           ACE_POSIX_Proactor::PROACTOR_SIG, block RT signals
-  //         - on non-Win32 systems, remove SIGSEGV to enable core dumps
-  // *NOTE*: call this in the 'main' thread as early as possible; the signal
-  //         disposition is inherited by all threads spawned thereafter
-  static bool preInitializeSignals (ACE_Sig_Set&,            // signal set (to handle) (*NOTE*: IN/OUT)
-                                    bool,                    // use reactor ? : proactor
-                                    Common_SignalActions_t&, // return value: previous action(s)
-                                    sigset_t&);              // return value: previous mask
-  static bool initializeSignals (enum Common_SignalDispatchType, // dispatch mode
-                                 const ACE_Sig_Set&,             // signal set (to handle)
-                                 const ACE_Sig_Set&,             // signal set (to ignore)
-                                 ACE_Event_Handler*,             // event handler handle
-                                 Common_SignalActions_t&);       // return value: previous action(s)
-  static void finalizeSignals (enum Common_SignalDispatchType, // dispatch mode
-                               const ACE_Sig_Set&,             // signal set (handled)
-                               const Common_SignalActions_t&,  // previous action(s)
-                               const sigset_t&);               // previous mask
-  static std::string signalToString (const struct Common_Signal&); // signal information
-
-  // --- timers ---
-  static bool initializeTimers (const struct Common_TimerConfiguration&); // configuration
-  static void finalizeTimers (const struct Common_TimerConfiguration&, // configuration
-                              bool = true);                            // wait for completion ?
-
   // --- event loop ---
   static bool initializeEventDispatch (bool,                      // use reactor ? : proactor
                                        bool,                      // use thread pool ?
@@ -168,15 +128,14 @@ class Common_Tools
                                        bool&);                    // return value: output requires serialization
   // *NOTE*: the first argument is passed to the thread function as argument,
   //         so must reside on the stack (hence the reference)
-  static bool startEventDispatch (const struct Common_DispatchThreadData&, // thread data
-                                  int&);                                   // return value: thread group id
+  static bool startEventDispatch (const struct Common_EventDispatchThreadData&, // thread data
+                                  int&);                                        // return value: thread group id
   static void dispatchEvents (bool,      // use reactor ? : proactor
                               int = -1); // thread group id
   // *NOTE*: this call blocks until all dispatching threads have joined
   static void finalizeEventDispatch (bool, // stop reactor ?
                                      bool, // stop proactor ?
                                      int); // thread group id
-  //static void unblockRealtimeSignals (sigset_t&); // return value: original mask
 
 #if defined (_DEBUG)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -189,8 +148,6 @@ class Common_Tools
 #else
   static char            randomStateBuffer_[BUFSIZ];
 #endif
-
-  static ACE_Sig_Handler signalHandler_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Tools ())

@@ -27,6 +27,7 @@
 
 #include "common_defines.h"
 #include "common_macros.h"
+#include "common_time_common.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "common_tools.h"
 #endif
@@ -53,7 +54,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::Common_TaskBase_T"));
 
-  // set group ID for worker thread(s)
+  // set group id for worker thread(s)
   inherited::grp_id (threadGroupId_in);
 
   // auto-start ?
@@ -202,6 +203,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
               ACE_DEBUG ((LM_ERROR,
                           ACE_TEXT ("failed to ACE_Message_Queue::flush(): \"%m\", continuing\n")));
           } // end IF
+#if defined (_DEBUG)
           if (unlikely (result))
           {
             if (inherited::mod_)
@@ -214,6 +216,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                           ACE_TEXT ("flushed %u message(s)\n"),
                           result));
           } // end IF
+#endif
         } // end IF
 
         break;
@@ -552,9 +555,15 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::svc"));
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  Common_Tools::setThreadName (threadName_,
+                               -1);
+#endif
+#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t) starting\n"),
               ACE_TEXT (threadName_.c_str ())));
+#endif
 
   ACE_Message_Block* message_block_p = NULL;
   ACE_Message_Block::ACE_Message_Type message_type;
@@ -602,6 +611,12 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     message_block_p->release ();
     message_block_p = NULL;
   } while (true);
+
+#if defined (_DEBUG)
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("(%s): worker thread (id: %t) leaving\n"),
+              ACE_TEXT (threadName_.c_str ())));
+#endif
 
   return result;
 }
@@ -845,4 +860,46 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     // clean up
     message_block_p->release ();
   } // end IF
+}
+
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType,
+          typename LockType>
+bool
+Common_TaskBase_T<ACE_SYNCH_USE,
+                  TimePolicyType,
+                  LockType>::hasShutDown ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::hasShutDown"));
+
+  // sanity check(s)
+  if (unlikely (!inherited::msg_queue_))
+  {
+    if (inherited::mod_)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("%s: task has no message queue, returning\n"),
+                  inherited::mod_->name ()));
+    else
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("task has no message queue, returning\n")));
+    return false; // *TODO*: avoid false negative
+  } // end IF
+
+  bool result = false;
+  ACE_Message_Block* message_block_p = NULL;
+  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, inherited::msg_queue_->lock (), false);
+    for (MESSAGE_QUEUE_ITERATOR_T iterator (*inherited::msg_queue_);
+         iterator.next (message_block_p);
+         iterator.advance ())
+    { ACE_ASSERT (message_block_p);
+      if (unlikely (message_block_p->msg_type () == ACE_Message_Block::MB_STOP))
+      {
+        result = true;
+        break;
+      } // end IF 
+      message_block_p = NULL;
+    } // end FOR
+  } // end lock scope
+
+  return result;
 }

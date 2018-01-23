@@ -8,3 +8,6 @@
 // Windows Header Files
 #include <windows.h>
 #endif
+
+#include "common_macros.h"
+#include "common_pragmas.h"

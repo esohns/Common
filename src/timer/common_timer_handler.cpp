@@ -36,6 +36,8 @@ Common_TimerHandler::Common_TimerHandler (Common_ITimerHandler* handler_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_TimerHandler::Common_TimerHandler"));
 
+  // sanity check(s)
+  ACE_ASSERT (handler_);
 }
 
 int

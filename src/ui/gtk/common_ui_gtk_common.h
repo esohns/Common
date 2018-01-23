@@ -30,23 +30,6 @@
 #include "ace/Synch_Traits.h"
 
 #include "gtk/gtk.h"
-#if defined (GTKGL_SUPPORT)
-#if GTK_CHECK_VERSION (3,0,0)
-#if GTK_CHECK_VERSION (3,16,0)
-#else
-#if defined (GTKGLAREA_SUPPORT)
-//#include "gtkgl/gdkgl.h"
-#include "gtkgl/gtkglarea.h"
-#endif /* GTKGLAREA_SUPPORT */
-#endif /* GTK_CHECK_VERSION (3,16,0) */
-#else
-#if defined (GTKGLAREA_SUPPORT)
-#include "gtkgl/gtkglarea.h"
-#else
-#include "gdk/gdkgl.h"
-#endif /* GTKGLAREA_SUPPORT */
-#endif /* GTK_CHECK_VERSION (3,0,0) */
-#endif /* GTKGL_SUPPORT */
 
 #include "common_ui_common.h"
 
@@ -55,146 +38,121 @@
 // forward declarations
 #if defined (LIGBGLADE_SUPPORT)
 struct _GladeXML;
-#endif
+#endif // LIGBGLADE_SUPPORT
 
-//enum Common_UI_GTKDefinitionType
-//{
-//  GTK_DEFINITIONTYPE_BUILDER = 0,
-//  GTK_DEFINITIONTYPE_GLADE,
-//  ///////////////////////////////////////
-//  GTK_DEFINITIONTYPE_INVALID,
-//  GTK_DEFINITIONTYPE_MAX
-//};
+enum Common_UI_GTK_InterfaceDefinitionType : int
+{
+  COMMON_UI_GTK_DEFINITIONTYPE_BUILDER = 0,
+#if defined (LIGBGLADE_SUPPORT)
+  COMMON_UI_GTK_DEFINITIONTYPE_GLADE,
+#endif // LIGBGLADE_SUPPORT
+  ///////////////////////////////////////
+  COMMON_UI_GTK_DEFINITIONTYPE_INVALID,
+  COMMON_UI_GTK_DEFINITIONTYPE_MAX
+};
 
-typedef std::set<guint> Common_UI_GTKEventSourceIds_t;
-typedef Common_UI_GTKEventSourceIds_t::iterator Common_UI_GTKEventSourceIdsIterator_t;
+typedef std::set<guint> Common_UI_GTK_EventSourceIds_t;
+typedef Common_UI_GTK_EventSourceIds_t::iterator Common_UI_GTK_EventSourceIdsIterator_t;
 
-typedef std::list<std::string> Common_UI_GTKRCFiles_t;
-typedef Common_UI_GTKRCFiles_t::const_iterator Common_UI_GTKRCFilesIterator_t;
+typedef std::list<std::string> Common_UI_GTK_RCFiles_t;
+typedef Common_UI_GTK_RCFiles_t::const_iterator Common_UI_GTK_RCFilesIterator_t;
 #if GTK_CHECK_VERSION (3,0,0)
-typedef std::map<std::string, GtkCssProvider*> Common_UI_GTKCSSProviders_t;
-typedef Common_UI_GTKCSSProviders_t::iterator Common_UI_GTKCSSProvidersIterator_t;
+typedef std::map<std::string, GtkCssProvider*> Common_UI_GTK_CSSProviders_t;
+typedef Common_UI_GTK_CSSProviders_t::iterator Common_UI_GTK_CSSProvidersIterator_t;
 #endif
 
-typedef std::pair<std::string, GtkBuilder*> Common_UI_GTKBuilder_t;
-typedef std::map<std::string, Common_UI_GTKBuilder_t> Common_UI_GTKBuilders_t;
-typedef Common_UI_GTKBuilders_t::iterator Common_UI_GTKBuildersIterator_t;
-typedef Common_UI_GTKBuilders_t::const_iterator Common_UI_GTKBuildersConstIterator_t;
+typedef std::pair<std::string, GtkBuilder*> Common_UI_GTK_Builder_t;
+typedef std::map<std::string, Common_UI_GTK_Builder_t> Common_UI_GTK_Builders_t;
+typedef Common_UI_GTK_Builders_t::iterator Common_UI_GTK_BuildersIterator_t;
+typedef Common_UI_GTK_Builders_t::const_iterator Common_UI_GTK_BuildersConstIterator_t;
 
 enum Common_UI_GTK_StatusContextType : int
 {
-  GTK_STATUSCONTEXT_INVALID = -1,
+  COMMON_UI_GTK_STATUSCONTEXT_INVALID = -1,
   // *NOTE*: '0' is also a predefined global context id
   //GTK_STATUSCONTEXT_GLOBAL  = 0,
-  GTK_STATUSCONTEXT_DATA,
-  GTK_STATUSCONTEXT_INFORMATION,
+  COMMON_UI_GTK_STATUSCONTEXT_DATA,
+  COMMON_UI_GTK_STATUSCONTEXT_INFORMATION,
   ///////////////////////////////////////
-  GTK_STATUSCONTEXT_MAX
+  COMMON_UI_GTK_STATUSCONTEXT_MAX
 };
 typedef std::map<enum Common_UI_GTK_StatusContextType, guint> Common_UI_GTK_StatusContextIds_t;
 typedef Common_UI_GTK_StatusContextIds_t::iterator Common_UI_GTK_Common_UI_GTK_StatusContextIdsIterator_t;
 
 #if defined (LIBGLADE_SUPPORT)
-typedef std::pair<std::string, struct _GladeXML*> Common_UI_GTKGladeXML_t;
-typedef std::map<std::string, Common_UI_GTKGladeXML_t> Common_UI_GladeXMLs_t;
+typedef std::pair<std::string, struct _GladeXML*> Common_UI_GladeXML_t;
+typedef std::map<std::string, Common_UI_GladeXML_t> Common_UI_GladeXMLs_t;
 typedef Common_UI_GladeXMLs_t::iterator Common_UI_GladeXMLsIterator_t;
 typedef Common_UI_GladeXMLs_t::const_iterator Common_UI_GladeXMLsConstIterator_t;
 #endif
 
-struct Common_UI_GTKState
+struct Common_UI_GTK_EventHookConfiguration
+{
+  Common_UI_GTK_EventHookConfiguration ()
+   : dataHook (NULL)
+   , eventHook (NULL)
+   , initHook (NULL)
+   , finiHook (NULL)
+   , statisticHook (NULL)
+  {};
+
+  GSourceFunc dataHook;
+  GSourceFunc eventHook;
+  GSourceFunc initHook;
+  GSourceFunc finiHook;
+  GSourceFunc statisticHook;
+};
+
+struct Common_UI_GTK_State
  : Common_UI_State
 {
-  Common_UI_GTKState ()
+  Common_UI_GTK_State ()
    : Common_UI_State ()
    , argc (0)
    , argv (NULL)
    , builders ()
    , contextIds ()
+#if GTK_CHECK_VERSION (3,0,0)
+   , CSSProviders ()
+#endif
 //, cursor (NULL)
+   , eventHooks ()
    , eventSourceIds ()
    , finalizationHook ()
 #if defined (LIBGLADE_SUPPORT)
    , gladeXML ()
 #endif
    , initializationHook ()
- #if GTK_CHECK_VERSION (3,0,0)
-   , CSSProviders ()
-#endif
-#if defined (GTKGL_SUPPORT)
-#if GTK_CHECK_VERSION (3,16,0)
-   , OpenGLWindow (NULL)
-#else
-#if defined (GTKGLAREA_SUPPORT)
-   , OpenGLWindow (NULL)
-#else
-   , OpenGLContext (NULL)
-//, openGLDrawable (NULL)
-   , OpenGLWindow (NULL)
-#endif /* GTKGLAREA_SUPPORT */
-#endif /* GTK_CHECK_VERSION (3,0,0) */
-#endif /* GTKGL_SUPPORT */
    , RCFiles ()
    ///////////////////////////////////////
    , userData (NULL)
   {};
 
-  int                              argc;
-  ACE_TCHAR**                      argv;
-  Common_UI_GTKBuilders_t          builders;
-  Common_UI_GTK_StatusContextIds_t contextIds; // status bar context ids
+  int                                         argc;
+  ACE_TCHAR**                                 argv;
+  Common_UI_GTK_Builders_t                    builders;
+  Common_UI_GTK_StatusContextIds_t            contextIds; // status bar context ids
 //GdkCursor*                    cursor;
-  Common_UI_GTKEventSourceIds_t    eventSourceIds;
-  GSourceFunc                      finalizationHook;
+#if GTK_CHECK_VERSION (3,0,0)
+  Common_UI_GTK_CSSProviders_t                CSSProviders;
+#endif
+  struct Common_UI_GTK_EventHookConfiguration eventHooks;
+  Common_UI_GTK_EventSourceIds_t              eventSourceIds;
+  GSourceFunc                                 finalizationHook;
 #if defined (LIBGLADE_SUPPORT)
-  Common_UI_GladeXMLs_t            gladeXML;
+  Common_UI_GladeXMLs_t                       gladeXML;
 #endif
-  GSourceFunc                      initializationHook;
-#if GTK_CHECK_VERSION (3,0,0)
-  Common_UI_GTKCSSProviders_t      CSSProviders;
-#endif
-#if defined (GTKGL_SUPPORT)
-#if GTK_CHECK_VERSION (3,0,0)
-#if GTK_CHECK_VERSION (3,16,0)
-  GtkGLArea*                       OpenGLWindow;
-#else
-  GglaArea*                        OpenGLWindow;
-#endif /* GTK_CHECK_VERSION (3,16,0) */
-#else /* GTK_CHECK_VERSION (3,0,0) */
-#if defined (GTKGLAREA_SUPPORT)
-  GtkGLArea*                       OpenGLWindow;
-#else
-  // *TODO*: as an application may support multiple OpenGL-capable windows, and
-  //         each GdkGLContext is tied to a GdkWindow, it probably makes sense
-  //         to move all of this into a separate 'presentation manager' object
-  GdkGLContext*                    OpenGLContext;
-  //GdkGLDrawable* openGLDrawable;
-  GdkWindow*                       OpenGLWindow;
-#endif /* GTKGLAREA_SUPPORT */
-#endif /* GTK_CHECK_VERSION (3,0,0) */
-#endif /* GTKGL_SUPPORT */
-  Common_UI_GTKRCFiles_t           RCFiles;
+  GSourceFunc                                 initializationHook;
+  Common_UI_GTK_RCFiles_t                     RCFiles;
 
   ////////////////////////////////////////
 
-  gpointer                         userData; // cb user data
+  gpointer                                    userData; // cb user data
 };
 
-typedef Common_UI_IGTK_T<struct Common_UI_GTKState> Common_UI_IGTK_t;
-
 //////////////////////////////////////////
 
-//#if defined (GTKGL_SUPPORT)
-//struct Common_UI_GTKGLState
-// : Common_UI_GTKState
-//{
-//  inline Common_UI_GTKGLState ()
-//   : Common_UI_GTKState ()
-//  {};
-//
-//};
-//#endif
-
-//////////////////////////////////////////
+typedef Common_UI_IGTK_T<struct Common_UI_GTK_State> Common_UI_IGTK_t;
 
 typedef std::map<guint, ACE_Thread_ID> Common_UI_GTK_PendingActions_t;
 typedef Common_UI_GTK_PendingActions_t::iterator Common_UI_GTK_PendingActionsIterator_t;
@@ -205,19 +163,17 @@ struct Common_UI_GTK_ProgressData
 {
   Common_UI_GTK_ProgressData ()
    : completedActions ()
-   //   , cursorType (GDK_LAST_CURSOR)
+//   , cursorType (GDK_LAST_CURSOR)
    , eventSourceId (0)
-   , GTKState (NULL)
    , pendingActions ()
+   , state (NULL)
   {};
 
   Common_UI_GTK_CompletedActions_t completedActions;
-  //  GdkCursorType                      cursorType;
+//  GdkCursorType                      cursorType;
   guint                            eventSourceId;
-  struct Common_UI_GTKState*       GTKState;
   Common_UI_GTK_PendingActions_t   pendingActions;
+  struct Common_UI_GTK_State*      state;
 };
-
-void common_ui_gtk_opengl_cb (gpointer);
 
 #endif

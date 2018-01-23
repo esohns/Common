@@ -63,8 +63,7 @@ class Common_SignalHandler_T
  protected:
   Common_SignalHandler_T (enum Common_SignalDispatchType, // dispatch mode
                           ACE_SYNCH_MUTEX*,               // lock handle
-                          Common_ISignal* = NULL);        // event handler handle
-
+                          Common_ISignal* = NULL);        // event handler handle (NULL: 'this')
 
   ConfigurationType*             configuration_;
   enum Common_SignalDispatchType dispatchMode_;

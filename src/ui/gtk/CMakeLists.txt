@@ -1,12 +1,13 @@
-option (GTK3_SUPPORT "enable Gtk3 support"
-        ON)
-option (GTKGL_SUPPORT "enable Gtk OpenGL support"
-        ON)
-# *IMPORTANT NOTE*: to use gtkglarea on gtk2, check out the 'gtkglarea-2' branch
-#                   of the project
-option (GTKGLAREA_SUPPORT "enable GtkGLArea support"
-        ON)
+include (CMakeDependentOption)
 
+option (GTK3_SUPPORT "enable GTK 3 support" ON)
+#option (GTK2_SUPPORT "enable GTK2 support" OFF)
+CMAKE_DEPENDENT_OPTION (GTK2_SUPPORT "enable GTK 2 support" ON
+                        "NOT GTK3_SUPPORT" OFF)
+
+# *NOTE*: early versions of gtk do not support GtkBuilder
+# *TODO*: --> find the version number(s) and auto-enable this feature for these
+#             target systems
 # *NOTE*: on Win32 systems, the (binary) gtk3 applications have linkage issues
 #         with the latest (2.6.4) libglade distribution (specifically, the
 #         libxml2 dll cannot be easily shared between these two packages; also,
@@ -14,8 +15,16 @@ option (GTKGLAREA_SUPPORT "enable GtkGLArea support"
 #         --> disable libglade support when targeting gtk3
 # *TODO*: retrieve the available gtk version number(s) from the pkg-config
 #         output and pre-set this option accordingly
-option (LIBGLADE_SUPPORT "compile libglade support (early versions of gtk do not support GtkBuilder)"
-        OFF)
+#option (LIBGLADE_SUPPORT "enable libglade support" OFF)
+CMAKE_DEPENDENT_OPTION (LIBGLADE_SUPPORT "enable libglade support" OFF
+                        "NOT GTK3_SUPPORT" OFF)
+
+option (GTKGL_SUPPORT "enable GTK OpenGL support" ON)
+# *IMPORTANT NOTE*: to use gtkglarea on gtk2, check out the 'gtkglarea-2' branch
+#                   of the project
+#option (GTKGLAREA_SUPPORT "enable GtkGLArea support" OFF)
+CMAKE_DEPENDENT_OPTION (GTKGLAREA_SUPPORT "enable GtkGLArea support" OFF
+                        "GTKGL_SUPPORT" OFF)
 
 #include (CheckLibraryExists)
 #check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
@@ -158,6 +167,9 @@ set (${PROJECT_NAME}UI_GTK_LIB_SRCS
      common_ui_gtk_builder_definition.inl
      common_ui_gtk_common.h
      common_ui_gtk_defines.h
+     common_ui_gtk_eventhandler.cpp
+     common_ui_gtk_eventhandler.h
+     common_ui_gtk_eventhandler.inl
      common_ui_gtk_exports.h
      common_ui_gtk_manager.cpp
      common_ui_gtk_manager.h
@@ -167,24 +179,22 @@ set (${PROJECT_NAME}UI_GTK_LIB_SRCS
      common_ui_gtk_tools.h
 #     common_ui_gtk_types.h
      common_ui_igtk.h)
-set (${PROJECT_NAME}UI_GTK_LIB_GLADE_SRCS
-     common_ui_gtk_glade_definition.cpp
-     common_ui_gtk_glade_definition.h)
+if (LIBGLADE_SUPPORT)
+ set (${PROJECT_NAME}UI_GTK_LIB_SRCS ${CommonUI_GTK_LIB_SRCS}
+      common_ui_gtk_glade_definition.cpp
+      common_ui_gtk_glade_definition.h)
+endif (LIBGLADE_SUPPORT) # LIBGLADE_SUPPORT
+if (GTKGL_SUPPORT)
+ set (${PROJECT_NAME}UI_GTK_LIB_SRCS ${CommonUI_GTK_LIB_SRCS}
+      common_ui_gtk_gl_common.h)
+endif (GTKGL_SUPPORT) # GTKGL_SUPPORT
 
 #if (UNIX)
 # add_definitions (-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS)
 #endif ()
 
-if (LIBGLADE_SUPPORT)
- add_library (${PROJECT_NAME}UI_GTK
-              STATIC
-              ${CommonUI_GTK_LIB_SRCS}
-              ${CommonUI_GTK_LIB_GLADE_SRCS})
-else ()
- add_library (${PROJECT_NAME}UI_GTK
-              STATIC
-              ${CommonUI_GTK_LIB_SRCS})
-endif ()
+add_library (${PROJECT_NAME}UI_GTK STATIC
+             ${CommonUI_GTK_LIB_SRCS})
 
 if (UNIX)
 # if (GTK3_SUPPORT)
@@ -258,6 +268,8 @@ set (${PROJECT_NAME}UI_GTK_LIB_HDRS
      common_ui_gtk_builder_definition.inl
      common_ui_gtk_common.h
      common_ui_gtk_defines.h
+     common_ui_gtk_eventhandler.h
+     common_ui_gtk_eventhandler.inl
      common_ui_gtk_exports.h
      common_ui_gtk_manager.h
      common_ui_gtk_manager.inl
@@ -265,17 +277,18 @@ set (${PROJECT_NAME}UI_GTK_LIB_HDRS
      common_ui_gtk_tools.h
 #     common_ui_gtk_types.h
      common_ui_igtk.h)
-set (${PROJECT_NAME}UI_GTK_LIB_GLADE_HDRS
-     common_ui_glade_definition.h)
 if (LIBGLADE_SUPPORT)
+ set (${PROJECT_NAME}UI_GTK_LIB_GLADE_HDRS ${CommonUI_GTK_LIB_GLADE_HDRS}
+      common_ui_glade_definition.h)
+endif (LIBGLADE_SUPPORT)
+if (GTKGL_SUPPORT)
+ set (${PROJECT_NAME}UI_GTK_LIB_GLADE_HDRS ${CommonUI_GTK_LIB_GLADE_HDRS}
+      common_ui_gtk_gl_common.h)
+endif (GTKGL_SUPPORT)
 install (FILES
-         ${CommonUI_GTK_LIB_HDRS} ${CommonUI_GTK_LIB_GLADE_HDRS}
+         ${CommonUI_GTK_LIB_HDRS}
          DESTINATION include)
-else ()
-install (FILES
-         ${CommonUI_LIB_GTK_HDRS}
-         DESTINATION include)
-endif ()
+
 install (TARGETS ${PROJECT_NAME}UI_GTK
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib

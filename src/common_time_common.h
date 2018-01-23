@@ -27,7 +27,8 @@
 #include "common_defines.h"
 
 #if ((ACE_MAJOR_VERSION >= 6) && \
-     ((ACE_MINOR_VERSION > 1) || (ACE_BETA_VERSION > 6)))
+     ((ACE_MINOR_VERSION > 1) || \
+      ((ACE_MINOR_VERSION <= 1) && (ACE_BETA_VERSION > 6))))
 #include "ace/Time_Policy.h"
 // *NOTE*: (where possible) use high-resolution timestamps for accuracy and low
 //         latency timers
@@ -42,6 +43,7 @@
 //                   i.e. "wall-clock" time from a 'high-res' i.e. processor-
 //                   specific "tick" (counter) time, resulting in garbage (and a
 //                   tight loop of the timer queue dispatching thread)
+// *TODO*: fix in ACE ASAP
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 typedef ACE_System_Time_Policy Common_TimePolicy_t;
 #else
@@ -53,7 +55,8 @@ typedef ACE_System_Time_Policy Common_TimePolicy_t;
 #endif
 
 #if ((ACE_MAJOR_VERSION >= 6) && \
-     ((ACE_MINOR_VERSION > 1) || (ACE_BETA_VERSION > 6)))
+     ((ACE_MINOR_VERSION > 1) || \
+      ((ACE_MINOR_VERSION <= 1) && (ACE_BETA_VERSION > 6))))
 // *NOTE*: global time policy (supplies gettimeofday())
 #if defined (__GNUG__)
 //#pragma GCC diagnostic ignored "-Wunused-variable"

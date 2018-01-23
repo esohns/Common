@@ -36,8 +36,8 @@ class Common_ITimerBase
  public:
   virtual long schedule_timer (Common_TimerHandler*,                              // event handler handle
                                const void*,                                       // asynchronous completion token
-                               const ACE_Time_Value&,                             // delay
-                               const ACE_Time_Value& = ACE_Time_Value::zero) = 0; // interval
+                               const ACE_Time_Value&,                             // expiration time (absolute)
+                               const ACE_Time_Value& = ACE_Time_Value::zero) = 0; // set periodic interval ?
   virtual int cancel_timer (long,             // timer id
                             const void** = 0, // return value: asynchronous completion token
                             int = 1) = 0;     // do not (!) call handle_close() ?

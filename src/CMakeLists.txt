@@ -86,6 +86,7 @@ set (${PROJECT_NAME}_LIB_SRCS
      stdafx.cpp
      stdafx.h
      common.h
+     common_configuration.h
      common_defines.h
      common_exports.h
      common_file_tools.cpp
@@ -109,8 +110,14 @@ set (${PROJECT_NAME}_LIB_SRCS
      common_logger.h
      common_logger.inl
      common_macros.h
+		 common_message_queue_iterator.cpp
+		 common_message_queue_iterator.h
+		 common_message_queue_iterator.inl
+     common_pragmas.h
      common_referencecounter_base.cpp
      common_referencecounter_base.h
+     common_signal_tools.cpp
+     common_signal_tools.h
      common_signalhandler.cpp
      common_signalhandler.h
      common_signalhandler.inl
@@ -198,6 +205,7 @@ export (TARGETS ${PROJECT_NAME}
 ############### install files ################
 install (FILES
          common.h
+         common_configuration.h
          common_defines.h
          common_exports.h
          common_file_tools.h
@@ -220,7 +228,11 @@ install (FILES
          common_logger.h
          common_logger.inl
          common_macros.h
+         common_message_queue_iterator.h
+         common_message_queue_iterator.inl
+         common_pragmas.h
          common_referencecounter_base.h
+         common_signal_tools.h
          common_signalhandler.h
          common_signalhandler.inl
          common_statemachine_base.h
@@ -249,3 +261,4 @@ add_subdirectory (image)
 add_subdirectory (math)
 add_subdirectory (timer)
 add_subdirectory (ui)
+add_subdirectory (xml)

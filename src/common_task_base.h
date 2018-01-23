@@ -31,6 +31,7 @@
 
 #include "common_idumpstate.h"
 #include "common_itaskcontrol.h"
+#include "common_message_queue_iterator.h"
 
 // forward declaration(s)
 class ACE_Message_Block;
@@ -83,10 +84,13 @@ class Common_TaskBase_T
   // convenient types
   typedef ACE_Message_Queue<ACE_SYNCH_USE,
                             TimePolicyType> MESSAGE_QUEUE_T;
+  //typedef typename MESSAGE_QUEUE_T::ITERATOR MESSAGE_QUEUE_ITERATOR_T;
   typedef ACE_Task<ACE_SYNCH_USE,
                    TimePolicyType> TASK_T;
   typedef ACE_Module<ACE_SYNCH_USE,
                      TimePolicyType> MODULE_T;
+  typedef Common_MessageQueueIterator_T<ACE_SYNCH_USE,
+                                        TimePolicyType> MESSAGE_QUEUE_ITERATOR_T;
 
   Common_TaskBase_T (const std::string&,       // thread name
                      int,                      // (thread) group id
@@ -106,6 +110,13 @@ class Common_TaskBase_T
   //         be enqueued at the tail end otherwise
   void control (int,           // message type
                 bool = false); // high-priority ?
+  // *NOTE*: tests for MB_STOP anywhere in the queue. Note that this does not
+  //         block, or dequeue any message
+  // *NOTE*: ACE_Message_Queue_Iterator does its own locking; i.e. access
+  //         happens in lockstep, which is both inefficient and yields
+  //         unpredictable results
+  //         --> use Common_MessageQueueIterator_T and lock the queue manually
+  bool hasShutDown ();
 
   mutable typename ITASKCONTROL_T::MUTEX_T lock_;
 
@@ -131,7 +142,6 @@ class Common_TaskBase_T
   virtual int close (u_long = 0);
   inline virtual int module_closed (void) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (-1); ACE_NOTREACHED (return -1;) }
   virtual int svc (void);
-  //inline virtual int wait (void) { return inherited::wait (); }
 };
 
 // include template definition

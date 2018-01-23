@@ -205,18 +205,21 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
   bool signal = true;
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, false);
     // *NOTE*: if the implementation is 'passive', the whole operation
-    //         pertaining to newState_in may have been processed 'inline' by the
-    //         current thread and may have completed by 'now'. In this case the
-    //         callback has updated the state already
-    //         --> leave the state alone (*TODO*: signal waiters in this case ?)
-    // *TODO*: this may not be the best way to implement that case (see above)
+    //         pertaining to newState_in 'may' have been processed 'inline' by
+    //         the current thread and 'may' have completed by 'now'. In this
+    //         case the callback 'may' have updated the state already
+    //         --> leave the state alone if it has changed
+    // *TODO*: still signal waiters ?
+    // *TODO*: this may not be the best way to implement 'inline' processing
     if (likely (previous_state == state_))
       state_ = newState_in;
   } // end lock scope
-  //ACE_DEBUG ((LM_DEBUG,
-  //            ACE_TEXT ("\"%s\" --> \"%s\"\n"),
-  //            ACE_TEXT (this->stateToString (previous_state).c_str ()),
-  //            ACE_TEXT (this->stateToString (newState_in).c_str ())));
+#if defined (_DEBUG)
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("\"%s\" --> \"%s\"\n"),
+              ACE_TEXT (this->stateToString (previous_state).c_str ()),
+              ACE_TEXT (this->stateToString (newState_in).c_str ())));
+#endif
 
   // signal any waiting threads
   if (likely (signal))
