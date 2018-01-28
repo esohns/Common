@@ -119,7 +119,11 @@
 #define COMMON_SIGNAL_DEFAULT_DISPATCH_MODE                    COMMON_SIGNAL_DISPATCH_SIGNAL
 
 // *** timeouts ***
+#if defined (_DEBUG)
+#define COMMON_TIMEOUT_DEFAULT_THREAD_SPAWN                    200 // ms
+#else
 #define COMMON_TIMEOUT_DEFAULT_THREAD_SPAWN                    100 // ms
+#endif
 
 // *** event loop ***
 #define COMMON_EVENT_MAXIMUM_HANDLES                           ACE::max_handles ()

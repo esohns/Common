@@ -174,6 +174,24 @@ set (CPACK_PACKAGE_VERSION_PATCH ${VERSION_MICRO})
 set (CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE)
 set (CPACK_RESOURCE_FILE_README ${CMAKE_CURRENT_SOURCE_DIR}/README)
 
+# build a CPack driven installer package
 include (CPack)
 
+################################################################################
+
+list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules")
+include (UseBackportedModules)
+cmake_policy (SET CMP0026 OLD)
+cmake_policy (SET CMP0053 OLD)
+include (CreateLaunchers)
+
+# enable (unit/integration) tests
+#include (CTest)
+#enable_testing ()
+
+################################################################################
+
 add_subdirectory (src)
+add_subdirectory (test_i)
+add_subdirectory (test_u)
+

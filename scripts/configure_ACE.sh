@@ -33,6 +33,13 @@ DEFAULT_PROJECT_TYPE="vc14"
 PROJECT_TYPE=${DEFAULT_PROJECT_TYPE}
 if [ $# -lt 2 ]
 then
+ case "${PLATFORM}" in
+  win32)
+   ;;
+  linux|*)
+   PROJECT_TYPE="gnuace"
+   ;;
+ esac
  echo "INFO: using default mpc project type: \"${PROJECT_TYPE}\""
 else
  # parse any arguments
@@ -97,8 +104,14 @@ case "${PLATFORM}" in
   ;;
  linux|*)
   ACE_BUILD_DIRECTORY=${DEFAULT_ACE_DIRECTORY}/build/${PLATFORM}
+  if [ ! -d ${ACE_BUILD_DIRECTORY} ]
+  then
+   echo "WARNING: invalid ACE build directory (was: \"${ACE_BUILD_DIRECTORY}\"), falling back"
+   ACE_BUILD_DIRECTORY=${DEFAULT_ACE_DIRECTORY}
+  fi
   ;;
 esac
+#echo "ACE_BUILD_DIRECTORY: ${ACE_BUILD_DIRECTORY}"
 [ ! -d ${ACE_BUILD_DIRECTORY} ] && echo "ERROR: invalid ACE build directory (was: \"${ACE_BUILD_DIRECTORY}\"), aborting" && exit 1
 #echo "DEBUG: ACE build directory: \"${ACE_BUILD_DIRECTORY}\""
 

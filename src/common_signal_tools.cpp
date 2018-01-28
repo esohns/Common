@@ -356,7 +356,7 @@ Common_Signal_Tools::finalize (enum Common_SignalDispatchType dispatch_in,
     case COMMON_SIGNAL_DISPATCH_PROACTOR:
     case COMMON_SIGNAL_DISPATCH_SIGNAL:
     {
-      ACE_Sig_Action previous_action;
+      ACE_Sig_Action current_action;
       Common_SignalActionsIterator_t iterator;
       for (int i = 1;
            i < ACE_NSIG;
@@ -364,16 +364,18 @@ Common_Signal_Tools::finalize (enum Common_SignalDispatchType dispatch_in,
         if (signals_in.is_member (i))
         {
           iterator = previousActions_in.find (i);
-          ACE_ASSERT (iterator != previousActions_in.end ());
-          result =
-              Common_Signal_Tools::signalHandler_.remove_handler (i,
-                                                           const_cast<ACE_Sig_Action*> (&(*iterator).second),
-                                                           &previous_action,
-                                                           -1);
-          if (unlikely (result == -1))
-            ACE_DEBUG ((LM_ERROR,
-                        ACE_TEXT ("failed to ACE_Sig_Handler::remove_handler(%d: %S): \"%m\", continuing\n"),
-                        i, i));
+          if (likely (iterator != previousActions_in.end ()))
+          {
+            result =
+                Common_Signal_Tools::signalHandler_.remove_handler (i,
+                                                                    const_cast<ACE_Sig_Action*> (&(*iterator).second),
+                                                                    &current_action,
+                                                                    -1);
+            if (unlikely (result == -1))
+              ACE_DEBUG ((LM_ERROR,
+                          ACE_TEXT ("failed to ACE_Sig_Handler::remove_handler(%d: %S): \"%m\", continuing\n"),
+                          i, i));
+          } // end IF
         } // end IF
 
       break;

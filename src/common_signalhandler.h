@@ -47,9 +47,9 @@ class Common_SignalHandler_T
   inline virtual ~Common_SignalHandler_T () {}
 
   // *NOTE*: the signal is dispatched according to dispatchMode_
-  virtual int handle_signal (int,                 // signal
-                             siginfo_t* = NULL,   // not needed on UNIX
-                             ucontext_t* = NULL); // not used
+  virtual int handle_signal (int,              // signal
+                             siginfo_t* = 0,   // not needed on UNIX
+                             ucontext_t* = 0); // not used
 
   // *NOTE*: proactor code
   virtual void handle_time_out (const ACE_Time_Value&, // target time
