@@ -24,6 +24,11 @@
 #include <sstream>
 
 #include "ace/Log_Msg.h"
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+#include "ace/POSIX_Proactor.h"
+#endif
+#include "ace/Proactor.h"
 #include "ace/Reactor.h"
 
 #include "common_defines.h"

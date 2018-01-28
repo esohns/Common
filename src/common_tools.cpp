@@ -1115,6 +1115,20 @@ clean:
   return result;
 }
 
+pid_t
+Common_Tools::getProcessId (const std::string& executableName_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::getProcessId"));
+
+  pid_t result = -1;
+
+  // sanity check(s)
+  ACE_ASSERT (!executableName_in.empty ());
+
+  ACE_ASSERT (false); // *TODO*
+
+  return result;
+}
 #endif
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

@@ -83,6 +83,12 @@ class Common_Tools
   static void printCapabilities ();
 #endif
 
+  // --- process ---
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  static pid_t getProcessId (const std::string&); // executable (base-)name
+#endif
+
   // --- user ---
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
