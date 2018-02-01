@@ -60,13 +60,15 @@ class Common_TaskBase_T
                                 LockType> ITASKCONTROL_T;
   typedef typename ITASKCONTROL_T::ITASK_T ITASK_T;
 
+  virtual ~Common_TaskBase_T ();
+
   // implement Common_ITaskControl_T
   virtual bool lock (bool = true); // block ?
   inline virtual int unlock (bool = false) { return lock_.release (); }
   inline virtual const typename ITASKCONTROL_T::MUTEX_T& getR () const { return lock_; }
-  // *NOTE*: wraps ACE_Task_Base::activate() to spawn one (!) worker thread (up
-  //         to threadCount_)
-  // *TODO*: callers may want to implement a dynamic thread pool
+  // *NOTE*: wraps ACE_Task_Base::activate() to spawn one additional (worker-)
+  //         thread (up to threadCount_)
+  // *TODO*: derivates may want to implement a dynamic thread pool
   //         --> call ACE_Task_Base::activate() directly in this case
   virtual void start ();
   // enqueue MB_STOP --> stop worker thread(s)
@@ -97,7 +99,6 @@ class Common_TaskBase_T
                      unsigned int = 1,         // # thread(s)
                      bool = true,              // auto-start ?
                      MESSAGE_QUEUE_T* = NULL); // queue handle
-  virtual ~Common_TaskBase_T ();
 
   // override ACE_Task_Base members
   // *NOTE*: spawns threadCount_ worker thread(s)
@@ -141,6 +142,8 @@ class Common_TaskBase_T
   // override/hide ACE_Task_Base members
   virtual int close (u_long = 0);
   inline virtual int module_closed (void) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (-1); ACE_NOTREACHED (return -1;) }
+  // *NOTE*: the default implementation does nothing; it frees all messages
+  //         until receiving MB_STOP
   virtual int svc (void);
 };
 

@@ -17,34 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#include "stdafx.h"
 
-#ifndef COMMON_ITASK_H
-#define COMMON_ITASK_H
-
-#include "ace/Global_Macros.h"
-#include "ace/Message_Block.h"
-
-#include "common_ilock.h"
-
-template <ACE_SYNCH_DECL,
-          typename LockType> // implements Common_ILock_T/Common_IRecursiveLock_T
-class Common_ITask_T
- : virtual public LockType
-{
- public:
-  virtual void start () = 0;
-  virtual void stop (bool = true,      // wait for completion ?
-                     bool = true) = 0; // locked access ?
-  virtual bool isRunning () const = 0;
-
-  virtual void idle () = 0;
-};
-
-template <typename MessageType = ACE_Message_Block>
-class Common_ITaskHandler_T
-{
- public:
-  virtual void handle (MessageType*&) = 0; // message handle
-};
-
-#endif
+#include "ace/Synch.h"
+#include "common_statemachine.h"

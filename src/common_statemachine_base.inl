@@ -116,7 +116,7 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
     if (unlikely (state_ != state_in))
     {
       ACE_DEBUG ((LM_WARNING,
-                  ACE_TEXT ("reached state \"%s\" (requested: \"%s\"), continuing\n"),
+                  ACE_TEXT ("reached state %s (requested: %s), continuing\n"),
                   ACE_TEXT (this->stateToString (state_).c_str ()),
                   ACE_TEXT (this->stateToString (state_in).c_str ())));
     } // end IF
@@ -197,7 +197,7 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
     this->onChange (newState_in);
   } catch (...) {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("caught exception in Common_IStateMachine_T::onChange(\"%s\"), aborting\n"),
+                ACE_TEXT ("caught exception in Common_IStateMachine_T::onChange(%s), aborting\n"),
                 ACE_TEXT (this->stateToString (newState_in).c_str ())));
     result = false;
   }

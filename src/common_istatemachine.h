@@ -24,6 +24,7 @@
 #include <string>
 
 #include "common_iinitialize.h"
+//#include "common_itaskcontrol.h"
 
 // forward declarations
 class ACE_Time_Value;
@@ -33,9 +34,11 @@ class Common_IStateMachineBase
  , public Common_IReset
 {};
 
+//////////////////////////////////////////
+
 template <typename StateType>
 class Common_IStateMachine_T
-  : public Common_IStateMachineBase
+ : public Common_IStateMachineBase
 {
  public:
   virtual StateType current () const = 0;
@@ -62,5 +65,16 @@ class Common_IStateMachine_2
   // *NOTE*: signal asynchronous completion
   virtual void finished () = 0;
 };
+
+//////////////////////////////////////////
+
+//template <typename StateType,
+//          ACE_SYNCH_DECL,
+//          typename LockType> // implements Common_ILock_T/Common_IRecursiveLock_T>
+//class Common_IStateMachineAsynch_T
+// : public Common_IStateMachine_T<StateType>
+// , virtual public Common_ITaskControl_T<ACE_SYNCH_USE,
+//                                        LockType>
+//{};
 
 #endif

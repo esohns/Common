@@ -204,4 +204,8 @@
 #define COMMON_PARSER_DEFAULT_LEX_TRACE                        false
 #define COMMON_PARSER_DEFAULT_YACC_TRACE                       false
 
+// *** state machine ***
+#define COMMON_STATEMACHINE_THREAD_GROUP_ID                    102
+#define COMMON_STATEMACHINE_THREAD_NAME                        "state machine"
+
 #endif

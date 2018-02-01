@@ -110,9 +110,9 @@ set (${PROJECT_NAME}_LIB_SRCS
      common_logger.h
      common_logger.inl
      common_macros.h
-		 common_message_queue_iterator.cpp
-		 common_message_queue_iterator.h
-		 common_message_queue_iterator.inl
+     common_message_queue_iterator.cpp
+     common_message_queue_iterator.h
+     common_message_queue_iterator.inl
      common_pragmas.h
      common_referencecounter_base.cpp
      common_referencecounter_base.h
@@ -121,12 +121,18 @@ set (${PROJECT_NAME}_LIB_SRCS
      common_signalhandler.cpp
      common_signalhandler.h
      common_signalhandler.inl
+     common_statemachine.cpp
+     common_statemachine.h
+     common_statemachine.inl
      common_statemachine_base.cpp
      common_statemachine_base.h
      common_statemachine_base.inl
      common_statistic_handler.cpp
      common_statistic_handler.h
      common_statistic_handler.inl
+     common_task.cpp
+     common_task.h
+     common_task.inl
      common_task_base.cpp
      common_task_base.h
      common_task_base.inl
@@ -235,10 +241,14 @@ install (FILES
          common_signal_tools.h
          common_signalhandler.h
          common_signalhandler.inl
+         common_statemachine.h
+         common_statemachine.inl
          common_statemachine_base.h
          common_statemachine_base.inl
          common_statistic_handler.h
          common_statistic_handler.inl
+         common_task.h
+         common_task.inl
          common_task_base.h
          common_task_base.inl
          common_time_common.h
