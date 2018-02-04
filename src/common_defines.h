@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -43,6 +43,18 @@
 // // hardware
 
 // ----------- software -----------------
+
+// *** OS ***
+#if defined (ACE_LINUX)
+// *NOTE*: as returned by ::uname(2)
+#define COMMON_OS_LINUX_UNAME_STRING                           "Linux"
+
+// Linux distributions
+// *NOTE*: as returned by ::lsb_release -i
+#define COMMON_OS_LSB_DEBIAN_STRING                            "Debian"
+#define COMMON_OS_LSB_OPENSUSE_STRING                          "openSUSE"
+
+#endif // ACE_LINUX
 
 // *** C/C++ locale ***
 // *NOTE*: on UNIX, try 'locale -a', or 'localectl list-locales' to list

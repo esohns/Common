@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -25,6 +25,7 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <regex>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -47,6 +48,7 @@ using namespace std;
 #elif defined (ACE_LINUX)
 #include <sys/capability.h>
 #include <sys/prctl.h>
+#include <sys/utsname.h>
 #include <linux/capability.h>
 #include <linux/prctl.h>
 #include <linux/securebits.h>
@@ -560,22 +562,22 @@ Common_Tools::setThreadName (const std::string& name_in,
   // *NOTE*: code based on MSDN article (see:
   //         https://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx)
   const DWORD MS_VC_EXCEPTION = 0x406D1388;
-#pragma pack (push, 8)  
+#pragma pack (push, 8)
   typedef struct tagTHREADNAME_INFO
   {
-    DWORD dwType;     // Must be 0x1000.  
-    LPCSTR szName;    // Pointer to name (in user addr space).  
-    DWORD dwThreadID; // Thread ID (-1=caller thread).  
-    DWORD dwFlags;    // Reserved for future use, must be zero.  
+    DWORD dwType;     // Must be 0x1000.
+    LPCSTR szName;    // Pointer to name (in user addr space).
+    DWORD dwThreadID; // Thread ID (-1=caller thread).
+    DWORD dwFlags;    // Reserved for future use, must be zero.
   } THREADNAME_INFO;
-#pragma pack (pop)  
+#pragma pack (pop)
   THREADNAME_INFO info_s;
   info_s.dwType = 0x1000;
   info_s.szName = ACE_TEXT_ALWAYS_CHAR (name_in.c_str ());
   info_s.dwThreadID = (!threadId_in ? -1 : threadId_in);
   info_s.dwFlags = 0;
-#pragma warning (push)  
-#pragma warning (disable: 6320 6322)  
+#pragma warning (push)
+#pragma warning (disable: 6320 6322)
   __try {
     RaiseException (MS_VC_EXCEPTION,
                     0,
@@ -748,32 +750,95 @@ Common_Tools::printLocales ()
 }
 
 bool
-Common_Tools::isLinux ()
+Common_Tools::isLinux (enum Common_PlatformOSType& distribution_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::isLinux"));
+
+  // initialize return value(s)
+  distribution_out = COMMON_PLATFORM_OS_INVALID;
 
   int result = -1;
 
   // get system information
-  ACE_utsname name;
-  result = ACE_OS::uname (&name);
+  ACE_utsname utsname_s;
+  result = ACE_OS::uname (&utsname_s);
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::uname(): \"%m\", aborting\n")));
     return false;
   } // end IF
+#if (_DEBUG)
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("platform/OS info: %s (%s), %s %s, %s\n"),
+              ACE_TEXT (utsname_s.nodename),
+              ACE_TEXT (utsname_s.machine),
+              ACE_TEXT (utsname_s.sysname),
+              ACE_TEXT (utsname_s.release),
+              ACE_TEXT (utsname_s.version)));
+#endif
+  std::string sysname_string (utsname_s.sysname);
+  if (sysname_string.find (ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LINUX_UNAME_STRING),
+                           0))
+    return false;
 
-//   ACE_DEBUG ((LM_DEBUG,
-//               ACE_TEXT ("local system info: %s (%s), %s %s, %s\n"),
-//               name.nodename,
-//               name.machine,
-//               name.sysname,
-//               name.release,
-//               name.version));
+  // this appears to be a Linux system
+  // --> try to determine the distribution
+  std::string lsb_release_output_string;
+  std::string command_line_string = ACE_TEXT_ALWAYS_CHAR ("lsb_release -i");
+  if (unlikely (!Common_Tools::command (command_line_string,
+                                        lsb_release_output_string)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
+                ACE_TEXT (command_line_string.c_str ())));
+    return false;
+  } // end IF
+  ACE_ASSERT (!lsb_release_output_string.empty ());
 
-  std::string kernel_name_string (name.sysname);
-  return (kernel_name_string.find (ACE_TEXT_ALWAYS_CHAR ("Linux"), 0) == 0);
+  std::string distribution_id_string;
+  std::istringstream converter;
+  char buffer [BUFSIZ];
+  std::string regex_string = ACE_TEXT_ALWAYS_CHAR ("^(Distributor ID: )(.+)$");
+  std::regex regex (regex_string);
+  std::smatch match_results;
+  converter.str (lsb_release_output_string);
+  std::string buffer_string;
+  do
+  {
+    converter.getline (buffer, sizeof (buffer));
+    buffer_string = buffer;
+    if (!std::regex_match (buffer_string,
+                           match_results,
+                           regex,
+                           std::regex_constants::match_default))
+      continue;
+    ACE_ASSERT (match_results.ready () && !match_results.empty ());
+    ACE_ASSERT (match_results[1].matched);
+
+    distribution_id_string = match_results[1];
+    break;
+  } while (!converter.fail ());
+  if (unlikely (distribution_id_string.empty ()))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to retrieve Linux distributor id (lsb_release output was: \"%s\"), continuing\n"),
+                ACE_TEXT (lsb_release_output_string.c_str ())));
+    return true;
+  } // end IF
+
+  if (!ACE_OS::strcmp (distribution_id_string.c_str (),
+                       ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LSB_DEBIAN_STRING)))
+    distribution_out = COMMON_PLATFORM_OS_DEBIAN;
+  else if (!ACE_OS::strcmp (distribution_id_string.c_str (),
+                            ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LSB_OPENSUSE_STRING)))
+    distribution_out = COMMON_PLATFORM_OS_OPENSUSE;
+  else
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("failed to determine Linux distribution (lsb_release output was: \"%s\"), continuing\n"),
+                ACE_TEXT (lsb_release_output_string.c_str ())));
+
+  return true;
 }
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -839,7 +904,7 @@ Common_Tools::hasCapability (unsigned long capability_in,
     return false;
   } // end IF
 
-  cap_flag_value_t in_set;
+  cap_flag_value_t in_set = CAP_CLEAR;
   int result_2 = ::cap_get_flag (capabilities_p, capability_in,
                                  set_in, &in_set);
   if (unlikely (result_2 == -1))
@@ -899,90 +964,113 @@ Common_Tools::printCapabilities ()
     return;
   } // end IF
 
-  // step2: in bounding/ambient set of the calling thread ?
-  ACE_DEBUG ((LM_INFO,
-              ACE_TEXT ("%P:%t: capability bounding/ambient:effective/inheritable/permitted\n")));
-  bool in_bounding_set, in_ambient_set;
-  cap_flag_value_t in_effective_set, in_inheritable_set, in_permitted_set;
-  char* capability_name_string_p = NULL;
-  for (unsigned long capability = 0;
-       capability <= CAP_LAST_CAP;
-       ++capability)
+  ssize_t length_i = 0;
+  char* string_p = cap_to_text (capabilities_p, &length_i);
+  if (unlikely (!string_p))
   {
-    capability_name_string_p = cap_to_name (capability);
-    if (unlikely (!capability_name_string_p))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ::cap_to_name(%d): \"%m\", continuing\n"),
-                  capability));
-      continue;
-    } // end IF
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::cap_to_text(): \"%m\", returning\n")));
+    goto clean;
+  } // end IF
+  ACE_DEBUG ((LM_INFO,
+              ACE_TEXT ("%P:%t: capabilities: %s\n"),
+              ACE_TEXT (string_p)));
 
-    result = ::prctl (PR_CAPBSET_READ,
-                      capability, 0, 0, 0);
-    if (unlikely (result == -1))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ::prctl(PR_CAPBSET_READ,\"%s\"): \"%m\", continuing\n"),
-                  ACE_TEXT (capability_name_string_p)));
-      goto continue_;
-    } // end IF
-    in_bounding_set = (result == 1);
-
-    // *TODO*: currently, this fails on Linux (Debian)...
-    result = 0;
-//    result = ::prctl (PR_CAP_AMBIENT,
-//                      PR_CAP_AMBIENT_IS_SET, capability, 0, 0);
-//    if (result == -1)
+//  // step2: in bounding/ambient set of the calling thread ?
+//  ACE_DEBUG ((LM_INFO,
+//              ACE_TEXT ("%P:%t: capability bounding/ambient:effective/inheritable/permitted\n")));
+//  bool in_bounding_set, in_ambient_set;
+//  cap_flag_value_t in_effective_set, in_inheritable_set, in_permitted_set;
+//  char* capability_name_string_p = NULL;
+//  for (unsigned long capability = 0;
+//       capability <= CAP_LAST_CAP;
+//       ++capability)
+//  {
+//    capability_name_string_p = cap_to_name (capability);
+//    if (unlikely (!capability_name_string_p))
 //    {
 //      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("failed to ::prctl(PR_CAP_AMBIENT,PR_CAP_AMBIENT_IS_SET,\"%s\"): \"%m\", returning\n"),
-//                  capability_name_string_p));
+//                  ACE_TEXT ("failed to ::cap_to_name(%d): \"%m\", continuing\n"),
+//                  capability));
+//      continue;
+//    } // end IF
+
+//    result = ::prctl (PR_CAPBSET_READ,
+//                      capability, 0, 0, 0);
+//    if (unlikely (result == -1))
+//    {
+//      ACE_DEBUG ((LM_ERROR,
+//                  ACE_TEXT ("failed to ::prctl(PR_CAPBSET_READ,\"%s\"): \"%m\", continuing\n"),
+//                  ACE_TEXT (capability_name_string_p)));
 //      goto continue_;
 //    } // end IF
-    in_ambient_set = (result == 1);
+//    in_bounding_set = (result == 1);
 
-    result = ::cap_get_flag (capabilities_p, capability,
-                             CAP_EFFECTIVE, &in_effective_set);
-    if (unlikely (result == -1))
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ::cap_get_flag(CAP_EFFECTIVE,\"%s\"): \"%m\", continuing\n"),
-                  ACE_TEXT (capability_name_string_p)));
-    result = ::cap_get_flag (capabilities_p, capability,
-                             CAP_INHERITABLE, &in_inheritable_set);
-    if (unlikely (result == -1))
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ::cap_get_flag(CAP_INHERITABLE,\"%s\"): \"%m\", continuing\n"),
-                  ACE_TEXT (capability_name_string_p)));
-    result = ::cap_get_flag (capabilities_p, capability,
-                             CAP_PERMITTED, &in_permitted_set);
-    if (unlikely (result == -1))
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ::cap_get_flag(CAP_PERMITTED,\"%s\"): \"%m\", continuing\n"),
-                  ACE_TEXT (capability_name_string_p)));
+//    // *TODO*: currently, this fails on Linux (Debian)...
+//    result = 0;
+////    result = ::prctl (PR_CAP_AMBIENT,
+////                      PR_CAP_AMBIENT_IS_SET, capability, 0, 0);
+////    if (result == -1)
+////    {
+////      ACE_DEBUG ((LM_ERROR,
+////                  ACE_TEXT ("failed to ::prctl(PR_CAP_AMBIENT,PR_CAP_AMBIENT_IS_SET,\"%s\"): \"%m\", returning\n"),
+////                  capability_name_string_p));
+////      goto continue_;
+////    } // end IF
+//    in_ambient_set = (result == 1);
 
-    ACE_DEBUG ((LM_INFO,
-                ACE_TEXT ("\"%s\" (%d):\t%s/%s\t%s/%s/%s\n"),
-                ACE_TEXT (capability_name_string_p), capability,
-                (in_bounding_set ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
-                (in_ambient_set ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
-                ((in_effective_set == CAP_SET) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
-                ((in_inheritable_set == CAP_SET) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
-                ((in_permitted_set == CAP_SET) ? ACE_TEXT ("yes") : ACE_TEXT ("no"))));
+//    result = ::cap_get_flag (capabilities_p, capability,
+//                             CAP_EFFECTIVE, &in_effective_set);
+//    if (unlikely (result == -1))
+//      ACE_DEBUG ((LM_ERROR,
+//                  ACE_TEXT ("failed to ::cap_get_flag(CAP_EFFECTIVE,\"%s\"): \"%m\", continuing\n"),
+//                  ACE_TEXT (capability_name_string_p)));
+//    result = ::cap_get_flag (capabilities_p, capability,
+//                             CAP_INHERITABLE, &in_inheritable_set);
+//    if (unlikely (result == -1))
+//      ACE_DEBUG ((LM_ERROR,
+//                  ACE_TEXT ("failed to ::cap_get_flag(CAP_INHERITABLE,\"%s\"): \"%m\", continuing\n"),
+//                  ACE_TEXT (capability_name_string_p)));
+//    result = ::cap_get_flag (capabilities_p, capability,
+//                             CAP_PERMITTED, &in_permitted_set);
+//    if (unlikely (result == -1))
+//      ACE_DEBUG ((LM_ERROR,
+//                  ACE_TEXT ("failed to ::cap_get_flag(CAP_PERMITTED,\"%s\"): \"%m\", continuing\n"),
+//                  ACE_TEXT (capability_name_string_p)));
 
-    // clean up
-continue_:
-    result = cap_free (capability_name_string_p);
-    if (unlikely (result == -1))
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
-  } // end FOR
+//    ACE_DEBUG ((LM_INFO,
+//                ACE_TEXT ("\"%s\" (%d):\t%s/%s\t%s/%s/%s\n"),
+//                ACE_TEXT (capability_name_string_p), capability,
+//                (in_bounding_set ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+//                (in_ambient_set ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+//                ((in_effective_set == CAP_SET) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+//                ((in_inheritable_set == CAP_SET) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+//                ((in_permitted_set == CAP_SET) ? ACE_TEXT ("yes") : ACE_TEXT ("no"))));
+
+//    // clean up
+//continue_:
+//    result = cap_free (capability_name_string_p);
+//    if (unlikely (result == -1))
+//        ACE_DEBUG ((LM_ERROR,
+//                    ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
+//  } // end FOR
 
   // clean up
-  result = cap_free (capabilities_p);
-  if (unlikely (result == -1))
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
+clean:
+  if (likely (string_p))
+  {
+    result = cap_free (string_p);
+    if (unlikely (result == -1))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
+  } // end IF
+  if (likely (capabilities_p))
+  {
+    result = cap_free (capabilities_p);
+    if (unlikely (result == -1))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
+  } // end IF
 }
 
 bool
@@ -1018,7 +1106,7 @@ Common_Tools::setCapability (unsigned long capability_in,
   if (likely (set_in == CAP_EFFECTIVE))
   {
     // verify that the capability is in the 'permitted' set
-    cap_flag_value_t in_permitted_set;
+    cap_flag_value_t in_permitted_set = CAP_CLEAR;
     result_2 = ::cap_get_flag (capabilities_p, capability_in,
                                CAP_PERMITTED, &in_permitted_set);
     if (unlikely (result_2 == -1))
@@ -1114,7 +1202,63 @@ clean:
 
   return result;
 }
+#endif
 
+bool
+Common_Tools::command (const std::string& commandLine_in,
+                       std::string& stdOut_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::command"));
+
+  int result = -1;
+
+  // sanity check(s)
+  ACE_ASSERT (!commandLine_in.empty ());
+  stdOut_out.clear ();
+
+  std::string filename_string =
+      Common_File_Tools::getTempFilename (ACE_TEXT_ALWAYS_CHAR (""));
+  std::string command_line_string = commandLine_in;
+  command_line_string += ACE_TEXT_ALWAYS_CHAR (" >> ");
+  command_line_string += filename_string;
+
+  result = ACE_OS::system (ACE_TEXT (command_line_string.c_str ()));
+//  result = execl ("/bin/sh", "sh", "-c", command, (char *) 0);
+  if (unlikely ((result == -1)      ||
+                !WIFEXITED (result) ||
+                WEXITSTATUS (result)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::system(\"%s\"): \"%m\" (result was: %d), aborting\n"),
+                ACE_TEXT (commandLine_in.c_str ()),
+                WEXITSTATUS (result)));
+    return false;
+  } // end IF
+
+  // sanity check(s)
+  ACE_ASSERT (Common_File_Tools::isReadable (filename_string));
+
+  unsigned char* data_p = NULL;
+  if (unlikely (!Common_File_Tools::load (filename_string,
+                                          data_p)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (filename_string.c_str ())));
+    return false;
+  } // end IF
+  if (unlikely (!Common_File_Tools::deleteFile (filename_string)))
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_File_Tools::deleteFile(\"%s\"), continuing\n"),
+                ACE_TEXT (filename_string.c_str ())));
+  stdOut_out = reinterpret_cast<char* >(data_p);
+  delete [] data_p;
+
+  return true;
+}
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
 pid_t
 Common_Tools::getProcessId (const std::string& executableName_in)
 {

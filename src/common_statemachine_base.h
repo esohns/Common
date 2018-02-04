@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -30,7 +30,12 @@
 // forward declarations
 class ACE_Time_Value;
 
-template <ACE_SYNCH_DECL,
+// static variables
+static const char default_statemachine_name_string_[] =
+  ACE_TEXT_ALWAYS_CHAR ("StateMachine");
+
+template <const char* StateMachineName, // *TODO*: use a variadic character array
+          ACE_SYNCH_DECL,
           typename StateType,     // implements enum
           typename InterfaceType> // implements Common_IStateMachine_T<StateType>
 class Common_StateMachine_Base_T
@@ -40,7 +45,11 @@ class Common_StateMachine_Base_T
  public:
   // convenient types
   typedef InterfaceType INTERFACE_T;
- 
+  typedef Common_StateMachine_Base_T<StateMachineName,
+                                     ACE_SYNCH_USE,
+                                     StateType,
+                                     InterfaceType> STATEMACHINE_BASE_T;
+
   virtual ~Common_StateMachine_Base_T ();
 
   // implement (part of) Common_IStateMachine_T

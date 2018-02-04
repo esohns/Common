@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -23,10 +23,12 @@
 
 #include "common_macros.h"
 
-template <ACE_SYNCH_DECL,
+template <const char* StateMachineName,
+          ACE_SYNCH_DECL,
           typename StateType,
           typename InterfaceType>
-Common_StateMachine_Base_T<ACE_SYNCH_USE,
+Common_StateMachine_Base_T<StateMachineName,
+                           ACE_SYNCH_USE,
                            StateType,
                            InterfaceType>::Common_StateMachine_Base_T (ACE_SYNCH_MUTEX_T* lock_in,
                                                                        StateType state_in)
@@ -41,14 +43,17 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
     if (unlikely (!initialize (*stateLock_)))
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to Common_StateMachine_Base_T::initialize, continuing\n")));
+                  ACE_TEXT ("%s: failed to Common_StateMachine_Base_T::initialize, continuing\n"),
+                  ACE_TEXT (StateMachineName)));
     } // end IF
 }
 
-template <ACE_SYNCH_DECL,
+template <const char* StateMachineName,
+          ACE_SYNCH_DECL,
           typename StateType,
           typename InterfaceType>
-Common_StateMachine_Base_T<ACE_SYNCH_USE,
+Common_StateMachine_Base_T<StateMachineName,
+                           ACE_SYNCH_USE,
                            StateType,
                            InterfaceType>::~Common_StateMachine_Base_T ()
 {
@@ -59,11 +64,13 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
     delete condition_;
 }
 
-template <ACE_SYNCH_DECL,
+template <const char* StateMachineName,
+          ACE_SYNCH_DECL,
           typename StateType,
           typename InterfaceType>
 StateType
-Common_StateMachine_Base_T<ACE_SYNCH_USE,
+Common_StateMachine_Base_T<StateMachineName,
+                           ACE_SYNCH_USE,
                            StateType,
                            InterfaceType>::current () const
 {
@@ -81,11 +88,13 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
   return result;
 }
 
-template <ACE_SYNCH_DECL,
+template <const char* StateMachineName,
+          ACE_SYNCH_DECL,
           typename StateType,
           typename InterfaceType>
 bool
-Common_StateMachine_Base_T<ACE_SYNCH_USE,
+Common_StateMachine_Base_T<StateMachineName,
+                           ACE_SYNCH_USE,
                            StateType,
                            InterfaceType>::wait (StateType state_in,
                                                  const ACE_Time_Value* timeout_in) const
@@ -108,7 +117,8 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
         int error = ACE_OS::last_error ();
         if (error != ETIME) // 137: timed out
           ACE_DEBUG ((LM_ERROR,
-                      ACE_TEXT ("failed to ACE_Condition::wait(%#T): \"%m\", aborting\n"),
+                      ACE_TEXT ("%s: failed to ACE_Condition::wait(%#T): \"%m\", aborting\n"),
+                      ACE_TEXT (StateMachineName),
                       timeout_in));
         goto continue_; // timed out ?
       } // end IF
@@ -116,7 +126,8 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
     if (unlikely (state_ != state_in))
     {
       ACE_DEBUG ((LM_WARNING,
-                  ACE_TEXT ("reached state %s (requested: %s), continuing\n"),
+                  ACE_TEXT ("%s: reached state %s (requested: %s), continuing\n"),
+                  ACE_TEXT (StateMachineName),
                   ACE_TEXT (this->stateToString (state_).c_str ()),
                   ACE_TEXT (this->stateToString (state_in).c_str ())));
     } // end IF
@@ -133,11 +144,13 @@ continue_:
   return result;
 }
 
-template <ACE_SYNCH_DECL,
+template <const char* StateMachineName,
+          ACE_SYNCH_DECL,
           typename StateType,
           typename InterfaceType>
 bool
-Common_StateMachine_Base_T<ACE_SYNCH_USE,
+Common_StateMachine_Base_T<StateMachineName,
+                           ACE_SYNCH_USE,
                            StateType,
                            InterfaceType>::initialize (const ACE_SYNCH_MUTEX_T& lock_in)
 {
@@ -168,11 +181,13 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
   return true;
 }
 
-template <ACE_SYNCH_DECL,
+template <const char* StateMachineName,
+          ACE_SYNCH_DECL,
           typename StateType,
           typename InterfaceType>
 bool
-Common_StateMachine_Base_T<ACE_SYNCH_USE,
+Common_StateMachine_Base_T<StateMachineName,
+                           ACE_SYNCH_USE,
                            StateType,
                            InterfaceType>::change (StateType newState_in)
 {
@@ -197,7 +212,8 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
     this->onChange (newState_in);
   } catch (...) {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("caught exception in Common_IStateMachine_T::onChange(%s), aborting\n"),
+                ACE_TEXT ("%s: caught exception in Common_IStateMachine_T::onChange(%s), aborting\n"),
+                ACE_TEXT (StateMachineName),
                 ACE_TEXT (this->stateToString (newState_in).c_str ())));
     result = false;
   }
@@ -216,7 +232,8 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
   } // end lock scope
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("\"%s\" --> \"%s\"\n"),
+              ACE_TEXT ("%s: \"%s\" --> \"%s\"\n"),
+              ACE_TEXT (StateMachineName),
               ACE_TEXT (this->stateToString (previous_state).c_str ()),
               ACE_TEXT (this->stateToString (newState_in).c_str ())));
 #endif
@@ -227,7 +244,8 @@ Common_StateMachine_Base_T<ACE_SYNCH_USE,
     int result_2 = condition_->broadcast ();
     if (unlikely (result_2 == -1))
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Condition::broadcast(): \"%m\", continuing\n")));
+                  ACE_TEXT ("%s: failed to ACE_Condition::broadcast(): \"%m\", continuing\n"),
+                  ACE_TEXT (StateMachineName)));
   } // end IF
 
   return result;

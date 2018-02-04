@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -36,6 +36,19 @@
 #include "common_ilock.h"
 #include "common_itask.h"
 #include "common_itaskcontrol.h"
+
+enum Common_PlatformOSType : int
+{
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  COMMON_PLATFORM_OS_WIN32 = 0,
+#elif defined (ACE_LINUX)
+  COMMON_PLATFORM_OS_DEBIAN = 0,
+  COMMON_PLATFORM_OS_OPENSUSE,
+#endif // ACE_LINUX
+  ///////////////////////////////////////
+  COMMON_PLATFORM_OS_INVALID,
+  COMMON_PLATFORM_OS_MAX
+};
 
 enum Common_SignalDispatchType : int
 {

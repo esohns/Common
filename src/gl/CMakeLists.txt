@@ -6,10 +6,18 @@ endif ()
 include (FindPkgConfig)
 if (UNIX)
 # pkg_check_modules (PKG_GLM REQUIRED glm)
-# find_library (GLM_LIBRARY ${GLM_H_FILE}
-#               PATHS /lib /usr/lib
-#               PATH_SUFFIXES x86_64-linux-gnu
-#               DOC "searching for ${GLM_H_FILE}")
+ find_file (GLM_HPP_FILE
+            NAMES "glm.hpp"
+            HINTS /usr/include
+            PATHS /usr/include
+            PATH_SUFFIXES glm
+            DOC "searching for glm.h"
+            NO_DEFAULT_PATH)
+ if (NOT GLM_HPP_FILE)
+  message (FATAL_ERROR "Could not find GLM header (was: \"${GLM_HPP_FILE}\"), aborting")
+ else ()
+  #message (STATUS "Found GLM header \"${GLM_HPP_FILE}\"")
+ endif ()
  pkg_check_modules (PKG_LIBPNG REQUIRED libpng)
  pkg_check_modules (PKG_ASSIMP REQUIRED assimp)
 endif ()
@@ -46,25 +54,26 @@ elseif (WIN32)
 endif ()
 #if (NOT EXISTS ACE_LIBRARY)
 if (NOT ACE_LIBRARY)
- message (FATAL_ERROR "Could not find ${ACE_LIB_FILE} (was: \"${ACE_LIBRARY}\"), aborting")
+ message (FATAL_ERROR "Could not find ACE library (was: \"${ACE_LIB_FILE}\"), aborting")
 else ()
  #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
 endif ()
 add_definitions (-DACE_HAS_DLL)
 
 if (UNIX)
-  include_directories (${PKG_ASSIMP_INCLUDE_DIRS})
-  include_directories (${PKG_GLM_INCLUDE_DIRS})
-  include_directories (${PKG_LIBPNG_INCLUDE_DIRS})
-  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE)
+ include_directories (${PKG_LIBPNG_INCLUDE_DIRS})
+ include_directories (${PKG_ASSIMP_INCLUDE_DIRS})
+ include_directories (${PKG_GLM_INCLUDE_DIRS})
+
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE)
 elseif (WIN32)
-  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../assimp/include)
-  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../glm)
-  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25)
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../assimp/include)
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../glm)
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25)
 
-  include_directories ($ENV{ACE_ROOT})
+ include_directories ($ENV{ACE_ROOT})
 
-  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../3rd_party)
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../3rd_party)
 endif ()
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../image)

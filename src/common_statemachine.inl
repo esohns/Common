@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -23,10 +23,12 @@
 #include "common_defines.h"
 #include "common_macros.h"
 
-template <ACE_SYNCH_DECL,
+template <const char* StateMachineName,
+          ACE_SYNCH_DECL,
           typename StateType,
           typename InterfaceType>
-Common_StateMachine_T<ACE_SYNCH_USE,
+Common_StateMachine_T<StateMachineName,
+                      ACE_SYNCH_USE,
                       StateType,
                       InterfaceType>::Common_StateMachine_T (ACE_SYNCH_MUTEX_T* lock_in,
                                                              StateType state_in)
@@ -39,11 +41,13 @@ Common_StateMachine_T<ACE_SYNCH_USE,
 
 //////////////////////////////////////////
 
-template <ACE_SYNCH_DECL,
+template <const char* StateMachineName,
+          ACE_SYNCH_DECL,
           typename TimePolicyType,
           typename LockType,
           typename StateType>
-Common_StateMachineAsynch_T<ACE_SYNCH_USE,
+Common_StateMachineAsynch_T<StateMachineName,
+                            ACE_SYNCH_USE,
                             TimePolicyType,
                             LockType,
                             StateType>::Common_StateMachineAsynch_T (const std::string& threadName_in,
@@ -62,12 +66,14 @@ Common_StateMachineAsynch_T<ACE_SYNCH_USE,
 
 }
 
-template <ACE_SYNCH_DECL,
+template <const char* StateMachineName,
+          ACE_SYNCH_DECL,
           typename TimePolicyType,
           typename LockType,
           typename StateType>
 void
-Common_StateMachineAsynch_T<ACE_SYNCH_USE,
+Common_StateMachineAsynch_T<StateMachineName,
+                            ACE_SYNCH_USE,
                             TimePolicyType,
                             LockType,
                             StateType>::handle (ACE_Message_Block*& message_inout)
@@ -83,17 +89,19 @@ Common_StateMachineAsynch_T<ACE_SYNCH_USE,
 
   bool result = false;
   try {
-    result = change (next_state_e);
+    result = inherited2::change (next_state_e);
   } catch (...) {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("(%s/%t): caught exception in Common_IStateMachine_T::change(%s), continuing\n"),
+                ACE_TEXT ("%s: (%s/%t): caught exception in Common_IStateMachine_T::change(%s), continuing\n"),
+                ACE_TEXT (StateMachineName),
                 ACE_TEXT (inherited::threadName_.c_str ()),
                 ACE_TEXT (stateToString (next_state_e).c_str ())));
 //    result = false;
   }
   if (unlikely (!result))
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("(%s/%t): failed to Common_IStateMachine_T::change(%s), continuing\n"),
+                ACE_TEXT ("%s: (%s/%t): failed to Common_IStateMachine_T::change(%s), continuing\n"),
+                ACE_TEXT (StateMachineName),
                 ACE_TEXT (inherited::threadName_.c_str ()),
                 ACE_TEXT (stateToString (next_state_e).c_str ())));
 }

@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -28,21 +28,25 @@
 #include "common_statemachine_base.h"
 #include "common_task.h"
 
-template <ACE_SYNCH_DECL,
+template <const char* StateMachineName, // *TODO*: use a variadic character array
+          ACE_SYNCH_DECL,
           typename StateType,     // implements enum
           typename InterfaceType> // implements Common_IStateMachine_T<StateType>
 class Common_StateMachine_T
- : public Common_StateMachine_Base_T<ACE_SYNCH_USE,
+ : public Common_StateMachine_Base_T<StateMachineName,
+                                     ACE_SYNCH_USE,
                                      StateType,
                                      InterfaceType>
 {
-  typedef Common_StateMachine_Base_T<ACE_SYNCH_USE,
+  typedef Common_StateMachine_Base_T<StateMachineName,
+                                     ACE_SYNCH_USE,
                                      StateType,
                                      InterfaceType> inherited;
 
  public:
   // convenient types
-  typedef Common_StateMachine_T<ACE_SYNCH_USE,
+  typedef Common_StateMachine_T<StateMachineName,
+                                ACE_SYNCH_USE,
                                 StateType,
                                 InterfaceType> STATEMACHINE_T;
 
@@ -60,7 +64,8 @@ class Common_StateMachine_T
 
 //////////////////////////////////////////
 
-template <ACE_SYNCH_DECL,
+template <const char* StateMachineName, // *TODO*: use a variadic character array
+          ACE_SYNCH_DECL,
           typename TimePolicyType,
           typename LockType,       // implements Common_ILock_T/Common_IRecursiveLock_T
           typename StateType>      // implements enum
@@ -69,7 +74,8 @@ class Common_StateMachineAsynch_T
                         TimePolicyType,
                         LockType,
                         ACE_Message_Block>
- , public Common_StateMachine_Base_T<ACE_SYNCH_USE,
+ , public Common_StateMachine_Base_T<StateMachineName,
+                                     ACE_SYNCH_USE,
                                      StateType,
                                      Common_IStateMachine_2<StateType> >
 {
@@ -77,7 +83,8 @@ class Common_StateMachineAsynch_T
                         TimePolicyType,
                         LockType,
                         ACE_Message_Block> inherited;
-  typedef Common_StateMachine_Base_T<ACE_SYNCH_USE,
+  typedef Common_StateMachine_Base_T<StateMachineName,
+                                     ACE_SYNCH_USE,
                                      StateType,
                                      Common_IStateMachine_2<StateType> > inherited2;
 
@@ -87,7 +94,8 @@ class Common_StateMachineAsynch_T
                         TimePolicyType,
                         LockType,
                         ACE_Message_Block> TASK_T;
-  typedef Common_StateMachineAsynch_T<ACE_SYNCH_USE,
+  typedef Common_StateMachineAsynch_T<StateMachineName,
+                                      ACE_SYNCH_USE,
                                       TimePolicyType,
                                       LockType,
                                       StateType> STATEMACHINE_T;

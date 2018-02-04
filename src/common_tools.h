@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -68,11 +68,11 @@ class Common_Tools
 
   static void printLocales ();
 
-  static bool isLinux ();
+  static bool isLinux (enum Common_PlatformOSType&); // return value: distribution
 
-  // --- capabilities ---
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
+  // --- capabilities ---
   static std::string capabilityToString (unsigned long); // capability
   static bool hasCapability (unsigned long,               // capability
                              cap_flag_t = CAP_EFFECTIVE); // set
@@ -84,6 +84,9 @@ class Common_Tools
 #endif
 
   // --- process ---
+  // *NOTE*: the command line must not have piped stdout
+  static bool command (const std::string&, // command line
+                       std::string&);      // return value: stdout
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
   static pid_t getProcessId (const std::string&); // executable (base-)name
