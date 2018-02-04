@@ -46,13 +46,15 @@ template <ACE_SYNCH_DECL,
 Common_StateMachineAsynch_T<ACE_SYNCH_USE,
                             TimePolicyType,
                             LockType,
-                            StateType>::Common_StateMachineAsynch_T (ACE_SYNCH_MUTEX_T* lock_in,
+                            StateType>::Common_StateMachineAsynch_T (const std::string& threadName_in,
+                                                                     int threadGroupId_in,
+                                                                     ACE_SYNCH_MUTEX_T* lock_in,
                                                                      StateType state_in)
- : inherited (ACE_TEXT_ALWAYS_CHAR (COMMON_STATEMACHINE_THREAD_NAME), // thread name
-              COMMON_STATEMACHINE_THREAD_GROUP_ID,                    // group id
-              1,                                                      // # thread(s)
-              false,                                                  // auto-start ?
-              NULL)                                                   // queue handle
+ : inherited (threadName_in,    // thread name
+              threadGroupId_in, // group id
+              1,                // # thread(s)
+              false,            // auto-start ?
+              NULL)             // queue handle
  , inherited2 (lock_in,
                state_in)
 {
@@ -81,17 +83,17 @@ Common_StateMachineAsynch_T<ACE_SYNCH_USE,
 
   bool result = false;
   try {
-    result = inherited2::change (next_state_e);
+    result = change (next_state_e);
   } catch (...) {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("(%s/%t): caught exception in Common_IStateMachine_T::change(%s), continuing\n"),
                 ACE_TEXT (inherited::threadName_.c_str ()),
-                ACE_TEXT (inherited2::stateToString (next_state_e).c_str ())));
+                ACE_TEXT (stateToString (next_state_e).c_str ())));
 //    result = false;
   }
   if (unlikely (!result))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("(%s/%t): failed to Common_IStateMachine_T::change(%s), continuing\n"),
                 ACE_TEXT (inherited::threadName_.c_str ()),
-                ACE_TEXT (inherited2::stateToString (next_state_e).c_str ())));
+                ACE_TEXT (stateToString (next_state_e).c_str ())));
 }

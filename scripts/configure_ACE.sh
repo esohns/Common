@@ -9,6 +9,7 @@
 # sanity checks
 command -v dirname >/dev/null 2>&1 || { echo "dirname is not installed, aborting" >&2; exit 1; }
 command -v patch >/dev/null 2>&1 || { echo "patch is not installed, aborting" >&2; exit 1; }
+command -v perl >/dev/null 2>&1 || { echo "perl is not installed, aborting" >&2; exit 1; }
 command -v readlink >/dev/null 2>&1 || { echo "readlink is not installed, aborting" >&2; exit 1; }
 
 DEFAULT_PLATFORM="win32"
@@ -59,8 +60,13 @@ PROJECT_DIRECTORY=${DEFAULT_PROJECT_DIRECTORY}
 DEFAULT_MPC_DIRECTORY=/mnt/win_d/projects/MPC # <-- UNIX
 if [ ! -d ${DEFAULT_MPC_DIRECTORY} ]
 then
-  DEFAULT_MPC_DIRECTORY=/d/projects/MPC # <-- cygwin/mingw/msys
-  [ ! -d ${DEFAULT_MPC_DIRECTORY} ] && echo "ERROR: invalid MPC directory (was: \"${DEFAULT_MPC_DIRECTORY}\"), aborting" && exit 1
+ if [ ! -z ${MPC_ROOT} ]
+ then
+  DEFAULT_MPC_DIRECTORY=${MPC_ROOT} # <-- cygwin/mingw/msys
+ else
+  DEFAULT_MPC_DIRECTORY=/d/projects/MPC # <-- mingw/msys
+ fi
+ [ ! -d ${DEFAULT_MPC_DIRECTORY} ] && echo "ERROR: invalid MPC directory (was: \"${DEFAULT_MPC_DIRECTORY}\"), aborting" && exit 1
 fi
 MPC_DIRECTORY=${DEFAULT_MPC_DIRECTORY}
 if [ -z ${MPC_ROOT} ]
@@ -74,8 +80,13 @@ fi
 DEFAULT_ACE_DIRECTORY=/mnt/win_d/projects/ATCD/ACE # <-- UNIX
 if [ ! -d ${DEFAULT_ACE_DIRECTORY} ]
 then
-  DEFAULT_ACE_DIRECTORY=/d/projects/ATCD/ACE # <-- cygwin/mingw/msys
-  [ ! -d ${DEFAULT_ACE_DIRECTORY} ] && echo "ERROR: invalid MPC directory (was: \"${DEFAULT_ACE_DIRECTORY}\"), aborting" && exit 1
+ if [ ! -z ${ACE_ROOT} ]
+ then
+  DEFAULT_ACE_DIRECTORY=${ACE_ROOT} # <-- cygwin/mingw/msys
+ else
+  DEFAULT_ACE_DIRECTORY=/d/projects/ATCD/ACE # <-- mingw/msys
+ fi
+ [ ! -d ${DEFAULT_ACE_DIRECTORY} ] && echo "ERROR: invalid ACE directory (was: \"${DEFAULT_ACE_DIRECTORY}\"), aborting" && exit 1
 fi
 ACE_DIRECTORY=${DEFAULT_ACE_DIRECTORY}
 if [ -z ${ACE_ROOT} ]
@@ -101,6 +112,7 @@ done
 DEFAULT_ACE_BUILD_DIRECTORY=${ACE_DIRECTORY} # <-- win32
 case "${PLATFORM}" in
  win32)
+  ACE_BUILD_DIRECTORY=${DEFAULT_ACE_BUILD_DIRECTORY}
   ;;
  linux|*)
   ACE_BUILD_DIRECTORY=${DEFAULT_ACE_DIRECTORY}/build/${PLATFORM}
@@ -119,7 +131,7 @@ FEATURES_FILE_DIRECTORY=${PROJECT_DIRECTORY}/3rd_party/ACE_wrappers
 [ ! -d ${FEATURES_FILE_DIRECTORY} ] && echo "ERROR: invalid feature file directory (was: \"${FEATURES_FILE_DIRECTORY}\"), aborting" && exit 1
 LOCAL_FEATURES_FILE=${FEATURES_FILE_DIRECTORY}/local.features
 [ ! -r ${LOCAL_FEATURES_FILE} ] && echo "ERROR: invalid file (was: \"${LOCAL_FEATURES_FILE}\"), aborting" && exit 1
-echo "INFO: feature file is: \"${LOCAL_FEATURES_FILE}\")"
+echo "INFO: feature file is: \"${LOCAL_FEATURES_FILE}\""
 
 ACE_MWC_FILE=${ACE_BUILD_DIRECTORY}/ACE.mwc
 [ ! -r ${ACE_MWC_FILE} ] && echo "ERROR: invalid mpc configuration file (was: \"${ACE_MWC_FILE}\"), aborting" && exit 1

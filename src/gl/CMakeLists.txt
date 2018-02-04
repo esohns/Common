@@ -1,13 +1,17 @@
-include (FindOpenGL)
+﻿include (FindOpenGL)
 if (NOT OPENGL_FOUND)
  message (FATAL_ERROR "OpenGL support not found on this system, aborting")
 endif ()
 
 include (FindPkgConfig)
 if (UNIX)
- pkg_check_modules (PKG_ASSIMP REQUIRED assimp)
- pkg_check_modules (PKG_GLM REQUIRED glm)
+# pkg_check_modules (PKG_GLM REQUIRED glm)
+# find_library (GLM_LIBRARY ${GLM_H_FILE}
+#               PATHS /lib /usr/lib
+#               PATH_SUFFIXES x86_64-linux-gnu
+#               DOC "searching for ${GLM_H_FILE}")
  pkg_check_modules (PKG_LIBPNG REQUIRED libpng)
+ pkg_check_modules (PKG_ASSIMP REQUIRED assimp)
 endif ()
 #pkg_check_modules (PKG_ACE REQUIRED ACE)
 

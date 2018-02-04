@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -275,7 +275,8 @@ Common_GL_Tools::applyMaterial (const struct aiMaterial* material_in)
   aiColor4D specular;
   aiColor4D ambient;
   aiColor4D emission;
-  ai_real shininess, strength;
+//  ai_real shininess, strength;
+  float shininess, strength;
   int two_sided;
   int wireframe;
   unsigned int max = 1;

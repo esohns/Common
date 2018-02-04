@@ -30,7 +30,7 @@ PROJECTS_DIRECTORY=${DEFAULT_PROJECTS_DIRECTORY}
 #echo "DEBUG: project directory: \"${PROJECT_DIRECTORY}\""
 echo "set projects directory: \"${PROJECTS_DIRECTORY}\""
 
-CMAKE_PARAMETERS=$'-G \"Unix Makefiles\" -Wdev'
+CMAKE_PARAMETERS="-G \"Unix Makefiles\" -Wdev"
 PROJECTS="libCommon
 libACEStream
 libACENetwork"
@@ -51,8 +51,8 @@ do
  fi
  
  SOURCE_PATH=$PROJECT_PATH
- cmake $CMAKE_PARAMETERS $SOURCE_PATH
- cmake $CMAKE_PARAMETERS $SOURCE_PATH
+ cmake ${CMAKE_PARAMETERS} ${SOURCE_PATH}
+# cmake ${CMAKE_PARAMETERS} $SOURCE_PATH
  [ $? -ne 0 ] && echo "ERROR: failed to cmake (source path was: \"${SOURCE_PATH}\"): $?, aborting" && exit 1
 
  echo "processing ${PROJECT}...DONE"

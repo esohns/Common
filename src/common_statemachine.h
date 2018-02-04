@@ -41,6 +41,11 @@ class Common_StateMachine_T
                                      InterfaceType> inherited;
 
  public:
+  // convenient types
+  typedef Common_StateMachine_T<ACE_SYNCH_USE,
+                                StateType,
+                                InterfaceType> STATEMACHINE_T;
+
   inline virtual ~Common_StateMachine_T () {}
 
  protected:
@@ -77,10 +82,17 @@ class Common_StateMachineAsynch_T
                                      Common_IStateMachine_2<StateType> > inherited2;
 
  public:
-  inline virtual ~Common_StateMachineAsynch_T () {}
+  // convenient types
+  typedef Common_Task_T<ACE_SYNCH_USE,
+                        TimePolicyType,
+                        LockType,
+                        ACE_Message_Block> TASK_T;
+  typedef Common_StateMachineAsynch_T<ACE_SYNCH_USE,
+                                      TimePolicyType,
+                                      LockType,
+                                      StateType> STATEMACHINE_T;
 
-  // overridet (part of) Common_IStateMachine_T
-  inline virtual bool change (StateType nextState_in) { inherited::control (nextState_in, false); return true; }
+  inline virtual ~Common_StateMachineAsynch_T () {}
 
   // implement Common_ITaskHandler_T
   virtual void handle (ACE_Message_Block*&); // message handle
@@ -95,11 +107,17 @@ class Common_StateMachineAsynch_T
 //  virtual void wait (bool = true) const = 0; // wait for the message queue ? : worker thread(s) only
 
   // implement (part of) Common_IStateMachine_2
+  using inherited2::stateToString;
   inline virtual void finished () {}
 
  protected:
-  Common_StateMachineAsynch_T (ACE_SYNCH_MUTEX_T*,                       // lock handle
+  Common_StateMachineAsynch_T (const std::string&,                       // thread name
+                               int,                                      // (thread) group id
+                               ACE_SYNCH_MUTEX_T*,                       // lock handle
                                StateType = static_cast<StateType> (-1)); // (default) state
+
+  // override (part of) Common_IStateMachine_T
+  inline virtual bool change (StateType nextState_in) { inherited::control (nextState_in, false); return true; }
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_StateMachineAsynch_T ())

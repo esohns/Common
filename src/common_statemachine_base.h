@@ -53,7 +53,7 @@ class Common_StateMachine_Base_T
  protected:
   Common_StateMachine_Base_T (ACE_SYNCH_MUTEX_T*,                       // lock handle
                               StateType = static_cast<StateType> (-1)); // (default) state
- 
+
   // implement (part of) Common_IStateMachine_T
   virtual bool change (StateType); // new state
 
