@@ -173,6 +173,26 @@ dnl           [AC_CONFIG_SUBDIRS([modules/ATCD])])
 AM_COND_IF([BUILD_MODULES],
            [AC_CONFIG_FILES([modules/Makefile])])
 
+dnl Options
+# --> enable libglade support ?
+AC_MSG_CHECKING([enable libglade support])
+libglade_support_default="no"
+AC_ARG_ENABLE([libglade-support],
+              [AS_HELP_STRING([--enable-libglade_support], [turn on libglade support [default="$libglade_support_default"]])],
+              [case "${enableval}" in
+                 yes) libglade_support=yes ;;
+                 no)  libglade_support=no  ;;
+                 *) AC_MSG_ERROR([bad value ${enableval} for --enable-libglade-support]) ;;
+               esac],
+              [libglade_support=$libglade_support_default])
+AM_CONDITIONAL([LIBGLADE_SUPPORT], [test x$libglade_support = xyes])
+if test x$libglade_support = xyes; then
+  CXXFLAGS_LIBGLADE="-DLIBGLADE_SUPPORT"
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_RESULT([no])
+fi
+
 # checks for typedefs, structures, and compiler characteristics
 AC_TYPE_SIZE_T
 AC_TYPE_UID_T
@@ -194,8 +214,11 @@ AC_CHECK_FUNCS([realpath])
 # checks for libraries
 AM_COND_IF([VALGRIND_SUPPORT],
            [PKG_CHECK_MODULES([PKGVALGRIND], [valgrind])])
-PKG_CHECK_MODULES([PKGSDL], [sdl])
-PKG_CHECK_MODULES([PKGGTK], [libpng gmodule-2.0 gthread-2.0 gtk+-2.0 libglade-2.0])
+AM_COND_IF([LIBGLADE_SUPPORT],
+           [PKG_CHECK_MODULES([PKGGLADE], [libglade-2.0])])
+#PKG_CHECK_MODULES([PKGSDL], [sdl])
+PKG_CHECK_MODULES([PKGGTK2], [libpng gmodule-2.0 gthread-2.0 gtk+-2.0])
+PKG_CHECK_MODULES([PKGGTK3], [gtk+-3.0])
 
 # checks for other libraries (non-pkg-config)
 # FIXME: Replace `main' with a function in `-lpthread':
@@ -218,7 +241,19 @@ AC_CONFIG_FILES([Makefile
                  m4/Makefile
                  scripts/Makefile
                  src/Makefile
-                 src/ui/Makefile])
+                 src/dbus/Makefile
+                 src/gl/Makefile
+                 src/image/Makefile
+                 src/math/Makefile
+                 src/timer/Makefile
+                 src/ui/Makefile
+                 src/ui/gtk/Makefile
+                 src/xml/Makefile
+                 test_i/Makefile
+                 test_i/capabilities/Makefile
+                 test_u/Makefile
+                 test_u/capabilities/Makefile
+                 test_u/features/Makefile])
 AC_CONFIG_FILES([scripts/libCommon.pc])
 
 AC_OUTPUT

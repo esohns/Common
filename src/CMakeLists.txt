@@ -1,4 +1,4 @@
-# target system introspection (see configure.ac)
+﻿# target system introspection (see configure.ac)
 include (CheckFunctionExists)
 check_function_exists (strerror HAVE_FUNC_STRERROR)
 check_function_exists (getcwd HAVE_FUNC_GETCWD)
@@ -24,8 +24,7 @@ endif ()
 if (UNIX)
  include (CheckLibraryExists)
  #*TODO*: why isn't the function found ?
- check_library_exists (aio aio_init "" HAVE_LIB_AIO)
-# check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
+ check_library_exists (rt aio_init "" HAVE_LIB_AIO)
 endif ()
 
 set (ACE_LIB_FILE libACE.so)
@@ -256,10 +255,8 @@ install (FILES
          DESTINATION ${INSTALL_INCLUDE_DIR})
 install (TARGETS ${PROJECT_NAME}
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
-         LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
-#         RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
-         COMPONENT dev)
+         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         COMPONENT lib)
 
 if (UNIX)
  add_subdirectory (dbus)

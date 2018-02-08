@@ -1,7 +1,9 @@
 #ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = \
-  src
+  src \
+  test_i \
+  test_u
 if BUILD_MODULES
  SUBDIRS += modules
 endif
@@ -10,7 +12,9 @@ DIST_SUBDIRS = \
   3rd_party \
   m4 \
   scripts \
-  src
+  src \
+  test_i \
+  test_u
 if BUILD_MODULES
   DIST_SUBDIRS += modules
 endif

@@ -375,7 +375,7 @@ Common_Tools::inDebugSession ()
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   result = IsDebuggerPresent ();
-#else
+#elif defined (ACE_LINUX)
   int status_fd = ACE_INVALID_HANDLE;
   ACE_TCHAR buffer_a[BUFSIZ];
   ssize_t bytes_read = -1;
@@ -415,7 +415,7 @@ Common_Tools::inDebugSession ()
   result = !!ACE_OS::atoi (tracer_pid_p + sizeof (tracer_pid_string) - 1);
 
 clean:
-  if (status_fd != ACE_INVALID_HANDLE)
+  if (likely (status_fd != ACE_INVALID_HANDLE))
   {
     result_2 = ACE_OS::close (status_fd);
     if (unlikely (result_2 == -1))
@@ -423,6 +423,10 @@ clean:
                   ACE_TEXT ("failed to ACE_OS::close(%s): \"%m\", continuing\n"),
                   ACE_TEXT ("/proc/self/status")));
   } // end IF
+#else
+  ACE_ASSERT (false);
+  ACE_NOTSUP_RETURN (false);
+  ACE_NOTREACHED (return false;)
 #endif
 
   return result;
@@ -749,6 +753,8 @@ Common_Tools::printLocales ()
                 ACE_TEXT ((*iterator).c_str ())));
 }
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
 bool
 Common_Tools::isLinux (enum Common_PlatformOSType& distribution_out)
 {
@@ -840,6 +846,7 @@ Common_Tools::isLinux (enum Common_PlatformOSType& distribution_out)
 
   return true;
 }
+#endif
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
@@ -888,8 +895,8 @@ Common_Tools::hasCapability (unsigned long capability_in,
   if (unlikely (!CAP_IS_SUPPORTED (capability_in)))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("capability (was: %u) not supported: \"%m\", aborting\n"),
-                capability_in));
+                ACE_TEXT ("capability (was: %s (%u)) not supported: \"%m\", aborting\n"),
+                ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ()), capability_in));
     return false;
   } // end IF
 
@@ -910,7 +917,7 @@ Common_Tools::hasCapability (unsigned long capability_in,
   if (unlikely (result_2 == -1))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ::cap_get_flag(\"%s\",%d): \"%m\", aborting\n"),
+                ACE_TEXT ("failed to ::cap_get_flag(%s,%d): \"%m\", aborting\n"),
                 ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ()),
                 set_in));
     goto clean;
@@ -933,137 +940,113 @@ Common_Tools::printCapabilities ()
   int result = -1;
 
   // step1: read 'securebits' flags of the calling thread
-  result = ::prctl (PR_GET_SECUREBITS,
-                    0, 0, 0, 0);
+  result = ::prctl (PR_GET_SECUREBITS);
   if (unlikely (result == -1))
-  {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ::prctl(PR_GET_SECUREBITS): \"%m\", returning\n")));
-    return;
-  } // end IF
-  ACE_DEBUG ((LM_INFO,
-              ACE_TEXT ("%P:%t: securebit set/locked:\nSECURE_NOROOT:\t\t%s/%s\nSECURE_NO_SETUID_FIXUP:\t%s/%s\nSECURE_KEEP_CAPS:\t%s/%s...\n"),
-//              ACE_TEXT ("%P:%t: securebit set/locked:\nSECURE_NOROOT:\t\t%s/%s\nSECURE_NO_SETUID_FIXUP:\t%s/%s\nSECURE_KEEP_CAPS:\t%s/%s\nSECURE_NO_CAP_AMBIENT_RAISE:\t%s/%s...\n"),
-              ((result & SECBIT_NOROOT) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
-              ((result & SECBIT_NOROOT_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
-              ((result & SECBIT_NO_SETUID_FIXUP) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
-              ((result & SECBIT_NO_SETUID_FIXUP_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
-              ((result & SECBIT_KEEP_CAPS) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
-              ((result & SECBIT_KEEP_CAPS_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no"))));
-//              ((result & SECBIT_NO_CAP_AMBIENT_RAISE) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
-//              ((result & SECBIT_NO_CAP_AMBIENT_RAISE_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no"))));
+                ACE_TEXT ("failed to ::prctl(PR_GET_SECUREBITS): \"%m\", continuing\n")));
+  else
+    ACE_DEBUG ((LM_INFO,
+//                ACE_TEXT ("%P/%t: securebits set/locked:\nSECURE_NOROOT:\t\t%s/%s\nSECURE_NO_SETUID_FIXUP:\t%s/%s\nSECURE_KEEP_CAPS:\t%s/%s\n"),
+                ACE_TEXT ("%P/%t: securebits set/locked:\nSECURE_NOROOT:\t\t%s/%s\nSECURE_NO_SETUID_FIXUP:\t%s/%s\nSECURE_KEEP_CAPS:\t\t%s/%s\nSECURE_NO_CAP_AMBIENT_RAISE:\t%s/%s\n"),
+                ((result & SECBIT_NOROOT) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+                ((result & SECBIT_NOROOT_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+                ((result & SECBIT_NO_SETUID_FIXUP) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+                ((result & SECBIT_NO_SETUID_FIXUP_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+                ((result & SECBIT_KEEP_CAPS) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+                ((result & SECBIT_KEEP_CAPS_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),//));
+                ((result & SECBIT_NO_CAP_AMBIENT_RAISE) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+                ((result & SECBIT_NO_CAP_AMBIENT_RAISE_LOCKED) ? ACE_TEXT ("yes") : ACE_TEXT ("no"))));
 
   cap_t capabilities_p = NULL;
-//  capabilities_p = cap_init ();
+  bool in_bounding_set, in_ambient_set;
+  cap_flag_value_t in_effective_set, in_inheritable_set, in_permitted_set;
   capabilities_p = cap_get_proc ();
   if (unlikely (!capabilities_p))
   {
     ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("failed to ::cap_init(): \"%m\", returning\n")));
                 ACE_TEXT ("failed to ::cap_get_proc(): \"%m\", returning\n")));
     return;
   } // end IF
 
-  ssize_t length_i = 0;
-  char* string_p = cap_to_text (capabilities_p, &length_i);
-  if (unlikely (!string_p))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ::cap_to_text(): \"%m\", returning\n")));
-    goto clean;
-  } // end IF
-  ACE_DEBUG ((LM_INFO,
-              ACE_TEXT ("%P:%t: capabilities: %s\n"),
-              ACE_TEXT (string_p)));
-
-//  // step2: in bounding/ambient set of the calling thread ?
-//  ACE_DEBUG ((LM_INFO,
-//              ACE_TEXT ("%P:%t: capability bounding/ambient:effective/inheritable/permitted\n")));
-//  bool in_bounding_set, in_ambient_set;
-//  cap_flag_value_t in_effective_set, in_inheritable_set, in_permitted_set;
-//  char* capability_name_string_p = NULL;
-//  for (unsigned long capability = 0;
-//       capability <= CAP_LAST_CAP;
-//       ++capability)
+//#if defined (_DEBUG)
+//  ssize_t length_i = 0;
+//  char* string_p = cap_to_text (capabilities_p, &length_i);
+//  if (unlikely (!string_p))
 //  {
-//    capability_name_string_p = cap_to_name (capability);
-//    if (unlikely (!capability_name_string_p))
-//    {
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("failed to ::cap_to_name(%d): \"%m\", continuing\n"),
-//                  capability));
-//      continue;
-//    } // end IF
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to ::cap_to_text(): \"%m\", returning\n")));
+//    goto clean;
+//  } // end IF
+//  ACE_DEBUG ((LM_INFO,
+//              ACE_TEXT ("%P:%t: capabilities \"%s\"\n"),
+//              ACE_TEXT (string_p)));
+//#endif // _DEBUG
 
-//    result = ::prctl (PR_CAPBSET_READ,
-//                      capability, 0, 0, 0);
-//    if (unlikely (result == -1))
-//    {
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("failed to ::prctl(PR_CAPBSET_READ,\"%s\"): \"%m\", continuing\n"),
-//                  ACE_TEXT (capability_name_string_p)));
-//      goto continue_;
-//    } // end IF
-//    in_bounding_set = (result == 1);
-
-//    // *TODO*: currently, this fails on Linux (Debian)...
-//    result = 0;
-////    result = ::prctl (PR_CAP_AMBIENT,
-////                      PR_CAP_AMBIENT_IS_SET, capability, 0, 0);
-////    if (result == -1)
-////    {
-////      ACE_DEBUG ((LM_ERROR,
-////                  ACE_TEXT ("failed to ::prctl(PR_CAP_AMBIENT,PR_CAP_AMBIENT_IS_SET,\"%s\"): \"%m\", returning\n"),
-////                  capability_name_string_p));
-////      goto continue_;
-////    } // end IF
-//    in_ambient_set = (result == 1);
-
-//    result = ::cap_get_flag (capabilities_p, capability,
-//                             CAP_EFFECTIVE, &in_effective_set);
-//    if (unlikely (result == -1))
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("failed to ::cap_get_flag(CAP_EFFECTIVE,\"%s\"): \"%m\", continuing\n"),
-//                  ACE_TEXT (capability_name_string_p)));
-//    result = ::cap_get_flag (capabilities_p, capability,
-//                             CAP_INHERITABLE, &in_inheritable_set);
-//    if (unlikely (result == -1))
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("failed to ::cap_get_flag(CAP_INHERITABLE,\"%s\"): \"%m\", continuing\n"),
-//                  ACE_TEXT (capability_name_string_p)));
-//    result = ::cap_get_flag (capabilities_p, capability,
-//                             CAP_PERMITTED, &in_permitted_set);
-//    if (unlikely (result == -1))
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("failed to ::cap_get_flag(CAP_PERMITTED,\"%s\"): \"%m\", continuing\n"),
-//                  ACE_TEXT (capability_name_string_p)));
-
-//    ACE_DEBUG ((LM_INFO,
-//                ACE_TEXT ("\"%s\" (%d):\t%s/%s\t%s/%s/%s\n"),
-//                ACE_TEXT (capability_name_string_p), capability,
-//                (in_bounding_set ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
-//                (in_ambient_set ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
-//                ((in_effective_set == CAP_SET) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
-//                ((in_inheritable_set == CAP_SET) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
-//                ((in_permitted_set == CAP_SET) ? ACE_TEXT ("yes") : ACE_TEXT ("no"))));
-
-//    // clean up
-//continue_:
-//    result = cap_free (capability_name_string_p);
-//    if (unlikely (result == -1))
-//        ACE_DEBUG ((LM_ERROR,
-//                    ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
-//  } // end FOR
-
-  // clean up
-clean:
-  if (likely (string_p))
+  // step2: in 'ambient'/'bounding' set of the calling thread ?
+  ACE_DEBUG ((LM_INFO,
+              ACE_TEXT ("%P/%t: capability ambient/bounding\teffective/inheritable/permitted\n")));
+  for (unsigned long capability = 0;
+       capability <= CAP_LAST_CAP;
+       ++capability)
   {
-    result = cap_free (string_p);
+    // *TODO*: currently, this fails on Linux (Debian)...
+//    result = 0;
+    result = ::prctl (PR_CAP_AMBIENT, PR_CAP_AMBIENT_IS_SET,
+                      capability,
+                      0, 0);
     if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
-  } // end IF
+                  ACE_TEXT ("failed to ::prctl(PR_CAP_AMBIENT,PR_CAP_AMBIENT_IS_SET,%s): \"%m\", continuing\n"),
+                  ACE_TEXT (Common_Tools::capabilityToString (capability).c_str ())));
+    in_ambient_set = (result == 1);
+
+    result = ::prctl (PR_CAPBSET_READ,
+                      capability);
+    if (unlikely (result == -1))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ::prctl(PR_CAPBSET_READ,%s): \"%m\", continuing\n"),
+                  ACE_TEXT (Common_Tools::capabilityToString (capability).c_str ())));
+    in_bounding_set = (result == 1);
+
+    result = ::cap_get_flag (capabilities_p, capability,
+                             CAP_EFFECTIVE, &in_effective_set);
+    if (unlikely (result == -1))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ::cap_get_flag(CAP_EFFECTIVE,%s): \"%m\", continuing\n"),
+                  ACE_TEXT (Common_Tools::capabilityToString (capability).c_str ())));
+    result = ::cap_get_flag (capabilities_p, capability,
+                             CAP_INHERITABLE, &in_inheritable_set);
+    if (unlikely (result == -1))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ::cap_get_flag(CAP_INHERITABLE,%s): \"%m\", continuing\n"),
+                  ACE_TEXT (Common_Tools::capabilityToString (capability).c_str ())));
+    result = ::cap_get_flag (capabilities_p, capability,
+                             CAP_PERMITTED, &in_permitted_set);
+    if (unlikely (result == -1))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ::cap_get_flag(CAP_PERMITTED,%s): \"%m\", continuing\n"),
+                  ACE_TEXT (Common_Tools::capabilityToString (capability).c_str ())));
+
+    ACE_DEBUG ((LM_INFO,
+                ACE_TEXT ("%s (%d):\t\t%s/%s\t\t%s/%s/%s\n"),
+                ACE_TEXT (Common_Tools::capabilityToString (capability).c_str ()), capability,
+                (in_ambient_set ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+                (in_bounding_set ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+                ((in_effective_set == CAP_SET) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+                ((in_inheritable_set == CAP_SET) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
+                ((in_permitted_set == CAP_SET) ? ACE_TEXT ("yes") : ACE_TEXT ("no"))));
+  } // end FOR
+
+  // clean up
+//#if defined (_DEBUG)
+//  if (likely (string_p))
+//  {
+//    result = cap_free (string_p);
+//    if (unlikely (result == -1))
+//      ACE_DEBUG ((LM_ERROR,
+//                  ACE_TEXT ("failed to ::cap_free(): \"%m\", continuing\n")));
+//  } // end IF
+//#endif
   if (likely (capabilities_p))
   {
     result = cap_free (capabilities_p);
@@ -1085,8 +1068,8 @@ Common_Tools::setCapability (unsigned long capability_in,
   if (unlikely (!CAP_IS_SUPPORTED (capability_in)))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("capability (was: %d) not supported: \"%m\", aborting\n"),
-                capability_in));
+                ACE_TEXT ("capability (was: %s (%u)) not supported: \"%m\", aborting\n"),
+                ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ()), capability_in));
     return false;
   } // end IF
 
@@ -1102,7 +1085,6 @@ Common_Tools::setCapability (unsigned long capability_in,
   } // end IF
 
   int result_2 = -1;
-  cap_value_t capabilities_a[CAP_LAST_CAP + 1];
   if (likely (set_in == CAP_EFFECTIVE))
   {
     // verify that the capability is in the 'permitted' set
@@ -1112,21 +1094,18 @@ Common_Tools::setCapability (unsigned long capability_in,
     if (unlikely (result_2 == -1))
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ::cap_get_flag(\"%s\",%d): \"%m\", aborting\n"),
+                  ACE_TEXT ("failed to ::cap_get_flag(%s,%d): \"%m\", aborting\n"),
                   ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ()),
                   CAP_PERMITTED));
       goto clean;
     } // end IF
     if (unlikely (in_permitted_set != CAP_SET))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("%t: capability \"%s\" not in permitted set: cannot enable, aborting\n"),
-                  ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ())));
-      ACE_OS::last_error (EPERM);
-      goto clean;
-    } // end IF
+      ACE_DEBUG ((LM_WARNING,
+                  ACE_TEXT ("%P/%t: capability (was: %s (%u)) not in 'permitted' set: cannot enable, continuing\n"),
+                  ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ()), capability_in));
   } // end IF
 
+  cap_value_t capabilities_a[CAP_LAST_CAP + 1];
   ACE_OS::memset (&capabilities_a, 0, sizeof (cap_value_t[CAP_LAST_CAP + 1]));
   capabilities_a[0] = capability_in;
   result_2 = ::cap_set_flag (capabilities_p, set_in,
@@ -1135,7 +1114,7 @@ Common_Tools::setCapability (unsigned long capability_in,
   if (unlikely (result_2 == -1))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ::cap_set_flag(\"%s\",%d,CAP_SET): \"%m\", aborting\n"),
+                ACE_TEXT ("failed to ::cap_set_flag(%s,%d,CAP_SET): \"%m\", aborting\n"),
                 ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ()),
                 set_in));
     goto clean;
@@ -1163,8 +1142,8 @@ Common_Tools::dropCapability (unsigned long capability_in,
   if (unlikely (!CAP_IS_SUPPORTED (capability_in)))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("capability (was: %d) not supported: \"%m\", aborting\n"),
-                capability_in));
+                ACE_TEXT ("capability (was: %s (%u)) not supported: \"%m\", aborting\n"),
+                ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ()), capability_in));
     return false;
   } // end IF
 
@@ -1187,7 +1166,7 @@ Common_Tools::dropCapability (unsigned long capability_in,
   if (unlikely (result_2 == -1))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ::cap_set_flag(\"%s\",%d,CAP_CLEAR): \"%m\", aborting\n"),
+                ACE_TEXT ("failed to ::cap_set_flag(%s,%d,CAP_CLEAR): \"%m\", aborting\n"),
                 ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ()),
                 set_in));
     goto clean;

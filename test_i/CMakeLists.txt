@@ -1,4 +1,4 @@
-option (BUILD_TEST_I "build test_i" OFF)
+﻿option (BUILD_TEST_I "build test_i" OFF)
 #option (GTK_SUPPORT "enable GTK support" ON)
 # option (GTK3_SUPPORT "enable Gtk3 support" ON)
  # *NOTE*: implies DHCLIENT_SUPPORT off
@@ -90,12 +90,14 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../src)
 
 # ----------------------------------------
 
-#add_subdirectory (features)
+add_subdirectory (capabilities)
 
 # phonies
 add_custom_target (test_i ALL
                    COMMENT "building test_i...")
-#add_dependencies (test_i features)
+if (UNIX)
+ add_dependencies (test_i capability_wrapper)
+endif ()
 
 #cmake_policy (SET CMP0012 NEW)
 if (NOT BUILD_TEST_I)
@@ -107,7 +109,7 @@ endif ()
 
 # ----------------------------------------
 
-include (CreateLaunchers)
+#include (CreateLaunchers)
 
 # enable (unit/integration) tests
 #include (CTest)

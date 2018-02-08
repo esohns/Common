@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -1203,7 +1203,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
   result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   result += '.';
 #endif
-  result += ACE_TEXT_ALWAYS_CHAR (LIBCOMMON_PACKAGE);
+  result += ACE_TEXT_ALWAYS_CHAR (LIBCOMMON_PACKAGE_NAME);
 
   if (unlikely (!Common_File_Tools::isDirectory (result)))
   {

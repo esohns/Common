@@ -1,4 +1,4 @@
-#include (CheckLibraryExists)
+﻿#include (CheckLibraryExists)
 #check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
 #find_library (HAVE_LIB_ACE libACE)
 
@@ -61,7 +61,7 @@ add_library (${PROJECT_NAME}Image STATIC
              ${CommonIMAGE_LIB_SRCS})
 
 if (WIN32)
-## set (CMAKE_GENERATOR_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE) 
+## set (CMAKE_GENERATOR_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE)
 # set (CMAKE_VS_PLATFORM_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE)
  if (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)
   add_compile_options (-Wno-c++11-narrowing)
@@ -108,7 +108,5 @@ install (FILES
          DESTINATION ${INSTALL_INCLUDE_DIR})
 install (TARGETS ${PROJECT_NAME}Image
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
-         LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
-#         RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
-         COMPONENT dev)
+         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         COMPONENT lib)

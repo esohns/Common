@@ -19,17 +19,17 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include <ace/Synch.h>
-#include "common_ui_glade_definition.h"
+#include "ace/Synch.h"
+#include "common_ui_gtk_glade_definition.h"
 
 #include <fstream>
 
-#include <ace/Guard_T.h>
-#include <ace/Log_Msg.h>
+#include "gtk/gtk.h"
 
-#include <gtk/gtk.h>
+#include "glade/glade.h"
 
-#include <glade/glade.h>
+#include "ace/Guard_T.h"
+#include "ace/Log_Msg.h"
 
 #include "common_file_tools.h"
 #include "common_macros.h"
@@ -40,7 +40,7 @@ Common_UI_GladeDefinition::Common_UI_GladeDefinition (int argc_in,
                                                       ACE_TCHAR** argv_in)
  : argc_ (argc_in)
  , argv_ (argv_in)
- , GTKState_ (NULL)
+ , state_ (NULL)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GladeDefinition::Common_UI_GladeDefinition"));
 
@@ -51,11 +51,11 @@ Common_UI_GladeDefinition::~Common_UI_GladeDefinition ()
   COMMON_TRACE (ACE_TEXT ("Common_UI_GladeDefinition::~Common_UI_GladeDefinition"));
 
   // clean up
-  if (GTKState_)
+  if (state_)
   {
     // step1: free widget tree(s)
-    for (Common_UI_GladeXMLsIterator_t iterator = GTKState_->gladeXML.begin ();
-         iterator != GTKState_->gladeXML.end ();
+    for (Common_UI_GladeXMLsIterator_t iterator = state_->gladeXML.begin ();
+         iterator != state_->gladeXML.end ();
          iterator++)
     {
       g_object_unref (G_OBJECT ((*iterator).second.second));
@@ -63,27 +63,27 @@ Common_UI_GladeDefinition::~Common_UI_GladeDefinition ()
     } // end FOR
 
     // step2: clear active events
-    for (Common_UI_GTKEventSourceIdsIterator_t iterator = GTKState_->eventSourceIds.begin ();
-         iterator != GTKState_->eventSourceIds.end ();
+    for (Common_UI_GTK_EventSourceIdsIterator_t iterator = state_->eventSourceIds.begin ();
+         iterator != state_->eventSourceIds.end ();
          iterator++)
       g_source_remove (*iterator);
-    GTKState_->eventSourceIds.clear ();
+    state_->eventSourceIds.clear ();
   } // end IF
 }
 
 bool
-Common_UI_GladeDefinition::initialize (struct Common_UI_GTKState& GTKState_inout)
+Common_UI_GladeDefinition::initialize (struct Common_UI_GTK_State& state_inout)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GladeDefinition::initialize"));
 
-  GTKState_ = &GTKState_inout;
+  state_ = &state_inout;
 
-  ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, GTKState_inout.lock, false);
+  ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_inout.lock, false);
 
   // step1: load widget tree(s)
   struct _GladeXML* glade_XML_p = NULL;
-  for (Common_UI_GladeXMLsIterator_t iterator = GTKState_inout.gladeXML.begin ();
-       iterator != GTKState_inout.gladeXML.end ();
+  for (Common_UI_GladeXMLsIterator_t iterator = state_inout.gladeXML.begin ();
+       iterator != state_inout.gladeXML.end ();
        iterator++)
   {
     if ((*iterator).second.second) continue; // already loaded
@@ -170,20 +170,20 @@ Common_UI_GladeDefinition::initialize (struct Common_UI_GTKState& GTKState_inout
     // connect (default) signals
     //glade_xml_signal_autoconnect (glade_XML_p);
 
-    GTKState_inout.gladeXML[(*iterator).first] =
+    state_inout.gladeXML[(*iterator).first] =
       std::make_pair ((*iterator).second.first, glade_XML_p);
   } // end FOR
 
   // step2: schedule UI initialization
-  guint event_source_id = g_idle_add (GTKState_inout.initializationHook,
-                                      GTKState_inout.userData);
+  guint event_source_id = g_idle_add (state_inout.initializationHook,
+                                      state_inout.userData);
   if (event_source_id == 0)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to g_idle_add(): \"%m\", aborting\n")));
     return false;
   } // end IF
-  GTKState_inout.eventSourceIds.insert (event_source_id);
+  state_inout.eventSourceIds.insert (event_source_id);
 
   return true;
 }
@@ -194,16 +194,16 @@ Common_UI_GladeDefinition::finalize ()
   COMMON_TRACE (ACE_TEXT ("Common_UI_GladeDefinition::finalize"));
 
   // sanity check(s)
-  ACE_ASSERT (GTKState_);
+  ACE_ASSERT (state_);
 
-  ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, GTKState_->lock);
+  ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, state_->lock);
 
   // schedule UI finalization
-  guint event_source_id = g_idle_add (GTKState_->finalizationHook,
-                                      GTKState_->userData);
+  guint event_source_id = g_idle_add (state_->finalizationHook,
+                                      state_->userData);
   if (event_source_id == 0)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to g_idle_add(): \"%m\", continuing\n")));
   else
-    GTKState_->eventSourceIds.insert (event_source_id);
+    state_->eventSourceIds.insert (event_source_id);
 }

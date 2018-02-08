@@ -1,4 +1,4 @@
-option (GTK_SUPPORT "enable GTK support" ON)
+﻿option (GTK_SUPPORT "enable GTK support" ON)
 
 ############## next target ################
 set (${PROJECT_NAME}UI_LIB_SRCS
@@ -48,10 +48,8 @@ install (FILES
          DESTINATION include)
 install (TARGETS ${PROJECT_NAME}UI
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
-         LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
-         RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
-         COMPONENT dev)
+         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         COMPONENT lib)
 
 if (GTK_SUPPORT)
  add_subdirectory (gtk)

@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2010 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -65,5 +65,6 @@ class Common_Logger_T
 //////////////////////////////////////////
 
 typedef Common_Logger_T<ACE_MT_SYNCH> Common_Logger_t;
+//typedef Common_Logger_T<ACE_NULL_SYNCH> Common_SynchLogger_t;
 
 #endif

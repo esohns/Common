@@ -45,7 +45,8 @@
 // ----------- software -----------------
 
 // *** OS ***
-#if defined (ACE_LINUX)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
 // *NOTE*: as returned by ::uname(2)
 #define COMMON_OS_LINUX_UNAME_STRING                           "Linux"
 
@@ -53,8 +54,7 @@
 // *NOTE*: as returned by ::lsb_release -i
 #define COMMON_OS_LSB_DEBIAN_STRING                            "Debian"
 #define COMMON_OS_LSB_OPENSUSE_STRING                          "openSUSE"
-
-#endif // ACE_LINUX
+#endif // ACE_WIN32 || ACE_WIN64
 
 // *** C/C++ locale ***
 // *NOTE*: on UNIX, try 'locale -a', or 'localectl list-locales' to list

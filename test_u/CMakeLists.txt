@@ -1,4 +1,4 @@
-option (BUILD_TEST_U "build test_u" OFF)
+﻿option (BUILD_TEST_U "build test_u" OFF)
 #option (GTK_SUPPORT "enable GTK support" ON)
 # option (GTK3_SUPPORT "enable Gtk3 support" ON)
  # *NOTE*: implies DHCLIENT_SUPPORT off
@@ -91,6 +91,7 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../src)
 # ----------------------------------------
 
 if (UNIX)
+ add_subdirectory (capabilities)
  add_subdirectory (features)
 endif ()
 
@@ -98,6 +99,8 @@ endif ()
 add_custom_target (test_u ALL
                    COMMENT "building test_u...")
 if (UNIX)
+ add_dependencies (test_u capabilities)
+ add_dependencies (test_u capabilities_2)
  add_dependencies (test_u features)
 endif ()
 
@@ -107,10 +110,6 @@ if (NOT BUILD_TEST_U)
  if (WIN32)
   set_target_properties (test_u PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
  endif ()
-endif ()
-
-if (UNIX)
-
 endif ()
 
 # ----------------------------------------

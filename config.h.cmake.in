@@ -1,11 +1,11 @@
-/* config.h.in.cmake */
+﻿/* config.h.in.cmake */
 
 #define libCommon_VERSION_MAJOR @VERSION_MAJOR@
 #define libCommon_VERSION_MINOR @VERSION_MINOR@
 #define libCommon_VERSION_MICRO @VERSION_MICRO@
-#define libCommon_VERSION_DEVEL @VERSION_DEVEL@
+#define libCommon_VERSION_DEVEL "@VERSION_DEVEL@"
 
-#define LIBCOMMON_PACKAGE "@PACKAGE@"
+//#define LIBCOMMON_PACKAGE "@PACKAGE@"
 
 #cmakedefine VALGRIND_SUPPORT
 
@@ -17,6 +17,7 @@
 //#undef PACKAGE_BUGREPORT
 
 /* Define to the full name of this package. */
+#define LIBCOMMON_PACKAGE_NAME "@PACKAGE@"
 //#undef PACKAGE_NAME
 
 /* Define to the full name and version of this package. */
@@ -29,8 +30,10 @@
 //#undef PACKAGE_URL
 
 /* Define to the version of this package. */
+#define LIBCOMMON_PACKAGE_VERSION "@VERSION@"
+//#cmakedefine @PACKAGE@_VERSION "@VERSION@"
 //#undef PACKAGE_VERSION
 
 /* Version number of package */
+//#cmakedefine VERSION "@VERSION@"
 //#undef VERSION
-

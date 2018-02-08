@@ -68,7 +68,10 @@ class Common_Tools
 
   static void printLocales ();
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   static bool isLinux (enum Common_PlatformOSType&); // return value: distribution
+#endif
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else

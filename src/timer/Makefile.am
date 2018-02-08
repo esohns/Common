@@ -2,7 +2,8 @@ ACLOCAL_AMFLAGS = \
   -I m4
 
 DEFS = \
-  -DCOMMON_UI_BUILD_DLL=1 \
+  -DHAVE_CONFIG_H \
+  -DCOMMON_BUILD_DLL=1 \
   -DPACKAGE=\"@PACKAGE_NAME@\"
 
 AM_CPPFLAGS = \
@@ -17,38 +18,37 @@ endif
 noinst_HEADERS = \
   stdafx.h
 include_HEADERS = \
-  common_ui_common.h \
-  common_ui_defines.h \
-  common_ui_exports.h \
-  common_ui_glade_definition.h \
-  common_ui_gtk_builder_definition.h \
-  common_ui_gtk_manager.h \
-  common_ui_igtk.h \
-  common_ui_tools.h \
-  common_ui_types.h
+  common_itimer.h \
+  common_itimerhandler.h \
+  common_timer_common.h \
+  common_timer_defines.h \
+  common_timer_handler.h \
+  common_timer_manager.h \
+  common_timer_manager.inl \
+  common_timer_manager_common.h \
+  common_timer_tools.h
 
-lib_LTLIBRARIES = libCommon_UI.la
+lib_LTLIBRARIES = libCommonTimer.la
 
-libCommon_UI_la_SOURCES = \
-  common_ui_common.h \
-  common_ui_defines.h \
-  common_ui_exports.h \
-  common_ui_glade_definition.cpp \
-  common_ui_glade_definition.h \
-  common_ui_gtk_builder_definition.cpp \
-  common_ui_gtk_builder_definition.h \
-  common_ui_gtk_manager.cpp \
-  common_ui_gtk_manager.h \
-  common_ui_igtk.h \
-  common_ui_tools.cpp \
-  common_ui_tools.h \
-  common_ui_types.h \
+libCommonTimer_la_SOURCES = \
+  common_itimer.h \
+  common_itimerhandler.h \
+  common_timer_common.h \
+  common_timer_defines.h \
+  common_timer_handler.cpp \
+  common_timer_handler.h \
+  common_timer_manager.cpp \
+  common_timer_manager.h \
+  common_timer_manager.inl \
+  common_timer_manager_common.h \
+  common_timer_tools.cpp \
+  common_timer_tools.h \
   stdafx.cpp \
   stdafx.h
-libCommon_UI_la_CPPFLAGS = \
+libCommonTimer_la_CPPFLAGS = \
   $(AM_CPPFLAGS) \
   -I$(srcdir)/.. \
   -I$(builddir)/..
-libCommon_UI_la_LDFLAGS = \
+libCommonTimer_la_LDFLAGS = \
   -version-info @LIBCOMMON_LT_VERSION_INFO@
 

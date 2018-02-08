@@ -1,4 +1,4 @@
-include (CMakeDependentOption)
+﻿include (CMakeDependentOption)
 
 option (GTK3_SUPPORT "enable GTK 3 support" ON)
 #option (GTK2_SUPPORT "enable GTK2 support" OFF)
@@ -291,8 +291,5 @@ install (FILES
 
 install (TARGETS ${PROJECT_NAME}UI_GTK
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
-         LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
-         RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
-         COMPONENT dev)
-
+         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         COMPONENT lib)
