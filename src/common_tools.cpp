@@ -1,4 +1,4 @@
-﻿/***************************************************************************
+/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -776,7 +776,7 @@ Common_Tools::isLinux (enum Common_PlatformOSType& distribution_out)
   } // end IF
 #if (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("platform/OS info: %s (%s), %s %s, %s\n"),
+              ACE_TEXT ("'uname' output: %s (%s), %s %s, %s\n"),
               ACE_TEXT (utsname_s.nodename),
               ACE_TEXT (utsname_s.machine),
               ACE_TEXT (utsname_s.sysname),
@@ -805,7 +805,7 @@ Common_Tools::isLinux (enum Common_PlatformOSType& distribution_out)
   std::string distribution_id_string;
   std::istringstream converter;
   char buffer [BUFSIZ];
-  std::string regex_string = ACE_TEXT_ALWAYS_CHAR ("^(Distributor ID: )(.+)$");
+  std::string regex_string = ACE_TEXT_ALWAYS_CHAR ("^(Distributor ID:\t)(.+)$");
   std::regex regex (regex_string);
   std::smatch match_results;
   converter.str (lsb_release_output_string);
@@ -820,15 +820,15 @@ Common_Tools::isLinux (enum Common_PlatformOSType& distribution_out)
                            std::regex_constants::match_default))
       continue;
     ACE_ASSERT (match_results.ready () && !match_results.empty ());
-    ACE_ASSERT (match_results[1].matched);
+    ACE_ASSERT (match_results[2].matched);
 
-    distribution_id_string = match_results[1];
+    distribution_id_string = match_results[2];
     break;
   } while (!converter.fail ());
   if (unlikely (distribution_id_string.empty ()))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to retrieve Linux distributor id (lsb_release output was: \"%s\"), continuing\n"),
+                ACE_TEXT ("failed to retrieve Linux distributor id ('lsb_release' output was: \"%s\"), returning\n"),
                 ACE_TEXT (lsb_release_output_string.c_str ())));
     return true;
   } // end IF

@@ -87,14 +87,14 @@ i=0
 # [ ! -r "${BIN_TMP}" ] && echo "ERROR: invalid binary file (was: \"${BIN_TMP}\"), aborting" && exit 1
 
 # chown --quiet root ${BIN_TMP}
- chown --quiet root ${BIN}
+ chown --quiet root:root ${BIN}
  [ $? -ne 0 ] && echo "ERROR: failed to chown ${BIN}: \"$?\", aborting" && exit 1
 # chgrp --quiet root ${BIN}
 # [ $? -ne 0 ] && echo "ERROR: failed to chgrp ${BIN}: \"$?\", aborting" && exit 1
 # chmod --quiet +s ${BIN_TMP}
- chmod --quiet u+s ${BIN}
+ chmod --quiet ug+s ${BIN}
  [ $? -ne 0 ] && echo "ERROR: failed to chmod u+s ${BIN}: \"$?\", aborting" && exit 1
- echo "modified \"$BINS\": suid root"
+ echo "modified \"$BINS\": suid sgid root"
 
 # /sbin/setcap 'cap_net_bind_service=eip' ${BIN_TMP}
 # setcap 'cap_net_admin+eip' ${BIN}

@@ -320,12 +320,12 @@ do_printVersion (const std::string& programName_in)
 #if defined (HAVE_CONFIG_H)
             << ACE_TEXT_ALWAYS_CHAR (LIBCOMMON_PACKAGE_NAME)
             << ACE_TEXT_ALWAYS_CHAR (": ")
-            << ACE_TEXT_ALWAYS_CHAR (LIBCOMMON_VERSION)
-/*            << libCommon_VERSION_MAJOR << ACE_TEXT_ALWAYS_CHAR (".")
+//            << ACE_TEXT_ALWAYS_CHAR (LIBCOMMON_VERSION)
+            << libCommon_VERSION_MAJOR << ACE_TEXT_ALWAYS_CHAR (".")
             << libCommon_VERSION_MINOR << ACE_TEXT_ALWAYS_CHAR (".")
             << libCommon_VERSION_MICRO
             << (ACE_OS::strlen (ACE_TEXT_ALWAYS_CHAR (libCommon_VERSION_DEVEL)) ? ACE_TEXT_ALWAYS_CHAR ("-") : ACE_TEXT_ALWAYS_CHAR (""))
-            << (ACE_OS::strlen (ACE_TEXT_ALWAYS_CHAR (libCommon_VERSION_DEVEL)) ? ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_ALWAYS_CHAR (libCommon_VERSION_DEVEL)) : ACE_TEXT_ALWAYS_CHAR ("")) */
+            << (ACE_OS::strlen (ACE_TEXT_ALWAYS_CHAR (libCommon_VERSION_DEVEL)) ? ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_ALWAYS_CHAR (libCommon_VERSION_DEVEL)) : ACE_TEXT_ALWAYS_CHAR (""))
             << std::endl
 #endif // HAVE_CONFIG_H
             ;

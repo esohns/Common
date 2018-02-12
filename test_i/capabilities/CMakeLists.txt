@@ -76,6 +76,8 @@ add_executable (${EXECUTABLE}
                 ${capability_wrapper_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
+target_link_libraries (${EXECUTABLE} ${PKG_CAP_LIBRARIES})
+
 # add PCH
 set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
 cotire (${EXECUTABLE})

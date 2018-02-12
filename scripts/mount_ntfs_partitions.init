@@ -1,0 +1,46 @@
+#!/bin/sh
+# Author: Erik Sohns
+#
+# /etc/init.d/mount_ntfs_partitions.init
+#
+### BEGIN INIT INFO
+# Provides:          mount_ntfs_partitions
+# Should-Start:      $local_fs
+# Required-Start:    $null
+# Required-Stop:     $null
+# Should-Stop:       $local_fs
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 6
+# Short-Description: mount ntfs partitions with options that fail to convey via /etc/fstab
+# Description:       mount ntfs partitions with options that fail to convey via /etc/fstab
+### END INIT INFO
+
+. /etc/rc.status
+
+rc_reset
+
+case "$1" in
+ start)
+# sanity check(s)
+  [ ! -x /sbin/mount_ntfs_partitions.sh ] && echo "ERROR: service script file not found (was: \"/sbin/mount_ntfs_partitions.sh\"), aborting" && exit 1
+
+  echo -e "\E[36mMounting NTFS partitions (start)...\E[0m";
+  /sbin/mount_ntfs_partitions.sh start
+  echo -e "\E[36mDone $0 \E[0m";
+  ;;
+ stop)
+# sanity check(s)
+  [ ! -x /sbin/mount_ntfs_partitions.sh ] && echo "ERROR: service script file not found (was: \"/sbin/mount_ntfs_partitions.sh\"), aborting" && exit 1
+
+  echo -e "\E[36mmounting NTFS partitions (stop)...\E[0m";
+  /sbin/mount_ntfs_partitions.sh stop
+  echo -e "\E[36mDone $0 \E[0m";
+  ;;
+ *)
+  echo "usage: $(basename $0) [start|stop]"
+  exit 1
+  ;;
+esac 
+
+rc_exit
+

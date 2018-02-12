@@ -90,7 +90,9 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../src)
 
 # ----------------------------------------
 
-add_subdirectory (capabilities)
+if (UNIX)
+ add_subdirectory (capabilities)
+endif ()
 
 # phonies
 add_custom_target (test_i ALL
@@ -99,11 +101,11 @@ if (UNIX)
  add_dependencies (test_i capability_wrapper)
 endif ()
 
-#cmake_policy (SET CMP0012 NEW)
 if (NOT BUILD_TEST_I)
-# set_target_properties (test_i PROPERTIES EXCLUDE_FROM_ALL 1)
+ set_target_properties (test_i PROPERTIES EXCLUDE_FROM_ALL 1)
+ cmake_policy (SET CMP0012 NEW)
  if (WIN32)
-#  set_target_properties (test_i PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
+  set_target_properties (test_i PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
  endif ()
 endif ()
 

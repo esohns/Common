@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -117,7 +117,7 @@ class Common_TaskBase_T
   //         happens in lockstep, which is both inefficient and yields
   //         unpredictable results
   //         --> use Common_MessageQueueIterator_T and lock the queue manually
-  bool hasShutDown ();
+  virtual bool hasShutDown ();
 
   mutable typename ITASKCONTROL_T::MUTEX_T lock_;
 
