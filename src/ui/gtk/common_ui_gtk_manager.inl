@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2010 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -206,7 +206,7 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
   int result = 0;
   bool leave_gdk_threads = false;
 #if defined (GTKGL_SUPPORT)
-  GError* error_p = NULL;
+//  GError* error_p = NULL;
 #endif
 
   // step0: initialize GTK
