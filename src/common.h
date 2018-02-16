@@ -37,18 +37,28 @@
 #include "common_itask.h"
 #include "common_itaskcontrol.h"
 
-enum Common_PlatformOSType : int
+// *** platform ***
+
+enum Common_OperatingSystemType : int
 {
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  COMMON_PLATFORM_OS_WIN32 = 0,
-#elif defined (ACE_LINUX)
-  COMMON_PLATFORM_OS_DEBIAN = 0,
-  COMMON_PLATFORM_OS_OPENSUSE,
-#endif // ACE_LINUX
+  COMMON_OPERATINGSYSTEM_GNU_LINUX = 0,
+  COMMON_OPERATINGSYSTEM_WIN32,
   ///////////////////////////////////////
-  COMMON_PLATFORM_OS_INVALID,
-  COMMON_PLATFORM_OS_MAX
+  COMMON_OPERATINGSYSTEM_INVALID,
+  COMMON_OPERATINGSYSTEM_MAX
 };
+
+enum Common_OperatingSystemDistributionType : int
+{
+  COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_DEBIAN = 0,
+  COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_SUSE,
+  COMMON_OPERATINGSYSTEM_DISTRIBUTION_WIN32_MICROSOFT,
+  ///////////////////////////////////////
+  COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID,
+  COMMON_OPERATINGSYSTEM_DISTRIBUTION_MAX
+};
+
+// *** signals ***
 
 enum Common_SignalDispatchType : int
 {
@@ -84,11 +94,10 @@ struct Common_Signal
 typedef std::vector <struct Common_Signal> Common_Signals_t;
 typedef Common_Signals_t::const_iterator Common_SignalsIterator_t;
 
-// *** signals ***
 typedef std::map<int, ACE_Sig_Action> Common_SignalActions_t;
 typedef Common_SignalActions_t::const_iterator Common_SignalActionsIterator_t;
 
-// *** (ACE) event-dispatch specific
+// *** (ACE) event dispatch ***
 enum Common_EventDispatchType : int
 {
   COMMON_EVENT_DISPATCH_PROACTOR = 0,
@@ -153,6 +162,8 @@ struct Common_EventDispatchThreadData
   bool                     useReactor;
 };
 
+// *** parser ***
+
 struct Common_ScannerState
 {
   Common_ScannerState ()
@@ -161,6 +172,8 @@ struct Common_ScannerState
 
   unsigned int offset;
 };
+
+// *** statistic ***
 
 enum Common_StatisticActionType : int
 {
@@ -172,6 +185,7 @@ enum Common_StatisticActionType : int
 };
 
 // *** task ***
+
 typedef Common_ITaskControl_T<ACE_MT_SYNCH,
                               Common_ILock_T<ACE_MT_SYNCH> > Common_ITaskControl_t;
 typedef Common_ITaskControl_T<ACE_MT_SYNCH,
@@ -182,6 +196,7 @@ typedef Common_ITask_T<ACE_MT_SYNCH,
                        Common_IRecursiveLock_T<ACE_MT_SYNCH> > Common_IRecursiveTask_t;
 
 // *** log ***
+
 typedef std::deque<std::string> Common_MessageStack_t;
 typedef Common_MessageStack_t::const_iterator Common_MessageStackConstIterator_t;
 typedef Common_MessageStack_t::const_reverse_iterator Common_MessageStackConstReverseIterator_t;

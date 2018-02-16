@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -42,13 +42,25 @@ class Common_File_Tools
   // *NOTE*: this doesn't do any sanity checking --> use with care
   static std::string fileExtension (const std::string&, // (FQ) path
                                     bool = false);      // return leading '.' (if any) ?
-  // *NOTE*: also checks whether the file is 'regular' (i.e. not a symlink, ...)
+
+  // *IMPORTANT NOTE*: this 'isxxx'-API is inherently 'racy' and should best be
+  //                   avoided altogether
+
+  // *NOTE*: these checks currently verify accessibility by the 'owner' (!) of
+  //         the file; this may not be the current 'user'
+  // *TODO*: support passing in a user- and/or group id
+  static bool isExecutable (const std::string&); // (FQ) path
+  // *NOTE*: this also checks whether the given path specifies a 'regular' file
+  //         (or (sym-)link or directory), i.e. does not refer to fifo-,
+  //         device-, or other node types with file system entries
   static bool isReadable (const std::string&); // (FQ) path
+
   static bool isEmpty (const std::string&); // (FQ) path
   static bool isDirectory (const std::string&); // directory
   static bool isEmptyDirectory (const std::string&); // directory
   static bool isValidFilename (const std::string&); // (FQ) path
   static bool isValidPath (const std::string&); // (FQ) path
+
   // *NOTE*: users need to free (delete[]) the returned buffer
   static bool load (const std::string&, // (FQ) path
                     unsigned char*&);   // return value: memory buffer (array)

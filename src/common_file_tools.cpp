@@ -26,6 +26,8 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <Shlobj.h>
 #include <Userenv.h>
+#else
+#include <sys/stat.h>
 #endif
 
 #include "ace/ACE.h"
@@ -83,6 +85,30 @@ Common_File_Tools::fileExtension (const std::string& path_in,
 }
 
 bool
+Common_File_Tools::isExecutable (const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isExecutable"));
+
+  int result = -1;
+  ACE_stat stat;
+  ACE_OS::memset (&stat, 0, sizeof (stat));
+  result = ACE_OS::stat (path_in.c_str (),
+                         &stat);
+  if (unlikely (result == -1))
+  {
+    int error = ACE_OS::last_error ();
+    if (error != ENOENT)  // 2  : not found
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
+                  ACE_TEXT (path_in.c_str ())));
+    return false;
+  } // end IF
+
+  return (((stat.st_mode & S_IFMT) & S_IFREG) && // regular file ?
+          (stat.st_mode & S_IRUSR) &&            // readable (by owner) ?
+          (stat.st_mode & S_IXUSR));             // executable (by owner) ?
+}
+bool
 Common_File_Tools::isReadable (const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isReadable"));
@@ -102,8 +128,10 @@ Common_File_Tools::isReadable (const std::string& path_in)
     return false;
   } // end IF
 
-  return (((stat.st_mode & S_IFMT) & S_IFREG) && // regular file ?
-          (stat.st_mode & S_IREAD));             // readable ?
+  return ((((stat.st_mode & S_IFMT) & S_IFDIR) ||  // directory ?
+           ((stat.st_mode & S_IFMT) & S_IFREG) ||  // regular file ?
+           ((stat.st_mode & S_IFMT) & S_IFLNK)) && // (symbolic) link ?
+          (stat.st_mode & S_IRUSR));               // readable (by owner) ?
 }
 
 bool

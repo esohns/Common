@@ -87,6 +87,8 @@ set (${PROJECT_NAME}_LIB_SRCS
      common.h
      common_configuration.h
      common_defines.h
+     common_event_handler.cpp
+     common_event_handler.h
      common_exports.h
      common_file_tools.cpp
      common_file_tools.h
@@ -212,6 +214,7 @@ install (FILES
          common.h
          common_configuration.h
          common_defines.h
+         common_event_handler.h
          common_exports.h
          common_file_tools.h
          common_iclone.h

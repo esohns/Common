@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -756,12 +756,12 @@ Common_Tools::printLocales ()
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 bool
-Common_Tools::isLinux (enum Common_PlatformOSType& distribution_out)
+Common_Tools::isLinux (enum Common_OperatingSystemDistributionType& distribution_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::isLinux"));
 
   // initialize return value(s)
-  distribution_out = COMMON_PLATFORM_OS_INVALID;
+  distribution_out = COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID;
 
   int result = -1;
 
@@ -835,10 +835,10 @@ Common_Tools::isLinux (enum Common_PlatformOSType& distribution_out)
 
   if (!ACE_OS::strcmp (distribution_id_string.c_str (),
                        ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LSB_DEBIAN_STRING)))
-    distribution_out = COMMON_PLATFORM_OS_DEBIAN;
+    distribution_out = COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_DEBIAN;
   else if (!ACE_OS::strcmp (distribution_id_string.c_str (),
                             ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LSB_OPENSUSE_STRING)))
-    distribution_out = COMMON_PLATFORM_OS_OPENSUSE;
+    distribution_out = COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_SUSE;
   else
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to determine Linux distribution (lsb_release output was: \"%s\"), continuing\n"),
@@ -1231,6 +1231,8 @@ Common_Tools::command (const std::string& commandLine_in,
                 ACE_TEXT ("failed to Common_File_Tools::deleteFile(\"%s\"), continuing\n"),
                 ACE_TEXT (filename_string.c_str ())));
   stdOut_out = reinterpret_cast<char* >(data_p);
+
+  // clean up
   delete [] data_p;
 
   return true;
@@ -1243,12 +1245,108 @@ Common_Tools::getProcessId (const std::string& executableName_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::getProcessId"));
 
-  pid_t result = -1;
+  pid_t result = 0;
 
   // sanity check(s)
   ACE_ASSERT (!executableName_in.empty ());
 
-  ACE_ASSERT (false); // *TODO*
+#if defined (ACE_LINUX)
+  // sanity check(s)
+  enum Common_OperatingSystemDistributionType linux_distribution_e =
+      COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID;
+  if (unlikely (!Common_Tools::isLinux (linux_distribution_e)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_Tools::isLinux(), aborting\n")));
+    return result;
+  } // end IF
+  ACE_ASSERT (linux_distribution_e != COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID);
+
+  std::string command_line_string;
+  switch (linux_distribution_e)
+  {
+    case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_DEBIAN:
+    case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_SUSE:
+    {
+      // sanity check(s)
+      if (unlikely (!Common_Tools::isInstalled (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_PIDOFPROC_STRING),
+                                                command_line_string)))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("command (was: \"%s\") is not installed: cannot proceed, aborting\n"),
+                    ACE_TEXT (COMMON_COMMAND_PIDOFPROC_STRING)));
+        return result;
+      } // end IF
+//      ACE_ASSERT (Common_File_Tools::isExecutable (command_line_string));
+      break;
+    }
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unsupported linux distribution (was: %d), aborting\n"),
+                  linux_distribution_e));
+      return result;
+    }
+  } // end SWITCH
+  ACE_ASSERT (!command_line_string.empty ());
+  command_line_string += ACE_TEXT_ALWAYS_CHAR (" ");
+  command_line_string +=
+      ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (executableName_in.c_str ()),
+                                           ACE_DIRECTORY_SEPARATOR_CHAR));
+
+  char buffer_a[BUFSIZ];
+  char* pid_p = NULL;
+  int i = 0;
+  pid_t process_ids_a[64];
+  ACE_OS::memset (&process_ids_a, 0, sizeof (process_ids_a));
+  FILE* stream_p = ::popen (command_line_string.c_str (),
+                            ACE_TEXT_ALWAYS_CHAR ("r"));
+  if (unlikely (!stream_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::popen(\"%s\",r): \"%m\", aborting\n"),
+                ACE_TEXT (command_line_string.c_str ())));
+    return result;
+  } // end IF
+  if (unlikely (!ACE_OS::fgets (buffer_a, BUFSIZ, stream_p)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::fgets(%d,%@): \"%m\", aborting\n"),
+                BUFSIZ, stream_p));
+    goto clean;
+  } // end IF
+
+  pid_p = ACE_OS::strtok (buffer_a, ACE_TEXT_ALWAYS_CHAR (" "));
+  while (pid_p != NULL)
+  {
+    process_ids_a[i] = static_cast<pid_t> (ACE_OS::atoi (pid_p));
+    ++i;
+    pid_p = ACE_OS::strtok (NULL , ACE_TEXT_ALWAYS_CHAR (" "));
+  } // end WHILE
+  if (unlikely (i > 1))
+  {
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("found more than one process for executable (was: \"%s\"), returning the lowest PID\n"),
+                ACE_TEXT (executableName_in.c_str ())));
+    std::sort (process_ids_a, process_ids_a + 64);
+  } // end IF
+  if (likely (i))
+    result = process_ids_a[0];
+
+clean:
+  if (likely (stream_p))
+  { // (on success) pclose() returns the commands' exit status
+    int result_2 = ::pclose (stream_p);
+    if (unlikely (result_2 == -1))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ::pclose(0x%@): \"%m\", continuing\n"),
+                  stream_p));
+  } // end IF
+#else
+  ACE_ASSERT (false);
+  ACE_NOTSUP_RETURN (result);
+  ACE_NOTREACHED (return result;)
+#endif // ACE_LINUX
 
   return result;
 }
@@ -2520,4 +2618,113 @@ Common_Tools::dispatchEvents (bool useReactor_in,
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("event dispatch complete\n")));
   } // end ELSE
+}
+
+bool
+Common_Tools::isInstalled (const std::string& executableName_in,
+                           std::string& executablePath_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::isInstalled"));
+
+  // initialize return value(s)
+  executablePath_out.clear ();
+  bool result = false;
+
+  // sanity check(s)
+  ACE_ASSERT (!executableName_in.empty ());
+
+#if defined (ACE_LINUX)
+  // sanity check(s)
+  enum Common_OperatingSystemDistributionType linux_distribution_e =
+      COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID;
+  if (unlikely (!Common_Tools::isLinux (linux_distribution_e)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_Tools::isLinux(), aborting\n")));
+    return result; // *TODO*: avoid false negatives
+  } // end IF
+  ACE_ASSERT (linux_distribution_e != COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID);
+
+  std::string command_line_string;
+  std::string command_output_string;
+  switch (linux_distribution_e)
+  {
+    case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_DEBIAN:
+    case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_SUSE:
+    {
+      // sanity check(s)
+      command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_WHICH_STRING);
+      command_line_string += ACE_TEXT_ALWAYS_CHAR (" ");
+      command_line_string +=
+          ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LOCATE_STRING);
+      if (unlikely(!Common_Tools::command (command_line_string,
+                                           command_output_string)))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
+                    ACE_TEXT (command_line_string.c_str ())));
+        return result; // *TODO*: avoid false negatives
+      } // end IF
+      if (unlikely(command_output_string.empty ()))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to 'which' \"%s\", aborting\n"),
+                    ACE_TEXT (COMMON_COMMAND_LOCATE_STRING)));
+        return result; // *TODO*: avoid false negatives
+      } // end IF
+      command_line_string = Common_Tools::strip (command_output_string);
+//      ACE_ASSERT (Common_File_Tools::isExecutable (command_line_string));
+      break;
+    }
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unsupported linux distribution (was: %d), aborting\n"),
+                  linux_distribution_e));
+      return result; // *TODO*: avoid false negatives
+    }
+  } // end SWITCH
+  ACE_ASSERT (!command_line_string.empty ());
+  command_line_string += ACE_TEXT_ALWAYS_CHAR (" -b '\\");
+  command_line_string +=
+      ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (executableName_in.c_str ()),
+                                           ACE_DIRECTORY_SEPARATOR_CHAR));
+  command_line_string += ACE_TEXT_ALWAYS_CHAR ("' -e -l 1");
+
+  if (unlikely (!Common_Tools::command (command_line_string,
+                                        command_output_string)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
+                ACE_TEXT (command_line_string.c_str ())));
+    return result; // *TODO*: avoid false negatives
+  } // end IF
+  ACE_ASSERT (!command_output_string.empty ());
+
+  std::istringstream converter;
+  converter.str (command_output_string);
+  char buffer [BUFSIZ];
+  do
+  {
+    converter.getline (buffer, sizeof (buffer));
+    if (converter.eof ())
+      break; // done
+    if (executablePath_out.empty ())
+      executablePath_out = buffer;
+#if defined (_DEBUG)
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("found executable (was: \"%s\"): \"%s\"\n"),
+                ACE_TEXT (executableName_in.c_str ()),
+                ACE_TEXT (buffer)));
+#endif
+  } while (true);
+
+  result = !executablePath_out.empty ();
+#else
+  ACE_ASSERT (false);
+  ACE_NOTSUP_RETURN (result);
+  ACE_NOTREACHED (return result;)
+#endif // ACE_LINUX
+
+  return result;
 }

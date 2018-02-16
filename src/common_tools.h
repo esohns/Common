@@ -70,7 +70,7 @@ class Common_Tools
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-  static bool isLinux (enum Common_PlatformOSType&); // return value: distribution
+  static bool isLinux (enum Common_OperatingSystemDistributionType&); // return value: distribution
 #endif
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -87,11 +87,19 @@ class Common_Tools
 #endif
 
   // --- process ---
-  // *NOTE*: the command line must not have piped stdout
+  // *NOTE*: this uses ::system() piping stdout into a temporary file
+  //         --> the command line must not have piped stdout already
+  // *TODO*: while this should work on most platforms, there are more efficient
+  //         alternatives (e.g. see also: man popen() for Linux)
+  // *TODO*: enhance the API to return the exit status
   static bool command (const std::string&, // command line
                        std::string&);      // return value: stdout
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
+  // *NOTE*: the Linux implementation relies on the 'pidofproc' command, which
+  //         may not be available on all versions of all distributions
+  // *TODO*: parse /proc manually, or find a better alternative (e.g. 'libproc',
+  //         testing for 'PID-files' in /var/run, ...)
   static pid_t getProcessId (const std::string&); // executable (base-)name
 #endif
 
@@ -148,6 +156,12 @@ class Common_Tools
   static void finalizeEventDispatch (bool, // stop reactor ?
                                      bool, // stop proactor ?
                                      int); // thread group id
+
+  // --- (locally installed-) (UNIX) commands / programs ---
+  // *NOTE*: the Linux implementation relies on 'locate' [-b '\$@' -c -e -l 1]
+  //         (and 'which' to locate 'locate' itself)
+  static bool isInstalled (const std::string&, // executable (base-)name
+                           std::string&);      // return value: (FQ) path
 
 #if defined (_DEBUG)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

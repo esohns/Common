@@ -63,7 +63,7 @@
 #define COMMON_LOCALE_EN_US_STRING                             "en-US" // ASCII
 #else
 #define COMMON_LOCALE_EN_US_STRING                             "en_US.utf8" // ASCII
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
 // *** default (system-) 'locations' ***
 
@@ -93,7 +93,7 @@
 #define COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY            "/var/tmp"
 #define COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY_2          "/tmp"
 #define COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE             "TEMP"
-#endif // defined (ACE_WIN32) || defined (ACE_WIN64)
+#endif // ACE_WIN32 || ACE_WIN64
 
 #define COMMON_LOCATION_CONFIGURATION_DIRECTORY                "etc"
 #define COMMON_LOCATION_DATA_DIRECTORY                         "data"
@@ -219,5 +219,11 @@
 // *** state machine ***
 #define COMMON_STATEMACHINE_THREAD_GROUP_ID                    102
 #define COMMON_STATEMACHINE_THREAD_NAME                        "state machine"
+
+// *** (locally installed-) (UNIX) commands / programs ***
+
+#define COMMON_COMMAND_LOCATE_STRING                           "locate"
+#define COMMON_COMMAND_PIDOFPROC_STRING                        "pidofproc"
+#define COMMON_COMMAND_WHICH_STRING                            "which"
 
 #endif

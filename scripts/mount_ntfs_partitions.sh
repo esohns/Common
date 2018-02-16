@@ -9,7 +9,7 @@
 # return value: - 0 success, 1 failure
 
 # sanity checks
-command -v mount.ntfs >/dev/null 2>&1 || { echo "ntfs-3g is not installed, aborting" >&2; exit 1; }
+command -v mount.ntfs >/dev/null 2>&1 || { echo "mount.ntfs is not installed, aborting" >&2; exit 1; }
 command -v umount >/dev/null 2>&1 || { echo "umount is not installed, aborting" >&2; exit 1; }
 # sanity checks
 command -v echo >/dev/null 2>&1 || { echo "echo is not supported, aborting" >&2; exit 1; }
