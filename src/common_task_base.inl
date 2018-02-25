@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -454,7 +454,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 #if defined (_DEBUG)
   bool has_waited = false;
 #endif
-  
+
   do
   {
     count = inherited::msg_queue_->message_count ();
@@ -561,8 +561,9 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 #endif
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("(%s): worker thread (id: %t) starting\n"),
-              ACE_TEXT (threadName_.c_str ())));
+              ACE_TEXT ("(%s): worker thread (id: %t, group: %d) starting\n"),
+              ACE_TEXT (threadName_.c_str ()),
+              inherited::grp_id_));
 #endif
 
   ACE_Message_Block* message_block_p = NULL;
@@ -896,7 +897,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       {
         result = true;
         break;
-      } // end IF 
+      } // end IF
       message_block_p = NULL;
     } // end FOR
   } // end lock scope

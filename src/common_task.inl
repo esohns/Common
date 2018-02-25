@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -83,8 +83,9 @@ Common_Task_T<ACE_SYNCH_USE,
 #endif
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("(%s): worker thread (id: %t) starting\n"),
-              ACE_TEXT (inherited::threadName_.c_str ())));
+              ACE_TEXT ("(%s): worker thread (id: %t, group: %d) starting\n"),
+              ACE_TEXT (inherited::threadName_.c_str ()),
+              inherited::grp_id_));
 #endif
 
   MessageType* message_p = NULL;

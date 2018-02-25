@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -58,6 +58,8 @@ class Common_Task_T
                  bool = true,                                  // auto-start ?
                  typename inherited::MESSAGE_QUEUE_T* = NULL); // queue handle
 
+  virtual int svc (void);
+
  private:
 //  // convenient types
 //  typedef Common_Task_T<ACE_SYNCH_USE,
@@ -68,8 +70,6 @@ class Common_Task_T
   ACE_UNIMPLEMENTED_FUNC (Common_Task_T ())
   ACE_UNIMPLEMENTED_FUNC (Common_Task_T (const Common_Task_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_Task_T& operator= (const Common_Task_T&))
-
-  virtual int svc (void);
 };
 
 // include template definition

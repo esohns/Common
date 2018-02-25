@@ -18,37 +18,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_DBUS_TOOLS_H
-#define COMMON_DBUS_TOOLS_H
+#ifndef COMMON_MATH_DEFINES_H
+#define COMMON_MATH_DEFINES_H
 
-#include "ace/config-lite.h"
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-#include "dbus/dbus.h"
-#endif // ACE_WIN32 || ACE_WIN64
-
-#include "ace/Global_Macros.h"
-
-//#include "common_exports.h"
-
-//class Common_Export Common_DBus_Tools
-class Common_DBus_Tools
-{
- public:
-  inline virtual ~Common_DBus_Tools () {}
-
-  // *IMPORTANT NOTE* fire-and-forget the second argument
-  static struct DBusMessage* exchange (struct DBusConnection*,       // connection handle
-                                       struct DBusMessage*&,         // outbound message handle
-                                       int = DBUS_TIMEOUT_INFINITE); // timeout (ms) {default: block}
-  static bool validateType (struct DBusMessageIter&,  // message iterator
-                            int = DBUS_TYPE_INVALID); // expected type
-
- private:
-  ACE_UNIMPLEMENTED_FUNC (Common_DBus_Tools ())
-//  ACE_UNIMPLEMENTED_FUNC (virtual ~Common_DBus_Tools ())
-  ACE_UNIMPLEMENTED_FUNC (Common_DBus_Tools (const Common_DBus_Tools&))
-  ACE_UNIMPLEMENTED_FUNC (Common_DBus_Tools& operator= (const Common_DBus_Tools&))
-};
+#define COMMON_MATH_NUMDIGITS_INT(X) (X == 0) ? 1 : (floor(log10(X)) + 1)
 
 #endif

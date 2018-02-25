@@ -51,6 +51,7 @@ add_definitions (-D_USE_MATH_DEFINES)
 set (${PROJECT_NAME}Math_LIB_SRCS
      stdafx.cpp
      stdafx.h
+     common_math_defines.h
      common_math_exports.h
      common_math_fft.cpp
      common_math_fft.h
@@ -93,6 +94,7 @@ export (TARGETS ${PROJECT_NAME}Math
 
 ############### install files ################
 install (FILES
+         common_math_defines.h
          common_math_exports.h
          common_math_fft.h
          common_math_sample.h
