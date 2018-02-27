@@ -70,20 +70,24 @@ if (UNIX)
 endif ()
 #pkg_check_modules (PKG_ACE REQUIRED ACE)
 
+add_library (${PROJECT_NAME} STATIC "")
+
 if (UNIX)
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE)
+ target_include_directories (${PROJECT_NAME} PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE>)
 elseif (WIN32)
  include_directories ($ENV{ACE_ROOT})
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/err)
 endif ()
-include_directories (${CMAKE_CURRENT_SOURCE_DIR})
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/timer)
-include_directories (${CMAKE_CURRENT_BINARY_DIR}/..)
+target_include_directories (${PROJECT_NAME} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+target_include_directories (${PROJECT_NAME} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/timer>)
+target_include_directories (${PROJECT_NAME} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/..>)
 
 ############## next target ################
-set (${PROJECT_NAME}_LIB_SRCS
-     stdafx.cpp
-     stdafx.h
+set (source_files
      common.h
      common_configuration.h
      common_defines.h
@@ -141,6 +145,23 @@ set (${PROJECT_NAME}_LIB_SRCS
      common_tools.cpp
      common_tools.h)
 
+# Include dir for installed targets
+set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
+
+#set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+
+foreach (source_file ${source_files})
+ get_filename_component (abs_source_file ${source_file} ABSOLUTE)
+ list (APPEND absolute_source_files
+       PRIVATE ${abs_source_file}
+       )
+#       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
+endforeach ()
+target_sources (${PROJECT_NAME}
+                PRIVATE stdafx.cpp
+                PRIVATE stdafx.h
+                ${absolute_source_files})
+
 if (UNIX)
  add_definitions (-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS)
 endif ()
@@ -165,9 +186,6 @@ if (WIN32)
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")  # multithreaded dll
  endif ()
 endif ()
-
-add_library (${PROJECT_NAME} STATIC
-             ${Common_LIB_SRCS})
 
 #add_dependencies (${PROJECT_NAME} ACE)
 if (WIN32)

@@ -1,9 +1,11 @@
 ﻿include (CMakeDependentOption)
 
-option (GTK3_SUPPORT "enable GTK 3 support" ON)
-#option (GTK2_SUPPORT "enable GTK2 support" OFF)
+CMAKE_DEPENDENT_OPTION (GTK3_SUPPORT "enable GTK 3 support" ON
+                        "GTK_SUPPORT" OFF)
+#option (GTK3_SUPPORT "enable GTK 3 support" ON)
 CMAKE_DEPENDENT_OPTION (GTK2_SUPPORT "enable GTK 2 support" ON
-                        "NOT GTK3_SUPPORT" OFF)
+                        "GTK_SUPPORT; NOT GTK3_SUPPORT" OFF)
+#option (GTK2_SUPPORT "enable GTK2 support" OFF)
 
 # *NOTE*: early versions of gtk do not support GtkBuilder
 # *TODO*: --> find the version number(s) and auto-enable this feature for these
@@ -17,14 +19,14 @@ CMAKE_DEPENDENT_OPTION (GTK2_SUPPORT "enable GTK 2 support" ON
 #         output and pre-set this option accordingly
 #option (LIBGLADE_SUPPORT "enable libglade support" OFF)
 CMAKE_DEPENDENT_OPTION (LIBGLADE_SUPPORT "enable libglade support" OFF
-                        "NOT GTK3_SUPPORT" OFF)
+                        "GTK_SUPPORT; NOT GTK3_SUPPORT" OFF)
 
 option (GTKGL_SUPPORT "enable GTK OpenGL support" ON)
 # *IMPORTANT NOTE*: to use gtkglarea on gtk2, check out the 'gtkglarea-2' branch
 #                   of the project
 #option (GTKGLAREA_SUPPORT "enable GtkGLArea support" OFF)
 CMAKE_DEPENDENT_OPTION (GTKGLAREA_SUPPORT "enable GtkGLArea support" OFF
-                        "GTKGL_SUPPORT" OFF)
+                        "GTK2_SUPPORT; GTKGL_SUPPORT" OFF)
 
 #include (CheckLibraryExists)
 #check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
@@ -93,32 +95,44 @@ if (LIBGLADE_SUPPORT)
  add_definitions (-DLIBGLADE_SUPPORT)
 endif ()
 
+add_library (${PROJECT_NAME}UI_GTK STATIC "")
+
 if (UNIX)
  if (GTK3_SUPPORT)
-  include_directories (${PKG_GTK3_INCLUDE_DIRS})
+  # *NOTE*: a bug in cmake (3.10.2) requires the additional comment
+  target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                              "$<BUILD_INTERFACE:${PKG_GTK3_INCLUDE_DIRS}>")
   if (GTKGL_SUPPORT AND GTKGLAREA_SUPPORT)
-   include_directories (${PKG_GTKGLAREA_INCLUDE_DIRS})
+   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                               $<BUILD_INTERFACE:${PKG_GTKGLAREA_INCLUDE_DIRS}>)
 # *NOTE*: check out the 'master' branch for gtk3-based applications
-   include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtkglarea)
+   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtkglarea>)
   endif ()
  else ()
-  include_directories (${PKG_GTK2_INCLUDE_DIRS})
+  target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                              $<BUILD_INTERFACE:${PKG_GTK2_INCLUDE_DIRS}>)
   if (GTKGL_SUPPORT)
    if (GTKGLAREA_SUPPORT)
-    include_directories (${PKG_GTKGLAREA_INCLUDE_DIRS})
+    target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                                $<BUILD_INTERFACE:${PKG_GTKGLAREA_INCLUDE_DIRS}>)
    else ()
-    include_directories (${PKG_GTKGL2_INCLUDE_DIRS})
+    target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                                $<BUILD_INTERFACE:${PKG_GTKGL2_INCLUDE_DIRS}>)
 # *NOTE*: check out the 'gtkglarea-2' branch for gtk2-based applications
-   include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtkglarea)
+    target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtkglarea>)
    endif ()
   endif ()
  endif ()
 
  if (LIBGLADE_SUPPORT)
-  include_directories (${PKG_GLADE_INCLUDE_DIRS})
+  target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                              $<BUILD_INTERFACE:${PKG_GLADE_INCLUDE_DIRS}>)
  endif ()
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../modules/ACE)
 
+ target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../modules/ACE>)
 elseif (WIN32)
 #*TODO*: use pkg-config instead
 # include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../../../ATCD/ACE)
@@ -154,14 +168,15 @@ elseif (WIN32)
   include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../../libglade-2.6.4/include/libglade-2.0)
  endif ()
 endif ()
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../)
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../)
-include_directories (${CMAKE_CURRENT_BINARY_DIR}/../../../)
+target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
+target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>)
+target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../../..>)
 
 ############## next target ################
-set (${PROJECT_NAME}UI_GTK_LIB_SRCS
-     stdafx.cpp
-     stdafx.h
+set (source_files
      common_ui_gtk_builder_definition.cpp
      common_ui_gtk_builder_definition.h
      common_ui_gtk_builder_definition.inl
@@ -180,21 +195,41 @@ set (${PROJECT_NAME}UI_GTK_LIB_SRCS
 #     common_ui_gtk_types.h
      common_ui_igtk.h)
 if (LIBGLADE_SUPPORT)
- set (${PROJECT_NAME}UI_GTK_LIB_SRCS ${CommonUI_GTK_LIB_SRCS}
+ set (source_files
+      ${source_files}
       common_ui_gtk_glade_definition.cpp
       common_ui_gtk_glade_definition.h)
 endif (LIBGLADE_SUPPORT) # LIBGLADE_SUPPORT
 if (GTKGL_SUPPORT)
- set (${PROJECT_NAME}UI_GTK_LIB_SRCS ${CommonUI_GTK_LIB_SRCS}
+ set (source_files
+      ${source_files}
       common_ui_gtk_gl_common.h)
 endif (GTKGL_SUPPORT) # GTKGL_SUPPORT
+
+# Include dir for installed targets
+set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
+
+#set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+
+unset (absolute_source_files)
+foreach (source_file ${source_files})
+ get_filename_component (abs_source_file ${source_file} ABSOLUTE)
+ list (APPEND absolute_source_files
+       PRIVATE ${abs_source_file}
+       )
+ #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
+endforeach ()
+target_sources (${PROJECT_NAME}UI_GTK
+                PRIVATE stdafx.cpp
+                PRIVATE stdafx.h
+                ${absolute_source_files})
+
+#get_target_property (debug ${PROJECT_NAME}UI_GTK INTERFACE_INCLUDE_DIRECTORIES)
+#message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
 
 #if (UNIX)
 # add_definitions (-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS)
 #endif ()
-
-add_library (${PROJECT_NAME}UI_GTK STATIC
-             ${CommonUI_GTK_LIB_SRCS})
 
 if (UNIX)
 # if (GTK3_SUPPORT)

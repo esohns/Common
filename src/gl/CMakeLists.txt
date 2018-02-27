@@ -60,12 +60,18 @@ else ()
 endif ()
 add_definitions (-DACE_HAS_DLL)
 
-if (UNIX)
- include_directories (${PKG_LIBPNG_INCLUDE_DIRS})
- include_directories (${PKG_ASSIMP_INCLUDE_DIRS})
- include_directories (${PKG_GLM_INCLUDE_DIRS})
+add_library (${PROJECT_NAME}OpenGL STATIC "")
 
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE)
+if (UNIX)
+ target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                             $<BUILD_INTERFACE:${PKG_LIBPNG_INCLUDE_DIRS}>)
+ target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                             $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
+ target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                             $<BUILD_INTERFACE:${PKG_GLM_INCLUDE_DIRS}>)
+
+ target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 elseif (WIN32)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../assimp/include)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../glm)
@@ -75,19 +81,38 @@ elseif (WIN32)
 
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../3rd_party)
 endif ()
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../image)
-include_directories (${CMAKE_CURRENT_BINARY_DIR}/..)
+target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
+target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../image>)
+target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
 
 ############## next target ################
-set (${PROJECT_NAME}OpenGL_LIB_SRCS
-     stdafx.cpp
-     stdafx.h
+set (source_files
      common_gl_common.h
      common_gl_defines.h
      common_gl_exports.h
      common_gl_tools.cpp
      common_gl_tools.h)
+
+# Include dir for installed targets
+set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
+
+#set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+
+unset (absolute_source_files)
+foreach (source_file ${source_files})
+ get_filename_component (abs_source_file ${source_file} ABSOLUTE)
+ list (APPEND absolute_source_files
+       PRIVATE ${abs_source_file}
+       )
+#       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
+endforeach ()
+target_sources (${PROJECT_NAME}OpenGL
+                PRIVATE stdafx.cpp
+                PRIVATE stdafx.h
+                ${absolute_source_files})
 
 #set (LLVM_COMPILER_ID_STRING "Clang")
 #string (TOLOWER "${LLVM_COMPILER_ID_STRING}" LLVM_COMPILER_ID_STRING_LOWER)
@@ -97,11 +122,8 @@ set (${PROJECT_NAME}OpenGL_LIB_SRCS
 # add_definitions (-D_GLIBCXX_USE_CXX11_ABI=0)
 #endif ()
 
-add_definitions (-DHAVE_CONFIG_H)
+#add_definitions (-DHAVE_CONFIG_H)
 #set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
-
-add_library (${PROJECT_NAME}OpenGL STATIC
-             ${CommonOpenGL_LIB_SRCS})
 
 #add_dependencies (${PROJECT_NAME} ACE)
 

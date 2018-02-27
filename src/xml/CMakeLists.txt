@@ -62,17 +62,22 @@ else ()
 endif ()
 #add_definitions (-DACEXML_HAS_DLL)
 
+add_library (${PROJECT_NAME}XML STATIC "")
+
 if (UNIX)
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE)
+ target_include_directories (${PROJECT_NAME}XML PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 elseif (WIN32)
  include_directories ($ENV{ACE_ROOT})
 # include_directories (${CMAKE_CURRENT_SOURCE_DIR}/err)
 endif ()
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
-include_directories (${CMAKE_CURRENT_BINARY_DIR}/..)
+target_include_directories (${PROJECT_NAME}XML PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
+target_include_directories (${PROJECT_NAME}XML PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
 
 ############## next target ################
-set (${PROJECT_NAME}XML_LIB_SRCS
+set (source_files
      common_xml_common.h
      common_xml_defines.h
      common_xml_handler.cpp
@@ -84,9 +89,25 @@ set (${PROJECT_NAME}XML_LIB_SRCS
      common_xml_parser.h
      common_xml_parser.inl
      common_xml_tools.cpp
-     common_xml_tools.h
-     stdafx.cpp
-     stdafx.h)
+     common_xml_tools.h)
+
+# Include dir for installed targets
+set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
+
+#set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+
+unset (absolute_source_files)
+foreach (source_file ${source_files})
+ get_filename_component (abs_source_file ${source_file} ABSOLUTE)
+ list (APPEND absolute_source_files
+       PRIVATE ${abs_source_file}
+       )
+#       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
+endforeach ()
+target_sources (${PROJECT_NAME}XML
+                PRIVATE stdafx.cpp
+                PRIVATE stdafx.h
+                ${absolute_source_files})
 
 #set (LLVM_COMPILER_ID_STRING "Clang")
 #string (TOLOWER "${LLVM_COMPILER_ID_STRING}" LLVM_COMPILER_ID_STRING_LOWER)
@@ -96,11 +117,8 @@ set (${PROJECT_NAME}XML_LIB_SRCS
 # add_definitions (-D_GLIBCXX_USE_CXX11_ABI=0)
 #endif ()
 
-add_definitions (-DHAVE_CONFIG_H)
+#add_definitions (-DHAVE_CONFIG_H)
 #set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
-
-add_library (${PROJECT_NAME}XML STATIC
-             ${CommonXML_LIB_SRCS})
 
 #add_dependencies (${PROJECT_NAME}XML ACE)
 

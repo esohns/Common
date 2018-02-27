@@ -1,9 +1,21 @@
 ﻿option (GTK_SUPPORT "enable GTK support" ON)
 
+add_library (${PROJECT_NAME}UI STATIC "")
+
+if (UNIX)
+ target_include_directories (${PROJECT_NAME}UI PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
+elseif (WIN32)
+ include_directories ($ENV{ACE_ROOT})
+# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/err)
+endif ()
+target_include_directories (${PROJECT_NAME}UI PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
+target_include_directories (${PROJECT_NAME}UI PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
+
 ############## next target ################
-set (${PROJECT_NAME}UI_LIB_SRCS
-     stdafx.cpp
-     stdafx.h
+set (source_files
      common_ui_common.h
      common_ui_defines.h
      common_ui_exports.h
@@ -11,9 +23,23 @@ set (${PROJECT_NAME}UI_LIB_SRCS
      common_ui_tools.h
      common_ui_types.h)
 
-add_library (${PROJECT_NAME}UI
-             STATIC
-             ${CommonUI_LIB_SRCS})
+# Include dir for installed targets
+set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
+
+#set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+
+unset (absolute_source_files)
+foreach (source_file ${source_files})
+ get_filename_component (abs_source_file ${source_file} ABSOLUTE)
+ list (APPEND absolute_source_files
+       PRIVATE ${abs_source_file}
+       )
+ #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
+endforeach ()
+target_sources (${PROJECT_NAME}UI
+                PRIVATE stdafx.cpp
+                PRIVATE stdafx.h
+                ${absolute_source_files})
 
 add_dependencies (${PROJECT_NAME}UI Common)
 if (UNIX)

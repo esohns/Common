@@ -41,27 +41,50 @@ else ()
  #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
 endif ()
 
-if (UNIX)
- include_directories (${PKG_DBUS_INCLUDE_DIRS})
- #include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../dbus)
- include_directories (${PKG_NETWORKMANAGER_INCLUDE_DIRS})
+add_library (${PROJECT_NAME}DBus STATIC "")
 
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE)
+if (UNIX)
+ # *NOTE*: a bug in cmake (3.10.2) requires the additional comment
+ target_include_directories (${PROJECT_NAME}DBus PUBLIC
+                             "$<BUILD_INTERFACE:${PKG_DBUS_INCLUDE_DIRS}>")
+ target_include_directories (${PROJECT_NAME}DBus PUBLIC
+                             $<BUILD_INTERFACE:${PKG_NETWORKMANAGER_INCLUDE_DIRS}>)
+
+ target_include_directories (${PROJECT_NAME}DBus PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 elseif (WIN32)
  include_directories ($ENV{ACE_ROOT})
 endif ()
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
-include_directories (${CMAKE_CURRENT_BINARY_DIR}/..)
+target_include_directories (${PROJECT_NAME}DBus PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
+target_include_directories (${PROJECT_NAME}DBus PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
 
 ############## next target ################
-set (${PROJECT_NAME}DBus_LIB_SRCS
+set (source_files
      common_dbus_tools.cpp
-     common_dbus_tools.h
-     stdafx.cpp
-     stdafx.h)
+     common_dbus_tools.h)
 
-add_library (${PROJECT_NAME}DBus STATIC
-             ${CommonDBus_LIB_SRCS})
+# Include dir for installed targets
+set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
+
+#set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+
+unset (absolute_source_files)
+foreach (source_file ${source_files})
+ get_filename_component (abs_source_file ${source_file} ABSOLUTE)
+ list (APPEND absolute_source_files
+       PRIVATE ${abs_source_file}
+       )
+#       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
+endforeach ()
+target_sources (${PROJECT_NAME}DBus
+                PRIVATE stdafx.cpp
+                PRIVATE stdafx.h
+                ${absolute_source_files})
+
+#get_target_property (debug ${PROJECT_NAME}DBus INTERFACE_INCLUDE_DIRECTORIES)
+#message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
 
 #add_dependencies (${PROJECT_NAME} ACE)
 
@@ -87,7 +110,7 @@ elseif (WIN32)
 # target_link_libraries (${PROJECT_NAME}_DBus Secur32.lib)
 # target_link_libraries (${PROJECT_NAME_DBus} Userenv.lib)
 
- target_link_libraries (${PROJECT_NAME}DBus ${ACE_LIBRARY})
+# target_link_libraries (${PROJECT_NAME}DBus ${ACE_LIBRARY})
 endif ()
 
 # add PCH

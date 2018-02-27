@@ -1,4 +1,4 @@
-// stdafx.h : include file for standard system include files,
+﻿// stdafx.h : include file for standard system include files,
 //  or project specific include files that are used frequently, but
 //      are changed infrequently
 //
@@ -38,9 +38,13 @@
 //#include <stack>
 //#include <vector>
 
-#if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
+#if defined (VALGRIND_SUPPORT)
 #include "valgrind/memcheck.h"
 #endif
 
 // Local Header Files
 #include "common_macros.h"
+
+#if defined (HAVE_CONFIG_H)
+#include "libCommon_config.h"
+#endif

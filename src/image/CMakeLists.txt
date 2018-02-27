@@ -36,9 +36,14 @@ if (UNIX)
  pkg_check_modules (PKG_LIBFFMPEG REQUIRED libavcodec libavformat libswscale)
 endif ()
 
+add_library (${PROJECT_NAME}Image STATIC "")
+
 if (UNIX)
- include_directories (${PKG_LIBFFMPEG_INCLUDE_DIRS})
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
+ target_include_directories (${PROJECT_NAME}Image PUBLIC
+                             $<BUILD_INTERFACE:${PKG_LIBFFMPEG_INCLUDE_DIRS}>)
+
+ target_include_directories (${PROJECT_NAME}Image PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 elseif (WIN32)
 #*TODO*: use pkg-config instead
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25)
@@ -46,19 +51,35 @@ elseif (WIN32)
 
  include_directories ($ENV{ACE_ROOT})
 endif ()
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
+target_include_directories (${PROJECT_NAME}Image PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
+target_include_directories (${PROJECT_NAME}Image PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
 
 ############## next target ################
-set (${PROJECT_NAME}IMAGE_LIB_SRCS
+set (source_files
      common_image_defines.h
      common_image_exports.h
      common_image_tools.cpp
-     common_image_tools.h
-     stdafx.cpp
-     stdafx.h)
+     common_image_tools.h)
 
-add_library (${PROJECT_NAME}Image STATIC
-             ${CommonIMAGE_LIB_SRCS})
+# Include dir for installed targets
+set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
+
+#set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+
+unset (absolute_source_files)
+foreach (source_file ${source_files})
+ get_filename_component (abs_source_file ${source_file} ABSOLUTE)
+ list (APPEND absolute_source_files
+       PRIVATE ${abs_source_file}
+       )
+#       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
+endforeach ()
+target_sources (${PROJECT_NAME}Image
+                PRIVATE stdafx.cpp
+                PRIVATE stdafx.h
+                ${absolute_source_files})
 
 if (WIN32)
 ## set (CMAKE_GENERATOR_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE)

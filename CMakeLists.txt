@@ -1,9 +1,24 @@
-cmake_minimum_required (VERSION 2.8)
+﻿cmake_minimum_required (VERSION 2.8)
 
-# options
+#include (CheckIPOSupported)
+#check_ipo_supported (RESULT IPO_SUPPORTED)
+
+# global options
+cmake_policy (SET CMP0069 NEW) # add IPO flags unconditionally (i.e. always)
+#if (IPO_SUPPORTED)
+set (CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+#endif (IPO_SUPPORTED)
 #set (CMAKE_VERBOSE_MAKEFILE ON)
 #set (MSVC_INCREMENTAL_DEFAULT OFF)
+set_property (GLOBAL PROPERTY USE_FOLDERS ON)
+if (UNIX)
+ find_program (CCACHE_PROGRAM ccache)
+ if (CCACHE_PROGRAM)
+  set_property (GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+ endif (CCACHE_PROGRAM)
+endif (UNIX)
 
+# version
 set (VERSION_MAJOR 0)
 set (VERSION_MINOR 0)
 set (VERSION_MICRO 1)
@@ -14,26 +29,41 @@ if (VERSION_DEVEL)
  set (VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}-${VERSION_DEVEL})
 endif ()
 
-# *NOTE*: if the user specifies -DCMAKE_BUILD_TYPE on the command line, take
+set (PACKAGE_DESCRIPTION "\
+user-space wrapper library for common functionality not currently covered by \
+the ACE framework (see: http://www.cs.wustl.edu/~schmidt/ACE.html)")
+set (PACKAGE_DESCRIPTION_SUMMARY "(wrapper) library for common functionality, based on the ACE framework")
+
+# Package section (see http://packages.debian.org/stable/)
+set (PACKAGE_SECTION "devel") # Debian
+#set (PACKAGE_SECTION "Development/Libraries")
+
+# build type
+#variable_watch (CMAKE_BUILD_TYPE)
+# *NOTE*: iff the user specifies -DCMAKE_BUILD_TYPE on the command line, take
 #         their definition and dump it in the cache along with proper
 #         documentation, otherwise set CMAKE_BUILD_TYPE to Debug prior to
 #         calling PROJECT()
 set (BUILD_TYPE_CACHE_STRING "choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
 if (DEFINED CMAKE_BUILD_TYPE)
  set (CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING ${BUILD_TYPE_CACHE_STRING})
-else ()
+elseif (NOT CMAKE_CONFIGURATION_TYPES)
  set (CMAKE_BUILD_TYPE Debug CACHE STRING ${BUILD_TYPE_CACHE_STRING})
 endif ()
 
 #message("current CMAKE_SYSTEM_VERSION = ${CMAKE_SYSTEM_VERSION}")
-#cmake_policy (SET CMP0056 NEW)
 
 cmake_policy (SET CMP0048 NEW) # allow project VERSION
+#cmake_policy (SET CMP0056 OLD) # honor per-config flags in try_compile()
+#cmake_policy (SET CMP0066 OLD) # honor per-config flags in try_compile()
+#cmake_policy (SET CMP0056 NEW)
 project (Common
          VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
          LANGUAGES CXX C)
 
+# directories
 # override the installation directories ?
+#set (CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION OFF)
 set (INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
 set (INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
 set (INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
@@ -52,44 +82,9 @@ foreach (path LIB BIN INCLUDE CMAKE)
  endif ()
 endforeach ()
 
-# Export the package for use from the build-tree
-# (this registers the build-tree with a global CMake-registry)
-export (PACKAGE lib${PROJECT_NAME})
-
-# Create the CommonConfig.cmake and CommonConfigVersion.cmake files
-file (RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}")
-# ... for the build tree
-set (CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/src" "${PROJECT_BINARY_DIR}")
-configure_file (${PROJECT_NAME}Config.cmake.in
-                "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" @ONLY)
-# ... for the install tree
-set (CONF_INCLUDE_DIRS "\${LIBCOMMON_CMAKE_DIR}/${REL_INCLUDE_DIR}")
-configure_file (${PROJECT_NAME}Config.cmake.in
-                "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PROJECT_NAME}Config.cmake" @ONLY)
-# ... for both
-configure_file (${PROJECT_NAME}ConfigVersion.cmake.in
-                "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake" @ONLY)
-
-# Install the CommonConfig.cmake and CommonConfigVersion.cmake
-install (FILES
-         "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PROJECT_NAME}Config.cmake"
-         "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-         DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
-# Install the export set for use with the install-tree
-install (EXPORT ${PROJECT_NAME}Targets
-         DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
-
-set (PACKAGE ${PROJECT_NAME})
-configure_file (${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake.in
-                ${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_config.h
-                @ONLY)
-#add_custom_target (${PROJECT_NAME}_config)
-#set_target_properties (${PROJECT_NAME}_config PROPERTIES
-#                       PUBLIC_HEADER "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_config.h")
-
-install (FILES "${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_config.h"
-         DESTINATION "${INSTALL_INCLUDE_DIR}/${PROJECT_NAME}"
-         COMPONENT dev)
+# project options
+set (DEBUG_DEBUGGER TRUE
+     CACHE BOOL "in debugger")
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
  if (CMAKE_COMPILER_IS_GNUCXX)
@@ -102,6 +97,10 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug)
   add_definitions (-D_ITERATOR_DEBUG_LEVEL=1)
  endif ()
 #  set_property (SOURCE PROPERTY COMPILE_DEFINITIONS _DEBUG)
+ if (DEBUG_DEBUGGER AND
+     NOT DEFINED IN_CPACK)
+  add_definitions (-DDEBUG_DEBUGGER)
+ endif ()
 elseif (CMAKE_BUILD_TYPE STREQUAL Release)
  if (CMAKE_COMPILER_IS_GNUCXX)
   add_compile_options (-O3)
@@ -113,8 +112,7 @@ elseif (CMAKE_BUILD_TYPE STREQUAL Release)
  endif ()
 endif ()
 
-option (TRACING
-        "enable tracing" OFF)
+option (TRACING "enable tracing" OFF)
 if (TRACING)
  add_definitions (-DCOMMON_NTRACE=0)
 #  set_property (SOURCE PROPERTY COMPILE_DEFINITIONS COMMON_NTRACE=0)
@@ -123,8 +121,7 @@ else ()
 #  set_property (SOURCE PROPERTY COMPILE_DEFINITIONS COMMON_NTRACE=1)
 endif ()
 
-option (VALGRIND_SUPPORT
-        "enable valgrind support" OFF)
+option (VALGRIND_SUPPORT "enable valgrind support" OFF)
 if (VALGRIND_SUPPORT)
  include (CheckIncludeFiles)
  check_include_files (valgrind/valgrind.h HAVE_VALGRIND_H)
@@ -136,6 +133,8 @@ if (VALGRIND_SUPPORT)
 #  set_property (SOURCE PROPERTY COMPILE_DEFINITIONS LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
 endif ()
 
+option (BUILD_MODULES "build (git) sub-modules" OFF)
+
 if (CMAKE_COMPILER_IS_GNUCXX)
  add_compile_options (-ansi)
  add_compile_options (-std=c++11)
@@ -145,7 +144,8 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 #  set_property (SOURCE PROPERTY COMPILE_DEFINITIONS _GNU_SOURCE)
 endif ()
 if (MSVC)
- set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+ add_compile_options (/MP)
+# add_definitions (-D_CRT_SECURE_NO_WARNINGS)
 
  set (MSVC_INCREMENTAL_YES_FLAG "/INCREMENTAL:NO")
  foreach (FLAG_TYPE EXE MODULE SHARED STATIC)
@@ -158,24 +158,63 @@ if (MSVC)
  endforeach ()
 endif (MSVC)
 
-option (BUILD_MODULES
-        "build (git) sub-modules" OFF)
+################################################################################
 
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cotire/CMake")
 #list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/scripts")
 include (cotire)
 set_directory_properties (PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 
-# build a CPack driven installer package
-include (InstallRequiredSystemLibraries)
-set (CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
-set (CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
-set (CPACK_PACKAGE_VERSION_PATCH ${VERSION_MICRO})
-set (CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE)
-set (CPACK_RESOURCE_FILE_README ${CMAKE_CURRENT_SOURCE_DIR}/README)
+################################################################################
 
-# build a CPack driven installer package
-include (CPack)
+add_subdirectory (src)
+
+################################################################################
+
+# configuration files
+# Export the package for use from the build-tree
+# (this registers the build-tree with a global CMake-registry)
+export (PACKAGE ${PROJECT_NAME})
+
+# Create the CommonConfig.cmake and CommonConfigVersion.cmake files
+# *NOTE*: see: https://cmake.org/Wiki/CMake/Tutorials/How_to_create_a_ProjectConfig.cmake_file
+file (RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}")
+# ... for the build tree
+set (CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
+configure_file (${PROJECT_NAME}Config.cmake.in
+                "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" @ONLY)
+# ... for the install tree
+set (CONF_INCLUDE_DIRS "\${Common_CMAKE_DIR}/${REL_INCLUDE_DIR}")
+configure_file (${PROJECT_NAME}Config.cmake.in
+                "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PROJECT_NAME}Config.cmake" @ONLY)
+# ... for both
+configure_file (${PROJECT_NAME}ConfigVersion.cmake.in
+                "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake" @ONLY)
+
+set (PACKAGE ${PROJECT_NAME})
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake.in
+                ${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_config.h
+                @ONLY)
+#add_custom_target (${PROJECT_NAME}_config)
+#set_target_properties (${PROJECT_NAME}_config PROPERTIES
+#                       PUBLIC_HEADER "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_config.h")
+add_definitions (-DHAVE_CONFIG_H)
+#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
+
+################################################################################
+
+# Install the CommonConfig.cmake and CommonConfigVersion.cmake
+install (FILES
+         "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PROJECT_NAME}Config.cmake"
+         "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+         DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+# Install the export set for use with the install-tree
+install (EXPORT ${PROJECT_NAME}Targets
+         DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+
+install (FILES "${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_config.h"
+         DESTINATION "${INSTALL_INCLUDE_DIR}/${PROJECT_NAME}"
+         COMPONENT dev)
 
 ################################################################################
 
@@ -187,11 +226,46 @@ include (CreateLaunchers)
 
 # enable (unit/integration) tests
 #include (CTest)
-#enable_testing ()
+enable_testing ()
 
 ################################################################################
 
-add_subdirectory (src)
-add_subdirectory (test_i)
 add_subdirectory (test_u)
+add_subdirectory (test_i)
 
+################################################################################
+
+if (UNIX)
+# include (CheckLibraryExists)
+# check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
+ include (GNUInstallDirs)
+
+ set (CMAKE_THREAD_PREFER_PTHREAD ON)
+elseif (WIN32)
+ if (MSVC)
+#  message (STATUS "CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION: ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
+#  set (CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION "10.0.16299.0") # set Windows SDK version
+  message (STATUS "CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION: ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
+#  add_definitions (-CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION=${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION})
+ endif ()
+ include (InstallRequiredSystemLibraries)
+endif ()
+
+#set (NSIS_PROJECT_FILE "lib${PROJECT_NAME}.nsi")
+#add_custom_command (TARGET ${PROJECT_NAME}
+#                    POST_BUILD
+#                    COMMAND make_installer.bat ${NSIS_PROJECT_FILE}
+#                    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/scripts"
+#                    COMMENT "making installer..."
+#                    VERBATIM)
+
+# build a CPack driven installer package
+#include (InstallRequiredSystemLibraries)
+set (CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
+set (CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
+set (CPACK_PACKAGE_VERSION_PATCH ${VERSION_MICRO})
+set (CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE)
+set (CPACK_RESOURCE_FILE_README ${CMAKE_CURRENT_SOURCE_DIR}/README)
+
+# build a CPack driven installer package
+include (CPack)
