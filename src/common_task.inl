@@ -90,7 +90,7 @@ Common_Task_T<ACE_SYNCH_USE,
 
   MessageType* message_p = NULL;
   ACE_Message_Block::ACE_Message_Type message_type;
-  int result = 1;
+  int result = -1;
   int error = -1;
   int result_2 = -1;
 
@@ -118,15 +118,9 @@ Common_Task_T<ACE_SYNCH_USE,
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("(%s): failed to ACE_Task::putq(): \"%m\", aborting\n"),
                       ACE_TEXT (inherited::threadName_.c_str ())));
-        else
-          result = 0;
       } // end IF
       else
-        result = 0;
-
-      // clean up
-      message_p->release ();
-
+        message_p->release ();
       break; // done
     } // end IF
 
@@ -139,7 +133,7 @@ Common_Task_T<ACE_SYNCH_USE,
                   message_p));
     }
 
-    // clean up
+    // clean up ?
     if (unlikely (message_p))
     {
       message_p->release ();

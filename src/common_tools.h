@@ -33,13 +33,14 @@
 #include "ace/Global_Macros.h"
 
 #include "common.h"
+#include "common_configuration.h"
 //#include "common_exports.h"
 
 // forward declaration(s)
 class ACE_Event_Handler;
 class ACE_Log_Msg_Backend;
 
-ACE_THR_FUNC_RETURN threadpool_event_dispatcher_function (void*);
+ACE_THR_FUNC_RETURN common_event_dispatch_function (void*);
 
 //class Common_Export Common_Tools
 class Common_Tools
@@ -140,22 +141,21 @@ class Common_Tools
   static void finalizeLogging ();
 
   // --- event loop ---
-  static bool initializeEventDispatch (bool,                      // use reactor ? : proactor
-                                       bool,                      // use thread pool ?
-                                       unsigned int,              // number of (dispatching) threads
-                                       enum Common_ProactorType&, // return value: proactor type
-                                       enum Common_ReactorType&,  // return value: reactor type
-                                       bool&);                    // return value: output requires serialization
-  // *NOTE*: the first argument is passed to the thread function as argument,
-  //         so must reside on the stack (hence the reference)
-  static bool startEventDispatch (const struct Common_EventDispatchThreadData&, // thread data
-                                  int&);                                        // return value: thread group id
-  static void dispatchEvents (bool,      // use reactor ? : proactor
-                              int = -1); // thread group id
-  // *NOTE*: this call blocks until all dispatching threads have joined
-  static void finalizeEventDispatch (bool, // stop reactor ?
-                                     bool, // stop proactor ?
-                                     int); // thread group id
+  // *NOTE*: the configuration is updated with the platform-specific proactor/
+  //         reactor types and corresponding options; hence the non-const
+  //         argument
+  static bool initializeEventDispatch (struct Common_EventDispatchConfiguration&); // configuration (i/o)
+  // *NOTE*: the state handle is updated with the thread group ids (if any);
+  //         hence the non-const argument
+  // *WARNING*: iff any worker thread(s) is/are spawned, a handle to the first
+  //            argument is passed to the dispatch thread function as argument
+  //            --> ensure it does not fall off the stack prematurely
+  static bool startEventDispatch (struct Common_EventDispatchState&); // thread data (i/o)
+  static void dispatchEvents (bool,      // dispatch reactor ? : proactor
+                              int = -1); // dispatch thread group id
+  static void finalizeEventDispatch (int,           // proactor thread group id {-1: nop}
+                                     int,           // reactor thread group id  {-1: nop}
+                                     bool = false); // wait for completion ?
 
   // --- (locally installed-) (UNIX) commands / programs ---
   // *NOTE*: the Linux implementation relies on 'locate' [-b '\$@' -c -e -l 1]

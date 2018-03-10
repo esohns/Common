@@ -147,19 +147,18 @@ enum Common_ReactorType : int
   COMMON_REACTOR_INVALID
 };
 
-struct Common_EventDispatchThreadData
+struct Common_EventDispatchConfiguration;
+struct Common_EventDispatchState
 {
-  Common_EventDispatchThreadData ()
-   : numberOfDispatchThreads (0)
-   , proactorType (COMMON_EVENT_PROACTOR_TYPE)
-   , reactorType (COMMON_EVENT_REACTOR_TYPE)
-   , useReactor (COMMON_EVENT_USE_REACTOR)
+  Common_EventDispatchState ()
+   : configuration (NULL)
+   , proactorGroupId (-1)
+   , reactorGroupId (-1)
   {};
 
-  unsigned int             numberOfDispatchThreads;
-  enum Common_ProactorType proactorType;
-  enum Common_ReactorType  reactorType;
-  bool                     useReactor;
+  struct Common_EventDispatchConfiguration* configuration;
+  int                                       proactorGroupId;
+  int                                       reactorGroupId;
 };
 
 // *** parser ***

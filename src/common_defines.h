@@ -108,7 +108,7 @@
 #define COMMON_COMPILER_UNUSED_SYMBOL_PREFIX                   __attribute__ ((unused))
 #else
 #define COMMON_COMPILER_UNUSED_SYMBOL_PREFIX
-#endif // defined (__GNUG__)
+#endif // __GNUG__
 
 /////////////////////////////////////////
 
@@ -116,7 +116,7 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #define COMMON_DEBUG_DEBUGHEAP_DEFAULT_ENABLE                  false
 #define COMMON_DEBUG_DEBUGHEAP_LOG_FILE                        "debugheap.log"
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
 // *** log ***
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -135,7 +135,7 @@
 #define COMMON_TIMEOUT_DEFAULT_THREAD_SPAWN                    200 // ms
 #else
 #define COMMON_TIMEOUT_DEFAULT_THREAD_SPAWN                    100 // ms
-#endif
+#endif // _DEBUG
 
 // *** event loop ***
 #define COMMON_EVENT_MAXIMUM_HANDLES                           ACE::max_handles ()
@@ -145,7 +145,7 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #undef COMMON_EVENT_PROACTOR_TYPE
 #define COMMON_EVENT_PROACTOR_TYPE                             COMMON_PROACTOR_WIN32
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 #if defined (__GNUC__)
@@ -166,7 +166,8 @@
 //                   either (both) glibc (and) or ACE
 //#define COMMON_EVENT_PROACTOR_TYPE                           COMMON_PROACTOR_POSIX_AIOCB
 #endif // __GNUC__
-#endif // defined (ACE_WIN32) || defined (ACE_WIN64)
+#endif // ACE_WIN32 || ACE_WIN64
+#define COMMON_EVENT_PROACTOR_THREAD_GROUP_ID                  101
 
 // proactor options
 // *NOTE*: parallel (!) (in-flight) operations
@@ -185,19 +186,21 @@
 // *CHECK*: the default reactor would be COMMON_REACTOR_SELECT on these systems
 #undef COMMON_EVENT_REACTOR_TYPE
 #define COMMON_EVENT_REACTOR_TYPE                              COMMON_REACTOR_DEV_POLL
-#endif // defined (ACE_WIN32) || defined (ACE_WIN64)
+#endif // ACE_WIN32 || ACE_WIN64
+#define COMMON_EVENT_REACTOR_THREAD_GROUP_ID                   102
 
-#define COMMON_EVENT_THREAD_GROUP_ID                           101
+// reactor options
+#define COMMON_EVENT_REACTOR_DEFAULT_USE_THREADPOOL            false
+
 #define COMMON_EVENT_THREAD_NAME                               "event dispatch"
-
-#define COMMON_EVENT_USE_REACTOR                               false
+#define COMMON_EVENT_DEFAULT_DISPATCH                          COMMON_EVENT_DISPATCH_PROACTOR
 
 // *** environment ***
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-#define COMMON_DEF_USER_LOGIN_BASE                             "LOGNAME" // environment
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#define COMMON_DEFAULT_USER_LOGIN_BASE                         "USERNAME" // environment
 #else
-#define COMMON_DEF_USER_LOGIN_BASE                             "USERNAME" // environment
-#endif // !defined (ACE_WIN32) && !defined (ACE_WIN64)
+#define COMMON_DEFAULT_USER_LOGIN_BASE                         "LOGNAME" // environment
+#endif // ACE_WIN32 || ACE_WIN64
 
 // *** parser ***
 
@@ -217,7 +220,7 @@
 #define COMMON_PARSER_DEFAULT_YACC_TRACE                       false
 
 // *** state machine ***
-#define COMMON_STATEMACHINE_THREAD_GROUP_ID                    102
+#define COMMON_STATEMACHINE_THREAD_GROUP_ID                    110
 #define COMMON_STATEMACHINE_THREAD_NAME                        "state machine"
 
 // *** (locally installed-) (UNIX) commands / programs ***
@@ -225,5 +228,8 @@
 #define COMMON_COMMAND_LOCATE_STRING                           "locate"
 #define COMMON_COMMAND_PIDOFPROC_STRING                        "pidofproc"
 #define COMMON_COMMAND_WHICH_STRING                            "which"
+
+// *** application ***
+#define COMMON_APPLICATION_THREAD_GROUP_ID                     1000
 
 #endif
