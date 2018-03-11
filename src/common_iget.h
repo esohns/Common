@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -168,21 +168,25 @@ class Common_IGetSetPR_T
 
 //----------------------------------------
 
-template <typename Type>
-class Common_IGet1R_T
+template <typename Type,
+          typename ReturnType>
+class Common_IGet1RR_T
 {
  public:
-  virtual const Type& get1R (const Type&) const = 0; // return value: type
+  virtual const ReturnType& get1RR (const Type&) const = 0; // return value: type
 };
 
 //----------------------------------------
 
-template <typename Type>
-class Common_ISet2R_T
+template <typename Type1,
+          typename Type2,
+          typename Type3>
+class Common_ISet3R_T
 {
  public:
-  virtual void set2R (const Type&,
-                      const Type&) = 0;
+  virtual void set3R (const Type1&,
+                      const Type2&,
+                      const Type3&) = 0;
 };
 
 #endif

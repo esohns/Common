@@ -201,6 +201,13 @@ set_target_properties (${PROJECT_NAME} PROPERTIES
                        SOVERSION 1)
 
 if (UNIX)
+ if(CMAKE_COMPILER_IS_GNUCXX)
+  set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed")
+#  set (CMAKE_STATIC_LINKER_FLAGS "-Wl,--as-needed")
+ endif (CMAKE_COMPILER_IS_GNUCXX)
+endif (UNIX)
+
+if (UNIX)
 # target_link_libraries (${PROJECT_NAME} ${ACE_LIBRARY})
 # target_link_libraries (${PROJECT_NAME} ${AIO_LIBRARY})
 elseif (WIN32)

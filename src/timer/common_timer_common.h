@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -78,7 +78,7 @@ struct Common_TimerConfiguration
   Common_TimerConfiguration ()
    : dispatch (COMMON_TIMER_DEFAULT_DISPATCH)
    , queueType (COMMON_TIMER_DEFAULT_QUEUE)
-  {};
+  {}
 
   enum Common_TimerDispatchType dispatch;
   enum Common_TimerQueueType    queueType;

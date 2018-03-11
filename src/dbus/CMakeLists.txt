@@ -1,7 +1,16 @@
-﻿include (FindPkgConfig)
+﻿option (DBUS_SUPPORT "compile DBus support" ON)
+option (SD_BUS_SUPPORT "compile sd-bus (libsystemd) support" ON)
+
+include (FindPkgConfig)
 if (UNIX)
- pkg_check_modules (PKG_DBUS REQUIRED dbus-1)
- pkg_check_modules (PKG_NETWORKMANAGER REQUIRED NetworkManager)
+ if (DBUS_SUPPORT)
+  pkg_check_modules (PKG_DBUS REQUIRED dbus-1)
+  pkg_check_modules (PKG_NETWORKMANAGER REQUIRED NetworkManager)
+ endif (DBUS_SUPPORT)
+
+ if (SD_BUS_SUPPORT)
+  pkg_check_modules (PKG_SYSTEMD REQUIRED libsystemd)
+ endif (SD_BUS_SUPPORT)
 endif ()
 #pkg_check_modules (PKG_ACE REQUIRED ACE)
 
@@ -41,14 +50,28 @@ else ()
  #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
 endif ()
 
+if (DBUS_SUPPORT)
+ add_definitions (-DDBUS_SUPPORT)
+endif (DBUS_SUPPORT)
+if (SD_BUS_SUPPORT)
+ add_definitions (-DSD_BUS_SUPPORT)
+endif (SD_BUS_SUPPORT)
+
 add_library (${PROJECT_NAME}DBus STATIC "")
 
 if (UNIX)
- # *NOTE*: a bug in cmake (3.10.2) requires the additional comment
- target_include_directories (${PROJECT_NAME}DBus PUBLIC
-                             "$<BUILD_INTERFACE:${PKG_DBUS_INCLUDE_DIRS}>")
- target_include_directories (${PROJECT_NAME}DBus PUBLIC
-                             $<BUILD_INTERFACE:${PKG_NETWORKMANAGER_INCLUDE_DIRS}>)
+ if (DBUS_SUPPORT)
+# *NOTE*: a bug in cmake (3.10.2) requires the additional comment
+  target_include_directories (${PROJECT_NAME}DBus PUBLIC
+                              "$<BUILD_INTERFACE:${PKG_DBUS_INCLUDE_DIRS}>")
+  target_include_directories (${PROJECT_NAME}DBus PUBLIC
+                              $<BUILD_INTERFACE:${PKG_NETWORKMANAGER_INCLUDE_DIRS}>)
+ endif (DBUS_SUPPORT)
+
+ if (SD_BUS_SUPPORT)
+  target_include_directories (${PROJECT_NAME}DBus PUBLIC
+                              $<BUILD_INTERFACE:${PKG_SYSTEMD_INCLUDE_DIRS}>)
+ endif (SD_BUS_SUPPORT)
 
  target_include_directories (${PROJECT_NAME}DBus PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
@@ -62,6 +85,8 @@ target_include_directories (${PROJECT_NAME}DBus PUBLIC
 
 ############## next target ################
 set (source_files
+     common_dbus_common.h
+     common_dbus_defines.h
      common_dbus_tools.cpp
      common_dbus_tools.h)
 
@@ -124,8 +149,9 @@ export (TARGETS ${PROJECT_NAME}DBus
 
 ############### install files ################
 install (FILES
+         common_dbus_common.h
+         common_dbus_defines.h
          common_dbus_tools.h
-         stdafx.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
 install (TARGETS ${PROJECT_NAME}DBus
          EXPORT ${PROJECT_NAME}Targets
