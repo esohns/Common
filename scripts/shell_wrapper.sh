@@ -8,7 +8,7 @@
 # sanity checks
 command -v echo >/dev/null 2>&1 || { echo "echo is not supported, aborting" >&2; exit 1; }
 command -v exec >/dev/null 2>&1 || { echo "exec is not supported, aborting" >&2; exit 1; }
-#command -v kill >/dev/null 2>&1 || { echo "kill is not supported, aborting" >&2; exit 1; }
+command -v kill >/dev/null 2>&1 || { echo "kill is not supported, aborting" >&2; exit 1; }
 
 command -v basename >/dev/null 2>&1 || { echo "basename is not installed, aborting" >&2; exit 1; }
 #command -v dirname >/dev/null 2>&1 || { echo "dirname is not installed, aborting" >&2; exit 1; }
@@ -24,8 +24,11 @@ shift
 #echo "running \"$(basename ${COMMAND})\" with arguments: \"$@\" as ${USER}/${GROUP}"
 echo "running \"$(basename ${COMMAND})\" with arguments: \"$@\" as ${USER}"
 
-echo ${BASHPID}
-kill -STOP ${BASHPID}
+#echo ${BASHPID}
+#kill -STOP ${BASHPID}
+echo $$
+kill -STOP $$
+#kill -s 19 ${BASHPID}
 #exec sudo -u ${USER} -g ${GROUP} ${COMMAND} $@
 #exec sudo -u ${USER} ${COMMAND} $@
 exec ${COMMAND} $@

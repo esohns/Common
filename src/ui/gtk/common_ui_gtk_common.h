@@ -40,7 +40,8 @@
 struct _GladeXML;
 #endif // LIGBGLADE_SUPPORT
 
-enum Common_UI_GTK_InterfaceDefinitionType : int
+//enum Common_UI_GTK_InterfaceDefinitionType : int
+enum Common_UI_GTK_InterfaceDefinitionType
 {
   COMMON_UI_GTK_DEFINITIONTYPE_BUILDER = 0,
 #if defined (LIGBGLADE_SUPPORT)
@@ -66,7 +67,8 @@ typedef std::map<std::string, Common_UI_GTK_Builder_t> Common_UI_GTK_Builders_t;
 typedef Common_UI_GTK_Builders_t::iterator Common_UI_GTK_BuildersIterator_t;
 typedef Common_UI_GTK_Builders_t::const_iterator Common_UI_GTK_BuildersConstIterator_t;
 
-enum Common_UI_GTK_StatusContextType : int
+//enum Common_UI_GTK_StatusContextType : int
+enum Common_UI_GTK_StatusContextType
 {
   COMMON_UI_GTK_STATUSCONTEXT_INVALID = -1,
   // *NOTE*: '0' is also a predefined global context id

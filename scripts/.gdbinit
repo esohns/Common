@@ -77,14 +77,14 @@ handle SIG33 pass nostop noprint
 handle SIG34 pass nostop noprint
 
 # source paths / debug symbols
-#directory /home/esohns/libxml2-2.9.2+zdfsg1
+#directory /home/erik/libxml2-2.9.2+zdfsg1
 #set debug-file-directory
 
 # python
 #set auto-load python-scripts on
-add-auto-load-safe-path /home/esohns/.gdb_debug
+add-auto-load-safe-path /home/erik/.gdb_debug
 # load (python) visualizers
-source /home/esohns/.gdb_debug/libcommon_gdb_visualizers.py
+source /home/erik/.gdb_debug/libcommon_gdb_visualizers.py
 #python execfile ("libcommon_gdb_visualizers.py")
 #python
 #exec(open("libcommon_gdb_visualizers.py").read())

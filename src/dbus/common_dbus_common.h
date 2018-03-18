@@ -22,11 +22,39 @@
 #define COMMON_DBUS_COMMON_H
 
 #include <string>
+#include <vector>
+
+enum Common_DBus_PolicyKit_SubjectType
+{
+  COMMON_DBUS_POLICYKIT_SUBJECT_PROCESS = 0,
+  COMMON_DBUS_POLICYKIT_SUBJECT_SYSTEM_BUS,
+  ////////////////////////////////////////
+  COMMON_DBUS_POLICYKIT_SUBJECT_MAX,
+  COMMON_DBUS_POLICYKIT_SUBJECT_INVALID
+};
+
+typedef std::vector<std::pair<std::string, std::string> > Common_DBus_PolicyKit_Details_t;
+typedef Common_DBus_PolicyKit_Details_t::const_iterator Common_DBus_PolicyKit_DetailsIterator_t;
+
+struct Common_DBus_PolicyKit_CheckAuthorizationCBData
+{
+  Common_DBus_PolicyKit_CheckAuthorizationCBData ()
+   : authorized (0)
+   , challenge (0)
+   , details ()
+   , done (false)
+  {}
+
+  int                             authorized;
+  int                             challenge;
+  Common_DBus_PolicyKit_Details_t details;
+  bool                            done;
+};
 
 #if defined (SD_BUS_SUPPORT)
-struct Common_DBusSignalSystemdJobCBData
+struct Common_DBus_SignalSystemdJobCBData
 {
-  Common_DBusSignalSystemdJobCBData ()
+  Common_DBus_SignalSystemdJobCBData ()
    : id (0)
    , objectPath ()
    , result ()

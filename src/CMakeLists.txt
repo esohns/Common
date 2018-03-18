@@ -1,31 +1,31 @@
-﻿# target system introspection (see configure.ac)
+﻿if (UNIX)
+ option (DBUS_SUPPORT "compile DBus support" ON)
+endif (UNIX)
+
+# target system introspection (see configure.ac)
 include (CheckFunctionExists)
 check_function_exists (strerror HAVE_FUNC_STRERROR)
 check_function_exists (getcwd HAVE_FUNC_GETCWD)
-if (UNIX)
- check_function_exists (gettimeofday HAVE_FUNC_GETTIMEOFDAY)
-endif ()
 check_function_exists (memset HAVE_FUNC_MEMSET)
 check_function_exists (mkdir HAVE_FUNC_MKDIR)
 if (UNIX)
- check_function_exists (uname HAVE_FUNC_UNAME)
-endif ()
-if (UNIX)
+ check_function_exists (gettimeofday HAVE_FUNC_GETTIMEOFDAY)
  check_function_exists (realpath HAVE_FUNC_REALPATH)
-endif ()
+ check_function_exists (uname HAVE_FUNC_UNAME)
+endif (UNIX)
 
 if (UNIX)
 # include (CheckLibraryExists)
 # check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
  set (CMAKE_THREAD_PREFER_PTHREAD ON)
  find_package (Threads)
-endif ()
+endif (UNIX)
 
 if (UNIX)
  include (CheckLibraryExists)
  #*TODO*: why isn't the function found ?
  check_library_exists (rt aio_init "" HAVE_LIB_AIO)
-endif ()
+endif (UNIX)
 
 set (ACE_LIB_FILE libACE.so)
 if (UNIX)
@@ -67,14 +67,53 @@ add_definitions (-DACE_HAS_DLL)
 include (FindPkgConfig)
 if (UNIX)
  pkg_check_modules (PKG_LIBCAP REQUIRED libcap)
-endif ()
+ if (DBUS_SUPPORT)
+  pkg_check_modules (PKG_DBUS REQUIRED dbus-1)
+  add_definitions (-DDBUS_SUPPORT)
+ endif (DBUS_SUPPORT)
+endif (UNIX)
 #pkg_check_modules (PKG_ACE REQUIRED ACE)
+
+if (UNIX)
+ add_definitions (-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS)
+endif (UNIX)
+
+set (LLVM_COMPILER_ID_STRING "Clang")
+string (TOLOWER "${LLVM_COMPILER_ID_STRING}" LLVM_COMPILER_ID_STRING_LOWER)
+string (TOLOWER "${CMAKE_CXX_COMPILER_ID}" CXX_COMPILER_ID_STRING_LOWER)
+if (CXX_COMPILER_ID_STRING_LOWER STREQUAL LLVM_COMPILER_ID_STRING_LOWER)
+# message (STATUS "using ${CMAKE_CXX_COMPILER_ID} compiler options")
+ add_compile_options (-std=c++11)
+# add_compile_options (-fPIC)
+ add_definitions (-D_GLIBCXX_USE_CXX11_ABI=0)
+endif ()
+
+add_definitions (-DHAVE_CONFIG_H)
+#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
+
+if (UNIX)
+elseif (WIN32)
+ add_definitions (-DWIN32)
+ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc") # C++ exception handling
+ if (CMAKE_BUILD_TYPE STREQUAL Debug)
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MDd") # multithreaded debug dll
+ else ()
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")  # multithreaded dll
+ endif ()
+endif ()
 
 add_library (${PROJECT_NAME} STATIC "")
 
 if (UNIX)
  target_include_directories (${PROJECT_NAME} PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE>)
+
+ if (DBUS_SUPPORT)
+  target_include_directories (${PROJECT_NAME} PUBLIC
+                              "$<BUILD_INTERFACE:${PKG_DBUS_INCLUDE_DIRS}>")
+  target_include_directories (${PROJECT_NAME} PUBLIC
+                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dbus>)
+ endif (DBUS_SUPPORT)
 elseif (WIN32)
  include_directories ($ENV{ACE_ROOT})
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/err)
@@ -162,33 +201,13 @@ target_sources (${PROJECT_NAME}
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-if (UNIX)
- add_definitions (-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS)
-endif ()
-
-set (LLVM_COMPILER_ID_STRING "Clang")
-string (TOLOWER "${LLVM_COMPILER_ID_STRING}" LLVM_COMPILER_ID_STRING_LOWER)
-string (TOLOWER "${CMAKE_CXX_COMPILER_ID}" CXX_COMPILER_ID_STRING_LOWER)
-if (CXX_COMPILER_ID_STRING_LOWER STREQUAL LLVM_COMPILER_ID_STRING_LOWER)
- add_compile_options (-fPIC)
- add_definitions (-D_GLIBCXX_USE_CXX11_ABI=0)
-endif ()
-
-add_definitions (-DHAVE_CONFIG_H)
-#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
-
-if (WIN32)
- add_definitions (-DWIN32)
- set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc") # C++ exception handling
- if (CMAKE_BUILD_TYPE STREQUAL Debug)
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MDd") # multithreaded debug dll
- else ()
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")  # multithreaded dll
- endif ()
-endif ()
 
 #add_dependencies (${PROJECT_NAME} ACE)
-if (WIN32)
+if (UNIX)
+ if (DBUS_SUPPORT)
+  add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}DBus)
+ endif (DBUS_SUPPORT)
+elseif (WIN32)
  add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}Error)
 endif ()
 add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}Timer)
@@ -208,8 +227,12 @@ if (UNIX)
 endif (UNIX)
 
 if (UNIX)
-# target_link_libraries (${PROJECT_NAME} ${ACE_LIBRARY})
 # target_link_libraries (${PROJECT_NAME} ${AIO_LIBRARY})
+ if (DBUS_SUPPORT)
+#  target_link_libraries (${PROJECT_NAME} ${PKG_DBUS_LIBRARIES})
+  target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}DBus)
+ endif (DBUS_SUPPORT)
+# target_link_libraries (${PROJECT_NAME} ${ACE_LIBRARY})
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
   target_link_libraries (${PROJECT_NAME} Msvcrtd.lib)
@@ -286,11 +309,12 @@ install (TARGETS ${PROJECT_NAME}
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)
 
-if (UNIX)
+if (DBUS_SUPPORT)
  add_subdirectory (dbus)
-elseif (WIN32)
+endif (DBUS_SUPPORT)
+if (WIN32)
  add_subdirectory (err)
-endif ()
+endif (WIN32)
 add_subdirectory (gl)
 add_subdirectory (image)
 add_subdirectory (math)

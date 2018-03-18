@@ -61,10 +61,8 @@ class Common_UI_GTK_Tools
      , index (std::numeric_limits<guint>::max ())
      , value ()
     {
-#if GTK_CHECK_VERSION (3,0,0)
-      value = G_VALUE_INIT;
-#endif
-    };
+      g_value_unset (&value);
+    }
 
     gint   column;
     bool   found;

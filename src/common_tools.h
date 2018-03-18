@@ -35,6 +35,7 @@
 #include "common.h"
 #include "common_configuration.h"
 //#include "common_exports.h"
+#include "common_iinitialize.h"
 
 // forward declaration(s)
 class ACE_Event_Handler;
@@ -44,6 +45,7 @@ ACE_THR_FUNC_RETURN common_event_dispatch_function (void*);
 
 //class Common_Export Common_Tools
 class Common_Tools
+ : public Common_SInitializeFinalize_T<Common_Tools>
 {
  public:
   static void initialize (bool = false); // initialize random number generator ?
@@ -102,6 +104,9 @@ class Common_Tools
   // *TODO*: parse /proc manually, or find a better alternative (e.g. 'libproc',
   //         testing for 'PID-files' in /var/run, ...)
   static pid_t getProcessId (const std::string&); // executable (base-)name
+
+  // *NOTE*: as used by polkit (i.e. queries /proc/self/stat)
+  static uint64_t getStartTime ();
 #endif
 
   // --- user ---

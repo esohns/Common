@@ -1,12 +1,10 @@
-﻿option (DBUS_SUPPORT "compile DBus support" ON)
-option (SD_BUS_SUPPORT "compile sd-bus (libsystemd) support" ON)
+﻿option (SD_BUS_SUPPORT "compile sd-bus (libsystemd) support" ON)
 
 include (FindPkgConfig)
 if (UNIX)
- if (DBUS_SUPPORT)
-  pkg_check_modules (PKG_DBUS REQUIRED dbus-1)
-  pkg_check_modules (PKG_NETWORKMANAGER REQUIRED NetworkManager)
- endif (DBUS_SUPPORT)
+ pkg_check_modules (PKG_DBUS REQUIRED dbus-1)
+#  pkg_check_modules (PKG_NETWORKMANAGER REQUIRED NetworkManager)
+ pkg_check_modules (PKG_NETWORKMANAGER REQUIRED libnm)
 
  if (SD_BUS_SUPPORT)
   pkg_check_modules (PKG_SYSTEMD REQUIRED libsystemd)
@@ -50,9 +48,6 @@ else ()
  #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
 endif ()
 
-if (DBUS_SUPPORT)
- add_definitions (-DDBUS_SUPPORT)
-endif (DBUS_SUPPORT)
 if (SD_BUS_SUPPORT)
  add_definitions (-DSD_BUS_SUPPORT)
 endif (SD_BUS_SUPPORT)
@@ -60,17 +55,15 @@ endif (SD_BUS_SUPPORT)
 add_library (${PROJECT_NAME}DBus STATIC "")
 
 if (UNIX)
- if (DBUS_SUPPORT)
 # *NOTE*: a bug in cmake (3.10.2) requires the additional comment
-  target_include_directories (${PROJECT_NAME}DBus PUBLIC
-                              "$<BUILD_INTERFACE:${PKG_DBUS_INCLUDE_DIRS}>")
-  target_include_directories (${PROJECT_NAME}DBus PUBLIC
-                              $<BUILD_INTERFACE:${PKG_NETWORKMANAGER_INCLUDE_DIRS}>)
- endif (DBUS_SUPPORT)
+ target_include_directories (${PROJECT_NAME}DBus PUBLIC
+                             "$<BUILD_INTERFACE:${PKG_DBUS_INCLUDE_DIRS}>")
+ target_include_directories (${PROJECT_NAME}DBus PUBLIC
+                             "$<BUILD_INTERFACE:${PKG_NETWORKMANAGER_INCLUDE_DIRS}>")
 
  if (SD_BUS_SUPPORT)
   target_include_directories (${PROJECT_NAME}DBus PUBLIC
-                              $<BUILD_INTERFACE:${PKG_SYSTEMD_INCLUDE_DIRS}>)
+                              "$<BUILD_INTERFACE:${PKG_SYSTEMD_INCLUDE_DIRS};/usr/include/systemd>")
  endif (SD_BUS_SUPPORT)
 
  target_include_directories (${PROJECT_NAME}DBus PUBLIC
@@ -108,8 +101,8 @@ target_sources (${PROJECT_NAME}DBus
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-#get_target_property (debug ${PROJECT_NAME}DBus INTERFACE_INCLUDE_DIRECTORIES)
-#message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
+get_target_property (debug ${PROJECT_NAME}DBus INTERFACE_INCLUDE_DIRECTORIES)
+message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
 
 #add_dependencies (${PROJECT_NAME} ACE)
 
@@ -120,11 +113,14 @@ set_target_properties (${PROJECT_NAME}DBus PROPERTIES
                        SOVERSION 1)
 
 if (UNIX)
-# target_link_libraries (${PROJECT_NAME}_DBus ${ACE_LIBRARY})
-# target_link_libraries (${PROJECT_NAME}_DBus ${PKG_DBUS_LIBRARIES})
+# target_link_libraries (${PROJECT_NAME}DBus ${ACE_LIBRARY})
+ target_link_libraries (${PROJECT_NAME}DBus ${PKG_DBUS_LIBRARIES})
  #link_directories (/usr/local/lib/dbus-1.0)
  #link_directories (${CMAKE_CURRENT_BINARY_DIR}/../../../dbus/dbus/.libs)
  #target_link_libraries (${PROJECT_NAME} libdbus-1.so.3)
+ if (SD_BUS_SUPPORT)
+  target_link_libraries (${PROJECT_NAME}DBus ${PKG_SYSTEMD_LIBRARIES})
+ endif (SD_BUS_SUPPORT)
 elseif (WIN32)
 # if (CMAKE_BUILD_TYPE STREQUAL Debug)
 #  target_link_libraries (${PROJECT_NAME}_DBus Msvcrtd.lib)

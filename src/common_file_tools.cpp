@@ -743,8 +743,9 @@ Common_File_Tools::load (const std::string& path_in,
   if (unlikely (result != 1))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to read file(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (path_in.c_str ())));
+                ACE_TEXT ("failed to ACE_OS::fread(\"%s\",%d): \"%m\", aborting\n"),
+                ACE_TEXT (path_in.c_str ()),
+                file_size));
 
     // clean up
     result = ACE_OS::fclose (file_p);

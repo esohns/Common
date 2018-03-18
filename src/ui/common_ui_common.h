@@ -28,7 +28,8 @@
 
 #include "common.h"
 
-enum Common_UI_EventType : int
+//enum Common_UI_EventType : int
+enum Common_UI_EventType
 {
   COMMON_UI_EVENT_INVALID              = -1,
 

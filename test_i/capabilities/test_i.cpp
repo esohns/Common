@@ -154,10 +154,15 @@ main (int argc_in,
     return 1; /* Fatal error */
 
   /* Return to original, real-user identity */
-  if (setresuid (ruid, ruid, ruid))
+  if (setresuid (ruid, euid, suid))
+  {
+    printf ("failed to setresuid(%u,%u,%u): \"%s\", aborting\n",
+            ruid, euid, suid,
+            strerror (errno));
     return 1; /* Fatal error */
+  } // end IF
 //   printf ("ruid: %u, euid: %u, suid: %u\n",
-//           getuid (), geteuid (), suid);
+//           ruid (), euid, suid);
 
   /* Because the identity changed, re-install the effective set. */
   if (cap_set_proc (caps))
@@ -176,7 +181,7 @@ main (int argc_in,
           getpid (),
           string_p);
   cap_free (string_p);
-#endif
+#endif // _DEBUG
 
   /* Capability set is no longer needed. */
   cap_free (caps);

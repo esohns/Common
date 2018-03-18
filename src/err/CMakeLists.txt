@@ -36,26 +36,46 @@ endif ()
 #pkg_check_modules (PKG_ACE REQUIRED ACE)
 #pkg_check_modules (PKG_GTK_GLADE REQUIRED libpng gmodule-2.0 gthread-2.0 gtk+-2.0 libglade-2.0)
 
+add_library (${PROJECT_NAME}Error STATIC "")
+
 if (UNIX)
 # include_directories (${PKG_GTK_GLADE_INCLUDE_DIRS})
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
+ target_include_directories (${PROJECT_NAME}Error PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 elseif (WIN32)
 #*TODO*: use pkg-config instead
- include_directories ($ENV{ACE_ROOT})
+ target_include_directories (${PROJECT_NAME}Error PUBLIC
+                             $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
 endif ()
+target_include_directories (${PROJECT_NAME}Error PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
+target_include_directories (${PROJECT_NAME}Error PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
 
 ############## next target ################
-set (${PROJECT_NAME}ERROR_LIB_SRCS
-     stdafx.cpp
-     stdafx.h
+set (source_files
      common_err_exports.h
      dxerr.cpp
      dxerr.h)
 
-add_library (${PROJECT_NAME}Error
-             STATIC
-             ${CommonERROR_LIB_SRCS})
+# Include dir for installed targets
+set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 
+#set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+
+unset (absolute_source_files)
+foreach (source_file ${source_files})
+ get_filename_component (abs_source_file ${source_file} ABSOLUTE)
+ list (APPEND absolute_source_files
+       PRIVATE ${abs_source_file}
+       )
+#       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
+endforeach ()
+target_sources (${PROJECT_NAME}Error
+                PRIVATE stdafx.cpp
+                PRIVATE stdafx.h
+                ${absolute_source_files})
+	
 if (WIN32)
 ## set (CMAKE_GENERATOR_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE)
 # set (CMAKE_VS_PLATFORM_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE)

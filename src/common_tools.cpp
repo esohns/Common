@@ -87,6 +87,10 @@ using namespace std;
 #include "common_macros.h"
 #include "common_time_common.h"
 
+#if defined (DBUS_SUPPORT)
+#include "common_dbus_tools.h"
+#endif // DBUS_SUPPORT
+
 // initialize statics
 #if defined (_DEBUG)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -157,7 +161,8 @@ Common_Tools::initialize (bool initializeRandomNumberGenerator_in)
   std::string package_name, file_name;
   ACE_HANDLE previous_file_handle = ACE_INVALID_HANDLE;
 
-  if (!COMMON_DEBUG_DEBUGHEAP_DEFAULT_ENABLE) goto continue_;
+  if (!COMMON_DEBUG_DEBUGHEAP_DEFAULT_ENABLE)
+    goto continue_;
 
   ACE_ASSERT (debugHeapLogFileHandle_ == ACE_INVALID_HANDLE);
 
@@ -318,15 +323,23 @@ continue_:
                   ACE_TEXT ("failed to initialize random seed: \"%s\", returning\n")));
       return;
     } // end IF
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("initializing random seed...DONE\n")));
   } // end IF
+
+#if defined (DBUS_SUPPORT)
+  Common_DBus_Tools::initialize ();
+#endif // DBUS_SUPPORT
 }
 void
 Common_Tools::finalize ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::finalize"));
+
+#if defined (DBUS_SUPPORT)
+  Common_DBus_Tools::finalize ();
+#endif // DBUS_SUPPORT
 
 #if defined (_DEBUG)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -355,6 +368,7 @@ Common_Tools::finalize ()
 continue_:
 #endif /* ACE_WIN32 || ACE_WIN64 */
 #endif /* _DEBUG */
+
   return;
 }
 
@@ -1345,6 +1359,112 @@ clean:
 #else
   ACE_ASSERT (false);
   ACE_NOTSUP_RETURN (result);
+  ACE_NOTREACHED (return result;)
+#endif // ACE_LINUX
+
+  return result;
+}
+
+uint64_t
+Common_Tools::getStartTime ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::getStartTime"));
+
+  // initialize return value(s)
+  uint64_t result = 0;
+
+  // sanity check(s)
+#if defined (ACE_LINUX)
+  std::string proc_self_stat_path = ACE_TEXT_ALWAYS_CHAR ("/proc/self/stat");
+  ACE_ASSERT (Common_File_Tools::isReadable (proc_self_stat_path));
+
+  FILE* file_p = NULL;
+  char buffer_a[BUFSIZ];
+  ACE_OS::memset (buffer_a, 0, sizeof (char[BUFSIZ]));
+  size_t length_i = 0;
+  char* string_p = NULL;
+  int index_i = 19;
+  int result_2 = -1;
+
+  file_p = ACE_OS::fopen (proc_self_stat_path.c_str (),
+                          ACE_TEXT_ALWAYS_CHAR ("rb"));
+  if (unlikely (!file_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (proc_self_stat_path.c_str ())));
+    return result;
+  } // end IF
+
+  // *TODO* use readline() instead ?
+  if (unlikely (!ACE_OS::fgets (buffer_a, sizeof (char[BUFSIZ]), file_p)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::fgets(%d): \"%m\", aborting\n"),
+                sizeof (char[BUFSIZ])));
+    goto clean;
+  } // end IF
+  // *NOTE*: only the second invocation of fgets would set eof
+  // ACE_ASSERT (::feof (file_p));
+  result_2 = ACE_OS::fclose (file_p);
+  if (unlikely (result_2 == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (proc_self_stat_path.c_str ())));
+    goto clean;
+  } // end IF
+  file_p = NULL;
+  length_i = ACE_OS::strlen (buffer_a);
+
+  /* *NOTE*: 'starttime' is the field at index 22 (see: man proc(5)) (i.e. 19
+   *         after the 'comm' entry - this is currently the only field
+   *         containing the ')' character, so the search should be unambiguous;
+   *         search backwards to further avoid trouble */
+  // *TODO*: this code is brittle
+  string_p = ACE_OS::strrchr (buffer_a, ')');
+  if (unlikely (!string_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::strrchr(%s): \"%m\", aborting\n"),
+                ACE_TEXT_ALWAYS_CHAR (")")));
+    goto clean;
+  } // end IF
+  string_p += 2; // skip ') '
+  if (unlikely (static_cast<size_t> (string_p - buffer_a) >= length_i))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::strrchr(%s): \"%m\", aborting\n"),
+                ACE_TEXT_ALWAYS_CHAR (")")));
+    goto clean;
+  } // end IF
+  string_p = ACE_OS::strtok (string_p, ACE_TEXT_ALWAYS_CHAR (" "));
+  while ((--index_i + 1) &&
+         string_p)
+    string_p = ACE_OS::strtok (NULL , ACE_TEXT_ALWAYS_CHAR (" "));
+  if (unlikely (!string_p))
+  {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::strtok(%s,19): \"%m\", aborting\n"),
+                  ACE_TEXT (buffer_a)));
+      goto clean;
+  } // end IF
+
+  result = ACE_OS::atoi (string_p);
+
+clean:
+  if (file_p)
+  {
+    result_2 = ACE_OS::fclose (file_p);
+    if (unlikely (result_2 == -1))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
+                  ACE_TEXT (proc_self_stat_path.c_str ())));
+  } // end IF
+#else
+  ACE_ASSERT (false);
+  ACE_NOTSUP_RETURN (result);
+
   ACE_NOTREACHED (return result;)
 #endif // ACE_LINUX
 

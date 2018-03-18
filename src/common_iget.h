@@ -38,6 +38,13 @@ class Common_IGet_2_T
 };
 
 template <typename Type>
+class Common_IGet_3_T
+{
+ public:
+  virtual const Type get_3 () const = 0; // return value: type handle
+};
+
+template <typename Type>
 class Common_ISet_T
 {
  public:

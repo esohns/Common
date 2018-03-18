@@ -21,6 +21,19 @@
 #ifndef COMMON_IINITIALIZE_H
 #define COMMON_IINITIALIZE_H
 
+template <typename Type>
+class Common_SInitializeFinalize_T
+{
+ public:
+  // convenient types
+  typedef Common_SInitializeFinalize_T<Type> INITIALIZE_T;
+
+  inline static bool initialize () { return Type::initialize (); }
+  inline static bool finalize () { return Type::finalize (); }
+};
+
+//////////////////////////////////////////
+
 class Common_IInitialize
 {
  public:

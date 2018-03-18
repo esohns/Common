@@ -52,7 +52,8 @@
 //template <class TQ, class TYPE>
 //class ACE_Thread_Timer_Queue_Adapter;
 
-enum Common_TimerDispatchType : int
+//enum Common_TimerDispatchType : int
+enum Common_TimerDispatchType
 {
   COMMON_TIMER_DISPATCH_PROACTOR = 0,
   COMMON_TIMER_DISPATCH_QUEUE,
@@ -63,7 +64,8 @@ enum Common_TimerDispatchType : int
   COMMON_TIMER_DISPATCH_INVALID
 };
 
-enum Common_TimerQueueType : int
+//enum Common_TimerQueueType : int
+enum Common_TimerQueueType
 {
   COMMON_TIMER_QUEUE_HEAP = 0,
   COMMON_TIMER_QUEUE_LIST,

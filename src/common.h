@@ -39,7 +39,8 @@
 
 // *** platform ***
 
-enum Common_OperatingSystemType : int
+//enum Common_OperatingSystemType : int
+enum Common_OperatingSystemType
 {
   COMMON_OPERATINGSYSTEM_GNU_LINUX = 0,
   COMMON_OPERATINGSYSTEM_WIN32,
@@ -48,7 +49,8 @@ enum Common_OperatingSystemType : int
   COMMON_OPERATINGSYSTEM_MAX
 };
 
-enum Common_OperatingSystemDistributionType : int
+//enum Common_OperatingSystemDistributionType : int
+enum Common_OperatingSystemDistributionType
 {
   COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_DEBIAN = 0,
   COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_SUSE,
@@ -60,7 +62,8 @@ enum Common_OperatingSystemDistributionType : int
 
 // *** signals ***
 
-enum Common_SignalDispatchType : int
+//enum Common_SignalDispatchType : int
+enum Common_SignalDispatchType
 {
   COMMON_SIGNAL_DISPATCH_PROACTOR = 0,
   COMMON_SIGNAL_DISPATCH_REACTOR,
@@ -98,7 +101,8 @@ typedef std::map<int, ACE_Sig_Action> Common_SignalActions_t;
 typedef Common_SignalActions_t::const_iterator Common_SignalActionsIterator_t;
 
 // *** (ACE) event dispatch ***
-enum Common_EventDispatchType : int
+//enum Common_EventDispatchType : int
+enum Common_EventDispatchType
 {
   COMMON_EVENT_DISPATCH_PROACTOR = 0,
   COMMON_EVENT_DISPATCH_REACTOR,
@@ -107,7 +111,8 @@ enum Common_EventDispatchType : int
   COMMON_EVENT_DISPATCH_MAX
 };
 
-enum Common_ProactorType : int
+//enum Common_ProactorType : int
+enum Common_ProactorType
 {
   COMMON_PROACTOR_ACE_DEFAULT = 0, // --> (somewhat) platform-specific
   ///////////////////////////////////////
@@ -129,7 +134,8 @@ enum Common_ProactorType : int
   COMMON_PROACTOR_INVALID
 };
 
-enum Common_ReactorType : int
+//enum Common_ReactorType : int
+enum Common_ReactorType
 {
   COMMON_REACTOR_ACE_DEFAULT = 0, // --> (somewhat) platform-specific
   ///////////////////////////////////////
@@ -174,7 +180,8 @@ struct Common_ScannerState
 
 // *** statistic ***
 
-enum Common_StatisticActionType : int
+//enum Common_StatisticActionType : int
+enum Common_StatisticActionType
 {
   COMMON_STATISTIC_ACTION_COLLECT = 0,
   COMMON_STATISTIC_ACTION_REPORT,

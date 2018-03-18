@@ -71,6 +71,16 @@ set (capabilities_EXE_SRCS
 #     ../test_u_defines.h
      test_u.cpp)
 
+set (LLVM_COMPILER_ID_STRING "Clang")
+string (TOLOWER "${LLVM_COMPILER_ID_STRING}" LLVM_COMPILER_ID_STRING_LOWER)
+string (TOLOWER "${CMAKE_CXX_COMPILER_ID}" CXX_COMPILER_ID_STRING_LOWER)
+if (CXX_COMPILER_ID_STRING_LOWER STREQUAL LLVM_COMPILER_ID_STRING_LOWER)
+#message (STATUS "using ${CMAKE_CXX_COMPILER_ID} compiler options")
+#add_compile_options (-std=c++11)
+# add_compile_options (-fPIC)
+ add_definitions (-D_GLIBCXX_USE_CXX11_ABI=0)
+endif ()
+
 #cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
 set (EXECUTABLE capabilities)
 add_executable (${EXECUTABLE}
@@ -119,6 +129,8 @@ target_link_libraries (${EXECUTABLE_2} ${ACE_LIBRARY})
 
 target_link_libraries (${EXECUTABLE_2} Common)
 target_link_libraries (${EXECUTABLE_2} CommonTimer)
+
+target_link_libraries (${EXECUTABLE_2} pthread)
 
 # add PCH
 set_target_properties (${EXECUTABLE_2} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
