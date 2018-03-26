@@ -85,53 +85,251 @@ Common_File_Tools::fileExtension (const std::string& path_in,
 }
 
 bool
-Common_File_Tools::isExecutable (const std::string& path_in)
+Common_File_Tools::exists (const std::string& path_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isExecutable"));
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::exists"));
 
   int result = -1;
   ACE_stat stat;
-  ACE_OS::memset (&stat, 0, sizeof (stat));
-  result = ACE_OS::stat (path_in.c_str (),
+  ACE_OS::memset (&stat, 0, sizeof (ACE_stat));
+  result = ACE_OS::stat (ACE_TEXT (path_in.c_str ()),
                          &stat);
   if (unlikely (result == -1))
   {
     int error = ACE_OS::last_error ();
-    if (error != ENOENT)  // 2  : not found
-      ACE_DEBUG ((LM_DEBUG,
+    if (error != ENOENT) // 2: not found
+      ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
                   ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
 
-  return (((stat.st_mode & S_IFMT) & S_IFREG) && // regular file ?
-          (stat.st_mode & S_IRUSR) &&            // readable (by owner) ?
-          (stat.st_mode & S_IXUSR));             // executable (by owner) ?
+  return true;
 }
+
+bool
+Common_File_Tools::access (const std::string& path_in,
+                           ACE_UINT32 mask_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::access"));
+
+  ACE_UINT32 mask_i = (mask_in & ACCESSPERMS);
+  // sanity check(s)
+  if (unlikely (!mask_i))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("invalid argument (expected: 0x%x, was: 0x%x), aborting\n"),
+                ACCESSPERMS,
+                mask_in));
+    return false; // *TODO*: avoid false negatives
+  } // end IF
+
+  int result = -1;
+  ACE_stat stat_s;
+  ACE_OS::memset (&stat_s, 0, sizeof (ACE_stat));
+  result = ACE_OS::stat (ACE_TEXT (path_in.c_str ()),
+                         &stat_s);
+  if (unlikely (result == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (path_in.c_str ())));
+    return false; // *TODO*: avoid false negatives
+  } // end IF
+
+  return (stat_s.st_mode & mask_i);
+}
+bool
+Common_File_Tools::protection (const std::string& path_in,
+                               ACE_UINT32 mask_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::protection"));
+
+  ACE_UINT32 mask_i = (mask_in & ALLPERMS);
+  // sanity check(s)
+  if (unlikely (!mask_i))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("invalid argument (expected: 0x%x, was: 0x%x), aborting\n"),
+                ALLPERMS,
+                mask_in));
+    return false; // *TODO*: avoid false negatives
+  } // end IF
+
+  int result = -1;
+  ACE_stat stat_s;
+  ACE_OS::memset (&stat_s, 0, sizeof (ACE_stat));
+  result = ACE_OS::stat (ACE_TEXT (path_in.c_str ()),
+                         &stat_s);
+  if (unlikely (result == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (path_in.c_str ())));
+    return false; // *TODO*: avoid false negatives
+  } // end IF
+
+  return (stat_s.st_mode & mask_i);
+}
+bool
+Common_File_Tools::type (const std::string& path_in,
+                         ACE_UINT32 mask_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::type"));
+
+  ACE_UINT32 mask_i = (mask_in & S_IFMT);
+  // sanity check(s)
+  if (unlikely (!mask_i))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("invalid argument (expected: 0x%x, was: 0x%x), aborting\n"),
+                S_IFMT,
+                mask_in));
+    return false; // *TODO*: avoid false negatives
+  } // end IF
+
+  int result = -1;
+  ACE_stat stat_s;
+  ACE_OS::memset (&stat_s, 0, sizeof (ACE_stat));
+  result = ACE_OS::stat (ACE_TEXT (path_in.c_str ()),
+                         &stat_s);
+  if (unlikely (result == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (path_in.c_str ())));
+    return false; // *TODO*: avoid false negatives
+  } // end IF
+
+  return (stat_s.st_mode & mask_i);
+}
+
 bool
 Common_File_Tools::isReadable (const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isReadable"));
 
+  ACE_UINT32 mask_i = S_IFDIR|S_IFREG|S_IFLNK;
+  ACE_UINT32 mask_2 = S_IRUSR|S_IRGRP|S_IROTH;
+  return (Common_File_Tools::exists (path_in)       &&  // has a file system entry
+          Common_File_Tools::type (path_in, mask_i) &&  // is a regular file system entry
+          Common_File_Tools::access (path_in, mask_2)); // any of owner,group,other has/have read access
+}
+bool
+Common_File_Tools::isWriteable (const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isWriteable"));
+
+  ACE_UINT32 mask_i = S_IFDIR|S_IFREG|S_IFLNK;
+  ACE_UINT32 mask_2 = S_IWUSR|S_IWGRP|S_IWOTH;
+  return (Common_File_Tools::exists (path_in)       &&  // has a file system entry
+          Common_File_Tools::type (path_in, mask_i) &&  // is a regular file system entry
+          Common_File_Tools::access (path_in, mask_2)); // any of owner,group,other has/have write access
+}
+bool
+Common_File_Tools::isExecutable (const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isExecutable"));
+
+  ACE_UINT32 mask_i = S_IFREG|S_IFLNK;
+  ACE_UINT32 mask_2 = S_IXUSR|S_IXGRP|S_IXOTH;
+  return (Common_File_Tools::exists (path_in)       &&  // has a file system entry
+          Common_File_Tools::type (path_in, mask_i) &&  // is a regular file or link
+          Common_File_Tools::access (path_in, mask_2)); // any of owner,group,other has/have execute access
+}
+
+bool
+Common_File_Tools::canRead (const std::string& path_in,
+                            uid_t userId_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::canRead"));
+
+  // sanity check(s)
+  if (!Common_File_Tools::isReadable (path_in))
+    return false;
+
   int result = -1;
-  ACE_stat stat;
-  ACE_OS::memset (&stat, 0, sizeof (stat));
-  result = ACE_OS::stat (path_in.c_str (),
-                         &stat);
+  uid_t user_id =
+      ((static_cast<int>(userId_in) == -1) ? ACE_OS::geteuid () : userId_in);
+  ACE_stat stat_s;
+  ACE_OS::memset (&stat_s, 0, sizeof (ACE_stat));
+  result = ACE_OS::stat (ACE_TEXT (path_in.c_str ()),
+                         &stat_s);
   if (unlikely (result == -1))
   {
-    int error = ACE_OS::last_error ();
-    if (error != ENOENT)  // 2  : not found
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
-                  ACE_TEXT (path_in.c_str ())));
-    return false;
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (path_in.c_str ())));
+    return false; // *TODO*: avoid false negatives
   } // end IF
 
-  return ((((stat.st_mode & S_IFMT) & S_IFDIR) ||  // directory ?
-           ((stat.st_mode & S_IFMT) & S_IFREG) ||  // regular file ?
-           ((stat.st_mode & S_IFMT) & S_IFLNK)) && // (symbolic) link ?
-          (stat.st_mode & S_IRUSR));               // readable (by owner) ?
+  if (stat_s.st_uid == user_id)
+    return (stat_s.st_mode & S_IRUSR);
+  else if (Common_Tools::isGroupMember (user_id, stat_s.st_gid))
+    return (stat_s.st_mode & S_IRGRP);
+  return (stat_s.st_mode & S_IROTH);
+}
+bool
+Common_File_Tools::canWrite (const std::string& path_in,
+                             uid_t userId_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::canWrite"));
+
+  // sanity check(s)
+  if (!Common_File_Tools::isWriteable (path_in))
+    return false;
+
+  int result = -1;
+  uid_t user_id =
+      ((static_cast<int>(userId_in) == -1) ? ACE_OS::geteuid () : userId_in);
+  ACE_stat stat_s;
+  ACE_OS::memset (&stat_s, 0, sizeof (ACE_stat));
+  result = ACE_OS::stat (ACE_TEXT (path_in.c_str ()),
+                         &stat_s);
+  if (unlikely (result == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (path_in.c_str ())));
+    return false; // *TODO*: avoid false negatives
+  } // end IF
+
+  if (stat_s.st_uid == user_id)
+    return (stat_s.st_mode & S_IWUSR);
+  else if (Common_Tools::isGroupMember (user_id, stat_s.st_gid))
+    return (stat_s.st_mode & S_IWGRP);
+  return (stat_s.st_mode & S_IWOTH);
+}
+bool
+Common_File_Tools::canExecute (const std::string& path_in,
+                               uid_t userId_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::canExecute"));
+
+  // sanity check(s)
+  if (!Common_File_Tools::isExecutable (path_in))
+    return false;
+
+  int result = -1;
+  uid_t user_id =
+      ((static_cast<int>(userId_in) == -1) ? ACE_OS::geteuid () : userId_in);
+  ACE_stat stat_s;
+  ACE_OS::memset (&stat_s, 0, sizeof (ACE_stat));
+  result = ACE_OS::stat (ACE_TEXT (path_in.c_str ()),
+                         &stat_s);
+  if (unlikely (result == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (path_in.c_str ())));
+    return false; // *TODO*: avoid false negatives
+  } // end IF
+
+  if (stat_s.st_uid == user_id)
+    return (stat_s.st_mode & S_IXUSR);
+  else if (Common_Tools::isGroupMember (user_id, stat_s.st_gid))
+    return (stat_s.st_mode & S_IXGRP);
+  return (stat_s.st_mode & S_IXOTH);
 }
 
 bool
@@ -263,9 +461,11 @@ Common_File_Tools::isValidFilename (const std::string& string_in)
 
   std::string directory, file_name;
   directory =
-    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (string_in.c_str ())));
+    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (string_in.c_str ()),
+                                        ACE_DIRECTORY_SEPARATOR_CHAR));
   file_name =
-    ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (string_in.c_str ())));
+    ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (string_in.c_str ()),
+                                         ACE_DIRECTORY_SEPARATOR_CHAR));
 
   // *TODO*: this isn't entirely accurate
   return (!Common_File_Tools::isDirectory (string_in) &&
@@ -280,14 +480,35 @@ Common_File_Tools::isValidPath (const std::string& string_in)
 
   std::string directory, file_name;
   directory =
-    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (string_in.c_str ())));
+    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (string_in.c_str ()),
+                                        ACE_DIRECTORY_SEPARATOR_CHAR));
   file_name =
-    ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (string_in.c_str ())));
+    ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (string_in.c_str ()),
+                                         ACE_DIRECTORY_SEPARATOR_CHAR));
 
   // *TODO*: ACE::dirname() returns '.' on an empty argument; this isn't
   //         entirely accurate
   return ((directory != ACE_TEXT_ALWAYS_CHAR (".")) &&
           Common_File_Tools::isDirectory (directory));
+}
+
+std::string
+Common_File_Tools::basename (const std::string& path_in,
+                             bool stripSuffix_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::basename"));
+
+  std::string return_value =
+      ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (path_in.c_str ()),
+                                           ACE_DIRECTORY_SEPARATOR_CHAR));
+  if (stripSuffix_in)
+  {
+    std::string::size_type position = return_value.find_last_of ('.');
+    if (position != std::string::npos)
+      return_value.erase (position, std::string::npos);
+  } // end IF
+
+  return return_value;
 }
 
 bool
@@ -417,12 +638,11 @@ bool
 Common_File_Tools::copyFile (const std::string& path_in,
                              const std::string& directory_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::createDirectory"));
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::copyFile"));
 
   int result = -1;
-
-  // connect to the file...
   ACE_FILE_Addr source_address, target_address;
+
   result = source_address.set (ACE_TEXT_CHAR_TO_TCHAR (path_in.c_str ()));
   if (unlikely (result == -1))
   {
@@ -431,19 +651,32 @@ Common_File_Tools::copyFile (const std::string& path_in,
                 ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
-  const ACE_TCHAR* filename_p =
-    ACE::basename (ACE_TEXT_CHAR_TO_TCHAR (path_in.c_str ()),
-                   ACE_DIRECTORY_SEPARATOR_CHAR);
-  if (unlikely (!filename_p))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE::basename(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (path_in.c_str ())));
-    return false;
-  } // end IF
-  std::string target_filename = directory_in;
+  std::string target_filename =
+      (directory_in.empty () ? ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT_CHAR_TO_TCHAR (path_in.c_str ()),
+                                                                   ACE_DIRECTORY_SEPARATOR_CHAR))
+                             : directory_in);
   target_filename += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  target_filename += ACE_TEXT_ALWAYS_CHAR (filename_p);
+  if (directory_in.empty ())
+  {
+    target_filename += Common_File_Tools::basename (path_in,
+                                                    true);
+    target_filename +=
+        ACE_TEXT_ALWAYS_CHAR (COMMON_FILE_FILENAME_BACKUP_SUFFIX);
+  } // end IF
+  else
+  {
+    const ACE_TCHAR* filename_p =
+      ACE::basename (ACE_TEXT_CHAR_TO_TCHAR (path_in.c_str ()),
+                     ACE_DIRECTORY_SEPARATOR_CHAR);
+    if (unlikely (!filename_p))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE::basename(\"%s\"): \"%m\", aborting\n"),
+                  ACE_TEXT (path_in.c_str ())));
+      return false;
+    } // end IF
+    target_filename += ACE_TEXT_ALWAYS_CHAR (filename_p);
+  } // end ELSE
   result =
     target_address.set (ACE_TEXT_CHAR_TO_TCHAR (target_filename.c_str ()));
   if (unlikely (result == -1))
@@ -560,10 +793,10 @@ Common_File_Tools::copyFile (const std::string& path_in,
     return false;
   } // end IF
   ssize_t bytes_written =
-    ACE_OS::sendfile (source_file.get_handle (),
-                      target_file.get_handle (),
-                      NULL,
-                      static_cast<size_t> (file_info.size_));
+    ACE_OS::sendfile (target_file.get_handle (),              // out_fd
+                      source_file.get_handle (),              // in_fd
+                      NULL,                                   // offset
+                      static_cast<size_t> (file_info.size_)); // count
   if (unlikely (bytes_written != file_info.size_))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -733,6 +966,8 @@ Common_File_Tools::load (const std::string& path_in,
                   ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
+  if (unlikely (!file_size))
+    goto continue_;
 
   // read data
   result =
@@ -760,6 +995,7 @@ Common_File_Tools::load (const std::string& path_in,
   } // end IF
 
   // clean up
+continue_:
   result = ACE_OS::fclose (file_p);
   if (unlikely (result == -1))
   {
@@ -1069,7 +1305,7 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
 }
 
 std::string
-Common_File_Tools::getHomeDirectory (const std::string& user_in)
+Common_File_Tools::getHomeDirectory (const std::string& userName_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getHomeDirectory"));
 
@@ -1078,25 +1314,33 @@ Common_File_Tools::getHomeDirectory (const std::string& user_in)
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   HANDLE      token = 0;
-  ACE_TCHAR   buffer[PATH_MAX];
-  DWORD       buffer_size = sizeof (buffer);
+  ACE_TCHAR   buffer_a[PATH_MAX];
+  DWORD       buffer_size = sizeof (ACE_TCHAR[PATH_MAX]);
 #else
   int            result_2 = -1;
-  struct passwd  pwd;
-  struct passwd* result_p = NULL;
-  char           buffer[BUFSIZ]; // _SC_GETPW_R_SIZE_MAX
-#endif
+  struct passwd  passwd_s;
+  struct passwd* passwd_p = NULL;
+  char           buffer_a[BUFSIZ]; // _SC_GETPW_R_SIZE_MAX
+  ACE_OS::memset (buffer_a, 0, sizeof (char[BUFSIZ]));
+#endif // ACE_WIN32 || ACE_WIN64
 
-  std::string user_name = user_in;
-  if (unlikely (user_name.empty ()))
+  std::string username_string = userName_in;
+  if (unlikely (username_string.empty ()))
   {
     // fallback --> use current user
-    std::string real_name;
-    Common_Tools::getCurrentUserName (user_name, real_name);
-    if (user_name.empty ())
+    std::string real_username_string;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    Common_Tools::getUserName (username_string,
+                               real_username_string);
+#else
+    Common_Tools::getUserName (static_cast<uid_t> (-1),
+                               username_string,
+                               real_username_string);
+#endif // ACE_WIN32 || ACE_WIN64
+    if (username_string.empty ())
     {
       ACE_DEBUG ((LM_WARNING,
-                  ACE_TEXT ("failed to Common_Tools::getCurrentUserName(), falling back\n")));
+                  ACE_TEXT ("failed to Common_Tools::getUserName(), falling back\n")));
       goto fallback;
     } // end IF
   } // end IF
@@ -1141,27 +1385,26 @@ Common_File_Tools::getHomeDirectory (const std::string& user_in)
 
   result = ACE_TEXT_ALWAYS_CHAR (buffer);
 #else
-  ACE_OS::memset (buffer, 0, sizeof (BUFSIZ));
-  result_2 = ACE_OS::getpwnam_r (user_name.c_str (), // user name
-                                 &pwd,               // passwd entry
-                                 buffer,             // buffer
-                                 BUFSIZ,             // buffer size
-                                 &result_p);         // result (handle)
-  if (unlikely (!result_p))
+  result_2 = ACE_OS::getpwnam_r (username_string.c_str (), // user name
+                                 &passwd_s,                // passwd entry
+                                 buffer_a,                 // buffer
+                                 sizeof (char[BUFSIZ]),    // buffer size
+                                 &passwd_p);               // result (handle)
+  if (unlikely (!passwd_p))
   {
     if (result_2 == 0)
       ACE_DEBUG ((LM_WARNING,
                   ACE_TEXT ("user \"%s\" not found, falling back\n"),
-                  ACE_TEXT (user_name.c_str ())));
+                  ACE_TEXT (username_string.c_str ())));
     else
-      ACE_DEBUG ((LM_WARNING,
+      ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::getpwnam_r(\"%s\"): \"%m\", falling back\n"),
-                  ACE_TEXT (user_name.c_str ())));
+                  ACE_TEXT (username_string.c_str ())));
     goto fallback;
   } // end IF
 
-  result = ACE_TEXT_ALWAYS_CHAR (pwd.pw_dir);
-#endif
+  result = ACE_TEXT_ALWAYS_CHAR (passwd_s.pw_dir);
+#endif // ACE_WIN32 || ACE_WIN64
 
   return result;
 
@@ -1210,22 +1453,24 @@ Common_File_Tools::getUserConfigurationDirectory ()
   result = ACE_TEXT_ALWAYS_CHAR (buffer);
   result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
 #else
-  std::string user_name;
-  std::string real_name;
-  Common_Tools::getCurrentUserName (user_name, real_name);
-  if (unlikely (user_name.empty ()))
+  std::string username_string;
+  std::string real_username_string;
+  Common_Tools::getUserName (static_cast<uid_t> (-1),
+                             username_string,
+                             real_username_string);
+  if (unlikely (username_string.empty ()))
   {
     ACE_DEBUG ((LM_WARNING,
-                ACE_TEXT ("failed to Common_Tools::getCurrentUserName(), falling back\n")));
+                ACE_TEXT ("failed to Common_Tools::getUserName(), falling back\n")));
     goto fallback;
   } // end IF
 
-  result = Common_File_Tools::getHomeDirectory (user_name);
+  result = Common_File_Tools::getHomeDirectory (username_string);
   if (unlikely (result.empty ()))
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT("failed to Common_File_Tools::getHomeDirectory(\"%s\"), falling back\n"),
-                ACE_TEXT (user_name.c_str ())));
+                ACE_TEXT (username_string.c_str ())));
     goto fallback;
   } // end IF
 

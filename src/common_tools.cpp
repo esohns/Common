@@ -49,13 +49,16 @@ using namespace std;
 #include <sys/capability.h>
 #include <sys/prctl.h>
 #include <sys/utsname.h>
+
 #include <linux/capability.h>
 #include <linux/prctl.h>
 #include <linux/securebits.h>
+
+#include <grp.h>
 #elif defined (__sun) && defined (__SVR4)
 // *NOTE*: Solaris (11)-specific
 #include <rctl.h>
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/FILE_Addr.h"
 #include "ace/FILE_Connector.h"
@@ -65,14 +68,14 @@ using namespace std;
 // *NOTE*: Solaris (11)-specific
 #if defined (__sun) && defined (__SVR4)
 #include "ace/OS_Memory.h"
-#endif
+#endif // __sun && __SVR4
 #include "ace/POSIX_CB_Proactor.h"
 #include "ace/POSIX_Proactor.h"
 #include "ace/Proactor.h"
 #include "ace/Reactor.h"
 #if defined (ACE_HAS_AIO_CALLS) && defined (sun)
 #include "ace/SUN_Proactor.h"
-#endif
+#endif // ACE_HAS_AIO_CALLS && sun
 #include "ace/Time_Value.h"
 #include "ace/TP_Reactor.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -80,7 +83,7 @@ using namespace std;
 #include "ace/WFMO_Reactor.h"
 #else
 #include "ace/Dev_Poll_Reactor.h"
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
 #include "common_defines.h"
 #include "common_file_tools.h"
@@ -1475,57 +1478,118 @@ clean:
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 bool
-Common_Tools::setRootPrivileges ()
+Common_Tools::switchUser (uid_t userId_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::setRootPrivileges"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::switchUser"));
 
-  uid_t effective_user_id = 0; // <-- root
+  uid_t  user_id =
+      (userId_in == static_cast<uid_t> (-1) ? ACE_OS::getuid () : userId_in);
   // *IMPORTANT NOTE*: (on Linux) the process requires the CAP_SETUID capability
   //                   for this to work
-  int result = ACE_OS::seteuid (effective_user_id);
+  int result = ACE_OS::seteuid (user_id);
   if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::seteuid(%u): \"%m\", aborting\n"),
-                effective_user_id));
+                user_id));
   else
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("set effective user id to: %u\n"),
-                effective_user_id));
+                ACE_TEXT ("%sset effective user id (is: %u)\n"),
+                (userId_in == static_cast<uid_t> (-1) ? ACE_TEXT ("re") : ACE_TEXT ("")),
+                user_id));
 
   return (result == 0);
 }
-void
-Common_Tools::dropRootPrivileges ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::dropRootPrivileges"));
 
-  uid_t real_user_id = ACE_OS::getuid ();
-  int result = ACE_OS::seteuid (real_user_id);
-  if (unlikely (result == -1))
+bool
+Common_Tools::isGroupMember (uid_t userId_in,
+                             gid_t groupId_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::isGroupMember"));
+
+  uid_t user_id =
+      ((static_cast<int>(userId_in) == -1) ? ACE_OS::geteuid () : userId_in);
+  std::string username_string, realname_string;
+  Common_Tools::getUserName (user_id,
+                             username_string,
+                             realname_string);
+  char buffer_a[BUFSIZ];
+  ACE_OS::memset (buffer_a, 0, sizeof (char[BUFSIZ]));
+  struct passwd passwd_s;
+  struct passwd* passwd_p = NULL;
+  int result = -1;
+  // step1: check whether the group happens to be the users' 'primary' group
+  //        (the user would not appear in the member list of /etc/group in this
+  //        case)
+  result = ::getpwuid_r (user_id,               // user id
+                         &passwd_s,             // passwd entry
+                         buffer_a,              // buffer
+                         sizeof (char[BUFSIZ]), // buffer size
+                         &passwd_p);            // result (handle)
+  if (unlikely ((result == -1) || !passwd_p))
+  {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::seteuid(%u): \"%m\", continuing\n"),
-                real_user_id));
-  else
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("reset effective user id to: %u\n"),
-                real_user_id));
+                ACE_TEXT ("failed to ::getpwuid_r(%u): \"%m\", aborting\n"),
+                user_id));
+    return false; // *TODO*: avoid false negatives
+  } // end IF
+  if (passwd_s.pw_gid == groupId_in)
+    return true;
+
+  // step2: check the 'secondary' member list of the group
+  ACE_OS::memset (buffer_a, 0, sizeof (char[BUFSIZ]));
+  struct group group_s;
+  struct group* group_p = NULL;
+  result = ::getgrgid_r (groupId_in,
+                         &group_s,
+                         buffer_a,
+                         sizeof (char[BUFSIZ]),
+                         &group_p);
+  if (unlikely ((result == -1) || !group_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::getgrgid_r(%u): \"%m\", aborting\n"),
+                groupId_in));
+    return false; // *TODO*: avoid false negatives
+  } // end IF
+  ACE_ASSERT (group_s.gr_mem);
+//  if (!*group_s.gr_mem) // groupId_in is a 'primary group', i.e. a group with
+//                        // only members that have it set as primary group in
+//                        // the corresponding 'passwd' file entry (see: man
+//                        // getpwnam(3))
+//    return false;
+  for (char** string_pp = group_s.gr_mem;
+       *string_pp;
+       ++string_pp)
+    if (!ACE_OS::strcmp (username_string.c_str (),
+                         *string_pp))
+      return true;
+
+  return false;
 }
+#endif // ACE_WIN32 || ACE_WIN64
+
 void
 Common_Tools::printPrivileges ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::printPrivileges"));
 
-  uid_t real_user_id = ACE_OS::getuid ();
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  ACE_ASSERT (false);
+  ACE_NOTSUP;
+
+  ACE_NOTREACHED (return;)
+#else
+  uid_t user_id = ACE_OS::getuid ();
   uid_t effective_user_id = ACE_OS::geteuid ();
-  gid_t real_user_group = ACE_OS::getgid ();
+  gid_t user_group = ACE_OS::getgid ();
   gid_t effective_user_group = ACE_OS::getegid ();
 
   ACE_DEBUG ((LM_INFO,
               ACE_TEXT ("%P:%t: real/effective user id/group: %u/%u\t%u/%u\n"),
-              real_user_id, effective_user_id,
-              real_user_group, effective_user_group));
+              user_id, effective_user_id,
+              user_group, effective_user_group));
+#endif // ACE_WIN32 || ACE_WIN64
 }
-#endif
 
 bool
 Common_Tools::enableCoreDump (bool enable_in)
@@ -1746,62 +1810,36 @@ Common_Tools::setResourceLimits (bool fileDescriptors_in,
 }
 
 void
-Common_Tools::getCurrentUserName (std::string& username_out,
-                                  std::string& realname_out)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+Common_Tools::getUserName (
+#else
+Common_Tools::getUserName (uid_t userId_in,
+#endif // ACE_WIN32 || ACE_WIN64
+                           std::string& username_out,
+                           std::string& realname_out)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::getCurrentUserName"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::getUserName"));
 
   // initialize return value(s)
   username_out.clear ();
   realname_out.clear ();
 
-  char user_name[ACE_MAX_USERID];
-  ACE_OS::memset (user_name, 0, sizeof (user_name));
-  if (unlikely (!ACE_OS::cuserid (user_name,
-                                  ACE_MAX_USERID)))
-  {
-    ACE_DEBUG ((LM_WARNING,
-                ACE_TEXT ("failed to ACE_OS::cuserid(): \"%m\", falling back\n")));
+//  char user_name[ACE_MAX_USERID];
+//  ACE_OS::memset (user_name, 0, sizeof (user_name));
+//  if (unlikely (!ACE_OS::cuserid (user_name,
+//                                  ACE_MAX_USERID)))
+//  {
+//    ACE_DEBUG ((LM_WARNING,
+//                ACE_TEXT ("failed to ACE_OS::cuserid(): \"%m\", falling back\n")));
 
-    username_out =
-      ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEFAULT_USER_LOGIN_BASE)));
+//    username_out =
+//      ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEFAULT_USER_LOGIN_BASE)));
 
-    return;
-  } // end IF
-  username_out = user_name;
+//    return;
+//  } // end IF
+//  username_out = user_name;
 
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
-  int            success = -1;
-  struct passwd  pwd;
-  struct passwd* pwd_result = NULL;
-  char           buffer[BUFSIZ];
-  ACE_OS::memset (buffer, 0, sizeof (buffer));
-//  size_t         bufsize = 0;
-//  bufsize = sysconf (_SC_GETPW_R_SIZE_MAX);
-//  if (bufsize == -1)        /* Value was indeterminate */
-//    bufsize = 16384;        /* Should be more than enough */
-
-  uid_t user_id = ACE_OS::geteuid ();
-  success = ::getpwuid_r (user_id,         // user id
-                          &pwd,            // passwd entry
-                          buffer,          // buffer
-                          sizeof (buffer), // buffer size
-                          &pwd_result);    // result (handle)
-  if (unlikely (!pwd_result))
-  {
-    if (success == 0)
-      ACE_DEBUG ((LM_WARNING,
-                  ACE_TEXT ("user \"%u\" not found, falling back\n"),
-                  user_id));
-    else
-      ACE_DEBUG ((LM_WARNING,
-                  ACE_TEXT ("failed to ACE_OS::getpwuid_r(%u): \"%m\", falling back\n"),
-                  user_id));
-    username_out = ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEFAULT_USER_LOGIN_BASE)));
-  } // end IF
-  else
-    realname_out = pwd.pw_gecos;
-#else
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   ACE_TCHAR buffer[BUFSIZ];
   ACE_OS::memset (buffer, 0, sizeof (buffer));
   DWORD buffer_size = sizeof (buffer);
@@ -1817,7 +1855,51 @@ Common_Tools::getCurrentUserName (std::string& username_out,
   } // end IF
   else
     realname_out = ACE_TEXT_ALWAYS_CHAR (buffer);
-#endif
+#else
+  int            result = -1;
+  struct passwd  passwd_s;
+  struct passwd* passwd_p = NULL;
+  char           buffer_a[BUFSIZ];
+  ACE_OS::memset (buffer_a, 0, sizeof (char[BUFSIZ]));
+//  size_t         bufsize = 0;
+//  bufsize = sysconf (_SC_GETPW_R_SIZE_MAX);
+//  if (bufsize == -1)        /* Value was indeterminate */
+//    bufsize = 16384;        /* Should be more than enough */
+
+  uid_t user_id =
+      ((static_cast<int>(userId_in) == -1) ? ACE_OS::geteuid () : userId_in);
+  result = ::getpwuid_r (user_id,               // user id
+                         &passwd_s,             // passwd entry
+                         buffer_a,              // buffer
+                         sizeof (char[BUFSIZ]), // buffer size
+                         &passwd_p);            // result (handle)
+  if (unlikely (!passwd_p))
+  {
+    if (result == 0)
+      ACE_DEBUG ((LM_WARNING,
+                  ACE_TEXT ("user \"%u\" not found, %s\n"),
+                  user_id,
+                  ((user_id == ACE_OS::geteuid ()) ? ACE_TEXT_ALWAYS_CHAR ("falling back") : ACE_TEXT_ALWAYS_CHAR ("returning"))));
+    else
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::getpwuid_r(%u): \"%m\", %s\n"),
+                  ((user_id == ACE_OS::geteuid ()) ? ACE_TEXT_ALWAYS_CHAR ("falling back") : ACE_TEXT_ALWAYS_CHAR ("returning"))));
+    if (user_id == ACE_OS::geteuid ())
+      username_out =
+          ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEFAULT_USER_LOGIN_BASE)));
+  } // end IF
+  else
+  {
+    username_out = passwd_s.pw_name;
+    if (ACE_OS::strlen (passwd_s.pw_gecos))
+    {
+      std::string gecos_string = passwd_s.pw_gecos;
+      std::string::size_type position = gecos_string.find (',');
+      ACE_ASSERT (position != std::string::npos);
+      realname_out = gecos_string.substr (0, position);
+    } // end IF
+  } // end ELSE
+#endif // ACE_WIN32 || ACE_WIN64
 }
 
 std::string

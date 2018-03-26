@@ -34,26 +34,49 @@ class Common_File_Tools
 {
  public:
   static std::string addressToString (const ACE_FILE_Addr&); // file name
+  static std::string basename (const std::string&, // (FQ) paths
+                               bool = false);      // strip trailing '.'-suffix ?
+  inline static bool backup (const std::string& path_in) { return Common_File_Tools::copyFile (path_in, ACE_TEXT_ALWAYS_CHAR ("")); }
   static bool create (const std::string&); // (FQ) path
   static bool createDirectory (const std::string&); // directory
   static bool copyFile (const std::string&,  // (FQ) path
-                        const std::string&); // directory
+                        const std::string&); // directory {"": make a backup in the same directory}
   static bool deleteFile (const std::string&); // (FQ) path
   // *NOTE*: this doesn't do any sanity checking --> use with care
   static std::string fileExtension (const std::string&, // (FQ) path
                                     bool = false);      // return leading '.' (if any) ?
 
-  // *IMPORTANT NOTE*: this 'isxxx'-API is inherently 'racy' and should best be
-  //                   avoided altogether
+  // *IMPORTANT NOTE*: APIs in this section are inherently 'racy' and should
+  //                   best be avoided altogether
+  static bool exists (const std::string&); // (FQ) path
 
-  // *NOTE*: these checks currently verify accessibility by the 'owner' (!) of
-  //         the file; this may not be the current 'user'
-  // *TODO*: support passing in a user- and/or group id
-  static bool isExecutable (const std::string&); // (FQ) path
-  // *NOTE*: this also checks whether the given path specifies a 'regular' file
-  //         (or (sym-)link or directory), i.e. does not refer to fifo-,
-  //         device-, or other node types with file system entries
+  static bool access (const std::string&, // (FQ) path
+                      ACE_UINT32);        // mask to check against 'st_mode'
+                                          // field of 'struct stat' (see: man
+                                          // stat(2))
+  static bool protection (const std::string&, // (FQ) path
+                          ACE_UINT32);        // mask to check against 'st_mode'
+                                              // field of 'struct stat' (see: man
+                                          // stat(2))
+  static bool type (const std::string&, // (FQ) path
+                    ACE_UINT32);        // mask to check against 'st_mode'
+                                        // field of 'struct stat' (see: man
+                                        // stat(2))
+
+  // *NOTE*: these verify that:
+  //         - the path is valid
+  //         - the path refers to a file system type
+  //         - and that the property referred is permitted to any entity at all
   static bool isReadable (const std::string&); // (FQ) path
+  static bool isWriteable (const std::string&); // (FQ) path
+  static bool isExecutable (const std::string&); // (FQ) path
+
+  static bool canRead (const std::string&,               // (FQ) path
+                       uid_t = static_cast<uid_t> (-1)); // uid {-1: euid}
+  static bool canWrite (const std::string&,               // (FQ) path
+                        uid_t = static_cast<uid_t> (-1)); // uid {-1: euid}
+  static bool canExecute (const std::string&,               // (FQ) path
+                          uid_t = static_cast<uid_t> (-1)); // uid {-1: euid}
 
   static bool isEmpty (const std::string&); // (FQ) path
   static bool isDirectory (const std::string&); // directory

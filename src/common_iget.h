@@ -183,7 +183,25 @@ class Common_IGet1RR_T
   virtual const ReturnType& get1RR (const Type&) const = 0; // return value: type
 };
 
+template <typename Type,
+          typename ReturnType>
+class Common_IGet1RR_2_T
+{
+ public:
+  virtual const ReturnType& get1RR_2 (const Type&) const = 0; // return value: type
+};
+
 //----------------------------------------
+
+
+template <typename Type1,
+          typename Type2>
+class Common_ISet2R_T
+{
+ public:
+  virtual void set2R (const Type1&,
+                      const Type2&) = 0;
+};
 
 template <typename Type1,
           typename Type2,

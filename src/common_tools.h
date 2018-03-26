@@ -28,7 +28,7 @@
 #include <guiddef.h>
 #else
 #include <sys/capability.h>
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/Global_Macros.h"
 
@@ -62,19 +62,19 @@ class Common_Tools
   static std::string strip (const std::string&); // string
 
   // --- platform ---
-  static unsigned int getNumberOfCPUs (bool = true); // 'hyperthreading' ?
+  static unsigned int getNumberOfCPUs (bool = true); // consider logical cores (i.e. 'hyperthreading') ?
+  static std::string getHostName (); // return value: host name (see: man hostname(2))
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   //// *WARNING*: limited to 9 characters
   static void setThreadName (const std::string&, // thread name
                              DWORD = 0);         // thread id (0: current)
-#endif
-
-  static void printLocales ();
-
+#endif // ACE_WIN32 || ACE_WIN64
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
   static bool isLinux (enum Common_OperatingSystemDistributionType&); // return value: distribution
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
+
+  static void printLocales ();
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
@@ -87,7 +87,7 @@ class Common_Tools
   static bool dropCapability (unsigned long,               // capability
                               cap_flag_t = CAP_EFFECTIVE); // set
   static void printCapabilities ();
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
   // --- process ---
   // *NOTE*: this uses ::system() piping stdout into a temporary file
@@ -107,34 +107,41 @@ class Common_Tools
 
   // *NOTE*: as used by polkit (i.e. queries /proc/self/stat)
   static uint64_t getStartTime ();
-#endif
-
-  // --- user ---
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-  // *IMPORTANT NOTE*: (on Linux) the process requires the CAP_SETUID capability
-  //                   for this to work
-  static bool setRootPrivileges ();
-  static void dropRootPrivileges ();
-#endif
-  static void printPrivileges ();
-
+#endif // ACE_WIN32 || ACE_WIN64
   static bool enableCoreDump (bool = true); // enable ? : disable
   static bool setResourceLimits (bool = false,  // #file descriptors (i.e. open handles)
                                  bool = true,   // stack trace/sizes (i.e. core file sizes)
                                  bool = false); // pending (rt) signals
 
-  static void getCurrentUserName (std::string&,  // return value: username
-                                  std::string&); // return value: "real" name
-  static std::string getHostName (); // return value: hostname
+  // --- user ---
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static void getUserName (std::string&,  // return value: user name
+                           std::string&); // return value: "real" name (if any)
+#else
+  static void getUserName (uid_t,         // user id {-1: euid}
+                           std::string&,  // return value: user name
+                           std::string&); // return value: "real" name (if any)
+
+  // (effective) uid
+  // *IMPORTANT NOTE*: (on Linux) the process requires the CAP_SETUID capability
+  //                   for this to work
+  static bool switchUser (uid_t); // {-1: uid}
+
+  // group
+  static bool isGroupMember (uid_t,  // user id {-1: euid}
+                             gid_t); // group id
+#endif // ACE_WIN32 || ACE_WIN64
+  static void printPrivileges ();
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+  // --- UID ---
   static std::string GUIDToString (REFGUID);
   static struct _GUID StringToGUID (const std::string&);
 
+  // --- error ---
   static std::string errorToString (DWORD,         // error
                                     bool = false); // ? use AMGetErrorText() : use FormatMessage()
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
   // --- logging ---
   static bool initializeLogging (const std::string&,           // program name (i.e. argv[0])
@@ -171,14 +178,14 @@ class Common_Tools
 #if defined (_DEBUG)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   static ACE_HANDLE      debugHeapLogFileHandle_;
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 #endif /* _DEBUG */
 
   static unsigned int    randomSeed_;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
   static char            randomStateBuffer_[BUFSIZ];
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Tools ())

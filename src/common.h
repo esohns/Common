@@ -39,7 +39,6 @@
 
 // *** platform ***
 
-//enum Common_OperatingSystemType : int
 enum Common_OperatingSystemType
 {
   COMMON_OPERATINGSYSTEM_GNU_LINUX = 0,
@@ -49,7 +48,6 @@ enum Common_OperatingSystemType
   COMMON_OPERATINGSYSTEM_MAX
 };
 
-//enum Common_OperatingSystemDistributionType : int
 enum Common_OperatingSystemDistributionType
 {
   COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_DEBIAN = 0,
@@ -62,7 +60,6 @@ enum Common_OperatingSystemDistributionType
 
 // *** signals ***
 
-//enum Common_SignalDispatchType : int
 enum Common_SignalDispatchType
 {
   COMMON_SIGNAL_DISPATCH_PROACTOR = 0,
@@ -101,7 +98,6 @@ typedef std::map<int, ACE_Sig_Action> Common_SignalActions_t;
 typedef Common_SignalActions_t::const_iterator Common_SignalActionsIterator_t;
 
 // *** (ACE) event dispatch ***
-//enum Common_EventDispatchType : int
 enum Common_EventDispatchType
 {
   COMMON_EVENT_DISPATCH_PROACTOR = 0,
@@ -111,7 +107,6 @@ enum Common_EventDispatchType
   COMMON_EVENT_DISPATCH_MAX
 };
 
-//enum Common_ProactorType : int
 enum Common_ProactorType
 {
   COMMON_PROACTOR_ACE_DEFAULT = 0, // --> (somewhat) platform-specific
@@ -134,7 +129,6 @@ enum Common_ProactorType
   COMMON_PROACTOR_INVALID
 };
 
-//enum Common_ReactorType : int
 enum Common_ReactorType
 {
   COMMON_REACTOR_ACE_DEFAULT = 0, // --> (somewhat) platform-specific
@@ -180,7 +174,6 @@ struct Common_ScannerState
 
 // *** statistic ***
 
-//enum Common_StatisticActionType : int
 enum Common_StatisticActionType
 {
   COMMON_STATISTIC_ACTION_COLLECT = 0,
@@ -207,5 +200,20 @@ typedef std::deque<std::string> Common_MessageStack_t;
 typedef Common_MessageStack_t::const_iterator Common_MessageStackConstIterator_t;
 typedef Common_MessageStack_t::const_reverse_iterator Common_MessageStackConstReverseIterator_t;
 //typedef std::deque<ACE_Log_Record> Common_LogRecordStack_t;
+
+// *** application ***
+
+enum Common_ApplicationModeType
+{
+  COMMON_APPLICATION_MODE_DEBUG = 0,
+  COMMON_APPLICATION_MODE_INSTALL,
+  COMMON_APPLICATION_MODE_PRINT, // i.e. usage/version/etc
+  COMMON_APPLICATION_MODE_RUN,
+  COMMON_APPLICATION_MODE_TEST,
+  COMMON_APPLICATION_MODE_UNINSTALL,
+  ////////////////////////////////////////
+  COMMON_APPLICATION_MODE_MAX,
+  COMMON_APPLICATION_MODE_INVALID
+};
 
 #endif

@@ -78,7 +78,8 @@ Common_DBus_Tools::initialize ()
   result_2 = sd_bus_get_unique_name (Common_DBus_Tools::bus, &string_p);
   ACE_ASSERT ((result_2 == 0) && string_p);
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("dbus (is: %@) sender name: \"%s\"\n"),
+              ACE_TEXT ("%s: dbus (is: %@) sender name: \"%s\"\n"),
+              ACE_TEXT (LIBCOMMON_PACKAGE_NAME),
               Common_DBus_Tools::bus,
               ACE_TEXT (string_p)));
 #endif // _DEBUG
@@ -231,22 +232,35 @@ common_dbus_polkit_checkauthorization_cb (struct sd_bus_message* message_in,
 
   struct Common_DBus_PolicyKit_CheckAuthorizationCBData* cb_data_p =
       static_cast<struct Common_DBus_PolicyKit_CheckAuthorizationCBData*> (CBData_in);
+  cb_data_p->done = true;
+
   // sanity check(s)
   if (unlikely (sd_bus_message_is_method_error (message_in, NULL)))
   {
+    const sd_bus_error* error_p = sd_bus_message_get_error (message_in);
+    ACE_ASSERT (error_p);
+    if (sd_bus_error_has_name (error_p,
+                               SD_BUS_ERROR_SERVICE_UNKNOWN) ||                                                           // polkit not installed/running ?
+        sd_bus_error_has_name (error_p,
+                               ACE_TEXT_ALWAYS_CHAR (COMMON_DBUS_METHOD_POLICYKIT_AUTHORITY_ERROR_NOTAUTHORIZED_STRING))) // missing polkit rules ?
+      ;
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("polkit method failed (errno was: %d): \"%s\", aborting\n"),
+                ACE_TEXT ("polkit method failed (errno was: %d): %s: \"%s\", aborting\n"),
                 sd_bus_message_get_errno (message_in),
-                ACE_TEXT (sd_bus_message_get_error (message_in)->message)));
-    return -1;
+                ACE_TEXT (error_p->name), ACE_TEXT (error_p->message)));
+    return -sd_bus_error_get_errno (error_p);
   } // end IF
+  ACE_ASSERT (sd_bus_message_has_signature (message_in, ACE_TEXT_ALWAYS_CHAR (COMMON_DBUS_METHOD_POLICYKIT_AUTHORITY_CHECKAUTHORIZATION_OUT_SIGNATURE_STRING)));
 
   int result = -1;
   const char* string_p = NULL, *string_2 = NULL;
 
+  result = sd_bus_message_enter_container (message_in,
+                                           SD_BUS_TYPE_STRUCT,
+                                           ACE_TEXT_ALWAYS_CHAR ("bba{ss}"));
+  ACE_ASSERT (result >= 0);
   result =
       sd_bus_message_read (message_in,
-//                           ACE_TEXT_ALWAYS_CHAR (COMMON_DBUS_METHOD_POLICYKIT_AUTHORITY_CHECKAUTHORIZATION_OUT_SIGNATURE_STRING),
                            ACE_TEXT_ALWAYS_CHAR ("bb"),
                            &cb_data_p->authorized,
                            &cb_data_p->challenge);
@@ -255,17 +269,17 @@ common_dbus_polkit_checkauthorization_cb (struct sd_bus_message* message_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to sd_bus_message_read(): \"%s\", aborting\n"),
                 ACE_TEXT (ACE_OS::strerror (-result))));
-    return -1;
+    return -result;
   } // end IF
   result = sd_bus_message_enter_container (message_in,
                                            SD_BUS_TYPE_ARRAY,
                                            ACE_TEXT_ALWAYS_CHAR ("{ss}"));
-  ACE_ASSERT (result == 0);
+  ACE_ASSERT (result >= 0);
   do
   {
-    result = sd_bus_message_open_container (message_in,
-                                            SD_BUS_TYPE_DICT_ENTRY,
-                                            ACE_TEXT_ALWAYS_CHAR ("ss"));
+    result = sd_bus_message_enter_container (message_in,
+                                             SD_BUS_TYPE_DICT_ENTRY,
+                                             ACE_TEXT_ALWAYS_CHAR ("ss"));
     if (result < 0)
       break;
 
@@ -274,16 +288,17 @@ common_dbus_polkit_checkauthorization_cb (struct sd_bus_message* message_in,
                              ACE_TEXT_ALWAYS_CHAR ("ss"),
                              &string_p,
                              &string_2);
-    ACE_ASSERT (result == 0);
+    ACE_ASSERT (result >= 0);
     cb_data_p->details.push_back (std::make_pair (string_p, string_2));
 
-    result = sd_bus_message_close_container (message_in); // SD_BUS_TYPE_DICT_ENTRY
-    ACE_ASSERT (result == 0);
+    result = sd_bus_message_exit_container (message_in); // SD_BUS_TYPE_DICT_ENTRY
+    ACE_ASSERT (result >= 0);
   } while (true);
-  result = sd_bus_message_close_container (message_in); // SD_BUS_TYPE_ARRAY
-  ACE_ASSERT (result == 0);
-
-  cb_data_p->done = true;
+  result = sd_bus_message_exit_container (message_in); // SD_BUS_TYPE_ARRAY
+  ACE_ASSERT (result >= 0);
+  result = sd_bus_message_exit_container (message_in); // SD_BUS_TYPE_STRUCT
+  // *TODO*: there's something wrong here (result is -6); find out why
+  //  ACE_ASSERT (result >= 0);
 
   return 1;
 }
@@ -321,6 +336,9 @@ Common_DBus_Tools::policyKitAuthorize (struct sd_bus* bus_in,
   int capability_i = CAP_SYS_ADMIN;
   struct sd_bus_slot* slot_p = NULL;
   struct Common_DBus_PolicyKit_CheckAuthorizationCBData cb_data_s;
+#if defined (_DEBUG)
+  int i = 0;
+#endif // _DEBUG
 
   // sanity check(s)
   ACE_ASSERT (bus_p);
@@ -358,6 +376,19 @@ Common_DBus_Tools::policyKitAuthorize (struct sd_bus* bus_in,
 
   switch (subject_in)
   {
+    case COMMON_DBUS_POLICYKIT_SUBJECT_BUS_SYSTEM:
+    case COMMON_DBUS_POLICYKIT_SUBJECT_BUS_USER:
+    {
+      result_2 = sd_bus_get_unique_name (bus_p, &string_p);
+      ACE_ASSERT ((result_2 == 0) && string_p);
+      result_2 =
+          sd_bus_message_append (message_p,
+                                 ACE_TEXT_ALWAYS_CHAR ("(sa{sv})"),
+                                 ((subject_in == COMMON_DBUS_POLICYKIT_SUBJECT_BUS_SYSTEM) ? ACE_TEXT_ALWAYS_CHAR ("system-bus-name")
+                                                                                           : ACE_TEXT_ALWAYS_CHAR ("user-bus-name")),
+                                 1, ACE_TEXT_ALWAYS_CHAR ("name"), ACE_TEXT_ALWAYS_CHAR ("s"), string_p);
+      break;
+    }
     case COMMON_DBUS_POLICYKIT_SUBJECT_PROCESS:
     {
       result_2 =
@@ -368,17 +399,6 @@ Common_DBus_Tools::policyKitAuthorize (struct sd_bus* bus_in,
                                  ACE_TEXT_ALWAYS_CHAR ("pid"), ACE_TEXT_ALWAYS_CHAR ("u"), ACE_OS::getpid (),
                                  ACE_TEXT_ALWAYS_CHAR ("start-time"), ACE_TEXT_ALWAYS_CHAR ("t"), Common_Tools::getStartTime (),
                                  ACE_TEXT_ALWAYS_CHAR ("uid"), ACE_TEXT_ALWAYS_CHAR ("i"), ACE_OS::getuid ());
-      break;
-    }
-    case COMMON_DBUS_POLICYKIT_SUBJECT_SYSTEM_BUS:
-    {
-      result_2 = sd_bus_get_unique_name (bus_p, &string_p);
-      ACE_ASSERT ((result_2 == 0) && string_p);
-      result_2 =
-          sd_bus_message_append (message_p,
-                                 ACE_TEXT_ALWAYS_CHAR ("(sa{sv})"),
-                                 ACE_TEXT_ALWAYS_CHAR ("system-bus-name"),
-                                 1, ACE_TEXT_ALWAYS_CHAR ("name"), ACE_TEXT_ALWAYS_CHAR ("s"), string_p);
       break;
     }
     default:
@@ -517,7 +537,7 @@ Common_DBus_Tools::policyKitAuthorize (struct sd_bus* bus_in,
 //  {
 //    result = true;
 //    goto finish;
-//  } // end IF
+//  } // end IFsd_bus_message_close_container
 
 //retry:
 //  result_2 = sd_bus_call (bus_p,         /* bus handle */
@@ -602,7 +622,6 @@ Common_DBus_Tools::policyKitAuthorize (struct sd_bus* bus_in,
 //  result = (is_authorized_i == 1);
   do
   {
-    /* process reply */
     result_2 = sd_bus_process (bus_p, NULL);
     if (unlikely (result_2 < 0))
     {
@@ -618,6 +637,8 @@ Common_DBus_Tools::policyKitAuthorize (struct sd_bus* bus_in,
     result_2 = sd_bus_wait (bus_p, (uint64_t) - 1);
     if (unlikely (result_2 < 0))
     {
+      if (-result_2 == EINTR) // 4
+        continue;
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to sd_bus_wait(%@): \"%s\", aborting\n"),
                   bus_p,
@@ -625,6 +646,21 @@ Common_DBus_Tools::policyKitAuthorize (struct sd_bus* bus_in,
       goto finish;
     } // end IF
   } while (true);
+#if defined (_DEBUG)
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("polkit reply for action %s: %s; %s\n"),
+              ACE_TEXT (actionId_in.c_str ()),
+              ((cb_data_s.authorized == 1) ? ACE_TEXT ("authorized") : ACE_TEXT ("not authorized")),
+              ((cb_data_s.challenge == 1) ? ACE_TEXT ("may challenge") : ACE_TEXT ("may not challenge"))));
+  for (Common_DBus_PolicyKit_DetailsIterator_t iterator = cb_data_s.details.begin ();
+       iterator != cb_data_s.details.end ();
+       ++iterator, ++i)
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("authorization detail #%d: \"%s\": \"%s\"\n"),
+                i,
+                ACE_TEXT ((*iterator).first.c_str ()),
+                ACE_TEXT ((*iterator).second.c_str ())));
+#endif // _DEBUG
 
   result = (cb_data_s.authorized == 1);
 
@@ -1066,4 +1102,62 @@ finish:
 
   return result;
 }
+
+//bool
+//Net_Common_Tools::isNetworkManagerRunning ()
+//{
+//  NETWORK_TRACE (ACE_TEXT ("Net_Common_Tools::isNetworkManagerRunning"));
+
+//  std::string commandline_string = ACE_TEXT_ALWAYS_CHAR ("systemctl ");
+//  commandline_string +=
+//      ACE_TEXT_ALWAYS_CHAR (COMMON_SYSTEMD_UNIT_COMMAND_STATUS);
+//  commandline_string +=
+//      ACE_TEXT_ALWAYS_CHAR (" ");
+//  commandline_string +=
+//      ACE_TEXT_ALWAYS_CHAR (COMMON_SYSTEMD_UNIT_NETWORKMANAGER);
+//  std::string output_string;
+//  if (unlikely (!Common_Tools::command (commandline_string,
+//                                        output_string)))
+//  {
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
+//                ACE_TEXT (commandline_string.c_str ())));
+//    return false; // *TODO*: avoid false negative
+//  } // end IF
+
+//  std::istringstream converter;
+//  char buffer [BUFSIZ];
+//  std::string regex_string =
+//      ACE_TEXT_ALWAYS_CHAR ("^   Active: (.+) \\((.+)\\) since (.+); (.+) ago$");
+//  std::regex regex (regex_string);
+//  std::cmatch match_results;
+//  converter.str (output_string);
+//  std::string status_string;
+//  do
+//  {
+//    converter.getline (buffer, sizeof (buffer));
+//    if (likely (!std::regex_match (buffer,
+//                                   match_results,
+//                                   regex,
+//                                   std::regex_constants::match_default)))
+//      continue;
+//    ACE_ASSERT (match_results.ready () && !match_results.empty ());
+//    ACE_ASSERT (match_results[1].matched);
+//    ACE_ASSERT (match_results[2].matched);
+//    ACE_ASSERT (match_results[3].matched);
+//    ACE_ASSERT (match_results[4].matched);
+
+//    status_string = match_results[1];
+//    if (ACE_OS::strcmp (status_string.c_str (),
+//                        ACE_TEXT_ALWAYS_CHAR ("active")))
+//      break;
+//    status_string = match_results[2];
+//    if (ACE_OS::strcmp (status_string.c_str (),
+//                        ACE_TEXT_ALWAYS_CHAR ("running")))
+//      break;
+//    return true;
+//  } while (!converter.fail ());
+
+//  return false;
+//}
 #endif // SD_BUS_SUPPORT

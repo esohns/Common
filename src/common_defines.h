@@ -118,6 +118,9 @@
 #define COMMON_DEBUG_DEBUGHEAP_LOG_FILE                        "debugheap.log"
 #endif // ACE_WIN32 || ACE_WIN64
 
+// *** file ***
+#define COMMON_FILE_FILENAME_BACKUP_SUFFIX                     ".bak"
+
 // *** log ***
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 //#define COMMON_LOG_DEFAULT_DIRECTORY                 ACE_OS::getenv (COMMON_LOCATION_LOG_STORAGE_VARIABLE)
@@ -228,6 +231,18 @@
 #define COMMON_COMMAND_LOCATE_STRING                           "locate"
 #define COMMON_COMMAND_PIDOFPROC_STRING                        "pidofproc"
 #define COMMON_COMMAND_WHICH_STRING                            "which"
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+// systemd
+#define COMMON_SYSTEMD_UNIT_COMMAND_RESTART                    "restart"
+#define COMMON_SYSTEMD_UNIT_COMMAND_START                      "start"
+#define COMMON_SYSTEMD_UNIT_COMMAND_STATUS                     "status"
+#define COMMON_SYSTEMD_UNIT_COMMAND_STOP                       "stop"
+
+#define COMMON_SYSTEMD_UNIT_NETWORKMANAGER                     "NetworkManager.service"
+#define COMMON_SYSTEMD_UNIT_WPASUPPLICANT                      "wpa_supplicant.service"
+#endif // ACE_WIN32 || ACE_WIN64
 
 // *** application ***
 #define COMMON_APPLICATION_THREAD_GROUP_ID                     1000
