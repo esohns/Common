@@ -60,6 +60,7 @@ class Common_Tools
   static std::string sanitize (const std::string&); // string
   // remove leading and trailing whitespace
   static std::string strip (const std::string&); // string
+  static bool isspace (const std::string&); // string
 
   // --- platform ---
   static unsigned int getNumberOfCPUs (bool = true); // consider logical cores (i.e. 'hyperthreading') ?
@@ -90,7 +91,10 @@ class Common_Tools
 #endif // ACE_WIN32 || ACE_WIN64
 
   // --- process ---
-  // *NOTE*: this uses ::system() piping stdout into a temporary file
+  static std::string commandLineToString (int,           // argc
+                                          ACE_TCHAR*[]); // argv
+
+  // *NOTE*: this uses system(3), piping stdout into a temporary file
   //         --> the command line must not have piped stdout already
   // *TODO*: while this should work on most platforms, there are more efficient
   //         alternatives (e.g. see also: man popen() for Linux)
@@ -128,10 +132,21 @@ class Common_Tools
   static bool switchUser (uid_t); // {-1: uid}
 
   // group
+  static Common_UserGroups_t getUserGroups (uid_t); // user id {-1: euid}
+
+  // *NOTE*: the persisting version needs write access to /etc/gshadow
+  // *NOTE*: the 'cap_dac_override' capability does not grant this permission
+  // *TODO*: find out why
+  static bool addGroupMember (uid_t,        // user id {-1: euid}
+                              gid_t,        // group id
+                              bool = true); // persist ?
   static bool isGroupMember (uid_t,  // user id {-1: euid}
                              gid_t); // group id
+
+  static std::string groupIdToString (gid_t); // group id
+  static gid_t stringToGroupId (const std::string&); // group name
 #endif // ACE_WIN32 || ACE_WIN64
-  static void printPrivileges ();
+  static void printUserIds ();
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   // --- UID ---

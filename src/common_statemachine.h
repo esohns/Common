@@ -115,6 +115,11 @@ class Common_StateMachineAsynch_T
 //  virtual void wait (bool = true) const = 0; // wait for the message queue ? : worker thread(s) only
 
   // implement (part of) Common_IStateMachine_2
+  using inherited2::initialize;
+  using inherited2::reset;
+  using inherited2::change;
+  using inherited2::current;
+  using inherited2::wait;
   using inherited2::stateToString;
   inline virtual void finished () {}
 

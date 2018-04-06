@@ -28,6 +28,7 @@
 #endif // SD_BUS_SUPPORT
 
 #include "ace/Log_Msg.h"
+#include "ace/Synch.h"
 
 #include "common_macros.h"
 #include "common_tools.h"
@@ -121,6 +122,229 @@ error:
   return result;
 }
 
+void
+Common_DBus_Tools::dumpValue (struct DBusMessageIter& iterator_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_DBus_Tools::dumpValue"));
+
+  switch (dbus_message_iter_get_arg_type (&iterator_in))
+  {
+    case DBUS_TYPE_INVALID:
+    {
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("invalid: %c\n"),
+                  static_cast<char> (DBUS_TYPE_INVALID)));
+      break;
+    }
+    case DBUS_TYPE_BYTE:
+    {
+      uint8_t byte_y = 0;
+      dbus_message_iter_get_basic (&iterator_in, &byte_y);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("byte: %c\n"),
+                  byte_y));
+      break;
+    }
+    case DBUS_TYPE_BOOLEAN:
+    {
+      dbus_bool_t boolean_b = 0;
+      dbus_message_iter_get_basic (&iterator_in, &boolean_b);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("boolean: %d\n"),
+                  boolean_b));
+      break;
+    }
+    case DBUS_TYPE_INT16:
+    {
+      dbus_int16_t signed_short_n = 0;
+      dbus_message_iter_get_basic (&iterator_in, &signed_short_n);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("int16: %d\n"),
+                  static_cast<ACE_INT32> (signed_short_n)));
+      break;
+    }
+    case DBUS_TYPE_UINT16:
+    {
+      dbus_uint16_t unsigned_short_q = 0;
+      dbus_message_iter_get_basic (&iterator_in, &unsigned_short_q);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("uint16: %u\n"),
+                  static_cast<ACE_UINT32> (unsigned_short_q)));
+      break;
+    }
+    case DBUS_TYPE_INT32:
+    {
+      dbus_int32_t signed_int_i = 0;
+      dbus_message_iter_get_basic (&iterator_in, &signed_int_i);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("int32: %d\n"),
+                  signed_int_i));
+      break;
+    }
+    case DBUS_TYPE_UINT32:
+    {
+      dbus_uint32_t unsigned_int_u = 0;
+      dbus_message_iter_get_basic (&iterator_in, &unsigned_int_u);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("uint32: %u\n"),
+                  unsigned_int_u));
+      break;
+    }
+    case DBUS_TYPE_INT64:
+    {
+      dbus_uint64_t signed_long_long_int_x = 0;
+      dbus_message_iter_get_basic (&iterator_in, &signed_long_long_int_x);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("int64: %q\n"),
+                  signed_long_long_int_x));
+      break;
+    }
+    case DBUS_TYPE_UINT64:
+    {
+      dbus_uint64_t unsigned_long_long_int_t = 0;
+      dbus_message_iter_get_basic (&iterator_in, &unsigned_long_long_int_t);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("uint64: %Q\n"),
+                  unsigned_long_long_int_t));
+      break;
+    }
+    case DBUS_TYPE_DOUBLE:
+    {
+      double double_d = 0;
+      dbus_message_iter_get_basic (&iterator_in, &double_d);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("double: %e\n"),
+                  double_d));
+      break;
+    }
+    case DBUS_TYPE_STRING:
+    {
+      char* string_s = NULL;
+      dbus_message_iter_get_basic (&iterator_in, &string_s);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("string: %s\n"),
+                  ACE_TEXT (string_s)));
+      break;
+    }
+    case DBUS_TYPE_OBJECT_PATH:
+    {
+      char* object_path_o = NULL;
+      dbus_message_iter_get_basic (&iterator_in, &object_path_o);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("object path: %s\n"),
+                  ACE_TEXT (object_path_o)));
+      break;
+    }
+    case DBUS_TYPE_SIGNATURE:
+    {
+      char* signature_g = NULL;
+      dbus_message_iter_get_basic (&iterator_in, &signature_g);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("signature: %s\n"),
+                  ACE_TEXT (signature_g)));
+      break;
+    }
+    case DBUS_TYPE_UNIX_FD:
+    {
+      ACE_HANDLE file_descriptor_h = 0;
+      dbus_message_iter_get_basic (&iterator_in, &file_descriptor_h);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("unix file descriptor: %d\n"),
+                  file_descriptor_h));
+      break;
+    }
+    // ---------------------------------
+    case DBUS_TYPE_ARRAY:
+    {
+      struct DBusMessageIter iterator_2;
+      dbus_message_iter_recurse (&iterator_in, &iterator_2);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("array: [\n")));
+      do
+      {
+        Common_DBus_Tools::dumpValue (iterator_2);
+      } while (dbus_message_iter_next (&iterator_2));
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("]\n")));
+      break;
+    }
+    case DBUS_TYPE_VARIANT:
+    {
+      struct DBusMessageIter iterator_2;
+      dbus_message_iter_recurse (&iterator_in, &iterator_2);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("variant: %c [\n"),
+                  dbus_message_iter_get_arg_type (&iterator_2)));
+      do
+      {
+        Common_DBus_Tools::dumpValue (iterator_2);
+      } while (dbus_message_iter_next (&iterator_2));
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("]\n")));
+      break;
+    }
+    case DBUS_STRUCT_BEGIN_CHAR:
+    {
+      struct DBusMessageIter iterator_2;
+      dbus_message_iter_recurse (&iterator_in, &iterator_2);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("struct: [\n"),
+                  dbus_message_iter_get_arg_type (&iterator_2)));
+      do
+      {
+        Common_DBus_Tools::dumpValue (iterator_2);
+      } while (dbus_message_iter_next (&iterator_2));
+      break;
+    }
+    case DBUS_DICT_ENTRY_BEGIN_CHAR:
+    {
+      struct DBusMessageIter iterator_2;
+      dbus_message_iter_recurse (&iterator_in, &iterator_2);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("dict: [\n"),
+                  dbus_message_iter_get_arg_type (&iterator_2)));
+      do
+      {
+        Common_DBus_Tools::dumpValue (iterator_2);
+      } while (dbus_message_iter_next (&iterator_2));
+      break;
+    }
+    case DBUS_STRUCT_END_CHAR:
+    case DBUS_DICT_ENTRY_END_CHAR:
+    {
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("]\n")));
+      break;
+    }
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown value type (was: %c), returning\n"),
+                  static_cast<char> (dbus_message_iter_get_arg_type (&iterator_in))));
+      break;
+    }
+  } // end SWITCH
+}
+void
+Common_DBus_Tools::dump (struct DBusMessage& message_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_DBus_Tools::dump"));
+
+  struct DBusMessageIter iterator;
+  dbus_bool_t result = dbus_message_iter_init (&message_in, &iterator);
+  ACE_ASSERT (result);
+
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("message %@ signature: \"%s\"; value(s):\n------------------------------\n"),
+              &message_in,
+              ACE_TEXT (dbus_message_iter_get_signature (&iterator))));
+
+  do
+  {
+    Common_DBus_Tools::dumpValue (iterator);
+  } while (dbus_message_iter_next (&iterator));
+}
+
 struct DBusMessage*
 Common_DBus_Tools::exchange (struct DBusConnection* connection_in,
                              struct DBusMessage*& message_inout,
@@ -203,7 +427,7 @@ Common_DBus_Tools::validateType (struct DBusMessageIter& iterator_in,
     ACE_ASSERT (error_string_p);
   } // end IF
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("unexpected dbus message argument type (was: %c, expected: %c%s%s%s%s%s, aborting\n"),
+              ACE_TEXT ("unexpected dbus message argument type (was: '%c', expected: '%c'%s%s%s%s%s, aborting\n"),
               dbus_message_iter_get_arg_type (&iterator_in), expectedType_in,
               (is_error ? ACE_TEXT ("; message signature: ") : ACE_TEXT (")")),
               (is_error ? ACE_TEXT (signature_string_p) : ACE_TEXT ("")),

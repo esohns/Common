@@ -485,32 +485,33 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
   result += converter.str ();
 
   // (try to) get user name
-  ACE_TCHAR buffer_a[BUFSIZ];
-  //  ACE_TCHAR buffer[L_cuserid];
-  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[BUFSIZ]));
-//  char* result_p = ACE_OS::cuserid (buffer_a);
-//  if (!result_p)
-  struct passwd passwd_s;
-  struct passwd* passwd_p = NULL;
+//  ACE_TCHAR buffer_a[BUFSIZ];
+  ACE_TCHAR buffer_a[L_cuserid];
+//  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[BUFSIZ]));
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[L_cuserid]));
+  char* result_p = ACE_OS::cuserid (buffer_a);
+  if (unlikely (!result_p))
+//  struct passwd passwd_s;
+//  struct passwd* passwd_p = NULL;
 // *PORTABILITY*: this isn't very portable (man getpwuid_r)
-  result_2 = ::getpwuid_r (signal_in.siginfo.si_uid,
-                           &passwd_s,
-                           buffer_a,
-                           sizeof (ACE_TCHAR[BUFSIZ]),
-                           &passwd_p);
-  if (unlikely (result_2 || !passwd_p))
+//  result_2 = ::getpwuid_r (signal_in.siginfo.si_uid,
+//                           &passwd_s,
+//                           buffer_a,
+//                           sizeof (ACE_TCHAR[BUFSIZ]),
+//                           &passwd_p);
+//  if (unlikely (result_2 || !passwd_p))
   {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ::getpwuid_r(%u) : \"%m\", continuing\n"),
-                signal_in.siginfo.si_uid));
 //    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("failed to ACE_OS::cuserid() : \"%m\", continuing\n")));
+//                ACE_TEXT ("failed to ::getpwuid_r(%u) : \"%m\", continuing\n"),
+//                signal_in.siginfo.si_uid));
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::cuserid() : \"%m\", continuing\n")));
   } // end IF
   else
   {
     result += ACE_TEXT_ALWAYS_CHAR ("[\"");
-    result += passwd_s.pw_name;
-//    information << buffer;
+//    result += passwd_s.pw_name;
+    result += ACE_TEXT_ALWAYS_CHAR (buffer_a);
     result += ACE_TEXT_ALWAYS_CHAR ("\"]");
   } // end ELSE
 

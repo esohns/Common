@@ -54,6 +54,7 @@
 // *NOTE*: as returned by ::lsb_release -i
 #define COMMON_OS_LSB_DEBIAN_STRING                            "Debian"
 #define COMMON_OS_LSB_OPENSUSE_STRING                          "openSUSE"
+#define COMMON_OS_LSB_UBUNTU_STRING                            "Ubuntu"
 #endif // ACE_WIN32 || ACE_WIN64
 
 // *** C/C++ locale ***
@@ -228,8 +229,12 @@
 
 // *** (locally installed-) (UNIX) commands / programs ***
 
+//#define COMMON_COMMAND_ADDUSER_STRING                          "adduser"
+#define COMMON_COMMAND_GPASSWD_STRING                          "gpasswd"
 #define COMMON_COMMAND_LOCATE_STRING                           "locate"
+#define COMMON_COMMAND_PIDOF_STRING                            "pidof"
 #define COMMON_COMMAND_PIDOFPROC_STRING                        "pidofproc"
+#define COMMON_COMMAND_USERMOD_STRING                          "usermod"
 #define COMMON_COMMAND_WHICH_STRING                            "which"
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -242,6 +247,7 @@
 
 #define COMMON_SYSTEMD_UNIT_NETWORKMANAGER                     "NetworkManager.service"
 #define COMMON_SYSTEMD_UNIT_WPASUPPLICANT                      "wpa_supplicant.service"
+#define COMMON_SYSTEMD_UNIT_IFUPDOWN                           "ifupdown.service"
 #endif // ACE_WIN32 || ACE_WIN64
 
 // *** application ***

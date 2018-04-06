@@ -23,7 +23,7 @@
 
 #include <cstdio>
 
-//#include "ace/config-lite.h"
+#include "ace/Synch_Traits.h"
 
 #include "common.h"
 #include "common_defines.h"
@@ -105,10 +105,12 @@ struct Common_SignalHandlerConfiguration
   Common_SignalHandlerConfiguration ()
    : dispatch (COMMON_EVENT_DEFAULT_DISPATCH)
    , hasUI (false)
+   , lock ()
   {}
 
   enum Common_EventDispatchType dispatch;
   bool                          hasUI;
+  ACE_SYNCH_RECURSIVE_MUTEX     lock;
 };
 
 #endif

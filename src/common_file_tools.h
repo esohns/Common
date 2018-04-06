@@ -86,7 +86,8 @@ class Common_File_Tools
 
   // *NOTE*: users need to free (delete[]) the returned buffer
   static bool load (const std::string&, // (FQ) path
-                    unsigned char*&);   // return value: memory buffer (array)
+                    unsigned char*&,    // return value: file data
+                    unsigned int&);     // return value: file size
   static bool open (const std::string&, // (FQ) path
                     int,                // flags
                     ACE_FILE_IO&);      // return value: file stream

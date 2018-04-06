@@ -93,7 +93,8 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../src)
 if (UNIX)
  add_subdirectory (capabilities)
  add_subdirectory (features)
-endif ()
+endif (UNIX)
+add_subdirectory (file)
 
 # phonies
 add_custom_target (test_u ALL
@@ -102,14 +103,15 @@ if (UNIX)
  add_dependencies (test_u capabilities)
  add_dependencies (test_u capabilities_2)
  add_dependencies (test_u features)
-endif ()
+endif (UNIX)
+add_dependencies (test_u file)
 
 if (NOT BUILD_TEST_U)
  set_target_properties (test_u PROPERTIES EXCLUDE_FROM_ALL 1)
  cmake_policy (SET CMP0012 NEW)
  if (WIN32)
   set_target_properties (test_u PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
- endif ()
+ endif (WIN32)
 endif ()
 
 # ----------------------------------------
@@ -119,4 +121,3 @@ endif ()
 # enable (unit/integration) tests
 #include (CTest)
 enable_testing ()
-

@@ -21,14 +21,11 @@
 #ifndef COMMON_UI_COMMON_H
 #define COMMON_UI_COMMON_H
 
-//#include <vector>
-
 #include "ace/Containers_T.h"
 #include "ace/Synch_Traits.h"
 
 #include "common.h"
 
-//enum Common_UI_EventType : int
 enum Common_UI_EventType
 {
   COMMON_UI_EVENT_INVALID              = -1,
@@ -61,7 +58,7 @@ enum Common_UI_EventType
   COMMON_UI_EVENT_MAX
 };
 typedef ACE_Unbounded_Stack<enum Common_UI_EventType> Common_UI_Events_t;
-typedef typename ACE_Unbounded_Stack<enum Common_UI_EventType>::ITERATOR Common_UI_EventsIterator_t;
+typedef ACE_Unbounded_Stack<enum Common_UI_EventType>::ITERATOR Common_UI_EventsIterator_t;
 
 struct Common_UI_State
 {
@@ -71,7 +68,7 @@ struct Common_UI_State
    , logStack ()
    , logStackLock ()
    , subscribersLock ()
-  {};
+  {}
 
   Common_UI_Events_t        eventStack;
   ACE_SYNCH_MUTEX           lock;

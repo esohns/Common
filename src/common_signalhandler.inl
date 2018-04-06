@@ -28,7 +28,7 @@
 
 template <typename ConfigurationType>
 Common_SignalHandler_T<ConfigurationType>::Common_SignalHandler_T (enum Common_SignalDispatchType dispatchMode_in,
-                                                                   ACE_SYNCH_MUTEX* lock_in,
+                                                                   ACE_SYNCH_RECURSIVE_MUTEX* lock_in,
                                                                    Common_ISignal* callback_in)
  : inherited ()
  , inherited2 (NULL,                           // -->  default reactor
@@ -42,14 +42,14 @@ Common_SignalHandler_T<ConfigurationType>::Common_SignalHandler_T (enum Common_S
 {
   COMMON_TRACE (ACE_TEXT ("Common_SignalHandler_T::Common_SignalHandler_T"));
 
-  // sanity check(s)
-  if (unlikely (((dispatchMode_ == COMMON_SIGNAL_DISPATCH_PROACTOR) ||
-                 (dispatchMode_ == COMMON_SIGNAL_DISPATCH_REACTOR)) &&
-                !lock_))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("invalid lock handle, check implementation\n")));
-  } // end IF
+//  // sanity check(s)
+//  if (unlikely (((dispatchMode_ == COMMON_SIGNAL_DISPATCH_PROACTOR) ||
+//                 (dispatchMode_ == COMMON_SIGNAL_DISPATCH_REACTOR)) &&
+//                !lock_))
+//  {
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("invalid lock handle, check implementation\n")));
+//  } // end IF
 }
 
 template <typename ConfigurationType>
@@ -80,7 +80,7 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
   {
     case COMMON_SIGNAL_DISPATCH_PROACTOR:
     { ACE_ASSERT (lock_);
-      { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, *lock_, false);
+      { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, *lock_, false);
         signals_.push_back (signal_s);
       } // end lock scope
 
@@ -107,7 +107,7 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
     }
     case COMMON_SIGNAL_DISPATCH_REACTOR:
     { ACE_ASSERT (lock_);
-      { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, *lock_, false);
+      { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, *lock_, false);
         signals_.push_back (signal_s);
       } // end lock scope
 
@@ -170,7 +170,7 @@ Common_SignalHandler_T<ConfigurationType>::initialize (const ConfigurationType& 
 
   if (isInitialized_)
   { ACE_ASSERT (lock_);
-    { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, *lock_, false);
+    { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, *lock_, false);
       signals_.clear ();
     } // end lock scope
 
@@ -178,6 +178,8 @@ Common_SignalHandler_T<ConfigurationType>::initialize (const ConfigurationType& 
   } // end IF
 
   configuration_ = &const_cast<ConfigurationType&> (configuration_in);
+  // *TODO*: remove type inference
+  lock_ = &configuration_->lock;
 
   isInitialized_ = true;
 
@@ -220,7 +222,7 @@ Common_SignalHandler_T<ConfigurationType>::handle_exception (ACE_HANDLE handle_i
 
   // sanity check(s)
   ACE_ASSERT (lock_);
-  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, *lock_, -1);
+  { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, *lock_, -1);
     ACE_ASSERT (!signals_.empty ());
     const struct Common_Signal& signal_r = signals_.front ();
 #if defined (_DEBUG)

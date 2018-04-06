@@ -52,6 +52,7 @@ enum Common_OperatingSystemDistributionType
 {
   COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_DEBIAN = 0,
   COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_SUSE,
+  COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_UBUNTU,
   COMMON_OPERATINGSYSTEM_DISTRIBUTION_WIN32_MICROSOFT,
   ///////////////////////////////////////
   COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID,
@@ -80,7 +81,7 @@ struct Common_Signal
 #else
   , siginfo ()
   , ucontext ()
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
   {};
 
   int              signal;
@@ -88,7 +89,7 @@ struct Common_Signal
   struct siginfo_t siginfo;
 #else
   siginfo_t        siginfo;
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
   ucontext_t       ucontext;
 };
 typedef std::vector <struct Common_Signal> Common_Signals_t;
@@ -96,6 +97,14 @@ typedef Common_Signals_t::const_iterator Common_SignalsIterator_t;
 
 typedef std::map<int, ACE_Sig_Action> Common_SignalActions_t;
 typedef Common_SignalActions_t::const_iterator Common_SignalActionsIterator_t;
+
+// *** user/groups ***
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+typedef std::vector <std::string> Common_UserGroups_t;
+typedef Common_UserGroups_t::const_iterator Common_UserGroupsIterator_t;
+#endif // ACE_WIN32 || ACE_WIN64
 
 // *** (ACE) event dispatch ***
 enum Common_EventDispatchType
@@ -117,13 +126,13 @@ enum Common_ProactorType
   COMMON_PROACTOR_POSIX_SIG,       // POSIX only
 #if defined (ACE_HAS_AIO_CALLS) && defined (sun)
   COMMON_PROACTOR_POSIX_SUN,       // POSIX only
-#endif
+#endif // ACE_HAS_AIO_CALLS && sun
   COMMON_PROACTOR_POSIX_CB,        // POSIX only
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 ///////////////////////////////////////
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   COMMON_PROACTOR_WIN32,           // Win32 only
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
   ///////////////////////////////////////
   COMMON_PROACTOR_MAX,
   COMMON_PROACTOR_INVALID
@@ -136,12 +145,12 @@ enum Common_ReactorType
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
   COMMON_REACTOR_DEV_POLL,        // POSIX only
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
   COMMON_REACTOR_SELECT,
   COMMON_REACTOR_THREAD_POOL,     // *IMPORTANT NOTE*: currently, only a select()-based implementation is available
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   COMMON_REACTOR_WFMO,            // Win32 only
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
   ///////////////////////////////////////
   COMMON_REACTOR_MAX,
   COMMON_REACTOR_INVALID

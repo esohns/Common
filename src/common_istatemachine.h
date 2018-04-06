@@ -41,19 +41,17 @@ class Common_IStateMachine_T
  : public Common_IStateMachineBase
 {
  public:
+  virtual bool change (StateType) = 0; // new state
   virtual StateType current () const = 0;
   // *NOTE*: users need to provide absolute (!) values (i.e. deadline)
   virtual bool wait (StateType,
                      const ACE_Time_Value* = NULL) const = 0; // timeout (absolute) ? : block
 
-  // *NOTE*: unfortunately, this cannot be static
+  // *TODO*: this ought to be 'static'
   virtual std::string stateToString (StateType) const = 0; // return value: state
 
  protected:
-  virtual bool change (StateType) = 0; // new state
-
   ////////////////////////////////////////
-
   virtual void onChange (StateType) = 0; // new state
 };
 

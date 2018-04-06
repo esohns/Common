@@ -535,6 +535,20 @@ Common_Tools::strip (const std::string& string_in)
   return result;
 }
 
+bool
+Common_Tools::isspace (const std::string& string_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::isspace"));
+
+  for (unsigned int i = 0;
+       i < string_in.size ();
+       ++i)
+    if (!::isspace (static_cast<int> (string_in[i])))
+      return false;
+
+  return true;
+}
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 BOOL CALLBACK locale_cb_function (LPWSTR name_in,
                                   DWORD flags_in,
@@ -735,11 +749,13 @@ Common_Tools::printLocales ()
     return;
   } // end IF
   unsigned char* data_p = NULL;
+  unsigned int file_size_i = 0;
   if (unlikely (!Common_File_Tools::load (filename_string,
-                                          data_p)))
+                                          data_p,
+                                          file_size_i)))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"): \"%m\", returning\n"),
+                ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), returning\n"),
                 ACE_TEXT (filename_string.c_str ())));
     return;
   } // end IF
@@ -856,6 +872,9 @@ Common_Tools::isLinux (enum Common_OperatingSystemDistributionType& distribution
   else if (!ACE_OS::strcmp (distribution_id_string.c_str (),
                             ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LSB_OPENSUSE_STRING)))
     distribution_out = COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_SUSE;
+  else if (!ACE_OS::strcmp (distribution_id_string.c_str (),
+                            ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LSB_UBUNTU_STRING)))
+    distribution_out = COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_UBUNTU;
   else
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to determine Linux distribution (lsb_release output was: \"%s\"), continuing\n"),
@@ -1200,6 +1219,27 @@ clean:
 }
 #endif
 
+std::string
+Common_Tools::commandLineToString (int argc_in,
+                                   ACE_TCHAR* argv_in[])
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::commandLineToString"));
+
+  // initialize return value(s)
+  std::string return_value;
+
+  for (unsigned int i = 0;
+       i < argc_in;
+       ++i)
+  {
+    ACE_ASSERT (argv_in[i]);
+    return_value += ACE_TEXT_ALWAYS_CHAR (argv_in[i]);
+    return_value += ACE_TEXT_ALWAYS_CHAR (" ");
+  } // end FOR
+
+  return return_value;
+}
+
 bool
 Common_Tools::command (const std::string& commandLine_in,
                        std::string& stdOut_out)
@@ -1232,14 +1272,16 @@ Common_Tools::command (const std::string& commandLine_in,
   } // end IF
 
   // sanity check(s)
-  ACE_ASSERT (Common_File_Tools::isReadable (filename_string));
+  ACE_ASSERT (Common_File_Tools::canRead (filename_string));
 
   unsigned char* data_p = NULL;
+  unsigned int file_size_i = 0;
   if (unlikely (!Common_File_Tools::load (filename_string,
-                                          data_p)))
+                                          data_p,
+                                          file_size_i)))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), aborting\n"),
                 ACE_TEXT (filename_string.c_str ())));
     return false;
   } // end IF
@@ -1247,7 +1289,7 @@ Common_Tools::command (const std::string& commandLine_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_File_Tools::deleteFile(\"%s\"), continuing\n"),
                 ACE_TEXT (filename_string.c_str ())));
-  stdOut_out = reinterpret_cast<char* >(data_p);
+  stdOut_out.assign (reinterpret_cast<char* >(data_p), file_size_i);
 
   // clean up
   delete [] data_p;
@@ -1297,6 +1339,20 @@ Common_Tools::getProcessId (const std::string& executableName_in)
 //      ACE_ASSERT (Common_File_Tools::isExecutable (command_line_string));
       break;
     }
+    case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_UBUNTU:
+    {
+      // sanity check(s)
+      if (unlikely (!Common_Tools::isInstalled (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_PIDOF_STRING),
+                                                command_line_string)))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("command (was: \"%s\") is not installed: cannot proceed, aborting\n"),
+                    ACE_TEXT (COMMON_COMMAND_PIDOF_STRING)));
+        return result;
+      } // end IF
+//      ACE_ASSERT (Common_File_Tools::isExecutable (command_line_string));
+      break;
+    }
     default:
     {
       ACE_DEBUG ((LM_ERROR,
@@ -1325,16 +1381,18 @@ Common_Tools::getProcessId (const std::string& executableName_in)
                 ACE_TEXT (command_line_string.c_str ())));
     return result;
   } // end IF
-  if (unlikely (!ACE_OS::fgets (buffer_a, BUFSIZ, stream_p)))
+  if (unlikely (!ACE_OS::fgets (buffer_a,
+                                sizeof (char[BUFSIZ]),
+                                stream_p)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fgets(%d,%@): \"%m\", aborting\n"),
-                BUFSIZ, stream_p));
+                sizeof (char[BUFSIZ]), stream_p));
     goto clean;
   } // end IF
 
   pid_p = ACE_OS::strtok (buffer_a, ACE_TEXT_ALWAYS_CHAR (" "));
-  while (pid_p != NULL)
+  while (pid_p)
   {
     process_ids_a[i] = static_cast<pid_t> (ACE_OS::atoi (pid_p));
     ++i;
@@ -1356,12 +1414,13 @@ clean:
     int result_2 = ::pclose (stream_p);
     if (unlikely (result_2 == -1))
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ::pclose(0x%@): \"%m\", continuing\n"),
+                  ACE_TEXT ("failed to ::pclose(%@): \"%m\", continuing\n"),
                   stream_p));
   } // end IF
 #else
   ACE_ASSERT (false);
   ACE_NOTSUP_RETURN (result);
+
   ACE_NOTREACHED (return result;)
 #endif // ACE_LINUX
 
@@ -1400,11 +1459,14 @@ Common_Tools::getStartTime ()
   } // end IF
 
   // *TODO* use readline() instead ?
-  if (unlikely (!ACE_OS::fgets (buffer_a, sizeof (char[BUFSIZ]), file_p)))
+  if (unlikely (!ACE_OS::fgets (buffer_a,
+                                sizeof (char[BUFSIZ]),
+                                file_p)))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::fgets(%d): \"%m\", aborting\n"),
-                sizeof (char[BUFSIZ])));
+                ACE_TEXT ("failed to ACE_OS::fgets(%d,%@): \"%m\", aborting\n"),
+                sizeof (char[BUFSIZ]),
+                file_p));
     goto clean;
   } // end IF
   // *NOTE*: only the second invocation of fgets would set eof
@@ -1473,7 +1535,7 @@ clean:
 
   return result;
 }
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
@@ -1500,6 +1562,137 @@ Common_Tools::switchUser (uid_t userId_in)
   return (result == 0);
 }
 
+Common_UserGroups_t
+Common_Tools::getUserGroups (uid_t userId_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::getUserGroups"));
+
+  // initialize return value(s)
+  Common_UserGroups_t return_value;
+
+  uid_t user_id =
+      ((static_cast<int>(userId_in) == -1) ? ACE_OS::geteuid () : userId_in);
+  std::string username_string, realname_string;
+  Common_Tools::getUserName (user_id,
+                             username_string,
+                             realname_string);
+  struct passwd passwd_s, *passwd_p = NULL;
+  ACE_OS::memset (&passwd_s, 0, sizeof (struct passwd));
+  char buffer_a[BUFSIZ];
+  ACE_OS::memset (buffer_a, 0, sizeof (char[BUFSIZ]));
+  struct group group_s, *group_p;
+  ACE_OS::memset (&group_s, 0, sizeof (struct group));
+  int result =
+      ::getpwuid_r (user_id,               // user id
+                    &passwd_s,             // passwd entry
+                    buffer_a,              // buffer
+                    sizeof (char[BUFSIZ]), // buffer size
+                    &passwd_p);            // result (handle)
+  if (unlikely ((result == -1) || !passwd_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::getpwuid_r(%u): \"%m\", aborting\n"),
+                user_id));
+    return return_value;
+  } // end IF
+  return_value.push_back (Common_Tools::groupIdToString (passwd_s.pw_gid));
+
+  setgrent ();
+  do
+  {
+    group_p = NULL;
+    result = ::getgrent_r (&group_s,
+                           buffer_a,
+                           sizeof (char[BUFSIZ]),
+                           &group_p);
+    if (unlikely (result || !group_p))
+    {
+      if (result != ENOENT)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ::getgrent_r(): \"%m\", returning\n")));
+      break;
+    } // end IF
+    ACE_ASSERT (group_s.gr_mem);
+    for (char** string_pp = group_s.gr_mem;
+         *string_pp;
+         ++string_pp)
+      if (!ACE_OS::strcmp (username_string.c_str (),
+                           *string_pp))
+        return_value.push_back (group_s.gr_name);
+  } while (true);
+  ::endgrent ();
+
+  return return_value;
+}
+
+bool
+Common_Tools::addGroupMember (uid_t userId_in,
+                              gid_t groupId_in,
+                              bool persist_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::addGroupMember"));
+
+#if defined (_DEBUG)
+  Common_Tools::printCapabilities ();
+#endif // _DEBUG
+
+  bool result = false;
+
+  uid_t user_id =
+      ((static_cast<int>(userId_in) == -1) ? ACE_OS::geteuid () : userId_in);
+  std::string username_string, realname_string;
+  Common_Tools::getUserName (user_id,
+                             username_string,
+                             realname_string);
+
+  // sanity check(s)
+  if (unlikely (Common_Tools::isGroupMember (userId_in, groupId_in)))
+    return true; // nothing to do
+
+  if (likely (persist_in))
+  {
+    // *TODO*: use putgrent(3)
+    std::string command_output_string;
+    std::string command_line_string =
+        ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_GPASSWD_STRING);
+//        ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_USERMOD_STRING);
+    command_line_string += ACE_TEXT_ALWAYS_CHAR (" -a ");
+    command_line_string += username_string;
+//    command_line_string += ACE_TEXT_ALWAYS_CHAR (" -a -G ");
+    command_line_string += ACE_TEXT_ALWAYS_CHAR (" ");
+    command_line_string += Common_Tools::groupIdToString (groupId_in);
+//    command_line_string += ACE_TEXT_ALWAYS_CHAR (" ");
+//    command_line_string += username_string;
+    if (unlikely(!Common_Tools::command (command_line_string,
+                                         command_output_string)))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
+                  ACE_TEXT (command_line_string.c_str ())));
+      return false;
+    } // end IF
+
+    result = true;
+  } // end IF
+  else
+  {
+    // *TODO* use setgroups(2)
+    ACE_ASSERT (false);
+    ACE_NOTSUP_RETURN (false);
+
+    ACE_NOTREACHED (return false;)
+  } // end ELSE
+
+#if defined (_DEBUG)
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("added user \"%s\" (uid: %u) to group \"%s\" (gid: %u)...\n"),
+              ACE_TEXT (username_string.c_str ()), user_id,
+              ACE_TEXT (Common_Tools::groupIdToString (groupId_in).c_str ()), groupId_in));
+#endif // _DEBUG
+
+  return result;
+}
+
 bool
 Common_Tools::isGroupMember (uid_t userId_in,
                              gid_t groupId_in)
@@ -1518,8 +1711,8 @@ Common_Tools::isGroupMember (uid_t userId_in,
   struct passwd* passwd_p = NULL;
   int result = -1;
   // step1: check whether the group happens to be the users' 'primary' group
-  //        (the user would not appear in the member list of /etc/group in this
-  //        case)
+  //        (the user would not appear in the member list of the 'group'
+  //        database in this case)
   result = ::getpwuid_r (user_id,               // user id
                          &passwd_s,             // passwd entry
                          buffer_a,              // buffer
@@ -1535,7 +1728,7 @@ Common_Tools::isGroupMember (uid_t userId_in,
   if (passwd_s.pw_gid == groupId_in)
     return true;
 
-  // step2: check the 'secondary' member list of the group
+  // step2: check the 'secondary' member list of the 'group' database
   ACE_OS::memset (buffer_a, 0, sizeof (char[BUFSIZ]));
   struct group group_s;
   struct group* group_p = NULL;
@@ -1566,12 +1759,92 @@ Common_Tools::isGroupMember (uid_t userId_in,
 
   return false;
 }
+
+std::string
+Common_Tools::groupIdToString (gid_t groupId_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::groupIdToString"));
+
+  // initialize return value(s)
+  std::string return_value;
+
+  struct group group_s, *group_p;
+  ACE_OS::memset (&group_s, 0, sizeof (struct group));
+  char buffer_a[BUFSIZ];
+  int result = -1;
+
+  setgrent ();
+  do
+  {
+    group_p = NULL;
+    result = ::getgrent_r (&group_s,
+                           buffer_a,
+                           sizeof (char[BUFSIZ]),
+                           &group_p);
+    if (unlikely (result || !group_p))
+    {
+      if (result != ENOENT)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ::getgrent_r(): \"%m\", returning\n")));
+      break;
+    } // end IF
+
+    if (group_p->gr_gid == groupId_in)
+    {
+      return_value = group_p->gr_name;
+      break;
+    } // end IF
+  } while (true);
+  ::endgrent ();
+
+  return return_value;
+}
+gid_t
+Common_Tools::stringToGroupId (const std::string& groupName_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::stringToGroupId"));
+
+  // initialize return value(s)
+  gid_t return_value = 0;
+
+  struct group group_s, *group_p;
+  ACE_OS::memset (&group_s, 0, sizeof (struct group));
+  char buffer_a[BUFSIZ];
+  int result = -1;
+
+  setgrent ();
+  do
+  {
+    group_p = NULL;
+    result = ::getgrent_r (&group_s,
+                           buffer_a,
+                           sizeof (char[BUFSIZ]),
+                           &group_p);
+    if (unlikely (result || !group_p))
+    {
+      if (result != ENOENT)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ::getgrent_r(): \"%m\", returning\n")));
+      break;
+    } // end IF
+
+    if (!ACE_OS::strcmp (groupName_in.c_str (),
+                         group_p->gr_name))
+    {
+      return_value = group_p->gr_gid;
+      break;
+    } // end IF
+  } while (true);
+  ::endgrent ();
+
+  return return_value;
+}
 #endif // ACE_WIN32 || ACE_WIN64
 
 void
-Common_Tools::printPrivileges ()
+Common_Tools::printUserIds ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::printPrivileges"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::printUserIds"));
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   ACE_ASSERT (false);
@@ -1893,10 +2166,10 @@ Common_Tools::getUserName (uid_t userId_in,
     username_out = passwd_s.pw_name;
     if (ACE_OS::strlen (passwd_s.pw_gecos))
     {
-      std::string gecos_string = passwd_s.pw_gecos;
-      std::string::size_type position = gecos_string.find (',');
-      ACE_ASSERT (position != std::string::npos);
-      realname_out = gecos_string.substr (0, position);
+      realname_out = passwd_s.pw_gecos;
+      std::string::size_type position = realname_out.find (',');
+      if (position != std::string::npos)
+        realname_out.substr (0, position);
     } // end IF
   } // end ELSE
 #endif // ACE_WIN32 || ACE_WIN64
@@ -2917,6 +3190,7 @@ Common_Tools::isInstalled (const std::string& executableName_in,
   {
     case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_DEBIAN:
     case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_SUSE:
+    case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_UBUNTU:
     {
       // sanity check(s)
       command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_WHICH_STRING);
@@ -2969,19 +3243,19 @@ Common_Tools::isInstalled (const std::string& executableName_in,
 
   std::istringstream converter;
   converter.str (command_output_string);
-  char buffer [BUFSIZ];
+  char buffer_a [BUFSIZ];
   do
   {
-    converter.getline (buffer, sizeof (buffer));
+    converter.getline (buffer_a, sizeof (char[BUFSIZ]));
     if (converter.eof ())
       break; // done
     if (executablePath_out.empty ())
-      executablePath_out = buffer;
+      executablePath_out = buffer_a;
 #if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("found executable (was: \"%s\"): \"%s\"\n"),
                 ACE_TEXT (executableName_in.c_str ()),
-                ACE_TEXT (buffer)));
+                ACE_TEXT (buffer_a)));
 #endif
   } while (true);
 

@@ -895,18 +895,22 @@ Common_File_Tools::deleteFile (const std::string& path_in)
 
 bool
 Common_File_Tools::load (const std::string& path_in,
-                         unsigned char*& file_out)
+                         unsigned char*& file_out,
+                         unsigned int& fileSize_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::load"));
 
-  int result = -1;
+  bool result = false;
+  int result_2 = -1;
+  size_t result_3 = 0;
+  long file_size_i = 0;
 
   // initialize return value(s)
   file_out = NULL;
+  fileSize_out = 0;
 
-  FILE* file_p =
-    ACE_OS::fopen (ACE_TEXT (path_in.c_str ()),
-                   ACE_TEXT_ALWAYS_CHAR ("rb"));
+  FILE* file_p = ACE_OS::fopen (ACE_TEXT (path_in.c_str ()),
+                                ACE_TEXT_ALWAYS_CHAR ("rb"));
   if (unlikely (!file_p))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -915,102 +919,94 @@ Common_File_Tools::load (const std::string& path_in,
     return false;
   } // end IF
 
+  // *NOTE*: "...Subclause 7.21.9.2 of the C Standard [ISO/IEC 9899:2011]
+  //         specifies the following behavior for fseek() when opening a binary
+  //         file in binary mode: "A binary stream need not meaningfully support
+  //         fseek calls with a whence value of SEEK_END." In addition, footnote
+  //         268 of subclause 7.21.3 says: "Setting the file position indicator
+  //         to end-of-file, as with fseek(file, 0, SEEK_END), has undefined
+  //         behavior for a binary stream (because of possible trailing null
+  //         characters) or for any stream with state-dependent encoding that
+  //         does not assuredly end in the initial shift state."
+
   // obtain file size
-  result = ACE_OS::fseek (file_p, 0, SEEK_END);
-  if (unlikely (result))
+  result_2 = ACE_OS::fseek (file_p, 0, SEEK_END);
+  if (unlikely (result_2))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::fseek(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT ("failed to ACE_OS::fseek(\"%s\",0,SEEK_END): \"%m\", aborting\n"),
                 ACE_TEXT (path_in.c_str ())));
-
-    // clean up
-    result = ACE_OS::fclose (file_p);
-    if (result == -1)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
-                  ACE_TEXT (path_in.c_str ())));
-    return false;
+    goto error;
   } // end IF
-  long file_size = ACE_OS::ftell (file_p);
-  if (unlikely (file_size == -1))
+  file_size_i = ACE_OS::ftell (file_p);
+  if (unlikely (file_size_i == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::ftell(\"%s\"): \"%m\", aborting\n"),
                 ACE_TEXT (path_in.c_str ())));
-
-    // clean up
-    result = ACE_OS::fclose (file_p);
-    if (result == -1)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
-                  ACE_TEXT (path_in.c_str ())));
-    return false;
+    goto error;
   } // end IF
-  ACE_OS::rewind (file_p);
+  fileSize_out = static_cast<unsigned int> (file_size_i);
+  result_2 = ACE_OS::fseek (file_p, 0, SEEK_SET);
+  if (unlikely (result_2))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::fseek(\"%s\",0,SEEK_SET): \"%m\", aborting\n"),
+                ACE_TEXT (path_in.c_str ())));
+    goto error;
+  } // end IF
+  if (unlikely (!file_size_i))
+  {
+    result = true;
+    goto continue_;
+  } // end IF
 
   // *PORTABILITY* allocate array
-//  file_out = new (std::nothrow) unsigned char[fsize];
   ACE_NEW_NORETURN (file_out,
-                    unsigned char[static_cast<unsigned int> (file_size)]);
+                    unsigned char[static_cast<size_t> (file_size_i)]);
   if (unlikely (!file_out))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory(%d): \"%m\", aborting\n"),
-                file_size));
-
-    // clean up
-    result = ACE_OS::fclose (file_p);
-    if (result == -1)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
-                  ACE_TEXT (path_in.c_str ())));
-    return false;
+                file_size_i));
+    goto error;
   } // end IF
-  if (unlikely (!file_size))
-    goto continue_;
+  ACE_OS::memset (file_out, 0, file_size_i);
 
   // read data
-  result =
-    static_cast<int> (ACE_OS::fread (static_cast<void*> (file_out),   // target buffer
-                                     static_cast<size_t> (file_size), // read everything ...
-                                     1,                               // ... at once
-                                     file_p));                        // handle
-  if (unlikely (result != 1))
+  result_3 =
+    ACE_OS::fread (static_cast<void*> (file_out),     // target buffer
+                   static_cast<size_t> (file_size_i), // read everything ...
+                   1,                                 // ... at once
+                   file_p);                           // stream handle
+  if (unlikely (result_3 != 1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fread(\"%s\",%d): \"%m\", aborting\n"),
                 ACE_TEXT (path_in.c_str ()),
-                file_size));
-
-    // clean up
-    result = ACE_OS::fclose (file_p);
-    if (result == -1)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
-                  ACE_TEXT (path_in.c_str ())));
-    delete [] file_out;
-    file_out = NULL;
-
-    return false;
+                file_size_i));
+    goto error;
   } // end IF
 
-  // clean up
-continue_:
-  result = ACE_OS::fclose (file_p);
-  if (unlikely (result == -1))
+  result = true;
+
+  goto continue_;
+
+error:
+  if (file_out)
   {
+    delete [] file_out;
+    file_out = NULL;
+  } // end IF
+  fileSize_out = 0;
+continue_:
+  result_2 = ACE_OS::fclose (file_p);
+  if (unlikely (result_2 == -1))
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
                 ACE_TEXT (path_in.c_str ())));
 
-    // clean up
-    delete [] file_out;
-    file_out = NULL;
-
-    return false;
-  } // end IF
-
-  return true;
+  return result;
 }
 
 bool

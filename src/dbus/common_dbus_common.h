@@ -24,6 +24,9 @@
 #include <string>
 #include <vector>
 
+typedef std::vector<std::string> Common_DBus_ObjectPaths_t;
+typedef Common_DBus_ObjectPaths_t::const_iterator Common_DBus_ObjectPathsIterator_t;
+
 enum Common_DBus_PolicyKit_SubjectType
 {
   COMMON_DBUS_POLICYKIT_SUBJECT_BUS_SYSTEM = 0,

@@ -48,6 +48,7 @@ class Common_DBus_Tools
   static bool initialize ();
   static bool finalize ();
 
+  static void dump (struct DBusMessage&); // message
   // *IMPORTANT NOTE* fire-and-forget the second argument
   static struct DBusMessage* exchange (struct DBusConnection*,       // connection handle
                                        struct DBusMessage*&,         // outbound message handle
@@ -79,6 +80,9 @@ class Common_DBus_Tools
 //  ACE_UNIMPLEMENTED_FUNC (virtual ~Common_DBus_Tools ())
   ACE_UNIMPLEMENTED_FUNC (Common_DBus_Tools (const Common_DBus_Tools&))
   ACE_UNIMPLEMENTED_FUNC (Common_DBus_Tools& operator= (const Common_DBus_Tools&))
+
+  // helper methods
+  static void dumpValue (struct DBusMessageIter&); // message iterator
 
 #if defined (SD_BUS_SUPPORT)
   static struct sd_bus* bus;
