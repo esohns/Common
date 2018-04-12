@@ -30,7 +30,7 @@
 #include "common_time_common.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "common_tools.h"
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
@@ -114,7 +114,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                     handle,
                     ACE_TEXT (Common_Tools::errorToString (::GetLastError ()).c_str ())));
   } // end FOR
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 }
 
 template <ACE_SYNCH_DECL,
@@ -183,7 +183,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                             handle,
                             ACE_TEXT (Common_Tools::errorToString (::GetLastError ()).c_str ())));
           } // end FOR
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
           threads_.clear ();
         } // end lock scope
 
@@ -216,7 +216,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                           ACE_TEXT ("flushed %u message(s)\n"),
                           result));
           } // end IF
-#endif
+#endif // _DEBUG
         } // end IF
 
         break;
@@ -453,7 +453,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   size_t count = 0;
 #if defined (_DEBUG)
   bool has_waited = false;
-#endif
+#endif // _DEBUG
 
   do
   {
@@ -467,7 +467,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                 (inherited::mod_ ? inherited::mod_->name () : ACE_TEXT ("")),
                 (inherited::mod_ ? ACE_TEXT (": ") : ACE_TEXT ("")),
                 count));
-#endif
+#endif // _DEBUG
 
     result = ACE_OS::sleep (one_second);
     if (unlikely (result == -1))
@@ -482,7 +482,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                 ACE_TEXT ("%s%swaiting for message(s)...DONE\n"),
                 (inherited::mod_ ? inherited::mod_->name () : ACE_TEXT ("")),
                 (inherited::mod_ ? ACE_TEXT (": ") : ACE_TEXT (""))));
-#endif
+#endif // _DEBUG
 }
 
 template <ACE_SYNCH_DECL,
@@ -530,7 +530,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     enum ACE_Log_Priority log_priority = LM_ERROR;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
     log_priority = LM_DEBUG;
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
     if (inherited::mod_)
       ACE_DEBUG ((log_priority,
                   ACE_TEXT ("%s: caught exception in ACE_Task::wait(), returning\n"),
@@ -558,13 +558,13 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   Common_Tools::setThreadName (threadName_,
                                -1);
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t, group: %d) starting\n"),
               ACE_TEXT (threadName_.c_str ()),
               inherited::grp_id_));
-#endif
+#endif // _DEBUG
 
   ACE_Message_Block* message_block_p = NULL;
   ACE_Message_Block::ACE_Message_Type message_type;
@@ -617,7 +617,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t) leaving\n"),
               ACE_TEXT (threadName_.c_str ())));
-#endif
+#endif // _DEBUG
 
   return result;
 }
@@ -722,7 +722,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
 #if defined (_DEBUG)
   std::ostringstream string_stream;
-#endif
+#endif // _DEBUG
   { ACE_GUARD_RETURN (typename ITASKCONTROL_T::MUTEX_T, aGuard, lock_, -1);
     result =
       inherited::activate ((THR_NEW_LWP      |
@@ -764,7 +764,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                     << ACE_TEXT_ALWAYS_CHAR (" ")
                     << thread_ids_p[i]
                     << ACE_TEXT_ALWAYS_CHAR ("\n");
-#endif
+#endif // _DEBUG
 
       // clean up
       delete [] thread_names_p[i];
@@ -784,7 +784,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                 inherited::grp_id_,
                 ACE_TEXT (thread_ids_string.c_str ())));
   } // end lock scope
-#endif
+#endif // _DEBUG
 
   // clean up
   delete [] thread_ids_p;

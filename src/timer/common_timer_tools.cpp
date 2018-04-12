@@ -37,14 +37,13 @@
 //  return COMMON_TIMERMANAGER_SINGLETON::instance ();
 //}
 
-bool
-Common_Timer_Tools::periodToString (const ACE_Time_Value& period_in,
-                                    std::string& timeString_out)
+std::string
+Common_Timer_Tools::periodToString (const ACE_Time_Value& period_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Tools::periodToString"));
 
   // initialize return value(s)
-  timeString_out.clear ();
+  std::string return_value;
 
   // extract hours and minutes
   ACE_Time_Value temp = period_in;
@@ -66,23 +65,21 @@ Common_Timer_Tools::periodToString (const ACE_Time_Value& period_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::snprintf(): \"%m\", aborting\n")));
-    return false;
+    return return_value;
   } // end IF
+  return_value = time_string;
 
-  timeString_out = time_string;
-
-  return true;
+  return return_value;
 }
 
-bool
+std::string
 Common_Timer_Tools::timestampToString (const ACE_Time_Value& timeStamp_in,
-                                       bool UTC_in,
-                                       std::string& timeString_out)
+                                       bool UTC_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Tools::timestampToString"));
 
   // initialize return value(s)
-  timeString_out.clear ();
+  std::string return_value;
 
   time_t timestamp = timeStamp_in.sec ();
   struct tm tm_s;
@@ -93,7 +90,7 @@ Common_Timer_Tools::timestampToString (const ACE_Time_Value& timeStamp_in,
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::gmtime_r(): \"%m\", aborting\n")));
-      return false;
+      return return_value;
     } // end IF
   } // end IF
   else
@@ -101,7 +98,7 @@ Common_Timer_Tools::timestampToString (const ACE_Time_Value& timeStamp_in,
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::localtime_r(): \"%m\", aborting\n")));
-      return false;
+      return return_value;
     } // end IF
 
   char time_string[BUFSIZ];
@@ -120,12 +117,11 @@ Common_Timer_Tools::timestampToString (const ACE_Time_Value& timeStamp_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::snprintf(): \"%m\", aborting\n")));
-    return false;
+    return return_value;
   } // end IF
+  return_value = time_string;
 
-  timeString_out = time_string;
-
-  return true;
+  return return_value;
 }
 
 bool

@@ -113,7 +113,7 @@ class Common_TaskBase_T
                 bool = false); // high-priority ?
   // *NOTE*: tests for MB_STOP anywhere in the queue. Note that this does not
   //         block, or dequeue any message
-  // *NOTE*: ACE_Message_Queue_Iterator does its own locking; i.e. access
+  // *NOTE*: ACE_Message_Queue_Iterator does its own locking, i.e. access
   //         happens in lockstep, which is both inefficient and yields
   //         unpredictable results
   //         --> use Common_MessageQueueIterator_T and lock the queue manually

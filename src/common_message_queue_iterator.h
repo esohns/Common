@@ -32,7 +32,12 @@ class ACE_Message_Block;
 template <ACE_SYNCH_DECL,
           class TIME_POLICY = ACE_System_Time_Policy>
 class Common_MessageQueueIterator_T
+ : public ACE_Message_Queue_Iterator<ACE_SYNCH_USE,
+                                     TIME_POLICY>
 {
+ typedef ACE_Message_Queue_Iterator<ACE_SYNCH_USE,
+                                    TIME_POLICY> inherited;
+
  public:
   // convenient types
   typedef ACE_Message_Queue <ACE_SYNCH_USE,
@@ -41,19 +46,15 @@ class Common_MessageQueueIterator_T
   Common_MessageQueueIterator_T (MESSAGE_QUEUE_T&);
   inline virtual ~Common_MessageQueueIterator_T () {}
 
-  int next (ACE_Message_Block*&); // return value: current entry
-  inline int done (void) const { return (!this->currentMessage_ ? 1 : 0); }
+  int next (ACE_Message_Block*&);
+  inline int done (void) const { return (!inherited::curr_ ? 1 : 0); }
   int advance (void);
-
-  void dump (void) const;
+//  void dump (void) const;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_MessageQueueIterator_T ())
   ACE_UNIMPLEMENTED_FUNC (Common_MessageQueueIterator_T (const Common_MessageQueueIterator_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_MessageQueueIterator_T& operator= (const Common_MessageQueueIterator_T&))
-
-  ACE_Message_Block* currentMessage_;
-  MESSAGE_QUEUE_T&   queue_;
 };
 
 // include template definition

@@ -7,8 +7,7 @@ template <ACE_SYNCH_DECL,
           class TIME_POLICY>
 Common_MessageQueueIterator_T<ACE_SYNCH_USE,
                               TIME_POLICY>::Common_MessageQueueIterator_T (MESSAGE_QUEUE_T& queue_in)
- : currentMessage_ (NULL)
- , queue_ (queue_in)
+ : inherited (queue_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_MessageQueueIterator_T::Common_MessageQueueIterator_T"));
 
@@ -22,9 +21,9 @@ Common_MessageQueueIterator_T<ACE_SYNCH_USE,
 {
   COMMON_TRACE (ACE_TEXT ("Common_MessageQueueIterator_T::next"));
 
-  if (likely (this->currentMessage_))
+  if (likely (inherited::curr_))
   {
-    message_out = this->currentMessage_;
+    message_out = inherited::curr_;
     return 1;
   } // end IF
 
@@ -34,12 +33,13 @@ Common_MessageQueueIterator_T<ACE_SYNCH_USE,
 template <ACE_SYNCH_DECL,
           class TIME_POLICY>
 int
-Common_MessageQueueIterator_T<ACE_SYNCH_USE, TIME_POLICY>::advance (void)
+Common_MessageQueueIterator_T<ACE_SYNCH_USE,
+                              TIME_POLICY>::advance (void)
 {
   COMMON_TRACE (ACE_TEXT ("Common_MessageQueueIterator_T::advance"));
 
-  if (likely (this->currentMessage_))
-    this->currentMessage_ = this->currentMessage_->next ();
+  if (likely (inherited::curr_))
+    inherited::curr_ = inherited::curr_->next ();
 
-  return (this->currentMessage_ ? 1 : 0);
+  return (inherited::curr_ ? 1 : 0);
 }

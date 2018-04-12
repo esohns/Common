@@ -825,7 +825,9 @@ Common_Tools::isLinux (enum Common_OperatingSystemDistributionType& distribution
   // --> try to determine the distribution
   std::string lsb_release_output_string;
   std::string command_line_string = ACE_TEXT_ALWAYS_CHAR ("lsb_release -i");
+  int exit_status_i = 0;
   if (unlikely (!Common_Tools::command (command_line_string,
+                                        exit_status_i,
                                         lsb_release_output_string)))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -1242,15 +1244,19 @@ Common_Tools::commandLineToString (int argc_in,
 
 bool
 Common_Tools::command (const std::string& commandLine_in,
+                       int& exitStatus_out,
                        std::string& stdOut_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::command"));
+
+  // initialize return value(s)
+  exitStatus_out = -1;
+  stdOut_out.clear ();
 
   int result = -1;
 
   // sanity check(s)
   ACE_ASSERT (!commandLine_in.empty ());
-  stdOut_out.clear ();
 
   std::string filename_string =
       Common_File_Tools::getTempFilename (ACE_TEXT_ALWAYS_CHAR (""));
@@ -1268,8 +1274,10 @@ Common_Tools::command (const std::string& commandLine_in,
                 ACE_TEXT ("failed to ACE_OS::system(\"%s\"): \"%m\" (result was: %d), aborting\n"),
                 ACE_TEXT (commandLine_in.c_str ()),
                 WEXITSTATUS (result)));
+    exitStatus_out = WEXITSTATUS (result);
     return false;
   } // end IF
+  exitStatus_out = WEXITSTATUS (result);
 
   // sanity check(s)
   ACE_ASSERT (Common_File_Tools::canRead (filename_string));
@@ -1367,7 +1375,7 @@ Common_Tools::getProcessId (const std::string& executableName_in)
       ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (executableName_in.c_str ()),
                                            ACE_DIRECTORY_SEPARATOR_CHAR));
 
-  char buffer_a[BUFSIZ];
+  ACE_TCHAR buffer_a[BUFSIZ];
   char* pid_p = NULL;
   int i = 0;
   pid_t process_ids_a[64];
@@ -1385,9 +1393,10 @@ Common_Tools::getProcessId (const std::string& executableName_in)
                                 sizeof (char[BUFSIZ]),
                                 stream_p)))
   {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::fgets(%d,%@): \"%m\", aborting\n"),
-                sizeof (char[BUFSIZ]), stream_p));
+    if (!::feof (stream_p)) // no output ? --> process not found
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::fgets(%d,%@): \"%m\", aborting\n"),
+                  sizeof (char[BUFSIZ]), stream_p));
     goto clean;
   } // end IF
 
@@ -1663,7 +1672,9 @@ Common_Tools::addGroupMember (uid_t userId_in,
     command_line_string += Common_Tools::groupIdToString (groupId_in);
 //    command_line_string += ACE_TEXT_ALWAYS_CHAR (" ");
 //    command_line_string += username_string;
+    int exit_status_i = 0;
     if (unlikely(!Common_Tools::command (command_line_string,
+                                         exit_status_i,
                                          command_output_string)))
     {
       ACE_DEBUG ((LM_ERROR,
@@ -3197,7 +3208,9 @@ Common_Tools::isInstalled (const std::string& executableName_in,
       command_line_string += ACE_TEXT_ALWAYS_CHAR (" ");
       command_line_string +=
           ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LOCATE_STRING);
+      int exit_status_i = 0;
       if (unlikely(!Common_Tools::command (command_line_string,
+                                           exit_status_i,
                                            command_output_string)))
       {
         ACE_DEBUG ((LM_ERROR,
@@ -3230,8 +3243,9 @@ Common_Tools::isInstalled (const std::string& executableName_in,
       ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (executableName_in.c_str ()),
                                            ACE_DIRECTORY_SEPARATOR_CHAR));
   command_line_string += ACE_TEXT_ALWAYS_CHAR ("' -e -l 1");
-
+  int exit_status_i = 0;
   if (unlikely (!Common_Tools::command (command_line_string,
+                                        exit_status_i,
                                         command_output_string)))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -3256,7 +3270,7 @@ Common_Tools::isInstalled (const std::string& executableName_in,
                 ACE_TEXT ("found executable (was: \"%s\"): \"%s\"\n"),
                 ACE_TEXT (executableName_in.c_str ()),
                 ACE_TEXT (buffer_a)));
-#endif
+#endif // _DEBUG
   } while (true);
 
   result = !executablePath_out.empty ();

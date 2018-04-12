@@ -80,13 +80,13 @@ Common_Task_T<ACE_SYNCH_USE,
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   Common_Tools::setThreadName (inherited::threadName_,
                                -1);
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t, group: %d) starting\n"),
               ACE_TEXT (inherited::threadName_.c_str ()),
               inherited::grp_id_));
-#endif
+#endif // _DEBUG
 
   MessageType* message_p = NULL;
   ACE_Message_Block::ACE_Message_Type message_type;

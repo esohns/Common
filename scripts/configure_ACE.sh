@@ -1,18 +1,20 @@
 #!/bin/sh
 # author:      Erik Sohns <eriksohns@123mail.org>
-# this script generates the ACE framework project files for Win32/Linux
+# this script compiles the ACE framework on UNIX platforms
 # *NOTE*: it is neither portable nor particularly stable !
-# parameters: - platform [win32|linux] {win32}
-#             - mwc.pl '-type' parameter {vc14}
+# parameters: - platform [linux|solaris] {linux}
+#             - mwc.pl '-type' parameter {gnuace}
 # return value: - 0 success, 1 failure
 
 # sanity checks
 command -v dirname >/dev/null 2>&1 || { echo "dirname is not installed, aborting" >&2; exit 1; }
+command -v make >/dev/null 2>&1 || { echo "make is not installed, aborting" >&2; exit 1; }
+command -v mkdir >/dev/null 2>&1 || { echo "mkdir is not installed, aborting" >&2; exit 1; }
 command -v patch >/dev/null 2>&1 || { echo "patch is not installed, aborting" >&2; exit 1; }
 command -v perl >/dev/null 2>&1 || { echo "perl is not installed, aborting" >&2; exit 1; }
 command -v readlink >/dev/null 2>&1 || { echo "readlink is not installed, aborting" >&2; exit 1; }
 
-DEFAULT_PLATFORM="win32"
+DEFAULT_PLATFORM="linux"
 PLATFORM=${DEFAULT_PLATFORM}
 if [ $# -lt 1 ]
 then
@@ -21,7 +23,7 @@ else
  # parse any arguments
  if [ $# -ge 1 ]
  then
-  if [ "$1" != "win32" -a "$1" != "linux" ]
+  if [ "$1" != "linux" -a "$1" != "solaris" ]
   then
    echo "invalid argument (was: "$1"), aborting"; exit 1;
   fi
@@ -30,15 +32,16 @@ else
 fi
 #echo "DEBUG: platform: \"${PLATFORM}\""
 
-DEFAULT_PROJECT_TYPE="vc14"
+DEFAULT_PROJECT_TYPE="gnuace"
 PROJECT_TYPE=${DEFAULT_PROJECT_TYPE}
 if [ $# -lt 2 ]
 then
  case "${PLATFORM}" in
-  win32)
+  linux|solaris)
+#   PROJECT_TYPE="gnuace"
    ;;
-  linux|*)
-   PROJECT_TYPE="gnuace"
+  *)
+   echo "invalid platform (was: "${PLATFORM}"), aborting"; exit 1;
    ;;
  esac
  echo "INFO: using default mpc project type: \"${PROJECT_TYPE}\""
@@ -54,7 +57,7 @@ fi
 DEFAULT_PROJECT_DIRECTORY="$(dirname $(readlink -f $0))/.."
 PROJECT_DIRECTORY=${DEFAULT_PROJECT_DIRECTORY}
 # sanity check(s)
-[ ! -d ${PROJECT_DIRECTORY} ] && echo "ERROR: invalid project directory (was: \"${PROJECT_DIRECTORY}\"), aborting" && exit 1
+[ ! -d ${PROJECT_DIRECTORY} ] && echo "ERROR: invalid directory (was: \"${PROJECT_DIRECTORY}\"), aborting" && exit 1
 #echo "DEBUG: project directory: \"${PROJECT_DIRECTORY}\""
 
 DEFAULT_MPC_DIRECTORY=/mnt/win_d/projects/MPC # <-- UNIX
@@ -66,13 +69,13 @@ then
  else
   DEFAULT_MPC_DIRECTORY=/d/projects/MPC # <-- mingw/msys
  fi
- [ ! -d ${DEFAULT_MPC_DIRECTORY} ] && echo "ERROR: invalid MPC directory (was: \"${DEFAULT_MPC_DIRECTORY}\"), aborting" && exit 1
+ [ ! -d ${DEFAULT_MPC_DIRECTORY} ] && echo "ERROR: invalid directory (was: \"${DEFAULT_MPC_DIRECTORY}\"), aborting" && exit 1
 fi
 MPC_DIRECTORY=${DEFAULT_MPC_DIRECTORY}
 if [ -z ${MPC_ROOT} ]
 then
- MPC_ROOT=${MPC_DIRECTORY}
- export MPC_ROOT
+ export MPC_ROOT=${MPC_DIRECTORY}
+ [ $? -ne 0 ] && echo "ERROR: failed to export MPC_ROOT environment variable (was: \"${MPC_DIRECTORY}\"), aborting" && exit 1
  echo "INFO: exported MPC_ROOT (as: \"${MPC_ROOT}\")"
 fi
 #echo "INFO: \$MPC_ROOT is: \"${MPC_ROOT}\")"
@@ -86,58 +89,80 @@ then
  else
   DEFAULT_ACE_DIRECTORY=/d/projects/ATCD/ACE # <-- mingw/msys
  fi
- [ ! -d ${DEFAULT_ACE_DIRECTORY} ] && echo "ERROR: invalid ACE directory (was: \"${DEFAULT_ACE_DIRECTORY}\"), aborting" && exit 1
+ [ ! -d ${DEFAULT_ACE_DIRECTORY} ] && echo "ERROR: invalid directory (was: \"${DEFAULT_ACE_DIRECTORY}\"), aborting" && exit 1
 fi
 ACE_DIRECTORY=${DEFAULT_ACE_DIRECTORY}
 if [ -z ${ACE_ROOT} ]
 then
- ACE_ROOT=${ACE_DIRECTORY}
- export ACE_ROOT
+ export ACE_ROOT=${ACE_DIRECTORY}
+ [ $? -ne 0 ] && echo "ERROR: failed to export ACE_ROOT environment variable (was: \"${ACE_DIRECTORY}\"), aborting" && exit 1
  echo "INFO: exported ACE_ROOT (as: \"${ACE_ROOT}\")"
 fi
 #echo "INFO: \$ACE_ROOT is: \"${ACE_ROOT}\")"
 
 # step1: apply patches
-PATCH_DIRECTORY=${PROJECT_DIRECTORY}/../libACEStream/3rd_party/ACE_wrappers/patches
-[ ! -d ${PATCH_DIRECTORY} ] && echo "ERROR: invalid ACE patch directory (was: \"${PATCH_DIRECTORY}\"), aborting" && exit 1
-#echo "DEBUG: ACE patch directory: \"${PATCH_DIRECTORY}\""
-cd ${ACE_DIRECTORY}
-for filename in ${PATCH_DIRECTORY}/*.patch; do
- echo "INFO: applying patch \"$(basename ${filename})\"..."
- patch -f -i$filename -p4 -s -u
- [ $? -gt 1 ] && echo "ERROR: failed to apply patch \"${filename}\", aborting" && exit 1
+PROJECTS="libCommon
+libACEStream
+libACENetwork"
+for PROJECT in $PROJECTS
+do
+ echo "INFO: processing project \"${PROJECT}\"..."
+ PATCH_DIRECTORY=${PROJECT_DIRECTORY}/../${PROJECT}/3rd_party/ACE_wrappers/patches
+ [ ! -d ${PATCH_DIRECTORY} ] && echo "ERROR: invalid directory (was: \"${PATCH_DIRECTORY}\"), aborting" && exit 1
+ cd ${ACE_DIRECTORY}
+ for filename in ${PATCH_DIRECTORY}/*.patch; do
+  echo "INFO: applying patch \"$(basename ${filename})\"..."
+  patch -f -i$filename -p4 -s -u
+  [ $? -gt 1 ] && echo "ERROR: failed to apply patch \"${filename}\", aborting" && exit 1
+ done
+ echo "INFO: processing project \"${PROJECT}\"...DONE"
 done
 
-# step2: generate Makefiles
-DEFAULT_ACE_BUILD_DIRECTORY=${ACE_DIRECTORY} # <-- win32
+# step2: verify build directories
+DEFAULT_ACE_BUILD_DIRECTORY=${ACE_DIRECTORY}
 case "${PLATFORM}" in
- win32)
-  ACE_BUILD_DIRECTORY=${DEFAULT_ACE_BUILD_DIRECTORY}
-  ;;
- linux|*)
-  ACE_BUILD_DIRECTORY=${DEFAULT_ACE_DIRECTORY}/build/${PLATFORM}
+ linux|solaris)
+  ACE_BUILD_ROOT_DIRECTORY==${ACE_DIRECTORY}/build
+  if [ ! -d ${ACE_BUILD_ROOT_DIRECTORY} ]
+  then
+   echo "DEBUG: ACE build root directory (was: \"${ACE_BUILD_ROOT_DIRECTORY}\") does not exist, creating"
+   mkdir ${ACE_BUILD_ROOT_DIRECTORY} >/dev/null 2>&1
+   [ $? -ne 0 ] && echo "ERROR: failed to create directory (was: \"${ACE_BUILD_ROOT_DIRECTORY}\"): $?, aborting" && exit 1
+  fi
+  ACE_BUILD_DIRECTORY=${ACE_BUILD_ROOT_DIRECTORY}/${PLATFORM}
   if [ ! -d ${ACE_BUILD_DIRECTORY} ]
   then
-   echo "WARNING: invalid ACE build directory (was: \"${ACE_BUILD_DIRECTORY}\"), falling back"
-   ACE_BUILD_DIRECTORY=${DEFAULT_ACE_DIRECTORY}
+   echo "DEBUG: ACE build directory (was: \"${ACE_BUILD_DIRECTORY}\") does not exist, creating and cloning source tree"
+   mkdir ${ACE_BUILD_DIRECTORY} >/dev/null 2>&1
+   [ $? -ne 0 ] && echo "ERROR: failed to create directory (was: \"${ACE_BUILD_DIRECTORY}\"): $?, aborting" && exit 1
+   CREATE_ACE_BUILD=${ACE_DIRECTORY}/bin/create_ace_build.pl
+   [ ! -x ${CREATE_ACE_BUILD} ] && echo "ERROR: invalid file (was: \"${CREATE_ACE_BUILD}\"): not executable, aborting" && exit 1
+   cd ${ACE_DIRECTORY}
+   perl ${CREATE_ACE_BUILD} -a -v ${PLATFORM}
+   [ $? -ne 0 ] && echo "ERROR: failed to \"${CREATE_ACE_BUILD}\": $?, aborting" && exit 1
   fi
+  ;;
+ *)
+  echo "unknown/invalid platform (was: "${PLATFORM}"), falling back"
+  ACE_BUILD_DIRECTORY=${DEFAULT_ACE_DIRECTORY}
   ;;
 esac
 #echo "ACE_BUILD_DIRECTORY: ${ACE_BUILD_DIRECTORY}"
-[ ! -d ${ACE_BUILD_DIRECTORY} ] && echo "ERROR: invalid ACE build directory (was: \"${ACE_BUILD_DIRECTORY}\"), aborting" && exit 1
+[ ! -d ${ACE_BUILD_DIRECTORY} ] && echo "ERROR: invalid directory (was: \"${ACE_BUILD_DIRECTORY}\"), aborting" && exit 1
 #echo "DEBUG: ACE build directory: \"${ACE_BUILD_DIRECTORY}\""
 
+# step3: generate Makefiles
 FEATURES_FILE_DIRECTORY=${PROJECT_DIRECTORY}/3rd_party/ACE_wrappers
-[ ! -d ${FEATURES_FILE_DIRECTORY} ] && echo "ERROR: invalid feature file directory (was: \"${FEATURES_FILE_DIRECTORY}\"), aborting" && exit 1
+[ ! -d ${FEATURES_FILE_DIRECTORY} ] && echo "ERROR: invalid directory (was: \"${FEATURES_FILE_DIRECTORY}\"), aborting" && exit 1
 LOCAL_FEATURES_FILE=${FEATURES_FILE_DIRECTORY}/local.features
-[ ! -r ${LOCAL_FEATURES_FILE} ] && echo "ERROR: invalid file (was: \"${LOCAL_FEATURES_FILE}\"), aborting" && exit 1
+[ ! -r ${LOCAL_FEATURES_FILE} ] && echo "ERROR: invalid file (was: \"${LOCAL_FEATURES_FILE}\"): not readable, aborting" && exit 1
 echo "INFO: feature file is: \"${LOCAL_FEATURES_FILE}\""
 
 ACE_MWC_FILE=${ACE_BUILD_DIRECTORY}/ACE.mwc
-[ ! -r ${ACE_MWC_FILE} ] && echo "ERROR: invalid mpc configuration file (was: \"${ACE_MWC_FILE}\"), aborting" && exit 1
+[ ! -r ${ACE_MWC_FILE} ] && echo "ERROR: invalid file (was: \"${ACE_MWC_FILE}\"): not readable, aborting" && exit 1
 
-MWC_PL=${ACE_BUILD_DIRECTORY}/bin/mwc.pl
-[ ! -x ${MWC_PL} ] && echo "ERROR: invalid mpc configuration script (was: \"${MWC_PL}\"), aborting" && exit 1
+MWC_PL=${ACE_DIRECTORY}/bin/mwc.pl
+[ ! -x ${MWC_PL} ] && echo "ERROR: invalid file (was: \"${MWC_PL}\"): not executable, aborting" && exit 1
 MWC_PL_OPTIONS=
 #if [ "${PLATFORM}" = "linux" ]
 #then
@@ -145,5 +170,10 @@ MWC_PL_OPTIONS=
 #fi
 cd ${ACE_BUILD_DIRECTORY}
 ${MWC_PL} -feature_file ${LOCAL_FEATURES_FILE} ${MWC_PL_OPTIONS} -type ${PROJECT_TYPE} ${ACE_MWC_FILE}
-[ $? -ne 0 ] && echo "ERROR: failed to mwc.pl \"${ACE_MWC_FILE}\", aborting" && exit 1
+[ $? -ne 0 ] && echo "ERROR: failed to mwc.pl \"${ACE_MWC_FILE}\": $?, aborting" && exit 1
 echo "processing ${ACE_MWC_FILE}...DONE"
+
+# step4: make
+MAKE_OPTIONS=-j4
+make ${MAKE_OPTIONS}
+[ $? -ne 0 ] && echo "ERROR: failed to make: $?, aborting" && exit 1

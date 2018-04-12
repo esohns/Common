@@ -41,13 +41,11 @@ class Common_Timer_Tools
   //static Common_ITimer* getTimerManager ();
 
   // --- strings ---
-  // *NOTE*: uses ::snprintf internally: "HH:MM:SS.usec"
-  static bool periodToString (const ACE_Time_Value&, // period
-                              std::string&);         // return value: corresp. string
-  // *NOTE*: uses ::snprintf internally: "YYYY-MM-DD HH:MM:SS.usec"
-  static bool timestampToString (const ACE_Time_Value&, // timestamp
-                                 bool,                  // UTC ? : localtime
-                                 std::string&);         // return value: corresp. string
+  // *NOTE*: uses ::snprintf(3): "HH:MM:SS.usec"
+  static std::string periodToString (const ACE_Time_Value&); // period
+  // *NOTE*: uses ::snprintf(3): "YYYY-MM-DD HH:MM:SS.usec"
+  static std::string timestampToString (const ACE_Time_Value&, // timestamp
+                                        bool);                 // UTC ? : localtime
 
   // --- timers ---
   static bool initializeTimers (const struct Common_TimerConfiguration&); // configuration

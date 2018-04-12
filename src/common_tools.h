@@ -100,6 +100,7 @@ class Common_Tools
   //         alternatives (e.g. see also: man popen() for Linux)
   // *TODO*: enhance the API to return the exit status
   static bool command (const std::string&, // command line
+                       int&,               // return value: exit status
                        std::string&);      // return value: stdout
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
