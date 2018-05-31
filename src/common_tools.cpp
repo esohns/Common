@@ -582,16 +582,17 @@ Common_Tools::setThreadName (const std::string& name_in,
   ACE_ASSERT (!name_in.empty ());
 
 #if (_WIN32_WINNT >= _WIN32_WINNT_WIN10)
-  HANDLE thread_handle =
-    (!threadId_in ? GetCurrentThread ()
-                  : reinterpret_cast<HANDLE> (threadId_in));
+  HANDLE handle_h =
+    (threadId_in ? reinterpret_cast<HANDLE> (threadId_in)
+                 : ::GetCurrentThread ());
   HRESULT result =
-    SetThreadDescription (thread_handle,
-                          ACE_TEXT_ALWAYS_WCHAR (name_in.c_str ()));
+    ::SetThreadDescription (handle_h,
+                            ACE_TEXT_ALWAYS_WCHAR (name_in.c_str ()));
   if (unlikely (FAILED (result)))
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to SetThreadDescription(): \"%s\", returning\n"),
-                ACE_TEXT (Common_Tools::errorToString (result).c_str ())));
+                ACE_TEXT ("failed to SetThreadDescription(%@): \"%s\", returning\n"),
+                handle_h,
+                ACE_TEXT (Common_Tools::errorToString (result, false).c_str ())));
 #else
 #if defined (DEBUG_DEBUGGER)
   // *NOTE*: code based on MSDN article (see:
@@ -609,21 +610,21 @@ Common_Tools::setThreadName (const std::string& name_in,
   THREADNAME_INFO info_s;
   info_s.dwType = 0x1000;
   info_s.szName = ACE_TEXT_ALWAYS_CHAR (name_in.c_str ());
-  info_s.dwThreadID = (!threadId_in ? -1 : threadId_in);
+  info_s.dwThreadID = (threadId_in ? threadId_in : -1);
   info_s.dwFlags = 0;
 #pragma warning (push)
 #pragma warning (disable: 6320 6322)
   __try {
-    RaiseException (MS_VC_EXCEPTION,
-                    0,
-                    sizeof (struct tagTHREADNAME_INFO) / sizeof (ULONG_PTR),
-                    (ULONG_PTR*)&info_s);
+    ::RaiseException (MS_VC_EXCEPTION,
+                      0,
+                      sizeof (struct tagTHREADNAME_INFO) / sizeof (ULONG_PTR),
+                      (ULONG_PTR*)&info_s);
   } __except (EXCEPTION_EXECUTE_HANDLER) {}
 #pragma warning (pop)
 #endif // DEBUG_DEBUGGER
 #endif // _WIN32_WINNT >= _WIN32_WINNT_WIN10
 }
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
 unsigned int
 Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
@@ -1230,7 +1231,7 @@ Common_Tools::commandLineToString (int argc_in,
   // initialize return value(s)
   std::string return_value;
 
-  for (unsigned int i = 0;
+  for (int i = 0;
        i < argc_in;
        ++i)
   {
@@ -1280,7 +1281,11 @@ Common_Tools::command (const std::string& commandLine_in,
   exitStatus_out = WEXITSTATUS (result);
 
   // sanity check(s)
-  ACE_ASSERT (Common_File_Tools::canRead (filename_string));
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  ACE_ASSERT (Common_File_Tools::canRead (filename_string, ACE_TEXT_ALWAYS_CHAR ("")));
+#else
+  ACE_ASSERT (Common_File_Tools::canRead (filename_string, static_cast<uid_t> (-1)));
+#endif // ACE_WIN32 || ACE_WIN64
 
   unsigned char* data_p = NULL;
   unsigned int file_size_i = 0;
@@ -3020,7 +3025,7 @@ spawn:
 #if defined (_DEBUG)
   buffer = converter.str ();
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("(%s): spawned %u dispatch thread(s) (group id was: %d):\n%s"),
+              ACE_TEXT ("(%s): spawned %u dispatch thread(s) (group id: %d):\n%s"),
               ACE_TEXT (COMMON_EVENT_THREAD_NAME),
               number_of_threads_i,
               group_id_i,

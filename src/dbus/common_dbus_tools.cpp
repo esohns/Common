@@ -118,7 +118,6 @@ continue_:
 #endif // SD_BUS_SUPPORT
   result = true;
 
-error:
   return result;
 }
 
@@ -546,8 +545,8 @@ Common_DBus_Tools::policyKitAuthorize (struct sd_bus* bus_in,
   struct sd_bus* bus_p = (bus_in ? bus_in : Common_DBus_Tools::bus);
   int result_2 = -1;
   sd_bus_error error_s = SD_BUS_ERROR_NULL;
-  struct sd_bus_message* message_p = NULL, *message_2 = NULL;
-  const char* string_p = NULL, *string_2 = NULL;
+  struct sd_bus_message* message_p = NULL;//, *message_2 = NULL;
+  const char* string_p = NULL;//, *string_2 = NULL;
 //  ACE_UINT32 pid_i = static_cast<ACE_UINT32> (ACE_OS::getpid ());
 //  ACE_UINT64 start_time_i = 0;
   ACE_UINT32 flags_i = (allowUserInteraction_in ? 1 : 0); // AllowUserInteraction
@@ -555,9 +554,9 @@ Common_DBus_Tools::policyKitAuthorize (struct sd_bus* bus_in,
 //  std::vector<std::pair<std::string, std::string> > details_a;
   bool reset_interactive_authorization = false;
   struct sd_bus_creds* credentials_p = NULL;
-  ACE_UINT64 augmented_credentials_u = 0;
-  uid_t sender_euid_u = 0, euid_u = ACE_OS::geteuid ();
-  int capability_i = CAP_SYS_ADMIN;
+//  ACE_UINT64 augmented_credentials_u = 0;
+//  uid_t sender_euid_u = 0, euid_u = ACE_OS::geteuid ();
+//  int capability_i = CAP_SYS_ADMIN;
   struct sd_bus_slot* slot_p = NULL;
   struct Common_DBus_PolicyKit_CheckAuthorizationCBData cb_data_s;
 #if defined (_DEBUG)

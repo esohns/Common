@@ -36,12 +36,12 @@ class Common_ReferenceCounterBase
  public:
   Common_ReferenceCounterBase (long); // initial count (no delete on 0)
   Common_ReferenceCounterBase (const Common_ReferenceCounterBase&);
-  inline virtual ~Common_ReferenceCounterBase () {};
+  inline virtual ~Common_ReferenceCounterBase () {}
 
   // implement Common_IReferenceCount
-  inline virtual unsigned int increase () { return static_cast<unsigned int> (inherited::increment ()); };
+  inline virtual unsigned int increase () { return static_cast<unsigned int> (inherited::increment ()); }
   virtual unsigned int decrease ();
-  inline virtual unsigned int count () const { return static_cast<unsigned int> (inherited::refcount_.value ()); };
+  inline virtual unsigned int count () const { return static_cast<unsigned int> (inherited::refcount_.value ()); }
   virtual void wait (unsigned int = 0) const;
 
   Common_ReferenceCounterBase& operator= (const Common_ReferenceCounterBase&);

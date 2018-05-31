@@ -28,6 +28,9 @@
 #include "common.h"
 #include "common_defines.h"
 #include "common_macros.h"
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "common_tools.h"
+#endif // ACE_WIN32 || ACE_WIN64
 
 #include "common_timer_handler.h"
 
@@ -131,11 +134,27 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
                     ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::activate(): \"%m\", returning\n")));
         return;
       } // end IF
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      HANDLE thread_handle_h =
+        ::OpenThread (THREAD_SET_LIMITED_INFORMATION, FALSE, thread_ids[0]);
+      if (!thread_handle_h)
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ::OpenThread(%d): \"%s\", returning\n"),
+                    thread_ids[0],
+                    ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+        return;
+      } // end IF
+      Common_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_NAME),
+                                   reinterpret_cast<DWORD> (thread_handle_h));
+      ::CloseHandle (thread_handle_h);
+#endif // ACE_WIN32 || ACE_WIN64
+#if defined (_DEBUG)
       ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("(%s): spawned dispatch thread (group: %d)\n"),
+                  ACE_TEXT ("(%s): spawned dispatch thread (group id: %d)\n"),
                   ACE_TEXT (COMMON_TIMER_THREAD_NAME),
                   inherited::grp_id_));
-
+#endif // _DEBUG
       break;
     }
     default:
@@ -916,7 +935,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Proactor::cancel_timer() (id was: %d): \"%m\", %s\n"),
                     timerId_in,
-                    (result == -1) ? ACE_TEXT ("aborting") : ACE_TEXT ("returning")));
+                    ((result == -1) ? ACE_TEXT ("aborting") : ACE_TEXT ("returning"))));
         return result;
       } // end IF
       break;
@@ -929,7 +948,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::cancel() (id was: %d): \"%m\", %s\n"),
                     timerId_in,
-                    (result == -1) ? ACE_TEXT ("aborting") : ACE_TEXT ("returning")));
+                    ((result == -1) ? ACE_TEXT ("aborting") : ACE_TEXT ("returning"))));
         return result;
       } // end IF
       break;
@@ -944,7 +963,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Reactor::cancel_timer() (id was: %d): \"%m\", %s\n"),
                     timerId_in,
-                    (result == -1) ? ACE_TEXT ("aborting") : ACE_TEXT ("returning")));
+                    ((result == -1) ? ACE_TEXT ("aborting") : ACE_TEXT ("returning"))));
         return result;
       } // end IF
       break;

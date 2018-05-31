@@ -136,11 +136,38 @@ set (file_EXE_SRCS
 #     targetver.h
      test_u.cpp)
 
-#cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
 set (EXECUTABLE file)
-add_executable (${EXECUTABLE}
-                EXCLUDE_FROM_ALL
-                ${file_EXE_SRCS})
+if (WIN32)
+generate_product_version (VERSION_FILES
+                          NAME ${EXECUTABLE}
+                          BUNDLE ${PROJECT_NAME}
+#                          ICON "${CMAKE_SOURCE_DIR}/product.ico"
+                          ICON "${CMAKE_CURRENT_SOURCE_DIR}/../../include/libcommon_icon.ico"
+                          VERSION_MAJOR ${VERSION_MAJOR}
+                          VERSION_MINOR ${VERSION_MINOR}
+                          VERSION_PATCH ${VERSION_MICRO}
+#                          VERSION_REVISION ${VERSION_DEVEL}
+                          VERSION_REVISION 0
+                          COMPANY_NAME ""
+#                          COMPANY_COPYRIGHT "${COMPANY_NAME} (C) Copyright ${CURRENT_YEAR}"
+                          COMPANY_COPYRIGHT ""
+                          COMMENTS ${PACKAGE_DESCRIPTION_SUMMARY}
+                          ORIGINAL_FILENAME ""
+                          INTERNAL_NAME ""
+                          FILE_DESCRIPTION ${PACKAGE_DESCRIPTION})
+endif (WIN32)
+
+#cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
+if (UNIX)
+ add_executable (${EXECUTABLE}
+                 EXCLUDE_FROM_ALL
+                 ${file_EXE_SRCS})
+elseif (WIN32)
+ add_executable (${EXECUTABLE}
+                 EXCLUDE_FROM_ALL
+                 ${file_EXE_SRCS}
+                 ${VERSION_FILES})
+endif ()
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_u")
 #cmake_policy (SET CMP0012 NEW)
 #if (WIN32 AND NOT BUILD_TEST_U)

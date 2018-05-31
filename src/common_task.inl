@@ -79,7 +79,7 @@ Common_Task_T<ACE_SYNCH_USE,
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   Common_Tools::setThreadName (inherited::threadName_,
-                               -1);
+                               0);
 #endif // ACE_WIN32 || ACE_WIN64
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
@@ -145,7 +145,7 @@ Common_Task_T<ACE_SYNCH_USE,
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t) leaving\n"),
               ACE_TEXT (inherited::threadName_.c_str ())));
-#endif
+#endif // _DEBUG
 
   return result;
 }

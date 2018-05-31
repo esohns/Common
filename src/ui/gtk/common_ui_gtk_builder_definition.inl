@@ -136,10 +136,10 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
     // step2: schedule UI initialization
 
     // sanity check(s)
-    ACE_ASSERT (state_->initializationHook);
+    ACE_ASSERT (state_->eventHooks.initHook);
 
-    guint event_source_id = g_idle_add (state_->initializationHook,
-                                        state_->userData);
+    guint event_source_id = g_idle_add (state_->eventHooks.initHook,
+                                        state_);
     if (unlikely (!event_source_id))
     {
       ACE_DEBUG ((LM_ERROR,
@@ -164,13 +164,13 @@ Common_UI_GtkBuilderDefinition_T<StateType>::finalize ()
   // schedule UI finalization
 
   // sanity check(s)
-  ACE_ASSERT (state_->finalizationHook);
+  ACE_ASSERT (state_->eventHooks.finiHook);
 
   ACE_Reverse_Lock<ACE_SYNCH_MUTEX> reverse_lock (state_->lock);
   guint event_source_id = 0;
   { ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, state_->lock);
-    event_source_id = g_idle_add (state_->finalizationHook,
-                                  state_->userData);
+    event_source_id = g_idle_add (state_->eventHooks.finiHook,
+                                  state_);
     if (unlikely (!event_source_id))
     { ACE_GUARD (ACE_Reverse_Lock<ACE_SYNCH_MUTEX>, aGuard_2, reverse_lock);
       ACE_DEBUG ((LM_ERROR,

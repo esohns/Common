@@ -147,7 +147,11 @@ do_work (enum Test_U_Common_File_ModeType mode_in,
     case TEST_U_COMMON_FILE_MODE_SIZE:
     {
       // sanity check(s)
-      ACE_ASSERT (Common_File_Tools::canRead (filePath_in));
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      ACE_ASSERT (Common_File_Tools::canRead (filePath_in, ACE_TEXT_ALWAYS_CHAR ("")));
+#else
+      ACE_ASSERT (Common_File_Tools::canRead (filePath_in, static_cast<uid_t> (-1)));
+#endif // ACE_WIN32 || ACE_WIN64
 
       unsigned char* data_p = NULL;
       unsigned int file_size_i = 0, file_size_2 = 0;
@@ -210,7 +214,12 @@ ACE_TMAIN (int argc_in,
     return EXIT_FAILURE;
   } // end IF
 
-  if ((mode_type_e == TEST_U_COMMON_FILE_MODE_SIZE) && !Common_File_Tools::canRead (file_path_string))
+  if ((mode_type_e == TEST_U_COMMON_FILE_MODE_SIZE) &&
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      !Common_File_Tools::canRead (file_path_string, ACE_TEXT_ALWAYS_CHAR ("")))
+#else
+      !Common_File_Tools::canRead (file_path_string, static_cast<uid_t> (-1)))
+#endif // ACE_WIN32 || ACE_WIN64
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("invalid arguments (was: \"%s\"), aborting\n"),
@@ -231,8 +240,7 @@ ACE_TMAIN (int argc_in,
   std::string working_time_string;
   ACE_Time_Value working_time;
   timer.elapsed_time (working_time);
-  Common_Timer_Tools::periodToString (working_time,
-                                      working_time_string);
+  working_time_string = Common_Timer_Tools::periodToString (working_time);
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("total working time (h:m:s.us): \"%s\"...\n"),
               ACE_TEXT (working_time_string.c_str ())));

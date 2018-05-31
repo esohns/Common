@@ -103,14 +103,14 @@ struct Common_ParserConfiguration
 struct Common_SignalHandlerConfiguration
 {
   Common_SignalHandlerConfiguration ()
-   : dispatch (COMMON_EVENT_DEFAULT_DISPATCH)
+   : dispatchState (NULL)
    , hasUI (false)
    , lock ()
   {}
 
-  enum Common_EventDispatchType dispatch;
-  bool                          hasUI;
-  ACE_SYNCH_RECURSIVE_MUTEX     lock;
+  struct Common_EventDispatchState* dispatchState;
+  bool                              hasUI;
+  ACE_SYNCH_RECURSIVE_MUTEX         lock;
 };
 
 #endif

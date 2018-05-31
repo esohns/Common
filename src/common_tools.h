@@ -68,7 +68,7 @@ class Common_Tools
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   //// *WARNING*: limited to 9 characters
   static void setThreadName (const std::string&, // thread name
-                             DWORD = 0);         // thread id (0: current)
+                             DWORD = 0);         // thread id (0: caller)
 #endif // ACE_WIN32 || ACE_WIN64
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else

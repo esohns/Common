@@ -55,8 +55,10 @@
 #include "common_ui_gtk_tools.h"
 #include "common_ui_igtk.h"
 
-template <typename StateType>
-Common_UI_GTK_Manager_T<StateType>::Common_UI_GTK_Manager_T ()
+template <ACE_SYNCH_DECL,
+          typename StateType>
+Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
+                        StateType>::Common_UI_GTK_Manager_T ()
  : inherited (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_EVENT_THREAD_NAME), // thread name
               COMMON_UI_EVENT_THREAD_GROUP_ID,                    // group id
               1,                                                  // # threads
@@ -65,9 +67,6 @@ Common_UI_GTK_Manager_T<StateType>::Common_UI_GTK_Manager_T ()
  , argv_ (NULL)
  , GTKIsInitialized_ (false)
  , isInitialized_ (false)
-//#if defined (GTKGL_SUPPORT)
-// , openGLContext_ (NULL)
-//#endif
  , state_ (NULL)
  , UIInterfaceHandle_ (NULL)
 {
@@ -75,9 +74,11 @@ Common_UI_GTK_Manager_T<StateType>::Common_UI_GTK_Manager_T ()
 
 }
 
-template <typename StateType>
+template <ACE_SYNCH_DECL,
+          typename StateType>
 bool
-Common_UI_GTK_Manager_T<StateType>::initialize (int argc_in,
+Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
+                        StateType>::initialize (int argc_in,
                                                 ACE_TCHAR** argv_in,
                                                 StateType* state_in,
                                                 UI_INTERFACE_T* interfaceHandle_in)
@@ -106,9 +107,11 @@ Common_UI_GTK_Manager_T<StateType>::initialize (int argc_in,
   return true;
 }
 
-template <typename StateType>
+template <ACE_SYNCH_DECL,
+          typename StateType>
 void
-Common_UI_GTK_Manager_T<StateType>::start ()
+Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
+                        StateType>::start ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::start"));
 
@@ -118,9 +121,11 @@ Common_UI_GTK_Manager_T<StateType>::start ()
                 ACE_TEXT ("failed to Common_TaskBase_T::open(NULL): \"%m\", continuing\n")));
 }
 
-template <typename StateType>
+template <ACE_SYNCH_DECL,
+          typename StateType>
 void
-Common_UI_GTK_Manager_T<StateType>::stop (bool waitForCompletion_in,
+Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
+                        StateType>::stop (bool waitForCompletion_in,
                                           bool lockedAccess_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::stop"));
@@ -136,9 +141,11 @@ Common_UI_GTK_Manager_T<StateType>::stop (bool waitForCompletion_in,
     inherited::wait ();
 }
 
-template <typename StateType>
+template <ACE_SYNCH_DECL,
+          typename StateType>
 int
-Common_UI_GTK_Manager_T<StateType>::close (u_long arg_in)
+Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
+                        StateType>::close (u_long arg_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::close"));
 
@@ -194,20 +201,30 @@ Common_UI_GTK_Manager_T<StateType>::close (u_long arg_in)
   return 0;
 }
 
-template <typename StateType>
+template <ACE_SYNCH_DECL,
+          typename StateType>
 int
-Common_UI_GTK_Manager_T<StateType>::svc (void)
+Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
+                        StateType>::svc (void)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::svc"));
 
-//  ACE_DEBUG ((LM_DEBUG,
-//              ACE_TEXT ("(%t) GTK event dispatch starting\n")));
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  Common_Tools::setThreadName (inherited::threadName_,
+                               0);
+#endif // ACE_WIN32 || ACE_WIN64
+#if defined (_DEBUG)
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("(%s): worker thread (id: %t, group: %d) starting\n"),
+              ACE_TEXT (inherited::threadName_.c_str ()),
+              inherited::grp_id_));
+#endif // _DEBUG
 
   int result = 0;
   bool leave_gdk_threads = false;
 #if defined (GTKGL_SUPPORT)
 //  GError* error_p = NULL;
-#endif
+#endif // GTKGL_SUPPORT
 
   // step0: initialize GTK
   if (unlikely (!GTKIsInitialized_))
@@ -317,8 +334,8 @@ Common_UI_GTK_Manager_T<StateType>::svc (void)
 #if GTK_CHECK_VERSION (3,0,0)
 #else
 continue_:
-#endif
-#endif
+#endif // GTK_CHECK_VERSION (3,0,0)
+#endif // GTKGL_SUPPORT
   if (likely (g_thread_get_initialized ()))
   {
     gdk_threads_enter ();
@@ -331,15 +348,20 @@ continue_:
   // stop() (close() --> gtk_main_quit ()) was called...
 
 done:
+#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("(%t) leaving GTK event dispatch\n")));
+              ACE_TEXT ("(%s): worker thread (id: %t) leaving\n"),
+              ACE_TEXT (inherited::threadName_.c_str ())));
+#endif // _DEBUG
 
   return result;
 }
 
-template <typename StateType>
+template <ACE_SYNCH_DECL,
+          typename StateType>
 bool
-Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
+Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
+                        StateType>::initializeGTK ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::initializeGTK"));
 
@@ -482,8 +504,8 @@ Common_UI_GTK_Manager_T<StateType>::initializeGTK ()
 #if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("#%u: added GTK .rc style file \"%s\"\n"),
-                i, ACE::basename ((*iterator).c_str (), '/')));
-#endif
+                i, ACE::basename ((*iterator).c_str (), ACE_DIRECTORY_SEPARATOR_CHAR)));
+#endif // _DEBUG
   } // end FOR
 
 #if GTK_CHECK_VERSION (3,0,0)

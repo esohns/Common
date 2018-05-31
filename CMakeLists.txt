@@ -220,15 +220,20 @@ install (FILES "${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_config.h"
 
 ################################################################################
 
-list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules")
+list (APPEND CMAKE_MODULE_PATH
+      "${CMAKE_CURRENT_SOURCE_DIR}/../cmake-modules"
+      "${CMAKE_CURRENT_SOURCE_DIR}/../CMakeHelpers")
 include (UseBackportedModules)
 cmake_policy (SET CMP0026 OLD)
 cmake_policy (SET CMP0053 OLD)
 include (CreateLaunchers)
+if (WIN32)
+include (generate_product_version)
+endif (WIN32)
 
 # enable (unit/integration) tests
 #include (CTest)
-enable_testing ()
+#enable_testing ()
 
 ################################################################################
 

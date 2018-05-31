@@ -86,7 +86,7 @@ typedef std::pair<std::string, struct _GladeXML*> Common_UI_GladeXML_t;
 typedef std::map<std::string, Common_UI_GladeXML_t> Common_UI_GladeXMLs_t;
 typedef Common_UI_GladeXMLs_t::iterator Common_UI_GladeXMLsIterator_t;
 typedef Common_UI_GladeXMLs_t::const_iterator Common_UI_GladeXMLsConstIterator_t;
-#endif
+#endif // LIBGLADE_SUPPORT
 
 struct Common_UI_GTK_EventHookConfiguration
 {
@@ -96,7 +96,7 @@ struct Common_UI_GTK_EventHookConfiguration
    , initHook (NULL)
    , finiHook (NULL)
    , statisticHook (NULL)
-  {};
+  {}
 
   GSourceFunc dataHook;
   GSourceFunc eventHook;
@@ -120,15 +120,13 @@ struct Common_UI_GTK_State
 //, cursor (NULL)
    , eventHooks ()
    , eventSourceIds ()
-   , finalizationHook ()
 #if defined (LIBGLADE_SUPPORT)
    , gladeXML ()
 #endif
-   , initializationHook ()
    , RCFiles ()
    ///////////////////////////////////////
    , userData (NULL)
-  {};
+  {}
 
   int                                         argc;
   ACE_TCHAR**                                 argv;
@@ -140,11 +138,9 @@ struct Common_UI_GTK_State
 #endif
   struct Common_UI_GTK_EventHookConfiguration eventHooks;
   Common_UI_GTK_EventSourceIds_t              eventSourceIds;
-  GSourceFunc                                 finalizationHook;
 #if defined (LIBGLADE_SUPPORT)
   Common_UI_GladeXMLs_t                       gladeXML;
 #endif
-  GSourceFunc                                 initializationHook;
   Common_UI_GTK_RCFiles_t                     RCFiles;
 
   ////////////////////////////////////////
@@ -169,7 +165,7 @@ struct Common_UI_GTK_ProgressData
    , eventSourceId (0)
    , pendingActions ()
    , state (NULL)
-  {};
+  {}
 
   Common_UI_GTK_CompletedActions_t completedActions;
 //  GdkCursorType                      cursorType;

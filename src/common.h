@@ -26,6 +26,10 @@
 #include <string>
 #include <vector>
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include <guiddef.h>
+#endif // ACE_WIN32 || ACE_WIN64
+
 #include "ace/config-lite.h"
 #include "ace/Global_Macros.h"
 #include "ace/OS_NS_signal.h"
@@ -38,6 +42,10 @@
 #include "common_itaskcontrol.h"
 
 // *** platform ***
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+typedef std::vector<struct _GUID> Common_Identifiers_t;
+typedef Common_Identifiers_t::iterator Common_IdentifiersIterator_t;
+#endif // ACE_WIN32 || ACE_WIN64
 
 enum Common_OperatingSystemType
 {
@@ -82,7 +90,7 @@ struct Common_Signal
   , siginfo ()
   , ucontext ()
 #endif // ACE_WIN32 || ACE_WIN64
-  {};
+  {}
 
   int              signal;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -109,7 +117,8 @@ typedef Common_UserGroups_t::const_iterator Common_UserGroupsIterator_t;
 // *** (ACE) event dispatch ***
 enum Common_EventDispatchType
 {
-  COMMON_EVENT_DISPATCH_PROACTOR = 0,
+  COMMON_EVENT_DISPATCH_NONE = 0,
+  COMMON_EVENT_DISPATCH_PROACTOR,
   COMMON_EVENT_DISPATCH_REACTOR,
   ///////////////////////////////////////
   COMMON_EVENT_DISPATCH_INVALID,
@@ -163,7 +172,7 @@ struct Common_EventDispatchState
    : configuration (NULL)
    , proactorGroupId (-1)
    , reactorGroupId (-1)
-  {};
+  {}
 
   struct Common_EventDispatchConfiguration* configuration;
   int                                       proactorGroupId;
@@ -176,7 +185,7 @@ struct Common_ScannerState
 {
   Common_ScannerState ()
    : offset (0)
-  {};
+  {}
 
   unsigned int offset;
 };

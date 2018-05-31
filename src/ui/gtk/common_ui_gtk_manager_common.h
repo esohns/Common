@@ -28,13 +28,8 @@
 #include "common_ui_gtk_common.h"
 #include "common_ui_gtk_manager.h"
 
-// *IMPORTANT NOTE*: these type definitions are instantiated in
-//                   common_ui_gtk_manager.cpp
-//#if defined (GTKGL_SUPPORT)
-//typedef ACE_Singleton<Common_UI_GTK_Manager_T<struct Common_UI_GTKGLState>,
-//                      typename ACE_MT_SYNCH::RECURSIVE_MUTEX> COMMON_UI_GTKGL_MANAGER_SINGLETON;
-//#endif
-typedef ACE_Singleton<Common_UI_GTK_Manager_T<struct Common_UI_GTK_State>,
-                      ACE_MT_SYNCH::RECURSIVE_MUTEX> COMMON_UI_GTK_MANAGER_SINGLETON;
+typedef ACE_Singleton<Common_UI_GTK_Manager_T<ACE_MT_SYNCH,
+                                              struct Common_UI_GTK_State>,
+                      ACE_MT_SYNCH::MUTEX> COMMON_UI_GTK_MANAGER_SINGLETON;
 
 #endif

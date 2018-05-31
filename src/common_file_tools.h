@@ -51,13 +51,21 @@ class Common_File_Tools
   static bool exists (const std::string&); // (FQ) path
 
   static bool access (const std::string&, // (FQ) path
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                      DWORD,              // (combination of) generic (!) access right(s)
+                      PSID = NULL);       // user SID {NULL: 'current' user}
+#else
                       ACE_UINT32);        // mask to check against 'st_mode'
                                           // field of 'struct stat' (see: man
                                           // stat(2))
+#endif // ACE_WIN32 || ACE_WIN64
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   static bool protection (const std::string&, // (FQ) path
                           ACE_UINT32);        // mask to check against 'st_mode'
                                               // field of 'struct stat' (see: man
-                                          // stat(2))
+                                              // stat(2))
+#endif // ACE_WIN32 || ACE_WIN64
   static bool type (const std::string&, // (FQ) path
                     ACE_UINT32);        // mask to check against 'st_mode'
                                         // field of 'struct stat' (see: man
@@ -71,8 +79,21 @@ class Common_File_Tools
   static bool isWriteable (const std::string&); // (FQ) path
   static bool isExecutable (const std::string&); // (FQ) path
 
+  // *NOTE*: on Win32 systems, the uid_t passed in currently has:
+  //         - SECURITY_LOCAL_SID_AUTHORITY (which in turn means that the
+  //           verification (most probably) applies to 'local user's only)
+  //         - SECURITY_INTERACTIVE_RID (which in turn means that the
+  //           verification (most probably) applies to 'real person' users only)
+  // *TODO*: (on point one) consider using SECURITY_WORLD_SID_AUTHORITY instead,
+  //         or passing in the authority setting altogether
+  // *TODO*: (on point two) consider using SECURITY_AUTHENTICATED_USER_RID
+  //         instead
   static bool canRead (const std::string&,               // (FQ) path
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                       const std::string&);              // (FQ) account name {"": current user}
+#else
                        uid_t = static_cast<uid_t> (-1)); // uid {-1: euid}
+#endif
   static bool canWrite (const std::string&,               // (FQ) path
                         uid_t = static_cast<uid_t> (-1)); // uid {-1: euid}
   static bool canExecute (const std::string&,               // (FQ) path

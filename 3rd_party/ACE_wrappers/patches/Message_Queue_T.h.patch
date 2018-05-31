@@ -1,5 +1,5 @@
---- /mnt/win_d/projects/ATCD/ACE/ace/Message_Queue_T.h	2018-04-07 15:21:13.339871900 +0000
-+++ /home/erik/Documents/Message_Queue_T.h	2018-04-07 15:20:53.262814764 +0000
+--- D:/projects/ATCD/ACE/ace/Message_Queue_T.h	2018-04-07 15:21:13.339871900 +0000
++++ C:/Users/Erik/Desktop/Message_Queue_T.h	2018-04-07 15:20:53.262814764 +0000
 @@ -670,12 +670,13 @@
    /// Declare the dynamic allocation hooks.
    ACE_ALLOC_HOOK_DECLARE;

@@ -36,8 +36,8 @@ static const char default_statemachine_name_string_[] =
 
 template <const char* StateMachineName, // *TODO*: use a variadic character array
           ACE_SYNCH_DECL,
-          typename StateType,     // implements enum
-          typename InterfaceType> // implements Common_IStateMachine_T<StateType>
+          typename StateType,           // implements enum
+          typename InterfaceType>       // implements Common_IStateMachine_T<StateType>
 class Common_StateMachine_Base_T
  : virtual public InterfaceType
  , public Common_IInitialize_T<ACE_SYNCH_MUTEX_T>

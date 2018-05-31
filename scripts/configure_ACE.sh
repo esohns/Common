@@ -2,7 +2,7 @@
 # author:      Erik Sohns <eriksohns@123mail.org>
 # this script compiles the ACE framework on UNIX platforms
 # *NOTE*: it is neither portable nor particularly stable !
-# parameters: - platform [linux|solaris] {linux}
+# parameters: - platform [linux|solaris|win32] {linux}
 #             - mwc.pl '-type' parameter {gnuace}
 # return value: - 0 success, 1 failure
 
@@ -23,7 +23,7 @@ else
  # parse any arguments
  if [ $# -ge 1 ]
  then
-  if [ "$1" != "linux" -a "$1" != "solaris" ]
+  if [ "$1" != "linux" -a "$1" != "solaris" -a "$1" != "win32" ]
   then
    echo "invalid argument (was: "$1"), aborting"; exit 1;
   fi
@@ -39,6 +39,9 @@ then
  case "${PLATFORM}" in
   linux|solaris)
 #   PROJECT_TYPE="gnuace"
+   ;;
+  win32)
+   PROJECT_TYPE="vc15"
    ;;
   *)
    echo "invalid platform (was: "${PLATFORM}"), aborting"; exit 1;
@@ -119,16 +122,15 @@ do
 done
 
 # step2: verify build directories
-DEFAULT_ACE_BUILD_DIRECTORY=${ACE_DIRECTORY}
+ACE_BUILD_ROOT_DIRECTORY=${ACE_DIRECTORY}/build
+if [ ! -d ${ACE_BUILD_ROOT_DIRECTORY} ]
+then
+ echo "DEBUG: ACE build root directory (was: \"${ACE_BUILD_ROOT_DIRECTORY}\") does not exist, creating"
+ mkdir ${ACE_BUILD_ROOT_DIRECTORY} >/dev/null 2>&1
+ [ $? -ne 0 ] && echo "ERROR: failed to create directory (was: \"${ACE_BUILD_ROOT_DIRECTORY}\"): $?, aborting" && exit 1
+fi
 case "${PLATFORM}" in
  linux|solaris)
-  ACE_BUILD_ROOT_DIRECTORY==${ACE_DIRECTORY}/build
-  if [ ! -d ${ACE_BUILD_ROOT_DIRECTORY} ]
-  then
-   echo "DEBUG: ACE build root directory (was: \"${ACE_BUILD_ROOT_DIRECTORY}\") does not exist, creating"
-   mkdir ${ACE_BUILD_ROOT_DIRECTORY} >/dev/null 2>&1
-   [ $? -ne 0 ] && echo "ERROR: failed to create directory (was: \"${ACE_BUILD_ROOT_DIRECTORY}\"): $?, aborting" && exit 1
-  fi
   ACE_BUILD_DIRECTORY=${ACE_BUILD_ROOT_DIRECTORY}/${PLATFORM}
   if [ ! -d ${ACE_BUILD_DIRECTORY} ]
   then
@@ -142,9 +144,12 @@ case "${PLATFORM}" in
    [ $? -ne 0 ] && echo "ERROR: failed to \"${CREATE_ACE_BUILD}\": $?, aborting" && exit 1
   fi
   ;;
+ win32)
+  ACE_BUILD_DIRECTORY=${ACE_DIRECTORY}
+  ;;
  *)
   echo "unknown/invalid platform (was: "${PLATFORM}"), falling back"
-  ACE_BUILD_DIRECTORY=${DEFAULT_ACE_DIRECTORY}
+  ACE_BUILD_DIRECTORY=${ACE_DIRECTORY}
   ;;
 esac
 #echo "ACE_BUILD_DIRECTORY: ${ACE_BUILD_DIRECTORY}"

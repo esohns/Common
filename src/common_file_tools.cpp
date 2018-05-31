@@ -19,6 +19,8 @@
  ***************************************************************************/
 #include "stdafx.h"
 
+#include <filesystem>
+
 #include "ace/Synch.h"
 #include "common_file_tools.h"
 
@@ -109,10 +111,160 @@ Common_File_Tools::exists (const std::string& path_in)
 
 bool
 Common_File_Tools::access (const std::string& path_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                           DWORD accessRights_in,
+                           PSID SID_in)
+#else
                            ACE_UINT32 mask_in)
+#endif // ACE_WIN32 || ACE_WIN64
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::access"));
 
+  bool result = false;
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  SECURITY_INFORMATION security_information_i = (OWNER_SECURITY_INFORMATION |
+                                                 GROUP_SECURITY_INFORMATION |
+                                                 DACL_SECURITY_INFORMATION);
+  PSECURITY_DESCRIPTOR security_descriptor_p = NULL;
+  DWORD length_needed_i = 0;
+  DWORD desired_access_i = (TOKEN_IMPERSONATE |
+                            TOKEN_QUERY       |
+                            TOKEN_DUPLICATE   |
+                            STANDARD_RIGHTS_READ);
+  HANDLE token_h = ACE_INVALID_HANDLE, token_2 = ACE_INVALID_HANDLE;
+  struct _GENERIC_MAPPING generic_mapping_s;
+  struct _PRIVILEGE_SET privilege_set_s;
+  DWORD granted_access_i = 0, length_i = sizeof (struct _PRIVILEGE_SET);
+  BOOL result_2 = FALSE;
+
+  if (unlikely (!::GetFileSecurity (path_in.c_str (),
+                                    security_information_i,
+                                    security_descriptor_p,
+                                    0,
+                                    &length_needed_i)))
+  {
+    DWORD error_i = ::GetLastError ();
+    if (unlikely (error_i != ERROR_INSUFFICIENT_BUFFER))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to GetFileSecurity(\"%s\"): \"%s\", aborting\n"),
+                  ACE_TEXT (path_in.c_str ()),
+                  ACE_TEXT (Common_Tools::errorToString (error_i, false).c_str ())));
+      return false; // *TODO*: avoid false negatives
+    } // end IF
+  } // end IF
+  ACE_ASSERT (length_needed_i);
+  security_descriptor_p = ::LocalAlloc (LMEM_FIXED | LMEM_ZEROINIT,
+                                        length_needed_i);
+  if (unlikely (!security_descriptor_p))
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to LocalAlloc(%d): \"%s\", aborting\n"),
+                length_needed_i,
+                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+    return false; // *TODO*: avoid false negatives
+  } // end IF
+  if (unlikely (!::GetFileSecurity (path_in.c_str (),
+                                    security_information_i,
+                                    security_descriptor_p,
+                                    length_needed_i,
+                                    &length_needed_i)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to GetFileSecurity(\"%s\"): \"%s\", aborting\n"),
+                ACE_TEXT (path_in.c_str ()),
+                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+    goto clean;
+  } // end IF
+
+  if (unlikely (!::OpenProcessToken (::GetCurrentProcess (),
+                                     desired_access_i,
+                                     &token_h)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to OpenProcessToken(%d): \"%s\", aborting\n"),
+                desired_access_i,
+                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+    goto clean;
+  } // end IF
+  ACE_ASSERT (token_h != ACE_INVALID_HANDLE);
+  if (unlikely (SID_in))
+  {
+    ACE_ASSERT (::IsValidSid (SID_in));
+    struct _TOKEN_USER token_user_s;
+    ACE_OS::memset (&token_user_s, 0, sizeof (struct _TOKEN_USER));
+    token_user_s.User.Sid = SID_in;
+    if (unlikely (!::SetTokenInformation (token_h,
+                                          TokenUser,
+                                          &token_user_s,
+                                          sizeof (struct _TOKEN_USER))))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to SetTokenInformation(%@): \"%s\", aborting\n"),
+                  token_h,
+                  ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+      goto clean;
+    } // end IF
+  } // end IF
+  if (unlikely (!::DuplicateToken (token_h,
+                                   SecurityImpersonation,
+                                   &token_2)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to DuplicateToken(%@,%d): \"%s\", aborting\n"),
+                token_h,
+                SecurityImpersonation,
+                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+    goto clean;
+  } // end IF
+  ACE_ASSERT (token_2 != ACE_INVALID_HANDLE);
+  ACE_OS::memset (&generic_mapping_s, 0, sizeof (struct _GENERIC_MAPPING));
+  generic_mapping_s.GenericRead = FILE_GENERIC_READ;
+  generic_mapping_s.GenericWrite = FILE_GENERIC_WRITE;
+  generic_mapping_s.GenericExecute = FILE_GENERIC_EXECUTE;
+  generic_mapping_s.GenericAll = FILE_ALL_ACCESS;
+  ::MapGenericMask (&accessRights_in, &generic_mapping_s);
+  ACE_OS::memset (&privilege_set_s, 0, sizeof (struct _PRIVILEGE_SET));
+  if (unlikely (!::AccessCheck (security_descriptor_p,
+                                token_2,
+                                accessRights_in,
+                                &generic_mapping_s,
+                                &privilege_set_s,
+                                &length_i,
+                                &granted_access_i,
+                                &result_2)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to AccessCheck(\"%s\"): \"%s\", aborting\n"),
+                ACE_TEXT (path_in.c_str ()),
+                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+    goto clean;
+  } // end IF
+  result = (result_2 == TRUE);
+
+clean:
+  if (likely (token_2 != ACE_INVALID_HANDLE))
+    if (unlikely (!CloseHandle (token_2)))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to CloseHandle(%@): \"%s\", continuing\n"),
+                  token_2,
+                  ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+  if (likely (token_h != ACE_INVALID_HANDLE))
+    if (unlikely (!CloseHandle (token_h)))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to CloseHandle(%@): \"%s\", continuing\n"),
+                  token_h,
+                  ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+  if (likely (security_descriptor_p))
+  {
+    if (unlikely (LocalFree (security_descriptor_p)))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to LocalFree(%@): \"%s\", continuing\n"),
+                  security_descriptor_p,
+                  ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+  } // end IF
+#else
   ACE_UINT32 mask_i = (mask_in & ACCESSPERMS);
   // sanity check(s)
   if (unlikely (!mask_i))
@@ -136,9 +288,13 @@ Common_File_Tools::access (const std::string& path_in,
                 ACE_TEXT (path_in.c_str ())));
     return false; // *TODO*: avoid false negatives
   } // end IF
+  result = stat_s.st_mode & mask_i;
+#endif // ACE_WIN32 || ACE_WIN64
 
-  return (stat_s.st_mode & mask_i);
+  return result;
 }
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
 bool
 Common_File_Tools::protection (const std::string& path_in,
                                ACE_UINT32 mask_in)
@@ -171,6 +327,7 @@ Common_File_Tools::protection (const std::string& path_in,
 
   return (stat_s.st_mode & mask_i);
 }
+#endif // ACE_WIN32 || ACE_WIN64
 bool
 Common_File_Tools::type (const std::string& path_in,
                          ACE_UINT32 mask_in)
@@ -209,11 +366,19 @@ Common_File_Tools::isReadable (const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isReadable"));
 
-  ACE_UINT32 mask_i = S_IFDIR|S_IFREG|S_IFLNK;
+  ACE_UINT32 mask_i = S_IFDIR | S_IFREG | S_IFLNK;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   ACE_UINT32 mask_2 = S_IRUSR|S_IRGRP|S_IROTH;
+#endif // ACE_WIN32 || ACE_WIN64
+
   return (Common_File_Tools::exists (path_in)       &&  // has a file system entry
           Common_File_Tools::type (path_in, mask_i) &&  // is a regular file system entry
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+          Common_File_Tools::access (path_in, GENERIC_READ));
+#else
           Common_File_Tools::access (path_in, mask_2)); // any of owner,group,other has/have read access
+#endif // ACE_WIN32 || ACE_WIN64
 }
 bool
 Common_File_Tools::isWriteable (const std::string& path_in)
@@ -221,10 +386,18 @@ Common_File_Tools::isWriteable (const std::string& path_in)
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isWriteable"));
 
   ACE_UINT32 mask_i = S_IFDIR|S_IFREG|S_IFLNK;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   ACE_UINT32 mask_2 = S_IWUSR|S_IWGRP|S_IWOTH;
+#endif // ACE_WIN32 || ACE_WIN64
+
   return (Common_File_Tools::exists (path_in)       &&  // has a file system entry
           Common_File_Tools::type (path_in, mask_i) &&  // is a regular file system entry
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+          Common_File_Tools::access (path_in, GENERIC_WRITE));
+#else
           Common_File_Tools::access (path_in, mask_2)); // any of owner,group,other has/have write access
+#endif // ACE_WIN32 || ACE_WIN64
 }
 bool
 Common_File_Tools::isExecutable (const std::string& path_in)
@@ -232,15 +405,27 @@ Common_File_Tools::isExecutable (const std::string& path_in)
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isExecutable"));
 
   ACE_UINT32 mask_i = S_IFREG|S_IFLNK;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   ACE_UINT32 mask_2 = S_IXUSR|S_IXGRP|S_IXOTH;
+#endif // ACE_WIN32 || ACE_WIN64
+
   return (Common_File_Tools::exists (path_in)       &&  // has a file system entry
           Common_File_Tools::type (path_in, mask_i) &&  // is a regular file or link
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+          Common_File_Tools::access (path_in, GENERIC_EXECUTE));
+#else
           Common_File_Tools::access (path_in, mask_2)); // any of owner,group,other has/have execute access
+#endif // ACE_WIN32 || ACE_WIN64
 }
 
 bool
 Common_File_Tools::canRead (const std::string& path_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                            const std::string& accountName_in)
+#else
                             uid_t userId_in)
+#endif // ACE_WIN32 || ACE_WIN64
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::canRead"));
 
@@ -248,14 +433,170 @@ Common_File_Tools::canRead (const std::string& path_in,
   if (!Common_File_Tools::isReadable (path_in))
     return false;
 
-  int result = -1;
+  bool result = false;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  if (likely (accountName_in.empty ()))
+    return true; // *NOTE*: Common_File_Tools::isReadable() verifies access
+                 //         rights for the current process
+
+  // step1: check whether accountName_in is the 'current' user
+  DWORD desired_access_i = (TOKEN_IMPERSONATE   |
+                            TOKEN_QUERY         |
+                            TOKEN_DUPLICATE     |
+                            STANDARD_RIGHTS_READ);
+  HANDLE token_h = ACE_INVALID_HANDLE;
+  if (unlikely (!::OpenProcessToken (::GetCurrentProcess (),
+                                     desired_access_i,
+                                     &token_h)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to OpenProcessToken(%d): \"%s\", aborting\n"),
+                desired_access_i,
+                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+    return false; // *TODO*: avoid false negatives
+  } // end IF
+  ACE_ASSERT (token_h != ACE_INVALID_HANDLE);
+
+  struct _TOKEN_USER* token_user_p = NULL;
+  DWORD buffer_size_i = 0;
+  struct _SID_IDENTIFIER_AUTHORITY sid_identifier_authority_s =
+    SECURITY_LOCAL_SID_AUTHORITY;
+  PSID SID_p = NULL;
+  if (unlikely (!::GetTokenInformation (token_h,
+                                        TokenUser,
+                                        token_user_p,
+                                        0,
+                                        &buffer_size_i)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to GetTokenInformation(%@,%d): \"%s\", aborting\n"),
+                token_h,
+                TokenUser,
+                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+    goto clean; // *TODO*: avoid false negatives
+  } // end IF
+  ACE_ASSERT (buffer_size_i);
+  token_user_p = (struct _TOKEN_USER*)HeapAlloc (GetProcessHeap (),
+                                                 HEAP_ZERO_MEMORY,
+                                                 buffer_size_i);
+  if (unlikely (!token_user_p))
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to allocate memory (%d byte(s)), aborting\n"),
+                buffer_size_i));
+    goto clean; // *TODO*: avoid false negatives
+  } // end IF
+  if (unlikely (!::GetTokenInformation (token_h,
+                                        TokenUser,
+                                        token_user_p,
+                                        buffer_size_i,
+                                        &buffer_size_i)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to GetTokenInformation(%@,%d): \"%s\", aborting\n"),
+                token_h,
+                TokenUser,
+                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+    goto clean; // *TODO*: avoid false negatives
+  } // end IF
+
+  if (unlikely (!AllocateAndInitializeSid (&sid_identifier_authority_s,
+                                           1,
+                                           SECURITY_INTERACTIVE_RID,
+                                           0, 0, 0, 0, 0, 0, 0,
+                                           &SID_p)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to AllocateAndInitializeSid(SECURITY_LOCAL_SID_AUTHORITY,%d): \"%s\", aborting\n"),
+                SECURITY_INTERACTIVE_RID,
+                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+    goto clean; // *TODO*: avoid false negatives
+  } // end IF
+  ACE_ASSERT (SID_p);
+  ACE_ASSERT (::IsValidSid (SID_p));
+  DWORD SID_size_i = ::GetLengthSid (SID_p);
+  ACE_ASSERT (SID_size_i);
+#if defined (UNICODE)
+#if defined (ACE_USES_WCHAR)
+  ACE_TCHAR referenced_domain_name_a[BUFSIZ];
+#else
+  ACE_ANTI_TCHAR referenced_domain_name_a[BUFSIZ];
+#endif // ACE_USES_WCHAR
+#else
+#if defined (ACE_USES_WCHAR)
+  ACE_ANTI_TCHAR referenced_domain_name_a[BUFSIZ];
+#else
+  ACE_TCHAR referenced_domain_name_a[BUFSIZ];
+#endif // ACE_USES_WCHAR
+#endif // UNICODE
+  ACE_OS::memset (&referenced_domain_name_a, 0, sizeof (ACE_TCHAR[BUFSIZ]));
+  DWORD referenced_domain_name_size_i = sizeof (ACE_TCHAR[BUFSIZ]);
+  enum _SID_NAME_USE SID_name_use_e;
+#if defined (UNICODE)
+  if (unlikely (!::LookupAccountName (NULL, // --> begin on the local system
+                                      ACE_TEXT_ALWAYS_WCHAR (accountName_in.c_str ()),
+                                      SID_p,
+                                      &SID_size_i,
+                                      referenced_domain_name_a,
+                                      &referenced_domain_name_size_i,
+                                      &SID_name_use_e)))
+#else
+  if (unlikely (!::LookupAccountName (NULL, // --> begin on the local system
+                                      ACE_TEXT_ALWAYS_CHAR (accountName_in.c_str ()),
+                                      SID_p,
+                                      &SID_size_i,
+                                      referenced_domain_name_a,
+                                      &referenced_domain_name_size_i,
+                                      &SID_name_use_e)))
+#endif // UNICODE
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to LookupAccountName(\"%s\"): \"%s\", aborting\n"),
+                ACE_TEXT (accountName_in.c_str ()),
+                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+    goto clean; // *TODO*: avoid false negatives
+  } // end IF
+  ACE_ASSERT (SID_name_use_e == SidTypeUser);
+  if (likely (EqualSid (token_user_p->User.Sid, SID_p)))
+  {
+    result = true;
+    goto clean;
+  } // end IF
+
+  // --> accoutName_in is not the 'current' user
+  result = Common_File_Tools::access (path_in,
+                                      GENERIC_READ,
+                                      SID_p);
+
+clean:
+  if (likely (token_h != ACE_INVALID_HANDLE))
+    if (unlikely (!CloseHandle (token_h)))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to CloseHandle(%@): \"%s\", continuing\n"),
+                  token_h,
+                  ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+  if (token_user_p)
+    if (unlikely (HeapFree (GetProcessHeap (), 0, (LPVOID)token_user_p)))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to HeapFree(%@,0,%@): \"%s\", continuing\n"),
+                  GetProcessHeap (),
+                  token_user_p,
+                  ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+  if (SID_p)
+    if (unlikely (FreeSid (SID_p)))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to FreeSid(%@): \"%s\", continuing\n"),
+                  SID_p,
+                  ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+#else
+  int result_2 = -1;
   uid_t user_id =
       ((static_cast<int>(userId_in) == -1) ? ACE_OS::geteuid () : userId_in);
   ACE_stat stat_s;
   ACE_OS::memset (&stat_s, 0, sizeof (ACE_stat));
-  result = ACE_OS::stat (ACE_TEXT (path_in.c_str ()),
-                         &stat_s);
-  if (unlikely (result == -1))
+  result_2 = ACE_OS::stat (ACE_TEXT (path_in.c_str ()),
+                           &stat_s);
+  if (unlikely (result_2 == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
@@ -265,9 +606,12 @@ Common_File_Tools::canRead (const std::string& path_in,
 
   if (stat_s.st_uid == user_id)
     return (stat_s.st_mode & S_IRUSR);
-  else if (Common_Tools::isGroupMember (user_id, stat_s.st_gid))
+  if (Common_Tools::isGroupMember (user_id, stat_s.st_gid))
     return (stat_s.st_mode & S_IRGRP);
-  return (stat_s.st_mode & S_IROTH);
+  result = (stat_s.st_mode & S_IROTH);
+#endif // ACE_WIN32 || ACE_WIN64
+
+  return result;
 }
 bool
 Common_File_Tools::canWrite (const std::string& path_in,
@@ -279,6 +623,12 @@ Common_File_Tools::canWrite (const std::string& path_in,
   if (!Common_File_Tools::isWriteable (path_in))
     return false;
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  ACE_ASSERT (false);
+  ACE_NOTSUP_RETURN (false);
+
+  ACE_NOTREACHED (return false;) // *TODO*: avoid false negatives
+#else
   int result = -1;
   uid_t user_id =
       ((static_cast<int>(userId_in) == -1) ? ACE_OS::geteuid () : userId_in);
@@ -296,9 +646,10 @@ Common_File_Tools::canWrite (const std::string& path_in,
 
   if (stat_s.st_uid == user_id)
     return (stat_s.st_mode & S_IWUSR);
-  else if (Common_Tools::isGroupMember (user_id, stat_s.st_gid))
+  if (Common_Tools::isGroupMember (user_id, stat_s.st_gid))
     return (stat_s.st_mode & S_IWGRP);
   return (stat_s.st_mode & S_IWOTH);
+#endif // ACE_WIN32 || ACE_WIN64
 }
 bool
 Common_File_Tools::canExecute (const std::string& path_in,
@@ -310,6 +661,12 @@ Common_File_Tools::canExecute (const std::string& path_in,
   if (!Common_File_Tools::isExecutable (path_in))
     return false;
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  ACE_ASSERT (false);
+  ACE_NOTSUP_RETURN (false);
+
+  ACE_NOTREACHED (return false;) // *TODO*: avoid false negatives
+#else
   int result = -1;
   uid_t user_id =
       ((static_cast<int>(userId_in) == -1) ? ACE_OS::geteuid () : userId_in);
@@ -327,9 +684,10 @@ Common_File_Tools::canExecute (const std::string& path_in,
 
   if (stat_s.st_uid == user_id)
     return (stat_s.st_mode & S_IXUSR);
-  else if (Common_Tools::isGroupMember (user_id, stat_s.st_gid))
+  if (Common_Tools::isGroupMember (user_id, stat_s.st_gid))
     return (stat_s.st_mode & S_IXGRP);
   return (stat_s.st_mode & S_IXOTH);
+#endif // ACE_WIN32 || ACE_WIN64
 }
 
 bool
@@ -1309,9 +1667,10 @@ Common_File_Tools::getHomeDirectory (const std::string& userName_in)
   std::string result;
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  HANDLE      token = 0;
+  HANDLE      token_h = ACE_INVALID_HANDLE;
   ACE_TCHAR   buffer_a[PATH_MAX];
   DWORD       buffer_size = sizeof (ACE_TCHAR[PATH_MAX]);
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[PATH_MAX]));
 #else
   int            result_2 = -1;
   struct passwd  passwd_s;
@@ -1342,30 +1701,30 @@ Common_File_Tools::getHomeDirectory (const std::string& userName_in)
   } // end IF
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  if (unlikely (!OpenProcessToken (GetCurrentProcess (),
+  if (unlikely (!OpenProcessToken (::GetCurrentProcess (),
                                    TOKEN_QUERY,
-                                   &token)))
+                                   &token_h)))
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to ::OpenProcessToken(): \"%s\", falling back\n"),
                 ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
     goto fallback;
   } // end IF
+  ACE_ASSERT (token_h != ACE_INVALID_HANDLE);
 
-  ACE_OS::memset (buffer, 0, sizeof (buffer));
   // *TODO*: use ACE_TEXT_ macro for this (see also: ace_wchar.h)
 #if defined (ACE_USES_WCHAR)
-  if (unlikely (!GetUserProfileDirectoryW (token, buffer, &buffer_size)))
+  if (unlikely (!GetUserProfileDirectoryW (token_h, buffer_a, &buffer_size)))
 #else
-  if (unlikely (!GetUserProfileDirectoryA (token, buffer, &buffer_size)))
-#endif
+  if (unlikely (!GetUserProfileDirectoryA (token_h, buffer_a, &buffer_size)))
+#endif // ACE_USES_WCHAR
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to GetUserProfileDirectory(): \"%s\", falling back\n"),
                 ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
 
     // clean up
-    if (!CloseHandle (token))
+    if (!CloseHandle (token_h))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to CloseHandle(): \"%s\", continuing\n"),
                   ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
@@ -1374,12 +1733,12 @@ Common_File_Tools::getHomeDirectory (const std::string& userName_in)
   } // end IF
 
   // clean up
-  if (unlikely (!CloseHandle (token)))
+  if (unlikely (!CloseHandle (token_h)))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to CloseHandle(): \"%s\", continuing\n"),
                 ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
 
-  result = ACE_TEXT_ALWAYS_CHAR (buffer);
+  result = ACE_TEXT_ALWAYS_CHAR (buffer_a);
 #else
   result_2 = ACE_OS::getpwnam_r (username_string.c_str (), // user name
                                  &passwd_s,                // passwd entry
@@ -1408,9 +1767,12 @@ fallback:
   ACE_TCHAR* string_p =
       ACE_OS::getenv (ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE));
   if (unlikely (!string_p))
+  {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"): \"%m\", continuing\n"),
+                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"): \"%m\", aborting\n"),
                 ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE)));
+    return result;
+  } // end IF
   result = ACE_TEXT_ALWAYS_CHAR (string_p);
 
   return result;

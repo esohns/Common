@@ -557,7 +557,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   Common_Tools::setThreadName (threadName_,
-                               -1);
+                               0);
 #endif // ACE_WIN32 || ACE_WIN64
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
@@ -778,9 +778,9 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   { ACE_GUARD_RETURN (typename ITASKCONTROL_T::MUTEX_T, aGuard, lock_, -1);
     std::string thread_ids_string = string_stream.str ();
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("spawned %u worker thread(s) (\"%s\", group: %d):\n%s"),
-                threadCount_,
+                ACE_TEXT ("(%s): spawned %u dispatch thread(s) (group id: %d):\n%s"),
                 ACE_TEXT (threadName_.c_str ()),
+                threadCount_,
                 inherited::grp_id_,
                 ACE_TEXT (thread_ids_string.c_str ())));
   } // end lock scope

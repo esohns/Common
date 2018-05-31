@@ -30,8 +30,8 @@
 
 template <const char* StateMachineName, // *TODO*: use a variadic character array
           ACE_SYNCH_DECL,
-          typename StateType,     // implements enum
-          typename InterfaceType> // implements Common_IStateMachine_T<StateType>
+          typename StateType,           // implements enum
+          typename InterfaceType>       // implements Common_IStateMachine_T<StateType>
 class Common_StateMachine_T
  : public Common_StateMachine_Base_T<StateMachineName,
                                      ACE_SYNCH_USE,
