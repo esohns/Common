@@ -4,6 +4,7 @@
 # *NOTE*: it is neither portable nor particularly stable !
 # parameters: - platform [linux|solaris|win32] {linux}
 #             - mwc.pl '-type' parameter {gnuace}
+#             - -b generate platform-specific build tree {false}
 # return value: - 0 success, 1 failure
 
 # sanity checks
@@ -57,6 +58,23 @@ else
 fi
 #echo "DEBUG: project type: \"${PROJECT_TYPE}\""
 
+GENERATE_BUILD_TREE=0
+if [ $# -lt 3 ]
+then
+ echo "INFO: building in \"${ACE_ROOT}\"..."
+else
+# parse any arguments
+if [ $# -ge 3 ]
+then
+ if [ "$3" != "-b" ]
+ then
+  echo "invalid argument (was: "$3"), aborting"; exit 1;
+ fi
+ GENERATE_BUILD_TREE=1
+ echo "INFO: generating platform-specific build tree..."
+fi
+fi
+
 DEFAULT_PROJECT_DIRECTORY="$(dirname $(readlink -f $0))/.."
 PROJECT_DIRECTORY=${DEFAULT_PROJECT_DIRECTORY}
 # sanity check(s)
@@ -103,6 +121,26 @@ then
 fi
 #echo "INFO: \$ACE_ROOT is: \"${ACE_ROOT}\")"
 
+DEFAULT_OPENSSL_DIRECTORY=/mnt/win_d/projects/openssl
+if [ ! -d ${DEFAULT_OPENSSL_DIRECTORY} ]
+then
+ if [ ! -z ${SSL_ROOT} ]
+ then
+  DEFAULT_OPENSSL_DIRECTORY=${SSL_ROOT} # <-- cygwin/mingw/msys
+ else
+  DEFAULT_OPENSSL_DIRECTORY=/d/projects/openssl # <-- mingw/msys
+ fi
+ [ ! -d ${DEFAULT_OPENSSL_DIRECTORY} ] && echo "ERROR: invalid directory (was: \"${DEFAULT_OPENSSL_DIRECTORY}\"), aborting" && exit 1
+fi
+OPENSSL_DIRECTORY=${DEFAULT_OPENSSL_DIRECTORY}
+if [ -z ${SSL_ROOT} ]
+then
+ export SSL_ROOT=${OPENSSL_DIRECTORY}
+ [ $? -ne 0 ] && echo "ERROR: failed to export SSL_ROOT environment variable (was: \"${OPENSSL_DIRECTORY}\"), aborting" && exit 1
+ echo "INFO: exported SSL_ROOT (as: \"${SSL_ROOT}\")"
+fi
+#echo "INFO: \$SSL_ROOT is: \"${SSL_ROOT}\")"
+
 # step1: apply patches
 PROJECTS="libCommon
 libACEStream
@@ -123,60 +161,65 @@ done
 
 # step2: verify build directories
 ACE_BUILD_ROOT_DIRECTORY=${ACE_DIRECTORY}/build
-if [ ! -d ${ACE_BUILD_ROOT_DIRECTORY} ]
+if [ ! -z ${GENERATE_BUILD_TREE} -a ! -d ${ACE_BUILD_ROOT_DIRECTORY} ]
 then
  echo "DEBUG: ACE build root directory (was: \"${ACE_BUILD_ROOT_DIRECTORY}\") does not exist, creating"
  mkdir ${ACE_BUILD_ROOT_DIRECTORY} >/dev/null 2>&1
  [ $? -ne 0 ] && echo "ERROR: failed to create directory (was: \"${ACE_BUILD_ROOT_DIRECTORY}\"): $?, aborting" && exit 1
+ case "${PLATFORM}" in
+  linux|solaris)
+   ACE_BUILD_DIRECTORY=${ACE_BUILD_ROOT_DIRECTORY}/${PLATFORM}
+   if [ ! -d ${ACE_BUILD_DIRECTORY} ]
+   then
+    echo "DEBUG: ACE build directory (was: \"${ACE_BUILD_DIRECTORY}\") does not exist, creating and cloning source tree"
+    mkdir ${ACE_BUILD_DIRECTORY} >/dev/null 2>&1
+    [ $? -ne 0 ] && echo "ERROR: failed to create directory (was: \"${ACE_BUILD_DIRECTORY}\"): $?, aborting" && exit 1
+    CREATE_ACE_BUILD=${ACE_DIRECTORY}/bin/create_ace_build.pl
+    [ ! -x ${CREATE_ACE_BUILD} ] && echo "ERROR: invalid file (was: \"${CREATE_ACE_BUILD}\"): not executable, aborting" && exit 1
+    cd ${ACE_DIRECTORY}
+    perl ${CREATE_ACE_BUILD} -a -v ${PLATFORM}
+    [ $? -ne 0 ] && echo "ERROR: failed to \"${CREATE_ACE_BUILD}\": $?, aborting" && exit 1
+   fi
+   ;;
+  win32)
+   ACE_BUILD_DIRECTORY=${ACE_DIRECTORY}
+   ;;
+  *)
+   echo "unknown/invalid platform (was: "${PLATFORM}"), falling back"
+   ACE_BUILD_DIRECTORY=${ACE_DIRECTORY}
+   ;;
+ esac
+else
+ ACE_BUILD_DIRECTORY=${ACE_DIRECTORY}
 fi
-case "${PLATFORM}" in
- linux|solaris)
-  ACE_BUILD_DIRECTORY=${ACE_BUILD_ROOT_DIRECTORY}/${PLATFORM}
-  if [ ! -d ${ACE_BUILD_DIRECTORY} ]
-  then
-   echo "DEBUG: ACE build directory (was: \"${ACE_BUILD_DIRECTORY}\") does not exist, creating and cloning source tree"
-   mkdir ${ACE_BUILD_DIRECTORY} >/dev/null 2>&1
-   [ $? -ne 0 ] && echo "ERROR: failed to create directory (was: \"${ACE_BUILD_DIRECTORY}\"): $?, aborting" && exit 1
-   CREATE_ACE_BUILD=${ACE_DIRECTORY}/bin/create_ace_build.pl
-   [ ! -x ${CREATE_ACE_BUILD} ] && echo "ERROR: invalid file (was: \"${CREATE_ACE_BUILD}\"): not executable, aborting" && exit 1
-   cd ${ACE_DIRECTORY}
-   perl ${CREATE_ACE_BUILD} -a -v ${PLATFORM}
-   [ $? -ne 0 ] && echo "ERROR: failed to \"${CREATE_ACE_BUILD}\": $?, aborting" && exit 1
-  fi
-  ;;
- win32)
-  ACE_BUILD_DIRECTORY=${ACE_DIRECTORY}
-  ;;
- *)
-  echo "unknown/invalid platform (was: "${PLATFORM}"), falling back"
-  ACE_BUILD_DIRECTORY=${ACE_DIRECTORY}
-  ;;
-esac
 #echo "ACE_BUILD_DIRECTORY: ${ACE_BUILD_DIRECTORY}"
 [ ! -d ${ACE_BUILD_DIRECTORY} ] && echo "ERROR: invalid directory (was: \"${ACE_BUILD_DIRECTORY}\"), aborting" && exit 1
 #echo "DEBUG: ACE build directory: \"${ACE_BUILD_DIRECTORY}\""
 
 # step3: generate Makefiles
-FEATURES_FILE_DIRECTORY=${PROJECT_DIRECTORY}/3rd_party/ACE_wrappers
-[ ! -d ${FEATURES_FILE_DIRECTORY} ] && echo "ERROR: invalid directory (was: \"${FEATURES_FILE_DIRECTORY}\"), aborting" && exit 1
-LOCAL_FEATURES_FILE=${FEATURES_FILE_DIRECTORY}/local.features
-[ ! -r ${LOCAL_FEATURES_FILE} ] && echo "ERROR: invalid file (was: \"${LOCAL_FEATURES_FILE}\"): not readable, aborting" && exit 1
-echo "INFO: feature file is: \"${LOCAL_FEATURES_FILE}\""
+if [ ! -f ${ACE_BUILD_DIRECTORY}/GNUmakefile ]
+then
+ FEATURES_FILE_DIRECTORY=${PROJECT_DIRECTORY}/3rd_party/ACE_wrappers
+ [ ! -d ${FEATURES_FILE_DIRECTORY} ] && echo "ERROR: invalid directory (was: \"${FEATURES_FILE_DIRECTORY}\"), aborting" && exit 1
+ LOCAL_FEATURES_FILE=${FEATURES_FILE_DIRECTORY}/local.features
+ [ ! -r ${LOCAL_FEATURES_FILE} ] && echo "ERROR: invalid file (was: \"${LOCAL_FEATURES_FILE}\"): not readable, aborting" && exit 1
+ echo "INFO: feature file is: \"${LOCAL_FEATURES_FILE}\""
 
-ACE_MWC_FILE=${ACE_BUILD_DIRECTORY}/ACE.mwc
-[ ! -r ${ACE_MWC_FILE} ] && echo "ERROR: invalid file (was: \"${ACE_MWC_FILE}\"): not readable, aborting" && exit 1
+ ACE_MWC_FILE=${ACE_BUILD_DIRECTORY}/ACE.mwc
+ [ ! -r ${ACE_MWC_FILE} ] && echo "ERROR: invalid file (was: \"${ACE_MWC_FILE}\"): not readable, aborting" && exit 1
 
-MWC_PL=${ACE_DIRECTORY}/bin/mwc.pl
-[ ! -x ${MWC_PL} ] && echo "ERROR: invalid file (was: \"${MWC_PL}\"): not executable, aborting" && exit 1
-MWC_PL_OPTIONS=
-#if [ "${PLATFORM}" = "linux" ]
-#then
-# MWC_PL_OPTIONS="-name_modifier *_gnu"
-#fi
-cd ${ACE_BUILD_DIRECTORY}
-${MWC_PL} -feature_file ${LOCAL_FEATURES_FILE} ${MWC_PL_OPTIONS} -type ${PROJECT_TYPE} ${ACE_MWC_FILE}
-[ $? -ne 0 ] && echo "ERROR: failed to mwc.pl \"${ACE_MWC_FILE}\": $?, aborting" && exit 1
-echo "processing ${ACE_MWC_FILE}...DONE"
+ MWC_PL=${ACE_DIRECTORY}/bin/mwc.pl
+ [ ! -x ${MWC_PL} ] && echo "ERROR: invalid file (was: \"${MWC_PL}\"): not executable, aborting" && exit 1
+ MWC_PL_OPTIONS=
+ #if [ "${PLATFORM}" = "linux" ]
+ #then
+ # MWC_PL_OPTIONS="-name_modifier *_gnu"
+ #fi
+ cd ${ACE_BUILD_DIRECTORY}
+ perl ${MWC_PL} -feature_file ${LOCAL_FEATURES_FILE} ${MWC_PL_OPTIONS} -type ${PROJECT_TYPE} ${ACE_MWC_FILE}
+ [ $? -ne 0 ] && echo "ERROR: failed to mwc.pl \"${ACE_MWC_FILE}\": $?, aborting" && exit 1
+ echo "processing ${ACE_MWC_FILE}...DONE"
+fi
 
 # step4: make
 MAKE_OPTIONS=-j4

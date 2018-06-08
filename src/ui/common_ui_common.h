@@ -21,11 +21,47 @@
 #ifndef COMMON_UI_COMMON_H
 #define COMMON_UI_COMMON_H
 
+#include <list>
+#include <string>
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include <windef.h>
+#include <WinUser.h>
+#endif // ACE_WIN32 || ACE_WIN64
+
 #include "ace/Containers_T.h"
 #include "ace/Synch_Traits.h"
 
 #include "common.h"
 
+struct Common_DisplayDevice
+{
+  Common_DisplayDevice ()
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+   : clippingArea ()
+   , description ()
+#else
+   : description ()
+ #endif // ACE_WIN32 || ACE_WIN64
+   , device ()
+  {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    BOOL result = SetRectEmpty (&clippingArea);
+    ACE_ASSERT (result);
+#endif // ACE_WIN32 || ACE_WIN64
+  }
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  struct tagRECT clippingArea;
+#endif // ACE_WIN32 || ACE_WIN64
+  std::string    description;
+  std::string    device;
+};
+typedef std::list<struct Common_DisplayDevice> Common_DisplayDevices_t;
+typedef Common_DisplayDevices_t::iterator Common_DisplayDevicesIterator_t;
+typedef Common_DisplayDevices_t::const_iterator Common_DisplayDevicesConstIterator_t;
+
+// ui
 enum Common_UI_EventType
 {
   COMMON_UI_EVENT_INVALID              = -1,

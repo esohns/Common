@@ -19,7 +19,7 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include <filesystem>
+//#include <filesystem>
 
 #include "ace/Synch.h"
 #include "common_file_tools.h"
@@ -276,12 +276,12 @@ clean:
     return false; // *TODO*: avoid false negatives
   } // end IF
 
-  int result = -1;
+  int result_2 = -1;
   ACE_stat stat_s;
   ACE_OS::memset (&stat_s, 0, sizeof (ACE_stat));
-  result = ACE_OS::stat (ACE_TEXT (path_in.c_str ()),
-                         &stat_s);
-  if (unlikely (result == -1))
+  result_2 = ACE_OS::stat (ACE_TEXT (path_in.c_str ()),
+                           &stat_s);
+  if (unlikely (result_2 == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),

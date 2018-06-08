@@ -41,6 +41,33 @@ Common_TimerHandler::Common_TimerHandler (Common_ITimerHandler* handler_in,
 }
 
 int
+Common_TimerHandler::handle_close (ACE_HANDLE handle_in,
+                                   ACE_Reactor_Mask mask_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TimerHandler::handle_close"));
+
+  // sanity check(s)
+  ACE_ASSERT (handle_in == ACE_INVALID_HANDLE);
+  ACE_ASSERT (mask_in == ACE_Event_Handler::TIMER_MASK);
+
+#if defined (_DEBUG)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("cancelled timer (handle was: %@, mask: %u), continuing\n"),
+              handle_in,
+              mask_in));
+#else
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("cancelled timer (handle was: %d, mask: %u), continuing\n"),
+              handle_in,
+              mask_in));
+#endif // ACE_WIN32 || ACE_WIN64
+#endif // _DEBUG
+
+  return 0;
+}
+
+int
 Common_TimerHandler::handle_timeout (const ACE_Time_Value& dipatchTime_in,
                                      const void* arg_in)
 {

@@ -46,6 +46,8 @@ class Common_TimerHandler
   inline virtual void handle (const void* act_in) { ACE_UNUSED_ARG (act_in); }
 
   // override (part of) ACE_Event_Handler
+  virtual int handle_close (ACE_HANDLE,        // handle
+                            ACE_Reactor_Mask); // mask
   virtual int handle_timeout (const ACE_Time_Value&, // dispatch time
                               const void*);          // asynchronous completion token
   // override (part of) ACE_Handler

@@ -30,7 +30,8 @@ PROJECTS_DIRECTORY=${DEFAULT_PROJECTS_DIRECTORY}
 #echo "DEBUG: project directory: \"${PROJECT_DIRECTORY}\""
 echo "set projects directory: \"${PROJECTS_DIRECTORY}\""
 
-CMAKE_PARAMETERS="-G \"Unix Makefiles\" -Wdev"
+#CMAKE_PARAMETERS="-G \"Unix Makefiles\" -Wdev"
+CMAKE_PARAMETERS="-Wdev"
 PROJECTS="libCommon
 libACEStream
 libACENetwork"

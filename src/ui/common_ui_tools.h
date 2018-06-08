@@ -23,10 +23,13 @@
 
 #include "ace/Global_Macros.h"
 
-//#include "common_ui_exports.h"
+#include "common_ui_common.h"
 
 class Common_UI_Tools
 {
+ public:
+  static bool getDisplayDevices (Common_DisplayDevices_t&); // return value: connected devices
+
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools ());
   ACE_UNIMPLEMENTED_FUNC (~Common_UI_Tools ());

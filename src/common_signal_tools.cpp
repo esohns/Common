@@ -472,7 +472,7 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
   //result += ACE_TEXT_ALWAYS_CHAR (", array of signalled handle(s): ");
   //result += signal_in.siginfo.si_handles_;
 #else
-  int result_2 = -1;
+//  int result_2 = -1;
 
   // step0: common information (on POSIX.1b)
   result += ACE_TEXT_ALWAYS_CHAR ("PID/UID: ");

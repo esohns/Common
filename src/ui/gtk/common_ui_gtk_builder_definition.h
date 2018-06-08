@@ -30,6 +30,9 @@ class Common_UI_GtkBuilderDefinition_T
  : public Common_UI_IGTK_T<StateType>
 {
  public:
+  // convenient types
+  typedef Common_UI_IGTK_T<StateType> INTERFACE_T;
+
   Common_UI_GtkBuilderDefinition_T (int,          // argc
                                     ACE_TCHAR**); // argv
   virtual ~Common_UI_GtkBuilderDefinition_T ();
@@ -37,6 +40,7 @@ class Common_UI_GtkBuilderDefinition_T
   // implement Common_UI_IGTK_T
   virtual bool initialize (StateType&); // return value: GTK state
   virtual void finalize ();
+
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_GtkBuilderDefinition_T ());

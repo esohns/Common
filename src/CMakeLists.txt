@@ -35,9 +35,10 @@ if (UNIX)
                PATH_SUFFIXES x86_64-linux-gnu
                DOC "searching for ${AIO_LIB_FILE}")
 # message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
+ message ("CMAKE_CURRENT_BINARY_DIR is ${CMAKE_CURRENT_BINARY_DIR}")
  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-               HINTS ${CMAKE_CURRENT_BINARY_DIR}/../../../ATCD/ACE /usr/local
-               PATHS ENV ACE_ROOT
+               PATHS ${CMAKE_CURRENT_BINARY_DIR}/../../../ATCD/ACE /usr/local
+    #           HINTS ENV ACE_ROOT
                PATH_SUFFIXES lib
                DOC "searching for ${ACE_LIB_FILE}"
                NO_DEFAULT_PATH)
