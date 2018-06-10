@@ -19,6 +19,7 @@
  ***************************************************************************/
 #include "stdafx.h"
 
+#include "ace/Synch.h"
 #include "common_ui_gtk_tools.h"
 
 #include <limits>
@@ -296,6 +297,63 @@ Common_UI_GTK_Tools::valueToIndex (GtkTreeModel* treeModel_in,
 
   return (cb_data_s.found ? cb_data_s.index
                           : std::numeric_limits<guint>::max ());
+}
+
+bool
+Common_UI_GTK_Tools::getDisplayDevices (Common_UI_DisplayDevices_t& devices_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::getDisplayDevices"));
+
+  // initialize return value(s)
+  devices_out.clear ();
+
+  struct Common_UI_DisplayDevice device_s;
+  GdkDisplayManager* display_manager_p = gdk_display_manager_get ();
+  ACE_ASSERT (display_manager_p);
+  GSList* list_p = gdk_display_manager_list_displays (display_manager_p);
+  ACE_ASSERT (list_p);
+
+  GdkDisplay* display_p = NULL;
+  int number_of_monitors = 0;
+  GdkMonitor* monitor_p = NULL;
+  GtkTreeIter iterator;
+  for (GSList* list_2 = list_p;
+       list_2;
+       list_2 = list_2->next)
+  {
+    display_p = GDK_DISPLAY (list_2->data);
+    ACE_ASSERT (display_p);
+
+#if defined (_DEBUG)
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("found display: \"%s\"...\n"),
+                ACE_TEXT (gdk_display_get_name (display_p))));
+#endif // _DEBUG
+
+    number_of_monitors = gdk_display_get_n_monitors (display_p);
+    for (int i = 0;
+         i < number_of_monitors;
+         ++i)
+    {
+      monitor_p = gdk_display_get_monitor (display_p,
+                                           i);
+      ACE_ASSERT (monitor_p);
+
+#if defined (_DEBUG)
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("found monitor: \"%s\"...\n"),
+                  ACE_TEXT (gdk_monitor_get_model (monitor_p))));
+#endif // _DEBUG
+
+      device_s.description = gdk_monitor_get_manufacturer (monitor_p);
+      device_s.description += ACE_TEXT_ALWAYS_CHAR (" / ");
+      device_s.description += gdk_monitor_get_model (monitor_p);
+      devices_out.push_back (device_s);
+    } // end FOR
+  } // end FOR
+  g_slist_free (list_p);
+
+  return true;
 }
 
 #if defined (_DEBUG)

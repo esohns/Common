@@ -34,9 +34,9 @@
 
 #include "common.h"
 
-struct Common_DisplayDevice
+struct Common_UI_DisplayDevice
 {
-  Common_DisplayDevice ()
+  Common_UI_DisplayDevice ()
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
    : clippingArea ()
    , description ()
@@ -57,9 +57,9 @@ struct Common_DisplayDevice
   std::string    description;
   std::string    device;
 };
-typedef std::list<struct Common_DisplayDevice> Common_DisplayDevices_t;
-typedef Common_DisplayDevices_t::iterator Common_DisplayDevicesIterator_t;
-typedef Common_DisplayDevices_t::const_iterator Common_DisplayDevicesConstIterator_t;
+typedef std::list<struct Common_UI_DisplayDevice> Common_UI_DisplayDevices_t;
+typedef Common_UI_DisplayDevices_t::iterator Common_UI_DisplayDevicesIterator_t;
+typedef Common_UI_DisplayDevices_t::const_iterator Common_UI_DisplayDevicesConstIterator_t;
 
 // ui
 enum Common_UI_EventType

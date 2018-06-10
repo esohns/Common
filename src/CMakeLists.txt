@@ -229,6 +229,7 @@ endif (UNIX)
 
 if (UNIX)
 # target_link_libraries (${PROJECT_NAME} ${AIO_LIBRARY})
+ target_link_libraries (${PROJECT_NAME} ${PKG_LIBCAP_LIBRARIES})
  if (DBUS_SUPPORT)
 #  target_link_libraries (${PROJECT_NAME} ${PKG_DBUS_LIBRARIES})
   target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}DBus)

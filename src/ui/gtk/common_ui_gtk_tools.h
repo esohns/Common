@@ -42,7 +42,7 @@
 
 #include "ace/Global_Macros.h"
 
-//#include "common_ui_gtk_exports.h"
+#include "common_ui_common.h"
 
 class Common_UI_GTK_Tools
 {
@@ -73,6 +73,8 @@ class Common_UI_GTK_Tools
   static guint valueToIndex (GtkTreeModel*,
                              const GValue&,
                              gint = 0);     // column
+
+  static bool getDisplayDevices (Common_UI_DisplayDevices_t&); // return value: connected devices
 
 #if defined (_DEBUG)
   // *NOTE*: recurses into any children

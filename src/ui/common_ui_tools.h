@@ -28,7 +28,7 @@
 class Common_UI_Tools
 {
  public:
-  static bool getDisplayDevices (Common_DisplayDevices_t&); // return value: connected devices
+  static bool getDisplayDevices (Common_UI_DisplayDevices_t&); // return value: connected devices
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools ());

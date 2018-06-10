@@ -128,7 +128,7 @@ error:
 #endif // ACE_WIN32 || ACE_WIN64
 
 bool
-Common_UI_Tools::getDisplayDevices (Common_DisplayDevices_t& devices_out)
+Common_UI_Tools::getDisplayDevices (Common_UI_DisplayDevices_t& devices_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::getDisplayDevices"));
 
@@ -181,7 +181,7 @@ Common_UI_Tools::getDisplayDevices (Common_DisplayDevices_t& devices_out)
 //              ACE_TEXT ("xrandr data: \"%s\"\n"),
 //              ACE_TEXT (display_record_string.c_str ())));
 
-  struct Common_DisplayDevice device_s;
+  struct Common_UI_DisplayDevice device_s;
   converter.str (display_records_string);
   do
   {
