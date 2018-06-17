@@ -1127,18 +1127,7 @@ Common_Tools::setCapability (unsigned long capability_in,
   if (likely (set_in == CAP_EFFECTIVE))
   {
     // verify that the capability is in the 'permitted' set
-    cap_flag_value_t in_permitted_set = CAP_CLEAR;
-    result_2 = ::cap_get_flag (capabilities_p, capability_in,
-                               CAP_PERMITTED, &in_permitted_set);
-    if (unlikely (result_2 == -1))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ::cap_get_flag(%s,%d): \"%m\", aborting\n"),
-                  ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ()),
-                  CAP_PERMITTED));
-      goto clean;
-    } // end IF
-    if (unlikely (in_permitted_set != CAP_SET))
+    if (!Common_Tools::hasCapability (capability_in, CAP_PERMITTED))
       ACE_DEBUG ((LM_WARNING,
                   ACE_TEXT ("%P/%t: capability (was: %s (%u)) not in 'permitted' set: cannot enable, continuing\n"),
                   ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ()), capability_in));
@@ -1158,8 +1147,8 @@ Common_Tools::setCapability (unsigned long capability_in,
                 set_in));
     goto clean;
   } // end IF
-  ACE_ASSERT (Common_Tools::hasCapability (capability_in, set_in));
-  result = true;
+  if (likely (Common_Tools::hasCapability (capability_in, set_in)))
+    result = true;
 
 clean:
   result_2 = ::cap_free (capabilities_p);

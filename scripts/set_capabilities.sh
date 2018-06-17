@@ -68,15 +68,16 @@ BUILD_DIR="${PROJECT_DIR}/cmake"
 [ ! -d "${BUILD_DIR}" ] && echo "ERROR: invalid build dir (was: \"${BUILD_DIR}\"), aborting" && exit 1
 
 TEST_I_DIR="test_i"
+TEST_U_DIR="test_u"
 CAPABILITIES_DIR="capabilities"
-#SUB_DIRS="ardrone"
-#declare -a LIBS=("libACE.so")
-BINS="capability_wrapper"
-i=0
+DEBUG_DIR="debug"
+#BINS="capability_wrapper
+#debug_wrapper"
+#i=0
 #for DIR in $SUB_DIRS
 #do
 # LIB="${MODULES_DIR}/${DIR}/${LIB_DIR}/${LIBS[$i]}"
- BIN="${BUILD_DIR}/${TEST_I_DIR}/${CAPABILITIES_DIR}/${BINS}"
+ BIN="${BUILD_DIR}/${TEST_I_DIR}/${CAPABILITIES_DIR}/capability_wrapper"
  [ ! -r "${BIN}" ] && echo "ERROR: invalid binary file (was: \"${BIN}\"), aborting" && exit 1
 
 # cp -f ${BIN} ${TMP_DIR}
@@ -86,33 +87,37 @@ i=0
 # BIN_TMP="${TMP_DIR}/${BINS}"
 # [ ! -r "${BIN_TMP}" ] && echo "ERROR: invalid binary file (was: \"${BIN_TMP}\"), aborting" && exit 1
 
-# chown --quiet root ${BIN_TMP}
+ #chown --quiet root ${BIN_TMP}
+
  chown --quiet root:root ${BIN}
  [ $? -ne 0 ] && echo "ERROR: failed to chown ${BIN}: \"$?\", aborting" && exit 1
-# chgrp --quiet root ${BIN}
-# [ $? -ne 0 ] && echo "ERROR: failed to chgrp ${BIN}: \"$?\", aborting" && exit 1
+
+ chgrp --quiet root ${BIN}
+ [ $? -ne 0 ] && echo "ERROR: failed to chgrp ${BIN}: \"$?\", aborting" && exit 1
 # chmod --quiet +s ${BIN_TMP}
+
  chmod --quiet ug+s ${BIN}
  [ $? -ne 0 ] && echo "ERROR: failed to chmod u+s ${BIN}: \"$?\", aborting" && exit 1
- echo "modified \"$BINS\": suid sgid root"
+ echo "modified \"$(basename $BIN)\": suid sgid root"
 
-# /sbin/setcap 'cap_net_bind_service=eip' ${BIN_TMP}
-# setcap 'cap_net_admin+eip' ${BIN}
-# setcap 'cap_net_admin+eip' ${BIN}
-# [ $? -ne 0 ] && echo "ERROR: failed to setcap ${BIN}: \"$?\", aborting" && exit 1
+ BIN="${BUILD_DIR}/${TEST_U_DIR}/${DEBUG_DIR}/debug_wrapper"
+ [ ! -r "${BIN}" ] && echo "ERROR: invalid binary file (was: \"${BIN}\"), aborting" && exit 1
+ 
+ setcap 'cap_dac_override,cap_fowner,cap_net_admin+ep' ${BIN}
+# setcap 'cap_setuid,cap_setgid,cap_setpcap+eip' ${BIN}
+ [ $? -ne 0 ] && echo "ERROR: failed to setcap ${BIN}: \"$?\", aborting" && exit 1
 
-# CMD_OUTPUT=$(getcap ${BIN})
-# j=0
-# for k in $(echo $CMD_OUTPUT | tr " " "\n")
-# do
-##  echo "$j: \"$k\""
-#  if [ $j -eq 2 ]
-#  then
-#   CAPABILITIES=$k
-#  fi
-#  j=$(($j+1))
-# done
-# echo "modified \"$BINS\": ${CAPABILITIES}"
-## i=$(($i+1))
-##done
-
+ CMD_OUTPUT=$(getcap ${BIN})
+ j=0
+ for k in $(echo $CMD_OUTPUT | tr " " "\n")
+ do
+#  echo "$j: \"$k\""
+  if [ $j -eq 2 ]
+  then
+   CAPABILITIES=$k
+  fi
+  j=$(($j+1))
+ done
+ echo "modified \"$(basename $BIN)\": ${CAPABILITIES}"
+# i=$(($i+1))
+#done

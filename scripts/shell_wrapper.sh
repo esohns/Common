@@ -6,14 +6,39 @@
 # return value: - 0 success, 1 failure
 
 # sanity checks
+command -v basename >/dev/null 2>&1 || { echo "basename is not installed, aborting" >&2; exit 1; }
+command -v capsh >/dev/null 2>&1 || { echo "capsh is not installed, aborting" >&2; exit 1; }
+command -v cat >/dev/null 2>&1 || { echo "cat is not installed, aborting" >&2; exit 1; }
+command -v cut >/dev/null 2>&1 || { echo "cut is not installed, aborting" >&2; exit 1; }
 command -v echo >/dev/null 2>&1 || { echo "echo is not supported, aborting" >&2; exit 1; }
 command -v exec >/dev/null 2>&1 || { echo "exec is not supported, aborting" >&2; exit 1; }
 command -v kill >/dev/null 2>&1 || { echo "kill is not supported, aborting" >&2; exit 1; }
 
-command -v basename >/dev/null 2>&1 || { echo "basename is not installed, aborting" >&2; exit 1; }
-#command -v dirname >/dev/null 2>&1 || { echo "dirname is not installed, aborting" >&2; exit 1; }
-#command -v readlink >/dev/null 2>&1 || { echo "readlink is not installed, aborting" >&2; exit 1; }
-#command -v sudo >/dev/null 2>&1 || { echo "sudo is not installed, aborting" >&2; exit 1; }
+#for i in "$*"
+#do
+# echo "$i"
+#done
+
+CAPABILITIES_CODED=$(cat /proc/$$/status | grep CapInh | cut -f 2)
+#echo "CAPABILITIES_CODED \"$CAPABILITIES_CODED\""
+CAPABILITIES_DECODED=$(capsh --decode=$CAPABILITIES_CODED)
+echo "$$ CapInh: \"$CAPABILITIES_DECODED\""
+CAPABILITIES_CODED=$(cat /proc/$$/status | grep CapPrm | cut -f 2)
+#echo "CAPABILITIES_CODED \"$CAPABILITIES_CODED\""
+CAPABILITIES_DECODED=$(capsh --decode=$CAPABILITIES_CODED)
+echo "$$ CapPrm: \"$CAPABILITIES_DECODED\""
+CAPABILITIES_CODED=$(cat /proc/$$/status | grep CapEff | cut -f 2)
+#echo "CAPABILITIES_CODED \"$CAPABILITIES_CODED\""
+CAPABILITIES_DECODED=$(capsh --decode=$CAPABILITIES_CODED)
+echo "$$ CapEff: \"$CAPABILITIES_DECODED\""
+CAPABILITIES_CODED=$(cat /proc/$$/status | grep CapBnd | cut -f 2)
+#echo "CAPABILITIES_CODED \"$CAPABILITIES_CODED\""
+CAPABILITIES_DECODED=$(capsh --decode=$CAPABILITIES_CODED)
+echo "$$ CapBnd: \"$CAPABILITIES_DECODED\""
+CAPABILITIES_CODED=$(cat /proc/$$/status | grep CapAmb | cut -f 2)
+#echo "CAPABILITIES_CODED \"$CAPABILITIES_CODED\""
+CAPABILITIES_DECODED=$(capsh --decode=$CAPABILITIES_CODED)
+echo "$$ CapAmb: \"$CAPABILITIES_DECODED\""
 
 # parse arguments
 COMMAND="$1"
@@ -32,4 +57,3 @@ kill -STOP $$
 #exec sudo -u ${USER} -g ${GROUP} ${COMMAND} $@
 #exec sudo -u ${USER} ${COMMAND} $@
 exec ${COMMAND} $@
-

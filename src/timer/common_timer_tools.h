@@ -23,22 +23,23 @@
 
 #include <string>
 
-#include "ace/config-lite.h"
 #include "ace/Global_Macros.h"
 #include "ace/Time_Value.h"
 
 #include "common_timer_common.h"
- //#include "common_timer_exports.h"
 
 // forward declaration(s)
 //class Common_ITimer;
 
-//class Common_Export Common_Timer_Tools
 class Common_Timer_Tools
 {
  public:
   //// --- singleton ---
   //static Common_ITimer* getTimerManager ();
+
+  // --- parsers ---
+  // *NOTE*: parses "YYYY/MM/DD HH:MM:SS"
+  static ACE_Time_Value stringToTimestamp (const std::string&);
 
   // --- strings ---
   // *NOTE*: uses ::snprintf(3): "HH:MM:SS.usec"

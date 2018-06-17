@@ -19,6 +19,8 @@
  ***************************************************************************/
 #include "stdafx.h"
 
+#include <sstream>
+
 #include "ace/Synch.h"
 #include "common_timer_tools.h"
 
@@ -36,6 +38,54 @@
 //
 //  return COMMON_TIMERMANAGER_SINGLETON::instance ();
 //}
+
+ACE_Time_Value
+Common_Timer_Tools::stringToTimestamp (const std::string& timestamp_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Timer_Tools::stringToTimestamp"));
+
+  // initialize return value(s)
+  ACE_Time_Value return_value = ACE_Time_Value::zero;
+
+  // sanity check(s)
+  ACE_ASSERT (timestamp_in.size () == 19);
+
+  struct tm tm_s;
+  ACE_OS::memset (&tm_s, 0, sizeof (struct tm));
+  // *TODO*: use ::sscanf()/strptime() here, it's more efficient
+  std::istringstream converter (timestamp_in);
+  char char_c = 0;
+  converter >> tm_s.tm_year;
+  tm_s.tm_year -= 1900;
+  converter >> char_c;
+  ACE_ASSERT (char_c == '/');
+  converter >> tm_s.tm_mon;
+  --tm_s.tm_mon;
+  converter >> char_c;
+  ACE_ASSERT (char_c == '/');
+  converter >> tm_s.tm_mday;
+  converter >> char_c;
+  ACE_ASSERT (char_c == ' ');
+  converter >> tm_s.tm_hour;
+  converter >> char_c;
+  ACE_ASSERT (char_c == ':');
+  converter >> tm_s.tm_min;
+  converter >> char_c;
+  ACE_ASSERT (char_c == ':');
+  converter >> tm_s.tm_sec;
+  tm_s.tm_isdst = -1; // (try to) guess DST
+  time_t time = ACE_OS::mktime (&tm_s);
+  if (unlikely (time == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::mktime(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (timestamp_in.c_str ())));
+    return return_value;
+  } // end IF
+  return_value.set (time, 0);
+
+  return return_value;
+}
 
 std::string
 Common_Timer_Tools::periodToString (const ACE_Time_Value& period_in)

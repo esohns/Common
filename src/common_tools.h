@@ -81,8 +81,10 @@ class Common_Tools
 #else
   // --- capabilities ---
   static std::string capabilityToString (unsigned long); // capability
+  inline static bool canCapability (unsigned long capability_in) { return Common_Tools::hasCapability (capability_in, CAP_PERMITTED); }
   static bool hasCapability (unsigned long,               // capability
                              cap_flag_t = CAP_EFFECTIVE); // set
+  inline static bool isCapable (unsigned long capability_in) { return Common_Tools::hasCapability (capability_in, CAP_EFFECTIVE); }
   static bool setCapability (unsigned long,               // capability
                              cap_flag_t = CAP_EFFECTIVE); // set
   static bool dropCapability (unsigned long,               // capability
