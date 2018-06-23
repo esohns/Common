@@ -40,6 +40,35 @@
 //}
 
 ACE_Time_Value
+Common_Timer_Tools::localToUTC (const ACE_Time_Value& localTime_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Timer_Tools::localToUTC"));
+
+  // initialize return value(s)
+  ACE_Time_Value return_value = ACE_Time_Value::zero;
+
+  time_t time = localTime_in.sec ();
+  struct tm tm_s;
+  ACE_OS::memset (&tm_s, 0, sizeof (struct tm));
+  if (!ACE_OS::gmtime_r (&time, &tm_s))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::gmtime_r(): \"%m\", aborting\n")));
+    return return_value;
+  } // end IF
+  time = ACE_OS::mktime (&tm_s);
+  if (unlikely (time == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::mktime(): \"%m\", aborting\n")));
+    return return_value;
+  } // end IF
+  return_value.set (time, 0);
+
+  return return_value;
+}
+
+ACE_Time_Value
 Common_Timer_Tools::stringToTimestamp (const std::string& timestamp_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Tools::stringToTimestamp"));
@@ -64,8 +93,8 @@ Common_Timer_Tools::stringToTimestamp (const std::string& timestamp_in)
   converter >> char_c;
   ACE_ASSERT (char_c == '/');
   converter >> tm_s.tm_mday;
-  converter >> char_c;
-  ACE_ASSERT (char_c == ' ');
+//  converter >> char_c;
+//  ACE_ASSERT (char_c == ' ');
   converter >> tm_s.tm_hour;
   converter >> char_c;
   ACE_ASSERT (char_c == ':');
@@ -73,7 +102,7 @@ Common_Timer_Tools::stringToTimestamp (const std::string& timestamp_in)
   converter >> char_c;
   ACE_ASSERT (char_c == ':');
   converter >> tm_s.tm_sec;
-  tm_s.tm_isdst = -1; // (try to) guess DST
+  tm_s.tm_isdst = 0; // input is UTC
   time_t time = ACE_OS::mktime (&tm_s);
   if (unlikely (time == -1))
   {

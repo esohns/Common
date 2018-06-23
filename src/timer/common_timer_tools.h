@@ -37,8 +37,13 @@ class Common_Timer_Tools
   //// --- singleton ---
   //static Common_ITimer* getTimerManager ();
 
+  static ACE_Time_Value localToUTC (const ACE_Time_Value&); // local time
+
   // --- parsers ---
   // *NOTE*: parses "YYYY/MM/DD HH:MM:SS"
+  // *NOTE*: the dhclient lease file date format depends on the 'db-time-format'
+  //         configuration parameter; this parses the 'default' setting
+  // *NOTE*: the input is assumed to be UTC
   static ACE_Time_Value stringToTimestamp (const std::string&);
 
   // --- strings ---

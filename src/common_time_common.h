@@ -28,7 +28,7 @@
 
 #if ((ACE_MAJOR_VERSION >= 6) && \
      ((ACE_MINOR_VERSION > 1) || \
-      ((ACE_MINOR_VERSION <= 1) && (ACE_BETA_VERSION > 6))))
+      ((ACE_MINOR_VERSION == 1) && (ACE_BETA_VERSION > 6))))
 #include "ace/Time_Policy.h"
 // *NOTE*: (where possible) use high-resolution timestamps for accuracy and low
 //         latency timers
@@ -48,15 +48,15 @@
 typedef ACE_System_Time_Policy Common_TimePolicy_t;
 #else
 typedef ACE_HR_Time_Policy Common_TimePolicy_t;
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 #else
 #error "ACE version > 6.1.6 required"
 typedef ACE_System_Time_Policy Common_TimePolicy_t;
-#endif
+#endif // ACE_VERSION (> 6.1.6)
 
 #if ((ACE_MAJOR_VERSION >= 6) && \
      ((ACE_MINOR_VERSION > 1) || \
-      ((ACE_MINOR_VERSION <= 1) && (ACE_BETA_VERSION > 6))))
+      ((ACE_MINOR_VERSION == 1) && (ACE_BETA_VERSION > 6))))
 // *NOTE*: global time policy (supplies gettimeofday())
 #if defined (__GNUG__)
 //#pragma GCC diagnostic ignored "-Wunused-variable"
@@ -68,6 +68,8 @@ COMMON_COMPILER_UNUSED_SYMBOL_PREFIX static Common_TimePolicy_t COMMON_TIME_POLI
 #define COMMON_TIME_NOW COMMON_TIME_POLICY ()
 #else
 #define COMMON_TIME_NOW ACE_OS::gettimeofday ()
-#endif
+#endif // ACE_VERSION (> 6.1.6)
+
+#define COMMON_TIME_NOW_UTC Common_Timer_Tools::localToUTC (COMMON_TIME_NOW)
 
 #endif

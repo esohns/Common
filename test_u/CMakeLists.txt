@@ -96,6 +96,7 @@ if (UNIX)
  add_subdirectory (features)
 endif (UNIX)
 add_subdirectory (file)
+add_subdirectory (regex)
 
 # phonies
 add_custom_target (test_u ALL
@@ -107,6 +108,7 @@ if (UNIX)
  add_dependencies (test_u features)
 endif (UNIX)
 add_dependencies (test_u file)
+add_dependencies (test_u regex)
 
 if (NOT BUILD_TEST_U)
  set_target_properties (test_u PROPERTIES EXCLUDE_FROM_ALL 1)
