@@ -1326,6 +1326,174 @@ finish:
   return result;
 }
 
+bool
+Common_DBus_Tools::isUnitActive (struct sd_bus* bus_in,
+                                 const std::string& unitName_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_DBus_Tools::isUnitActive"));
+
+  // initialize return value(s)
+  bool result = false;
+
+  // sanity check(s)
+  ACE_ASSERT (!unitName_in.empty ());
+
+  struct sd_bus* bus_p = (bus_in ? bus_in : Common_DBus_Tools::bus);
+  sd_bus_error error_s = SD_BUS_ERROR_NULL;
+  struct sd_bus_message* message_p = NULL;
+  const char* string_p = NULL;
+
+  // sanity check(s)
+  ACE_ASSERT (bus_p);
+
+  int result_2 =
+      sd_bus_call_method (bus_p,
+                          ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_SERVICE_STRING),                             /* service */
+                          ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_OBJECT_PATH_STRING),                         /* object path */
+                          ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_INTERFACE_MANAGER_STRING),                   /* interface name */
+                          ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_METHOD_UNIT_FILE_STATE_STRING),              /* method name */
+                          &error_s,                                                                        /* object to return error in */
+                          &message_p,                                                                      /* return message on success */
+                          ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_METHOD_UNIT_FILE_STATE_IN_SIGNATURE_STRING), /* input signature */
+                          unitName_in.c_str ());                                                           /* first argument */
+  if (unlikely (result_2 < 0))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to sd_bus_call_method(%s): \"%s\", aborting\n"),
+                ACE_TEXT (COMMON_SD_BUS_METHOD_UNIT_FILE_STATE_STRING),
+                ACE_TEXT (error_s.message)));
+    goto finish;
+  } // end IF
+  ACE_ASSERT (message_p);
+
+  result_2 =
+      sd_bus_message_read (message_p,
+                           ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_METHOD_UNIT_FILE_STATE_OUT_SIGNATURE_STRING),
+                           &string_p);
+  if (unlikely (result_2 < 0))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to sd_bus_message_read(): \"%s\", aborting\n"),
+                ACE_TEXT (ACE_OS::strerror (-result_2))));
+    goto finish;
+  } // end IF
+  ACE_ASSERT (string_p);
+
+  result =
+      !ACE_OS::strcmp (string_p,
+                       ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_METHOD_UNIT_FILE_STATE_ENABLED_STRING));
+
+finish:
+  sd_bus_error_free (&error_s);
+  sd_bus_message_unref (message_p);
+
+  return result;
+}
+
+bool
+Common_DBus_Tools::toggleUnitActive (struct sd_bus* bus_in,
+                                     const std::string& unitName_in,
+                                     bool runTime_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_DBus_Tools::toggleUnitActive"));
+
+  bool result = false;
+
+  struct sd_bus* bus_p = (bus_in ? bus_in : Common_DBus_Tools::bus);
+  int result_2 = -1;
+  sd_bus_error error_s = SD_BUS_ERROR_NULL;
+  struct sd_bus_message* message_p = NULL;
+  const char* string_p = NULL, *string_2 = NULL, *string_3 = NULL;
+  bool toggle_on = false;
+
+  // sanity check(s)
+  ACE_ASSERT (bus_p);
+
+  toggle_on = !Common_DBus_Tools::isUnitActive (bus_p,
+                                                unitName_in);
+
+  // toggle unit
+retry:
+  result_2 =
+      sd_bus_call_method (bus_p,
+                          ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_SERVICE_STRING),                                             /* service */
+                          ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_OBJECT_PATH_STRING),                                         /* object path */
+                          ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_INTERFACE_MANAGER_STRING),                                   /* interface name */
+                          (toggle_on ? ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_METHOD_UNIT_FILE_ENABLE_STRING)
+                                     : ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_METHOD_UNIT_FILE_DISABLE_STRING)),              /* method name */
+                          &error_s,                                                                                        /* object to return error in */
+                          &message_p,                                                                                      /* return message on success */
+                          (toggle_on ? ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_METHOD_UNIT_FILE_ENABLE_IN_SIGNATURE_STRING)
+                                     : ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_METHOD_UNIT_FILE_DISABLE_IN_SIGNATURE_STRING)), /* input signature */
+                          unitName_in.c_str (),                                                                            /* first argument */
+                          (runTime_in ? 1 : 0));                                                                           /* second argument */
+  if (unlikely (result_2 < 0))
+  { // *NOTE*: if the user/application does not have permission to manage the
+    //         unit, a password dialog appears and EINTR is returned
+    //         --> wait for a few seconds and retry
+    if (-result_2 == EINTR) // 4
+    {
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("failed to sd_bus_call_method(%s): \"%s\", retrying...\n"),
+                  (toggle_on ? ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_METHOD_UNIT_FILE_ENABLE_STRING)
+                             : ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_METHOD_UNIT_FILE_DISABLE_STRING)),
+                  ACE_TEXT (error_s.message)));
+      ACE_Time_Value one_second (1, 0);
+      result_2 = ACE_OS::sleep (one_second);
+      if (result_2 == -1)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_OS::sleep(%#T): \"%m\", continuing\n"),
+                    &one_second));
+      goto retry;
+    } // end IF
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to sd_bus_call_method(%s): \"%s\", aborting\n"),
+                (toggle_on ? ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_METHOD_UNIT_FILE_ENABLE_STRING)
+                           : ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_METHOD_UNIT_FILE_DISABLE_STRING)),
+                ACE_TEXT (error_s.message)));
+    goto finish;
+  } // end IF
+  ACE_ASSERT (message_p);
+
+  result_2 =
+      sd_bus_message_enter_container (message_p,
+                                      SD_BUS_TYPE_ARRAY,
+                                      ACE_TEXT_ALWAYS_CHAR ("sss"));
+  if (unlikely (result_2 < 0))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to sd_bus_message_enter_container(): \"%s\", aborting\n"),
+                ACE_TEXT (ACE_OS::strerror (-result_2))));
+    goto finish;
+  } // end IF
+  result_2 =
+      sd_bus_message_read (message_p,
+                           ACE_TEXT_ALWAYS_CHAR ("sss"),
+                           string_p,
+                           string_2,
+                           string_3);
+  if (unlikely (result_2 < 0))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to sd_bus_message_read(): \"%s\", aborting\n"),
+                ACE_TEXT (ACE_OS::strerror (-result_2))));
+    goto finish;
+  } // end IF
+  ACE_ASSERT (string_p);
+  ACE_ASSERT (string_2);
+  ACE_ASSERT (string_3);
+
+  result =
+      !ACE_OS::strcmp (string_p,
+                       ACE_TEXT_ALWAYS_CHAR (COMMON_SD_BUS_PROPERTY_JOB_RESULT_DONE_STRING));
+
+finish:
+  sd_bus_error_free (&error_s);
+  sd_bus_message_unref (message_p);
+
+  return result;
+}
+
 //bool
 //Net_Common_Tools::isNetworkManagerRunning ()
 //{

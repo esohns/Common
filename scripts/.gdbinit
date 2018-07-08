@@ -78,6 +78,8 @@ handle SIG34 pass nostop noprint
 
 # source paths / debug symbols
 #directory /home/erik/libxml2-2.9.2+zdfsg1
+directory /mnt/win_d/projects/ffmpeg
+directory /mnt/win_d/projects/ffmpeg/libavcodec
 #set debug-file-directory
 
 # python

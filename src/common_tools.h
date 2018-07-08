@@ -34,7 +34,6 @@
 
 #include "common.h"
 #include "common_configuration.h"
-//#include "common_exports.h"
 #include "common_iinitialize.h"
 
 // forward declaration(s)
@@ -43,7 +42,6 @@ class ACE_Log_Msg_Backend;
 
 ACE_THR_FUNC_RETURN common_event_dispatch_function (void*);
 
-//class Common_Export Common_Tools
 class Common_Tools
  : public Common_SInitializeFinalize_T<Common_Tools>
 {
@@ -66,14 +64,22 @@ class Common_Tools
   static unsigned int getNumberOfCPUs (bool = true); // consider logical cores (i.e. 'hyperthreading') ?
   static std::string getHostName (); // return value: host name (see: man hostname(2))
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  //// *WARNING*: limited to 9 characters
+  // *WARNING*: limited to 9 characters
   static void setThreadName (const std::string&, // thread name
                              DWORD = 0);         // thread id (0: caller)
 #endif // ACE_WIN32 || ACE_WIN64
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-  static bool isLinux (enum Common_OperatingSystemDistributionType&); // return value: distribution
-#endif // ACE_WIN32 || ACE_WIN64
+  static bool isOperatingSystem (enum Common_OperatingSystemType);
+#if defined (ACE_LINUX)
+  static enum Common_OperatingSystemDistributionType getDistribution (unsigned int&,  // return value: major version
+                                                                      unsigned int&,  // return value: minor version
+                                                                      unsigned int&); // return value: micro version
+#define COMMON_IF_LINUX_DISTRIBUTION_AT_LEAST(distribution, major,minor,micro)       \
+  unsigned int major_i, minor_i, micro_i;                                            \
+  if ((distribution == Common_Tools::getDistribution (major_i, minor_i, micro_i)) && \
+      ((major_i > major)                                             ||              \
+       ((major_i == major) && minor_i > minor)                       ||              \
+       ((major_i == major) && (minor_i == minor) && (micro_i >= micro))))
+#endif // ACE_LINUX
 
   static void printLocales ();
 

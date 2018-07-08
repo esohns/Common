@@ -72,6 +72,11 @@ class Common_DBus_Tools
   static bool toggleUnit (struct sd_bus*,     // system bus handle
                           const std::string&, // unit name (e.g. 'NetworkManager.service')
                           bool = false);      // wait for completion ?
+  static bool isUnitActive (struct sd_bus*,      // system bus handle
+                            const std::string&); // unit name (e.g. 'NetworkManager.service')
+  static bool toggleUnitActive (struct sd_bus*,     // system bus handle
+                                const std::string&, // unit name (e.g. 'NetworkManager.service')
+                                bool);              // runtime ?
 #endif // SD_BUS_SUPPORT
 
  private:

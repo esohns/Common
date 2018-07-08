@@ -232,10 +232,20 @@
 //#define COMMON_COMMAND_ADDUSER_STRING                          "adduser"
 #define COMMON_COMMAND_GPASSWD_STRING                          "gpasswd"
 #define COMMON_COMMAND_LOCATE_STRING                           "locate"
+#define COMMON_COMMAND_LSB_RELEASE_STRING                      "lsb_release"
+#define COMMON_COMMAND_SWITCH_LSB_RELEASE_DISTRIBUTOR_STRING   "i"
+#define COMMON_COMMAND_SWITCH_LSB_RELEASE_RELEASE_STRING       "r"
 #define COMMON_COMMAND_PIDOF_STRING                            "pidof"
 #define COMMON_COMMAND_PIDOFPROC_STRING                        "pidofproc"
 #define COMMON_COMMAND_USERMOD_STRING                          "usermod"
 #define COMMON_COMMAND_WHICH_STRING                            "which"
+#define COMMON_STRING_APPEND(string,string_2) \
+  string += ACE_TEXT_ALWAYS_CHAR (#string_2);
+#define COMMON_COMMAND_ADD_SWITCH(command,switch_) \
+  command += COMMON_STRING_APPEND (command,-);     \
+  command += ACE_TEXT_ALWAYS_CHAR (switch_);
+#define COMMON_COMMAND_START_IN_BACKGROUND(command) \
+  command += COMMON_STRING_APPEND (command, &);
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
@@ -245,12 +255,19 @@
 #define COMMON_SYSTEMD_UNIT_COMMAND_STATUS                     "status"
 #define COMMON_SYSTEMD_UNIT_COMMAND_STOP                       "stop"
 
-#define COMMON_SYSTEMD_UNIT_NETWORKMANAGER                     "NetworkManager.service"
-#define COMMON_SYSTEMD_UNIT_WPASUPPLICANT                      "wpa_supplicant.service"
 #define COMMON_SYSTEMD_UNIT_IFUPDOWN                           "ifupdown.service"
+#define COMMON_SYSTEMD_UNIT_NETWORKMANAGER                     "NetworkManager.service"
+#define COMMON_SYSTEMD_UNIT_RESOLVED                           "systemd-resolved.service"
+#define COMMON_SYSTEMD_UNIT_WPASUPPLICANT                      "wpa_supplicant.service"
 #endif // ACE_WIN32 || ACE_WIN64
 
 // *** application ***
+
+#define COMMON_CHECK_VERSION(major,minor,micro)                                                                        \
+    ((libCommon_VERSION_MAJOR > major)                                                                              || \
+     ((libCommon_VERSION_MAJOR == major) && (libCommon_VERSION_MINOR > minor))                                      || \
+     ((libCommon_VERSION_MAJOR == major) && (libCommon_VERSION_MINOR == minor) && (libCommon_VERSION_MICRO >= micro)))
+
 #define COMMON_APPLICATION_THREAD_GROUP_ID                     1000
 
 #endif

@@ -316,7 +316,6 @@ Common_UI_GTK_Tools::getDisplayDevices (Common_UI_DisplayDevices_t& devices_out)
   GdkDisplay* display_p = NULL;
   int number_of_monitors = 0;
   GdkMonitor* monitor_p = NULL;
-  GtkTreeIter iterator;
   for (GSList* list_2 = list_p;
        list_2;
        list_2 = list_2->next)
@@ -345,7 +344,9 @@ Common_UI_GTK_Tools::getDisplayDevices (Common_UI_DisplayDevices_t& devices_out)
                   ACE_TEXT (gdk_monitor_get_model (monitor_p))));
 #endif // _DEBUG
 
-      device_s.description = gdk_monitor_get_manufacturer (monitor_p);
+      if (gdk_monitor_is_primary (monitor_p))
+        device_s.description = ACE_TEXT_ALWAYS_CHAR ("*");
+      device_s.description += gdk_monitor_get_manufacturer (monitor_p);
       device_s.description += ACE_TEXT_ALWAYS_CHAR (" / ");
       device_s.description += gdk_monitor_get_model (monitor_p);
       devices_out.push_back (device_s);

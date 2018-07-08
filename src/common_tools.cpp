@@ -787,22 +787,19 @@ Common_Tools::printLocales ()
                 ACE_TEXT ((*iterator).c_str ())));
 }
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
 bool
-Common_Tools::isLinux (enum Common_OperatingSystemDistributionType& distribution_out)
+Common_Tools::isOperatingSystem (enum Common_OperatingSystemType operatingSystem_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::isLinux"));
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::isOperatingSystem"));
 
-  // initialize return value(s)
-  distribution_out = COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID;
-
-  int result = -1;
+  // sanity check(s)
+  ACE_ASSERT (operatingSystem_in != COMMON_OPERATINGSYSTEM_INVALID);
 
   // get system information
+  int result_2 = -1;
   ACE_utsname utsname_s;
-  result = ACE_OS::uname (&utsname_s);
-  if (unlikely (result == -1))
+  result_2 = ACE_OS::uname (&utsname_s);
+  if (unlikely (result_2 == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::uname(): \"%m\", aborting\n")));
@@ -816,40 +813,73 @@ Common_Tools::isLinux (enum Common_OperatingSystemDistributionType& distribution
               ACE_TEXT (utsname_s.sysname),
               ACE_TEXT (utsname_s.release),
               ACE_TEXT (utsname_s.version)));
-#endif
+#endif // _DEBUG
+
+#if defined (ACE_LINUX)
   std::string sysname_string (utsname_s.sysname);
   if (sysname_string.find (ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LINUX_UNAME_STRING),
                            0))
     return false;
+#else
+  ACE_ASSERT (false); // *TODO*
+  ACE_NOTSUP_RETURN (false);
 
-  // this appears to be a Linux system
-  // --> try to determine the distribution
-  std::string lsb_release_output_string;
-  std::string command_line_string = ACE_TEXT_ALWAYS_CHAR ("lsb_release -i");
+  ACE_NOTREACHED (return false;)
+#endif
+
+  return true;
+}
+
+#if defined (ACE_LINUX)
+enum Common_OperatingSystemDistributionType
+Common_Tools::getDistribution (unsigned int& majorVersion_out,
+                               unsigned int& minorVersion_out,
+                               unsigned int& microVersion_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::getDistribution"));
+
+  // initialize return value(s)
+  enum Common_OperatingSystemDistributionType result =
+      COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID;
+  majorVersion_out = 0;
+  minorVersion_out = 0;
+  microVersion_out = 0;
+
+  // sanity check(s)
+  if (unlikely (!Common_Tools::isOperatingSystem (COMMON_OPERATINGSYSTEM_GNU_LINUX)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("this is not a (GNU-) Linux system, aborting\n")));
+    return result;
+  } // end IF
+
+  // step1: retrieve distributor id
+  std::string command_line_string =
+      ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LSB_RELEASE_STRING);
+  COMMON_COMMAND_ADD_SWITCH (command_line_string,COMMON_COMMAND_SWITCH_LSB_RELEASE_DISTRIBUTOR_STRING)
   int exit_status_i = 0;
+  std::string command_output_string, distribution_id_string, release_string;
+  std::string buffer_string;
+  std::istringstream converter;
+  char buffer_a [BUFSIZ];
+  std::string regex_string = ACE_TEXT_ALWAYS_CHAR ("^(Distributor ID:\t)(.+)$");
+  std::regex regex (regex_string);
+  std::smatch match_results;
   if (unlikely (!Common_Tools::command (command_line_string,
                                         exit_status_i,
-                                        lsb_release_output_string)))
+                                        command_output_string)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
                 ACE_TEXT (command_line_string.c_str ())));
-    return false;
+    return result;
   } // end IF
-  ACE_ASSERT (!lsb_release_output_string.empty ());
-
-  std::string distribution_id_string;
-  std::istringstream converter;
-  char buffer [BUFSIZ];
-  std::string regex_string = ACE_TEXT_ALWAYS_CHAR ("^(Distributor ID:\t)(.+)$");
-  std::regex regex (regex_string);
-  std::smatch match_results;
-  converter.str (lsb_release_output_string);
-  std::string buffer_string;
+  ACE_ASSERT (!command_output_string.empty ());
+  converter.str (command_output_string);
   do
   {
-    converter.getline (buffer, sizeof (buffer));
-    buffer_string = buffer;
+    converter.getline (buffer_a, sizeof (char[BUFSIZ]));
+    buffer_string = buffer_a;
     if (!std::regex_match (buffer_string,
                            match_results,
                            regex,
@@ -864,28 +894,75 @@ Common_Tools::isLinux (enum Common_OperatingSystemDistributionType& distribution
   if (unlikely (distribution_id_string.empty ()))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to retrieve Linux distributor id ('lsb_release' output was: \"%s\"), returning\n"),
-                ACE_TEXT (lsb_release_output_string.c_str ())));
-    return true;
+                ACE_TEXT ("failed to retrieve (GNU-) Linux distributor id (command output was: \"%s\"), aborting\n"),
+                ACE_TEXT (command_output_string.c_str ())));
+    return result;
   } // end IF
 
   if (!ACE_OS::strcmp (distribution_id_string.c_str (),
                        ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LSB_DEBIAN_STRING)))
-    distribution_out = COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_DEBIAN;
+    result = COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_DEBIAN;
   else if (!ACE_OS::strcmp (distribution_id_string.c_str (),
                             ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LSB_OPENSUSE_STRING)))
-    distribution_out = COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_SUSE;
+    result = COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_SUSE;
   else if (!ACE_OS::strcmp (distribution_id_string.c_str (),
                             ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LSB_UBUNTU_STRING)))
-    distribution_out = COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_UBUNTU;
+    result = COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_UBUNTU;
   else
-    ACE_DEBUG ((LM_WARNING,
-                ACE_TEXT ("failed to determine Linux distribution (lsb_release output was: \"%s\"), continuing\n"),
-                ACE_TEXT (lsb_release_output_string.c_str ())));
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to determine Linux distribution (command output was: \"%s\"), aborting\n"),
+                ACE_TEXT (command_output_string.c_str ())));
+    return result;
+  } // end ELSE
 
-  return true;
+  // step2: retrieve release version
+  command_line_string =
+      ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LSB_RELEASE_STRING);
+  COMMON_COMMAND_ADD_SWITCH (command_line_string,COMMON_COMMAND_SWITCH_LSB_RELEASE_RELEASE_STRING)
+  std::string regex_string_2 = ACE_TEXT_ALWAYS_CHAR ("^(Release:\t)(.+)$");
+  std::regex regex_2 (regex_string_2);
+  if (unlikely (!Common_Tools::command (command_line_string,
+                                        exit_status_i,
+                                        command_output_string)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
+                ACE_TEXT (command_line_string.c_str ())));
+    return result;
+  } // end IF
+  ACE_ASSERT (!command_output_string.empty ());
+  converter.str (command_output_string);
+  do
+  {
+    converter.getline (buffer_a, sizeof (char[BUFSIZ]));
+    buffer_string = buffer_a;
+    if (!std::regex_match (buffer_string,
+                           match_results,
+                           regex,
+                           std::regex_constants::match_default))
+      continue;
+    ACE_ASSERT (match_results.ready () && !match_results.empty ());
+    ACE_ASSERT (match_results[2].matched);
+
+    release_string = match_results[2];
+    break;
+  } while (!converter.fail ());
+  if (unlikely (release_string.empty ()))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to retrieve (GNU-) Linux release version (command output was: \"%s\"), aborting\n"),
+                ACE_TEXT (command_output_string.c_str ())));
+    return result;
+  } // end IF
+  converter.str (release_string);
+  converter >> majorVersion_out;
+  converter >> minorVersion_out;
+  converter >> microVersion_out;
+
+  return result;
 }
-#endif
+#endif // ACE_LINUX
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
@@ -1313,15 +1390,16 @@ Common_Tools::getProcessId (const std::string& executableName_in)
 
 #if defined (ACE_LINUX)
   // sanity check(s)
+  unsigned int major_i = 0, minor_i = 0, micro_i = 0;
   enum Common_OperatingSystemDistributionType linux_distribution_e =
-      COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID;
-  if (unlikely (!Common_Tools::isLinux (linux_distribution_e)))
+      Common_Tools::getDistribution (major_i, minor_i, micro_i);
+  ACE_UNUSED_ARG (major_i); ACE_UNUSED_ARG (minor_i); ACE_UNUSED_ARG (micro_i);
+  if (unlikely (linux_distribution_e == COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_Tools::isLinux(), aborting\n")));
+                ACE_TEXT ("failed to Common_Tools::getDistribution(), aborting\n")));
     return result;
   } // end IF
-  ACE_ASSERT (linux_distribution_e != COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID);
 
   std::string command_line_string;
   switch (linux_distribution_e)
@@ -1879,6 +1957,15 @@ Common_Tools::enableCoreDump (bool enable_in)
   ACE_NOTSUP_RETURN (false);
   ACE_NOTREACHED (return false;)
 #else
+  if (unlikely (!Common_Tools::setResourceLimits (false,
+                                                  enable_in,
+                                                  false)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_Tools::setResourceLimits(), aborting\n")));
+    return false;
+  } // end IF
+
   int result =
       ::prctl (PR_SET_DUMPABLE,
                (enable_in ? 1 : 0), 0, 0, 0);
@@ -1886,7 +1973,7 @@ Common_Tools::enableCoreDump (bool enable_in)
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ::prctl(PR_SET_DUMPABLE): \"%m\", returning\n")));
+                ACE_TEXT ("failed to ::prctl(PR_SET_DUMPABLE): \"%m\", aborting\n")));
     return false;
   } // end IF
 #endif
@@ -3179,15 +3266,16 @@ Common_Tools::isInstalled (const std::string& executableName_in,
 
 #if defined (ACE_LINUX)
   // sanity check(s)
+  unsigned int major_i = 0, minor_i = 0, micro_i = 0;
   enum Common_OperatingSystemDistributionType linux_distribution_e =
-      COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID;
-  if (unlikely (!Common_Tools::isLinux (linux_distribution_e)))
+      Common_Tools::getDistribution (major_i, minor_i, micro_i);
+  ACE_UNUSED_ARG (major_i); ACE_UNUSED_ARG (minor_i); ACE_UNUSED_ARG (micro_i);
+  if (unlikely (linux_distribution_e == COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_Tools::isLinux(), aborting\n")));
+                ACE_TEXT ("failed to Common_Tools::getDistribution(), aborting\n")));
     return result; // *TODO*: avoid false negatives
   } // end IF
-  ACE_ASSERT (linux_distribution_e != COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID);
 
   std::string command_line_string;
   std::string command_output_string;
