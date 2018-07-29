@@ -40,6 +40,8 @@
 #include "common_macros.h"
 #include "common_tools.h"
 
+#include "common_ui_common.h"
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 BOOL CALLBACK
 common_monitor_enum_cb (HMONITOR monitor_in,
@@ -57,15 +59,15 @@ common_monitor_enum_cb (HMONITOR monitor_in,
   ACE_ASSERT (clippingArea_in);
   ACE_ASSERT (userData_in);
 
-  Common_DisplayDevices_t* devices_p =
-    reinterpret_cast<Common_DisplayDevices_t*> (userData_in);
+  Common_UI_DisplayDevices_t* devices_p =
+    reinterpret_cast<Common_UI_DisplayDevices_t*> (userData_in);
 
   // *NOTE*: more than one physical monitor may be associated with a monitor
   //         handle. Note how this is a race condition
   DWORD number_of_monitors = 0;
   struct _PHYSICAL_MONITOR* physical_monitors_p = NULL;
   MONITORINFOEX monitor_info;
-  struct Common_DisplayDevice device_s;
+  struct Common_UI_DisplayDevice device_s;
 
   if (!GetNumberOfPhysicalMonitorsFromHMONITOR (monitor_in,
                                                 &number_of_monitors))

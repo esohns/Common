@@ -21,6 +21,7 @@
 #ifndef COMMON_IMAGE_TOOLS_H
 #define COMMON_IMAGE_TOOLS_H
 
+#include <cstdint>
 #include <string>
 
 #ifdef __cplusplus
@@ -31,8 +32,6 @@ extern "C"
 #endif /* __cplusplus */
 
 #include "ace/Global_Macros.h"
-
-//#include "common_image_exports.h"
 
 class Common_Image_Tools
 {

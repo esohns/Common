@@ -5,25 +5,31 @@
 #pragma once
 
 #if defined (_MSC_VER)
-#define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
-
+// Exclude rarely-used stuff from Windows headers
+#define WIN32_LEAN_AND_MEAN
 // <limits> does not work correctly with these macros
 #define NOMINMAX
-
-// Windows Header Files
-#include <windows.h>
-
-#if defined (_DEBUG)
-// *TODO*: currently, these do not work well with ACE...
-//#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
-#endif
-
 // *NOTE*: nmake complains (see also:
 //         C:\Program Files (x86)\Windows Kits\8.1\include\shared\sspi.h(64))
 #define SECURITY_WIN32
-#endif
+
+#if defined (_DEBUG)
+// *TODO*: currently, these do not work well with ACE
+//#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#endif // _DEBUG
+
+// Windows Header Files
+// *NOTE*: <windows.h> #includes <sdkddkver.h>
+#include <windows.h>
+#if defined (_DEBUG)
+#include "common_pragmas.h"
+#pragma message("toolchain version (_MSC_VER): " COMMON_MAKESTRING(COMMON_XSTRINGIZE, _MSC_VER))
+#pragma message("SDK version (_WIN32_WINNT): " COMMON_MAKESTRING(COMMON_XSTRINGIZE, _WIN32_WINNT))
+#pragma message("target platform (WINVER): " COMMON_MAKESTRING(COMMON_XSTRINGIZE, WINVER))
+#endif // _DEBUG
+#endif // _MSC_VER
 
 // C++ RunTime Header Files
 #include <string>
@@ -33,10 +39,9 @@
 #include "ace/Global_Macros.h"
 #include "ace/Log_Msg.h"
 
-//#if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
 #if defined (VALGRIND_SUPPORT)
 #include "valgrind/valgrind.h"
-#endif
+#endif // VALGRIND_SUPPORT
 
 // Local Header Files
 #include "common.h"
@@ -45,4 +50,4 @@
 
 #if defined (HAVE_CONFIG_H)
 #include "libCommon_config.h"
-#endif
+#endif // HAVE_CONFIG_H

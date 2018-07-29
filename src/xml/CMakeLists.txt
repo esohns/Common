@@ -51,6 +51,7 @@ elseif (WIN32)
  set (ACEXML_LIB_FILE ACEXML${LIB_FILE_SUFFIX}.lib)
  find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
                PATHS ENV ACE_ROOT
+               PATHS ${CMAKE_CURRENT_BINARY_DIR}/../../../../ATCD/ACE
                PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
                DOC "searching for ${ACEXML_LIB_FILE}")
 endif ()

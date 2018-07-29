@@ -28,9 +28,13 @@
 #include <gl/GL.h>
 #else
 #include <GL/gl.h>
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if defined (_MSC_VER) && (_MSC_VER >= 1800)
 #include "glm/glm.hpp"
+#endif // _MSC_VER && (_MSC_VER >= 1800)
+#endif // ACE_WIN32 || ACE_WIN64
 
 #include "assimp/color4.h"
 #include "assimp/matrix4x4.h"
@@ -40,22 +44,26 @@
 
 #include "common_gl_common.h"
 
-//#include "common_gl_exports.h"
-
 // forward declarations
 struct aiMaterial;
 struct aiNode;
 struct aiScene;
 
-//class Common_GL_Export Common_GL_Tools
 class Common_GL_Tools
 {
  public:
   static std::string errorToString (GLenum);
 
-  static GLuint loadModel (const std::string&,       // path
-                           Common_GL_BoundingBox_t&, // return value: bounding box
-                           glm::vec3&);              // return value: center
+  static GLuint loadModel (const std::string&,          // path
+                           Common_GL_BoundingBox_t&,    // return value: bounding box
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if defined (_MSC_VER) && (_MSC_VER >= 1800)
+						   glm::vec3&);                 // return value: center
+#else
+						   struct Common_GL_VectorF3&); // return value: center
+#endif // _MSC_VER && (_MSC_VER >= 1800)
+#endif // ACE_WIN32 || ACE_WIN64
+
   // *NOTE*: invokes glTexImage2D() with 'target' GL_TEXTURE_2D and 'internal
   //         format' GL_RGBA8
   // *TODO*: currently, only PNG files are supported

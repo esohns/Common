@@ -168,7 +168,6 @@ set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_u")
 #add_dependencies (${PROJECT_NAME} Common)
 
 #target_link_libraries (${EXECUTABLE} ${CMAKE_THREAD_LIBS_INIT})
-#target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
 if (UNIX)
 # target_link_libraries (${EXECUTABLE} rt)
 # target_link_libraries (${EXECUTABLE} ${PKG_CAP_LIBRARIES})
@@ -187,6 +186,7 @@ elseif (WIN32)
 # target_link_libraries (${EXECUTABLE} User32.lib)
 # target_link_libraries (${EXECUTABLE} Userenv.lib)
 # *TODO*: repair WIN32 pkgconfig support
+ target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
 # gtk
 # if (GTK3_SUPPORT)
 #  target_link_libraries (${EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtk/gtk/Win32/debug/lib/gio-2.0.lib)

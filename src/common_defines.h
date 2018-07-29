@@ -46,7 +46,16 @@
 
 // *** OS ***
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
+#define COMMON_OS_WIN32_SDK_VERSION(version)                   (_WIN32_WINNT && (_WIN32_WINNT >= version))
+#define COMMON_OS_WIN32_TARGET_PLATFORM(version)               (WINVER && (WINVER >= version))
+#elif defined (ACE_LINUX)
+#define COMMON_OS_LINUX_IF_DISTRIBUTION_AT_LEAST(distribution, major,minor,micro)       \
+  unsigned int major_i, minor_i, micro_i;                                               \
+  if ((distribution == Common_Tools::getDistribution (major_i, minor_i, micro_i)) &&    \
+      ((major_i > major)                                             ||                 \
+       ((major_i == major) && minor_i > minor)                       ||                 \
+       ((major_i == major) && (minor_i == minor) && (micro_i >= micro))))
+
 // *NOTE*: as returned by ::uname(2)
 #define COMMON_OS_LINUX_UNAME_STRING                           "Linux"
 

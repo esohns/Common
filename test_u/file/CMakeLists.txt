@@ -138,23 +138,26 @@ set (file_EXE_SRCS
 
 set (EXECUTABLE file)
 if (WIN32)
-generate_product_version (VERSION_FILES
-                          NAME ${EXECUTABLE}
-                          BUNDLE ${PROJECT_NAME}
+# message (STATUS "MSVC_VERSION: ${MSVC_VERSION}")
+ if (MSVC AND (NOT MSVC_VERSION LESS 1700))
+  generate_product_version (VERSION_FILES
+                            NAME ${EXECUTABLE}
+                            BUNDLE ${PROJECT_NAME}
 #                          ICON "${CMAKE_SOURCE_DIR}/product.ico"
-                          ICON "${CMAKE_CURRENT_SOURCE_DIR}/../../include/libcommon_icon.ico"
-                          VERSION_MAJOR ${VERSION_MAJOR}
-                          VERSION_MINOR ${VERSION_MINOR}
-                          VERSION_PATCH ${VERSION_MICRO}
+                            ICON "${CMAKE_CURRENT_SOURCE_DIR}/../../include/libcommon_icon.ico"
+                            VERSION_MAJOR ${VERSION_MAJOR}
+                            VERSION_MINOR ${VERSION_MINOR}
+                            VERSION_PATCH ${VERSION_MICRO}
 #                          VERSION_REVISION ${VERSION_DEVEL}
-                          VERSION_REVISION 0
-                          COMPANY_NAME ""
+                            VERSION_REVISION 0
+                            COMPANY_NAME ""
 #                          COMPANY_COPYRIGHT "${COMPANY_NAME} (C) Copyright ${CURRENT_YEAR}"
-                          COMPANY_COPYRIGHT ""
-                          COMMENTS ${PACKAGE_DESCRIPTION_SUMMARY}
-                          ORIGINAL_FILENAME ""
-                          INTERNAL_NAME ""
-                          FILE_DESCRIPTION ${PACKAGE_DESCRIPTION})
+                            COMPANY_COPYRIGHT ""
+                            COMMENTS ${PACKAGE_DESCRIPTION_SUMMARY}
+                            ORIGINAL_FILENAME ""
+                            INTERNAL_NAME ""
+                            FILE_DESCRIPTION ${PACKAGE_DESCRIPTION})
+ endif ()
 endif (WIN32)
 
 #cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property

@@ -9,7 +9,7 @@
 class Common_Math_Tools
 {
  public:
-  inline size_t bits (ACE_UINT32 bitmask_in) { std::bitset<sizeof (ACE_UINT32) * 8> bitset_m (static_cast<unsigned long> (bitmask_in)); return bitset_m.count (); }
+  inline size_t bits (ACE_UINT32 bitmask_in) { std::bitset<sizeof (ACE_UINT32) * 8> bitset_m (static_cast<int> (bitmask_in)); return bitset_m.count (); }
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Math_Tools ())

@@ -29,9 +29,8 @@
 
 #include "ace/Log_Msg.h"
 
-#include "common_macros.h"
-
 #include "common_file_tools.h"
+#include "common_macros.h"
 
 #include "common_image_defines.h"
 
@@ -78,7 +77,13 @@ Common_GL_Tools::errorToString (GLenum error_in)
 GLuint
 Common_GL_Tools::loadModel (const std::string& path_in,
                             Common_GL_BoundingBox_t& boundingBox_out,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if defined (_MSC_VER) && (_MSC_VER >= 1800)
                             glm::vec3& center_out)
+#else
+						    struct Common_GL_VectorF3& center_out)
+#endif // _MSC_VER && (_MSC_VER >= 1800)
+#endif // ACE_WIN32 || ACE_WIN64
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::loadModel"));
 
@@ -124,9 +129,9 @@ Common_GL_Tools::loadModel (const std::string& path_in,
   boundingBox_out.second.y = max.y;
   boundingBox_out.second.z = max.z;
 
-  center_out.x = (min.x + max.x) / 2.0f;
-  center_out.y = (min.y + max.y) / 2.0f;
-  center_out.z = (min.z + max.z) / 2.0f;
+  center_out.x = (min.x + max.x) / 2.0F;
+  center_out.y = (min.y + max.y) / 2.0F;
+  center_out.z = (min.z + max.z) / 2.0F;
 
   // clean up
   aiReleaseImport (scene_p);

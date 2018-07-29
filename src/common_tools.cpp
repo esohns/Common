@@ -40,11 +40,14 @@ using namespace std;
 #define ACE_IOSFWD_H
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include <combaseapi.h>
 #include <dxerr.h>
 #include <errors.h>
 #include <strmif.h>
 #include <Security.h>
+
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0602) // _WIN32_WINNT_WIN8
+#include <processthreadsapi.h>
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0602)
 #elif defined (ACE_LINUX)
 #include <sys/capability.h>
 #include <sys/prctl.h>
@@ -79,6 +82,7 @@ using namespace std;
 #include "ace/Time_Value.h"
 #include "ace/TP_Reactor.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "ace/Configuration.h"
 #include "ace/WIN32_Proactor.h"
 #include "ace/WFMO_Reactor.h"
 #else
@@ -581,7 +585,7 @@ Common_Tools::setThreadName (const std::string& name_in,
   // sanity check(s)
   ACE_ASSERT (!name_in.empty ());
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_WIN10)
+#if (_WIN32_WINNT >= 0x0A00) // _WIN32_WINNT_WIN10
   HANDLE handle_h =
     (threadId_in ? reinterpret_cast<HANDLE> (threadId_in)
                  : ::GetCurrentThread ());
@@ -622,7 +626,7 @@ Common_Tools::setThreadName (const std::string& name_in,
   } __except (EXCEPTION_EXECUTE_HANDLER) {}
 #pragma warning (pop)
 #endif // DEBUG_DEBUGGER
-#endif // _WIN32_WINNT >= _WIN32_WINNT_WIN10
+#endif // (_WIN32_WINNT >= 0x0A00) _WIN32_WINNT_WIN10
 }
 #endif // ACE_WIN32 || ACE_WIN64
 
@@ -642,6 +646,7 @@ Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
   } // end IF
   else
   {
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0601) // _WIN32_WINNT_WIN7
     DWORD size = 0;
     DWORD error = 0;
     BYTE* byte_p = NULL;
@@ -675,10 +680,7 @@ Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to GetLogicalProcessorInformationEx(): \"%s\", returning\n"),
                   ACE_TEXT (Common_Tools::errorToString (GetLastError ()).c_str ())));
-
-      // clean up
-      delete [] byte_p;
-
+      delete [] byte_p; byte_p = NULL;
       return 1;
     } // end IF
     for (DWORD offset = 0;
@@ -693,7 +695,12 @@ Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
           break;
       } // end SWITCH
     } // end FOR
-    delete [] byte_p;
+    delete [] byte_p; byte_p = NULL;
+#else
+    ACE_ASSERT (false);
+    ACE_NOTSUP_RETURN (1);
+    ACE_NOTREACHED (return 1;)
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0601)
   } // end ELSE
 #else
   long result_2 = ACE_OS::sysconf (_SC_NPROCESSORS_ONLN);
@@ -704,7 +711,7 @@ Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
     return 1;
   } // end IF
   result = static_cast<unsigned int> (result_2);
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
   return result;
 }
@@ -716,6 +723,7 @@ Common_Tools::printLocales ()
 
   std::vector<std::string> locales;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
   if (unlikely (!EnumSystemLocalesEx (locale_cb_function,
                                       LOCALE_ALL,
                                       reinterpret_cast<LPARAM> (&locales),
@@ -726,6 +734,11 @@ Common_Tools::printLocales ()
                 ACE_TEXT (Common_Tools::errorToString (GetLastError ()).c_str ())));
     return;
   } // end IF
+#else
+  ACE_ASSERT (false);
+  ACE_NOTSUP;
+  ACE_NOTREACHED (return;)
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0600)
 #else
   // *TODO*: this should work on most Linux systems, but is really a bad idea:
   //         - relies on local 'locale'
@@ -775,7 +788,7 @@ Common_Tools::printLocales ()
     converter.getline (buffer, sizeof (buffer));
     locales.push_back (buffer);
   } while (!converter.fail ());
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
   int index = 1;
   for (std::vector<std::string>::const_iterator iterator = locales.begin ();
@@ -2336,6 +2349,82 @@ Common_Tools::StringToGUID (const std::string& string_in)
   return result;
 }
 
+
+bool
+Common_Tools::deleteKey (HKEY parentKey_in,
+                         const std::string& subkey_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::deleteKey"));
+
+  HKEY key_p =
+    ACE_Configuration_Win32Registry::resolve_key (parentKey_in,
+                                                  ACE_TEXT_CHAR_TO_TCHAR (subkey_in.c_str ()),
+                                                  0); // do not create
+  if (unlikely (!key_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Configuration_Win32Registry::resolve_key(%@,\"%s\"): \"%m\", aborting\n"),
+                parentKey_in,
+                ACE_TEXT (subkey_in.c_str ())));
+    return false;
+  } // end IF
+  ACE_Configuration_Win32Registry registry (key_p);
+  int result = registry.remove_section (registry.root_section (),
+                                        ACE_TEXT_CHAR_TO_TCHAR (""),
+                                        true); // recursive
+  if (result == -1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Configuration_Win32Registry::remove_section(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (subkey_in.c_str ())));
+    return false;
+  } // end IF
+#if defined (_DEBUG)
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("removed key \"%s\"...\n"),
+              ACE_TEXT (subkey_in.c_str ())));
+#endif // _DEBUG
+
+  return true;
+}
+bool
+Common_Tools::deleteKeyValue (HKEY parentKey_in,
+                              const std::string& subkey_in,
+                              const std::string& value_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::deleteKeyValue"));
+
+  HKEY key_p =
+    ACE_Configuration_Win32Registry::resolve_key (parentKey_in,
+                                                  ACE_TEXT_CHAR_TO_TCHAR (subkey_in.c_str ()),
+                                                  0); // do not create
+  if (unlikely (!key_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Configuration_Win32Registry::resolve_key(%@,\"%s\"): \"%m\", aborting\n"),
+                parentKey_in,
+                ACE_TEXT (subkey_in.c_str ())));
+    return false;
+  } // end IF
+  ACE_Configuration_Win32Registry registry (key_p);
+  int result = registry.remove_value (registry.root_section (),
+                                      ACE_TEXT_CHAR_TO_TCHAR (value_in.c_str ()));
+  if (result == -1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Configuration_Win32Registry::remove_value(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (value_in.c_str ())));
+    return false;
+  } // end IF
+#if defined (_DEBUG)
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("removed value \"%s\"...\n"),
+              ACE_TEXT (value_in.c_str ())));
+#endif // _DEBUG
+
+  return true;
+}
+
 std::string
 Common_Tools::errorToString (DWORD error_in,
                              bool useAMGetErrorText_in)
@@ -3074,24 +3163,30 @@ spawn:
 
   converter.clear ();
   converter.str (ACE_TEXT_ALWAYS_CHAR (""));
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
 //    __uint64_t thread_id = 0;
 #endif
   for (unsigned int i = 0;
        i < number_of_threads_i;
        ++i)
   {
-#if !defined (ACE_WIN32) && !defined (ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
 //    ::pthread_getthreadid_np (&thread_handles_p[i], &thread_id);
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
     converter << ACE_TEXT_ALWAYS_CHAR ("#") << (i + 1)
               << ACE_TEXT_ALWAYS_CHAR (" ")
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0502) // _WIN32_WINNT_WS03
               << ::GetThreadId (thread_handles_p[i])
 #else
               << thread_handles_p[i]
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0502)
+#else
+              << thread_handles_p[i]
 //              << thread_id
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
               << ACE_TEXT_ALWAYS_CHAR ("\n");
 
     // also: clean up

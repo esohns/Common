@@ -26,6 +26,10 @@
 #include <sstream>
 #include <string>
 
+#if GTK_CHECK_VERSION (2,3,0)
+#include <glib-object.h>
+#endif // GTK_CHECK_VERSION (2,3,0)
+
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
@@ -97,12 +101,12 @@ gtk_tree_model_foreach_find_index_cb (GtkTreeModel* treeModel_in,
   // sanity check(s)
   ACE_ASSERT (cb_data_p);
 
+#if GTK_CHECK_VERSION (2,3,0)
+  GValue value = G_VALUE_INIT;
+#else
   GValue value;
-#if GTK_CHECK_VERSION (3,0,0)
-  value = G_VALUE_INIT;
-//#else
-//  g_value_init (&value, G_VALUE_TYPE (&cb_data_s.value));
-#endif
+  g_value_init (&value, G_VALUE_TYPE (&cb_data_s.value));
+#endif // GTK_CHECK_VERSION (2,3,0)
   gtk_tree_model_get_value (treeModel_in,
                             treeIterator_in,
                             cb_data_p->column, &value);

@@ -73,12 +73,6 @@ class Common_Tools
   static enum Common_OperatingSystemDistributionType getDistribution (unsigned int&,  // return value: major version
                                                                       unsigned int&,  // return value: minor version
                                                                       unsigned int&); // return value: micro version
-#define COMMON_IF_LINUX_DISTRIBUTION_AT_LEAST(distribution, major,minor,micro)       \
-  unsigned int major_i, minor_i, micro_i;                                            \
-  if ((distribution == Common_Tools::getDistribution (major_i, minor_i, micro_i)) && \
-      ((major_i > major)                                             ||              \
-       ((major_i == major) && minor_i > minor)                       ||              \
-       ((major_i == major) && (minor_i == minor) && (micro_i >= micro))))
 #endif // ACE_LINUX
 
   static void printLocales ();
@@ -161,6 +155,13 @@ class Common_Tools
   // --- UID ---
   static std::string GUIDToString (REFGUID);
   static struct _GUID StringToGUID (const std::string&);
+
+  // --- registry ---
+  static bool deleteKey (HKEY,                // parent key
+                         const std::string&); // subkey
+  static bool deleteKeyValue (HKEY,               // parent key
+                              const std::string&, // subkey
+                              const std::string&); // value
 
   // --- error ---
   static std::string errorToString (DWORD,         // error

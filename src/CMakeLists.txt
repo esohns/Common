@@ -54,6 +54,7 @@ elseif (WIN32)
  set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
                PATHS ENV ACE_ROOT
+               PATHS ${CMAKE_CURRENT_BINARY_DIR}/../../../ATCD/ACE
                PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
                DOC "searching for ${ACE_LIB_FILE}")
 endif ()
@@ -116,7 +117,11 @@ if (UNIX)
                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dbus>)
  endif (DBUS_SUPPORT)
 elseif (WIN32)
- include_directories ($ENV{ACE_ROOT})
+ if (DEFINED ENV{ACE_ROOT})
+  include_directories ($ENV{ACE_ROOT})
+ else ()
+  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../ATCD/ACE)
+ endif ()
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/err)
 endif ()
 target_include_directories (${PROJECT_NAME} PUBLIC
@@ -184,6 +189,12 @@ set (source_files
      common_time_common.h
      common_tools.cpp
      common_tools.h)
+if (WIN32)
+ set (source_files
+      ${source_files}
+      common_event.cpp
+      common_event.h)
+endif (WIN32)
 
 # Include dir for installed targets
 set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
