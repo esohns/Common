@@ -1,4 +1,4 @@
-#include <sdkddkver.h>
+//#include <sdkddkver.h>
 
 // *NOTE*: compile with large(r) file support
 #define _FILE_OFFSET_BITS 64

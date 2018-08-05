@@ -27,18 +27,18 @@
 #include "gtk/gtk.h"
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
-//#if GTK_CHECK_VERSION (3,16,0)
-//#else
-//#include "gtkgl/gdkgl.h"
-//#endif
+#if GTK_CHECK_VERSION (3,16,0)
+#else
+#include "gtkgl/gdkgl.h"
+#endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gdkgl.h"
 #else
 #include "gtk/gtkgl.h" // gtkglext
-#endif
-#endif
-#endif
+#endif // GTKGLAREA_SUPPORT
+#endif // GTK_CHECK_VERSION (3,0,0)
+#endif // GTKGL_SUPPORT
 
 #include "ace/Global_Macros.h"
 
@@ -86,26 +86,30 @@ class Common_UI_GTK_Tools
   // print OpenGL library information
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
-  static void dumpGtkOpenGLInfo (GdkWindow*); // GtkGLArea window handle
-#else
   // *NOTE*: the context has to be realized before calling this function
   static void dumpGtkOpenGLInfo (GdkGLContext*); // context handle
+#else
+#if defined (GTKGLAREA_SUPPORT)
+  static void dumpGtkOpenGLInfo (GglaContext*); // OpenGL context handle
+#else
+  static void dumpGtkOpenGLInfo (GdkWindow*); // GtkGLArea window handle
+#endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
-  static void dumpGtkOpenGLInfo ();
+  static void dumpGtkOpenGLInfo (GglaContext*); // OpenGL context handle
 #else
-  static void dumpGtkOpenGLInfo (GdkGLContext*); // OpenGL context handle
+  static void dumpGtkOpenGLInfo ();
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION (3,0,0)
 #endif // GTKGL_SUPPORT
 #endif // _DEBUG
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Tools ());
-  ACE_UNIMPLEMENTED_FUNC (~Common_UI_GTK_Tools ());
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Tools (const Common_UI_GTK_Tools&));
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Tools& operator= (const Common_UI_GTK_Tools&));
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (~Common_UI_GTK_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Tools (const Common_UI_GTK_Tools&))
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Tools& operator= (const Common_UI_GTK_Tools&))
 };
 
 #endif

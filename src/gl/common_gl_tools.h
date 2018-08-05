@@ -58,9 +58,9 @@ class Common_GL_Tools
                            Common_GL_BoundingBox_t&,    // return value: bounding box
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #if defined (_MSC_VER) && (_MSC_VER >= 1800)
-						   glm::vec3&);                 // return value: center
+                           glm::vec3&);                 // return value: center
 #else
-						   struct Common_GL_VectorF3&); // return value: center
+                           struct Common_GL_VectorF3&); // return value: center
 #endif // _MSC_VER && (_MSC_VER >= 1800)
 #endif // ACE_WIN32 || ACE_WIN64
 

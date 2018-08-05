@@ -24,16 +24,17 @@
 #include <map>
 
 #include "gtk/gtk.h"
-#if GTK_CHECK_VERSION (3,0,0)
-#if GTK_CHECK_VERSION (3,16,0)
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
-//#include "gtkgl/gdkgl.h"
+#include "gtkgl/gdkgl.h"
 #include "gtkgl/gtkglarea.h"
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,16,0) */
 #else
 #if defined (GTKGLAREA_SUPPORT)
+#include "gtkgl/gdkgl.h"
 #include "gtkgl/gtkglarea.h"
 #else
 #include "gdk/gdkgl.h"
@@ -42,47 +43,68 @@
 
 #include "common_ui_gtk_common.h"
 
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(3,16,0)
 typedef std::map<GdkWindow*, GdkGLContext*> Common_UI_GTK_GLContexts_t;
 typedef Common_UI_GTK_GLContexts_t::iterator Common_UI_GTK_GLContextsIterator_t;
+#else
+#if defined (GTKGLAREA_SUPPORT)
+typedef std::map<GglaArea*, GglaContext*> Common_UI_GTK_GLContexts_t;
+typedef Common_UI_GTK_GLContexts_t::iterator Common_UI_GTK_GLContextsIterator_t;
+#endif /* GTKGLAREA_SUPPORT */
+#endif /* GTK_CHECK_VERSION (3,16,0) */
+#else
+#if defined (GTKGLAREA_SUPPORT)
+typedef std::map<GglaArea*, GglaContext*> Common_UI_GTK_GLContexts_t;
+typedef Common_UI_GTK_GLContexts_t::iterator Common_UI_GTK_GLContextsIterator_t;
+#endif /* GTKGLAREA_SUPPORT */
+#endif /* GTK_CHECK_VERSION (3,0,0) */
 
 struct Common_UI_GTK_GLState
  : Common_UI_GTK_State
 {
   Common_UI_GTK_GLState ()
    : Common_UI_GTK_State ()
-   , OpenGLContexts ()
    , OpenGLWindow (NULL)
-#if GTK_CHECK_VERSION (3,0,0)
-#if GTK_CHECK_VERSION (3,16,0)
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(3,16,0)
+   , OpenGLContexts ()
+#else
+#if defined (GTKGLAREA_SUPPORT)
+   , OpenGLContexts ()
+#endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,16,0) */
 #else
 #if defined (GTKGLAREA_SUPPORT)
+   , OpenGLContexts ()
 #else
-//, OpenGLDrawable (NULL)
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,0,0) */
-  {};
+  {}
 
   // *TODO*: as an application may support multiple OpenGL-capable windows, and
   //         each GdkGLContext is tied to a specific GdkWindow, move all of this
   //         into a separate 'presentation manager' object ASAP
-  Common_UI_GTK_GLContexts_t OpenGLContexts;
-#if GTK_CHECK_VERSION (3,0,0)
-#if GTK_CHECK_VERSION (3,16,0)
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(3,16,0)
   GdkWindow*                 OpenGLWindow;
+  Common_UI_GTK_GLContexts_t OpenGLContexts;
 #else
+#if defined (GTKGLAREA_SUPPORT)
   GglaArea*                  OpenGLWindow;
+  Common_UI_GTK_GLContexts_t OpenGLContexts;
+#else
+  GdkWindow*                 OpenGLWindow;
+#endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,16,0) */
 #else /* GTK_CHECK_VERSION (3,0,0) */
 #if defined (GTKGLAREA_SUPPORT)
-  GtkGLArea*                 OpenGLWindow;
+  GglaArea*                  OpenGLWindow;
+  Common_UI_GTK_GLContexts_t OpenGLContexts;
 #else
-//GdkGLDrawable*               OpenGLDrawable;
   GdkWindow*                 OpenGLWindow;
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,0,0) */
 };
-
-//void common_ui_gtk_opengl_cb (gpointer);
 
 #endif

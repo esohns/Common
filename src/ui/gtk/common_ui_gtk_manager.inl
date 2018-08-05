@@ -29,15 +29,15 @@
 #if GTK_CHECK_VERSION (3,16,0)
 #else
 #include "gtkgl/gdkgl.h"
-#endif /* gtk >= 3 && <= 3.16 */
+#endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gdkgl.h"
 #else
 #include "gtk/gtkgl.h" // gtkglext
-#endif
-#endif
-#endif
+#endif // GTKGLAREA_SUPPORT
+#endif // GTK_CHECK_VERSION (3,0,0)
+#endif // GTKGL_SUPPORT
 
 #if defined (LIBGLADE_SUPPORT)
 #include "glade/glade.h"
@@ -224,7 +224,54 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   bool leave_gdk_threads = false;
 #if defined (GTKGL_SUPPORT)
 //  GError* error_p = NULL;
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
+  Common_UI_GTK_GLContextsIterator_t iterator;
+#else
+#if defined (GTKGLAREA_SUPPORT)
+  Common_UI_GTK_GLContextsIterator_t iterator;
+#else
+#endif // GTKGLAREA_SUPPORT
+#endif // GTK_CHECK_VERSION (3,16,0)
+#else
+#if defined (GTKGLAREA_SUPPORT)
+  Common_UI_GTK_GLContextsIterator_t iterator;
+#else
+#endif // GTKGLAREA_SUPPORT
+#endif // GTK_CHECK_VERSION (3,0,0)
 #endif // GTKGL_SUPPORT
+
+  #if defined (_DEBUG)
+    // debug info
+#if defined (GTKGL_SUPPORT)
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
+  iterator =
+    state_->OpenGLContexts.find (state_->OpenGLWindow);
+  ACE_ASSERT (iterator != state_->OpenGLContexts.end ());
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator).second);
+#else
+#if defined (GTKGLAREA_SUPPORT)
+  iterator =
+    state_->OpenGLContexts.find (state_->OpenGLWindow);
+  ACE_ASSERT (iterator != state_->OpenGLContexts.end ());
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator).second);
+#else
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo (state_->OpenGLWindow);
+#endif // GTKGLAREA_SUPPORT
+#endif // GTK_CHECK_VERSION (3,16,0)
+#else
+#if defined (GTKGLAREA_SUPPORT)
+  iterator =
+    state_->OpenGLContexts.find (state_->OpenGLWindow);
+  ACE_ASSERT (iterator != state_->OpenGLContexts.end ());
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator).second);
+#else
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo ();
+#endif // GTKGLAREA_SUPPORT
+#endif // GTK_CHECK_VERSION (3,0,0)
+#endif // GTKGL_SUPPORT
+#endif // _DEBUG
 
   // step0: initialize GTK
   if (unlikely (!GTKIsInitialized_))
@@ -234,9 +281,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_UI_GTK_Manager_T::initializeGTK(): \"%m\", aborting\n")));
-
       result = -1;
-
       goto done;
     } // end IF
   } // end IF
@@ -252,16 +297,14 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_UI_IGTK_t::initialize(): \"%m\", aborting\n")));
-
       result = -1;
-
       goto done;
     } // end IF
   } // end IF
 
 #if defined (GTKGL_SUPPORT)
   // step2: initialize OpenGL ?
-#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION(3,0,0)
 #else
   // *TODO*: remove type inferences
   if (unlikely (!state_->OpenGLWindow))
@@ -284,11 +327,9 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                 ACE_TEXT ("failed to gdk_window_create_gl_context(0x%@): \"%s\", aborting\n"),
                 state_->openGLWindow,
                 ACE_TEXT (error_p->message)));
-
-    // clean up
-    g_error_free (error_p);
-
-    return false;
+    g_error_free (error_p); error_p = NULL;
+    result = -1;
+    goto done;
   } // end IF
 
   error_p = NULL;
@@ -299,11 +340,9 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                 ACE_TEXT ("failed to gdk_gl_context_realize(0x%@): \"%s\", aborting\n"),
                 state_->openGLContext,
                 ACE_TEXT (error_p->message)));
-
-    // clean up
-    g_error_free (error_p);
-
-    return false;
+    g_error_free (error_p); error_p = NULL;
+    result = -1;
+    goto done;
   } // end IF
 #endif /* GTKGLAREA_SUPPORT */
   ACE_DEBUG ((LM_DEBUG,
@@ -312,19 +351,32 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #endif // GTKGL_SUPPORT
 
 #if defined (_DEBUG)
-    // debug info
+  // debug info
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
-  Common_UI_GTK_Tools::dumpGtkOpenGLInfo (state_->OpenGLWindow);
+  iterator =
+    state_->OpenGLContexts.find (state_->OpenGLWindow);
+  ACE_ASSERT (iterator != state_->OpenGLContexts.end ());
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator).second);
 #else
-  Common_UI_GTK_Tools::dumpGtkOpenGLInfo (NULL);
+#if defined (GTKGLAREA_SUPPORT)
+  iterator =
+    state_->OpenGLContexts.find (state_->OpenGLWindow);
+  ACE_ASSERT (iterator != state_->OpenGLContexts.end ());
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator).second);
+#else
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo (state_->OpenGLWindow);
+#endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
-  Common_UI_GTK_Tools::dumpGtkOpenGLInfo (NULL);
+  iterator =
+    state_->OpenGLContexts.find (state_->OpenGLWindow);
+  ACE_ASSERT (iterator != state_->OpenGLContexts.end ());
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator).second);
 #else
-  Common_UI_GTK_Tools::dumpGtkOpenGLInfo (state_->openGLContext);
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo ();
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION (3,0,0)
 #endif // GTKGL_SUPPORT
@@ -390,20 +442,20 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                 ACE_TEXT ("failed to XInitThreads(): \"%m\", aborting\n")));
     return false;
   } // end IF
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
   // step1: initialize GLib
 #if defined (_DEBUG)
   GTypeDebugFlags debug_flags =
-    static_cast <GTypeDebugFlags> (G_TYPE_DEBUG_OBJECTS       |
-                                   G_TYPE_DEBUG_SIGNALS       |
-                                   G_TYPE_DEBUG_INSTANCE_COUNT);
+    static_cast <GTypeDebugFlags> (//G_TYPE_DEBUG_INSTANCE_COUNT |
+                                   G_TYPE_DEBUG_OBJECTS        |
+                                   G_TYPE_DEBUG_SIGNALS);
   if (!(process_priority_mask & LM_DEBUG))
     debug_flags = G_TYPE_DEBUG_NONE;
   g_type_init_with_debug_flags (debug_flags);
 #else
   g_type_init ();
-#endif
+#endif // _DEBUG
 
   // step1a: set log handlers
   //g_set_print_handler (glib_print_debug_handler);
@@ -421,7 +473,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #if defined (_DEBUG)
   if (!(process_priority_mask & LM_DEBUG))
     log_level = static_cast <GLogLevelFlags> (log_level & ~G_LOG_LEVEL_DEBUG);
-#endif
+#endif // _DEBUG
   g_log_set_handler (G_LOG_DOMAIN,
                      log_level,
                      glib_log_handler, NULL);
@@ -434,7 +486,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     g_thread_init (NULL);
     //g_thread_init_with_errorcheck_mutexes (NULL);
   } // end IF
-#endif
+#endif // GTK_CHECK_VERSION (3,0,0)
   gdk_threads_init ();
 
   bool leave_gdk_threads = false;
@@ -454,9 +506,9 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                 ACE_TEXT ("failed to gdk_gl_init_check(), aborting\n")));
     goto error;
   } // end IF
-#endif
-#endif
-#endif
+#endif // GTKGLAREA_SUPPORT
+#endif // GTK_CHECK_VERSION (3,0,0)
+#endif // GTKGL_SUPPORT
 
   if (unlikely (!gtk_init_check (&argc_,
                                  &argv_)))
@@ -487,12 +539,12 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 
 #if defined (_DEBUG)
   Common_UI_GTK_Tools::dumpGtkLibraryInfo ();
-#endif
+#endif // _DEBUG
 
 #if defined (LIBGLADE_SUPPORT)
   // step2: initialize (lib)glade
   glade_init ();
-#endif
+#endif // LIBGLADE_SUPPORT
 
   // step3a: specify any .rc files
   for (Common_UI_GTK_RCFilesIterator_t iterator = state_->RCFiles.begin ();
@@ -543,9 +595,9 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("#%u: added GTK .css style file \"%s\"\n"),
                 i, ACE::basename ((*iterator).first.c_str ())));
-#endif
+#endif // _DEBUG
   } // end FOR
-#endif
+#endif // GTK_CHECK_VERSION (3,0,0)
 
   //// step5: initialize GNOME
   //   GnomeClient* gnomeSession = NULL;

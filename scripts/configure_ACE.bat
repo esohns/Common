@@ -48,6 +48,8 @@ if %ERRORLEVEL% NEQ 0 (
  set PROJECT_TYPE=%DEFAULT_PROJECT_TYPE%
  goto :switch_case_2_end
 )
+:switch_case_2_vc10
+ goto switch_case_2_end
 :switch_case_2_vc15
  goto switch_case_2_end
 :switch_case_2_vs2017
@@ -65,9 +67,9 @@ if NOT exist "%PROJECT_DIRECTORY%" (
 set ACE_ROOT=%ACE_ROOT%
 if NOT exist "%ACE_ROOT%" (
  echo invalid directory ^(was: "%ACE_ROOT%"^)^, falling back
- set ACE_ROOT=%~dp0\..\..\ATCD\ACE
- if NOT exist "%ACE_ROOT%" (
-  echo invalid directory ^(was: "%ACE_ROOT%"^)^, exiting
+ set ACE_ROOT=%~dp0..\..\ATCD\ACE
+ if NOT exist "!ACE_ROOT!" (
+  echo invalid directory ^(was: "!ACE_ROOT!"^)^, exiting
   goto Failed
  )
 )
@@ -75,9 +77,9 @@ if NOT exist "%ACE_ROOT%" (
 set MPC_ROOT=%MPC_ROOT%
 if NOT exist "%MPC_ROOT%" (
  echo invalid directory ^(was: "%MPC_ROOT%"^)^, falling back
- set MPC_ROOT=%~dp0\..\..\MPC
- if NOT exist "%MPC_ROOT%" (
-  echo invalid directory ^(was: "%MPC_ROOT%"^)^, exiting
+ set MPC_ROOT=%~dp0..\..\MPC
+ if NOT exist "!MPC_ROOT!" (
+  echo invalid directory ^(was: "!MPC_ROOT!"^)^, exiting
   goto Failed
  )
 )
@@ -88,9 +90,9 @@ if NOT exist "%PATCH_EXE%" (
  echo invalid executable ^(was: "%PATCH_EXE%"^)^, exiting
  goto Failed
 )
-cd %ACE_ROOT%
+cd !ACE_ROOT!
 if %ERRORLEVEL% NEQ 0 (
- echo failed to cd ^(was: "%ACE_ROOT%"^)^, exiting
+ echo failed to cd ^(was: "!ACE_ROOT!"^)^, exiting
  goto Failed
 )
 set PROJECTS=libCommon libACEStream libACENetwork
@@ -147,7 +149,8 @@ if NOT exist "%ACE_BUILD_DIRECTORY%" (
 @rem  echo invalid directory ^(was: "%CREATE_ACE_BUILD%"^)^, exiting
 @rem  goto Failed
 @rem )
-set PERL_EXE=D:\perl\bin\perl.exe
+@rem set PERL_EXE=D:\perl\bin\perl.exe
+set PERL_EXE=D:\perl\perl\bin\perl.exe
 if NOT exist "%PERL_EXE%" (
  echo invalid executable ^(was: "%PERL_EXE%"^)^, exiting
  goto Failed
@@ -170,13 +173,13 @@ if NOT exist "%LOCAL_FEATURES_FILE%" (
  goto Failed
 )
 echo INFO: feature file is: "%LOCAL_FEATURES_FILE%"
-set ACE_MWC_FILE=%ACE_ROOT%\ACE.mwc
+set ACE_MWC_FILE=!ACE_ROOT!\ACE.mwc
 if NOT exist "%ACE_MWC_FILE%" (
  echo invalid file ^(was: "%ACE_MWC_FILE%"^)^, exiting
  goto Failed
 )
 
-set MWC_PL=%ACE_ROOT%\bin\mwc.pl
+set MWC_PL=!ACE_ROOT!\bin\mwc.pl
 if NOT exist "%MWC_PL%" (
  echo invalid script ^(was: "%MWC_PL%"^)^, exiting
  goto Failed

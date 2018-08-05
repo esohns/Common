@@ -26,13 +26,13 @@
 #include <sstream>
 #include <string>
 
-#if GTK_CHECK_VERSION (2,3,0)
+#if GTK_CHECK_VERSION(2,3,0)
 #include <glib-object.h>
 #endif // GTK_CHECK_VERSION (2,3,0)
 
 #if defined (GTKGL_SUPPORT)
-#if GTK_CHECK_VERSION (3,0,0)
-#if GTK_CHECK_VERSION (3,16,0)
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(3,16,0)
 #else
 #include "gtkgl/gdkgl.h"
 #endif // GTK_CHECK_VERSION (3,16,0)
@@ -78,7 +78,7 @@ gtk_container_dump_cb (GtkWidget* widget_in,
                          gtk_container_dump_cb,
                          &indent_i);
 }
-#endif
+#endif // _DEBUG
 
 gboolean
 gtk_tree_model_foreach_find_index_cb (GtkTreeModel* treeModel_in,
@@ -101,12 +101,12 @@ gtk_tree_model_foreach_find_index_cb (GtkTreeModel* treeModel_in,
   // sanity check(s)
   ACE_ASSERT (cb_data_p);
 
-#if GTK_CHECK_VERSION (2,3,0)
+#if GTK_CHECK_VERSION(2,30,0)
   GValue value = G_VALUE_INIT;
 #else
   GValue value;
-  g_value_init (&value, G_VALUE_TYPE (&cb_data_s.value));
-#endif // GTK_CHECK_VERSION (2,3,0)
+  g_value_init (&value, G_VALUE_TYPE (&cb_data_p->value));
+#endif // GTK_CHECK_VERSION (2,30,0)
   gtk_tree_model_get_value (treeModel_in,
                             treeIterator_in,
                             cb_data_p->column, &value);
@@ -182,8 +182,8 @@ gtk_tree_model_foreach_find_index_cb (GtkTreeModel* treeModel_in,
     case G_TYPE_STRING:
     {
       cb_data_p->found =
-          !ACE_OS::strcmp (g_value_get_string (&cb_data_p->value),
-                           g_value_get_string (&value));
+        !ACE_OS::strcmp (g_value_get_string (&cb_data_p->value),
+                         g_value_get_string (&value));
       break;
     }
     case G_TYPE_POINTER:
@@ -231,15 +231,13 @@ Common_UI_GTK_Tools::UTF8ToLocale (const gchar* string_in,
                 ACE_TEXT ("failed to g_locale_from_utf8(\"%s\"): \"%s\", aborting\n"),
                 ACE_TEXT (string_in),
                 ACE_TEXT (error_p->message)));
-
-    // clean up
-    g_error_free (error_p);
+    g_error_free (error_p); error_p = NULL;
   } // end IF
   else
     result = string_p;
 
   // clean up
-  g_free (string_p);
+  g_free (string_p); string_p = NULL;
 
   return result;
 }
@@ -264,10 +262,7 @@ Common_UI_GTK_Tools::localeToUTF8 (const std::string& string_in)
                 ACE_TEXT ("failed to g_locale_to_utf8(\"%s\"): \"%s\", aborting\n"),
                 ACE_TEXT (string_in.c_str ()),
                 ACE_TEXT (error_p->message)));
-
-      // clean up
-    g_error_free (error_p);
-
+    g_error_free (error_p); error_p = NULL;
     return NULL;
   } // end IF
 
@@ -319,12 +314,17 @@ Common_UI_GTK_Tools::getDisplayDevices (Common_UI_DisplayDevices_t& devices_out)
 
   GdkDisplay* display_p = NULL;
   int number_of_monitors = 0;
+#if GTK_CHECK_VERSION(3,22,0)
   GdkMonitor* monitor_p = NULL;
+#else
+  int number_of_screens = 0;
+  GdkScreen* screen_p = NULL;
+#endif // GTK_CHECK_VERSION (3,22,0)
   for (GSList* list_2 = list_p;
        list_2;
        list_2 = list_2->next)
   {
-    display_p = GDK_DISPLAY (list_2->data);
+    display_p = (GdkDisplay*)list_2->data;
     ACE_ASSERT (display_p);
 
 #if defined (_DEBUG)
@@ -333,6 +333,7 @@ Common_UI_GTK_Tools::getDisplayDevices (Common_UI_DisplayDevices_t& devices_out)
                 ACE_TEXT (gdk_display_get_name (display_p))));
 #endif // _DEBUG
 
+#if GTK_CHECK_VERSION (3,22,0)
     number_of_monitors = gdk_display_get_n_monitors (display_p);
     for (int i = 0;
          i < number_of_monitors;
@@ -355,8 +356,45 @@ Common_UI_GTK_Tools::getDisplayDevices (Common_UI_DisplayDevices_t& devices_out)
       device_s.description += gdk_monitor_get_model (monitor_p);
       devices_out.push_back (device_s);
     } // end FOR
+#else
+    number_of_screens = gdk_display_get_n_screens (display_p);
+    for (int i = 0;
+         i < number_of_screens;
+         ++i)
+    {
+      screen_p = gdk_display_get_screen (display_p,
+                                         i);
+      ACE_ASSERT (screen_p);
+
+#if defined (_DEBUG)
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("found screen: \"%s\"...\n"),
+                  ACE_TEXT (gdk_screen_get_monitor_plug_name (screen_p,
+                                                              i))));
+#endif // _DEBUG
+
+      number_of_monitors = gdk_screen_get_n_monitors (screen_p);
+      for (int j = 0;
+           j < number_of_monitors;
+           ++j)
+      {
+#if defined (_DEBUG)
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("found monitor: \"%s\"...\n"),
+                    ACE_TEXT (gdk_screen_get_monitor_plug_name (screen_p,
+                                                                i))));
+#endif // _DEBUG
+
+        if (gdk_screen_get_primary_monitor (screen_p) == j)
+          device_s.description = ACE_TEXT_ALWAYS_CHAR ("*");
+        device_s.description += gdk_screen_get_monitor_plug_name (screen_p,
+                                                                  i);
+        devices_out.push_back (device_s);
+      } // end FOR
+    } // end FOR
+#endif // GTK_CHECK_VERSION (3,22,0)
   } // end FOR
-  g_slist_free (list_p);
+  g_slist_free (list_p); list_p = NULL;
 
   return true;
 }
@@ -391,7 +429,7 @@ Common_UI_GTK_Tools::dumpGtkLibraryInfo ()
 
   std::ostringstream converter;
   std::string information_string =
-      ACE_TEXT_ALWAYS_CHAR ("gtk library version: ");
+    ACE_TEXT_ALWAYS_CHAR ("gtk library version: ");
   converter << GTK_MAJOR_VERSION;
   information_string += converter.str ();
   information_string += ACE_TEXT_ALWAYS_CHAR (".");
@@ -461,15 +499,19 @@ Common_UI_GTK_Tools::dumpGtkLibraryInfo ()
 void
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
-Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkWindow* window_in)
-#else
 Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkGLContext* context_in)
+#else
+#if defined (GTKGLAREA_SUPPORT)
+Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GglaContext* context_in)
+#else
+Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkWindow* window_in)
+#endif /* GTKGLAREA_SUPPORT */
 #endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
-Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
+Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GglaContext* context_in)
 #else
-Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkGLContext* context_in)
+Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
 #endif /* GTKGLAREA_SUPPORT */
 #endif // GTK_CHECK_VERSION (3,0,0)
 {
@@ -481,6 +523,11 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkGLContext* context_in)
   // sanity check(s)
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
+  ACE_ASSERT (context_in);
+#else
+#if defined (GTKGLAREA_SUPPORT)
+  ACE_ASSERT (context_in);
+#else
   window_p = window_in;
   if (unlikely (!window_p))
   {
@@ -503,13 +550,12 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkGLContext* context_in)
     release_window = true;
   } // end IF
   ACE_ASSERT (window_p);
-#else
-  ACE_ASSERT (context_in);
+#endif /* GTKGLAREA_SUPPORT */
 #endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
-#else
   ACE_ASSERT (context_in);
+#else
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION (3,0,0)
 
@@ -535,18 +581,16 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkGLContext* context_in)
                   ACE_TEXT ("failed to gdk_window_create_gl_context(0x%@): \"%s\", returning\n"),
                   window_in,
                   ACE_TEXT (error_p->message)));
-
-      g_error_free (error_p);
+      g_error_free (error_p); error_p = NULL;
       if (release_window)
         g_object_unref (window_p);
-
       return;
     } // end IF
     release_context = true;
 #if defined (_DEBUG)
     gdk_gl_context_set_debug_enabled (gl_context_p,
                                       TRUE);
-#endif
+#endif // _DEBUG
     if (!gdk_gl_context_realize (gl_context_p,
                                  &error_p))
     {
@@ -554,17 +598,30 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkGLContext* context_in)
                   ACE_TEXT ("failed to gdk_gl_context_realize(0x%@): \"%s\", returning\n"),
                   gl_context_p,
                   ACE_TEXT (error_p->message)));
-
-      g_error_free (error_p);
+      g_error_free (error_p); error_p = NULL;
       if (release_window)
         g_object_unref (window_p);
-      g_object_unref (gl_context_p);
-
+      g_object_unref (gl_context_p); gl_context_p = NULL;
       return;
     } // end IF
   } // end IF
   ACE_ASSERT (gl_context_p);
 #else
+#if defined (GTKGLAREA_SUPPORT)
+  gint result = ggla_query ();
+  if (!result)
+  {
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("OpenGL not supported\n")));
+    return;
+  } // end IF
+
+  gchar* info_string_p = ggla_get_info ();
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("OpenGL information: \"%s\"\n"),
+              ACE_TEXT (info_string_p)));
+#else
+#endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)

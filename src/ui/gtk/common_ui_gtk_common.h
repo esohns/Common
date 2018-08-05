@@ -114,15 +114,15 @@ struct Common_UI_GTK_State
    , argv (NULL)
    , builders ()
    , contextIds ()
-#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION(3,0,0)
    , CSSProviders ()
-#endif
+#endif // GTK_CHECK_VERSION(3,0,0)
 //, cursor (NULL)
    , eventHooks ()
    , eventSourceIds ()
 #if defined (LIBGLADE_SUPPORT)
    , gladeXML ()
-#endif
+#endif // LIBGLADE_SUPPORT
    , RCFiles ()
    ///////////////////////////////////////
    , userData (NULL)
@@ -133,14 +133,14 @@ struct Common_UI_GTK_State
   Common_UI_GTK_Builders_t                    builders;
   Common_UI_GTK_StatusContextIds_t            contextIds; // status bar context ids
 //GdkCursor*                    cursor;
-#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION(3,0,0)
   Common_UI_GTK_CSSProviders_t                CSSProviders;
-#endif
+#endif // GTK_CHECK_VERSION(3,0,0)
   struct Common_UI_GTK_EventHookConfiguration eventHooks;
   Common_UI_GTK_EventSourceIds_t              eventSourceIds;
 #if defined (LIBGLADE_SUPPORT)
   Common_UI_GladeXMLs_t                       gladeXML;
-#endif
+#endif // LIBGLADE_SUPPORT
   Common_UI_GTK_RCFiles_t                     RCFiles;
 
   ////////////////////////////////////////
