@@ -31,7 +31,7 @@
 #define COMMON_GL_ASSERT { GLenum error_e = GL_NO_ERROR; while ((error_e = glGetError ()) != GL_NO_ERROR) { ACE_DEBUG ((LM_ERROR, ACE_TEXT ("OpenGL error 0x%x: \"%s\", asserting\n"), error_e, ACE_TEXT (Common_GL_Tools::errorToString (error_e).c_str ()))); ACE_ASSERT (false); } }
 #else
 #define COMMON_GL_ASSERT (static_cast<void>(0))
-#endif
+#endif // _DEBUG
 
 #define COMMON_GL_CLEAR_ERROR { GLenum error_e = GL_NO_ERROR; while ((error_e = glGetError ()) != GL_NO_ERROR) {} }
 #define COMMON_GL_PRINT_ERROR { GLenum error_e = GL_NO_ERROR; while ((error_e = glGetError ()) != GL_NO_ERROR) { ACE_DEBUG ((LM_ERROR, ACE_TEXT ("OpenGL error 0x%x: \"%s\", continuing\n"), error_e, ACE_TEXT (Common_GL_Tools::errorToString (error_e).c_str ()))); } }

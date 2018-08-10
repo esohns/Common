@@ -1,0 +1,12 @@
+GtkGLArea is required for gtk2 and gtk3 < 3.16
+
+[0]. install gtk2 bundle (e.g. gtk+-bundle_2.24.10-20120208_win32.zip)
+1. clone git repository 'https://github.com/GNOME/gtkglarea.git'
+2. for gtk2, checkout branch 'gtkglarea-2', else, just use 'master'
+3. install msys2
+4. export GTK_LIBS="-LD:/projects/gtk2/lib -lglib-2.0 -lgobject-2.0 -lgdk-win32-2.0 -lgtk-win32-2.0"
+4. run ./autogen.sh
+5. export GTK_CFLAGS="-ID:/projects/gtk2/include -ID:/projects/gtk2/lib/glib-2.0/include -ID:/projects/gtk2/lib/gtk-2.0/include -ID:/projects/gtk2/include/glib-2.0 -ID:/projects/gtk2/include/gdk-pixbuf-2.0 -ID:/projects/gtk2/include/gtk-2.0 -ID:/projects/gtk2/include/cairo -ID:/projects/gtk2/include/pango-1.0 -ID:/projects/gtk2/include/atk-1.0"
+6. ./configure --with-lib-opengl32
+7. make
+

@@ -509,7 +509,7 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkWindow* window_in)
 #endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
-Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GglaContext* context_in)
+Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkGLContext* context_in)
 #else
 Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
 #endif /* GTKGLAREA_SUPPORT */
@@ -625,7 +625,7 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
 #endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
-  gint result = ggla_query ();
+  gint result = gdk_gl_query ();
   if (!result)
   {
     ACE_DEBUG ((LM_DEBUG,
@@ -633,7 +633,7 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
     return;
   } // end IF
 
-  gchar* info_string_p = ggla_get_info ();
+  gchar* info_string_p = gdk_gl_get_info ();
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("OpenGL information: \"%s\"\n"),
               ACE_TEXT (info_string_p)));

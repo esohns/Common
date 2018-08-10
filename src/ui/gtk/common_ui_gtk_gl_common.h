@@ -55,7 +55,7 @@ typedef Common_UI_GTK_GLContexts_t::iterator Common_UI_GTK_GLContextsIterator_t;
 #endif /* GTK_CHECK_VERSION (3,16,0) */
 #else
 #if defined (GTKGLAREA_SUPPORT)
-typedef std::map<GglaArea*, GglaContext*> Common_UI_GTK_GLContexts_t;
+typedef std::map<GtkGLArea*, GdkGLContext*> Common_UI_GTK_GLContexts_t;
 typedef Common_UI_GTK_GLContexts_t::iterator Common_UI_GTK_GLContextsIterator_t;
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,0,0) */
@@ -99,7 +99,7 @@ struct Common_UI_GTK_GLState
 #endif /* GTK_CHECK_VERSION (3,16,0) */
 #else /* GTK_CHECK_VERSION (3,0,0) */
 #if defined (GTKGLAREA_SUPPORT)
-  GglaArea*                  OpenGLWindow;
+  GtkGLArea*                 OpenGLWindow;
   Common_UI_GTK_GLContexts_t OpenGLContexts;
 #else
   GdkWindow*                 OpenGLWindow;

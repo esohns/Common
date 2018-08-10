@@ -87,13 +87,13 @@ endif ()
 
 if (GTKGL_SUPPORT)
  add_definitions (-DGTKGL_SUPPORT)
-endif ()
+endif (GTKGL_SUPPORT)
 if (GTKGLAREA_SUPPORT)
  add_definitions (-DGTKGLAREA_SUPPORT)
-endif ()
+endif (GTKGLAREA_SUPPORT)
 if (LIBGLADE_SUPPORT)
  add_definitions (-DLIBGLADE_SUPPORT)
-endif ()
+endif (LIBGLADE_SUPPORT)
 
 add_library (${PROJECT_NAME}UI_GTK STATIC "")
 
