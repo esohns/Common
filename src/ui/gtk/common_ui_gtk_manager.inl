@@ -22,13 +22,15 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 #include "X11/Xlib.h"
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
 #else
+#if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gdkgl.h"
+#endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
@@ -41,7 +43,7 @@
 
 #if defined (LIBGLADE_SUPPORT)
 #include "glade/glade.h"
-#endif
+#endif // LIBGLADE_SUPPORT
 
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
@@ -241,21 +243,21 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #endif // GTK_CHECK_VERSION (3,0,0)
 #endif // GTKGL_SUPPORT
 
-  #if defined (_DEBUG)
-    // debug info
+#if defined (_DEBUG)
+  // debug info
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
   iterator =
     state_->OpenGLContexts.find (state_->OpenGLWindow);
-  ACE_ASSERT (iterator != state_->OpenGLContexts.end ());
-  Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator).second);
+  if (iterator != state_->OpenGLContexts.end ())
+    Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator).second);
 #else
 #if defined (GTKGLAREA_SUPPORT)
   iterator =
     state_->OpenGLContexts.find (state_->OpenGLWindow);
-  ACE_ASSERT (iterator != state_->OpenGLContexts.end ());
-  Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator).second);
+  if (iterator != state_->OpenGLContexts.end ())
+    Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator).second);
 #else
   Common_UI_GTK_Tools::dumpGtkOpenGLInfo (state_->OpenGLWindow);
 #endif // GTKGLAREA_SUPPORT
@@ -264,8 +266,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #if defined (GTKGLAREA_SUPPORT)
   iterator =
     state_->OpenGLContexts.find (state_->OpenGLWindow);
-  ACE_ASSERT (iterator != state_->OpenGLContexts.end ());
-  Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator).second);
+  if (iterator != state_->OpenGLContexts.end ())
+    Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator).second);
 #else
   Common_UI_GTK_Tools::dumpGtkOpenGLInfo ();
 #endif // GTKGLAREA_SUPPORT
@@ -445,6 +447,24 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #endif // ACE_WIN32 || ACE_WIN64
 
   // step1: initialize GLib
+#if GTK_CHECK_VERSION(3,0,0)
+  GError* error_p = NULL;
+#else
+#if GTK_CHECK_VERSION(2,32,0)
+#else
+  if (likely (!g_thread_supported ())) // *NOTE*: sad but true...
+  {
+#if defined (_DEBUG)
+    g_thread_init_with_errorcheck_mutexes (NULL);
+#else
+    g_thread_init (NULL);
+#endif // _DEBUG
+  } // end IF
+#endif // GTK_CHECK_VERSION (2,32,0)
+#endif // GTK_CHECK_VERSION (3,0,0)
+
+#if GTK_CHECK_VERSION(2,36,0)
+#else
 #if defined (_DEBUG)
   GTypeDebugFlags debug_flags =
     static_cast <GTypeDebugFlags> (//G_TYPE_DEBUG_INSTANCE_COUNT |
@@ -456,6 +476,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #else
   g_type_init ();
 #endif // _DEBUG
+#endif // GTK_CHECK_VERSION(2,36,0)
 
   // step1a: set log handlers
   //g_set_print_handler (glib_print_debug_handler);
@@ -478,24 +499,14 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                      log_level,
                      glib_log_handler, NULL);
 
-#if GTK_CHECK_VERSION (3,0,0)
-  GError* error_p = NULL;
-#else
-  if (likely (g_thread_supported ()))
-  {
-    g_thread_init (NULL);
-    //g_thread_init_with_errorcheck_mutexes (NULL);
-  } // end IF
-#endif // GTK_CHECK_VERSION (3,0,0)
   gdk_threads_init ();
-
   bool leave_gdk_threads = false;
   gdk_threads_enter ();
   leave_gdk_threads = true;
   int i = 1;
 
 #if defined (GTKGL_SUPPORT)
-#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION(3,0,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
 #else
@@ -530,10 +541,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 //    ACE_DEBUG ((LM_ERROR,
 //                ACE_TEXT ("failed to gtk_init_with_args(): \"%s\", aborting\n"),
 //                ACE_TEXT (error_p->message)));
-
-//    // clean up
-//    g_error_free (error_p);
-
+//    g_error_free (error_p); error_p = NULL;
 //    goto error;
 //  } // end IF
 
@@ -560,7 +568,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #endif // _DEBUG
   } // end FOR
 
-#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION(3,0,0)
   // step3b: specify any .css files
   i = 1;
   for (Common_UI_GTK_CSSProvidersIterator_t iterator = state_->CSSProviders.begin ();
@@ -583,12 +591,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                   ACE_TEXT ("failed to gtk_css_provider_load_from_path(\"%s\"): \"%s\", continuing\n"),
                   ACE_TEXT ((*iterator).first.c_str ()),
                   ACE_TEXT (error_p->message)));
-
-      // clean up
-      g_object_unref ((*iterator).second);
-      (*iterator).second = NULL;
-      g_error_free (error_p);
-
+      g_object_unref ((*iterator).second); (*iterator).second = NULL;
+      g_error_free (error_p); error_p = NULL;
       continue;
     } // end IF
 #if defined (_DEBUG)
