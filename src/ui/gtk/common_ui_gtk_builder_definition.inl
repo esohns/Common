@@ -31,19 +31,25 @@
 
 #include "common_ui_gtk_common.h"
 
-template <typename StateType>
-Common_UI_GtkBuilderDefinition_T<StateType>::Common_UI_GtkBuilderDefinition_T (int argc_in,
-                                                                               ACE_TCHAR** argv_in)
+template <typename StateType,
+          typename CallBackDataType>
+Common_UI_GtkBuilderDefinition_T<StateType,
+                                 CallBackDataType>::Common_UI_GtkBuilderDefinition_T (int argc_in,
+                                                                                      ACE_TCHAR** argv_in,
+                                                                                      CallBackDataType* CBData_in)
  : argc_ (argc_in)
  , argv_ (argv_in)
+ , CBData_ (CBData_in)
  , state_ (NULL)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition_T::Common_UI_GtkBuilderDefinition_T"));
 
 }
 
-template <typename StateType>
-Common_UI_GtkBuilderDefinition_T<StateType>::~Common_UI_GtkBuilderDefinition_T ()
+template <typename StateType,
+          typename CallBackDataType>
+Common_UI_GtkBuilderDefinition_T<StateType,
+                                 CallBackDataType>::~Common_UI_GtkBuilderDefinition_T ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition_T::~Common_UI_GtkBuilderDefinition_T"));
 
@@ -77,9 +83,11 @@ continue_:
   return;
 }
 
-template <typename StateType>
+template <typename StateType,
+          typename CallBackDataType>
 bool
-Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
+Common_UI_GtkBuilderDefinition_T<StateType,
+                                 CallBackDataType>::initialize (StateType& state_inout)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition_T::initialize"));
 
@@ -88,14 +96,12 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
   // step1: load widget tree(s)
   GtkBuilder* builder_p = NULL;
   GError* error_p = NULL;
-  //ACE_Reverse_Lock<ACE_SYNCH_MUTEX> reverse_lock (state_->lock);
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_->lock, false);
     for (Common_UI_GTK_BuildersIterator_t iterator = state_->builders.begin ();
          iterator != state_->builders.end ();
          iterator++)
-    {
-      // sanity check(s)
-      ACE_ASSERT (!(*iterator).second.second);
+    { ACE_ASSERT (!(*iterator).second.second);
+      ACE_ASSERT (!builder_p);
 
       builder_p = gtk_builder_new ();
       if (unlikely (!builder_p))
@@ -114,23 +120,19 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
                     ACE_TEXT ("failed to gtk_builder_add_from_file(\"%s\"): \"%s\", aborting\n"),
                     ACE_TEXT (ACE::basename (ACE_TEXT ((*iterator).second.first.c_str ()), ACE_DIRECTORY_SEPARATOR_CHAR)),
                     ACE_TEXT (error_p->message)));
-
-        // clean up
-        g_error_free (error_p);
-        g_object_unref (G_OBJECT (builder_p));
-
+        g_error_free (error_p); error_p = NULL;
+        g_object_unref (G_OBJECT (builder_p)); builder_p = NULL;
         return false;
       } // end IF
 #if defined (_DEBUG)
-      {
-        ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("loaded widget tree \"%s\": \"%s\"\n"),
-                    ACE_TEXT ((*iterator).first.c_str ()),
-                    ACE_TEXT ((*iterator).second.first.c_str ())));
-      } // end lock scope
-#endif
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("loaded widget tree \"%s\": \"%s\"\n"),
+                  ACE_TEXT ((*iterator).first.c_str ()),
+                  ACE_TEXT ((*iterator).second.first.c_str ())));
+#endif // _DEBUG
       state_->builders[(*iterator).first] =
         std::make_pair ((*iterator).second.first, builder_p);
+      builder_p = NULL;
     } // end FOR
 
     // step2: schedule UI initialization
@@ -139,7 +141,7 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
     ACE_ASSERT (state_->eventHooks.initHook);
 
     guint event_source_id = g_idle_add (state_->eventHooks.initHook,
-                                        state_);
+                                        CBData_);
     if (unlikely (!event_source_id))
     {
       ACE_DEBUG ((LM_ERROR,
@@ -152,9 +154,11 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
   return true;
 }
 
-template <typename StateType>
+template <typename StateType,
+          typename CallBackDataType>
 void
-Common_UI_GtkBuilderDefinition_T<StateType>::finalize ()
+Common_UI_GtkBuilderDefinition_T<StateType,
+                                 CallBackDataType>::finalize ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition_T::finalize"));
 
@@ -170,7 +174,7 @@ Common_UI_GtkBuilderDefinition_T<StateType>::finalize ()
   guint event_source_id = 0;
   { ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, state_->lock);
     event_source_id = g_idle_add (state_->eventHooks.finiHook,
-                                  state_);
+                                  CBData_);
     if (unlikely (!event_source_id))
     { ACE_GUARD (ACE_Reverse_Lock<ACE_SYNCH_MUTEX>, aGuard_2, reverse_lock);
       ACE_DEBUG ((LM_ERROR,

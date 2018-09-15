@@ -28,10 +28,7 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #define G_SOURCE_CONTINUE                                    TRUE
 #define G_SOURCE_REMOVE                                      FALSE
-#endif
-
-// interface definition
-#define COMMON_UI_GTK_DEFINITION_DESCRIPTOR_MAIN             "main"
+#endif // ACE_WIN32 || ACE_WIN64
 
 // timeouts / refresh intervals
 #define COMMON_UI_GTK_INTERVAL_DEFAULT_CAIRO_REFRESH         COMMON_UI_VIDEO_DEFAULT_REFRESH

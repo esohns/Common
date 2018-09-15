@@ -236,7 +236,7 @@ Common_StateMachine_Base_T<StateMachineName,
               ACE_TEXT (StateMachineName),
               ACE_TEXT (this->stateToString (previous_state).c_str ()),
               ACE_TEXT (this->stateToString (newState_in).c_str ())));
-#endif
+#endif // _DEBUG
 
   // signal any waiting threads
   if (likely (signal))

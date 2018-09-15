@@ -23,6 +23,7 @@
 
 #include <list>
 #include <string>
+#include <vector>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <windef.h>
@@ -34,6 +35,26 @@
 
 #include "common.h"
 
+// graphics
+typedef std::vector<unsigned int> Common_UI_Framerates_t;
+typedef Common_UI_Framerates_t::iterator Common_UI_FrameratesIterator_t;
+typedef Common_UI_Framerates_t::const_iterator Common_UI_FrameratesConstIterator_t;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+typedef struct tagSIZE Common_UI_Resolution_t;
+struct common_ui_resolution_less
+{
+  inline bool operator() (const Common_UI_Resolution_t& lhs_in, const Common_UI_Resolution_t& rhs_in) const { return ((lhs_in.cx == rhs_in.cx) ? (lhs_in.cy < rhs_in.cy) : (lhs_in.cx < rhs_in.cx)); }
+};
+struct common_ui_resolution_equal
+{
+  inline bool operator() (const Common_UI_Resolution_t& lhs_in, const Common_UI_Resolution_t& rhs_in) const { return ((lhs_in.cx == rhs_in.cx) && (lhs_in.cy == rhs_in.cy)); }
+};
+typedef std::list<Common_UI_Resolution_t> Common_UI_Resolutions_t;
+typedef Common_UI_Resolutions_t::iterator Common_UI_ResolutionsIterator_t;
+typedef Common_UI_Resolutions_t::const_iterator Common_UI_ResolutionsConstIterator_t;
+#endif // ACE_WIN32 || ACE_WIN64
+
+// device
 struct Common_UI_DisplayDevice
 {
   Common_UI_DisplayDevice ()
@@ -42,7 +63,7 @@ struct Common_UI_DisplayDevice
    , description ()
 #else
    : description ()
- #endif // ACE_WIN32 || ACE_WIN64
+#endif // ACE_WIN32 || ACE_WIN64
    , device ()
   {
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

@@ -53,7 +53,7 @@ Common_TimerHandler::handle_close (ACE_HANDLE handle_in,
 #if defined (_DEBUG)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("cancelled timer (handle was: %@, mask: %u), continuing\n"),
+              ACE_TEXT ("cancelled timer (handle was: 0x%@, mask: %u), continuing\n"),
               handle_in,
               mask_in));
 #else

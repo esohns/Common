@@ -21,8 +21,6 @@
 #ifndef COMMON_UI_DEFINES_H
 #define COMMON_UI_DEFINES_H
 
-//#include "ace/config-lite.h"
-
 // event dispatch
 #define COMMON_UI_EVENT_THREAD_GROUP_ID                           200
 #define COMMON_UI_EVENT_THREAD_NAME                               "UI dispatch"
@@ -33,6 +31,9 @@
 // window
 #define COMMON_UI_WINDOW_DEFAULT_WIDTH                            320
 #define COMMON_UI_WINDOW_DEFAULT_HEIGHT                           240
+
+// interface definition
+#define COMMON_UI_DEFINITION_DESCRIPTOR_MAIN                      "main"
 
 // ************************************ SDL ************************************
 

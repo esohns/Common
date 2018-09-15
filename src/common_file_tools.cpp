@@ -44,9 +44,11 @@
 #include "common_macros.h"
 #include "common_tools.h"
 
+#include "common_error_tools.h"
+
 #if defined (HAVE_CONFIG_H)
 #include "libCommon_config.h"
-#endif
+#endif // HAVE_CONFIG_H
 
 std::string
 Common_File_Tools::addressToString (const ACE_FILE_Addr& address_in)
@@ -150,7 +152,7 @@ Common_File_Tools::access (const std::string& path_in,
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to GetFileSecurity(\"%s\"): \"%s\", aborting\n"),
                   ACE_TEXT (path_in.c_str ()),
-                  ACE_TEXT (Common_Tools::errorToString (error_i, false).c_str ())));
+                  ACE_TEXT (Common_Error_Tools::errorToString (error_i, false).c_str ())));
       return false; // *TODO*: avoid false negatives
     } // end IF
   } // end IF
@@ -162,7 +164,7 @@ Common_File_Tools::access (const std::string& path_in,
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to LocalAlloc(%d): \"%s\", aborting\n"),
                 length_needed_i,
-                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
     return false; // *TODO*: avoid false negatives
   } // end IF
   if (unlikely (!::GetFileSecurity (path_in.c_str (),
@@ -174,7 +176,7 @@ Common_File_Tools::access (const std::string& path_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to GetFileSecurity(\"%s\"): \"%s\", aborting\n"),
                 ACE_TEXT (path_in.c_str ()),
-                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
     goto clean;
   } // end IF
 
@@ -185,7 +187,7 @@ Common_File_Tools::access (const std::string& path_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to OpenProcessToken(%d): \"%s\", aborting\n"),
                 desired_access_i,
-                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
     goto clean;
   } // end IF
   ACE_ASSERT (token_h != ACE_INVALID_HANDLE);
@@ -203,7 +205,7 @@ Common_File_Tools::access (const std::string& path_in,
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to SetTokenInformation(%@): \"%s\", aborting\n"),
                   token_h,
-                  ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                  ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
       goto clean;
     } // end IF
   } // end IF
@@ -215,7 +217,7 @@ Common_File_Tools::access (const std::string& path_in,
                 ACE_TEXT ("failed to DuplicateToken(%@,%d): \"%s\", aborting\n"),
                 token_h,
                 SecurityImpersonation,
-                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
     goto clean;
   } // end IF
   ACE_ASSERT (token_2 != ACE_INVALID_HANDLE);
@@ -238,7 +240,7 @@ Common_File_Tools::access (const std::string& path_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to AccessCheck(\"%s\"): \"%s\", aborting\n"),
                 ACE_TEXT (path_in.c_str ()),
-                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
     goto clean;
   } // end IF
   result = (result_2 == TRUE);
@@ -249,20 +251,20 @@ clean:
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to CloseHandle(%@): \"%s\", continuing\n"),
                   token_2,
-                  ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                  ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
   if (likely (token_h != ACE_INVALID_HANDLE))
     if (unlikely (!CloseHandle (token_h)))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to CloseHandle(%@): \"%s\", continuing\n"),
                   token_h,
-                  ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                  ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
   if (likely (security_descriptor_p))
   {
     if (unlikely (LocalFree (security_descriptor_p)))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to LocalFree(%@): \"%s\", continuing\n"),
                   security_descriptor_p,
-                  ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                  ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
   } // end IF
 #else
   ACE_UINT32 mask_i = (mask_in & ACCESSPERMS);
@@ -452,7 +454,7 @@ Common_File_Tools::canRead (const std::string& path_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to OpenProcessToken(%d): \"%s\", aborting\n"),
                 desired_access_i,
-                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
     return false; // *TODO*: avoid false negatives
   } // end IF
   ACE_ASSERT (token_h != ACE_INVALID_HANDLE);
@@ -472,7 +474,7 @@ Common_File_Tools::canRead (const std::string& path_in,
                 ACE_TEXT ("failed to GetTokenInformation(%@,%d): \"%s\", aborting\n"),
                 token_h,
                 TokenUser,
-                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
     goto clean; // *TODO*: avoid false negatives
   } // end IF
   ACE_ASSERT (buffer_size_i);
@@ -496,7 +498,7 @@ Common_File_Tools::canRead (const std::string& path_in,
                 ACE_TEXT ("failed to GetTokenInformation(%@,%d): \"%s\", aborting\n"),
                 token_h,
                 TokenUser,
-                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
     goto clean; // *TODO*: avoid false negatives
   } // end IF
 
@@ -509,7 +511,7 @@ Common_File_Tools::canRead (const std::string& path_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to AllocateAndInitializeSid(SECURITY_LOCAL_SID_AUTHORITY,%d): \"%s\", aborting\n"),
                 SECURITY_INTERACTIVE_RID,
-                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
     goto clean; // *TODO*: avoid false negatives
   } // end IF
   ACE_ASSERT (SID_p);
@@ -553,7 +555,7 @@ Common_File_Tools::canRead (const std::string& path_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to LookupAccountName(\"%s\"): \"%s\", aborting\n"),
                 ACE_TEXT (accountName_in.c_str ()),
-                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
     goto clean; // *TODO*: avoid false negatives
   } // end IF
   ACE_ASSERT (SID_name_use_e == SidTypeUser);
@@ -574,20 +576,20 @@ clean:
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to CloseHandle(%@): \"%s\", continuing\n"),
                   token_h,
-                  ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                  ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
   if (token_user_p)
     if (unlikely (HeapFree (GetProcessHeap (), 0, (LPVOID)token_user_p)))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to HeapFree(%@,0,%@): \"%s\", continuing\n"),
                   GetProcessHeap (),
                   token_user_p,
-                  ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                  ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
   if (SID_p)
     if (unlikely (FreeSid (SID_p)))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to FreeSid(%@): \"%s\", continuing\n"),
                   SID_p,
-                  ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                  ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
 #else
   int result_2 = -1;
   uid_t user_id =
@@ -1621,7 +1623,7 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to SHGetFolderPath(CSIDL_APPDATA): \"%s\", falling back\n"),
-                ACE_TEXT (Common_Tools::errorToString (static_cast<DWORD> (result_2)).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (static_cast<DWORD> (result_2)).c_str ())));
     return Common_File_Tools::getWorkingDirectory ();
   } // end IF
 
@@ -1707,7 +1709,7 @@ Common_File_Tools::getHomeDirectory (const std::string& userName_in)
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to ::OpenProcessToken(): \"%s\", falling back\n"),
-                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
     goto fallback;
   } // end IF
   ACE_ASSERT (token_h != ACE_INVALID_HANDLE);
@@ -1721,13 +1723,13 @@ Common_File_Tools::getHomeDirectory (const std::string& userName_in)
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to GetUserProfileDirectory(): \"%s\", falling back\n"),
-                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
 
     // clean up
     if (!CloseHandle (token_h))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to CloseHandle(): \"%s\", continuing\n"),
-                  ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                  ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
 
     goto fallback;
   } // end IF
@@ -1736,7 +1738,7 @@ Common_File_Tools::getHomeDirectory (const std::string& userName_in)
   if (unlikely (!CloseHandle (token_h)))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to CloseHandle(): \"%s\", continuing\n"),
-                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
 
   result = ACE_TEXT_ALWAYS_CHAR (buffer_a);
 #else
@@ -1804,7 +1806,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to SHGetFolderPath(CSIDL_APPDATA): \"%s\", falling back\n"),
-                ACE_TEXT (Common_Tools::errorToString (static_cast<DWORD> (result_2), false).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (static_cast<DWORD> (result_2), false).c_str ())));
     goto fallback;
   } // end IF
 
@@ -1915,7 +1917,7 @@ use_environment:
     //            buffer));
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to GetTempPath(): \"%s\", falling back\n"),
-                ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
     goto fallback;
   } // end IF
 

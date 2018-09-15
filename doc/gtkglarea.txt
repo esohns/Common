@@ -10,3 +10,6 @@ GtkGLArea is required for gtk2 and gtk3 < 3.16
 6. ./configure --with-lib-opengl32
 7. make
 
+*NOTE*: when compiling manually with MSVC (e.g. 2010 Express), define the
+        following preprocessor macro: 'inline=__inline'
+

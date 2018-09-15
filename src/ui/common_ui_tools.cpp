@@ -40,6 +40,8 @@
 #include "common_macros.h"
 #include "common_tools.h"
 
+#include "common_error_tools.h"
+
 #include "common_ui_common.h"
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -74,7 +76,7 @@ common_monitor_enum_cb (HMONITOR monitor_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to GetNumberOfPhysicalMonitorsFromHMONITOR(): \"%s\", aborting\n"),
-                ACE_TEXT (Common_Tools::errorToString (GetLastError ()).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
     return FALSE;
   } // end IF
   ACE_NEW_NORETURN (physical_monitors_p,
@@ -94,7 +96,7 @@ common_monitor_enum_cb (HMONITOR monitor_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to GetPhysicalMonitorsFromHMONITOR(): \"%s\", aborting\n"),
-                ACE_TEXT (Common_Tools::errorToString (GetLastError ()).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
     goto error;
   } // end IF
 
@@ -104,7 +106,7 @@ common_monitor_enum_cb (HMONITOR monitor_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to GetMonitorInfo(): \"%s\", aborting\n"),
-                ACE_TEXT (Common_Tools::errorToString (GetLastError ()).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
     goto error;
   } // end IF
 
@@ -145,7 +147,7 @@ Common_UI_Tools::getDisplayDevices (Common_UI_DisplayDevices_t& devices_out)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to EnumDisplayMonitors(): \"%s\", aborting\n"),
-                ACE_TEXT (Common_Tools::errorToString (GetLastError ()).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
     return false;
   } // end IF
 #else

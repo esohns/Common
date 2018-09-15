@@ -27,9 +27,6 @@
 #include "ace/FILE_Addr.h"
 #include "ace/FILE_IO.h"
 
-//#include "common_exports.h"
-
-//class Common_Export Common_File_Tools
 class Common_File_Tools
 {
  public:

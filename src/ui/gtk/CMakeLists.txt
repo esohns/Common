@@ -1,10 +1,9 @@
-﻿include (CMakeDependentOption)
-
-CMAKE_DEPENDENT_OPTION (GTK3_SUPPORT "enable GTK 3 support" ON
-                        "GTK_SUPPORT" OFF)
+﻿#include (CMakeDependentOption)
+#CMAKE_DEPENDENT_OPTION (GTK3_SUPPORT "enable GTK 3 support" ON
+#                        "GTK_SUPPORT" OFF)
 #option (GTK3_SUPPORT "enable GTK 3 support" ON)
-CMAKE_DEPENDENT_OPTION (GTK2_SUPPORT "enable GTK 2 support" ON
-                        "GTK_SUPPORT; NOT GTK3_SUPPORT" OFF)
+#CMAKE_DEPENDENT_OPTION (GTK2_SUPPORT "enable GTK 2 support" ON
+#                        "GTK_SUPPORT; NOT GTK3_SUPPORT" OFF)
 #option (GTK2_SUPPORT "enable GTK2 support" OFF)
 
 # *NOTE*: early versions of gtk do not support GtkBuilder
@@ -32,35 +31,6 @@ CMAKE_DEPENDENT_OPTION (GTKGLAREA_SUPPORT "enable GtkGLArea support" OFF
 #check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
 #find_library (HAVE_LIB_ACE libACE)
 
-if (UNIX)
- set (ACE_LIB_FILE libACE.so)
- if (DEFINED ENV{ACE_ROOT})
-  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-                PATHS ENV ACE_ROOT
-                PATH_SUFFIXES ace build/linux/ace
-                DOC "searching for ${ACE_LIB_FILE}"
-                NO_DEFAULT_PATH)
- else ()
-  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-                DOC "searching for ${ACE_LIB_FILE} (system paths)")
- endif ()
-elseif (WIN32)
- if (CMAKE_BUILD_TYPE STREQUAL Debug)
-  set (LIB_FILE_SUFFIX d)
- endif ()
- set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
- find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-               PATHS ENV ACE_ROOT
-               PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
-               DOC "searching for ${ACE_LIB_FILE}")
-endif ()
-#if (NOT EXISTS ACE_LIBRARY)
-if (NOT ACE_LIBRARY)
- message (FATAL_ERROR "Could not find ${ACE_LIB_FILE} (was: \"${ACE_LIBRARY}\"), aborting")
-else ()
- #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
-endif ()
-
 include (FindPkgConfig)
 #pkg_check_modules (PKG_ACE REQUIRED ACE)
 if (UNIX)
@@ -82,8 +52,34 @@ if (UNIX)
  if (LIBGLADE_SUPPORT)
   pkg_check_modules (PKG_GLADE REQUIRED libglade-2.0)
  endif ()
-endif ()
+endif (UNIX)
 # *TODO*: repair WIN32 pkgconfig support
+
+if (GTKGL_SUPPORT)
+ include (FindOpenGL)
+ if (NOT OPENGL_FOUND)
+  if (UNIX)
+   set (OPENGL_LIB_FILE libGL.so)
+# find_package (OPENGL REQUIRED)
+   find_library (OPENGL_LIBRARY
+                 NAMES ${OPENGL_LIB_FILE}
+                 PATHS /usr/lib/x86_64-linux-gnu
+                 DOC "searching for ${OPENGL_LIB_FILE}")
+  elseif (WIN32)
+   set (OPENGL_LIB_FILE OpenGL32.lib)
+# find_package (OPENGL REQUIRED)
+   find_library (OPENGL_LIBRARY
+                 NAMES ${OPENGL_LIB_FILE}
+                 PATHS /usr/lib/x86_64-linux-gnu
+                 DOC "searching for ${OPENGL_LIB_FILE}")
+  endif ()
+  if (NOT OPENGL_FOUND AND NOT OPENGL_LIBRARY)
+   message (FATAL_ERROR "could not find ${OPENGL_LIB_FILE} (was: \"${OPENGL_LIBRARY}\"), aborting")
+  else ()
+   message (STATUS "Found OpenGL library \"${OPENGL_LIBRARY}\"")
+  endif () # NOT OPENGL_FOUND AND NOT OPENGL_LIBRARY
+ endif (NOT OPENGL_FOUND)
+endif (GTKGL_SUPPORT)
 
 if (GTKGL_SUPPORT)
  add_definitions (-DGTKGL_SUPPORT)
@@ -91,6 +87,7 @@ endif (GTKGL_SUPPORT)
 if (GTKGLAREA_SUPPORT)
  add_definitions (-DGTKGLAREA_SUPPORT)
 endif (GTKGLAREA_SUPPORT)
+
 if (LIBGLADE_SUPPORT)
  add_definitions (-DLIBGLADE_SUPPORT)
 endif (LIBGLADE_SUPPORT)
@@ -131,8 +128,8 @@ if (UNIX)
                               $<BUILD_INTERFACE:${PKG_GLADE_INCLUDE_DIRS}>)
  endif ()
 
- target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../modules/ACE>)
+# target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+#                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../modules/ACE>)
 elseif (WIN32)
 #*TODO*: use pkg-config instead
 # gtk
@@ -215,9 +212,8 @@ set (source_files
      common_ui_gtk_manager.inl
      common_ui_gtk_manager_common.h
      common_ui_gtk_tools.cpp
-     common_ui_gtk_tools.h
+     common_ui_gtk_tools.h)
 #     common_ui_gtk_types.h
-     common_ui_igtk.h)
 if (LIBGLADE_SUPPORT)
  set (source_files
       ${source_files}
@@ -302,12 +298,22 @@ elseif (WIN32)
   target_link_libraries (${PROJECT_NAME}UI_GTK ${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtk2/lib/pango-1.0.lib)
  endif ()
 
+ if (GTKGL_SUPPORT)
+  if (GTKGLAREA_SUPPORT)
+   target_link_libraries (${PROJECT_NAME}UI_GTK "C:/Documents and Settings/Erik/My Documents/Visual Studio 2010/Projects/gtkglarea/Debug/gtkglarea.lib")
+#   target_link_libraries (${PROJECT_NAME}UI_GTK ${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtkglarea/.lib)
+  else (GTKGLAREA_SUPPORT)
+ # target_link_libraries (${EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtkglext/gdk/.libs/libgdkglext-win32-1.0.dll.a)
+ # target_link_libraries (${EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtkglext/gtk/.libs/libgtkglext-win32-1.0.dll.a)
+  endif (GTKGLAREA_SUPPORT)
+ endif (GTKGL_SUPPORT)
+
  if (LIBGLADE_SUPPORT)
 # libglade
   target_link_libraries (${PROJECT_NAME}UI_GTK ${CMAKE_CURRENT_SOURCE_DIR}/../../../libglade-2.6.4/lib/libglade-2.0.dll.a)
  endif (LIBGLADE_SUPPORT)
 
- target_link_libraries (${PROJECT_NAME}UI_GTK ${ACE_LIBRARY})
+# target_link_libraries (${PROJECT_NAME}UI_GTK ${ACE_LIBRARY})
 
  target_link_libraries (${PROJECT_NAME}UI_GTK Common)
 endif ()
@@ -339,9 +345,8 @@ set (${PROJECT_NAME}UI_GTK_LIB_HDRS
      common_ui_gtk_manager.h
      common_ui_gtk_manager.inl
      common_ui_gtk_manager_common.h
-     common_ui_gtk_tools.h
+     common_ui_gtk_tools.h)
 #     common_ui_gtk_types.h
-     common_ui_igtk.h)
 if (LIBGLADE_SUPPORT)
  set (${PROJECT_NAME}UI_GTK_LIB_GLADE_HDRS ${CommonUI_GTK_LIB_GLADE_HDRS}
       common_ui_glade_definition.h)

@@ -2,6 +2,9 @@
  option (DBUS_SUPPORT "compile DBus support" ON)
 endif (UNIX)
 
+# configure C/C++ exceptions
+include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/SetCppExceptions.cmake)
+
 # target system introspection (see configure.ac)
 include (CheckFunctionExists)
 check_function_exists (strerror HAVE_FUNC_STRERROR)
@@ -102,6 +105,7 @@ elseif (WIN32)
  else ()
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")  # multithreaded dll
  endif ()
+ add_definitions (-DSTRSAFE_NO_DEPRECATE)
 endif ()
 
 add_library (${PROJECT_NAME} STATIC "")
@@ -118,14 +122,17 @@ if (UNIX)
  endif (DBUS_SUPPORT)
 elseif (WIN32)
  if (DEFINED ENV{ACE_ROOT})
-  include_directories ($ENV{ACE_ROOT})
+  target_include_directories (${PROJECT_NAME} PUBLIC
+                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
  else ()
-  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../ATCD/ACE)
- endif ()
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/err)
+  target_include_directories (${PROJECT_NAME} PUBLIC
+                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../ATCD/ACE>)
+ endif (DEFINED ENV{ACE_ROOT})
 endif ()
 target_include_directories (${PROJECT_NAME} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+target_include_directories (${PROJECT_NAME} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/error>)
 target_include_directories (${PROJECT_NAME} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/timer>)
 target_include_directories (${PROJECT_NAME} PUBLIC
@@ -229,6 +236,7 @@ add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}Timer)
 #                       DEFINE_SYMBOL COMMON_BUILD_DLL)
 set_target_properties (${PROJECT_NAME} PROPERTIES
                        VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
+
                        SOVERSION 1)
 
 if (UNIX)
@@ -239,10 +247,8 @@ if (UNIX)
 endif (UNIX)
 
 if (UNIX)
-# target_link_libraries (${PROJECT_NAME} ${AIO_LIBRARY})
  target_link_libraries (${PROJECT_NAME} ${PKG_LIBCAP_LIBRARIES})
  if (DBUS_SUPPORT)
-#  target_link_libraries (${PROJECT_NAME} ${PKG_DBUS_LIBRARIES})
   target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}DBus)
  endif (DBUS_SUPPORT)
 # target_link_libraries (${PROJECT_NAME} ${ACE_LIBRARY})
@@ -251,7 +257,8 @@ elseif (WIN32)
   target_link_libraries (${PROJECT_NAME} Msvcrtd.lib)
  else ()
   target_link_libraries (${PROJECT_NAME} Msvcrt.lib)
- endif ()
+ endif (CMAKE_BUILD_TYPE STREQUAL Debug)
+ target_link_libraries (${PROJECT_NAME} Dbghelp.lib)
  target_link_libraries (${PROJECT_NAME} Quartz.lib)
  target_link_libraries (${PROJECT_NAME} Secur32.lib)
  target_link_libraries (${PROJECT_NAME} Userenv.lib)
@@ -325,9 +332,7 @@ install (TARGETS ${PROJECT_NAME}
 if (DBUS_SUPPORT)
  add_subdirectory (dbus)
 endif (DBUS_SUPPORT)
-if (WIN32)
- add_subdirectory (err)
-endif (WIN32)
+add_subdirectory (error)
 add_subdirectory (gl)
 add_subdirectory (image)
 add_subdirectory (math)

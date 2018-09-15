@@ -40,7 +40,21 @@
 class ACE_Event_Handler;
 class ACE_Log_Msg_Backend;
 
-ACE_THR_FUNC_RETURN common_event_dispatch_function (void*);
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+LONG WINAPI
+common_win32_seh_filter (unsigned int,
+                         struct _EXCEPTION_POINTERS*);
+LONG WINAPI
+common_win32_seh_handler (struct _EXCEPTION_POINTERS*);
+
+int
+common_win32_debugheap_hook (int,
+                             char*,
+                             int*);
+#endif // ACE_WIN32 || ACE_WIN64
+
+ACE_THR_FUNC_RETURN
+common_event_dispatch_function (void*);
 
 class Common_Tools
  : public Common_SInitializeFinalize_T<Common_Tools>
@@ -115,7 +129,16 @@ class Common_Tools
   // *NOTE*: as used by polkit (i.e. queries /proc/self/stat)
   static uint64_t getStartTime ();
 #endif // ACE_WIN32 || ACE_WIN64
+
+  // --- core dump ---
   static bool enableCoreDump (bool = true); // enable ? : disable
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static bool generateCoreDump (const std::string&,                      // program name
+                                const struct Common_ApplicationVersion&, // program version
+                                struct _EXCEPTION_POINTERS*);            // return value of GetExceptionInformation()
+#endif // ACE_WIN32 || ACE_WIN64
+
+  // --- resource usage ---
   static bool setResourceLimits (bool = false,  // #file descriptors (i.e. open handles)
                                  bool = true,   // stack trace/sizes (i.e. core file sizes)
                                  bool = false); // pending (rt) signals
@@ -162,10 +185,6 @@ class Common_Tools
   static bool deleteKeyValue (HKEY,               // parent key
                               const std::string&, // subkey
                               const std::string&); // value
-
-  // --- error ---
-  static std::string errorToString (DWORD,         // error
-                                    bool = false); // ? use AMGetErrorText() : use FormatMessage()
 #endif // ACE_WIN32 || ACE_WIN64
 
   // --- logging ---
@@ -202,14 +221,25 @@ class Common_Tools
 
 #if defined (_DEBUG)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  static ACE_HANDLE      debugHeapLogFileHandle_;
+  static ACE_HANDLE              debugHeapLogFileHandle;
+
+  typedef int (WINAPI *MiniDumpWriteDumpFunc_t)(HANDLE,
+                                                DWORD,
+                                                HANDLE,
+                                                enum _MINIDUMP_TYPE,
+                                                struct _MINIDUMP_EXCEPTION_INFORMATION*,
+                                                struct _MINIDUMP_USER_STREAM_INFORMATION*,
+                                                struct _MINIDUMP_CALLBACK_INFORMATION*
+                                               );
+  static HMODULE                 debugHelpModule;
+  static MiniDumpWriteDumpFunc_t miniDumpWriteDumpFunc;
 #endif // ACE_WIN32 || ACE_WIN64
 #endif /* _DEBUG */
 
-  static unsigned int    randomSeed_;
+  static unsigned int            randomSeed;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-  static char            randomStateBuffer_[BUFSIZ];
+  static char                    randomStateBuffer[BUFSIZ];
 #endif // ACE_WIN32 || ACE_WIN64
 
  private:

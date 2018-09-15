@@ -57,14 +57,21 @@ glib_log_handler (const gchar* logDomain_in,
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown GLib log level (was: %d), continuing"),
+                  ACE_TEXT ("invalid/unknown GLib log level (was: 0x%x), continuing"),
                   logLevel_in));
       break;
     }
   } // end SWITCH
 
+  if (log_priority == LM_DEBUG)
+#if defined (_DEBUG)
+    ;
+#else
+    return; // don't log
+#endif // _DEBUG
   ACE_DEBUG ((log_priority,
-              ACE_TEXT ("GLib:%s%s%s\n"),
+              ACE_TEXT ("%s:%s%s%s\n"),
+              ACE_TEXT (logDomain_in),
               ((logLevel_in & G_LOG_FLAG_FATAL) ? ACE_TEXT (" [FATAL]") : ACE_TEXT ("")),
               ((logLevel_in & G_LOG_FLAG_RECURSION) ? ACE_TEXT (" [RECURSION]") : ((logLevel_in & G_LOG_FLAG_FATAL) ? ACE_TEXT (" ") : ACE_TEXT (""))),
               ACE_TEXT (message_in)));

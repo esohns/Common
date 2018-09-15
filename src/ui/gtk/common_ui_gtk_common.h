@@ -32,8 +32,7 @@
 #include "ace/Synch_Traits.h"
 
 #include "common_ui_common.h"
-
-#include "common_ui_igtk.h"
+#include "common_ui_idefinition.h"
 
 // forward declarations
 #if defined (LIGBGLADE_SUPPORT)
@@ -57,10 +56,10 @@ typedef Common_UI_GTK_EventSourceIds_t::iterator Common_UI_GTK_EventSourceIdsIte
 
 typedef std::list<std::string> Common_UI_GTK_RCFiles_t;
 typedef Common_UI_GTK_RCFiles_t::const_iterator Common_UI_GTK_RCFilesIterator_t;
-#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION(3,0,0)
 typedef std::map<std::string, GtkCssProvider*> Common_UI_GTK_CSSProviders_t;
 typedef Common_UI_GTK_CSSProviders_t::iterator Common_UI_GTK_CSSProvidersIterator_t;
-#endif
+#endif // GTK_CHECK_VERSION(3,0,0)
 
 typedef std::pair<std::string, GtkBuilder*> Common_UI_GTK_Builder_t;
 typedef std::map<std::string, Common_UI_GTK_Builder_t> Common_UI_GTK_Builders_t;
@@ -150,7 +149,12 @@ struct Common_UI_GTK_State
 
 //////////////////////////////////////////
 
-typedef Common_UI_IGTK_T<struct Common_UI_GTK_State> Common_UI_IGTK_t;
+#if defined (GTKGL_SUPPORT)
+typedef struct Common_UI_GTK_GLState Common_UI_GTK_State_t;
+#else
+typedef struct Common_UI_GTK_State Common_UI_GTK_State_t;
+#endif // GTKGL_SUPPORT
+typedef Common_UI_IDefinition_T<Common_UI_GTK_State_t> Common_UI_GTK_IDefinition_t;
 
 typedef std::map<guint, ACE_Thread_ID> Common_UI_GTK_PendingActions_t;
 typedef Common_UI_GTK_PendingActions_t::iterator Common_UI_GTK_PendingActionsIterator_t;
@@ -171,7 +175,7 @@ struct Common_UI_GTK_ProgressData
 //  GdkCursorType                      cursorType;
   guint                            eventSourceId;
   Common_UI_GTK_PendingActions_t   pendingActions;
-  struct Common_UI_GTK_State*      state;
+  Common_UI_GTK_State_t*           state;
 };
 
 #endif

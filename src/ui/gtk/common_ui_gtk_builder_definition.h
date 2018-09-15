@@ -23,33 +23,35 @@
 
 #include "ace/Global_Macros.h"
 
-#include "common_ui_igtk.h"
+#include "common_ui_idefinition.h"
 
-template <typename StateType>
+template <typename StateType,
+          typename CallBackDataType>
 class Common_UI_GtkBuilderDefinition_T
- : public Common_UI_IGTK_T<StateType>
+ : public Common_UI_IDefinition_T<StateType>
 {
  public:
   // convenient types
-  typedef Common_UI_IGTK_T<StateType> INTERFACE_T;
+  typedef Common_UI_IDefinition_T<StateType> INTERFACE_T;
 
-  Common_UI_GtkBuilderDefinition_T (int,          // argc
-                                    ACE_TCHAR**); // argv
+  Common_UI_GtkBuilderDefinition_T (int,                // argc
+                                    ACE_TCHAR**,        // argv
+                                    CallBackDataType*); // callback data handle
   virtual ~Common_UI_GtkBuilderDefinition_T ();
 
-  // implement Common_UI_IGTK_T
-  virtual bool initialize (StateType&); // return value: GTK state
+  // implement Common_UI_IDefinition_T
+  virtual bool initialize (StateType&); // return value: UI state
   virtual void finalize ();
-
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_GtkBuilderDefinition_T ());
   ACE_UNIMPLEMENTED_FUNC (Common_UI_GtkBuilderDefinition_T (const Common_UI_GtkBuilderDefinition_T&));
   ACE_UNIMPLEMENTED_FUNC (Common_UI_GtkBuilderDefinition_T& operator= (const Common_UI_GtkBuilderDefinition_T&));
 
-  int         argc_;
-  ACE_TCHAR** argv_;
-  StateType*  state_;
+  int               argc_;
+  ACE_TCHAR**       argv_;
+  CallBackDataType* CBData_;
+  StateType*        state_;
 };
 
 // include template definition

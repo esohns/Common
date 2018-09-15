@@ -22,6 +22,7 @@
 #define COMMON_H
 
 #include <deque>
+#include <list>
 #include <map>
 #include <string>
 #include <vector>
@@ -43,7 +44,16 @@
 
 // *** platform ***
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-typedef std::vector<struct _GUID> Common_Identifiers_t;
+struct common_equal_guid
+{
+  inline bool operator() (const struct _GUID& lhs_in, const struct _GUID& rhs_in) const { return InlineIsEqualGUID (lhs_in, rhs_in); }
+};
+struct common_less_guid
+{
+  inline bool operator() (const struct _GUID& lhs_in, const struct _GUID& rhs_in) const { return (lhs_in.Data1 < rhs_in.Data1); }
+};
+
+typedef std::list<struct _GUID> Common_Identifiers_t;
 typedef Common_Identifiers_t::iterator Common_IdentifiersIterator_t;
 #endif // ACE_WIN32 || ACE_WIN64
 
@@ -220,6 +230,13 @@ typedef Common_MessageStack_t::const_reverse_iterator Common_MessageStackConstRe
 //typedef std::deque<ACE_Log_Record> Common_LogRecordStack_t;
 
 // *** application ***
+
+struct Common_ApplicationVersion
+{
+  unsigned int majorVersion;
+  unsigned int minorVersion;
+  unsigned int microVersion;
+};
 
 enum Common_ApplicationModeType
 {

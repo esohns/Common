@@ -25,13 +25,42 @@
 
 // branch prediction //
 
-#ifdef __GNUC__
+#if defined (__GNUC__)
 #define likely(X) __builtin_expect (!!(X), 1)
 #define unlikely(X) __builtin_expect (!!(X), 0)
 #else
 #define likely(X) X
 #define unlikely(X) X
-#endif
+#endif // __GNUC__
+
+// exception handling //
+
+#if defined (__GNUC__)
+#if defined (EXCEPTION_CPP_USE)
+#define COMMON_TRY try
+#define COMMON_CATCH(X) catch (X)
+#else
+#define COMMON_TRY if (1)
+#define COMMON_CATCH(X) while (0)
+#endif // EXCEPTION_CPP_USE
+#elif defined (_MSC_VER)
+#if defined (EXCEPTION_CPP_USE)
+#define COMMON_TRY try
+#define COMMON_CATCH(X) catch (X)
+#elif defined (EXCEPTION_SEH_USE)
+#define COMMON_DEFAULT_SEH(X) common_win32_seh_filter(X)
+#define COMMON_DEFAULT_SEH_ARG_1 GetExceptionCode()
+#define COMMON_DEFAULT_SEH_ARG_2 GetExceptionInformation()
+#define COMMON_TRY ACE_SEH_TRY
+#define COMMON_SEH_CATCH(X) ACE_SEH_EXCEPT(X)
+#define COMMON_CATCH(X) COMMON_SEH_CATCH(COMMON_DEFAULT_SEH (COMMON_DEFAULT_SEH_ARG_1, COMMON_DEFAULT_SEH_ARG_2))
+#else
+#define COMMON_TRY if (1)
+#define COMMON_CATCH(X) while (0)
+#endif // EXCEPTION_CPP_USE
+#else
+#error invalid/unknown C++ compiler; not supported, check implementation
+#endif // __GNUC__
 
 // tracing //
 
@@ -52,9 +81,9 @@
 #  include "ace/Trace.h"
 #endif /* COMMON_NTRACE */
 
-#ifdef __GNUC__
+#if defined (__GNUC__)
 #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-#endif
+#endif // __GNUC__
 #define COMPILER_NAME ACE::compiler_name()
 #define COMPILER_VERSION (ACE::compiler_major_version() * 10000 + ACE::compiler_minor_version() * 100 + ACE::compiler_beta_version())
 

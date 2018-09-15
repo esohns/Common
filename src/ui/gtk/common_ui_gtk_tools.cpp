@@ -34,7 +34,9 @@
 #if GTK_CHECK_VERSION(3,0,0)
 #if GTK_CHECK_VERSION(3,16,0)
 #else
+#if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gdkgl.h"
+#endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
@@ -521,8 +523,8 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
   bool release_window = false;
 
   // sanity check(s)
-#if GTK_CHECK_VERSION (3,0,0)
-#if GTK_CHECK_VERSION (3,16,0)
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(3,16,0)
   ACE_ASSERT (context_in);
 #else
 #if defined (GTKGLAREA_SUPPORT)
@@ -551,19 +553,19 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
   } // end IF
   ACE_ASSERT (window_p);
 #endif /* GTKGLAREA_SUPPORT */
-#endif // GTK_CHECK_VERSION (3,16,0)
+#endif // GTK_CHECK_VERSION(3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
   ACE_ASSERT (context_in);
 #else
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION (3,0,0)
+#endif // GTK_CHECK_VERSION(3,0,0)
 
   std::ostringstream converter;
   std::string information_string;
 
-#if GTK_CHECK_VERSION (3,0,0)
-#if GTK_CHECK_VERSION (3,16,0)
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(3,16,0)
   ACE_ASSERT (window_p);
 
   GdkGLContext* gl_context_p = gdk_gl_context_get_current ();
@@ -620,9 +622,10 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("OpenGL information: \"%s\"\n"),
               ACE_TEXT (info_string_p)));
+  g_free (info_string_p); info_string_p = NULL;
 #else
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION (3,16,0)
+#endif // GTK_CHECK_VERSION(3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
   gint result = gdk_gl_query ();
@@ -637,15 +640,16 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("OpenGL information: \"%s\"\n"),
               ACE_TEXT (info_string_p)));
+  g_free (info_string_p); info_string_p = NULL;
 #else
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION (3,0,0)
+#endif // GTK_CHECK_VERSION(3,0,0)
 
   int version_major = 0, version_minor = 0;
 
   information_string = ACE_TEXT_ALWAYS_CHAR ("OpenGL version: ");
-#if GTK_CHECK_VERSION (3,0,0)
-#if GTK_CHECK_VERSION (3,16,0)
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(3,16,0)
   ACE_ASSERT (gl_context_p);
 
   gdk_gl_context_get_version (gl_context_p,
@@ -654,7 +658,7 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
 #else
   information_string.clear ();
   goto continue_;
-#endif // GTK_CHECK_VERSION (3,16,0)
+#endif // GTK_CHECK_VERSION(3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
   information_string.clear ();

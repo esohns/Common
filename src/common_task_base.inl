@@ -30,6 +30,8 @@
 #include "common_time_common.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "common_tools.h"
+
+#include "common_error_tools.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 template <ACE_SYNCH_DECL,
@@ -112,7 +114,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
                     handle,
-                    ACE_TEXT (Common_Tools::errorToString (::GetLastError ()).c_str ())));
+                    ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError ()).c_str ())));
   } // end FOR
 #endif // ACE_WIN32 || ACE_WIN64
 }
@@ -181,7 +183,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                 ACE_DEBUG ((LM_ERROR,
                             ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
                             handle,
-                            ACE_TEXT (Common_Tools::errorToString (::GetLastError ()).c_str ())));
+                            ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError ()).c_str ())));
           } // end FOR
 #endif // ACE_WIN32 || ACE_WIN64
           threads_.clear ();
@@ -661,10 +663,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory (%u), aborting\n"),
                 (sizeof (ACE_hthread_t) * threadCount_)));
-
-    // clean up
-    delete [] thread_ids_p;
-
+    delete [] thread_ids_p; thread_ids_p = NULL;
     return -1;
   } // end IF
   ACE_OS::memset (thread_handles_p, 0, sizeof (thread_handles_p));
@@ -675,11 +674,8 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory (%u), aborting\n"),
                 (sizeof (const char*) * threadCount_)));
-
-    // clean up
-    delete [] thread_ids_p;
-    delete [] thread_handles_p;
-
+    delete [] thread_ids_p; thread_ids_p = NULL;
+    delete [] thread_handles_p; thread_handles_p = NULL;
     return -1;
   } // end IF
   ACE_OS::memset (thread_names_p, 0, sizeof (thread_names_p));
@@ -698,14 +694,11 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("failed to allocate memory (%u), aborting\n"),
                   (sizeof (char) * BUFSIZ)));
-
-      // clean up
-      delete [] thread_ids_p;
-      delete [] thread_handles_p;
+      delete [] thread_ids_p; thread_ids_p = NULL;
+      delete [] thread_handles_p; thread_handles_p = NULL;
       for (unsigned int j = 0; j < i; j++)
         delete [] thread_names_p[j];
-      delete [] thread_names_p;
-
+      delete [] thread_names_p; thread_names_p = NULL;
       return -1;
     } // end IF
     ACE_OS::memset (thread_name_p, 0, sizeof (thread_name_p));
@@ -743,14 +736,11 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Task::activate(%u): \"%m\", aborting\n"),
                   threadCount_));
-
-      // clean up
-      delete [] thread_ids_p;
-      delete [] thread_handles_p;
+      delete [] thread_ids_p; thread_ids_p = NULL;
+      delete [] thread_handles_p; thread_handles_p = NULL;
       for (unsigned int i = 0; i < threadCount_; i++)
         delete [] thread_names_p[i];
-      delete [] thread_names_p;
-
+      delete [] thread_names_p; thread_names_p = NULL;
       return result;
     } // end IF
 
@@ -787,9 +777,9 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 #endif // _DEBUG
 
   // clean up
-  delete [] thread_ids_p;
-  delete [] thread_handles_p;
-  delete [] thread_names_p;
+  delete [] thread_ids_p; thread_ids_p = NULL;
+  delete [] thread_handles_p; thread_handles_p = NULL;
+  delete [] thread_names_p; thread_names_p = NULL;
 
   return result;
 }

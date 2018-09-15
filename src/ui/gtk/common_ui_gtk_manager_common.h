@@ -24,12 +24,24 @@
 #include "ace/Singleton.h"
 #include "ace/Synch_Traits.h"
 
-#include "common_ui_exports.h"
 #include "common_ui_gtk_common.h"
+#if defined (GTKGL_SUPPORT)
+#include "common_ui_gtk_gl_common.h"
+#endif // GTKGL_SUPPORT
 #include "common_ui_gtk_manager.h"
 
-typedef ACE_Singleton<Common_UI_GTK_Manager_T<ACE_MT_SYNCH,
-                                              struct Common_UI_GTK_State>,
+//typedef Common_TaskBase_T<ACE_MT_SYNCH,
+//                          Common_TimePolicy_t,
+//                          Common_ILock_T<ACE_NULL_SYNCH> > Common_UI_IGTK_Manager_t;
+typedef Common_TaskBase_T<ACE_MT_SYNCH,
+                          Common_TimePolicy_t,
+                          Common_ILock_T<ACE_MT_SYNCH> > Common_UI_IGTK_Manager_t;
+
+//////////////////////////////////////////
+
+typedef Common_UI_GTK_Manager_T<ACE_MT_SYNCH,
+                                Common_UI_GTK_State_t> Common_UI_GTK_Manager_t;
+typedef ACE_Singleton<Common_UI_GTK_Manager_t,
                       ACE_MT_SYNCH::MUTEX> COMMON_UI_GTK_MANAGER_SINGLETON;
 
 #endif

@@ -31,6 +31,8 @@
 #include "common_task_base.h"
 #include "common_time_common.h"
 
+#include "common_ui_idefinition.h"
+
 #include "common_ui_gtk_common.h"
 
 // GLib debug/log handler callbacks
@@ -38,8 +40,8 @@ void glib_log_handler (const gchar*,   // domain
                        GLogLevelFlags, // priority
                        const gchar*,   // message
                        gpointer);      // user data
-inline void glib_print_debug_handler (const gchar* message_in) { glib_log_handler (NULL, G_LOG_LEVEL_DEBUG, message_in, NULL); }
-inline void glib_print_error_handler (const gchar* message_in) { glib_log_handler (NULL, G_LOG_LEVEL_ERROR, message_in, NULL); }
+inline void glib_print_debug_handler (const gchar* message_in) { glib_log_handler (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, message_in, NULL); }
+inline void glib_print_error_handler (const gchar* message_in) { glib_log_handler (G_LOG_DOMAIN, G_LOG_LEVEL_ERROR, message_in, NULL); }
 
 template <ACE_SYNCH_DECL,
           typename StateType>
@@ -59,7 +61,10 @@ class Common_UI_GTK_Manager_T
 
  public:
   // convenient types
-  typedef Common_UI_IGTK_T<StateType> UI_INTERFACE_T;
+  typedef Common_UI_IDefinition_T<StateType> UI_INTERFACE_T;
+  typedef Common_TaskBase_T<ACE_SYNCH_USE,
+                            Common_TimePolicy_t,
+                            Common_ILock_T<ACE_SYNCH_USE> > TASK_T;
   typedef ACE_Singleton<Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                                                 StateType>,
                         ACE_SYNCH_MUTEX_T> SINGLETON_T;

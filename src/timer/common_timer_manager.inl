@@ -135,19 +135,8 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
         return;
       } // end IF
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-      HANDLE thread_handle_h =
-        ::OpenThread (THREAD_SET_LIMITED_INFORMATION, FALSE, thread_ids[0]);
-      if (!thread_handle_h)
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ::OpenThread(%d): \"%s\", returning\n"),
-                    thread_ids[0],
-                    ACE_TEXT (Common_Tools::errorToString (::GetLastError (), false).c_str ())));
-        return;
-      } // end IF
       Common_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_NAME),
-                                   reinterpret_cast<DWORD> (thread_handle_h));
-      ::CloseHandle (thread_handle_h);
+                                   thread_ids[0]);
 #endif // ACE_WIN32 || ACE_WIN64
 #if defined (_DEBUG)
       ACE_DEBUG ((LM_DEBUG,
@@ -719,9 +708,11 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       return -1;
     }
   } // end SWITCH
-//   ACE_DEBUG ((LM_DEBUG,
-//               ACE_TEXT ("scheduled timer (id: %d)\n"),
-//               result));
+#if defined (_DEBUG)
+   ACE_DEBUG ((LM_DEBUG,
+               ACE_TEXT ("scheduled timer (id: %d)\n"),
+               result));
+#endif // _DEBUG
 
   return result;
 }

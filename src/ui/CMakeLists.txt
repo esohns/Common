@@ -1,4 +1,36 @@
-﻿option (GTK_SUPPORT "enable GTK support" ON)
+﻿include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/PreUIFramework.cmake)
+#include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/SetUIFramework.cmake)
+if (GTK_SUPPORT)
+ include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/SetGTKVersion.cmake)
+endif (GTK_SUPPORT)
+if (WXWIDGETS_SUPPORT)
+ message (STATUS "wxWidgets_DEFINITIONS: ${wxWidgets_DEFINITIONS}")
+ message (STATUS "wxWidgets_DEFINITIONS_DEBUG: ${wxWidgets_DEFINITIONS_DEBUG}")
+ message (STATUS "wxWidgets_CXX_FLAGS: ${wxWidgets_CXX_FLAGS}")
+ message (STATUS "wxWidgets_USE_FILE: ${wxWidgets_USE_FILE}")
+# # *NOTE*: re-enable ANSI mode, iff available
+# add_definitions (-DwxUSE_UNICODE=0)
+ if (WIN32)
+  add_definitions (-D__WXMSW__)
+  add_definitions (-DWXUSINGDLL)
+  if (MSVC)
+   add_definitions (-DwxMSVC_VERSION_AUTO)
+  endif (MSVC)
+ endif (WIN32)
+ add_definitions (-DwxUSE_GUI=1)
+ if (CMAKE_BUILD_TYPE STREQUAL Debug)
+  add_definitions (-D__WXDEBUG__)
+ endif (CMAKE_BUILD_TYPE STREQUAL Debug)
+endif (WXWIDGETS_SUPPORT)
+
+if (GTK_SUPPORT)
+ CMAKE_DEPENDENT_OPTION (GTKGL_SUPPORT "enable GTK OpenGL support" ON
+                         "GTK_SUPPORT" OFF)
+# *IMPORTANT NOTE*: to use gtkglarea on gtk2, check out the 'gtkglarea-2' branch
+#                   of the project
+ CMAKE_DEPENDENT_OPTION (GTKGLAREA_SUPPORT "enable GtkGLArea support" OFF
+                         "GTKGL_SUPPORT" OFF)
+endif (GTK_SUPPORT)
 
 add_library (${PROJECT_NAME}UI STATIC "")
 
@@ -6,11 +38,18 @@ if (UNIX)
  target_include_directories (${PROJECT_NAME}UI PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 elseif (WIN32)
- include_directories ($ENV{ACE_ROOT})
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/err)
+ if (DEFINED ENV{ACE_ROOT})
+  target_include_directories (${PROJECT_NAME}UI PUBLIC
+                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
+ else ()
+  target_include_directories (${PROJECT_NAME}UI PUBLIC
+                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../ATCD/ACE>)
+ endif (DEFINED ENV{ACE_ROOT})
 endif ()
 target_include_directories (${PROJECT_NAME}UI PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
+target_include_directories (${PROJECT_NAME}UI PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
 target_include_directories (${PROJECT_NAME}UI PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
 
@@ -19,6 +58,7 @@ set (source_files
      common_ui_common.h
      common_ui_defines.h
      common_ui_exports.h
+     common_ui_idefinition.h
      common_ui_tools.cpp
      common_ui_tools.h
      common_ui_types.h)
@@ -66,6 +106,7 @@ set (${PROJECT_NAME}UI_LIB_HDRS
      common_ui_common.h
      common_ui_defines.h
      common_ui_exports.h
+     common_ui_idefinition.h
      common_ui_tools.h
      common_ui_types.h)
 
@@ -79,4 +120,7 @@ install (TARGETS ${PROJECT_NAME}UI
 
 if (GTK_SUPPORT)
  add_subdirectory (gtk)
-endif ()
+endif (GTK_SUPPORT)
+if (WXWIDGETS_SUPPORT)
+ add_subdirectory (wxwidgets)
+endif (WXWIDGETS_SUPPORT)

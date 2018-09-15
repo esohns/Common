@@ -57,6 +57,9 @@ typedef Common_UI_GTK_GLContexts_t::iterator Common_UI_GTK_GLContextsIterator_t;
 #if defined (GTKGLAREA_SUPPORT)
 typedef std::map<GtkGLArea*, GdkGLContext*> Common_UI_GTK_GLContexts_t;
 typedef Common_UI_GTK_GLContexts_t::iterator Common_UI_GTK_GLContextsIterator_t;
+#else
+typedef std::map<GdkWindow*, GdkGLConfig*> Common_UI_GTK_GLContexts_t;
+typedef Common_UI_GTK_GLContexts_t::iterator Common_UI_GTK_GLContextsIterator_t;
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,0,0) */
 
@@ -65,46 +68,27 @@ struct Common_UI_GTK_GLState
 {
   Common_UI_GTK_GLState ()
    : Common_UI_GTK_State ()
-   , OpenGLWindow (NULL)
-#if GTK_CHECK_VERSION(3,0,0)
-#if GTK_CHECK_VERSION(3,16,0)
    , OpenGLContexts ()
-#else
-#if defined (GTKGLAREA_SUPPORT)
-   , OpenGLContexts ()
-#endif /* GTKGLAREA_SUPPORT */
-#endif /* GTK_CHECK_VERSION (3,16,0) */
-#else
-#if defined (GTKGLAREA_SUPPORT)
-   , OpenGLContexts ()
-#else
-#endif /* GTKGLAREA_SUPPORT */
-#endif /* GTK_CHECK_VERSION (3,0,0) */
   {}
 
-  // *TODO*: as an application may support multiple OpenGL-capable windows, and
-  //         each GdkGLContext is tied to a specific GdkWindow, move all of this
-  //         into a separate 'presentation manager' object ASAP
-#if GTK_CHECK_VERSION(3,0,0)
-#if GTK_CHECK_VERSION(3,16,0)
-  GdkWindow*                 OpenGLWindow;
+  // *TODO*: an application may support multiple OpenGL-capable windows; each
+  //         window is tied to a specific (shared) GdkGLContext. Move the
+  //         mapping of a OpenGL context to a specific output device(s) into a
+  //         separate 'presentation manager' object
   Common_UI_GTK_GLContexts_t OpenGLContexts;
-#else
-#if defined (GTKGLAREA_SUPPORT)
-  GglaArea*                  OpenGLWindow;
-  Common_UI_GTK_GLContexts_t OpenGLContexts;
-#else
-  GdkWindow*                 OpenGLWindow;
-#endif /* GTKGLAREA_SUPPORT */
-#endif /* GTK_CHECK_VERSION (3,16,0) */
-#else /* GTK_CHECK_VERSION (3,0,0) */
-#if defined (GTKGLAREA_SUPPORT)
-  GtkGLArea*                 OpenGLWindow;
-  Common_UI_GTK_GLContexts_t OpenGLContexts;
-#else
-  GdkWindow*                 OpenGLWindow;
-#endif /* GTKGLAREA_SUPPORT */
-#endif /* GTK_CHECK_VERSION (3,0,0) */
+};
+
+//////////////////////////////////////////
+
+struct Common_UI_GTKGL_ProgressData
+ : Common_UI_GTK_ProgressData
+{
+  Common_UI_GTKGL_ProgressData ()
+   : Common_UI_GTK_ProgressData ()
+   , state (NULL)
+  {}
+
+  struct Common_UI_GTK_GLState* state;
 };
 
 #endif

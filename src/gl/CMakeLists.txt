@@ -1,7 +1,21 @@
 ﻿include (FindOpenGL)
 if (NOT OPENGL_FOUND)
- message (FATAL_ERROR "OpenGL support not found on this system, aborting")
-endif ()
+ if (UNIX)
+  set (OPENGL_LIB_FILE libGL.so)
+ elseif (WIN32)
+  set (OPENGL_LIB_FILE OpenGL32.lib)
+ endif ()
+# find_package (OPENGL REQUIRED)
+ find_library (OPENGL_LIBRARY
+               NAMES ${OPENGL_LIB_FILE}
+               PATHS /usr/lib/x86_64-linux-gnu
+               DOC "searching for ${OPENGL_LIB_FILE}")
+ if (NOT OPENGL_FOUND AND NOT OPENGL_LIBRARY)
+  message (FATAL_ERROR "could not find ${OPENGL_LIB_FILE} (was: \"${OPENGL_LIBRARY}\"), aborting")
+ else ()
+  message (STATUS "Found OpenGL library \"${OPENGL_LIBRARY}\"")
+ endif (NOT OPENGL_FOUND AND NOT OPENGL_LIBRARY)
+endif (NOT OPENGL_FOUND)
 
 include (FindPkgConfig)
 if (UNIX)
@@ -20,66 +34,33 @@ if (UNIX)
  endif ()
  pkg_check_modules (PKG_LIBPNG REQUIRED libpng)
  pkg_check_modules (PKG_ASSIMP REQUIRED assimp)
-endif ()
+endif (UNIX)
 #pkg_check_modules (PKG_ACE REQUIRED ACE)
-
-set (ACE_LIB_FILE libACE.so)
-if (UNIX)
- set (AIO_LIB_FILE libaio.so)
- find_library (AIO_LIBRARY ${AIO_LIB_FILE}
-               PATHS /lib /usr/lib
-               PATH_SUFFIXES x86_64-linux-gnu
-               DOC "searching for ${AIO_LIB_FILE}")
-# message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
- find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-               HINTS ${CMAKE_CURRENT_BINARY_DIR}/../../../ATCD/ACE /usr/local
-               PATHS ENV ACE_ROOT
-               PATH_SUFFIXES lib
-               DOC "searching for ${ACE_LIB_FILE}"
-               NO_DEFAULT_PATH)
-# else ()
-#  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-#                DOC "searching for ${ACE_LIB_FILE} (system paths)")
-# endif ()
-elseif (WIN32)
- if (CMAKE_BUILD_TYPE STREQUAL Debug)
-  set (LIB_FILE_SUFFIX d)
- endif ()
- unset (ACE_LIB_FILE)
- set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
- find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-               PATHS ENV ACE_ROOT
-               PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
-               DOC "searching for ${ACE_LIB_FILE}")
-endif ()
-#if (NOT EXISTS ACE_LIBRARY)
-if (NOT ACE_LIBRARY)
- message (FATAL_ERROR "Could not find ACE library (was: \"${ACE_LIB_FILE}\"), aborting")
-else ()
- #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
-endif ()
-add_definitions (-DACE_HAS_DLL)
 
 add_library (${PROJECT_NAME}OpenGL STATIC "")
 
 if (UNIX)
  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                             $<BUILD_INTERFACE:${PKG_GLM_INCLUDE_DIRS}>)
+ target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
                              $<BUILD_INTERFACE:${PKG_LIBPNG_INCLUDE_DIRS}>)
  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
                              $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
- target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
-                             $<BUILD_INTERFACE:${PKG_GLM_INCLUDE_DIRS}>)
-
- target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 elseif (WIN32)
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../assimp/include)
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../glm)
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25)
+ target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../glm>)
+ target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../assimp/include>)
+ target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25>)
 
- include_directories ($ENV{ACE_ROOT})
-
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../3rd_party)
+ if (DEFINED ENV{ACE_ROOT})
+  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
+ else ()
+  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../ATCD/ACE>)
+ endif (DEFINED ENV{ACE_ROOT})
 endif ()
 target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
@@ -146,9 +127,11 @@ elseif (WIN32)
 # target_link_libraries (${PROJECT_NAME}OpenGL Secur32.lib)
 # target_link_libraries (${PROJECT_NAME}OpenGL Userenv.lib)
 
-# target_link_libraries (${PROJECT_NAME}OpenGL ${ACE_LIBRARY})
-
-# target_link_libraries (${PROJECT_NAME}OpenGL ${PROJECT_NAME}Error)
+ if (OPENGL_FOUND)
+  target_link_libraries (${PROJECT_NAME}OpenGL ${OPENGL_LIBRARIES})
+ else ()
+  target_link_libraries (${PROJECT_NAME}OpenGL ${OPENGL_LIBRARY})
+ endif (OPENGL_FOUND)
 endif ()
 
 # add PCH
