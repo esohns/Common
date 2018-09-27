@@ -57,7 +57,7 @@ glib_log_handler (const gchar* logDomain_in,
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown GLib log level (was: 0x%x), continuing"),
+                  ACE_TEXT ("invalid/unknown glib log level (was: 0x%x), continuing"),
                   logLevel_in));
       break;
     }

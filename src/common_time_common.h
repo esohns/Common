@@ -72,4 +72,7 @@ COMMON_COMPILER_UNUSED_SYMBOL_PREFIX static Common_TimePolicy_t COMMON_TIME_POLI
 
 #define COMMON_TIME_NOW_UTC Common_Timer_Tools::localToUTC (COMMON_TIME_NOW)
 
+#define COMMON_DATE_NOW ACE_Date_Time (COMMON_TIME_NOW)
+#define COMMON_DATE_NOW_UTC ACE_Date_Time (Common_Timer_Tools::localToUTC (COMMON_TIME_NOW))
+
 #endif

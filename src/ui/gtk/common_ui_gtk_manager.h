@@ -27,6 +27,7 @@
 
 #include "gtk/gtk.h"
 
+#include "common_iget.h"
 #include "common_ilock.h"
 #include "common_task_base.h"
 #include "common_time_common.h"
@@ -49,6 +50,7 @@ class Common_UI_GTK_Manager_T
  : public Common_TaskBase_T<ACE_SYNCH_USE,
                             Common_TimePolicy_t,
                             Common_ILock_T<ACE_SYNCH_USE> >
+ , public Common_IGetR_2_T<StateType>
 {
   typedef Common_TaskBase_T<ACE_SYNCH_USE,
                             Common_TimePolicy_t,
@@ -71,13 +73,14 @@ class Common_UI_GTK_Manager_T
 
   bool initialize (int,              // argc
                    ACE_TCHAR** ,     // argv
-                   StateType*,       // state handle
                    UI_INTERFACE_T*); // UI interface handle
 
   // override (part of) Common_ITask
   virtual void start ();
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?
+
+  inline virtual const StateType& getR_2 () const { return state_; }
 
  private:
   Common_UI_GTK_Manager_T ();
@@ -102,7 +105,7 @@ class Common_UI_GTK_Manager_T
   ACE_TCHAR**     argv_;
   bool            GTKIsInitialized_;
   bool            isInitialized_;
-  StateType*      state_;
+  StateType       state_;
   UI_INTERFACE_T* UIInterfaceHandle_;
 };
 

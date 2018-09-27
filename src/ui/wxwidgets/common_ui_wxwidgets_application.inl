@@ -22,6 +22,8 @@
 
 #include "common_macros.h"
 
+#include "common_ui_defines.h"
+
 #include "common_ui_wxwidgets_common.h"
 
 template <typename DefinitionType,
@@ -31,9 +33,10 @@ template <typename DefinitionType,
 Comon_UI_WxWidgets_Application_T<DefinitionType,
                                  ConfigurationType,
                                  StateType,
-                                 TopLevelClassType>::Comon_UI_WxWidgets_Application_T (int argc_in,
+                                 TopLevelClassType>::Comon_UI_WxWidgets_Application_T (const std::string& name_in,
+                                                                                       int argc_in,
                                                                                        wxChar** argv_in,
-                                                                                       const std::string& name_in)
+                                                                                       bool parseCommandLine_in)
  : inherited ()
  , inherited2 (name_in,
                &instance_)
@@ -41,6 +44,7 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
  , configuration_ ()
  , state_ ()
  , initializer_ (argc_in, argv_in)
+ , parseCommandLine_ (parseCommandLine_in)
 {
   COMMON_TRACE (ACE_TEXT ("Comon_UI_WxWidgets_Application_T::Comon_UI_WxWidgets_Application_T"));
 
@@ -66,6 +70,9 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
 {
   COMMON_TRACE (ACE_TEXT ("Comon_UI_WxWidgets_Application_T::run"));
 
+  // sanity check(s)
+  ACE_ASSERT (state_.argc && state_.argv);
+
   int result = wxEntry (state_.argc,
                         state_.argv);
   if (unlikely (result))
@@ -90,12 +97,15 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
 {
   COMMON_TRACE (ACE_TEXT ("Comon_UI_WxWidgets_Application_T::OnInit"));
 
-  if (!inherited::OnInit ())
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to wxApp::OnInit(), aborting\n")));
-    return false;
-  } // end IF
+  // parse the command-line arguments ?
+  // *NOTE*: this works iff wxUSE_CMDLINE_PARSER was set
+  if (parseCommandLine_)
+    if (!inherited::OnInit ())
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to wxAppConsole::OnInit(), aborting\n")));
+      return false;
+    } // end IF
 
   if (unlikely (!inherited2::initialize (state_)))
   {

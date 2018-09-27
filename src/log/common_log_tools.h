@@ -18,35 +18,36 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_UI_WXWIDGETS_IAPPLICATION_T_H
-#define COMMON_UI_WXWIDGETS_IAPPLICATION_T_H
+#ifndef COMMON_LOG_TOOLS_H
+#define COMMON_LOG_TOOLS_H
 
-#include "common_iget.h"
-#include "common_iinitialize.h"
+#include <string>
 
-template <typename StateType>
-class Common_UI_wxWidgets_IApplicationBase_T
- : public Common_IGetR_T<StateType>
+#include "ace/Global_Macros.h"
+
+// forward declarations
+class ACE_Log_Msg_Backend;
+
+class Common_Log_Tools
 {
  public:
-  // convenient types
-  typedef StateType STATE_T;
+  static bool initializeLogging (const std::string&,           // program name (i.e. argv[0])
+                                 const std::string&,           // log file {"" --> disable}
+                                 bool = false,                 // log to syslog ?
+                                 bool = false,                 // enable tracing messages ?
+#if defined (_DEBUG)
+                                 bool = true,                  // enable debug messages ?
+#else
+                                 bool = false,                 // enable debug messages ?
+#endif // _DEBUG
+                                 ACE_Log_Msg_Backend* = NULL); // logger backend {NULL --> disable}
+  static void finalizeLogging ();
 
-  virtual bool run () = 0;
-  virtual void wait () = 0;
-};
-
-template <typename StateType,
-          ////////////////////////////////
-          typename ConfigurationType>
-class Common_UI_wxWidgets_IApplication_T
- : public Common_UI_wxWidgets_IApplicationBase_T<StateType>
- , public Common_IInitialize_T<ConfigurationType>
- , public Common_IGetR_2_T<ConfigurationType>
-{
- public:
-  // convenient types
-  typedef ConfigurationType CONFIGURATION_T;
+ private:
+  ACE_UNIMPLEMENTED_FUNC (Common_Log_Tools ());
+  ACE_UNIMPLEMENTED_FUNC (~Common_Log_Tools ());
+  ACE_UNIMPLEMENTED_FUNC (Common_Log_Tools (const Common_Log_Tools&));
+  ACE_UNIMPLEMENTED_FUNC (Common_Log_Tools& operator= (const Common_Log_Tools&));
 };
 
 #endif

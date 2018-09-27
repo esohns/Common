@@ -21,15 +21,26 @@
 #ifndef COMMON_PRAGMAS_H
 #define COMMON_PRAGMAS_H
 
-#include "ace/config-lite.h"
-
-#include "common_macros.h"
-
 // compile-time messages //
 
-#define COMMON_MAKESTRING(M, L) M(L)
 #define $Line COMMON_MAKESTRING(COMMON_XSTRINGIZE, __LINE__)
-#define Note __FILE__ "(" $Line ") : *Note*: "
-// *NOTE*: usage: '#pragma message(Note "Fix this problem!")'
+
+#if defined (_MSC_VER)
+#define COMMON_PRAGMA(x) __pragma(x)
+#define COMMON_PRAGMA_MESSAGE_PREFACE(type) __FILE__ "("$Line"): "type": "
+#define COMMON_PRAGMA_MESSAGE(msg) COMMON_PRAGMA(message (msg))
+#define COMMON_PRAGMA_MESSAGE_2(type,msg) COMMON_PRAGMA(message (COMMON_PRAGMA_MESSAGE_PREFACE(type) msg))
+#elif defined (__GNUC__)
+#define COMMON_PRAGMA(x) _Pragma(#x)
+#define COMMON_PRAGMA_MESSAGE(msg) COMMON_PRAGMA(message (msg))
+#define COMMON_PRAGMA_MESSAGE_2(type,msg) COMMON_PRAGMA(message (msg))
+#else
+#define COMMON_PRAGMA(x)
+#define COMMON_PRAGMA_MESSAGE(msg)
+#define COMMON_PRAGMA_MESSAGE_2(type,msg)
+#endif
+#define COMMON_PRAGMA_ERROR(x)   COMMON_PRAGMA_MESSAGE_2(*ERROR*,x)
+#define COMMON_PRAGMA_NOTE(x)    COMMON_PRAGMA_MESSAGE_2(*NOTE*,x)
+#define COMMON_PRAGMA_WARNING(x) COMMON_PRAGMA_MESSAGE_2(*WARNING*,x)
 
 #endif

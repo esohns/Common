@@ -1,0 +1,131 @@
+/***************************************************************************
+ *   Copyright (C) 2009 by Erik Sohns   *
+ *   erik.sohns@web.de   *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+#include "stdafx.h"
+
+#include <fstream>
+
+#include "common_log_tools.h"
+
+#include "ace/Log_Msg.h"
+#include "ace/Log_Msg_Backend.h"
+#include "ace/OS_Memory.h"
+
+#include "common_macros.h"
+
+bool
+Common_Log_Tools::initializeLogging (const std::string& programName_in,
+                                     const std::string& logFile_in,
+                                     bool logToSyslog_in,
+                                     bool enableTracing_in,
+                                     bool enableDebug_in,
+                                     ACE_Log_Msg_Backend* backend_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Log_Tools::initializeLogging"));
+
+  int result = -1;
+
+  // *NOTE*: default log target is stderr
+  u_long options_flags = ACE_Log_Msg::STDERR;
+  if (logToSyslog_in)
+    options_flags |= ACE_Log_Msg::SYSLOG;
+  if (backend_in)
+  {
+    options_flags |= ACE_Log_Msg::CUSTOM;
+    ACE_LOG_MSG->msg_backend (backend_in);
+  } // end IF
+  if (!logFile_in.empty ())
+  {
+    options_flags |= ACE_Log_Msg::OSTREAM;
+
+    ACE_OSTREAM_TYPE* log_stream_p = NULL;
+    std::ios_base::openmode open_mode = (std::ios_base::out   |
+                                         std::ios_base::trunc);
+    ACE_NEW_NORETURN (log_stream_p,
+                      std::ofstream (logFile_in.c_str (),
+                                     open_mode));
+//    log_stream_p = ACE_OS::fopen (logFile_in.c_str (),
+//                                  ACE_TEXT_ALWAYS_CHAR ("w"));
+    if (unlikely (!log_stream_p))
+    {
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
+//      ACE_DEBUG ((LM_ERROR,
+//                  ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
+//                  ACE_TEXT (logFile_in.c_str ())));
+      return false;
+    } // end IF
+    if (unlikely (log_stream_p->fail ()))
+//    if (log_stream_p->open (logFile_in.c_str (),
+//                            open_mode))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to create log file (was: \"%s\"): \"%m\", aborting\n"),
+                  ACE_TEXT (logFile_in.c_str ())));
+      delete log_stream_p; log_stream_p = NULL;
+      return false;
+    } // end IF
+
+    // *NOTE*: the logger singleton assumes ownership of the stream object
+    // *BUG*: doesn't work on Linux
+    ACE_LOG_MSG->msg_ostream (log_stream_p, true);
+  } // end IF
+  result = ACE_LOG_MSG->open (ACE_TEXT (programName_in.c_str ()),
+                              options_flags,
+                              NULL); // logger key
+  if (unlikely (result == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Log_Msg::open(\"%s\", %u): \"%m\", aborting\n"),
+                ACE_TEXT (programName_in.c_str ()),
+                options_flags));
+    return false;
+  } // end IF
+
+  // set new mask...
+  u_long process_priority_mask = (LM_SHUTDOWN |
+                                  LM_TRACE    |
+                                  LM_DEBUG    |
+                                  LM_INFO     |
+                                  LM_NOTICE   |
+                                  LM_WARNING  |
+                                  LM_STARTUP  |
+                                  LM_ERROR    |
+                                  LM_CRITICAL |
+                                  LM_ALERT    |
+                                  LM_EMERGENCY);
+  if (!enableTracing_in)
+    process_priority_mask &= ~LM_TRACE;
+  if (!enableDebug_in)
+    process_priority_mask &= ~LM_DEBUG;
+  ACE_LOG_MSG->priority_mask (process_priority_mask,
+                              ACE_Log_Msg::PROCESS);
+
+  return true;
+}
+
+void
+Common_Log_Tools::finalizeLogging ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Log_Tools::finalizeLogging"));
+
+  // *NOTE*: this may be necessary in case the backend sits on the stack.
+  //         In that case, ACE::fini() closes the backend too late
+  ACE_LOG_MSG->msg_backend (NULL);
+}

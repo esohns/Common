@@ -90,6 +90,10 @@ using namespace std;
 #include "ace/Dev_Poll_Reactor.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
+#if defined (HAVE_CONFIG_H)
+#include "libCommon_config.h"
+#endif // HAVE_CONFIG_H
+
 #include "common_defines.h"
 #include "common_file_tools.h"
 #include "common_macros.h"
@@ -129,7 +133,7 @@ common_win32_seh_filter (unsigned int exceptionCode_in,
   // *TODO*: pass application information into the exception handler
   struct Common_ApplicationVersion application_version;
   ACE_OS::memset (&application_version, 0, sizeof (struct Common_ApplicationVersion));
-  if (!Common_Tools::generateCoreDump (ACE_TEXT_ALWAYS_CHAR (LIBCOMMON_PACKAGE_NAME),
+  if (!Common_Tools::generateCoreDump (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
                                        application_version,
                                        exceptionInformation_in))
   {
@@ -466,180 +470,6 @@ continue_:
 #endif /* _DEBUG */
 
   return;
-}
-
-//Common_ITimer*
-//Common_Tools::getTimerManager ()
-//{
-//  COMMON_TRACE (ACE_TEXT ("Common_Tools::getTimerManager"));
-//
-//  return COMMON_TIMERMANAGER_SINGLETON::instance ();
-//}
-
-bool
-Common_Tools::inDebugSession ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::inDebugSession"));
-
-  bool result = false;
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  result = IsDebuggerPresent ();
-#elif defined (ACE_LINUX)
-  int status_fd = ACE_INVALID_HANDLE;
-  ACE_TCHAR buffer_a[BUFSIZ];
-  ssize_t bytes_read = -1;
-  int result_2 = -1;
-  static const ACE_TCHAR tracer_pid_string[] = ACE_TEXT ("TracerPid:");
-  ACE_TCHAR* tracer_pid_p = NULL;
-
-  status_fd = ACE_OS::open (ACE_TEXT_ALWAYS_CHAR ("/proc/self/status"),
-                            O_RDONLY);
-  if (unlikely (status_fd == -1))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::open(%s): \"%m\", aborting\n"),
-                ACE_TEXT ("/proc/self/status")));
-    return false; // *WARNING*: potentially false negative
-  } // end IF
-  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[BUFSIZ]));
-  bytes_read = ACE_OS::read (status_fd,
-                             buffer_a,
-                             sizeof (ACE_TCHAR[BUFSIZ]) - 1);
-  if (unlikely (bytes_read == -1))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::read(%s): \"%m\", aborting\n"),
-                ACE_TEXT ("/proc/self/status")));
-    goto clean;
-  } // end IF
-//  buffer_a[bytes_read] = 0;
-  tracer_pid_p = ACE_OS::strstr (buffer_a, tracer_pid_string);
-  if (unlikely (!tracer_pid_p))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::strstr(%s): \"%m\", aborting\n"),
-                tracer_pid_string));
-    goto clean;
-  } // end IF
-  result = !!ACE_OS::atoi (tracer_pid_p + sizeof (tracer_pid_string) - 1);
-
-clean:
-  if (likely (status_fd != ACE_INVALID_HANDLE))
-  {
-    result_2 = ACE_OS::close (status_fd);
-    if (unlikely (result_2 == -1))
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_OS::close(%s): \"%m\", continuing\n"),
-                  ACE_TEXT ("/proc/self/status")));
-  } // end IF
-#else
-  ACE_ASSERT (false);
-  ACE_NOTSUP_RETURN (false);
-  ACE_NOTREACHED (return false;)
-#endif
-
-  return result;
-}
-
-std::string
-Common_Tools::sanitizeURI (const std::string& uri_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::sanitizeURI"));
-
-  std::string result = uri_in;
-
-  std::replace (result.begin (),
-                result.end (),
-                '\\', '/');
-  size_t position;
-  do
-  {
-    position = result.find (' ', 0);
-    if (position == std::string::npos)
-      break;
-
-    result.replace (position, 1, ACE_TEXT_ALWAYS_CHAR ("%20"));
-  } while (true);
-  //XMLCh* transcoded_string =
-  //	XMLString::transcode (result.c_str (),
-  //	                      XMLPlatformUtils::fgMemoryManager);
-  //XMLURL url;
-  //if (!XMLURL::parse (transcoded_string,
-  //	                  url))
-  // {
-  //   ACE_DEBUG ((LM_ERROR,
-  //               ACE_TEXT ("failed to XMLURL::parse(\"%s\"), aborting\n"),
-  //               ACE_TEXT (result.c_str ())));
-
-  //   return result;
-  // } // end IF
-  //XMLUri uri (transcoded_string,
-  //	          XMLPlatformUtils::fgMemoryManager);
-  //XMLString::release (&transcoded_string,
-  //	                  XMLPlatformUtils::fgMemoryManager);
-  //char* translated_string =
-  //	XMLString::transcode (uri.getUriText(),
-  //	                      XMLPlatformUtils::fgMemoryManager);
-  //result = translated_string;
-  //XMLString::release (&translated_string,
-  //	                  XMLPlatformUtils::fgMemoryManager);
-
-  return result;
-}
-
-std::string
-Common_Tools::sanitize (const std::string& string_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::sanitize"));
-
-  std::string result = string_in;
-
-  std::replace (result.begin (),
-                result.end (),
-                ' ', '_');
-
-  return result;
-}
-
-std::string
-Common_Tools::strip (const std::string& string_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::strip"));
-
-  std::string result = string_in;
-
-  std::string::size_type position = std::string::npos;
-  position =
-    result.find_first_not_of (ACE_TEXT_ALWAYS_CHAR (" \t\f\v\n\r"),
-                              0);
-  if (unlikely (position == std::string::npos))
-    result.clear (); // all whitespace
-  else if (position)
-    result.erase (0, position);
-  position =
-    result.find_last_not_of (ACE_TEXT_ALWAYS_CHAR (" \t\f\v\n\r"),
-                             std::string::npos);
-  if (unlikely (position == std::string::npos))
-    result.clear (); // all whitespace
-  else
-    result.erase (position + 1, std::string::npos);
-
-  return result;
-}
-
-bool
-Common_Tools::isspace (const std::string& string_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::isspace"));
-
-  for (unsigned int i = 0;
-       i < string_in.size ();
-       ++i)
-    if (!::isspace (static_cast<int> (string_in[i])))
-      return false;
-
-  return true;
 }
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -2678,110 +2508,6 @@ Common_Tools::deleteKeyValue (HKEY parentKey_in,
   return true;
 }
 #endif
-
-bool
-Common_Tools::initializeLogging (const std::string& programName_in,
-                                 const std::string& logFile_in,
-                                 bool logToSyslog_in,
-                                 bool enableTracing_in,
-                                 bool enableDebug_in,
-                                 ACE_Log_Msg_Backend* backend_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::initializeLogging"));
-
-  int result = -1;
-
-  // *NOTE*: default log target is stderr
-  u_long options_flags = ACE_Log_Msg::STDERR;
-  if (logToSyslog_in)
-    options_flags |= ACE_Log_Msg::SYSLOG;
-  if (backend_in)
-  {
-    options_flags |= ACE_Log_Msg::CUSTOM;
-    ACE_LOG_MSG->msg_backend (backend_in);
-  } // end IF
-  if (!logFile_in.empty ())
-  {
-    options_flags |= ACE_Log_Msg::OSTREAM;
-
-    ACE_OSTREAM_TYPE* log_stream_p = NULL;
-    std::ios_base::openmode open_mode = (std::ios_base::out   |
-                                         std::ios_base::trunc);
-    ACE_NEW_NORETURN (log_stream_p,
-                      std::ofstream (logFile_in.c_str (),
-                                     open_mode));
-//    log_stream_p = ACE_OS::fopen (logFile_in.c_str (),
-//                                  ACE_TEXT_ALWAYS_CHAR ("w"));
-    if (unlikely (!log_stream_p))
-    {
-      ACE_DEBUG ((LM_CRITICAL,
-                  ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
-//                  ACE_TEXT (logFile_in.c_str ())));
-      return false;
-    } // end IF
-    if (unlikely (log_stream_p->fail ()))
-//    if (log_stream_p->open (logFile_in.c_str (),
-//                            open_mode))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to create log file (was: \"%s\"): \"%m\", aborting\n"),
-                  ACE_TEXT (logFile_in.c_str ())));
-
-      // clean up
-      delete log_stream_p;
-
-      return false;
-    } // end IF
-
-    // *NOTE*: the logger singleton assumes ownership of the stream object
-    // *BUG*: doesn't work on Linux
-    ACE_LOG_MSG->msg_ostream (log_stream_p, true);
-  } // end IF
-  result = ACE_LOG_MSG->open (ACE_TEXT (programName_in.c_str ()),
-                              options_flags,
-                              NULL);
-  if (unlikely (result == -1))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_Log_Msg::open(\"%s\", %u): \"%m\", aborting\n"),
-                ACE_TEXT (programName_in.c_str ()),
-                options_flags));
-    return false;
-  } // end IF
-
-  // set new mask...
-  u_long process_priority_mask = (LM_SHUTDOWN |
-                                  LM_TRACE    |
-                                  LM_DEBUG    |
-                                  LM_INFO     |
-                                  LM_NOTICE   |
-                                  LM_WARNING  |
-                                  LM_STARTUP  |
-                                  LM_ERROR    |
-                                  LM_CRITICAL |
-                                  LM_ALERT    |
-                                  LM_EMERGENCY);
-  if (!enableTracing_in)
-    process_priority_mask &= ~LM_TRACE;
-  if (!enableDebug_in)
-    process_priority_mask &= ~LM_DEBUG;
-  ACE_LOG_MSG->priority_mask (process_priority_mask,
-                              ACE_Log_Msg::PROCESS);
-
-  return true;
-}
-
-void
-Common_Tools::finalizeLogging ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::finalizeLogging"));
-
-  // *NOTE*: this may be necessary in case the backend sits on the stack.
-  //         In that case, ACE::fini() closes the backend too late...
-  ACE_LOG_MSG->msg_backend (NULL);
-}
 
 bool
 Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration& configuration_inout)

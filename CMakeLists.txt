@@ -7,6 +7,7 @@ include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/TargetPlatform.cmake)
 
 include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/Configuration.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/Macros.cmake)
+include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/VersionConfig.cmake)
 
 cmake_minimum_required (VERSION 2.8)
 
@@ -30,26 +31,6 @@ if (UNIX)
  endif (CCACHE_PROGRAM)
 endif (UNIX)
 
-# version
-set (VERSION_MAJOR 0)
-set (VERSION_MINOR 0)
-set (VERSION_MICRO 1)
-set (VERSION_DEVEL devel)
-set (VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO})
-if (VERSION_DEVEL)
- unset (VERSION)
- set (VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}-${VERSION_DEVEL})
-endif ()
-
-set (PACKAGE_DESCRIPTION "\
-user-space wrapper library for common functionality not currently covered by \
-the ACE framework (see: http://www.cs.wustl.edu/~schmidt/ACE.html)")
-set (PACKAGE_DESCRIPTION_SUMMARY "(wrapper) library for common functionality, based on the ACE framework")
-
-# Package section (see http://packages.debian.org/stable/)
-set (PACKAGE_SECTION "devel") # Debian
-#set (PACKAGE_SECTION "Development/Libraries")
-
 # build type
 #variable_watch (CMAKE_BUILD_TYPE)
 # *NOTE*: iff the user specifies -DCMAKE_BUILD_TYPE on the command line, take
@@ -69,7 +50,7 @@ cmake_policy (SET CMP0048 NEW) # allow project VERSION
 #cmake_policy (SET CMP0056 OLD) # honor per-config flags in try_compile()
 #cmake_policy (SET CMP0066 OLD) # honor per-config flags in try_compile()
 #cmake_policy (SET CMP0056 NEW)
-project (Common
+project (${PROJECT_NAME}
          VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
          LANGUAGES CXX C)
 
@@ -193,20 +174,33 @@ export (PACKAGE ${PROJECT_NAME})
 file (RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}")
 # ... for the build tree
 set (CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
+if (UNIX)
+ set (NEWLINE_STYLE UNIX)
+elseif (WIN32)
+ set (NEWLINE_STYLE WIN32)
+else ()
+ set (NEWLINE_STYLE UNIX)
+endif ()
 configure_file (${PROJECT_NAME}Config.cmake.in
-                "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" @ONLY)
+                "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+                @ONLY
+                NEWLINE_STYLE ${NEWLINE_STYLE})
 # ... for the install tree
 set (CONF_INCLUDE_DIRS "\${Common_CMAKE_DIR}/${REL_INCLUDE_DIR}")
 configure_file (${PROJECT_NAME}Config.cmake.in
-                "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PROJECT_NAME}Config.cmake" @ONLY)
+                "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PROJECT_NAME}Config.cmake"
+                @ONLY
+                NEWLINE_STYLE ${NEWLINE_STYLE})
 # ... for both
 configure_file (${PROJECT_NAME}ConfigVersion.cmake.in
-                "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake" @ONLY)
+                "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+                @ONLY
+                NEWLINE_STYLE ${NEWLINE_STYLE})
 
-set (PACKAGE ${PROJECT_NAME})
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake.in
                 ${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_config.h
-                @ONLY)
+                @ONLY
+                NEWLINE_STYLE ${NEWLINE_STYLE})
 #add_custom_target (${PROJECT_NAME}_config)
 #set_target_properties (${PROJECT_NAME}_config PROPERTIES
 #                       PUBLIC_HEADER "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_config.h")

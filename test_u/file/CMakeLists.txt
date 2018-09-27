@@ -1,110 +1,19 @@
-#option (GTK3_SUPPORT "compile Gtk3 support" OFF)
-
-if (UNIX)
- include (CheckLibraryExists)
- check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
- set (CMAKE_THREAD_PREFER_PTHREAD ON)
- find_package (Threads)
-endif (UNIX)
-
-#set (ACE_LIB_FILE libACE.so)
 #if (UNIX)
-# if (DEFINED ENV{ACE_ROOT})
-#  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-#                PATHS ENV ACE_ROOT
-#                PATH_SUFFIXES ace build/linux/ace
-#                DOC "searching for ${ACE_LIB_FILE}")
-# else ()
-#  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-#                DOC "searching for ${ACE_LIB_FILE} (system paths)")
-# endif ()
-#elseif (WIN32)
-# if (CMAKE_BUILD_TYPE STREQUAL Debug)
-#  set (LIB_FILE_SUFFIX d)
-# endif ()
-# unset (ACE_LIB_FILE)
-# set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
-# find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-#               PATHS ENV ACE_ROOT
-#               PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
-#               DOC "searching for ${ACE_LIB_FILE}")
-#endif ()
-##if (NOT EXISTS ACE_LIBRARY)
-#if (NOT ACE_LIBRARY)
-# message (FATAL_ERROR "could not find ${ACE_LIB_FILE} (was: \"${ACE_LIBRARY}\"), aborting")
-#else ()
-# #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
-#endif ()
-#add_definitions (-DACE_HAS_DLL)
-
-include (FindPkgConfig)
-#pkg_check_modules (PKG_ACE REQUIRED ACE)
-if (UNIX)
-# *NOTE*: libCommon requires libcap
- pkg_check_modules (PKG_CAP REQUIRED libcap)
-# if (GTK3_SUPPORT)
-#  pkg_check_modules (PKG_GTK3 REQUIRED gtk+-3.0)
-# else ()
-## pkg_check_modules (PKG_GTK_GLADE REQUIRED libpng gmodule-2.0 gthread-2.0 gtk+-2.0 libglade-2.0)
-#  pkg_check_modules (PKG_GTK2 REQUIRED libpng gmodule-2.0 gthread-2.0 gtk+-2.0)
-# endif ()
-elseif (WIN32)
-# if (GTK3_SUPPORT)
-## *TODO*: repair pkg-config support
-##  pkg_check_modules (PKG_GTK3 REQUIRED gtk+-3.0)
-# else ()
-## pkg_check_modules (PKG_GTK_GLADE REQUIRED libpng gmodule-2.0 gthread-2.0 gtk+-2.0 libglade-2.0)
-##  pkg_check_modules (PKG_GTK2 REQUIRED libpng gmodule-2.0 gthread-2.0 gtk+-2.0)
-# endif ()
-endif ()
-# *TODO*: repair WIN32 pkgconfig support
-
-#get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH DIRECTORY)
-#get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
-#find_package (Common ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-#              REQUIRED
-#              CONFIG
-#              PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../modules ${CMAKE_CURRENT_SOURCE_DIR}/../..
-#              PATH_SUFFIXES libCommon/${BUILD_PATH_SUFFIX}
-#              NO_DEFAULT_PATH)
-#if (NOT EXISTS ${Common_DIR})
-# message (FATAL_ERROR "could not find package \"Common\", aborting")
-#endif ()
-#add_definitions (-DCOMMON_HAS_DLL)
-
-#add_definitions (-DHAVE_CONFIG_H)
-#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
+# include (CheckLibraryExists)
+# check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
+# set (CMAKE_THREAD_PREFER_PTHREAD ON)
+# find_package (Threads)
+#endif (UNIX)
 
 if (UNIX)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
-# include_directories (${PKG_CAP_INCLUDE_DIRS})
-# if (GTK3_SUPPORT)
-#  include_directories (${PKG_GTK3_INCLUDE_DIRS})
-# else ()
-#  include_directories (${PKG_GTK2_INCLUDE_DIRS})
-# endif ()
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/timer)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/libCommon/src/ui)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/libCommon/src/ui/gtk)
 elseif (WIN32)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE)
-# include_directories ($ENV{ACE_ROOT})
-# *TODO*: repair pkgconfig support
-# gtk
-# if (GTK3_SUPPORT)
-#  include_directories (${PKG_GTK3_INCLUDE_DIRS})
-# else ()
-#  include_directories (${PKG_GTK2_INCLUDE_DIRS})
-# endif ()
-
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../libCommon/src)
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../libCommon/src/timer)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../libCommon/src/ui)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../libCommon/src/ui/gtk)
 endif ()
-#include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 #include_directories (${CMAKE_CURRENT_BINARY_DIR}/../..)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/log)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/timer)
 #include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 ############## next target ################
@@ -173,23 +82,14 @@ if (UNIX)
 # else ()
 #  target_link_libraries (${EXECUTABLE} ${PKG_GTK2_LIBRARIES})
 # endif ()
-elseif (WIN32)
-# target_link_libraries (${EXECUTABLE} Advapi32.lib)
-# target_link_libraries (${EXECUTABLE} Ole32.lib)
-# target_link_libraries (${EXECUTABLE} Quartz.lib)
-# target_link_libraries (${EXECUTABLE} Shell32.lib)
-# target_link_libraries (${EXECUTABLE} ucrtd.lib)
-# target_link_libraries (${EXECUTABLE} User32.lib)
-# target_link_libraries (${EXECUTABLE} Userenv.lib)
 endif ()
 target_link_libraries (${EXECUTABLE} Common)
 #if (WIN32)
  # *WARNING*: linking CommonUI requires "/FORCE:MULTIPLE""
 # set_target_properties (${EXECUTABLE} PROPERTIES LINK_FLAGS /FORCE:MULTIPLE)
 #endif ()
+target_link_libraries (${EXECUTABLE} CommonLog)
 target_link_libraries (${EXECUTABLE} CommonTimer)
-#target_link_libraries (${EXECUTABLE} CommonUI)
-#target_link_libraries (${EXECUTABLE} CommonUI_GTK)
 
 if (UNIX)
  target_link_libraries (${EXECUTABLE} pthread)

@@ -1,4 +1,4 @@
-﻿// stdafx.h : include file for standard system include files,
+// stdafx.h : include file for standard system include files,
 //  or project specific include files that are used frequently, but
 //      are changed infrequently
 //
@@ -9,6 +9,7 @@
 #define NOMINMAX
 
 // Windows Header Files
+#include <winsock2.h>
 #include <windows.h>
 
 #if defined (_DEBUG)
@@ -30,7 +31,6 @@
 #include "ace/config-lite.h"
 #include "ace/Global_Macros.h"
 #include "ace/Log_Msg.h"
-#include "ace/Synch.h"
 
 //#if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
 #if defined (VALGRIND_SUPPORT)
@@ -46,6 +46,4 @@
 #include "common_macros.h"
 #include "common_pragmas.h"
 
-#include "common_ui_common.h"
-
-#include "common_ui_wxwidgets_common.h"
+#include "common_log_common.h"

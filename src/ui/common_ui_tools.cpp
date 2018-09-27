@@ -22,16 +22,19 @@
 #include "ace/Synch.h"
 #include "common_ui_tools.h"
 
-#include <string>
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <list>
 #else
 #include <regex>
 #include <sstream>
 #endif // ACE_WIN32 || ACE_WIN64
+#include <string>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include "physicalmonitorenumerationapi.h"
+#include <WinUser.h>
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
+#include <physicalmonitorenumerationapi.h>
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0600)
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/Log_Msg.h"
@@ -46,12 +49,12 @@
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 BOOL CALLBACK
-common_monitor_enum_cb (HMONITOR monitor_in,
-                        HDC      deviceContext_in,
-                        LPRECT   clippingArea_in,
-                        LPARAM   userData_in)
+common_ui_monitor_enum_cb (HMONITOR monitor_in,
+                           HDC      deviceContext_in,
+                           LPRECT   clippingArea_in,
+                           LPARAM   userData_in)
 {
-  COMMON_TRACE (ACE_TEXT ("::common_monitor_enum_cb"));
+  COMMON_TRACE (ACE_TEXT ("::common_ui_monitor_enum_cb"));
 
   BOOL result = FALSE;
 
@@ -64,13 +67,13 @@ common_monitor_enum_cb (HMONITOR monitor_in,
   Common_UI_DisplayDevices_t* devices_p =
     reinterpret_cast<Common_UI_DisplayDevices_t*> (userData_in);
 
+  MONITORINFOEX monitor_info;
+  struct Common_UI_DisplayDevice device_s;
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
   // *NOTE*: more than one physical monitor may be associated with a monitor
   //         handle. Note how this is a race condition
   DWORD number_of_monitors = 0;
   struct _PHYSICAL_MONITOR* physical_monitors_p = NULL;
-  MONITORINFOEX monitor_info;
-  struct Common_UI_DisplayDevice device_s;
-
   if (!GetNumberOfPhysicalMonitorsFromHMONITOR (monitor_in,
                                                 &number_of_monitors))
   {
@@ -99,6 +102,7 @@ common_monitor_enum_cb (HMONITOR monitor_in,
                 ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
     goto error;
   } // end IF
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0600)
 
   monitor_info.cbSize = sizeof (MONITORINFOEX);
   if (!GetMonitorInfo (monitor_in,
@@ -112,43 +116,54 @@ common_monitor_enum_cb (HMONITOR monitor_in,
 
   device_s.clippingArea = *clippingArea_in;
   device_s.description =
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
     ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (physical_monitors_p[0].szPhysicalMonitorDescription));
+#else
+#if defined (UNICODE)
+    ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (monitor_info.szDevice));
+#else
+    monitor_info.szDevice;
+#endif // UNICODE
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0600)
   device_s.device =
 #if defined (UNICODE)
     ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (monitor_info.szDevice));
 #else
     monitor_info.szDevice;
 #endif // UNICODE
+  device_s.handle = monitor_in;
   devices_p->push_back (device_s);
 
   result = TRUE;
 
 error:
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
   if (physical_monitors_p)
     delete [] physical_monitors_p;
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0600)
 
   return result;
 };
 #endif // ACE_WIN32 || ACE_WIN64
 
-bool
-Common_UI_Tools::getDisplayDevices (Common_UI_DisplayDevices_t& devices_out)
+Common_UI_DisplayDevices_t
+Common_UI_Tools::getDisplayDevices ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::getDisplayDevices"));
 
   // initialize return value(s)
-  devices_out.clear ();
+  Common_UI_DisplayDevices_t result;
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  if (!EnumDisplayMonitors (NULL,                                     // hdc
-                            NULL,                                     // lprcClip
-                            common_monitor_enum_cb,                   // lpfnEnum
-                            reinterpret_cast<LPARAM> (&devices_out))) // dwData
+  if (!EnumDisplayMonitors (NULL,                                // hdc
+                            NULL,                                // lprcClip
+                            common_ui_monitor_enum_cb,           // lpfnEnum
+                            reinterpret_cast<LPARAM> (&result))) // dwData
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to EnumDisplayMonitors(): \"%s\", aborting\n"),
                 ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
-    return false;
+    return result;
   } // end IF
 #else
   // *TODO*: this should work on most systems running Xorg X (and compatible
@@ -205,9 +220,79 @@ Common_UI_Tools::getDisplayDevices (Common_UI_DisplayDevices_t& devices_out)
                 ACE_TEXT (match_results[1].str ().c_str ())));
 #endif // _DEBUG
     device_s.device = match_results[1].str ();
-    devices_out.push_back (device_s);
+    result.push_back (device_s);
   } while (!converter.fail ());
 #endif // ACE_WIN32 || ACE_WIN64
 
-  return true;
+  return result;
+}
+
+struct Common_UI_DisplayDevice
+Common_UI_Tools::getDisplayDevice (const std::string& deviceIdentifier_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::getDisplayDevice"));
+
+  // initialize return value(s)
+  struct Common_UI_DisplayDevice result;
+  ACE_OS::memset (&result, 0, sizeof (struct Common_UI_DisplayDevice));
+
+  Common_UI_DisplayDevices_t display_devices_a =
+    Common_UI_Tools::getDisplayDevices ();
+
+  if (deviceIdentifier_in.empty ())
+  { // retrieve primary monitor handle
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    struct tagPOINT origin_s;
+    ACE_OS::memset (&origin_s, 0, sizeof (struct tagPOINT));
+    DWORD flags_i = MONITOR_DEFAULTTONULL;
+    result.handle = MonitorFromPoint (origin_s, flags_i);
+    if (!result.handle)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to MonitorFromPoint(): \"%s\", aborting\n"),
+                  ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
+      return result;
+    } // end IF
+#else
+    ACE_ASSERT (false);
+    ACE_NOTSUP_RETURN (result);
+    ACE_NOTREACHED (return result;)
+#endif // ACE_WIN32 || ACE_WIN64
+  } // end IF
+
+  for (Common_UI_DisplayDevicesIterator_t iterator = display_devices_a.begin ();
+       iterator != display_devices_a.end ();
+       ++iterator)
+  {
+    if (deviceIdentifier_in.empty ())
+    {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      ACE_ASSERT (result.handle);
+      if ((*iterator).handle == result.handle)
+        return *iterator;
+#else
+      ACE_ASSERT (false);
+      ACE_NOTSUP_RETURN (result);
+      ACE_NOTREACHED (return result;)
+#endif // ACE_WIN32 || ACE_WIN64
+    } // end IF
+    else
+      if (!ACE_OS::strcmp ((*iterator).device.c_str (),
+                           deviceIdentifier_in.c_str ()))
+        return *iterator;
+  } // end FOR
+
+  return result;
+}
+
+bool
+Common_UI_Tools::displaySupportsResolution (const std::string& deviceIdentifier_in,
+                                            const Common_UI_Resolution_t& resolution_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::displaySupportsResolution"));
+
+  // *TODO*
+  ACE_ASSERT (false);
+  ACE_NOTSUP_RETURN (false);
+  ACE_NOTREACHED (return false;)
 }

@@ -21,6 +21,6 @@
 #ifndef COMMON_UI_WXWIDGETS_DEFINES_H
 #define COMMON_UI_WXWIDGETS_DEFINES_H
 
-//#include "ace/config-lite.h"
+#define COMMON_UI_WXWIDGETS_APP_CMDLINE_DEFAULT_PARSE false
 
 #endif

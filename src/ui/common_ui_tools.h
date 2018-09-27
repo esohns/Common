@@ -21,6 +21,8 @@
 #ifndef COMMON_UI_TOOLS_H
 #define COMMON_UI_TOOLS_H
 
+#include <string>
+
 #include "ace/Global_Macros.h"
 
 #include "common_ui_common.h"
@@ -28,7 +30,14 @@
 class Common_UI_Tools
 {
  public:
-  static bool getDisplayDevices (Common_UI_DisplayDevices_t&); // return value: connected devices
+  // *NOTE*: these refer to output (!) display devices (i.e. monitors, screens,
+  //         projectors, headsets, etc.), NOT graphics adapters
+  inline static struct Common_UI_DisplayDevice getDefaultDisplayDevice () { return Common_UI_Tools::getDisplayDevice (ACE_TEXT_ALWAYS_CHAR ("")); }
+  static Common_UI_DisplayDevices_t getDisplayDevices (); // return value: connected devices
+  static struct Common_UI_DisplayDevice getDisplayDevice (const std::string&); // device identifier
+
+  static bool displaySupportsResolution (const std::string&,             // device identifier
+                                         const Common_UI_Resolution_t&); // resolution
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools ());

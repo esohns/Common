@@ -27,6 +27,7 @@
 
 #include "ace/Global_Macros.h"
 
+#include "common_ui_wxwidgets_defines.h"
 #include "common_ui_wxwidgets_iapplication.h"
 #include "common_ui_wxwidgets_itoplevel.h"
 
@@ -51,11 +52,14 @@ class Comon_UI_WxWidgets_Application_T
                                              ConfigurationType> INTERFACE_T;
   typedef Common_IInitialize_T<ConfigurationType> IINITIALIZE_T;
 
-   Comon_UI_WxWidgets_Application_T (int,                 // argc
-                                     wxChar**,            // argv
-                                     const std::string&); // (top-level-) widget name
+   Comon_UI_WxWidgets_Application_T (const std::string&, // (top-level-) widget name
+                                     int,                // argc
+                                     wxChar**,           // argv
+                                     bool = COMMON_UI_WXWIDGETS_APP_CMDLINE_DEFAULT_PARSE);
+
   inline virtual ~Comon_UI_WxWidgets_Application_T () {}
 
+  // override (part of) wxAppConsole
   virtual bool OnInit ();
   virtual int OnExit ();
 
@@ -64,6 +68,7 @@ class Comon_UI_WxWidgets_Application_T
   inline virtual bool initialize (const ConfigurationType& configuration_in) { configuration_ = &const_cast<ConfigurationType&> (configuration_in); return true; }
   inline virtual const ConfigurationType& getR_2 () const { ACE_ASSERT (configuration_); return *configuration_; }
   virtual bool run ();
+  inline virtual void wait () { while (inherited::HasPendingEvents ()) inherited::ProcessPendingEvents(); }
 
  protected:
   // convenient types
@@ -83,7 +88,12 @@ class Comon_UI_WxWidgets_Application_T
   ACE_UNIMPLEMENTED_FUNC (Comon_UI_WxWidgets_Application_T (const Comon_UI_WxWidgets_Application_T&))
   ACE_UNIMPLEMENTED_FUNC (Comon_UI_WxWidgets_Application_T& operator= (const Comon_UI_WxWidgets_Application_T&))
 
+  // override (part of) wxAppConsole
+  inline virtual void OnInitCmdLine (wxCmdLineParser& parser_in) {}
+  inline virtual bool OnCmdLineError (wxCmdLineParser& parser_in) { return true; }
+
   wxInitializer      initializer_;
+  bool               parseCommandLine_;
 };
 
 //wxDECLARE_APP (Comon_UI_WxWidgets_Application_T<DefinitionType, StateType, CallbackDataType>);

@@ -21,8 +21,6 @@
 #ifndef COMMON_MACROS_H
 #define COMMON_MACROS_H
 
-#include "ace/config-lite.h"
-
 // branch prediction //
 
 #if defined (__GNUC__)
@@ -89,5 +87,7 @@
 
 #define COMMON_XSTRINGIZE(X) #X
 #define COMMON_STRINGIZE(X) COMMON_XSTRINGIZE(X)
+
+#define COMMON_MAKESTRING(M,L) M(L)
 
 #endif

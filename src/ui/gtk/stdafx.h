@@ -30,21 +30,25 @@
 #include "ace/config-lite.h"
 #include "ace/Global_Macros.h"
 #include "ace/Log_Msg.h"
+#include "ace/Synch.h"
 
 //#if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
 #if defined (VALGRIND_SUPPORT)
 #include "valgrind/valgrind.h"
-#endif
+#endif // VALGRIND_SUPPORT
+
+#if defined (HAVE_CONFIG_H)
+#include "libCommon_config.h"
+#endif // HAVE_CONFIG_H
 
 // Local Header Files
 #include "common.h"
 #include "common_macros.h"
 #include "common_pragmas.h"
 
-#if defined (HAVE_CONFIG_H)
-#include "libCommon_config.h"
-#endif
+#include "common_ui_common.h"
 
-//#include "common_ui_common.h"
-
-//#include "common_ui_gtk_common.h"
+#include "common_ui_gtk_common.h"
+#if defined (GTKGL_SUPPORT)
+#include "common_ui_gtk_gl_common.h"
+#endif // GTKGL_SUPPORT

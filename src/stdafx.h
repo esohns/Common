@@ -24,10 +24,11 @@
 // *NOTE*: <windows.h> #includes <sdkddkver.h>
 #include <windows.h>
 #if defined (_DEBUG)
+#include "common_macros.h"
 #include "common_pragmas.h"
-#pragma message("toolchain version (_MSC_VER): " COMMON_MAKESTRING(COMMON_XSTRINGIZE, _MSC_VER))
-#pragma message("SDK version (_WIN32_WINNT): " COMMON_MAKESTRING(COMMON_XSTRINGIZE, _WIN32_WINNT))
-#pragma message("target platform (WINVER): " COMMON_MAKESTRING(COMMON_XSTRINGIZE, WINVER))
+COMMON_PRAGMA_MESSAGE("toolchain version (_MSC_VER): " COMMON_MAKESTRING(COMMON_XSTRINGIZE,_MSC_VER))
+COMMON_PRAGMA_MESSAGE("SDK version (_WIN32_WINNT): " COMMON_MAKESTRING(COMMON_XSTRINGIZE,_WIN32_WINNT))
+COMMON_PRAGMA_MESSAGE("target platform (WINVER): " COMMON_MAKESTRING(COMMON_XSTRINGIZE,WINVER))
 #endif // _DEBUG
 #endif // _MSC_VER
 
@@ -43,11 +44,11 @@
 #include "valgrind/valgrind.h"
 #endif // VALGRIND_SUPPORT
 
+#if defined (HAVE_CONFIG_H)
+#include "libCommon_config.h"
+#endif // HAVE_CONFIG_H
+
 // Local Header Files
 #include "common.h"
 #include "common_macros.h"
 #include "common_pragmas.h"
-
-#if defined (HAVE_CONFIG_H)
-#include "libCommon_config.h"
-#endif // HAVE_CONFIG_H

@@ -34,13 +34,15 @@
 //#if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
 #if defined (VALGRIND_SUPPORT)
 #include "valgrind/valgrind.h"
-#endif
+#endif // VALGRIND_SUPPORT
+
+#if defined (HAVE_CONFIG_H)
+#include "libCommon_config.h"
+#endif // HAVE_CONFIG_H
 
 // Local Header Files
 #include "common.h"
 #include "common_macros.h"
 #include "common_pragmas.h"
 
-#if defined (HAVE_CONFIG_H)
-#include "libCommon_config.h"
-#endif
+#include "common_xml_common.h"

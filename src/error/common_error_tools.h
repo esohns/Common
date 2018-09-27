@@ -39,6 +39,9 @@ class Common_Error_Tools
   static void initialize ();
   static void finalize ();
 
+  // --- debug ---
+  static bool inDebugSession ();
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   static std::string errorToString (DWORD,         // error
                                     bool = false); // ? use AMGetErrorText() : use FormatMessage()

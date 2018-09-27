@@ -27,6 +27,7 @@
 #include "common_file_tools.h"
 #include "common_macros.h"
 
+#include "common_ui_defines.h"
 #include "common_ui_wxwidgets_common.h"
 
 template <typename StateType,

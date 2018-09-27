@@ -33,12 +33,13 @@
 #include "ace/Containers_T.h"
 #include "ace/Synch_Traits.h"
 
-#include "common.h"
+#include "common_log_common.h"
 
 // graphics
 typedef std::vector<unsigned int> Common_UI_Framerates_t;
 typedef Common_UI_Framerates_t::iterator Common_UI_FrameratesIterator_t;
 typedef Common_UI_Framerates_t::const_iterator Common_UI_FrameratesConstIterator_t;
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 typedef struct tagSIZE Common_UI_Resolution_t;
 struct common_ui_resolution_less
@@ -61,6 +62,7 @@ struct Common_UI_DisplayDevice
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
    : clippingArea ()
    , description ()
+   , handle (NULL)
 #else
    : description ()
 #endif // ACE_WIN32 || ACE_WIN64
@@ -74,6 +76,7 @@ struct Common_UI_DisplayDevice
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   struct tagRECT clippingArea;
+  HMONITOR       handle;
 #endif // ACE_WIN32 || ACE_WIN64
   std::string    description;
   std::string    device;
@@ -132,6 +135,12 @@ struct Common_UI_State
   Common_MessageStack_t     logStack;
   ACE_SYNCH_MUTEX           logStackLock;
   ACE_SYNCH_RECURSIVE_MUTEX subscribersLock;
+};
+
+struct Common_UI_CBData
+{
+  Common_UI_CBData ()
+  {}
 };
 
 #endif

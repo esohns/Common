@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -18,35 +18,28 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_UI_WXWIDGETS_IAPPLICATION_T_H
-#define COMMON_UI_WXWIDGETS_IAPPLICATION_T_H
+#ifndef COMMON_STRING_TOOLS_H
+#define COMMON_STRING_TOOLS_H
 
-#include "common_iget.h"
-#include "common_iinitialize.h"
+#include <string>
 
-template <typename StateType>
-class Common_UI_wxWidgets_IApplicationBase_T
- : public Common_IGetR_T<StateType>
+#include "ace/Global_Macros.h"
+
+class Common_String_Tools
 {
  public:
-  // convenient types
-  typedef StateType STATE_T;
+  static std::string sanitizeURI (const std::string&); // URI
+  // replace ' ' with '_'
+  static std::string sanitize (const std::string&); // string
+  // remove leading and trailing whitespace
+  static std::string strip (const std::string&); // string
+  static bool isspace (const std::string&); // string
 
-  virtual bool run () = 0;
-  virtual void wait () = 0;
-};
-
-template <typename StateType,
-          ////////////////////////////////
-          typename ConfigurationType>
-class Common_UI_wxWidgets_IApplication_T
- : public Common_UI_wxWidgets_IApplicationBase_T<StateType>
- , public Common_IInitialize_T<ConfigurationType>
- , public Common_IGetR_2_T<ConfigurationType>
-{
- public:
-  // convenient types
-  typedef ConfigurationType CONFIGURATION_T;
+ private:
+  ACE_UNIMPLEMENTED_FUNC (Common_String_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (~Common_String_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (Common_String_Tools (const Common_String_Tools&))
+  ACE_UNIMPLEMENTED_FUNC (Common_String_Tools& operator= (const Common_String_Tools&))
 };
 
 #endif

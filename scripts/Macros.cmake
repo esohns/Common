@@ -39,3 +39,12 @@ macro (get_WIN32_WINNT version)
  set (${version} "0x${ver}")
 endmacro (get_WIN32_WINNT)
 
+macro (is_UI_graphical UI)
+# sanity check(s)
+ if (NOT GUI_SUPPORT)
+  message (STATUS "GUI_SUPPORT not set, aborting")
+ endif (NOT GUI_SUPPORT)
+
+
+ set (${UI} FALSE)
+endmacro (is_UI_graphical)

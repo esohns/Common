@@ -51,6 +51,8 @@ target_include_directories (${PROJECT_NAME}UI PUBLIC
 target_include_directories (${PROJECT_NAME}UI PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
 target_include_directories (${PROJECT_NAME}UI PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../log>)
+target_include_directories (${PROJECT_NAME}UI PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
 
 ############## next target ################
@@ -59,6 +61,7 @@ set (source_files
      common_ui_defines.h
      common_ui_exports.h
      common_ui_idefinition.h
+     common_ui_ifullscreen.h
      common_ui_tools.cpp
      common_ui_tools.h
      common_ui_types.h)
@@ -107,6 +110,7 @@ set (${PROJECT_NAME}UI_LIB_HDRS
      common_ui_defines.h
      common_ui_exports.h
      common_ui_idefinition.h
+     common_ui_ifullscreen.h
      common_ui_tools.h
      common_ui_types.h)
 

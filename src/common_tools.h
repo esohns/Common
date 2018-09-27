@@ -38,7 +38,6 @@
 
 // forward declaration(s)
 class ACE_Event_Handler;
-class ACE_Log_Msg_Backend;
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 LONG WINAPI
@@ -62,17 +61,6 @@ class Common_Tools
  public:
   static void initialize (bool = false); // initialize random number generator ?
   static void finalize ();
-
-  // --- debug ---
-  static bool inDebugSession ();
-
-  // --- strings ---
-  static std::string sanitizeURI (const std::string&); // URI
-  // replace ' ' with '_'
-  static std::string sanitize (const std::string&); // string
-  // remove leading and trailing whitespace
-  static std::string strip (const std::string&); // string
-  static bool isspace (const std::string&); // string
 
   // --- platform ---
   static unsigned int getNumberOfCPUs (bool = true); // consider logical cores (i.e. 'hyperthreading') ?
@@ -186,15 +174,6 @@ class Common_Tools
                               const std::string&, // subkey
                               const std::string&); // value
 #endif // ACE_WIN32 || ACE_WIN64
-
-  // --- logging ---
-  static bool initializeLogging (const std::string&,           // program name (i.e. argv[0])
-                                 const std::string&,           // log file {"" --> disable}
-                                 bool = false,                 // log to syslog ?
-                                 bool = false,                 // enable tracing messages ?
-                                 bool = false,                 // enable debug messages ?
-                                 ACE_Log_Msg_Backend* = NULL); // logger backend {NULL --> disable}
-  static void finalizeLogging ();
 
   // --- event loop ---
   // *NOTE*: the configuration is updated with the platform-specific proactor/

@@ -18,35 +18,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_UI_WXWIDGETS_IAPPLICATION_T_H
-#define COMMON_UI_WXWIDGETS_IAPPLICATION_T_H
+#ifndef COMMON_UI_IFULLSCREEN_H
+#define COMMON_UI_IFULLSCREEN_H
 
-#include "common_iget.h"
-#include "common_iinitialize.h"
-
-template <typename StateType>
-class Common_UI_wxWidgets_IApplicationBase_T
- : public Common_IGetR_T<StateType>
+class Common_UI_IFullscreen
 {
  public:
-  // convenient types
-  typedef StateType STATE_T;
-
-  virtual bool run () = 0;
-  virtual void wait () = 0;
-};
-
-template <typename StateType,
-          ////////////////////////////////
-          typename ConfigurationType>
-class Common_UI_wxWidgets_IApplication_T
- : public Common_UI_wxWidgets_IApplicationBase_T<StateType>
- , public Common_IInitialize_T<ConfigurationType>
- , public Common_IGetR_2_T<ConfigurationType>
-{
- public:
-  // convenient types
-  typedef ConfigurationType CONFIGURATION_T;
+  virtual void toggle () = 0;
 };
 
 #endif

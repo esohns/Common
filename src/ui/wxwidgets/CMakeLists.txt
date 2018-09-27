@@ -41,11 +41,13 @@ elseif (WIN32)
 # endif (DEFINED ENV{ACE_ROOT})
 endif ()
 target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../../..>)
+target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>)
 target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../../..>)
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../log>)
 
 ############## next target ################
 set (source_files
@@ -56,6 +58,8 @@ set (source_files
      common_ui_wxwidgets_defines.h
      common_ui_wxwidgets_iapplication.h
      common_ui_wxwidgets_itoplevel.h
+     common_ui_wxwidgets_logger.cpp
+     common_ui_wxwidgets_logger.h
      common_ui_wxwidgets_tools.cpp
      common_ui_wxwidgets_tools.h
      common_ui_wxwidgets_xrc_definition.cpp
@@ -148,6 +152,7 @@ set (${PROJECT_NAME}UI_wxWidgets_LIB_HDRS
      common_ui_wxwidgets_defines.h
      common_ui_wxwidgets_iapplication.h
      common_ui_wxwidgets_itoplevel.h
+     common_ui_wxwidgets_logger.h
      common_ui_wxwidgets_tools.h
      common_ui_wxwidgets_xrc_definition.h
      common_ui_wxwidgets_xrc_definition.inl)

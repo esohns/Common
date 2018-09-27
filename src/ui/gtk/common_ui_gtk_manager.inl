@@ -68,7 +68,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
  , argv_ (NULL)
  , GTKIsInitialized_ (false)
  , isInitialized_ (false)
- , state_ (NULL)
+ , state_ ()
  , UIInterfaceHandle_ (NULL)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::Common_UI_GTK_Manager_T"));
@@ -81,17 +81,12 @@ bool
 Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                         StateType>::initialize (int argc_in,
                                                 ACE_TCHAR** argv_in,
-                                                StateType* state_in,
                                                 UI_INTERFACE_T* interfaceHandle_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::initialize"));
 
-  // sanity check(s)
-  ACE_ASSERT (state_in);
-
   argc_ = argc_in;
   argv_ = argv_in;
-  state_ = state_in;
   UIInterfaceHandle_ = interfaceHandle_in;
 
   if (likely (!GTKIsInitialized_))
@@ -243,13 +238,10 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     } // end IF
   } // end IF
 
-  // sanity check(s)
-  ACE_ASSERT (state_);
-
   // step1: initialize UI
   if (likely (!isInitialized_ && UIInterfaceHandle_))
   {
-    isInitialized_ = UIInterfaceHandle_->initialize (*state_);
+    isInitialized_ = UIInterfaceHandle_->initialize (state_);
     if (unlikely (!isInitialized_))
     {
       ACE_DEBUG ((LM_ERROR,
@@ -266,7 +258,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #else
 #if defined (GTKGLAREA_SUPPORT)
   // sanity check(s)
-  ACE_ASSERT (state_->OpenGLContexts.empty ());
+  ACE_ASSERT (state_.OpenGLContexts.empty ());
 
   GglaContext* context_p = NULL;
   /* Attribute list for gtkglarea widget. Specifies a list of Boolean attributes
@@ -318,8 +310,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     result = -1;
     goto clean;
   } // end IF
-  state_->OpenGLContexts.insert (std::make_pair (static_cast<GglaArea*> (NULL),
-                                                 context_p));
+  state_.OpenGLContexts.insert (std::make_pair (static_cast<GglaArea*> (NULL),
+                                                context_p));
   context_p = NULL;
 
 clean:
@@ -329,16 +321,16 @@ clean:
     g_object_unref (visual_p);
 #else
   // sanity check(s)
-  ACE_ASSERT (!state_->openGLContext);
-  ACE_ASSERT (state_->openGLWindow);
+  ACE_ASSERT (!state_.openGLContext);
+  ACE_ASSERT (state_.openGLWindow);
 
-  state_->openGLContext = gdk_window_create_gl_context (state_->openGLWindow,
-                                                        &error_p);
-  if (unlikely (!state_->openGLContext))
+  state_.openGLContext = gdk_window_create_gl_context (state_.openGLWindow,
+                                                       &error_p);
+  if (unlikely (!state_.openGLContext))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to gdk_window_create_gl_context(0x%@): \"%s\", aborting\n"),
-                state_->openGLWindow,
+                state_.openGLWindow,
                 ACE_TEXT (error_p->message)));
     g_error_free (error_p); error_p = NULL;
     result = -1;
@@ -346,12 +338,12 @@ clean:
   } // end IF
 
   error_p = NULL;
-  if (unlikely (gdk_gl_context_realize (state_->openGLContext,
+  if (unlikely (gdk_gl_context_realize (state_.openGLContext,
                                         &error_p)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to gdk_gl_context_realize(0x%@): \"%s\", aborting\n"),
-                state_->openGLContext,
+                state_.openGLContext,
                 ACE_TEXT (error_p->message)));
     g_error_free (error_p); error_p = NULL;
     result = -1;
@@ -361,25 +353,25 @@ clean:
 #endif /* GTK_CHECK_VERSION(3,16,0) */
 #else
   // *TODO*: remove type inferences
-  if (unlikely (!state_->OpenGLWindow))
+  if (unlikely (!state_.OpenGLWindow))
     goto continue_;
 
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("initializing OpenGL (window handle: 0x%@)...\n"),
-              state_->OpenGLWindow));
+              state_.OpenGLWindow));
 
 #if defined (GTKGLAREA_SUPPORT)
 #else
   // sanity check(s)
-  ACE_ASSERT (!state_->openGLContext);
+  ACE_ASSERT (!state_.openGLContext);
 
-  state_->openGLContext = gdk_window_create_gl_context (state_->openGLWindow,
+  state_.openGLContext = gdk_window_create_gl_context (state_.openGLWindow,
                                                         &error_p);
-  if (unlikely (!state_->openGLContext))
+  if (unlikely (!state_.openGLContext))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to gdk_window_create_gl_context(0x%@): \"%s\", aborting\n"),
-                state_->openGLWindow,
+                state_.openGLWindow,
                 ACE_TEXT (error_p->message)));
     g_error_free (error_p); error_p = NULL;
     result = -1;
@@ -387,12 +379,12 @@ clean:
   } // end IF
 
   error_p = NULL;
-  if (unlikely (gdk_gl_context_realize (state_->openGLContext,
+  if (unlikely (gdk_gl_context_realize (state_.openGLContext,
                                         &error_p)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to gdk_gl_context_realize(0x%@): \"%s\", aborting\n"),
-                state_->openGLContext,
+                state_.openGLContext,
                 ACE_TEXT (error_p->message)));
     g_error_free (error_p); error_p = NULL;
     result = -1;
@@ -408,8 +400,8 @@ clean:
 
 #if defined (GTKGL_SUPPORT)
 #if defined (_DEBUG)
-  iterator = state_->OpenGLContexts.find (NULL);
-  ACE_ASSERT (iterator != state_->OpenGLContexts.end ());
+  iterator = state_.OpenGLContexts.find (NULL);
+  ACE_ASSERT (iterator != state_.OpenGLContexts.end ());
 #if GTK_CHECK_VERSION(3,0,0)
   Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator).second);
 #else
@@ -456,9 +448,6 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                         StateType>::initializeGTK ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::initializeGTK"));
-
-  // sanity check(s)
-  ACE_ASSERT (state_);
 
   u_long process_priority_mask =
     ACE_LOG_MSG->priority_mask (ACE_Log_Msg::PROCESS);
@@ -595,8 +584,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #endif // LIBGLADE_SUPPORT
 
   // step3a: specify any .rc files
-  for (Common_UI_GTK_RCFilesIterator_t iterator = state_->RCFiles.begin ();
-       iterator != state_->RCFiles.end ();
+  for (Common_UI_GTK_RCFilesIterator_t iterator = state_.RCFiles.begin ();
+       iterator != state_.RCFiles.end ();
        ++iterator, ++i)
   {
     gtk_rc_add_default_file ((*iterator).c_str ());
@@ -611,8 +600,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #if GTK_CHECK_VERSION(3,0,0)
   // step3b: specify any .css files
   i = 1;
-  for (Common_UI_GTK_CSSProvidersIterator_t iterator = state_->CSSProviders.begin ();
-       iterator != state_->CSSProviders.end ();
+  for (Common_UI_GTK_CSSProvidersIterator_t iterator = state_.CSSProviders.begin ();
+       iterator != state_.CSSProviders.end ();
        ++iterator, ++i)
   { ACE_ASSERT (!(*iterator).second);
     (*iterator).second = gtk_css_provider_new ();

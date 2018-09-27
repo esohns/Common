@@ -30,16 +30,19 @@
 #if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gdkgl.h"
 #include "gtkgl/gtkglarea.h"
+#else
+#error GTK 3 supports OpenGL natively from 3.16.0 onward; for earlier versions, try gtkglarea (see: git://git.gnome.org/gtkglarea)
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,16,0) */
-#else
+#elif GTK_CHECK_VERSION(2,0,0)
+// *IMPORTANT NOTE*: check out the 'gtkglarea-2' branch of the project
 #if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gdkgl.h"
 #include "gtkgl/gtkglarea.h"
 #else
 #include "gdk/gdkgl.h"
 #endif /* GTKGLAREA_SUPPORT */
-#endif /* GTK_CHECK_VERSION (3,0,0) */
+#endif /* GTK_CHECK_VERSION (x,0,0) */
 
 #include "common_ui_gtk_common.h"
 

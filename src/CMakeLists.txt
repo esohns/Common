@@ -163,9 +163,6 @@ set (source_files
      common_isubscribe.h
      common_itask.h
      common_itaskcontrol.h
-     common_logger.cpp
-     common_logger.h
-     common_logger.inl
      common_macros.h
      common_message_queue_iterator.cpp
      common_message_queue_iterator.h
@@ -187,6 +184,8 @@ set (source_files
      common_statistic_handler.cpp
      common_statistic_handler.h
      common_statistic_handler.inl
+     common_string_tools.cpp
+     common_string_tools.h
      common_task.cpp
      common_task.h
      common_task.inl
@@ -301,8 +300,6 @@ install (FILES
          common_isubscribe.h
          common_itask.h
          common_itaskcontrol.h
-         common_logger.h
-         common_logger.inl
          common_macros.h
          common_message_queue_iterator.h
          common_message_queue_iterator.inl
@@ -317,6 +314,7 @@ install (FILES
          common_statemachine_base.inl
          common_statistic_handler.h
          common_statistic_handler.inl
+         common_string_tools.h
          common_task.h
          common_task.inl
          common_task_base.h
@@ -335,7 +333,9 @@ endif (DBUS_SUPPORT)
 add_subdirectory (error)
 add_subdirectory (gl)
 add_subdirectory (image)
+add_subdirectory (log)
 add_subdirectory (math)
 add_subdirectory (timer)
 add_subdirectory (ui)
 add_subdirectory (xml)
+

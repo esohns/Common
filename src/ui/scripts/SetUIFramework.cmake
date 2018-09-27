@@ -40,4 +40,3 @@ elseif (${UI_FRAMEWORK} MATCHES "curses")
  mark_as_advanced (FORCE CURSES_USE)
  add_definitions (-DCURSES_USE)
 endif ()
-

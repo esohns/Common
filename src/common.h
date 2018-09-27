@@ -21,17 +21,16 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <deque>
 #include <list>
 #include <map>
 #include <string>
 #include <vector>
 
+#include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <guiddef.h>
 #endif // ACE_WIN32 || ACE_WIN64
 
-#include "ace/config-lite.h"
 #include "ace/Global_Macros.h"
 #include "ace/OS_NS_signal.h"
 #include "ace/Signal.h"
@@ -46,7 +45,7 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 struct common_equal_guid
 {
-  inline bool operator() (const struct _GUID& lhs_in, const struct _GUID& rhs_in) const { return InlineIsEqualGUID (lhs_in, rhs_in); }
+  inline bool operator() (const struct _GUID& lhs_in, const struct _GUID& rhs_in) const { return static_cast<bool> (InlineIsEqualGUID (lhs_in, rhs_in)); }
 };
 struct common_less_guid
 {
@@ -221,13 +220,6 @@ typedef Common_ITask_T<ACE_MT_SYNCH,
                        Common_ILock_T<ACE_MT_SYNCH> > Common_ITask_t;
 typedef Common_ITask_T<ACE_MT_SYNCH,
                        Common_IRecursiveLock_T<ACE_MT_SYNCH> > Common_IRecursiveTask_t;
-
-// *** log ***
-
-typedef std::deque<std::string> Common_MessageStack_t;
-typedef Common_MessageStack_t::const_iterator Common_MessageStackConstIterator_t;
-typedef Common_MessageStack_t::const_reverse_iterator Common_MessageStackConstReverseIterator_t;
-//typedef std::deque<ACE_Log_Record> Common_LogRecordStack_t;
 
 // *** application ***
 

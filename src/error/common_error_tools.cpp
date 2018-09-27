@@ -62,6 +62,72 @@ Common_Error_Tools::finalize ()
 
 }
 
+bool
+Common_Error_Tools::inDebugSession ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Error_Tools::inDebugSession"));
+
+  bool result = false;
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  result = IsDebuggerPresent ();
+#elif defined (ACE_LINUX)
+  int status_fd = ACE_INVALID_HANDLE;
+  ACE_TCHAR buffer_a[BUFSIZ];
+  ssize_t bytes_read = -1;
+  int result_2 = -1;
+  static const ACE_TCHAR tracer_pid_string[] = ACE_TEXT ("TracerPid:");
+  ACE_TCHAR* tracer_pid_p = NULL;
+
+  status_fd = ACE_OS::open (ACE_TEXT_ALWAYS_CHAR ("/proc/self/status"),
+                            O_RDONLY);
+  if (unlikely (status_fd == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::open(%s): \"%m\", aborting\n"),
+                ACE_TEXT ("/proc/self/status")));
+    return false; // *WARNING*: potentially false negative
+  } // end IF
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[BUFSIZ]));
+  bytes_read = ACE_OS::read (status_fd,
+                             buffer_a,
+                             sizeof (ACE_TCHAR[BUFSIZ]) - 1);
+  if (unlikely (bytes_read == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::read(%s): \"%m\", aborting\n"),
+                ACE_TEXT ("/proc/self/status")));
+    goto clean;
+  } // end IF
+//  buffer_a[bytes_read] = 0;
+  tracer_pid_p = ACE_OS::strstr (buffer_a, tracer_pid_string);
+  if (unlikely (!tracer_pid_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::strstr(%s): \"%m\", aborting\n"),
+                tracer_pid_string));
+    goto clean;
+  } // end IF
+  result = !!ACE_OS::atoi (tracer_pid_p + sizeof (tracer_pid_string) - 1);
+
+clean:
+  if (likely (status_fd != ACE_INVALID_HANDLE))
+  {
+    result_2 = ACE_OS::close (status_fd);
+    if (unlikely (result_2 == -1))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::close(%s): \"%m\", continuing\n"),
+                  ACE_TEXT ("/proc/self/status")));
+  } // end IF
+#else
+  ACE_ASSERT (false);
+  ACE_NOTSUP_RETURN (false);
+  ACE_NOTREACHED (return false;)
+#endif
+
+  return result;
+}
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 std::string
 Common_Error_Tools::errorToString (DWORD error_in,

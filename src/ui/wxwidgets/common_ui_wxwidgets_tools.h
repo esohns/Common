@@ -21,6 +21,8 @@
 #ifndef COMMON_UI_WXWIDGETS_TOOLS_H
 #define COMMON_UI_WXWIDGETS_TOOLS_H
 
+#include <string>
+
 #include "wx/wx.h"
 
 #include "ace/Global_Macros.h"
@@ -29,9 +31,14 @@
 
 #include "common_ui_common.h"
 
+// forward declarations
+class Common_UI_WxWidgets_Logger;
+
 class Common_UI_WxWidgets_Tools
  : public Common_SInitializeFinalize_T<Common_UI_WxWidgets_Tools>
 {
+  friend class Common_UI_WxWidgets_Logger;
+
  public:
   static bool initialize ();
   static bool finalize ();
@@ -39,18 +46,24 @@ class Common_UI_WxWidgets_Tools
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   // --- main ---
   // *IMPORTANT NOTE*: callers must delete[] the return value (if any) !
-  static wxChar** convertArgV (ACE_TCHAR**); // argv
+  static wxChar** convertArgV (int,          // argc
+                               ACE_TCHAR**); // argv
 #endif // ACE_WIN32 || ACE_WIN64
 
-  // --- logging ---
-  static bool initializeLogging ();
-  static void finalizeLogging ();
+  static int clientDataToIndex (wxObject*,           // control handle
+                                const std::string&); // entry client data string
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_WxWidgets_Tools ())
   ACE_UNIMPLEMENTED_FUNC (~Common_UI_WxWidgets_Tools ())
   ACE_UNIMPLEMENTED_FUNC (Common_UI_WxWidgets_Tools (const Common_UI_WxWidgets_Tools&))
   ACE_UNIMPLEMENTED_FUNC (Common_UI_WxWidgets_Tools& operator= (const Common_UI_WxWidgets_Tools&))
+
+  // --- logging ---
+  static bool initializeLogging ();
+  static void finalizeLogging ();
+
+  static Common_UI_WxWidgets_Logger* logger;
 };
 
 #endif
