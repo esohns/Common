@@ -45,16 +45,38 @@ if (UNIX)
  target_include_directories (${PROJECT_NAME}Image PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 elseif (WIN32)
-#*TODO*: use pkg-config instead
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25)
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../ffmpeg)
+ if (DEFINED ENV{DXSDK_DIR})
+  target_include_directories (${PROJECT_NAME}Image PUBLIC
+                              $<BUILD_INTERFACE:$ENV{DXSDK_DIR}/Include>)
+ else ()
+  set (DXSDK_DIR
+       "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (June 2010)/Include")
+# message (STATUS "DirectX SDK directory: \"${DXSDK_DIR}\"")
+  target_include_directories (${PROJECT_NAME}Image PUBLIC
+                              $<BUILD_INTERFACE:${DXSDK_DIR}>)
+ endif (DEFINED ENV{DXSDK_DIR})
 
- include_directories ($ENV{ACE_ROOT})
+#*TODO*: use pkg-config instead
+ target_include_directories (${PROJECT_NAME}Image PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25>)
+ target_include_directories (${PROJECT_NAME}Image PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../ffmpeg>)
+
+ if (DEFINED ENV{ACE_ROOT})
+  target_include_directories (${PROJECT_NAME}Image PUBLIC
+                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
+ else ()
+  target_include_directories (${PROJECT_NAME}Image PUBLIC
+                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE>)
+ endif (DEFINED ENV{ACE_ROOT})
+
+ target_include_directories (${PROJECT_NAME}Image PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
 endif ()
 target_include_directories (${PROJECT_NAME}Image PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
-target_include_directories (${PROJECT_NAME}Image PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
+target_include_directories (${PROJECT_NAME}Image PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 
 ############## next target ################
 set (source_files

@@ -18,23 +18,34 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "stdafx.h"
+#ifndef COMMON_TEST_U_TOOLS_H
+#define COMMON_TEST_U_TOOLS_H
 
-#include "common_event.h"
+#include <string>
 
-#include "ace/Log_Msg.h"
+#include "ace/config-macros.h"
+#include "ace/OS_NS_Thread.h"
 
-#include "common_macros.h"
-
-Common_Event::Common_Event (HRESULT* result_inout)
- : event_ (ACE_INVALID_HANDLE)
+class Common_Test_U_Tools
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Event::Common_Event"));
+ public:
+  template <typename ThreadDataType,
+            typename CallbackDataType>
+  static bool spawn (const std::string&,      // thread name
+                     ACE_THR_FUNC,            // thread function
+                     int,                     // group id
+                     const CallbackDataType&, // callback data
+                     ACE_Thread_ID&);         // return value: thread id
 
-  event_ = CreateEvent (NULL, FALSE, FALSE, NULL);
-  if (ACE_INVALID_HANDLE == event_)
-  {
-    if ((NULL != result_inout) && SUCCEEDED (*result_inout))
-      *result_inout = E_OUTOFMEMORY;
-  } // end IF
-}
+  //static std::string version ();
+
+ private:
+  ACE_UNIMPLEMENTED_FUNC (Common_Test_U_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (Common_Test_U_Tools (const Test_U_Tools&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Test_U_Tools& operator= (const Test_U_Tools&))
+};
+
+// include template definition
+#include "common_test_u_tools.inl"
+
+#endif

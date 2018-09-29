@@ -40,8 +40,7 @@ using namespace std;
 #define ACE_IOSFWD_H
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include <DbgHelp.h>
-#include <errors.h>
+//#include <errors.h>
 #include <Security.h>
 #include <strmif.h>
 #include <strsafe.h>
@@ -110,123 +109,8 @@ using namespace std;
 // initialize statics
 unsigned int Common_Tools::randomSeed = 0;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if defined (_DEBUG)
-ACE_HANDLE Common_Tools::debugHeapLogFileHandle = ACE_INVALID_HANDLE;
-HMODULE Common_Tools::debugHelpModule = NULL;
-Common_Tools::MiniDumpWriteDumpFunc_t Common_Tools::miniDumpWriteDumpFunc = NULL;
-#endif // _DEBUG
 #else
 char Common_Tools::randomStateBuffer[BUFSIZ];
-#endif // ACE_WIN32 || ACE_WIN64
-
-//////////////////////////////////////////
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-LONG WINAPI
-common_win32_seh_filter (unsigned int exceptionCode_in,
-                         struct _EXCEPTION_POINTERS* exceptionInformation_in)
-{
-  COMMON_TRACE (ACE_TEXT ("::common_win32_seh_filter"));
-
-  ACE_UNUSED_ARG (exceptionCode_in);
-
-  // *TODO*: pass application information into the exception handler
-  struct Common_ApplicationVersion application_version;
-  ACE_OS::memset (&application_version, 0, sizeof (struct Common_ApplicationVersion));
-  if (!Common_Tools::generateCoreDump (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
-                                       application_version,
-                                       exceptionInformation_in))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_Tools::generateCoreDump(), continuing\n")));
-    return EXCEPTION_CONTINUE_SEARCH;
-  } // end IF
-#if defined (_DEBUG)
-  else
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("caught Win32 structured exception, core dumped\n")));
-#endif // _DEBUG
-
-  return EXCEPTION_EXECUTE_HANDLER;
-}
-
-LONG WINAPI
-common_win32_seh_handler (struct _EXCEPTION_POINTERS* exceptionInformation_in)
-{
-  COMMON_TRACE (ACE_TEXT ("::common_win32_seh_handler"));
-
-  // sanity check(s)
-  ACE_ASSERT (exceptionInformation_in);
-  ACE_ASSERT (exceptionInformation_in->ExceptionRecord);
-
-#ifdef _M_IX86
-  if (exceptionInformation_in->ExceptionRecord->ExceptionCode == EXCEPTION_STACK_OVERFLOW)  
-  {
-    // be sure that we have enought space...
-    static char MyStack[1024*128];  
-    // it assumes that DS and SS are the same!!! (this is the case for Win32)
-    // change the stack only if the selectors are the same (this is the case for Win32)
-    //__asm push offset MyStack[1024*128];
-    //__asm pop esp;
-    __asm mov eax,offset MyStack[1024*128];
-    __asm mov esp,eax;
-  } // end IF
-#endif // _M_IX86
-
-  LONG result = common_win32_seh_filter (exceptionInformation_in->ExceptionRecord->ExceptionCode,
-                                         exceptionInformation_in);
-
-  // Optional display an error message
-  FatalAppExit (-1, ACE_TEXT ("Application failed!"));
-
-  // or return one of the following:
-  // - EXCEPTION_CONTINUE_SEARCH
-  // - EXCEPTION_CONTINUE_EXECUTION
-  // - EXCEPTION_EXECUTE_HANDLER
-  return result;
-}
-
-#if defined (_DEBUG)
-int
-common_win32_debugheap_hook (int reportType_in,
-                             char* message_in,
-                             int* returnValue_out)
-{
-  COMMON_TRACE (ACE_TEXT ("::common_win32_debugheap_hook"));
-
-  // translate loglevel
-  ACE_Log_Priority log_priority = LM_ERROR;
-  switch (reportType_in)
-  {
-    case _CRT_ASSERT:
-    case _CRT_ERROR:
-    case _CRT_ERRCNT:
-      break;
-    case _CRT_WARN:
-      log_priority = LM_WARNING;
-      break;
-    default:
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown debug heap log level (was: %d), continuing"),
-                  reportType_in));
-      break;
-    }
-  } // end SWITCH
-
-  // *WARNING*: this call holds the CRT lock. The logger waits for its lock,
-  //            causing deadlock if another thread has the lock and tries to
-  //            free objects to the CRT...
-  ACE_DEBUG ((log_priority,
-              ACE_TEXT ("debug heap: %s"),
-              ACE_TEXT (message_in)));
-
-  if (likely (returnValue_out))
-    *returnValue_out = 0;
-
-  return FALSE; // <-- do not stop
-}
-#endif // _DEBUG
 #endif // ACE_WIN32 || ACE_WIN64
 
 //////////////////////////////////////////
@@ -236,139 +120,17 @@ Common_Tools::initialize (bool initializeRandomNumberGenerator_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::initialize"));
 
-#if defined (_DEBUG)
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  int previous_heap_flags = -1;
-  ACE_FILE_Addr file_address;
-  ACE_FILE_Connector file_connector;
-  ACE_FILE_IO file_IO;
-  int result = -1;
-  std::string package_name, file_name;
-  ACE_HANDLE previous_file_handle = ACE_INVALID_HANDLE;
-
-  if (!COMMON_DEBUG_DEBUGHEAP_DEFAULT_ENABLE)
-    goto continue_;
-
-  ACE_ASSERT (Common_Tools::debugHeapLogFileHandle == ACE_INVALID_HANDLE);
-
-  //int current_debug_heap_flags = _CrtSetDbgFlag (_CRTDBG_REPORT_FLAG);
-  //int debug_heap_flags = current_debug_heap_flags;
-  int debug_heap_flags = (_CRTDBG_ALLOC_MEM_DF      |
-                          _CRTDBG_CHECK_ALWAYS_DF   |
-                          _CRTDBG_CHECK_CRT_DF      |
-                          _CRTDBG_DELAY_FREE_MEM_DF |
-                          _CRTDBG_LEAK_CHECK_DF);
-  debug_heap_flags =
-    (debug_heap_flags | _CRTDBG_CHECK_EVERY_16_DF);
-  // Turn off CRT block checking bit
-  //debug_heap_flags &= ~_CRTDBG_CHECK_CRT_DF;
-  previous_heap_flags = _CrtSetDbgFlag (debug_heap_flags);
-  // output to debug window
-  file_name = Common_File_Tools::getLogDirectory (package_name, 0);
-  file_name += ACE_DIRECTORY_SEPARATOR_STR;
-  file_name += ACE_TEXT_ALWAYS_CHAR (COMMON_DEBUG_DEBUGHEAP_LOG_FILE);
-  result = file_address.set (ACE_TEXT (file_name.c_str ()));
-  if (unlikely (result == -1))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_FILE_Addr::set(\"%s\"): \"%m\", returning\n"),
-                ACE_TEXT (file_name.c_str ())));
-    return;
-  } // end IF
-  result =
-    file_connector.connect (file_IO,                 // stream
-                            file_address,            // filename
-                            NULL,                    // timeout (block)
-                            ACE_Addr::sap_any,       // (local) filename: N/A
-                            0,                       // reuse_addr: N/A
-                            (O_RDWR  |
-                             O_TEXT  |
-                             O_CREAT |
-                             O_TRUNC),               // flags --> open
-                            ACE_DEFAULT_FILE_PERMS); // permissions --> open
-  if (unlikely (result == -1))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_FILE_Connector::connect(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (file_name.c_str ())));
-    return;
-  } // end IF
-  Common_Tools::debugHeapLogFileHandle = file_IO.get_handle ();
-  ACE_ASSERT (Common_Tools::debugHeapLogFileHandle != ACE_INVALID_HANDLE);
-
-  //result = _CrtSetReportHook2 (_CRT_RPTHOOK_INSTALL,
-  //                             common_win32_debugheap_hook);
-  //if (result == -1)
-  //{
-  //  ACE_DEBUG ((LM_ERROR,
-  //              ACE_TEXT ("failed to _CrtSetReportHook2(): \"%m\", aborting\n")));
-  //  return;
-  //} // end IF
-  //ACE_ASSERT (result == 1);
-  _CrtSetReportMode (_CRT_ASSERT, _CRTDBG_MODE_FILE);
-  _CrtSetReportMode (_CRT_ERROR,  _CRTDBG_MODE_FILE);
-  _CrtSetReportMode (_CRT_WARN,   _CRTDBG_MODE_FILE);
-  previous_file_handle =
-    _CrtSetReportFile (_CRT_ASSERT, debugHeapLogFileHandle);
-  ACE_ASSERT (previous_file_handle != _CRTDBG_HFILE_ERROR);
-  previous_file_handle =
-    _CrtSetReportFile (_CRT_ERROR,  debugHeapLogFileHandle);
-  ACE_ASSERT (previous_file_handle != _CRTDBG_HFILE_ERROR);
-  previous_file_handle =
-    _CrtSetReportFile (_CRT_WARN,   debugHeapLogFileHandle);
-  ACE_ASSERT (previous_file_handle != _CRTDBG_HFILE_ERROR);
-
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("debug heap configuration:\n%s\t: %s\n%s\t: %s\n%s\t: %s\n%s\t: %s\n%s\t: %s\n%s\t: %s\n\n"),
-              ACE_TEXT ("_CRTDBG_ALLOC_MEM_DF"),
-              ((debug_heap_flags & _CRTDBG_ALLOC_MEM_DF) ? ACE_TEXT ("on")
-                                                         : ACE_TEXT ("off")),
-              ACE_TEXT ("_CRTDBG_DELAY_FREE_MEM_DF"),
-              ((debug_heap_flags & _CRTDBG_DELAY_FREE_MEM_DF) ? ACE_TEXT ("on")
-                                                              : ACE_TEXT ("off")),
-              ACE_TEXT ("_CRTDBG_CHECK_ALWAYS_DF"),
-              ((debug_heap_flags & _CRTDBG_CHECK_ALWAYS_DF) ? ACE_TEXT ("on")
-                                                            : ACE_TEXT ("off")),
-              ACE_TEXT ("_CRTDBG_RESERVED_DF"),
-              ((debug_heap_flags & _CRTDBG_RESERVED_DF) ? ACE_TEXT ("on")
-                                                        : ACE_TEXT ("off")),
-              ACE_TEXT ("_CRTDBG_CHECK_CRT_DF"),
-              ((debug_heap_flags & _CRTDBG_CHECK_CRT_DF) ? ACE_TEXT ("on")
-                                                         : ACE_TEXT ("off")),
-              ACE_TEXT ("_CRTDBG_LEAK_CHECK_DF"),
-              ((debug_heap_flags & _CRTDBG_LEAK_CHECK_DF) ? ACE_TEXT ("on")
-                                                          : ACE_TEXT ("off"))));
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("debug heap checking-frequency configuration:\n%s\t: %s\n%s\t: %s\n%s\t: %s\n%s\t: %s\n\n"),
-              ACE_TEXT ("_CRTDBG_CHECK_EVERY_16_DF"),
-              ((debug_heap_flags & _CRTDBG_CHECK_EVERY_16_DF) ? ACE_TEXT ("on")
-                                                              : ACE_TEXT ("off")),
-              ACE_TEXT ("_CRTDBG_CHECK_EVERY_128_DF"),
-              ((debug_heap_flags & _CRTDBG_CHECK_EVERY_128_DF) ? ACE_TEXT ("on")
-                                                               : ACE_TEXT ("off")),
-              ACE_TEXT ("_CRTDBG_CHECK_EVERY_1024_DF"),
-              ((debug_heap_flags & _CRTDBG_CHECK_EVERY_1024_DF) ? ACE_TEXT ("on")
-                                                                : ACE_TEXT ("off")),
-              ACE_TEXT ("_CRTDBG_CHECK_DEFAULT_DF"),
-              (((debug_heap_flags & 0xFFFF0000) == _CRTDBG_CHECK_DEFAULT_DF) ? ACE_TEXT ("on")
-                                                                             : ACE_TEXT ("off"))));
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("configured debug heap (%x, log file: \"%s\")\n"),
-              debug_heap_flags,
-              ACE_TEXT (file_name.c_str ())));
-  //ACE_DEBUG ((LM_DEBUG,
-  //            ACE_TEXT ("configured debug heap (%x)\n"),
-  //            debug_heap_flags));
-
-continue_:
-#endif /* ACE_WIN32 || ACE_WIN64 */
-#endif /* _DEBUG */
-
 #if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
   if (RUNNING_ON_VALGRIND)
-    ACE_DEBUG ((LM_INFO,
-                ACE_TEXT ("running on valgrind\n")));
+#if defined (_DEBUG)
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("running under valgrind\n")));
+#else
+    ;
+#endif // _DEBUG
 #endif /* LIBCOMMON_ENABLE_VALGRIND_SUPPORT */
+
+  Common_Error_Tools::initialize ();
 
   //ACE_DEBUG ((LM_DEBUG,
   //            ACE_TEXT ("calibrating high-resolution timer...\n")));
@@ -376,12 +138,14 @@ continue_:
   //ACE_DEBUG ((LM_DEBUG,
   //            ACE_TEXT ("calibrating high-resolution timer...done\n")));
 
-  if (initializeRandomNumberGenerator_in)
+  if (unlikely (initializeRandomNumberGenerator_in))
   {
     // *TODO*: use STL functionality here
+#if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("initializing random seed (RAND_MAX: %d)...\n"),
+                ACE_TEXT ("initializing random seed (RAND_MAX: %d)\n"),
                 RAND_MAX));
+#endif // _DEBUG
     Common_Tools::randomSeed = COMMON_TIME_NOW.usec ();
     // *PORTABILITY*: outside glibc, this is not very portable
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -409,15 +173,11 @@ continue_:
       return;
     } // end IF
 #endif // ACE_WIN32 || ACE_WIN64
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("initializing random seed...DONE\n")));
   } // end IF
 
 #if defined (DBUS_SUPPORT)
   Common_DBus_Tools::initialize ();
 #endif // DBUS_SUPPORT
-
-  Common_Error_Tools::initialize ();
 }
 void
 Common_Tools::finalize ()
@@ -428,48 +188,7 @@ Common_Tools::finalize ()
   Common_DBus_Tools::finalize ();
 #endif // DBUS_SUPPORT
 
-#if defined (_DEBUG)
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  if (Common_Tools::debugHelpModule)
-  {
-    if (!FreeLibrary (Common_Tools::debugHelpModule))
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to FreeLibrary(%@): \"%m\", continuing\n"),
-                  Common_Tools::debugHelpModule,
-                  ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
-    Common_Tools::debugHelpModule = NULL;
-    Common_Tools::miniDumpWriteDumpFunc = NULL;
-  } // end IF
-
-  if (!COMMON_DEBUG_DEBUGHEAP_DEFAULT_ENABLE)
-    goto continue_;
-
-  int result = 0;
-  //result = _CrtSetReportHook2 (_CRT_RPTHOOK_REMOVE,
-  //                             common_win32_debugheap_hook);
-  //if (unlikely (result == -1))
-  //  ACE_DEBUG ((LM_ERROR,
-  //              ACE_TEXT ("failed to _CrtSetReportHook2(): \"%m\", continuing\n")));
-  //else
-  //  ACE_ASSERT (result == 0);
-
-  if (Common_Tools::debugHeapLogFileHandle != ACE_INVALID_HANDLE)
-  {
-    result = ACE_OS::close (Common_Tools::debugHeapLogFileHandle);
-    if (unlikely (result == -1))
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_OS::close(%@): \"%m\", continuing\n"),
-                  Common_Tools::debugHeapLogFileHandle));
-    else
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("closed debug heap log file\n")));
-    Common_Tools::debugHeapLogFileHandle = ACE_INVALID_HANDLE;
-  } // end IF
-continue_:
-#endif /* ACE_WIN32 || ACE_WIN64 */
-#endif /* _DEBUG */
-
-  return;
+  Common_Error_Tools::finalize ();
 }
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -493,61 +212,6 @@ BOOL CALLBACK locale_cb_function (LPWSTR name_in,
   return TRUE;
 }
 #endif
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-void
-Common_Tools::setThreadName (const std::string& name_in,
-                             DWORD threadId_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::setThreadName"));
-
-  // sanity check(s)
-  ACE_ASSERT (!name_in.empty ());
-
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
-  HANDLE handle_h =
-    (threadId_in ? reinterpret_cast<HANDLE> (threadId_in)
-                 : ::GetCurrentThread ());
-  HRESULT result =
-    ::SetThreadDescription (handle_h,
-                            ACE_TEXT_ALWAYS_WCHAR (name_in.c_str ()));
-  if (unlikely (FAILED (result)))
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to SetThreadDescription(%@): \"%s\", returning\n"),
-                handle_h,
-                ACE_TEXT (Common_Error_Tools::errorToString (result, false).c_str ())));
-#else
-#if defined (DEBUG_DEBUGGER)
-  // *NOTE*: code based on MSDN article (see:
-  //         https://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx)
-  const DWORD MS_VC_EXCEPTION = 0x406D1388;
-#pragma pack (push, 8)
-  typedef struct tagTHREADNAME_INFO
-  {
-    DWORD dwType;     // Must be 0x1000.
-    LPCSTR szName;    // Pointer to name (in user addr space).
-    DWORD dwThreadID; // Thread ID (-1=caller thread).
-    DWORD dwFlags;    // Reserved for future use, must be zero.
-  } THREADNAME_INFO;
-#pragma pack (pop)
-  THREADNAME_INFO info_s;
-  info_s.dwType = 0x1000;
-  info_s.szName = ACE_TEXT_ALWAYS_CHAR (name_in.c_str ());
-  info_s.dwThreadID = (threadId_in ? threadId_in : -1);
-  info_s.dwFlags = 0;
-#pragma warning (push)
-#pragma warning (disable: 6320 6322)
-  __try {
-    ::RaiseException (MS_VC_EXCEPTION,
-                      0,
-                      sizeof (struct tagTHREADNAME_INFO) / sizeof (ULONG_PTR),
-                      (ULONG_PTR*)&info_s);
-  } __except (EXCEPTION_EXECUTE_HANDLER) {}
-#pragma warning (pop)
-#endif // DEBUG_DEBUGGER
-#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00)
-}
-#endif // ACE_WIN32 || ACE_WIN64
 
 unsigned int
 Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
@@ -635,6 +299,139 @@ Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
   return result;
 }
 
+std::string
+Common_Tools::getPlatformName ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::getPlatformName"));
+
+  std::string return_value;
+
+  // get system information
+  int result = -1;
+  ACE_utsname utsname_s;
+  result = ACE_OS::uname (&utsname_s);
+  if (unlikely (result == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::uname(): \"%m\", aborting\n")));
+    return return_value;
+  } // end IF
+#if defined (_DEBUG)
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("'uname' output: %s (%s), %s %s, %s\n"),
+              ACE_TEXT (utsname_s.nodename),
+              ACE_TEXT (utsname_s.machine),
+              ACE_TEXT (utsname_s.sysname),
+              ACE_TEXT (utsname_s.release),
+              ACE_TEXT (utsname_s.version)));
+#endif // _DEBUG
+  return_value += utsname_s.sysname;
+  return_value += ACE_TEXT_ALWAYS_CHAR (" ");
+  return_value += utsname_s.release;
+  return_value += ACE_TEXT_ALWAYS_CHAR (" ");
+  return_value += utsname_s.version;
+  return_value += ACE_TEXT_ALWAYS_CHAR (" on ");
+  return_value += utsname_s.machine;
+
+  return return_value;
+}
+
+enum Common_OperatingSystemType
+Common_Tools::getOperatingSystem ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::getOperatingSystem"));
+
+  // get system information
+  int result_2 = -1;
+  ACE_utsname utsname_s;
+  result_2 = ACE_OS::uname (&utsname_s);
+  if (unlikely (result_2 == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::uname(): \"%m\", aborting\n")));
+    return COMMON_OPERATINGSYSTEM_INVALID;
+  } // end IF
+//#if defined (_DEBUG)
+//  ACE_DEBUG ((LM_DEBUG,
+//              ACE_TEXT ("'uname' output: %s (%s), %s %s, %s\n"),
+//              ACE_TEXT (utsname_s.nodename),
+//              ACE_TEXT (utsname_s.machine),
+//              ACE_TEXT (utsname_s.sysname),
+//              ACE_TEXT (utsname_s.release),
+//              ACE_TEXT (utsname_s.version)));
+//#endif // _DEBUG
+
+  std::string sysname_string (utsname_s.sysname);
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  if (sysname_string.find (ACE_TEXT_ALWAYS_CHAR (COMMON_OS_WIN32_UNAME_STRING),
+                           0))
+    return COMMON_OPERATINGSYSTEM_WIN32;
+#elif defined (ACE_LINUX)
+  if (sysname_string.find (ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LINUX_UNAME_STRING),
+                           0))
+    return COMMON_OPERATINGSYSTEM_GNU_LINUX;
+#else
+  ACE_ASSERT (false); // *TODO*
+  ACE_NOTSUP_RETURN (COMMON_OPERATINGSYSTEM_INVALID);
+  ACE_NOTREACHED (return COMMON_OPERATINGSYSTEM_INVALID;)
+#endif
+}
+
+std::string
+Common_Tools::compilerName ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::compilerName"));
+
+  // *TODO*: maintain proprietary information in a separate file and generate
+  //         this method with a macro instead
+#if defined (__BORLANDC__)
+  return ACE_TEXT_ALWAYS_CHAR ("Embarcadero C++ Builder (TM)");
+#elif defined (__GNUG__)
+  return ACE_TEXT_ALWAYS_CHAR ("GNU g++");
+#elif defined (_MSC_VER)
+  return ACE_TEXT_ALWAYS_CHAR ("Microsoft VisualC++ (TM)");
+#else
+#error invalid/unknown C++ compiler; not supported, check implementation
+#endif
+
+  return ACE_TEXT_ALWAYS_CHAR ("");
+}
+std::string
+Common_Tools::compilerPlatformName ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::compilerPlatformName"));
+
+  // *TODO*: maintain proprietary information in a separate file and generate
+  //         this method with a macro instead
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if defined (ACE_WIN64)
+  return ACE_TEXT_ALWAYS_CHAR ("Microsoft Windows (TM) 64");
+#else
+  return ACE_TEXT_ALWAYS_CHAR ("Microsoft Windows (TM)");
+#endif
+#elif defined (ACE_LINUX)
+  return ACE_TEXT_ALWAYS_CHAR ("Linux");
+#else
+#error invalid/unknown platform; not supported, check implementation
+#endif
+
+  return ACE_TEXT_ALWAYS_CHAR ("");
+}
+std::string
+Common_Tools::compilerVersion ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::compilerVersion"));
+
+  std::ostringstream converter;
+  converter << ACE::compiler_major_version ();
+  converter << ACE_TEXT_ALWAYS_CHAR (".");
+  converter << ACE::compiler_minor_version ();
+  converter << ACE_TEXT_ALWAYS_CHAR (".");
+  converter << ACE::compiler_beta_version ();
+
+  return converter.str ();
+}
+
 void
 Common_Tools::printLocales ()
 {
@@ -717,49 +514,6 @@ Common_Tools::printLocales ()
                 ACE_TEXT ("%d: \"%s\"\n"),
                 index,
                 ACE_TEXT ((*iterator).c_str ())));
-}
-
-bool
-Common_Tools::isOperatingSystem (enum Common_OperatingSystemType operatingSystem_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::isOperatingSystem"));
-
-  // sanity check(s)
-  ACE_ASSERT (operatingSystem_in != COMMON_OPERATINGSYSTEM_INVALID);
-
-  // get system information
-  int result_2 = -1;
-  ACE_utsname utsname_s;
-  result_2 = ACE_OS::uname (&utsname_s);
-  if (unlikely (result_2 == -1))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::uname(): \"%m\", aborting\n")));
-    return false;
-  } // end IF
-#if (_DEBUG)
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("'uname' output: %s (%s), %s %s, %s\n"),
-              ACE_TEXT (utsname_s.nodename),
-              ACE_TEXT (utsname_s.machine),
-              ACE_TEXT (utsname_s.sysname),
-              ACE_TEXT (utsname_s.release),
-              ACE_TEXT (utsname_s.version)));
-#endif // _DEBUG
-
-#if defined (ACE_LINUX)
-  std::string sysname_string (utsname_s.sysname);
-  if (sysname_string.find (ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LINUX_UNAME_STRING),
-                           0))
-    return false;
-#else
-  ACE_ASSERT (false); // *TODO*
-  ACE_NOTSUP_RETURN (false);
-
-  ACE_NOTREACHED (return false;)
-#endif
-
-  return true;
 }
 
 #if defined (ACE_LINUX)
@@ -1880,207 +1634,6 @@ Common_Tools::printUserIds ()
 }
 
 bool
-Common_Tools::enableCoreDump (bool enable_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::enableCoreDump"));
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  if (Common_Tools::debugHelpModule)
-    goto continue_;
-
-  // *NOTE*: initialize the member so the dll is not loaded after the exception
-  //         has occured which might be not possible anymore
-  Common_Tools::debugHelpModule = LoadLibrary (ACE_TEXT ("dbghelp.dll"));
-  if (!Common_Tools::debugHelpModule)
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to LoadLibrary(\"%s\"): \"%s\", aborting\n"),
-                ACE_TEXT ("dbghelp.dll"),
-                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
-    return false;
-  } // end IF
-  Common_Tools::miniDumpWriteDumpFunc =
-    reinterpret_cast<MiniDumpWriteDumpFunc_t> (GetProcAddress (Common_Tools::debugHelpModule,
-                                                               ACE_TEXT_ALWAYS_CHAR ("MiniDumpWriteDump")));
-  if (!Common_Tools::miniDumpWriteDumpFunc)
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to GetProcAddress(\"%s\":\"%s\"): \"%s\", aborting\n"),
-                ACE_TEXT ("dbghelp.dll"), ACE_TEXT ("MiniDumpWriteDump"),
-                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
-    return false;
-  } // end IF
-  // Register Unhandled Exception-Filter:
-  LPTOP_LEVEL_EXCEPTION_FILTER previous_handler_p =
-    SetUnhandledExceptionFilter (common_win32_seh_handler);
-  ACE_UNUSED_ARG (previous_handler_p);
-  // Additional call "PreventSetUnhandledExceptionFilter"...
-  // See also: "SetUnhandledExceptionFilter" and VC8 (and later)
-  // http://blog.kalmbachnet.de/?postid=75
-#else
-  if (unlikely (!Common_Tools::setResourceLimits (false,
-                                                  enable_in,
-                                                  false)))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_Tools::setResourceLimits(), aborting\n")));
-    return false;
-  } // end IF
-
-  int result =
-      ::prctl (PR_SET_DUMPABLE,
-               (enable_in ? 1 : 0), 0, 0, 0);
-//               (enable_in ? SUID_DUMP_USER : SUID_DUMP_DISABLE), 0, 0, 0);
-  if (unlikely (result == -1))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ::prctl(PR_SET_DUMPABLE): \"%m\", aborting\n")));
-    return false;
-  } // end IF
-#endif
-continue_:
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("%s core dump\n"),
-              (enable_in ? ACE_TEXT ("enabled") : ACE_TEXT ("disabled"))));
-
-  return true;
-}
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-bool
-Common_Tools::generateCoreDump (const std::string& programName_in,
-                                const struct Common_ApplicationVersion& programVersion_in,
-                                struct _EXCEPTION_POINTERS* exceptionInformation_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::generateCoreDump"));
-
-  // sanity check(s)
-  ACE_ASSERT (Common_Tools::miniDumpWriteDumpFunc);
-
-  bool result = false;
-  DWORD result_2 = 0;
-  HRESULT result_3 = E_FAIL;
-  BOOL bMiniDumpSuccessful;
-  ACE_TCHAR szPath[MAX_PATH];
-  ACE_TCHAR szFileName[MAX_PATH];
-  std::ostringstream converter (ACE_TEXT_ALWAYS_CHAR ("v"));
-  converter << programVersion_in.majorVersion;
-  converter << ACE_TEXT_ALWAYS_CHAR (".");
-  converter << programVersion_in.minorVersion;
-  converter << ACE_TEXT_ALWAYS_CHAR (".");
-  converter << programVersion_in.microVersion;
-  DWORD dwBufferSize = MAX_PATH;
-  HANDLE hFile = ACE_INVALID_HANDLE;
-  struct _SYSTEMTIME stLocalTime;
-  enum _MINIDUMP_TYPE DumpType = MiniDumpWithFullMemory;
-  struct _MINIDUMP_EXCEPTION_INFORMATION ExceptionParam;
-  ExceptionParam.ThreadId = GetCurrentThreadId ();
-  ExceptionParam.ExceptionPointers = exceptionInformation_in;
-  ExceptionParam.ClientPointers = TRUE;
-  //struct _MINIDUMP_USER_STREAM_INFORMATION UserStreamParam;
-  //struct _MINIDUMP_CALLBACK_INFORMATION CallbackParam;
-
-  GetLocalTime (&stLocalTime);
-  result_2 = ACE_TEXT_GetTempPath (dwBufferSize, szPath);
-  if (!result_2)
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to GetTempPath(): \"%s\", aborting\n"),
-                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()))));
-    return false;
-  } // end IF
-  result_3 = StringCchPrintf (szFileName,
-                              MAX_PATH,
-#if defined (_WIN32) && !defined (OLE2ANSI) // see <WTypes.h>
-#if defined (UNICODE)
-                              ACE_TEXT_ALWAYS_WCHAR ("%s%s"),
-                              ACE_TEXT_ALWAYS_WCHAR (szPath),
-#else
-                              ACE_TEXT_ALWAYS_CHAR ("%s%s"),
-                              ACE_TEXT_ALWAYS_CHAR (szPath),
-#endif // UNICODE
-#endif // _WIN32 && !OLE2ANSI
-                              ACE_TEXT (programName_in.c_str ()));
-  ACE_ASSERT (SUCCEEDED (result_3));
-  if (!CreateDirectory (szFileName, NULL))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to CreateDirectory(\"%s\"): \"%s\", aborting\n"),
-                ACE_TEXT (szFileName),
-                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false))));
-    return false;
-  } // end IF
-#if defined (_DEBUG)
-  else
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("created directory \"%s\"\n"),
-                ACE_TEXT (szFileName)));
-#endif // _DEBUG
-
-  result_3 =
-    StringCchPrintf (szFileName,
-                     MAX_PATH,
-#if defined (UNICODE)
-                     ACE_TEXT_ALWAYS_WCHAR ("%s%s\\%s-%04d%02d%02d-%02d%02d%02d-%ld-%ld.dmp"),
-                     ACE_TEXT_ALWAYS_WCHAR (szPath),
-                     ACE_TEXT_ALWAYS_WCHAR (programName_in.c_str ()),
-                     ACE_TEXT_ALWAYS_WCHAR (converter.str ()),
-#else
-                     ACE_TEXT_ALWAYS_CHAR ("%s%s\\%s-%04d%02d%02d-%02d%02d%02d-%ld-%ld.dmp"),
-                     ACE_TEXT_ALWAYS_CHAR (szPath),
-                     ACE_TEXT_ALWAYS_CHAR (programName_in.c_str ()),
-                     ACE_TEXT_ALWAYS_CHAR (converter.str ()),
-#endif // UNICODE
-                     stLocalTime.wYear, stLocalTime.wMonth, stLocalTime.wDay, 
-                     stLocalTime.wHour, stLocalTime.wMinute, stLocalTime.wSecond,
-                     GetCurrentProcessId (), GetCurrentThreadId ());
-  ACE_ASSERT (SUCCEEDED (result_3));
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("creating dump file \"%s\"\n"),
-              ACE_TEXT (szFileName)));
-  hFile =
-    ACE_TEXT_CreateFile (szFileName,
-                         GENERIC_READ | GENERIC_WRITE, 
-                         FILE_SHARE_WRITE | FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
-  if (hFile == ACE_INVALID_HANDLE)
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to CreateFile(\"%s\"): \"%s\", aborting\n"),
-                ACE_TEXT (szFileName),
-                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
-    return false;
-  } // end IF
-
-  bMiniDumpSuccessful =
-    Common_Tools::miniDumpWriteDumpFunc (GetCurrentProcess (),
-                                         GetCurrentProcessId (), 
-                                         hFile,
-                                         DumpType,
-                                         &ExceptionParam,
-                                         NULL,            // &UserStreamParam,
-                                         NULL);           // &CallbackParam
-  if (!bMiniDumpSuccessful)
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to MiniDumpWriteDump(): \"%s\", aborting\n"),
-                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()))));
-    goto clean;
-  } // end IF
-
-  result = true;
-
-clean:
-  if (hFile != ACE_INVALID_HANDLE)
-    if (!CloseHandle (hFile))
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
-                  hFile,
-                  ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()))));
-
-  return result;
-}
-#endif // ACE_WIN32 || ACE_WIN64
-
-bool
 Common_Tools::setResourceLimits (bool fileDescriptors_in,
                                  bool stackTraces_in,
                                  bool pendingSignals_in)
@@ -2801,8 +2354,8 @@ common_event_dispatch_function (void* arg_in)
   ACE_ASSERT (thread_manager_p);
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  Common_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_EVENT_THREAD_NAME),
-                               0);
+  Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_EVENT_THREAD_NAME),
+                                     0);
 #else
 //  pid_t result_2 = syscall (SYS_gettid);
 //  if (result_2 == -1)
@@ -2973,10 +2526,7 @@ spawn:
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory(%u), aborting\n"),
                 (sizeof (char*) * number_of_threads_i)));
-
-    // clean up
     delete [] thread_handles_p;
-
     return false;
   } // end IF
   ACE_OS::memset (thread_names_p, 0, sizeof (thread_names_p));
@@ -2994,13 +2544,11 @@ spawn:
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("failed to allocate memory(%u), aborting\n"),
                   sizeof (char[BUFSIZ])));
-
       // clean up
       delete [] thread_handles_p;
       for (unsigned int j = 0; j < i; ++j)
         delete [] thread_names_p[j];
       delete [] thread_names_p;
-
       return false;
     } // end IF
     ACE_OS::memset (thread_name_p, 0, sizeof (thread_name_p));

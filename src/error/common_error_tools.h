@@ -29,8 +29,23 @@
 
 #include "common_iinitialize.h"
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+LONG WINAPI
+common_error_win32_seh_filter_core_dump (unsigned int,
+                                         struct _EXCEPTION_POINTERS*);
+LONG WINAPI
+common_error_win32_default_seh_handler (struct _EXCEPTION_POINTERS*);
+
+#if defined (_DEBUG)
+int
+common_error_win32_debugheap_message_hook (int,
+                                           char*,
+                                           int*);
+#endif // _DEBUG
+#endif // ACE_WIN32 || ACE_WIN64
+
 void
-common_error_terminate_function ();
+common_error_default_terminate_function ();
 
 class Common_Error_Tools
  : public Common_SInitializeFinalize_T<Common_Error_Tools>
@@ -41,7 +56,37 @@ class Common_Error_Tools
 
   // --- debug ---
   static bool inDebugSession ();
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  // *WARNING*: limited to 9 characters
+  static void setThreadName (const std::string&, // thread name
+                             DWORD = 0);         // thread id (0: caller)
 
+#if defined (_DEBUG)
+  // debug heap
+  static ACE_HANDLE              debugHeapLogFileHandle;
+
+  typedef int (WINAPI *MiniDumpWriteDumpFunc_t)(HANDLE,
+                                                DWORD,
+                                                HANDLE,
+                                                enum _MINIDUMP_TYPE,
+                                                struct _MINIDUMP_EXCEPTION_INFORMATION*,
+                                                struct _MINIDUMP_USER_STREAM_INFORMATION*,
+                                                struct _MINIDUMP_CALLBACK_INFORMATION*
+                                               );
+  static HMODULE                 debugHelpModule;
+  static MiniDumpWriteDumpFunc_t miniDumpWriteDumpFunc;
+#endif // _DEBUG
+#endif // ACE_WIN32 || ACE_WIN64
+
+  // --- core dump ---
+  static bool enableCoreDump (bool = true); // enable ? : disable
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static bool generateCoreDump (const std::string&,                      // program name
+                                const struct Common_ApplicationVersion&, // program version
+                                struct _EXCEPTION_POINTERS*);            // return value of GetExceptionInformation()
+#endif // ACE_WIN32 || ACE_WIN64
+
+  // --- error messages ---
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   static std::string errorToString (DWORD,         // error
                                     bool = false); // ? use AMGetErrorText() : use FormatMessage()
@@ -52,6 +97,14 @@ class Common_Error_Tools
   ACE_UNIMPLEMENTED_FUNC (~Common_Error_Tools ())
   ACE_UNIMPLEMENTED_FUNC (Common_Error_Tools (const Common_Error_Tools&))
   ACE_UNIMPLEMENTED_FUNC (Common_Error_Tools& operator= (const Common_Error_Tools&))
+
+  // helper methods
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if defined (_DEBUG)
+  static bool initializeDebugHeap ();
+  static void finalizeDebugHeap ();
+#endif // _DEBUG
+#endif // ACE_WIN32 || ACE_WIN64
 };
 
 #endif

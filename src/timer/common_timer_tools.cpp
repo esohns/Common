@@ -29,15 +29,11 @@
 
 #include "common_macros.h"
 
-#include "common_timer_manager_common.h"
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "common_error_tools.h"
+#endif // ACE_WIN32 || ACE_WIN64
 
-//Common_ITimer*
-//Common_Timer_Tools::getTimerManager ()
-//{
-//  COMMON_TRACE (ACE_TEXT ("Common_Timer_Tools::getTimerManager"));
-//
-//  return COMMON_TIMERMANAGER_SINGLETON::instance ();
-//}
+#include "common_timer_manager_common.h"
 
 ACE_Time_Value
 Common_Timer_Tools::localToUTC (const ACE_Time_Value& localTime_in)
@@ -153,7 +149,8 @@ Common_Timer_Tools::periodToString (const ACE_Time_Value& period_in)
 
 std::string
 Common_Timer_Tools::timestampToString (const ACE_Time_Value& timeStamp_in,
-                                       bool UTC_in)
+                                       bool UTC_in,
+                                       bool appendTimezone_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Tools::timestampToString"));
 
@@ -173,12 +170,14 @@ Common_Timer_Tools::timestampToString (const ACE_Time_Value& timeStamp_in,
     } // end IF
   } // end IF
   else
+  {
     if (unlikely (!ACE_OS::localtime_r (&timestamp, &tm_s)))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::localtime_r(): \"%m\", aborting\n")));
       return return_value;
     } // end IF
+  } // end ELSE
 
   char time_string[BUFSIZ];
   ACE_OS::memset (time_string, 0, BUFSIZ);
@@ -199,6 +198,89 @@ Common_Timer_Tools::timestampToString (const ACE_Time_Value& timeStamp_in,
     return return_value;
   } // end IF
   return_value = time_string;
+
+  if (unlikely (appendTimezone_in))
+  {
+    std::string timezone_string;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    // set up the required privilege
+    HANDLE token_h = ACE_INVALID_HANDLE;
+    if (!OpenProcessToken (GetCurrentProcess (),
+                           TOKEN_QUERY|TOKEN_ADJUST_PRIVILEGES,
+                           &token_h))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to OpenProcessToken(0x%@): \"%s\", aborting\n"),
+                  GetCurrentProcess (),
+                  ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError ()).c_str ())));
+      return return_value;
+    } // end IF
+    ACE_ASSERT (token_h != ACE_INVALID_HANDLE);
+    struct _TOKEN_PRIVILEGES token_privileges_s;
+    ACE_OS::memset (&token_privileges_s, 0, sizeof (struct _TOKEN_PRIVILEGES));
+    struct _TIME_ZONE_INFORMATION time_zone_s;
+    if (!LookupPrivilegeValue (NULL, // lpSystemName
+                               SE_TIME_ZONE_NAME,
+                               &token_privileges_s.Privileges[0].Luid))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to LookupPrivilegeValue(%s): \"%s\", aborting\n"),
+                  COMMON_TEXT (SE_TIME_ZONE_NAME),
+                  ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError ()).c_str ())));
+      goto clean;
+    } // end IF
+    token_privileges_s.PrivilegeCount = 1;
+    token_privileges_s.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+    if (!AdjustTokenPrivileges (token_h,
+                                FALSE,                   // DisableAllPrivileges
+                                &token_privileges_s,
+                                0,                       // BufferLength
+                                (PTOKEN_PRIVILEGES)NULL, // PreviousState
+                                NULL))                   // ReturnLength
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to AdjustTokenPrivileges(): \"%s\", aborting\n"),
+                  ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError ()).c_str ())));
+      goto clean;
+    } // end IF
+
+    // retrieve the current time zone information
+    ACE_OS::memset (&time_zone_s, 0, sizeof (struct _TIME_ZONE_INFORMATION));
+    switch (GetTimeZoneInformation (&time_zone_s))
+    {
+      case TIME_ZONE_ID_UNKNOWN:
+      case TIME_ZONE_ID_STANDARD:
+        timezone_string =
+          ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (time_zone_s.StandardName));
+        break;
+      case TIME_ZONE_ID_DAYLIGHT:
+        timezone_string =
+          ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (time_zone_s.DaylightName));
+        break;
+      case TIME_ZONE_ID_INVALID:
+      default:
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to GetTimeZoneInformation(): \"%s\", aborting\n"),
+                    ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError ()).c_str ())));
+        goto clean;
+      }
+    } // end SWITCH
+clean:
+    if (token_h != ACE_INVALID_HANDLE)
+      if (!CloseHandle (token_h))
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to CloseHandle(): \"%s\", continuing\n"),
+                    ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
+#else
+    ACE_ASSERT (false);
+    ACE_NOTSUP_RETURN (return_value);
+    ACE_NOTREACHED (return return_value;)
+#endif // ACE_WIN32 || ACE_WIN64
+
+    return_value += ACE_TEXT_ALWAYS_CHAR (" ");
+    return_value += timezone_string;
+  } // end IF
 
   return return_value;
 }

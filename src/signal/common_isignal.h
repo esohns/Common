@@ -18,23 +18,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "stdafx.h"
+#ifndef COMMON_ISIGNAL_H
+#define COMMON_ISIGNAL_H
 
-#include "common_event.h"
+// forward declarations
+struct Common_Signal;
 
-#include "ace/Log_Msg.h"
-
-#include "common_macros.h"
-
-Common_Event::Common_Event (HRESULT* result_inout)
- : event_ (ACE_INVALID_HANDLE)
+class Common_ISignal
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Event::Common_Event"));
+ public:
+  virtual void handle (const struct Common_Signal&) = 0; // signal
+};
 
-  event_ = CreateEvent (NULL, FALSE, FALSE, NULL);
-  if (ACE_INVALID_HANDLE == event_)
-  {
-    if ((NULL != result_inout) && SUCCEEDED (*result_inout))
-      *result_inout = E_OUTOFMEMORY;
-  } // end IF
-}
+#endif

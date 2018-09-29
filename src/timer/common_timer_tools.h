@@ -49,9 +49,10 @@ class Common_Timer_Tools
   // --- strings ---
   // *NOTE*: uses ::snprintf(3): "HH:MM:SS.usec"
   static std::string periodToString (const ACE_Time_Value&); // period
-  // *NOTE*: uses ::snprintf(3): "YYYY-MM-DD HH:MM:SS.usec"
+  // *NOTE*: uses ::snprintf(3): "YYYY-MM-DD HH:MM:SS.usec{ TZ/UTC}"
   static std::string timestampToString (const ACE_Time_Value&, // timestamp
-                                        bool);                 // UTC ? : localtime
+                                        bool,                  // UTC ? : localtime
+                                        bool = false);         // append timezone ?
 
   // --- timers ---
   static bool initializeTimers (const struct Common_TimerConfiguration&); // configuration

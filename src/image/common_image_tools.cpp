@@ -37,14 +37,51 @@ extern "C"
 
 #include "common_macros.h"
 
+#include "common_error_tools.h"
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 bool
-Common_Image_Tools::storeToFile (unsigned int width_in,
-                                 unsigned int height_in,
-                                 enum AVPixelFormat format_in,
-                                 uint8_t* sourceBuffers_in[],
-                                 const std::string& path_in)
+Common_Image_Tools::save (const std::string& path_in,
+                          enum _D3DXIMAGE_FILEFORMAT format_in,
+                          const IDirect3DSurface9* surface_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::storeToFile"));
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::save"));
+
+  // sanity check(s)
+  ACE_ASSERT ((format_in != D3DXIFF_PPM) && (format_in != D3DXIFF_TGA));
+  ACE_ASSERT (surface_in);
+
+  HRESULT result =
+    D3DXSaveSurfaceToFile (            // filename
+#if defined (UNICODE)
+                           ACE_TEXT_ALWAYS_WCHAR (path_in.c_str ()),
+#else
+                           ACE_TEXT_ALWAYS_CHAR (path_in.c_str ()),
+#endif // UNICODE
+                           format_in,  // file format
+                           const_cast<IDirect3DSurface9*> (surface_in), // surface
+                           NULL,       // palette
+                           NULL);      // rectangle
+  if (unlikely (FAILED (result)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to D3DXSaveSurfaceToFile(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Error_Tools::errorToString (result).c_str ())));
+    return false;
+  } // end IF
+
+  return true;
+}
+#endif // ACE_WIN32 || ACE_WIN64
+
+bool
+Common_Image_Tools::save (unsigned int width_in,
+                          unsigned int height_in,
+                          enum AVPixelFormat format_in,
+                          uint8_t* sourceBuffers_in[],
+                          const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::save"));
 
   bool result = false;
 
@@ -161,14 +198,15 @@ clean:
 
   return result;
 }
+
 bool
-Common_Image_Tools::storeToPNG (unsigned int width_in,
-                                unsigned int height_in,
-                                enum AVPixelFormat format_in,
-                                uint8_t* sourceBuffers_in[],
-                                const std::string& path_in)
+Common_Image_Tools::savePNG (unsigned int width_in,
+                             unsigned int height_in,
+                             enum AVPixelFormat format_in,
+                             uint8_t* sourceBuffers_in[],
+                             const std::string& path_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::storeToPNG"));
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::savePNG"));
 
   bool result = false;
 

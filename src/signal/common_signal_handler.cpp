@@ -17,24 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-
 #include "stdafx.h"
 
-#include "common_event.h"
-
-#include "ace/Log_Msg.h"
-
-#include "common_macros.h"
-
-Common_Event::Common_Event (HRESULT* result_inout)
- : event_ (ACE_INVALID_HANDLE)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Event::Common_Event"));
-
-  event_ = CreateEvent (NULL, FALSE, FALSE, NULL);
-  if (ACE_INVALID_HANDLE == event_)
-  {
-    if ((NULL != result_inout) && SUCCEEDED (*result_inout))
-      *result_inout = E_OUTOFMEMORY;
-  } // end IF
-}
+#include "ace/Synch.h"
+#include "common_signal_handler.h"

@@ -54,14 +54,15 @@ target_include_directories (${PROJECT_NAME}Error PUBLIC
 
 ############## next target ################
 set (source_files
+     common_error_defines.h
      common_error_exports.h
      common_error_tools.cpp
      common_error_tools.h)
 if (WIN32)
  set (source_files
       ${source_files}
-      common_directx_error.cpp
-      common_directx_error.h)
+      common_error_directx.cpp
+      common_error_directx.h)
 endif (WIN32)
 
 # Include dir for installed targets
@@ -112,11 +113,17 @@ export (TARGETS ${PROJECT_NAME}Error
 
 ############### install files ################
 install (FILES
-         common_err_exports.h
-         dxerr.h
+         common_error_defines.h
+         common_error_exports.h
+         common_error_tools.h
          DESTINATION include)
+if (WIN32)
+ install (FILES
+          common_error_directx.cpp
+          common_error_directx.h
+          DESTINATION include)
+endif (WIN32)
 install (TARGETS ${PROJECT_NAME}Error
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)
-

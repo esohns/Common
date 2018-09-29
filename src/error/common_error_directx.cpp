@@ -14,7 +14,7 @@
 
 // This version only supports UNICODE.
 
-#include "common_directx_error.h"
+#include "common_error_directx.h"
 
 #include <stdio.h>
 #include <algorithm>

@@ -157,7 +157,6 @@ set (source_files
      common_inotify.h
      common_ireferencecount.h
      common_iscanner.h
-     common_isignal.h
      common_istatemachine.h
      common_istatistic.h
      common_isubscribe.h
@@ -170,11 +169,6 @@ set (source_files
      common_pragmas.h
      common_referencecounter_base.cpp
      common_referencecounter_base.h
-     common_signal_tools.cpp
-     common_signal_tools.h
-     common_signalhandler.cpp
-     common_signalhandler.h
-     common_signalhandler.inl
      common_statemachine.cpp
      common_statemachine.h
      common_statemachine.inl
@@ -192,11 +186,11 @@ set (source_files
      common_task_base.cpp
      common_task_base.h
      common_task_base.inl
-     common_time_common.h
      common_tools.cpp
      common_tools.h)
 if (WIN32)
  set (source_files
+      ../include/lib${PROJECT_NAME}_config.h
       ${source_files}
       common_event.cpp
       common_event.h)
@@ -219,7 +213,6 @@ target_sources (${PROJECT_NAME}
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-
 #add_dependencies (${PROJECT_NAME} ACE)
 if (UNIX)
  if (DBUS_SUPPORT)
@@ -235,7 +228,6 @@ add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}Timer)
 #                       DEFINE_SYMBOL COMMON_BUILD_DLL)
 set_target_properties (${PROJECT_NAME} PROPERTIES
                        VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-
                        SOVERSION 1)
 
 if (UNIX)
@@ -267,6 +259,8 @@ elseif (WIN32)
  target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}Error)
 endif ()
 
+##########################################
+
 # add PCH
 set_target_properties (${PROJECT_NAME} PROPERTIES
                        COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
@@ -276,7 +270,7 @@ cotire (${PROJECT_NAME})
 export (TARGETS ${PROJECT_NAME}
         FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
-############### install files ################
+############### install files ############
 install (FILES
          common.h
          common_configuration.h
@@ -294,7 +288,6 @@ install (FILES
          common_inotify.h
          common_ireferencecount.h
          common_iscanner.h
-         common_isignal.h
          common_istatemachine.h
          common_istatistic.h
          common_isubscribe.h
@@ -305,9 +298,6 @@ install (FILES
          common_message_queue_iterator.inl
          common_pragmas.h
          common_referencecounter_base.h
-         common_signal_tools.h
-         common_signalhandler.h
-         common_signalhandler.inl
          common_statemachine.h
          common_statemachine.inl
          common_statemachine_base.h
@@ -319,13 +309,19 @@ install (FILES
          common_task.inl
          common_task_base.h
          common_task_base.inl
-         common_time_common.h
          common_tools.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
+if (WIN32)
+ install (FILES
+          ../include/lib${PROJECT_NAME}_config.h
+         DESTINATION ${INSTALL_INCLUDE_DIR})
+endif (WIN32)
 install (TARGETS ${PROJECT_NAME}
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)
+
+##########################################
 
 if (DBUS_SUPPORT)
  add_subdirectory (dbus)
@@ -335,7 +331,7 @@ add_subdirectory (gl)
 add_subdirectory (image)
 add_subdirectory (log)
 add_subdirectory (math)
+add_subdirectory (signal)
 add_subdirectory (timer)
 add_subdirectory (ui)
 add_subdirectory (xml)
-

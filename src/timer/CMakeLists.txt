@@ -36,8 +36,16 @@ if (UNIX)
  target_include_directories (${PROJECT_NAME}Timer PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 elseif (WIN32)
- include_directories ($ENV{ACE_ROOT})
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/err)
+ if (DEFINED ENV{ACE_ROOT})
+  target_include_directories (${PROJECT_NAME}Timer PUBLIC
+                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
+ else ()
+  target_include_directories (${PROJECT_NAME}Timer PUBLIC
+                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE>)
+ endif (DEFINED ENV{ACE_ROOT})
+
+ target_include_directories (${PROJECT_NAME}Timer PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
 endif ()
 target_include_directories (${PROJECT_NAME}Timer PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
@@ -48,6 +56,7 @@ target_include_directories (${PROJECT_NAME}Timer PUBLIC
 set (source_files
      common_itimer.h
      common_itimerhandler.h
+     common_time_common.h
      common_timer_common.h
      common_timer_defines.h
      common_timer_handler.cpp
@@ -126,6 +135,7 @@ export (TARGETS ${PROJECT_NAME}Timer
 install (FILES
          common_itimer.h
          common_itimerhandler.h
+         common_time_common.h
          common_timer_common.h
          common_timer_defines.h
          common_timer_handler.h

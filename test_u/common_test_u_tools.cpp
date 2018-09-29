@@ -17,24 +17,23 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-
 #include "stdafx.h"
 
-#include "common_event.h"
+#include "common_test_u_tools.h"
 
 #include "ace/Log_Msg.h"
 
 #include "common_macros.h"
+#include "common_tools.h"
 
-Common_Event::Common_Event (HRESULT* result_inout)
- : event_ (ACE_INVALID_HANDLE)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Event::Common_Event"));
-
-  event_ = CreateEvent (NULL, FALSE, FALSE, NULL);
-  if (ACE_INVALID_HANDLE == event_)
-  {
-    if ((NULL != result_inout) && SUCCEEDED (*result_inout))
-      *result_inout = E_OUTOFMEMORY;
-  } // end IF
-}
+//std::string
+//Common_Test_U_Tools::version (const std::string& programName_in)
+//{
+//  COMMON_TRACE (ACE_TEXT ("Common_Test_U_Tools::version"));
+//
+//  std::string result = programName_in;
+//  result += ACE_TEXT_ALWAYS_CHAR ("");
+//
+//
+//  return result;
+//}

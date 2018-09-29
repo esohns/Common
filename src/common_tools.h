@@ -21,6 +21,7 @@
 #ifndef COMMON_TOOLS_H
 #define COMMON_TOOLS_H
 
+#include <sstream>
 #include <string>
 
 #include "ace/config-lite.h"
@@ -30,6 +31,7 @@
 #include <sys/capability.h>
 #endif // ACE_WIN32 || ACE_WIN64
 
+#include "ace/ACE.h"
 #include "ace/Global_Macros.h"
 
 #include "common.h"
@@ -38,19 +40,6 @@
 
 // forward declaration(s)
 class ACE_Event_Handler;
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-LONG WINAPI
-common_win32_seh_filter (unsigned int,
-                         struct _EXCEPTION_POINTERS*);
-LONG WINAPI
-common_win32_seh_handler (struct _EXCEPTION_POINTERS*);
-
-int
-common_win32_debugheap_hook (int,
-                             char*,
-                             int*);
-#endif // ACE_WIN32 || ACE_WIN64
 
 ACE_THR_FUNC_RETURN
 common_event_dispatch_function (void*);
@@ -64,19 +53,24 @@ class Common_Tools
 
   // --- platform ---
   static unsigned int getNumberOfCPUs (bool = true); // consider logical cores (i.e. 'hyperthreading') ?
-  static std::string getHostName (); // return value: host name (see: man hostname(2))
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  // *WARNING*: limited to 9 characters
-  static void setThreadName (const std::string&, // thread name
-                             DWORD = 0);         // thread id (0: caller)
-#endif // ACE_WIN32 || ACE_WIN64
-  static bool isOperatingSystem (enum Common_OperatingSystemType);
+  static std::string getPlatformName ();
+  static enum Common_OperatingSystemType getOperatingSystem ();
+  inline static bool is (enum Common_OperatingSystemType operatingSytem_in) { return (Common_Tools::getOperatingSystem () == operatingSytem_in); }
 #if defined (ACE_LINUX)
   static enum Common_OperatingSystemDistributionType getDistribution (unsigned int&,  // return value: major version
                                                                       unsigned int&,  // return value: minor version
                                                                       unsigned int&); // return value: micro version
 #endif // ACE_LINUX
+  static std::string getHostName (); // return value: host name (see: man hostname(2))
 
+  // --- compiler ---
+  // *NOTE*: these (currently) return static (i.e. compile-time) information
+  inline static std::string compilerName_ACE () { return ACE_TEXT_ALWAYS_CHAR (ACE::compiler_name ()); }
+  static std::string compilerName ();
+  static std::string compilerPlatformName ();
+  static std::string compilerVersion ();
+
+  // --- locale / internationalization ---
   static void printLocales ();
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -118,17 +112,13 @@ class Common_Tools
   static uint64_t getStartTime ();
 #endif // ACE_WIN32 || ACE_WIN64
 
-  // --- core dump ---
-  static bool enableCoreDump (bool = true); // enable ? : disable
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  static bool generateCoreDump (const std::string&,                      // program name
-                                const struct Common_ApplicationVersion&, // program version
-                                struct _EXCEPTION_POINTERS*);            // return value of GetExceptionInformation()
-#endif // ACE_WIN32 || ACE_WIN64
-
   // --- resource usage ---
   static bool setResourceLimits (bool = false,  // #file descriptors (i.e. open handles)
+#if defined (_DEBUG)
                                  bool = true,   // stack trace/sizes (i.e. core file sizes)
+#else
+                                 bool = false,  // stack trace/sizes (i.e. core file sizes)
+#endif // _DEBUG
                                  bool = false); // pending (rt) signals
 
   // --- user ---
@@ -198,28 +188,16 @@ class Common_Tools
   static bool isInstalled (const std::string&, // executable (base-)name
                            std::string&);      // return value: (FQ) path
 
-#if defined (_DEBUG)
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  static ACE_HANDLE              debugHeapLogFileHandle;
-
-  typedef int (WINAPI *MiniDumpWriteDumpFunc_t)(HANDLE,
-                                                DWORD,
-                                                HANDLE,
-                                                enum _MINIDUMP_TYPE,
-                                                struct _MINIDUMP_EXCEPTION_INFORMATION*,
-                                                struct _MINIDUMP_USER_STREAM_INFORMATION*,
-                                                struct _MINIDUMP_CALLBACK_INFORMATION*
-                                               );
-  static HMODULE                 debugHelpModule;
-  static MiniDumpWriteDumpFunc_t miniDumpWriteDumpFunc;
-#endif // ACE_WIN32 || ACE_WIN64
-#endif /* _DEBUG */
-
+  // --- randomization ---
   static unsigned int            randomSeed;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
   static char                    randomStateBuffer[BUFSIZ];
 #endif // ACE_WIN32 || ACE_WIN64
+
+  // --- libraries ---
+  // *NOTE*: this returns static (i.e. compile-time) information
+  inline static std::string compiledVersion_ACE () { std::ostringstream converter; converter << ACE_MAJOR_VERSION; converter << ACE_TEXT_ALWAYS_CHAR ("."); converter << ACE_MINOR_VERSION; converter << ACE_TEXT_ALWAYS_CHAR ("."); converter << ACE_MICRO_VERSION; return converter.str (); }
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Tools ())

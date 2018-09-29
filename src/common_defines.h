@@ -43,19 +43,10 @@
 // // hardware
 
 // ----------- software -----------------
-
-// *** OS ***
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define COMMON_OS_WIN32_SDK_VERSION(version)                   (_WIN32_WINNT && (_WIN32_WINNT >= version))
-#define COMMON_OS_WIN32_TARGET_PLATFORM(version)               (WINVER && (WINVER >= version))
+// *NOTE*: see also: OS_NS_sys_utsname.cpp:24
+#define COMMON_OS_WIN32_UNAME_STRING                           "Win32"
 #elif defined (ACE_LINUX)
-#define COMMON_OS_LINUX_IF_DISTRIBUTION_AT_LEAST(distribution, major,minor,micro)       \
-  unsigned int major_i, minor_i, micro_i;                                               \
-  if ((distribution == Common_Tools::getDistribution (major_i, minor_i, micro_i)) &&    \
-      ((major_i > major)                                             ||                 \
-       ((major_i == major) && minor_i > minor)                       ||                 \
-       ((major_i == major) && (minor_i == minor) && (micro_i >= micro))))
-
 // *NOTE*: as returned by ::uname(2)
 #define COMMON_OS_LINUX_UNAME_STRING                           "Linux"
 
@@ -64,7 +55,7 @@
 #define COMMON_OS_LSB_DEBIAN_STRING                            "Debian"
 #define COMMON_OS_LSB_OPENSUSE_STRING                          "openSUSE"
 #define COMMON_OS_LSB_UBUNTU_STRING                            "Ubuntu"
-#endif // ACE_WIN32 || ACE_WIN64
+#endif
 
 // *** C/C++ locale ***
 // *NOTE*: on UNIX, try 'locale -a', or 'localectl list-locales' to list
@@ -136,7 +127,7 @@
 //#define COMMON_LOG_DEFAULT_DIRECTORY                 ACE_OS::getenv (COMMON_LOCATION_LOG_STORAGE_VARIABLE)
 #else
 #define COMMON_LOG_DEFAULT_DIRECTORY                           COMMON_LOCATION_LOG_STORAGE_DIRECTORY
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 #define COMMON_LOG_FILENAME_SUFFIX                             ".log"
 #define COMMON_LOG_VERBOSE                                     false
 
@@ -160,8 +151,7 @@
 #define COMMON_EVENT_PROACTOR_TYPE                             COMMON_PROACTOR_WIN32
 #endif // ACE_WIN32 || ACE_WIN64
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-#if defined (__GNUC__)
+#elif defined (ACE_LINUX)
 // *NOTE*: currently, on Linux systems, the ACE default proactor implementation
 //         is COMMON_PROACTOR_POSIX_SIG
 //#undef COMMON_EVENT_PROACTOR_TYPE
@@ -178,8 +168,7 @@
 //                   A (proper) solution would involve attention and changes to
 //                   either (both) glibc (and) or ACE
 //#define COMMON_EVENT_PROACTOR_TYPE                           COMMON_PROACTOR_POSIX_AIOCB
-#endif // __GNUC__
-#endif // ACE_WIN32 || ACE_WIN64
+#endif
 #define COMMON_EVENT_PROACTOR_THREAD_GROUP_ID                  101
 
 // proactor options
@@ -271,11 +260,6 @@
 #endif // ACE_WIN32 || ACE_WIN64
 
 // *** application ***
-
-#define COMMON_CHECK_VERSION(major,minor,micro)                                                                        \
-    ((libCommon_VERSION_MAJOR > major)                                                                              || \
-     ((libCommon_VERSION_MAJOR == major) && (libCommon_VERSION_MINOR > minor))                                      || \
-     ((libCommon_VERSION_MAJOR == major) && (libCommon_VERSION_MINOR == minor) && (libCommon_VERSION_MICRO >= micro)))
 
 #define COMMON_APPLICATION_THREAD_GROUP_ID                     1000
 

@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -18,23 +18,18 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "stdafx.h"
+#ifndef COMMON_ERROR_DEFINES_H
+#define COMMON_ERROR_DEFINES_H
 
-#include "common_event.h"
+#include "ace/config-lite.h"
 
-#include "ace/Log_Msg.h"
+// *TODO*: turn this into a compile-time option
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+//#if defined (_DEBUG)
+//#define COMMON_ERROR_WIN32_DEFAULT_DEBUGHEAP true
+//#else
+#define COMMON_ERROR_WIN32_DEFAULT_DEBUGHEAP false
+//#endif // _DEBUG
+#endif // ACE_WIN32 || ACE_WIN64
 
-#include "common_macros.h"
-
-Common_Event::Common_Event (HRESULT* result_inout)
- : event_ (ACE_INVALID_HANDLE)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Event::Common_Event"));
-
-  event_ = CreateEvent (NULL, FALSE, FALSE, NULL);
-  if (ACE_INVALID_HANDLE == event_)
-  {
-    if ((NULL != result_inout) && SUCCEEDED (*result_inout))
-      *result_inout = E_OUTOFMEMORY;
-  } // end IF
-}
+#endif

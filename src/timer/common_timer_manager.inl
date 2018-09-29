@@ -135,8 +135,8 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
         return;
       } // end IF
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-      Common_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_NAME),
-                                   thread_ids[0]);
+      Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_NAME),
+                                         thread_ids[0]);
 #endif // ACE_WIN32 || ACE_WIN64
 #if defined (_DEBUG)
       ACE_DEBUG ((LM_DEBUG,

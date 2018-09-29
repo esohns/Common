@@ -24,6 +24,11 @@
 #include <cstdint>
 #include <string>
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include <d3d9.h>
+#include <d3dx9tex.h>
+#endif // ACE_WIN32 || ACE_WIN64
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -36,20 +41,25 @@ extern "C"
 class Common_Image_Tools
 {
  public:
-//  inline virtual ~Common_Image_Tools () {}
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static bool save (const std::string&,         // target file path
+                    enum _D3DXIMAGE_FILEFORMAT, // file format
+                    const IDirect3DSurface9*);  // data
+#endif // ACE_WIN32 || ACE_WIN64
 
+  // --- libav/ffmpeg ---
   // *TODO*: currently supports AV_PIX_FMT_YUV420P only
-  static bool storeToFile (unsigned int,        // source width
-                           unsigned int,        // source height
-                           enum AVPixelFormat,  // source pixel format
-                           uint8_t*[],          // source buffer(s)
-                           const std::string&); // target file path
+  static bool save (unsigned int,        // source width
+                    unsigned int,        // source height
+                    enum AVPixelFormat,  // source pixel format
+                    uint8_t*[],          // source buffer(s)
+                    const std::string&); // target file path
   // *TODO*: currently supports AV_PIX_FMT_RGB24 only
-  static bool storeToPNG (unsigned int,        // source width
-                          unsigned int,        // source height
-                          enum AVPixelFormat,  // source pixel format
-                          uint8_t*[],          // source buffer(s)
-                          const std::string&); // target file path
+  static bool savePNG (unsigned int,        // source width
+                       unsigned int,        // source height
+                       enum AVPixelFormat,  // source pixel format
+                       uint8_t*[],          // source buffer(s)
+                       const std::string&); // target file path
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Image_Tools ());
