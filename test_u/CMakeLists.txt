@@ -215,18 +215,6 @@ foreach (source_file ${source_files})
        )
 #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
-target_sources (${PROJECT_NAME}_Test_U
-                PRIVATE stdafx.cpp
-                PRIVATE stdafx.h
-                ${absolute_source_files})
-
-#set_target_properties (${PROJECT_NAME}_Test_U PROPERTIES
-#                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-#                       SOVERSION 1)
-
-get_target_property (debug ${PROJECT_NAME}_Test_U INTERFACE_INCLUDE_DIRECTORIES)
-message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
-#message (STATUS "INTERFACE_INCLUDE_DIRECTORIES=${INTERFACE_INCLUDE_DIRECTORIES}")
 
 ##########################################
 
@@ -234,10 +222,22 @@ message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
 set_target_properties (${PROJECT_NAME}_Test_U PROPERTIES
                        COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
 cotire (${PROJECT_NAME}_Test_U)
+#add_msvc_precompiled_header (stdafx.h, stdafx.cpp, ${absolute_source_files})
 
-# add all targets to the build-tree export set
-export (TARGETS ${PROJECT_NAME}_Test_U
-        FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
+##########################################
+
+target_sources (${PROJECT_NAME}_Test_U
+#                PRIVATE stdafx.cpp
+                PRIVATE stdafx.h
+                ${absolute_source_files})
+
+#set_target_properties (${PROJECT_NAME}_Test_U PROPERTIES
+#                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
+#                       SOVERSION 1)
+
+#get_target_property (debug ${PROJECT_NAME}_Test_U INTERFACE_INCLUDE_DIRECTORIES)
+#message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
+#message (STATUS "INTERFACE_INCLUDE_DIRECTORIES=${INTERFACE_INCLUDE_DIRECTORIES}")
 
 ##########################################
 
@@ -264,7 +264,12 @@ target_sources (${PROJECT_NAME}_Test_U
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-# ----------------------------------------
+# add all targets to the build-tree export set
+#export (TARGETS ${PROJECT_NAME}_Test_U
+#        APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
+
+##########################################
+
 
 if (UNIX)
  add_subdirectory (capabilities)

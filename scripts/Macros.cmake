@@ -1,3 +1,6 @@
+
+##########################################
+
 macro (get_WIN32_Version version_major version_minor version_micro)
 # sanity check(s)
  if (NOT CMAKE_SYSTEM_VERSION)
@@ -38,6 +41,36 @@ macro (get_WIN32_WINNT version)
  string (REGEX REPLACE "([0-9A-Z])" "0\\1" ver ${ver})
  set (${version} "0x${ver}")
 endmacro (get_WIN32_WINNT)
+
+##########################################
+
+macro (add_msvc_precompiled_header PrecompiledHeader PrecompiledSource SourcesVar)
+ if (MSVC)
+  # set precompiled header binary name
+  get_filename_component (PrecompiledBasename ${PrecompiledHeader} NAME_WE)
+  set (PrecompiledBinary "$(IntDir)/${PrecompiledBasename}.pch")
+
+  # generate the precompiled header
+  set_source_files_properties (${PrecompiledSource} PROPERTIES
+                               COMPILE_FLAGS "/Yc\"${PrecompiledHeader}\" /Fp\"${PrecompiledBinary}\""
+                               OBJECT_OUTPUTS "${PrecompiledBinary}")
+
+  # set the usage of this header only to the other files than rc
+  set (Sources ${${SourcesVar}})
+  foreach (fname ${Sources})
+   if (NOT ${fname} MATCHES ".*rc$")
+    set_source_files_properties (${fname} PROPERTIES
+                                 COMPILE_FLAGS "/Yu\"${PrecompiledHeader}\" /FI\"${PrecompiledHeader}\" /Fp\"${PrecompiledBinary}\""
+                                 OBJECT_DEPENDS "${PrecompiledBinary}")
+   endif (NOT ${fname} MATCHES ".*rc$")
+  endforeach (fname)
+
+  # add precompiled header to SourcesVar
+  list (APPEND ${SourcesVar} ${PrecompiledSource})
+ endif (MSVC)
+endmacro (add_msvc_precompiled_header)
+
+##########################################
 
 macro (is_UI_graphical UI)
 # sanity check(s)

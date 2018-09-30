@@ -21,11 +21,15 @@
 #ifndef COMMON_UI_WXWIDGETS_ITOPLEVEL_H
 #define COMMON_UI_WXWIDGETS_ITOPLEVEL_H
 
+#include "common_iget.h"
+
 #include "common_ui_wxwidgets_iapplication.h"
 
 template <typename StateType,
           typename ConfigurationType>
 class Common_UI_wxWidgets_ITopLevel_T
+ : public Common_IGetP_T<Common_UI_wxWidgets_IApplication_T<StateType,
+                                                            ConfigurationType> >
 {
  public:
   // convenient types

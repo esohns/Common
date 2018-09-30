@@ -21,6 +21,9 @@
 #ifndef COMMON_UI_COMMON_H
 #define COMMON_UI_COMMON_H
 
+#include <cstdint>
+
+#include <limits>
 #include <list>
 #include <string>
 #include <vector>
@@ -31,9 +34,12 @@
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/Containers_T.h"
+#include "ace/OS.h"
 #include "ace/Synch_Traits.h"
 
 #include "common_log_common.h"
+
+// #######################################
 
 // graphics
 typedef std::vector<unsigned int> Common_UI_Framerates_t;
@@ -55,14 +61,67 @@ typedef Common_UI_Resolutions_t::iterator Common_UI_ResolutionsIterator_t;
 typedef Common_UI_Resolutions_t::const_iterator Common_UI_ResolutionsConstIterator_t;
 #endif // ACE_WIN32 || ACE_WIN64
 
-// device
+// #######################################
+
+// adapters (i.e. 'graphics' cards/chips)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+struct Common_UI_DisplayAdapterHead
+{
+  Common_UI_DisplayAdapterHead ()
+   : device ()
+   , index (std::numeric_limits<DWORD>::max ())
+   , key ()
+  {}
+
+  std::string device;
+  DWORD       index; // iDevNum
+  std::string key; // registry-
+};
+typedef std::list<struct Common_UI_DisplayAdapterHead> Common_UI_DisplayAdapterHeads_t;
+typedef Common_UI_DisplayAdapterHeads_t::iterator Common_UI_DisplayAdapterHeadsIterator_t;
+typedef Common_UI_DisplayAdapterHeads_t::const_iterator Common_UI_DisplayAdapterHeadsConstIterator_t;
+#endif // ACE_WIN32 || ACE_WIN64
+struct Common_UI_DisplayAdapter
+{
+  Common_UI_DisplayAdapter ()
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+   : heads ()
+   , id ()
+#else
+   : device ()
+#endif // ACE_WIN32 || ACE_WIN64
+   , description ()
+  {}
+  inline bool operator== (const struct Common_UI_DisplayAdapter& rhs_in) { return !ACE_OS::strcmp (id.c_str (), rhs_in.id.c_str ()); }
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  Common_UI_DisplayAdapterHeads_t heads;
+  std::string                     id;
+#else
+  std::string                     device;
+#endif // ACE_WIN32 || ACE_WIN64
+  std::string                     description;
+};
+//#if defined (ACE_WIN32) || defined (ACE_WIN64)
+//struct common_ui_adapter_equal
+//{
+//  inline bool operator() (const struct Common_UI_DisplayAdapter& lhs_in, const struct Common_UI_DisplayAdapter& rhs_in) const { return !ACE_OS::strcmp (lhs_in.id.c_str (), rhs_in.id.c_str ()); }
+//};
+//#endif // ACE_WIN32 || ACE_WIN64
+typedef std::list<struct Common_UI_DisplayAdapter> Common_UI_DisplayAdapters_t;
+typedef Common_UI_DisplayAdapters_t::iterator Common_UI_DisplayAdaptersIterator_t;
+typedef Common_UI_DisplayAdapters_t::const_iterator Common_UI_DisplayAdaptersConstIterator_t;
+
+// device ('physical'- i.e. screens, monitors, etc.)
 struct Common_UI_DisplayDevice
 {
   Common_UI_DisplayDevice ()
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
    : clippingArea ()
-   , description ()
    , handle (NULL)
+   , id ()
+   , key ()
+   , description ()
 #else
    : description ()
 #endif // ACE_WIN32 || ACE_WIN64
@@ -77,6 +136,8 @@ struct Common_UI_DisplayDevice
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   struct tagRECT clippingArea;
   HMONITOR       handle;
+  std::string    id;
+  std::string    key;
 #endif // ACE_WIN32 || ACE_WIN64
   std::string    description;
   std::string    device;
@@ -84,6 +145,23 @@ struct Common_UI_DisplayDevice
 typedef std::list<struct Common_UI_DisplayDevice> Common_UI_DisplayDevices_t;
 typedef Common_UI_DisplayDevices_t::iterator Common_UI_DisplayDevicesIterator_t;
 typedef Common_UI_DisplayDevices_t::const_iterator Common_UI_DisplayDevicesConstIterator_t;
+
+struct Common_UI_DisplayMode
+{
+  Common_UI_DisplayMode ()
+   : bitsperpixel (0)
+   , frequency (0)
+   , fullscreen (false)
+   , resolution ()
+  {}
+
+  uint8_t                bitsperpixel;
+  uint8_t                frequency;
+  bool                   fullscreen;
+  Common_UI_Resolution_t resolution;
+};
+
+// #######################################
 
 // ui
 enum Common_UI_EventType
