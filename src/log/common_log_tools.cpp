@@ -23,11 +23,13 @@
 
 #include "common_log_tools.h"
 
+#include "ace/ACE.h"
 #include "ace/Log_Msg.h"
 #include "ace/Log_Msg_Backend.h"
 #include "ace/OS_Memory.h"
 
 #include "common_macros.h"
+#include "common_file_tools.h"
 
 bool
 Common_Log_Tools::initializeLogging (const std::string& programName_in,
@@ -128,4 +130,195 @@ Common_Log_Tools::finalizeLogging ()
   // *NOTE*: this may be necessary in case the backend sits on the stack.
   //         In that case, ACE::fini() closes the backend too late
   ACE_LOG_MSG->msg_backend (NULL);
+}
+
+std::string
+Common_Log_Tools::getLogFilename (const std::string& packageName_in,
+                                  const std::string& programName_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Log_Tools::getLogFilename"));
+
+  // sanity check(s)
+  ACE_ASSERT (!programName_in.empty ());
+
+  unsigned int fallback_level = 0;
+  std::string result;
+fallback:
+  result = Common_Log_Tools::getLogDirectory (packageName_in,
+                                              fallback_level);
+
+  if (unlikely (result.empty ()))
+  {
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("failed to Common_Log_Tools::getLogDirectory(\"%s\",%d), falling back\n"),
+                ACE_TEXT (packageName_in.c_str ()),
+                fallback_level));
+
+    result = Common_File_Tools::getWorkingDirectory ();
+    if (unlikely (result.empty ()))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_File_Tools::getWorkingDirectory(), aborting\n")));
+      return result;
+    } // end IF
+    result += ACE_DIRECTORY_SEPARATOR_STR;
+    std::string filename = Common_File_Tools::getTempFilename (programName_in);
+    if (unlikely (filename.empty ()))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_File_Tools::getTempFilename(\"%s\"), aborting\n"),
+                  ACE_TEXT (programName_in.c_str ())));
+      return result;
+    } // end IF
+    result +=
+        ACE_TEXT_ALWAYS_CHAR (ACE::basename (filename.c_str (),
+                                             ACE_DIRECTORY_SEPARATOR_CHAR));
+    result += COMMON_LOG_FILENAME_SUFFIX;
+
+    return result;
+  } // end IF
+  result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
+  result += programName_in;
+  result += COMMON_LOG_FILENAME_SUFFIX;
+
+  // sanity check(s)
+  // *TODO*: replace this with a permission check
+  if (unlikely (!Common_File_Tools::create (result)))
+  {
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("failed to Common_File_Tools::create(\"%s\"), falling back\n"),
+                ACE_TEXT (result.c_str ())));
+
+    ++fallback_level;
+
+    goto fallback;
+  } // end IF
+  if (unlikely (!Common_File_Tools::deleteFile (result)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_File_Tools::deleteFile(\"%s\"), aborting\n"),
+                ACE_TEXT (result.c_str ())));
+    return std::string ();
+  } // end IF
+
+  return result;
+}
+
+std::string
+Common_Log_Tools::getLogDirectory (const std::string& packageName_in,
+                                   unsigned int fallbackLevel_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Log_Tools::getLogDirectory"));
+
+  // initialize return value(s)
+  std::string result;
+
+  unsigned int fallback_level = fallbackLevel_in;
+  std::string environment_variable;
+  const ACE_TCHAR* string_p = NULL;
+
+  if (fallback_level)
+  {
+    --fallback_level;
+    goto fallback;
+  } // end IF
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  result = Common_File_Tools::getTempDirectory ();
+#else
+  result = ACE_TEXT_ALWAYS_CHAR (COMMON_LOG_DEFAULT_DIRECTORY);
+#endif
+  goto use_path;
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+use_environment:
+#endif
+  string_p =
+      ACE_OS::getenv (ACE_TEXT (environment_variable.c_str ()));
+  if (unlikely (!string_p))
+  {
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("failed to ACE_OS::getenv(\"%s\"): \"%m\", falling back\n"),
+                ACE_TEXT (environment_variable.c_str ())));
+    goto fallback;
+  } // end IF
+  result = ACE_TEXT_ALWAYS_CHAR (string_p);
+
+use_path:
+  if (unlikely (!packageName_in.empty ()))
+  {
+    result += ACE_DIRECTORY_SEPARATOR_STR_A;
+    result += packageName_in;
+  } // end IF
+
+  // sanity check(s): directory exists ?
+  // --> (try to) create it
+  if (unlikely (!Common_File_Tools::isDirectory (result)))
+  {
+    if (!Common_File_Tools::createDirectory (result))
+    {
+      ACE_DEBUG ((LM_WARNING,
+                  ACE_TEXT ("failed to Common_File_Tools::createDirectory(\"%s\"), falling back\n"),
+                  ACE_TEXT (result.c_str ())));
+      goto fallback;
+    } // end IF
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("created log directory: \"%s\"\n"),
+                ACE_TEXT (result.c_str ())));
+  } // end IF
+
+  return result;
+
+fallback:
+  ++fallback_level;
+  switch (fallback_level)
+  {
+    case 1:
+    {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      environment_variable =
+        ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE);
+      goto use_environment;
+#else
+      result =
+        ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY);
+      goto use_path;
+#endif
+    }
+    case 2:
+    {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      environment_variable =
+        ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE_2);
+      goto use_environment;
+#else
+      result =
+        ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY_2);
+      goto use_path;
+#endif
+    }
+    case 3:
+    {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      result = Common_File_Tools::getWorkingDirectory ();
+      goto use_path;
+#else
+#endif
+    }
+    default:
+    {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      ACE_ASSERT (false);
+      // *TODO*: implement fallback levels dependent on host Windows (TM) version
+      //         see e.g.: http://en.wikipedia.org/wiki/Environment_variable#Windows
+#else
+      ACE_ASSERT (false);
+      // *TODO*: implement fallback levels dependent on host platform/version
+      //         see e.g. http://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
+#endif
+      break;
+    }
+  } // end SWITCH
+
+  return result;
 }

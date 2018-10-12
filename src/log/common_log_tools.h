@@ -43,6 +43,11 @@ class Common_Log_Tools
                                  ACE_Log_Msg_Backend* = NULL); // logger backend {NULL --> disable}
   static void finalizeLogging ();
 
+  static std::string getLogDirectory (const std::string&, // package name
+                                      unsigned int = 0);  // fallback level {0: default}
+  static std::string getLogFilename (const std::string&,    // package name
+                                     const std::string&); // program name
+
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Log_Tools ());
   ACE_UNIMPLEMENTED_FUNC (~Common_Log_Tools ());

@@ -36,7 +36,8 @@
 #include "ace/OS.h"
 
 #include "common_macros.h"
-#include "common_file_tools.h"
+
+#include "common_log_tools.h"
 
 #include "common_error_defines.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -704,7 +705,7 @@ Common_Error_Tools::initializeDebugHeap ()
   //debug_heap_flags &= ~_CRTDBG_CHECK_CRT_DF;
   previous_heap_flags = _CrtSetDbgFlag (debug_heap_flags);
   // output to debug window
-  file_name = Common_File_Tools::getLogDirectory (package_name, 0);
+  file_name = Common_Log_Tools::getLogDirectory (package_name, 0);
   file_name += ACE_DIRECTORY_SEPARATOR_STR;
   file_name += ACE_TEXT_ALWAYS_CHAR (COMMON_DEBUG_DEBUGHEAP_LOG_FILE);
   result = file_address.set (ACE_TEXT (file_name.c_str ()));

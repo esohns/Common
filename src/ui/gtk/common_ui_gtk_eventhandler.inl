@@ -25,7 +25,7 @@
 #include "common_ui_gtk_common.h"
 
 template <typename CallbackDataType>
-Comon_UI_GTK_EventHandler_T<CallbackDataType>::Comon_UI_GTK_EventHandler_T (struct Common_UI_GTK_EventConfiguration* hooks_in,
+Comon_UI_GTK_EventHandler_T<CallbackDataType>::Comon_UI_GTK_EventHandler_T (struct Common_UI_GTK_EventHookConfiguration* hooks_in,
                                                                             CallbackDataType* CBData_in)
  : CBData_ (CBData_in)
  , hooks_ (hooks_in)

@@ -48,9 +48,11 @@ elseif (WIN32)
                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
 endif ()
 target_include_directories (${PROJECT_NAME}Error PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
+target_include_directories (${PROJECT_NAME}Error PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 target_include_directories (${PROJECT_NAME}Error PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../log>)
 
 ############## next target ################
 set (source_files

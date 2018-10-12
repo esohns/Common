@@ -879,8 +879,9 @@ Common_UI_Tools::get (const std::string& deviceIdentifier_in)
   ACE_OS::memset (&device_mode_s, 0, sizeof (DEVMODE));
   device_mode_s.dmSize = sizeof (DEVMODE);
   //device_mode_s.dmDriverExtra = 0;
-  DWORD dwFlags = (EDS_RAWMODE |
-                   EDS_ROTATEDMODE);
+  DWORD dwFlags = 0;
+    //(EDS_RAWMODE |
+    // EDS_ROTATEDMODE);
   Common_UI_Resolution_t resolution_s;
   do
   {

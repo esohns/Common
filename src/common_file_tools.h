@@ -128,11 +128,6 @@ class Common_File_Tools
   static std::string getUserConfigurationDirectory ();
   static std::string getWorkingDirectory ();
 
-  static std::string getLogDirectory (const std::string&, // package name
-                                      unsigned int = 0);  // fallback level {0: default}
-  static std::string getLogFilename (const std::string&,    // package name
-                                       const std::string&); // program name
-
   static std::string getTempDirectory ();
   static std::string getTempFilename (const std::string&); // prefix
 

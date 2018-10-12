@@ -24,13 +24,13 @@
 #include "ace/Global_Macros.h"
 
 // forward declarations
-struct Common_UI_GTK_EventConfiguration;
+struct Common_UI_GTK_EventHookConfiguration;
 
 template <typename CallbackDataType>
 class Comon_UI_GTK_EventHandler_T
 {
  public:
-  Comon_UI_GTK_EventHandler_T (struct Common_UI_GTK_EventConfiguration*,
+  Comon_UI_GTK_EventHandler_T (struct Common_UI_GTK_EventHookConfiguration*,
                                CallbackDataType*); // callback data handle
   inline virtual ~Comon_UI_GTK_EventHandler_T () {}
 
