@@ -1,0 +1,177 @@
+﻿/***************************************************************************
+ *   Copyright (C) 2010 by Erik Sohns   *
+ *   erik.sohns@web.de   *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+
+#include "ace/config-lite.h"
+
+#include "ace/Log_Msg.h"
+
+#include "common_macros.h"
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "common_error_tools.h"
+#endif // ACE_WIN32 || ACE_WIN64
+
+#include "common_ui_defines.h"
+
+#include "common_ui_wxwidgets_defines.h"
+#include "common_ui_wxwidgets_tools.h"
+
+template <typename ApplicationType>
+Common_UI_WxWidgets_Manager_T<ApplicationType>::Common_UI_WxWidgets_Manager_T (const std::string& topLevelWidgetName_in,
+                                                                               int argc_in,
+                                                                               ACE_TCHAR** argv_in,
+                                                                               bool autoStart_in)
+ : inherited (wxTHREAD_JOINABLE)
+ , application_ (NULL)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgets_Manager_T::Common_UI_WxWidgets_Manager_T"));
+
+  ACE_NEW_NORETURN (application_,
+                    ApplicationType (toplevel_widget_name_string_,
+                                     argc_in,
+                                     Common_UI_WxWidgets_Tools::convertArgV (argc_in,
+                                                                             argv_in),
+                                     COMMON_UI_WXWIDGETS_APP_CMDLINE_DEFAULT_PARSE));
+  if (unlikely (!application_))
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to allocate memory: %m, returning\n")));
+    return;
+  } // end IF
+
+  if (unlikely (autoStart_in))
+    start ();
+}
+
+template <typename ApplicationType>
+Common_UI_WxWidgets_Manager_T<ApplicationType>::Common_UI_WxWidgets_Manager_T (ApplicationType* application_in,
+                                                                               bool autoStart_in)
+ : inherited (wxTHREAD_JOINABLE)
+ , application_ (application_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgets_Manager_T::Common_UI_WxWidgets_Manager_T"));
+
+  // sanity check(s)
+  ACE_ASSERT (application_);
+
+  if (unlikely (autoStart_in))
+    start ();
+}
+
+template <typename ApplicationType>
+Common_UI_WxWidgets_Manager_T<ApplicationType>::~Common_UI_WxWidgets_Manager_T ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgets_Manager_T::~Common_UI_WxWidgets_Manager_T"));
+
+  wxThread::ExitCode exit_code = NULL;
+  wxThreadError result = wxTHREAD_NO_ERROR;
+  if (inherited::IsAlive ())
+  {
+    result = inherited::Delete (&exit_code,
+                                wxTHREAD_WAIT_DEFAULT);
+    if (unlikely (result != wxTHREAD_NO_ERROR))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to wxThread::Delete(): %d, continuing\n"),
+                  result));
+  } // end IF
+  if (inherited::IsPaused ())
+    inherited::Resume ();
+  exit_code = inherited::Wait (wxTHREAD_WAIT_DEFAULT);
+  ACE_UNUSED_ARG (exit_code);
+
+  delete application_;
+}
+
+template <typename ApplicationType>
+void
+Common_UI_WxWidgets_Manager_T<ApplicationType>::start ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgets_Manager_T::start"));
+
+  wxThreadError result = inherited::Run ();
+  if (unlikely (result != wxTHREAD_NO_ERROR))
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to wxThread::Run(): %d, returning\n"),
+                result));
+}
+
+template <typename ApplicationType>
+void
+Common_UI_WxWidgets_Manager_T<ApplicationType>::stop (bool waitForCompletion_in,
+                                                      bool lockedAccess_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgets_Manager_T::stop"));
+
+  ACE_UNUSED_ARG (lockedAccess_in);
+
+  wxThread::ExitCode exit_code = NULL;
+  wxThreadError result = wxTHREAD_NO_ERROR;
+  if (inherited::IsAlive ())
+  {
+    result = inherited::Delete (&exit_code,
+                                wxTHREAD_WAIT_DEFAULT);
+    if (unlikely (result != wxTHREAD_NO_ERROR))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to wxThread::Delete(): %d, continuing\n"),
+                  result));
+  } // end IF
+
+  if (waitForCompletion_in)
+  {
+    exit_code = inherited::Wait (wxTHREAD_WAIT_DEFAULT);
+    ACE_UNUSED_ARG (exit_code);
+  } // end IF
+}
+
+template <typename ApplicationType>
+void*
+Common_UI_WxWidgets_Manager_T<ApplicationType>::Entry ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgets_Manager_T::Entry"));
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_EVENT_THREAD_NAME),
+                                     0);
+#endif // ACE_WIN32 || ACE_WIN64
+#if defined (_DEBUG)
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("(%s): worker thread (id: %t) starting\n"),
+              ACE_TEXT (COMMON_UI_EVENT_THREAD_NAME)));
+#endif // _DEBUG
+
+  // sanity check(s)
+  ACE_ASSERT (application_);
+
+  COMMON_TRY {
+    application_->run ();
+  } COMMON_CATCH (...) {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("caught exception in wxThread::Entry(), returning\n")));
+  }
+
+//done:
+#if defined (_DEBUG)
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("(%s): worker thread (id: %t) leaving\n"),
+              ACE_TEXT (COMMON_UI_EVENT_THREAD_NAME)));
+#endif // _DEBUG
+
+  return NULL;
+}

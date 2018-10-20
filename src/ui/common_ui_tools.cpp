@@ -1075,3 +1075,59 @@ Common_UI_Tools::mode (const std::string& deviceIdentifier_in)
 
   return result;
 }
+
+Common_UI_Resolution_t
+Common_UI_Tools::nearest (const Common_UI_Resolutions_t& resolutions_in,
+                          const Common_UI_Resolution_t& resolution_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::nearest"));
+
+  // initialize return value(s)
+  Common_UI_Resolution_t return_value;
+  ACE_OS::memset (&return_value, 0, sizeof (Common_UI_Resolution_t));
+
+  // sanity check(s)
+  ACE_ASSERT (!resolutions_in.empty ());
+
+  Common_UI_Resolutions_t resolutions_a = resolutions_in;
+  resolutions_a.sort (common_ui_resolution_less ());
+  resolutions_a.unique (common_ui_resolution_equal ());
+  Common_UI_ResolutionsConstIterator_t iterator_2;
+  for (Common_UI_ResolutionsConstIterator_t iterator = resolutions_a.begin ();
+       iterator != resolutions_a.end ();
+       ++iterator)
+  {
+    if ((*iterator).cx > resolution_in.cx)
+      return *iterator;
+    if ((*iterator).cx == resolution_in.cx)
+    {
+      if ((*iterator).cy >= resolution_in.cy)
+        return *iterator;
+      iterator_2 = iterator;
+      if (++iterator_2 == resolutions_a.end ())
+        return *iterator;
+      if ((*iterator_2).cx > resolution_in.cx)
+        return *iterator;
+      if ((*iterator_2).cy > resolution_in.cy)
+      { // the current y-resolution is smaller, the next larger
+        // --> return the 'nearer' one
+        return (((*iterator_2).cy - resolution_in.cy) < (resolution_in.cy - (*iterator).cy) ? *iterator_2
+                                                                                            : *iterator);
+      } // end IF
+      continue;
+    } // end IF
+    iterator_2 = iterator;
+    if (++iterator_2 == resolutions_a.end ())
+      return *iterator;
+    if ((*iterator_2).cx > resolution_in.cx)
+    { // the current x-resolution is smaller, the next resolution larger
+      // --> return the 'nearest' one
+      return (((*iterator_2).cx - resolution_in.cx) < (resolution_in.cx - (*iterator).cx) ? *iterator_2
+                                                                                          : *iterator);
+    } // end IF
+  } // end FOR
+
+  ACE_ASSERT (false);
+  ACE_NOTSUP_RETURN (return_value);
+  ACE_NOTREACHED (return return_value;)
+}

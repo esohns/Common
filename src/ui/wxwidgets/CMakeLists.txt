@@ -60,6 +60,9 @@ set (source_files
      common_ui_wxwidgets_itoplevel.h
      common_ui_wxwidgets_logger.cpp
      common_ui_wxwidgets_logger.h
+     common_ui_wxwidgets_manager.cpp
+     common_ui_wxwidgets_manager.h
+     common_ui_wxwidgets_manager.inl
      common_ui_wxwidgets_tools.cpp
      common_ui_wxwidgets_tools.h
      common_ui_wxwidgets_xrc_definition.cpp
@@ -153,6 +156,8 @@ set (${PROJECT_NAME}UI_wxWidgets_LIB_HDRS
      common_ui_wxwidgets_iapplication.h
      common_ui_wxwidgets_itoplevel.h
      common_ui_wxwidgets_logger.h
+     common_ui_wxwidgets_manager.h
+     common_ui_wxwidgets_manager.inl
      common_ui_wxwidgets_tools.h
      common_ui_wxwidgets_xrc_definition.h
      common_ui_wxwidgets_xrc_definition.inl)

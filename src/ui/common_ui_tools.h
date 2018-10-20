@@ -59,6 +59,10 @@ class Common_UI_Tools
   static bool has (const std::string&,             // device identifier
                    const Common_UI_Resolution_t&); // resolution
   static struct Common_UI_DisplayMode mode (const std::string&); // device identifier
+  // *NOTE*: this implementation 'prefers' width over height and exactness over
+  //         area; IOW it is still pretty naive
+  static Common_UI_Resolution_t nearest (const Common_UI_Resolutions_t&, // resolutions
+                                         const Common_UI_Resolution_t&); // resolution
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools ());

@@ -42,6 +42,7 @@ using namespace std;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 //#include <errors.h>
 #include <Security.h>
+#define INITGUID
 #include <strmif.h>
 #include <strsafe.h>
 
@@ -375,6 +376,8 @@ Common_Tools::getOperatingSystem ()
   ACE_NOTSUP_RETURN (COMMON_OPERATINGSYSTEM_INVALID);
   ACE_NOTREACHED (return COMMON_OPERATINGSYSTEM_INVALID;)
 #endif
+
+  return COMMON_OPERATINGSYSTEM_INVALID;
 }
 
 std::string
@@ -1955,7 +1958,7 @@ Common_Tools::GUIDToString (REFGUID GUID_in)
   result = GUID_string;
 #else
   result = ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (GUID_string));
-#endif
+#endif // OLE2ANSI
 
   return result;
 }
@@ -1968,14 +1971,16 @@ Common_Tools::StringToGUID (const std::string& string_in)
 
   HRESULT result_2 = E_FAIL;
 #if defined (OLE2ANSI)
-  result_2 = CLSIDFromString (string_in.c_str (), &result);
+  result_2 = CLSIDFromString (string_in.c_str (),
+                              &result);
 #else
   result_2 =
-    CLSIDFromString (ACE_TEXT_ALWAYS_WCHAR (string_in.c_str ()), &result);
-#endif
+    CLSIDFromString (ACE_TEXT_ALWAYS_WCHAR (string_in.c_str ()),
+                     &result);
+#endif // OLE2ANSI
   if (unlikely (FAILED (result_2)))
   {
-    ACE_DEBUG ((LM_ERROR,
+    ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("failed to CLSIDFromString(\"%s\"): \"%s\", aborting\n"),
                 ACE_TEXT (string_in.c_str ()),
                 ACE_TEXT (Common_Error_Tools::errorToString (result_2).c_str ())));
@@ -1985,6 +1990,44 @@ Common_Tools::StringToGUID (const std::string& string_in)
   return result;
 }
 
+std::string
+Common_Tools::getKeyValue (HKEY parentKey_in,
+                           const std::string& subkey_in,
+                           const std::string& value_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::getKeyValue"));
+
+  // initialize return value(s)
+  std::string return_value;
+
+  HKEY key_p =
+    ACE_Configuration_Win32Registry::resolve_key (parentKey_in,
+                                                  ACE_TEXT_CHAR_TO_TCHAR (subkey_in.c_str ()),
+                                                  0); // do not create
+  if (unlikely (!key_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Configuration_Win32Registry::resolve_key(%@,\"%s\"): \"%m\", aborting\n"),
+                parentKey_in,
+                ACE_TEXT (subkey_in.c_str ())));
+    return return_value;
+  } // end IF
+  ACE_Configuration_Win32Registry registry (key_p);
+  ACE_TString value_string;
+  int result = registry.get_string_value (registry.root_section (),
+                                          ACE_TEXT_CHAR_TO_TCHAR (value_in.c_str ()),
+                                          value_string);
+  if (result == -1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Configuration_Win32Registry::get_string_value(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (value_in.c_str ())));
+    return return_value;
+  } // end IF
+  return_value = value_string.c_str ();
+
+  return return_value;
+}
 
 bool
 Common_Tools::deleteKey (HKEY parentKey_in,
@@ -2017,12 +2060,13 @@ Common_Tools::deleteKey (HKEY parentKey_in,
   } // end IF
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("removed key \"%s\"...\n"),
+              ACE_TEXT ("removed registry key \"%s\"\n"),
               ACE_TEXT (subkey_in.c_str ())));
 #endif // _DEBUG
 
   return true;
 }
+
 bool
 Common_Tools::deleteKeyValue (HKEY parentKey_in,
                               const std::string& subkey_in,
@@ -2054,7 +2098,7 @@ Common_Tools::deleteKeyValue (HKEY parentKey_in,
   } // end IF
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("removed value \"%s\"...\n"),
+              ACE_TEXT ("removed value \"%s\"\n"),
               ACE_TEXT (value_in.c_str ())));
 #endif // _DEBUG
 
@@ -2100,9 +2144,10 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
 #else
       case COMMON_REACTOR_DEV_POLL:
       {
+#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using /dev/poll reactor\n")));
-
+#endif // _DEBUG
         ACE_NEW_NORETURN (reactor_impl_p,
                           ACE_Dev_Poll_Reactor (COMMON_EVENT_MAXIMUM_HANDLES,    // max num handles
                                                 true,                            // restart after EINTR ?
@@ -2120,9 +2165,10 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
 #endif // ACE_WIN32 || ACE_WIN64
       case COMMON_REACTOR_SELECT:
       {
+#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using select reactor\n")));
-
+#endif // _DEBUG
         ACE_NEW_NORETURN (reactor_impl_p,
                           ACE_Select_Reactor (static_cast<size_t> (COMMON_EVENT_MAXIMUM_HANDLES), // max num handles
                                               true,                                               // restart after EINTR ?
@@ -2137,9 +2183,10 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
       }
       case COMMON_REACTOR_THREAD_POOL:
       {
+#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using thread-pool reactor\n")));
-
+#endif // _DEBUG
         ACE_NEW_NORETURN (reactor_impl_p,
                           ACE_TP_Reactor (static_cast<size_t> (COMMON_EVENT_MAXIMUM_HANDLES), // max num handles
                                           true,                                               // restart after EINTR ?
@@ -2155,9 +2202,10 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
       case COMMON_REACTOR_WFMO:
       {
+#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using WFMO reactor\n")));
-
+#endif // _DEBUG
         ACE_NEW_NORETURN (reactor_impl_p,
                           ACE_WFMO_Reactor (ACE_WFMO_Reactor::DEFAULT_SIZE, // max num handles (62 [+ 2])
                                             0,                              // unused
@@ -2189,10 +2237,7 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
       {
         ACE_DEBUG ((LM_CRITICAL,
                     ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
-
-        // clean up
-        delete reactor_impl_p;
-
+        delete reactor_impl_p; reactor_impl_p = NULL;
         return false;
       } // end IF
     } // end IF
@@ -2202,7 +2247,9 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
       ACE_Reactor::instance (reactor_p, // reactor handle
                              1);        // delete in dtor ?
     if (previous_reactor_p)
-      delete previous_reactor_p;
+    {
+      delete previous_reactor_p; previous_reactor_p = NULL;
+    } // end IF
   } // end IF
 
   // step2: initialize proactor
@@ -2229,17 +2276,20 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
     {
       case COMMON_PROACTOR_ACE_DEFAULT:
       {
+#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using ACE default (platform-specific) proactor\n")));
+#endif // _DEBUG
         break;
       }
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
       case COMMON_PROACTOR_POSIX_AIOCB:
       {
+#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using POSIX AIOCB proactor\n")));
-
+#endif // _DEBUG
         ACE_NEW_NORETURN (proactor_impl_p,
                           ACE_POSIX_AIOCB_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
 
@@ -2247,9 +2297,10 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
       }
       case COMMON_PROACTOR_POSIX_CB:
       {
+#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using POSIX CB proactor\n")));
-
+#endif // _DEBUG
         ACE_NEW_NORETURN (proactor_impl_p,
                           ACE_POSIX_CB_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
 
@@ -2257,9 +2308,10 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
       }
       case COMMON_PROACTOR_POSIX_SIG:
       {
+#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using POSIX RT-signal proactor\n")));
-
+#endif // _DEBUG
         ACE_NEW_NORETURN (proactor_impl_p,
                           ACE_POSIX_SIG_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
 
@@ -2268,9 +2320,10 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
 #if defined (ACE_HAS_AIO_CALLS) && defined (sun)
       case COMMON_PROACTOR_POSIX_SUN:
       {
+#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using SunOS proactor\n")));
-
+#endif // _DEBUG
         ACE_NEW_NORETURN (proactor_impl_p,
                           ACE_SUN_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
 
@@ -2281,9 +2334,10 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
       case COMMON_PROACTOR_WIN32:
       {
+#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using Win32 proactor\n")));
-
+#endif // _DEBUG
         ACE_NEW_NORETURN (proactor_impl_p,
                           ACE_WIN32_Proactor (1,       // #concurrent thread(s)/I/O completion port [0: #processors]
                                               false)); // N/A

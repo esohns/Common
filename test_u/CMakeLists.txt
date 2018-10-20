@@ -189,7 +189,7 @@ if (WIN32)
 endif (WIN32)
 
 set (source_files
-#     test_u_common.h
+     common_test_u_common.h
 #     test_u_defines.h
      common_test_u_tools.cpp
      common_test_u_tools.h
@@ -242,6 +242,7 @@ target_sources (${PROJECT_NAME}_Test_U
 ##########################################
 
 install (FILES
+         common_test_u_common.h
          common_test_u_tools.h
          common_test_u_tools.inl
          DESTINATION include)
@@ -265,11 +266,10 @@ target_sources (${PROJECT_NAME}_Test_U
                 ${absolute_source_files})
 
 # add all targets to the build-tree export set
-#export (TARGETS ${PROJECT_NAME}_Test_U
-#        APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
+export (TARGETS ${PROJECT_NAME}_Test_U
+        APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ##########################################
-
 
 if (UNIX)
  add_subdirectory (capabilities)

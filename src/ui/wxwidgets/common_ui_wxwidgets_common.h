@@ -30,10 +30,13 @@
 
 #include "ace/Synch_Traits.h"
 
+#include "common_itaskcontrol.h"
+
 #include "common_ui_common.h"
 #include "common_ui_idefinition.h"
 
 #include "common_ui_wxwidgets_iapplication.h"
+#include "common_ui_wxwidgets_manager.h"
 
 typedef std::pair<std::string, wxObject*> Common_UI_wxWidgets_XmlResource_t;
 typedef std::map<std::string, Common_UI_wxWidgets_XmlResource_t> Common_UI_wxWidgets_XmlResources_t;
@@ -79,5 +82,6 @@ struct Common_UI_wxWidgets_ProgressData
 
 typedef Common_UI_IDefinition_T<struct Common_UI_wxWidgets_State> Common_UI_wxWidgets_IDefinition_t;
 typedef Common_UI_wxWidgets_IApplicationBase_T<struct Common_UI_wxWidgets_State> Common_UI_wxWidgets_IApplicationBase_t;
+typedef Common_ITaskControl_T<ACE_NULL_SYNCH, Common_ILock_T<ACE_NULL_SYNCH> > Common_UI_wxWidgets_IManager_t;
 
 #endif

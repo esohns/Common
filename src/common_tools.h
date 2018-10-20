@@ -27,6 +27,7 @@
 #include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <guiddef.h>
+#include <Ks.h>
 #else
 #include <sys/capability.h>
 #endif // ACE_WIN32 || ACE_WIN64
@@ -156,12 +157,17 @@ class Common_Tools
   // --- UID ---
   static std::string GUIDToString (REFGUID);
   static struct _GUID StringToGUID (const std::string&);
+  // *WARNING* does not recognize GUID_NULL
+  inline static bool isGUID (const std::string& string_in) { return !InlineIsEqualGUID (Common_Tools::StringToGUID (string_in), GUID_NULL); }
 
   // --- registry ---
+  static std::string getKeyValue (HKEY,                // parent key
+                                  const std::string&,  // subkey
+                                  const std::string&); // value
   static bool deleteKey (HKEY,                // parent key
                          const std::string&); // subkey
-  static bool deleteKeyValue (HKEY,               // parent key
-                              const std::string&, // subkey
+  static bool deleteKeyValue (HKEY,                // parent key
+                              const std::string&,  // subkey
                               const std::string&); // value
 #endif // ACE_WIN32 || ACE_WIN64
 
