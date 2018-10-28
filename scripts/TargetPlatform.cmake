@@ -61,7 +61,7 @@ elseif (WIN32)
  set (CMAKE_SYSTEM_VERSION ${SYSTEM_VERSION})
  message (STATUS "CMAKE_SYSTEM_VERSION: ${CMAKE_SYSTEM_VERSION}")
 
- include (${CMAKE_CURRENT_SOURCE_DIR}/../libCommon/scripts/Macros.cmake)
+ include (${CMAKE_CURRENT_SOURCE_DIR}/../Common/scripts/Macros.cmake)
  get_WIN32_WINNT (version)
  add_definitions("/DWINVER=${version}" "/D_WIN32_WINNT=${version}")
 endif ()

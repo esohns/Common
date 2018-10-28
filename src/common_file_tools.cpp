@@ -1623,6 +1623,7 @@ Common_File_Tools::getSourceDirectory (const std::string& packageName_in)
   return_value = ACE_TEXT_ALWAYS_CHAR (string_p);
 #endif // BASEDIR
   return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  //return_value += ACE_TEXT_ALWAYS_CHAR (ACE_DLL_PREFIX);
   return_value += packageName_in;
   return_value += ACE_DIRECTORY_SEPARATOR_STR;
   return_value += ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_SOURCE_SUBDIRECTORY);
