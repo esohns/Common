@@ -66,20 +66,26 @@
 #define COMMON_LOCALE_EN_US_STRING                             "en_US.utf8" // ASCII
 #endif // ACE_WIN32 || ACE_WIN64
 
-// *** default (system-) 'locations' ***
-
-// *HISTORY*: Contrary to UNIX-based systems (?), Windows (TM) systems have not
-//            (yet) implemented a consistent concept of a (system-wide)
-//            (file)system storage tree (as in/see also: LSB)
+// *** default (storage) 'locations' ***
+// *NOTE*: given the industrial collaboration between hardware manufacturers and
+//         the emerging software industry, there may be no generic concept or
+//         standardized method to specify a (storage) location within a
+//         computer system, so this remains a paradigmatic rift
+// *NOTE*: traditionally, storage paths derive of 'local' file systems (or
+//         'directories') (i.e. from 'archive' (magnetic) tape|floppy|hard- disk
+//         drives or (optical) disk media) organized side-by-side (e.g. Windows
+//         (TM)) or in one logical tree (e.g. UNIX (see also: LSB)).
+//         For reasons yet unknown, there appears to be a trend toward more
+//         distributed (as in 'remote') data storage concepts, so nowadays these
+//         might be either (physical) (hot-)plug-in ((CPU) cache) RAM|'flash'
+//         memory cards, or (logical) database-, LAN- or even internet-URLs,
+//         to be interpreted by some (networked-) generic abstract data access
+//         layer
 // [forward/backward slash path discriminator, mount points/drive letters]
-
-// *NOTE*: given the industrial rift (?) between hardware manufacturers and the
-//         software industry, there is no apparent concept or method to exactly
-//         specify a (storage) location within a computer system
 
 // *NOTE*: the concept of 'environment variables' (see e.g. wikipedia article)
 //         has been adopted by all currently supported platforms of this
-//         library.
+//         library
 // *PORTABILIY*: this fact is used here to portably identify the default
 //               location for temporary (log)files
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -89,15 +95,20 @@
 #define COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE_2           "TEMP"
 #define COMMON_LOCATION_LOG_STORAGE_VARIABLE                   COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE
 #else
-#define COMMON_LOCATION_APPLICATION_STORAGE_DIRECTORY          "/usr/share"
+//#define COMMON_LOCATION_APPLICATION_STORAGE_ROOT_DIRECTORY     "/var"
+#define COMMON_LOCATION_APPLICATION_STORAGE_ROOT_DIRECTORY     "/usr"
+#define COMMON_LOCATION_APPLICATION_STORAGE_LOCAL_SUBDIRECTORY "local"
+#define COMMON_LOCATION_APPLICATION_STORAGE_SUBDIRECTORY       "share"
 #define COMMON_LOCATION_LOG_STORAGE_DIRECTORY                  "/var/log"
 #define COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY            "/var/tmp"
 #define COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY_2          "/tmp"
 #define COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE             "TEMP"
 #endif // ACE_WIN32 || ACE_WIN64
 
-#define COMMON_LOCATION_CONFIGURATION_DIRECTORY                "etc"
-#define COMMON_LOCATION_DATA_DIRECTORY                         "data"
+#define COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY             "etc"
+#define COMMON_LOCATION_DATA_SUBDIRECTORY                      "data"
+#define COMMON_LOCATION_PARENT_SUBDIRECTORY                    ".."
+#define COMMON_LOCATION_SOURCE_SUBDIRECTORY                    "src"
 
 // // software
 
@@ -197,12 +208,13 @@
 #define COMMON_EVENT_THREAD_NAME                               "event dispatch"
 #define COMMON_EVENT_DEFAULT_DISPATCH                          COMMON_EVENT_DISPATCH_PROACTOR
 
-// *** environment ***
+// *** (miscellaneous) environment ***
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define COMMON_DEFAULT_USER_LOGIN_BASE                         "USERNAME" // environment
+#define COMMON_ENVIRONMENT_USER_LOGIN_BASE                     "USERNAME" // environment
 #else
-#define COMMON_DEFAULT_USER_LOGIN_BASE                         "LOGNAME" // environment
+#define COMMON_ENVIRONMENT_USER_LOGIN_BASE                     "LOGNAME" // environment
 #endif // ACE_WIN32 || ACE_WIN64
+#define COMMON_ENVIRONMENT_DIRECTORY_ROOT_PROJECTS             "PROJECTS_ROOT"
 
 // *** parser ***
 
@@ -246,6 +258,8 @@
   command += COMMON_STRING_APPEND (command, &);
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+// registry
+#define COMMON_WIN32_REGISTRY_RESOLVE_RETRIES                  3
 #else
 // systemd
 #define COMMON_SYSTEMD_UNIT_COMMAND_RESTART                    "restart"

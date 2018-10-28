@@ -1477,7 +1477,7 @@ Common_File_Tools::size (const ACE_FILE_Addr& address_in)
   int result = -1;
   ACE_FILE_Connector file_connector;
   ACE_FILE_IO file_io;
-  ACE_TCHAR buffer[PATH_MAX];
+  ACE_TCHAR buffer_a[PATH_MAX];
   ACE_FILE_Info file_info;
 
   result =
@@ -1491,28 +1491,28 @@ Common_File_Tools::size (const ACE_FILE_Addr& address_in)
                             ACE_DEFAULT_FILE_PERMS); // permissions --> open
   if (unlikely (result == -1))
   {
-    result = address_in.addr_to_string (buffer,
-                                        sizeof (buffer));
+    result = address_in.addr_to_string (buffer_a,
+                                        sizeof (ACE_TCHAR[PATH_MAX]));
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_FILE_Addr::addr_to_string(): \"%m\", continuing\n")));
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Connector::connect(\"%s\"): \"%m\", aborting\n"),
-                buffer));
+                buffer_a));
     return 0;
   } // end IF
 
   result = file_io.get_info (file_info);
   if (unlikely (result == -1))
   {
-    result = address_in.addr_to_string (buffer,
-                                        sizeof (buffer));
+    result = address_in.addr_to_string (buffer_a,
+                                        sizeof (ACE_TCHAR[PATH_MAX]));
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_FILE_Addr::addr_to_string(): \"%m\", continuing\n")));
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Connector::connect(\"%s\"): \"%m\", aborting\n"),
-                buffer));
+                buffer_a));
 
     // clean up
     result = file_io.close ();
@@ -1537,9 +1537,9 @@ Common_File_Tools::size (const std::string& path_in)
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::size"));
 
   int result = -1;
-  ACE_stat stat;
-  ACE_OS::memset (&stat, 0, sizeof (stat));
-  result = ACE_OS::stat (path_in.c_str (), &stat);
+  ACE_stat stat_s;
+  ACE_OS::memset (&stat_s, 0, sizeof (ACE_stat));
+  result = ACE_OS::stat (path_in.c_str (), &stat_s);
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -1548,7 +1548,7 @@ Common_File_Tools::size (const std::string& path_in)
     return 0;
   } // end IF
 
-  return static_cast<unsigned int> (stat.st_size);
+  return static_cast<unsigned int> (stat_s.st_size);
 }
 
 std::string
@@ -1557,19 +1557,19 @@ Common_File_Tools::realPath (const std::string& path_in)
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::realPath"));
 
   // initialize result(s)
-  std::string result;
+  std::string return_value;
 
-  char path[PATH_MAX];
-  if (unlikely (!ACE_OS::realpath (path_in.c_str (), path)))
+  char buffer_a[PATH_MAX];
+  if (unlikely (!ACE_OS::realpath (path_in.c_str (), buffer_a)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::realpath(\"%s\"): %m, aborting\n"),
                 ACE_TEXT (path_in.c_str ())));
-    return result;
+    return return_value;
   } // end IF
-  result = path;
+  return_value = buffer_a;
 
-  return result;
+  return return_value;
 }
 
 std::string
@@ -1577,20 +1577,66 @@ Common_File_Tools::getWorkingDirectory ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getWorkingDirectory"));
 
-  std::string result;
+  // initialize return value(s)
+  std::string return_value;
 
   // retrieve working directory
-  ACE_TCHAR buffer[PATH_MAX];
-  ACE_OS::memset (buffer, 0, sizeof (buffer));
-  if (unlikely (!ACE_OS::getcwd (buffer, sizeof (buffer))))
+  ACE_TCHAR buffer_a[PATH_MAX];
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[PATH_MAX]));
+  if (unlikely (!ACE_OS::getcwd (buffer_a, sizeof (ACE_TCHAR[PATH_MAX]))))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::getcwd(): \"%m\", aborting\n")));
-    return result;
+    return return_value;
   } // end IF
-  result = ACE_TEXT_ALWAYS_CHAR (buffer);
+  return_value = ACE_TEXT_ALWAYS_CHAR (buffer_a);
 
-  return result;
+  return return_value;
+}
+
+std::string
+Common_File_Tools::getSourceDirectory (const std::string& packageName_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getSourceDirectory"));
+
+  // initialize return value(s)
+  std::string return_value;
+
+  // sanity check(s)
+  ACE_ASSERT (!packageName_in.empty ());
+
+#if defined (BASEDIR)
+  return_value = ACE_TEXT_ALWAYS_CHAR (BASEDIR);
+#else
+  ACE_TCHAR buffer_a[PATH_MAX];
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[PATH_MAX]));
+
+  ACE_TCHAR* string_p =
+    ACE_OS::getenv (ACE_TEXT (COMMON_ENVIRONMENT_DIRECTORY_ROOT_PROJECTS));
+  if (!string_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::getenv(%s): \"%m\", aborting\n"),
+                ACE_TEXT (COMMON_ENVIRONMENT_DIRECTORY_ROOT_PROJECTS)));
+    return return_value;
+  } // end IF
+  return_value = ACE_TEXT_ALWAYS_CHAR (string_p);
+#endif // BASEDIR
+  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value += packageName_in;
+  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value += ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_SOURCE_SUBDIRECTORY);
+
+  // sanity check(s)
+  if (unlikely (!Common_File_Tools::isDirectory (return_value)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("not a directory (was: \"%s\"), aborting\n"),
+                ACE_TEXT (return_value.c_str ())));
+    return_value.clear ();
+  } // end IF
+
+  return return_value;
 }
 
 std::string
@@ -1599,26 +1645,61 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getConfigurationDataDirectory"));
 
-  std::string result;
+  // initialize return value(s)
+  std::string return_value;
 
   // sanity check(s)
   ACE_ASSERT (!packageName_in.empty ());
 
+#if defined (DEBUG_DEBUGGER)
+  return_value = Common_File_Tools::getSourceDirectory (packageName_in);
+  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value +=
+    ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_PARENT_SUBDIRECTORY);
+  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value += packageName_in;
+  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value +=
+      (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
+                          : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
+#elif defined (BASEDIR)
+  return_value = ACE_TEXT_ALWAYS_CHAR (BASEDIR);
+  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value += packageName_in;
+  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value +=
+    (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
+                        : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
+#else
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  TCHAR buffer[PATH_MAX];
-  ACE_OS::memset (buffer, 0, sizeof (buffer));
+#if defined (UNICODE)
+#if defined (ACE_USES_WCHAR)
+  ACE_TCHAR buffer_a[PATH_MAX];
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[PATH_MAX]));
+#else
+  ACE_ANTI_TCHAR buffer_a[PATH_MAX];
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_ANTI_TCHAR[PATH_MAX]));
+#endif // ACE_USES_WCHAR
+#else
+#if defined (ACE_USES_WCHAR)
+  ACE_ANTI_TCHAR buffer_a[PATH_MAX];
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_ANTI_TCHAR[PATH_MAX]));
+#else
+  ACE_TCHAR buffer_a[PATH_MAX];
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[PATH_MAX]));
+#endif // ACE_USES_WCHAR
+#endif // UNICODE
 
   HRESULT result_2 =
-// *TODO*: this is apparently inconsistent (see also config.h for details)
-#if defined (ACE_USES_WCHAR)
+#if defined (UNICODE)
     SHGetFolderPathW (NULL,                                   // hwndOwner
 #else
     SHGetFolderPathA (NULL,                                   // hwndOwner
-#endif
+#endif // UNICODE
                       CSIDL_APPDATA | CSIDL_FLAG_DONT_VERIFY, // nFolder
                       NULL,                                   // hToken
                       SHGFP_TYPE_CURRENT,                     // dwFlags
-                      buffer);                                // pszPath
+                      buffer_a);                              // pszPath
   if (unlikely (FAILED (result_2)))
   {
     ACE_DEBUG ((LM_WARNING,
@@ -1626,38 +1707,38 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
                 ACE_TEXT (Common_Error_Tools::errorToString (static_cast<DWORD> (result_2)).c_str ())));
     return Common_File_Tools::getWorkingDirectory ();
   } // end IF
-
-#if defined (ACE_USES_WCHAR)
-  result = ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (buffer));
-#else
-  result = ACE_TEXT_ALWAYS_CHAR (buffer);
-#endif
-#else
-#if defined (BASEDIR)
-  result = BASEDIR;
-#else
-  result = ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_APPLICATION_STORAGE_DIRECTORY);
-#endif
-#endif
-  result += ACE_DIRECTORY_SEPARATOR_STR;
-  result += packageName_in;
-  result += ACE_DIRECTORY_SEPARATOR_STR;
-  result +=
+  return_value = ACE_TEXT_ALWAYS_CHAR (buffer_a);
+  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value += packageName_in;
+  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value +=
       (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_DIRECTORY)
                           : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_DIRECTORY));
+#else
+  return_value =
+    ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_APPLICATION_STORAGE_ROOT_DIRECTORY);
+  // *TODO*: support 'local' installations (i.e. /usr/local/...)
+  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value +=
+    (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
+                        : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_APPLICATION_STORAGE_SUBDIRECTORY));
+  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value += packageName_in;
+#endif // ACE_WIN32 || ACE_WIN64
+#endif // DEBUG_DEBUGGER || BASEDIR
 
   // sanity check(s)
-  if (unlikely (!Common_File_Tools::isDirectory (result)))
+  if (unlikely (!Common_File_Tools::isDirectory (return_value)))
   {
     ACE_DEBUG ((LM_WARNING,
-                ACE_TEXT ("not a directory: \"%s\", falling back\n"),
-                ACE_TEXT (result.c_str ())));
+                ACE_TEXT ("not a directory (was: \"%s\"), falling back\n"),
+                ACE_TEXT (return_value.c_str ())));
 
     // fallback
     return Common_File_Tools::getWorkingDirectory ();
   } // end IF
 
-  return result;
+  return return_value;
 }
 
 std::string

@@ -35,9 +35,23 @@
 Common_UI_WxWidgets_Logger* Common_UI_WxWidgets_Tools::logger = NULL;
 
 bool
-Common_UI_WxWidgets_Tools::initialize ()
+Common_UI_WxWidgets_Tools::initialize (int argc_in,
+                                       ACE_TCHAR** argv_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgets_Tools::initialize"));
+
+//  if (!wxInitialize (argc_in,
+//#if defined (ACE_USES_WCHAR)
+//                     Common_UI_WxWidgets_Tools::convertArgV (argc_in,
+//                                                             argv_in)))
+//#else
+//                     argv_in))
+//#endif // ACE_USES_WCHAR
+//  {
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to wxInitialize(), aborting\n")));
+//    return false;
+//  } // end IF
 
   if (unlikely (!Common_UI_WxWidgets_Tools::initializeLogging ()))
   {
@@ -66,6 +80,10 @@ Common_UI_WxWidgets_Tools::finalize ()
   COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgets_Tools::finalize"));
 
   Common_UI_WxWidgets_Tools::finalizeLogging ();
+
+  wxModule::CleanUpModules ();
+
+  wxUninitialize();
 
   return true;
 }

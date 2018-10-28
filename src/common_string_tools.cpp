@@ -25,6 +25,59 @@
 
 #include "ace/Log_Msg.h"
 
+#include "common_macros.h"
+
+#include "common_error_tools.h"
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+std::string
+Common_String_Tools::to (const BSTR string_in,
+                         UINT codePage_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_String_Tools::to"));
+
+  // initialize return value(s)
+  std::string return_value;
+
+  // request content length in single-chars through a terminating
+  //  nullchar in the BSTR. note: BSTR's support imbedded nullchars,
+  //  so this will only convert through the first nullchar.
+  int result = WideCharToMultiByte (codePage_in, // CodePage
+                                    0,           // dwFlags
+                                    string_in,   // lpWideCharStr
+                                    -1,          // cchWideChar
+                                    NULL,        // lpMultiByteStr
+                                    0,           // cbMultiByte
+                                    NULL,        // lpDefaultChar
+                                    NULL);       // lpUsedDefaultChar
+  if (unlikely (!result))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::WideCharToMultiByte(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Error_Tools::errorToString (result, false).c_str ())));
+    return return_value;
+  } // end IF
+  return_value.resize (result);
+  result = WideCharToMultiByte (codePage_in,
+                                0,
+                                string_in,
+                                -1,
+                                &return_value[0],
+                                result,
+                                NULL,
+                                NULL);
+  if (unlikely (!result))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::WideCharToMultiByte(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Error_Tools::errorToString (result, false).c_str ())));
+    return return_value;
+  } // end IF
+
+  return return_value;
+}
+#endif // ACE_WIN32 || ACE_WIN64
+
 std::string
 Common_String_Tools::sanitizeURI (const std::string& uri_in)
 {

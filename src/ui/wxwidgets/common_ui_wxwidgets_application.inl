@@ -29,21 +29,23 @@
 template <typename DefinitionType,
           typename ConfigurationType,
           typename StateType,
-          typename TopLevelClassType>
+          typename TopLevelClassType,
+          typename TraitsType>
 Comon_UI_WxWidgets_Application_T<DefinitionType,
                                  ConfigurationType,
                                  StateType,
-                                 TopLevelClassType>::Comon_UI_WxWidgets_Application_T (const std::string& name_in,
-                                                                                       int argc_in,
-                                                                                       wxChar** argv_in,
-                                                                                       bool parseCommandLine_in)
+                                 TopLevelClassType,
+                                 TraitsType>::Comon_UI_WxWidgets_Application_T (const std::string& topLevelWidgetName_in,
+                                                                                int argc_in,
+                                                                                wxChar** argv_in,
+                                                                                bool parseCommandLine_in)
  : inherited ()
- , inherited2 (name_in,
-               &instance_)
  , instance_ (NULL)
  , configuration_ ()
  , state_ ()
- , initializer_ (argc_in, argv_in)
+ , definition_ (topLevelWidgetName_in,
+                &instance_)
+ //, initializer_ (argc_in, argv_in)
  , parseCommandLine_ (parseCommandLine_in)
 {
   COMMON_TRACE (ACE_TEXT ("Comon_UI_WxWidgets_Application_T::Comon_UI_WxWidgets_Application_T"));
@@ -61,12 +63,14 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
 template <typename DefinitionType,
           typename ConfigurationType,
           typename StateType,
-          typename TopLevelClassType>
+          typename TopLevelClassType,
+          typename TraitsType>
 bool
 Comon_UI_WxWidgets_Application_T<DefinitionType,
                                  ConfigurationType,
                                  StateType,
-                                 TopLevelClassType>::run ()
+                                 TopLevelClassType,
+                                 TraitsType>::run ()
 {
   COMMON_TRACE (ACE_TEXT ("Comon_UI_WxWidgets_Application_T::run"));
 
@@ -88,12 +92,14 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
 template <typename DefinitionType,
           typename ConfigurationType,
           typename StateType,
-          typename TopLevelClassType>
+          typename TopLevelClassType,
+          typename TraitsType>
 bool
 Comon_UI_WxWidgets_Application_T<DefinitionType,
                                  ConfigurationType,
                                  StateType,
-                                 TopLevelClassType>::OnInit ()
+                                 TopLevelClassType,
+                                 TraitsType>::OnInit ()
 {
   COMMON_TRACE (ACE_TEXT ("Comon_UI_WxWidgets_Application_T::OnInit"));
 
@@ -107,7 +113,7 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
       return false;
     } // end IF
 
-  if (unlikely (!inherited2::initialize (state_)))
+  if (unlikely (!definition_.initialize (state_)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to initialize interface definition, aborting\n")));
@@ -135,6 +141,7 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
 
     widget_p = dynamic_cast<TopLevelClassType*> ((*iterator).second.second);
     ACE_ASSERT (widget_p);
+    inherited::SetTopWindow (widget_p);
     widget_p->Show (true);
   } // end lock scope
 
@@ -144,12 +151,14 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
 template <typename DefinitionType,
           typename ConfigurationType,
           typename StateType,
-          typename TopLevelClassType>
+          typename TopLevelClassType,
+          typename TraitsType>
 int
 Comon_UI_WxWidgets_Application_T<DefinitionType,
                                  ConfigurationType,
                                  StateType,
-                                 TopLevelClassType>::OnExit ()
+                                 TopLevelClassType,
+                                 TraitsType>::OnExit ()
 {
   COMMON_TRACE (ACE_TEXT ("Comon_UI_WxWidgets_Application_T::OnExit"));
 
@@ -170,7 +179,7 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
     }
   } // end lock scope
 
-  inherited2::finalize ();
+  definition_.finalize ();
 
   return 0;
 }

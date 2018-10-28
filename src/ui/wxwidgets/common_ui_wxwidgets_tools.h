@@ -40,7 +40,8 @@ class Common_UI_WxWidgets_Tools
   friend class Common_UI_WxWidgets_Logger;
 
  public:
-  static bool initialize ();
+  static bool initialize (int,          // argc
+                          ACE_TCHAR**); // argv
   static bool finalize ();
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

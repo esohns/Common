@@ -455,16 +455,16 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
                       ACE_TEXT ("failed to ACE_MT_SYNCH::RECURSIVE_MUTEX::acquire(): \"%m\", continuing\n")));
       } // end IF
 
-//      const void* act_p = NULL;
+//      const void* ACT_p = NULL;
 //      long timer_id = 0;
 //      Common_TimerQueueImplIterator_t iterator (*inherited::timer_queue ());
 //      for (iterator.first ();
 //           !iterator.isdone ();
 //           iterator.next (), return_value++)
 //      {
-//        act_p = NULL;
+//        ACT_p = NULL;
 //        timer_id = iterator.item ()->get_timer_id ();
-//        result = inherited::cancel (timer_id, &act_p);
+//        result = inherited::cancel (timer_id, &ACT_p);
 //        if (result == -1)
 //          ACE_DEBUG ((LM_ERROR,
 //                      ACE_TEXT ("failed to cancel timer (id: %d): \"%m\", continuing\n"),
@@ -622,7 +622,7 @@ long
 Common_Timer_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
                        TimerQueueAdapterType>::schedule_timer (Common_TimerHandler* handler_in,
-                                                               const void* act_in,
+                                                               const void* ACT_in,
                                                                const ACE_Time_Value& delay_in,
                                                                const ACE_Time_Value& interval_in)
 {
@@ -646,11 +646,11 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       ACE_Handler* handler_p = handler_in;
       if (interval_in != ACE_Time_Value::zero)
         result = proactor_p->schedule_repeating_timer (*handler_p,
-                                                       act_in,
+                                                       ACT_in,
                                                        interval_in);
       else
         result = proactor_p->schedule_timer (*handler_p,
-                                             act_in,
+                                             ACT_in,
                                              delay_in);
       if (unlikely (result == -1))
       {
@@ -663,7 +663,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
       result = inherited::schedule (handler_in,
-                                    act_in,
+                                    ACT_in,
                                     delay_in,
                                     interval_in);
       if (unlikely (result == -1))
@@ -682,7 +682,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 
       ACE_Event_Handler* handler_p = handler_in;
       result = reactor_p->schedule_timer (handler_p,
-                                          act_in,
+                                          ACT_in,
                                           delay_in,
                                           interval_in);
       if (unlikely (result == -1))
@@ -696,7 +696,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     case COMMON_TIMER_DISPATCH_SIGNAL:
     {
       result = inherited::schedule (handler_in,
-                                    act_in,
+                                    ACT_in,
                                     delay_in,
                                     interval_in);
       if (unlikely (result == -1))
@@ -715,6 +715,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       return -1;
     }
   } // end SWITCH
+  handler_in->set (result);
 #if defined (_DEBUG)
    ACE_DEBUG ((LM_DEBUG,
                ACE_TEXT ("scheduled timer (id: %d)\n"),
@@ -730,7 +731,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 //Common_Timer_Manager_T<ACE_SYNCH_USE,
 //                       ConfigurationType,
 //                       TimerQueueAdapterType>::schedule_timer (ACE_Handler* handler_in,
-//                                                               const void* act_in,
+//                                                               const void* ACT_in,
 //                                                               const ACE_Time_Value& delay_in,
 //                                                               const ACE_Time_Value& interval_in)
 //{
@@ -752,7 +753,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 //      ACE_ASSERT (handler_in);
 
 //      result = proactor_p->schedule_timer (*handler_in,
-//                                           act_in,
+//                                           ACT_in,
 //                                           delay_in,
 //                                           interval_in);
 //      if (result == -1)
@@ -784,7 +785,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 //Common_Timer_Manager_T<ACE_SYNCH_USE,
 //                       ConfigurationType,
 //                       TimerQueueAdapterType>::schedule_timer (ACE_Event_Handler* handler_in,
-//                                                               const void* act_in,
+//                                                               const void* ACT_in,
 //                                                               const ACE_Time_Value& delay_in,
 //                                                               const ACE_Time_Value& interval_in)
 //{
@@ -804,7 +805,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 //      ACE_ASSERT (handler_in);
 
 //      result = inherited::schedule (handler_in,
-//                                    act_in,
+//                                    ACT_in,
 //                                    delay_in,
 //                                    interval_in);
 //      if (result == -1)
@@ -820,7 +821,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 //      ACE_Reactor* reactor_p = ACE_Reactor::instance ();
 //      ACE_ASSERT (reactor_p);
 //      result = reactor_p->schedule_timer (handler_in,
-//                                          act_in,
+//                                          ACT_in,
 //                                          delay_in,
 //                                          interval_in);
 //      if (result == -1)
@@ -912,7 +913,7 @@ int
 Common_Timer_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
                        TimerQueueAdapterType>::cancel_timer (long timerId_in,
-                                                             const void** act_out,
+                                                             const void** ACT_out,
                                                              int doNotCallHandleClose_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::cancel_timer"));
@@ -928,7 +929,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     {
       ACE_Proactor* proactor_p = ACE_Proactor::instance ();
       ACE_ASSERT (proactor_p);
-      result = proactor_p->cancel_timer (timerId_in, act_out);
+      result = proactor_p->cancel_timer (timerId_in, ACT_out);
       if (unlikely (result <= 0))
       { // *NOTE*: 0: timer had already expired
         ACE_DEBUG ((((result == -1) ? LM_ERROR : LM_DEBUG),
@@ -941,7 +942,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
-      result = inherited::cancel (timerId_in, act_out);
+      result = inherited::cancel (timerId_in, ACT_out);
       if (unlikely (result <= 0))
       {
         ACE_DEBUG ((LM_ERROR,
@@ -956,7 +957,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     {
       ACE_Reactor* reactor_p = ACE_Reactor::instance ();
       ACE_ASSERT (reactor_p);
-      result = reactor_p->cancel_timer (timerId_in, act_out);
+      result = reactor_p->cancel_timer (timerId_in, ACT_out);
       if (unlikely (result <= 0))
       {
         ACE_DEBUG ((LM_ERROR,

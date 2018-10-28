@@ -31,6 +31,7 @@ Common_TimerHandler::Common_TimerHandler (Common_ITimerHandler* handler_in,
  : inherited (NULL,                           // --> default reactor
               ACE_Event_Handler::LO_PRIORITY) // priority
  , inherited2 (NULL) // no proactor
+ , id_ (-1)
  , isOneShot_ (isOneShot_in)
  , handler_ (handler_in)
 {
@@ -53,12 +54,14 @@ Common_TimerHandler::handle_close (ACE_HANDLE handle_in,
 #if defined (_DEBUG)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("cancelled timer (handle was: 0x%@, mask: %u), continuing\n"),
+              ACE_TEXT ("%d: cancelled timer (handle was: 0x%@, mask: %u), continuing\n"),
+              id_,
               handle_in,
               mask_in));
 #else
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("cancelled timer (handle was: %d, mask: %u), continuing\n"),
+              ACE_TEXT ("%d: cancelled timer (handle was: %d, mask: %u), continuing\n"),
+              id_,
               handle_in,
               mask_in));
 #endif // ACE_WIN32 || ACE_WIN64
@@ -79,7 +82,8 @@ Common_TimerHandler::handle_timeout (const ACE_Time_Value& dipatchTime_in,
     handler_->handle (arg_in);
   } catch (...) {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("caught an exception in Common_ITimerHandler::handle(), continuing\n")));
+                ACE_TEXT ("%d: caught an exception in Common_ITimerHandler::handle(), continuing\n"),
+                id_));
   }
 
   return (isOneShot_ ? -1 : 0);
@@ -97,6 +101,7 @@ Common_TimerHandler::handle_time_out (const ACE_Time_Value& requestedTime_in,
     handler_->handle (arg_in);
   } catch (...) {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("caught an exception in Common_ITimerHandler::handle(), continuing\n")));
+                ACE_TEXT ("%d: caught an exception in Common_ITimerHandler::handle(), continuing\n"),
+                id_));
   }
 }

@@ -90,7 +90,7 @@ class Common_File_Tools
                        const std::string&);              // (FQ) account name {"": current user}
 #else
                        uid_t = static_cast<uid_t> (-1)); // uid {-1: euid}
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
   static bool canWrite (const std::string&,               // (FQ) path
                         uid_t = static_cast<uid_t> (-1)); // uid {-1: euid}
   static bool canExecute (const std::string&,               // (FQ) path
@@ -117,12 +117,21 @@ class Common_File_Tools
 
   static std::string realPath (const std::string&); // path
 
-//  // *PORTABILITY*: - on UNIX, this is passed as macro BASEDIR at compile time
-//                      (/usr/share/$PACKAGENAME/ as fallback)
-//  //                - on WIN32, this defaults to $APPDATA/$PACKAGENAME
+  // *PORTABILITY*: this can be influenced by #define BASEDIR and returns
+  //                BASEDIR/$PACKAGENAME/src
+  //                this defaults to $PROJECTS_ROOT/$PACKAGENAME/src
+  static std::string getSourceDirectory (const std::string&); // package name
+  // *PORTABILITY*: this can be influenced by #define BASEDIR and returns
+  //                BASEDIR/$PACKAGENAME/xxx
+  //                - on UNIX this defaults to /usr/[local]/[share|etc]/$PACKAGENAME,
+  //                depending on distribution (and version; see also: LSB)
+  // *TODO*: consider enforcing [/var|[/etc||/usr/[local]/etc]]/$PACKAGENAME to
+  //         more effectively untangle sharing of (application-) asset data
+  //                - on WIN32 this defaults to $APPDATA/$PACKAGENAME/xxx
+  // *NOTE*: iff DEBUG_DEBUGGER is #define'd, this returns
+  //         getSourceDirectory()../$PACKAGENAME/xxx instead
   static std::string getConfigurationDataDirectory (const std::string&, // package name
                                                     bool);              // configuration ? : data
-
   static std::string getHomeDirectory (const std::string&); // user name
   // *NOTE*: (try to) create the directory if it doesn't exist
   static std::string getUserConfigurationDirectory ();

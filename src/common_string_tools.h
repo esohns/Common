@@ -23,12 +23,21 @@
 
 #include <string>
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include <WTypes.h>
+#endif // ACE_WIN32 || ACE_WIN64
+
 #include "ace/Global_Macros.h"
 
 class Common_String_Tools
 {
  public:
-  static std::string sanitizeURI (const std::string&); // URI
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+   static std::string to (const BSTR,     // string
+                          UINT = CP_ACP); // code page {default: active}
+#endif // ACE_WIN32 || ACE_WIN64
+
+   static std::string sanitizeURI (const std::string&); // URI
   // replace ' ' with '_'
   static std::string sanitize (const std::string&); // string
   // remove leading and trailing whitespace

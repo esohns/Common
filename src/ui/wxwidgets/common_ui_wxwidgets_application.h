@@ -36,18 +36,22 @@ template <typename DefinitionType,    // implements Common_UI_IDefinition_T
           typename StateType,
           typename ConfigurationType,
           ////////////////////////////////
-          typename TopLevelClassType> // i.e. wxDialog, wxWindow, etc.
+          typename TopLevelClassType, // i.e. wxDialog, wxWindow, etc.
+          typename TraitsType>        // *NOTE*: needs to inherit wxGUIAppTraits
 class Comon_UI_WxWidgets_Application_T
  : public wxApp
- , public DefinitionType
  , public Common_UI_wxWidgets_IApplication_T<StateType,
                                              ConfigurationType>
 {
   typedef wxApp inherited;
-  typedef DefinitionType inherited2;
 
  public:
   // convenient types
+  //typedef Comon_UI_WxWidgets_Application_T<DefinitionType
+  //                                         StateType,
+  //                                         ConfigurationType,
+  //                                         TopLevelClassType,
+  //                                         TraitsType> OWN_TYPE_T;
   typedef Common_UI_wxWidgets_IApplication_T<StateType,
                                              ConfigurationType> INTERFACE_T;
   typedef Common_IInitialize_T<ConfigurationType> IINITIALIZE_T;
@@ -56,12 +60,14 @@ class Comon_UI_WxWidgets_Application_T
                                      int,                // argc
                                      wxChar**,           // argv
                                      bool = COMMON_UI_WXWIDGETS_APP_CMDLINE_DEFAULT_PARSE);
-
   inline virtual ~Comon_UI_WxWidgets_Application_T () {}
 
   // override (part of) wxAppConsole
+  //inline virtual wxAppTraits* CreateTraits () { wxAppTraits* result_p = NULL; ACE_NEW_NORETURN (result_p, TraitsType ()); return result_p; }
   virtual bool OnInit ();
   virtual int OnExit ();
+
+  //wxDECLARE_APP(OWN_TYPE_T);
 
   // implement Common_UI_wxWidgets_IApplication_T
   inline virtual const StateType& getR () const { return state_; }
@@ -92,7 +98,8 @@ class Comon_UI_WxWidgets_Application_T
   inline virtual void OnInitCmdLine (wxCmdLineParser& parser_in) {}
   inline virtual bool OnCmdLineError (wxCmdLineParser& parser_in) { return true; }
 
-  wxInitializer      initializer_;
+  DefinitionType     definition_;
+  //wxInitializer      initializer_;
   bool               parseCommandLine_;
 };
 

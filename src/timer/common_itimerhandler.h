@@ -21,7 +21,10 @@
 #ifndef COMMON_ITIMERHANDLER_H
 #define COMMON_ITIMERHANDLER_H
 
+#include "common_iget.h"
+
 class Common_ITimerHandler
+ : public Common_IGet_T<long>
 {
  public:
   virtual void handle (const void*) = 0; // asynchronous completion token

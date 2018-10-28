@@ -119,6 +119,12 @@
 #endif // UNICODE
 #endif // ACE_WIN32 || ACE_WIN64
 
+// memory allocation
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#define MALLOC(x) HeapAlloc (GetProcessHeap (), 0, (x))
+#define FREE(x) HeapFree (GetProcessHeap (), 0, (x))
+#endif // ACE_WIN32 || ACE_WIN64
+
 // application //
 
 #define COMMON_CHECK_VERSION(major,minor,micro)                                                              \

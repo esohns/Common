@@ -26,24 +26,30 @@
 #include "ace/Event_Handler.h"
 #include "ace/Time_Value.h"
 
+#include "common_iget.h"
 #include "common_itimerhandler.h"
 
 class Common_TimerHandler
  : public ACE_Event_Handler
  , public ACE_Handler
  , public Common_ITimerHandler
+ , public Common_ISet_T<long>
 {
   typedef ACE_Event_Handler inherited;
   typedef ACE_Handler inherited2;
 
  public:
   // *NOTE*: the second argument applies to reactor-based dispatch only
-  Common_TimerHandler (Common_ITimerHandler* = NULL, // dispatch interface (NULL: 'this')
+  Common_TimerHandler (Common_ITimerHandler* = NULL, // effective dispatch interface (NULL: 'this')
                        bool = false);                // invoke only once ?
   inline virtual ~Common_TimerHandler () {}
 
   // implement Common_ITimerHandler
+  inline virtual const long get () const { return id_; }
   inline virtual void handle (const void* act_in) { ACE_UNUSED_ARG (act_in); }
+
+  // implement Common_ISet_T
+  inline virtual void set (const long id_in) { id_ = id_in; }
 
   // override (part of) ACE_Event_Handler
   virtual int handle_close (ACE_HANDLE,        // handle
@@ -55,6 +61,7 @@ class Common_TimerHandler
                                 const void* = NULL);   // asynchronous completion token
 
  protected:
+  long                  id_;
   bool                  isOneShot_;
 
  private:
