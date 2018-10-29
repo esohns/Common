@@ -190,7 +190,7 @@ set (source_files
      common_tools.h)
 if (WIN32)
  set (source_files
-      ../include/lib${PROJECT_NAME}_config.h
+      ../include/${PROJECT_NAME}_config.h
       ${source_files}
       common_event.cpp
       common_event.h)

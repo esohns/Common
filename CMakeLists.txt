@@ -198,7 +198,7 @@ configure_file (${PROJECT_NAME}ConfigVersion.cmake.in
                 NEWLINE_STYLE ${NEWLINE_STYLE})
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake.in
-                ${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_config.h
+                ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_config.h
                 @ONLY
                 NEWLINE_STYLE ${NEWLINE_STYLE})
 #add_custom_target (${PROJECT_NAME}_config)

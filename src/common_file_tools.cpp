@@ -47,7 +47,7 @@
 #include "common_error_tools.h"
 
 #if defined (HAVE_CONFIG_H)
-#include "libCommon_config.h"
+#include "Common_config.h"
 #endif // HAVE_CONFIG_H
 
 std::string
@@ -1595,7 +1595,8 @@ Common_File_Tools::getWorkingDirectory ()
 }
 
 std::string
-Common_File_Tools::getSourceDirectory (const std::string& packageName_in)
+Common_File_Tools::getSourceDirectory (const std::string& packageName_in,
+                                       const std::string& moduleName_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getSourceDirectory"));
 
@@ -1627,6 +1628,11 @@ Common_File_Tools::getSourceDirectory (const std::string& packageName_in)
   return_value += packageName_in;
   return_value += ACE_DIRECTORY_SEPARATOR_STR;
   return_value += ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_SOURCE_SUBDIRECTORY);
+  if (!moduleName_in.empty ())
+  {
+    return_value += ACE_DIRECTORY_SEPARATOR_STR;
+    return_value += moduleName_in;
+  } // end IF
 
   // sanity check(s)
   if (unlikely (!Common_File_Tools::isDirectory (return_value)))
@@ -1642,6 +1648,7 @@ Common_File_Tools::getSourceDirectory (const std::string& packageName_in)
 
 std::string
 Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName_in,
+                                                  const std::string& moduleName_in,
                                                   bool isConfiguration_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getConfigurationDataDirectory"));
@@ -1653,12 +1660,8 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
   ACE_ASSERT (!packageName_in.empty ());
 
 #if defined (DEBUG_DEBUGGER)
-  return_value = Common_File_Tools::getSourceDirectory (packageName_in);
-  return_value += ACE_DIRECTORY_SEPARATOR_STR;
-  return_value +=
-    ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_PARENT_SUBDIRECTORY);
-  return_value += ACE_DIRECTORY_SEPARATOR_STR;
-  return_value += packageName_in;
+  return_value = Common_File_Tools::getSourceDirectory (packageName_in,
+                                                        moduleName_in);
   return_value += ACE_DIRECTORY_SEPARATOR_STR;
   return_value +=
       (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)

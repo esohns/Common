@@ -222,7 +222,10 @@ struct Common_UI_State
 struct Common_UI_CBData
 {
   Common_UI_CBData ()
+   : UIState ()
   {}
+
+  struct Common_UI_State UIState;
 };
 
 #endif

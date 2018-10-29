@@ -120,7 +120,8 @@ class Common_File_Tools
   // *PORTABILITY*: this can be influenced by #define BASEDIR and returns
   //                BASEDIR/$PACKAGENAME/src
   //                this defaults to $PROJECTS_ROOT/$PACKAGENAME/src
-  static std::string getSourceDirectory (const std::string&); // package name
+  static std::string getSourceDirectory (const std::string&,  // package name
+                                         const std::string&); // module name
   // *PORTABILITY*: this can be influenced by #define BASEDIR and returns
   //                BASEDIR/$PACKAGENAME/xxx
   //                - on UNIX this defaults to /usr/[local]/[share|etc]/$PACKAGENAME,
@@ -131,6 +132,7 @@ class Common_File_Tools
   // *NOTE*: iff DEBUG_DEBUGGER is #define'd, this returns
   //         getSourceDirectory()../$PACKAGENAME/xxx instead
   static std::string getConfigurationDataDirectory (const std::string&, // package name
+                                                    const std::string&, // module name
                                                     bool);              // configuration ? : data
   static std::string getHomeDirectory (const std::string&); // user name
   // *NOTE*: (try to) create the directory if it doesn't exist

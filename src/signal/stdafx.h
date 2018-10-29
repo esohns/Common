@@ -37,7 +37,7 @@
 #endif // VALGRIND_SUPPORT
 
 #if defined (HAVE_CONFIG_H)
-#include "libCommon_config.h"
+#include "Common_config.h"
 #endif // HAVE_CONFIG_H
 
 // Local Header Files

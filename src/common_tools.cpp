@@ -91,7 +91,7 @@ using namespace std;
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (HAVE_CONFIG_H)
-#include "libCommon_config.h"
+#include "Common_config.h"
 #endif // HAVE_CONFIG_H
 
 #include "common_defines.h"
