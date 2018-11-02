@@ -33,11 +33,16 @@ class Common_String_Tools
 {
  public:
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-   static std::string to (const BSTR,     // string
-                          UINT = CP_ACP); // code page {default: active}
+  // *IMPORTANT NOTE*: any return value must be deallocated with delete []
+  static LPWSTR to (const std::string&); // string
+
+  static std::string to_2 (const BSTR,     // string
+                           UINT = CP_ACP); // code page {default: active}
+  // *IMPORTANT NOTE*: any return value must be deallocated with SysFreeString()
+  static BSTR to_2 (const std::string&); // string
 #endif // ACE_WIN32 || ACE_WIN64
 
-   static std::string sanitizeURI (const std::string&); // URI
+  static std::string sanitizeURI (const std::string&); // URI
   // replace ' ' with '_'
   static std::string sanitize (const std::string&); // string
   // remove leading and trailing whitespace

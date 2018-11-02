@@ -89,7 +89,8 @@ class Common_Error_Tools
   // --- error messages ---
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   static std::string errorToString (DWORD,         // error
-                                    bool = false); // ? use AMGetErrorText() : use FormatMessage()
+                                    bool = false,  // ? use AMGetErrorText() : use FormatMessage()
+                                    bool = false); // WinInet error ?
 #endif // ACE_WIN32 || ACE_WIN64
 
  private:

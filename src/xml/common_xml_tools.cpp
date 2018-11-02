@@ -21,9 +21,32 @@
 
 #include "common_xml_tools.h"
 
+#if defined (LIBXML2_SUPPORT)
+#include "libxml/parser.h"
+#endif // LIBXML2_SUPPORT
+
 #include "ace/Log_Msg.h"
 
 #include "common_macros.h"
+
+void
+Common_XML_Tools::initialize ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_XML_Tools::initialize"));
+
+#if defined (LIBXML2_SUPPORT)
+  xmlInitParser ();
+#endif // LIBXML2_SUPPORT
+}
+void
+Common_XML_Tools::finalize ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_XML_Tools::finalize"));
+
+#if defined (LIBXML2_SUPPORT)
+  xmlCleanupParser ();
+#endif // LIBXML2_SUPPORT
+}
 
 //bool
 //Common_XML_Tools::XMLintegratedtypeToString (const std::string& typeSpecifier_in,
@@ -61,3 +84,27 @@
 //
 //  return true;
 //}
+
+std::string
+Common_XML_Tools::applyNsPrefixToXPathQuery (const std::string& query_in,
+                                             const std::string& prefix_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_XML_Tools::applyNsPrefixToXPathQuery"));
+
+  // initialize return value(s)
+  std::string return_value = query_in;
+
+  // sanity check(s)
+  ACE_ASSERT (!prefix_in.empty ());
+
+  std::string::size_type position = 0;
+  while ((position = return_value.find ('/', position)) != std::string::npos)
+  {
+    return_value.insert (position + 1, prefix_in);
+    return_value.insert (position + 1 + prefix_in.size (),
+                         ACE_TEXT_ALWAYS_CHAR (":"));
+    position += prefix_in.size () + 1;
+  } // end WHILE
+
+  return return_value;
+}

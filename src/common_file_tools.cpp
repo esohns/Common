@@ -88,6 +88,26 @@ Common_File_Tools::fileExtension (const std::string& path_in,
   return return_value;
 }
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+std::string
+Common_File_Tools::escape (const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::escape"));
+
+  // initialize return value(s)
+  std::string return_value = path_in;
+
+  std::string::size_type position = 0;
+  while ((position = return_value.find ('\\', position)) != std::string::npos)
+  {
+    return_value.replace (position, 1, ACE_TEXT_ALWAYS_CHAR ("\\\\"));
+    position += 2;
+  } // end WHILE
+
+  return return_value;
+}
+#endif // ACE_WIN32 || ACE_WIN64
+
 bool
 Common_File_Tools::exists (const std::string& path_in)
 {
@@ -1255,7 +1275,7 @@ Common_File_Tools::deleteFile (const std::string& path_in)
 
 bool
 Common_File_Tools::load (const std::string& path_in,
-                         unsigned char*& file_out,
+                         uint8_t*& file_out,
                          unsigned int& fileSize_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::load"));

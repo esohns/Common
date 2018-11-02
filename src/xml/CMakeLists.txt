@@ -1,4 +1,7 @@
-﻿set (ACE_LIB_FILE libACE.so)
+﻿include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/PreXMLImplementation.cmake)
+include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/SetXMLImplementation.cmake)
+
+set (ACE_LIB_FILE libACE.so)
 if (UNIX)
 # message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
@@ -69,7 +72,20 @@ if (UNIX)
  target_include_directories (${PROJECT_NAME}XML PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 elseif (WIN32)
- include_directories ($ENV{ACE_ROOT})
+ if (LIBXML2_SUPPORT)
+  target_include_directories (${PROJECT_NAME}XML PUBLIC
+                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../libiconv-1.9.2-1/include>)
+  target_include_directories (${PROJECT_NAME}XML PUBLIC
+                              $<BUILD_INTERFACE:${LIBXML2_INCLUDE_DIR}>)
+ endif (LIBXML2_SUPPORT)
+
+ if (DEFINED ENV{ACE_ROOT})
+  target_include_directories (${PROJECT_NAME}XML PUBLIC
+                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
+ else ()
+  target_include_directories (${PROJECT_NAME}XML PUBLIC
+                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../ATCD/ACE>)
+ endif (DEFINED ENV{ACE_ROOT})
 # include_directories (${CMAKE_CURRENT_SOURCE_DIR}/err)
 endif ()
 target_include_directories (${PROJECT_NAME}XML PUBLIC

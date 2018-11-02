@@ -586,14 +586,15 @@ clean:
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 std::string
 Common_Error_Tools::errorToString (DWORD error_in,
-                                   bool useAMGetErrorText_in)
+                                   bool useAMGetErrorText_in,
+                                   bool isWinInetError_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Error_Tools::errorToString"));
 
   std::string result;
 
   DWORD result_2 = 0;
-  if (useAMGetErrorText_in)
+  if (unlikely (useAMGetErrorText_in))
   {
     TCHAR buffer_a[MAX_ERROR_TEXT_LEN];
     ACE_OS::memset (buffer_a, 0, sizeof (TCHAR[MAX_ERROR_TEXT_LEN]));
@@ -605,19 +606,24 @@ Common_Error_Tools::errorToString (DWORD error_in,
       ACE_DEBUG ((LM_WARNING,
                   ACE_TEXT ("failed to AMGetErrorText(0x%x): \"%s\", falling back\n"),
                   error_in,
-                  ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError ()).c_str ())));
+                  ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
       goto fallback;
     } // end IF
     result = ACE_TEXT_ALWAYS_CHAR (buffer_a);
     goto strip_newline;
   } // end IF
 
+  DWORD dwFlags = (isWinInetError_in ? FORMAT_MESSAGE_FROM_HMODULE
+                                     : FORMAT_MESSAGE_FROM_SYSTEM);
+  dwFlags |= FORMAT_MESSAGE_IGNORE_INSERTS;
   ACE_TCHAR buffer_a[BUFSIZ];
   ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[BUFSIZ]));
   result_2 =
-    ACE_TEXT_FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM,                 // dwFlags
-                            NULL,                                       // lpSource
-                            error_in,                                   // dwMessageId
+    ACE_TEXT_FormatMessage (dwFlags,                                    // dwFlags
+                            (isWinInetError_in ? GetModuleHandle (TEXT ("wininet.dll"))
+                                               : NULL),                 // lpSource
+                            (isWinInetError_in ? HRESULT_CODE (static_cast<HRESULT> (error_in))
+                                               : error_in),             // dwMessageId
                             MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT), // dwLanguageId
                             buffer_a,                                   // lpBuffer
                             sizeof (ACE_TCHAR[BUFSIZ]),                 // nSize
@@ -630,7 +636,7 @@ Common_Error_Tools::errorToString (DWORD error_in,
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to FormatMessage(0x%x): \"%s\", continuing\n"),
                   error_in,
-                  ACE_TEXT (Common_Error_Tools::errorToString (error).c_str ())));
+                  ACE_TEXT (Common_Error_Tools::errorToString (error, false).c_str ())));
       return result;
     } // end IF
 

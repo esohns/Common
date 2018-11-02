@@ -24,11 +24,20 @@
 
 #include "ace/Global_Macros.h"
 
+#include "common_iinitialize.h"
+
 class Common_XML_Tools
+ : public Common_SInitializeFinalize_T<Common_XML_Tools>
 {
  public:
+  static void initialize ();
+  static void finalize ();
+
   //static bool XMLintegratedtypeToString (const std::string&, // (integrated) XML type
   //                                       std::string&);      // C++ equivalent
+  // *NOTE*: e.g.: /foo/bar --> /ns:foo/ns:bar
+  static std::string applyNsPrefixToXPathQuery (const std::string&,  // xpath query
+                                                const std::string&); // prefix
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_XML_Tools ());

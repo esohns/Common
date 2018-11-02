@@ -21,6 +21,7 @@
 #ifndef COMMON_FILE_TOOLS_H
 #define COMMON_FILE_TOOLS_H
 
+#include <cstdint>
 #include <string>
 
 #include "ace/Global_Macros.h"
@@ -43,6 +44,9 @@ class Common_File_Tools
   static std::string fileExtension (const std::string&, // (FQ) path
                                     bool = false);      // return leading '.' (if any) ?
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static std::string escape (const std::string&); // (FQ) path
+#endif // ACE_WIN32 || ACE_WIN64
   // *IMPORTANT NOTE*: APIs in this section are inherently 'racy' and should
   //                   best be avoided altogether
   static bool exists (const std::string&); // (FQ) path
@@ -104,7 +108,7 @@ class Common_File_Tools
 
   // *NOTE*: users need to free (delete[]) the returned buffer
   static bool load (const std::string&, // (FQ) path
-                    unsigned char*&,    // return value: file data
+                    uint8_t*&,          // return value: file data
                     unsigned int&);     // return value: file size
   static bool open (const std::string&, // (FQ) path
                     int,                // flags

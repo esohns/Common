@@ -21,9 +21,14 @@
 
 #include <algorithm>
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include <OleAuto.h>
+#endif // ACE_WIN32 || ACE_WIN64
+
 #include "common_string_tools.h"
 
 #include "ace/Log_Msg.h"
+#include "ace/OS_Memory.h"
 
 #include "common_macros.h"
 
@@ -31,10 +36,10 @@
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 std::string
-Common_String_Tools::to (const BSTR string_in,
-                         UINT codePage_in)
+Common_String_Tools::to_2 (const BSTR string_in,
+                           UINT codePage_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_String_Tools::to"));
+  COMMON_TRACE (ACE_TEXT ("Common_String_Tools::to_2"));
 
   // initialize return value(s)
   std::string return_value;
@@ -71,6 +76,146 @@ Common_String_Tools::to (const BSTR string_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::WideCharToMultiByte(): \"%s\", aborting\n"),
                 ACE_TEXT (Common_Error_Tools::errorToString (result, false).c_str ())));
+    return return_value;
+  } // end IF
+
+  return return_value;
+}
+
+BSTR
+Common_String_Tools::to_2 (const std::string& string_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_String_Tools::to_2"));
+
+  // initialize return value(s)
+  BSTR return_value = NULL;
+
+  DWORD dwFlags = (MB_PRECOMPOSED       |
+                   MB_ERR_INVALID_CHARS |
+                   MB_USEGLYPHCHARS);
+  // sanity check(s)
+  // *NOTE*: see also: https://docs.microsoft.com/en-us/windows/desktop/api/stringapiset/nf-stringapiset-multibytetowidechar
+  UINT code_page_i = GetACP ();
+  // *TODO*: ???
+  if ((code_page_i == 50220) || (code_page_i == 50221) || (code_page_i == 50222) ||
+      (code_page_i == 50225) || (code_page_i == 50227) || (code_page_i == 50229) ||
+      ((code_page_i == 57002) || (code_page_i == 57003) || (code_page_i == 57004) ||
+       (code_page_i == 57005) || (code_page_i == 57006) || (code_page_i == 57007) ||
+       (code_page_i == 57008) || (code_page_i == 57009) || (code_page_i == 57010) ||
+       (code_page_i == 57011)) ||
+       (code_page_i == 65000) ||
+       (code_page_i == 42))
+    dwFlags = 0;
+  if ((code_page_i == 65001)
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
+      || (code_page_i == GB18030))
+#else
+      || (code_page_i == 54936))
+#endif // _WIN32_WINNT_VISTA
+    dwFlags = MB_ERR_INVALID_CHARS;
+  int result = MultiByteToWideChar (CP_ACP,
+                                    dwFlags,
+                                    string_in.c_str (),
+                                    -1,
+                                    NULL,
+                                    0);
+  if (unlikely (!result))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::MultiByteToWideChar(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Error_Tools::errorToString (result, false).c_str ())));
+    return return_value;
+  } // end IF
+  return_value = SysAllocStringByteLen (NULL,
+                                        result);
+  if (!return_value)
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to allocate memory: \"%s\", aborting\n")));
+    return return_value;
+  } // end IF
+  result = MultiByteToWideChar (CP_ACP,
+                                dwFlags,
+                                string_in.c_str (),
+                                -1,
+                                return_value,
+                                result);
+  if (unlikely (!result))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::MultiByteToWideChar(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Error_Tools::errorToString (result, false).c_str ())));
+    SysFreeString (return_value); return_value = NULL;
+    return return_value;
+  } // end IF
+
+  return return_value;
+}
+
+LPWSTR
+Common_String_Tools::to (const std::string& string_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_String_Tools::to"));
+
+  // initialize return value(s)
+  LPWSTR return_value = NULL;
+
+  DWORD dwFlags = (MB_PRECOMPOSED       |
+                   MB_ERR_INVALID_CHARS |
+                   MB_USEGLYPHCHARS);
+  // sanity check(s)
+  // *NOTE*: see also: https://docs.microsoft.com/en-us/windows/desktop/api/stringapiset/nf-stringapiset-multibytetowidechar
+  UINT code_page_i = GetACP ();
+  // *TODO*: ???
+  if ((code_page_i == 50220) || (code_page_i == 50221) || (code_page_i == 50222) ||
+      (code_page_i == 50225) || (code_page_i == 50227) || (code_page_i == 50229) ||
+      ((code_page_i == 57002) || (code_page_i == 57003) || (code_page_i == 57004) ||
+       (code_page_i == 57005) || (code_page_i == 57006) || (code_page_i == 57007) ||
+       (code_page_i == 57008) || (code_page_i == 57009) || (code_page_i == 57010) ||
+       (code_page_i == 57011)) ||
+       (code_page_i == 65000) ||
+       (code_page_i == 42))
+    dwFlags = 0;
+  if ((code_page_i == 65001)
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
+      || (code_page_i == GB18030))
+#else
+      || (code_page_i == 54936))
+#endif // _WIN32_WINNT_VISTA
+    dwFlags = MB_ERR_INVALID_CHARS;
+  int result = MultiByteToWideChar (CP_ACP,
+                                    dwFlags,
+                                    string_in.c_str (),
+                                    -1,
+                                    NULL,
+                                    0);
+  if (unlikely (!result))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::MultiByteToWideChar(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Error_Tools::errorToString (result, false).c_str ())));
+    return return_value;
+  } // end IF
+  ACE_NEW_NORETURN (return_value,
+                    WCHAR[result]);
+  if (!return_value)
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to allocate memory: \"%s\", aborting\n")));
+    return return_value;
+  } // end IF
+  result = MultiByteToWideChar (CP_ACP,
+                                dwFlags,
+                                string_in.c_str (),
+                                -1,
+                                return_value,
+                                result);
+  if (unlikely (!result))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::MultiByteToWideChar(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Error_Tools::errorToString (result, false).c_str ())));
+    delete [] (return_value); return_value = NULL;
     return return_value;
   } // end IF
 
