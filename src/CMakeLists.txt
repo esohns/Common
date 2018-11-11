@@ -255,9 +255,8 @@ elseif (WIN32)
  target_link_libraries (${PROJECT_NAME} Userenv.lib)
 
  target_link_libraries (${PROJECT_NAME} ${ACE_LIBRARY})
-
- target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}Error)
 endif ()
+target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}Error)
 
 ##########################################
 

@@ -19,6 +19,7 @@
  ***************************************************************************/
 #include "stdafx.h"
 
+#include "ace/Synch.h"
 #include "common_error_tools.h"
 
 #include <exception>
@@ -29,15 +30,21 @@
 //#include <DxErr.h>
 #include <errors.h>
 #include <strsafe.h>
+#else
+#include <sys/prctl.h>
 #endif // ACE_WIN32 || ACE_WIN64
 
-#include "ace/File_Connector.h"
+#include "ace/FILE_Connector.h"
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
 
 #include "common_macros.h"
 
 #include "common_log_tools.h"
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+#include "common_tools.h"
+#endif // ACE_WIN32 || ACE_WIN64
 
 #include "common_error_defines.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -418,6 +425,7 @@ Common_Error_Tools::enableCoreDump (bool enable_in)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("SetUnhandledExceptionFilter(common_error_win32_default_seh_handler)\n")));
 #endif // _DEBUG
+continue_:
 #else
   if (unlikely (!Common_Tools::setResourceLimits (false,
                                                   enable_in,
@@ -438,8 +446,8 @@ Common_Error_Tools::enableCoreDump (bool enable_in)
                 ACE_TEXT ("failed to ::prctl(PR_SET_DUMPABLE): \"%m\", aborting\n")));
     return false;
   } // end IF
-#endif
-continue_:
+#endif // ACE_WIN32 || ACE_WIN64
+
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("%s core dump\n"),

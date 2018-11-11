@@ -44,12 +44,10 @@ class Common_UI_WxWidgets_Tools
                           ACE_TCHAR**); // argv
   static bool finalize ();
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
   // --- main ---
   // *IMPORTANT NOTE*: callers must delete[] the return value (if any) !
   static wxChar** convertArgV (int,          // argc
                                ACE_TCHAR**); // argv
-#endif // ACE_WIN32 || ACE_WIN64
 
   static int clientDataToIndex (wxObject*,           // control handle
                                 const std::string&); // entry client data string

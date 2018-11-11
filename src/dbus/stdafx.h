@@ -14,13 +14,11 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 #endif
-#endif
 
 // *NOTE*: nmake complains (see also:
 //         C:\Program Files (x86)\Windows Kits\8.1\include\shared\sspi.h(64))
-#if defined (_MSC_VER)
 #define SECURITY_WIN32
-#endif
+#endif // _MSC_VER
 
 // System Library Header Files
 #include "ace/config-lite.h"
@@ -32,7 +30,7 @@
 //#include <functional>
 //#include <locale>
 //#include <map>
-//#include <string>
+#include <string>
 //#include <set>
 //#include <sstream>
 //#include <stack>
@@ -40,11 +38,10 @@
 
 #if defined (VALGRIND_SUPPORT)
 #include "valgrind/memcheck.h"
-#endif
+#endif // VALGRIND_SUPPORT
 
 // Local Header Files
-#include "common_macros.h"
-
 #if defined (HAVE_CONFIG_H)
-#include "libCommon_config.h"
-#endif
+#include "Common_config.h"
+#endif // HAVE_CONFIG_H
+#include "common_macros.h"

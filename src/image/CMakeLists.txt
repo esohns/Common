@@ -69,14 +69,13 @@ elseif (WIN32)
   target_include_directories (${PROJECT_NAME}Image PUBLIC
                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE>)
  endif (DEFINED ENV{ACE_ROOT})
-
- target_include_directories (${PROJECT_NAME}Image PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
 endif ()
 target_include_directories (${PROJECT_NAME}Image PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
 target_include_directories (${PROJECT_NAME}Image PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
+target_include_directories (${PROJECT_NAME}Image PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
 
 ############## next target ################
 set (source_files

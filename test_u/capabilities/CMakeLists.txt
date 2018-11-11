@@ -128,6 +128,7 @@ target_link_libraries (${EXECUTABLE_2} ${PKG_CAP_LIBRARIES})
 target_link_libraries (${EXECUTABLE_2} ${ACE_LIBRARY})
 
 target_link_libraries (${EXECUTABLE_2} Common)
+target_link_libraries (${EXECUTABLE_2} CommonLog)
 target_link_libraries (${EXECUTABLE_2} CommonTimer)
 
 target_link_libraries (${EXECUTABLE_2} pthread)

@@ -44,7 +44,7 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::Common_UI_WxWidgets_Manager_T (c
   COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgets_Manager_T::Common_UI_WxWidgets_Manager_T"));
 
   ACE_NEW_NORETURN (application_,
-                    ApplicationType (toplevel_widget_name_string_,
+                    ApplicationType (topLevelWidgetName_in,
                                      argc_in,
                                      Common_UI_WxWidgets_Tools::convertArgV (argc_in,
                                                                              argv_in),

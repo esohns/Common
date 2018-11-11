@@ -80,7 +80,7 @@ Common_DBus_Tools::initialize ()
   ACE_ASSERT ((result_2 == 0) && string_p);
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("%s: dbus (is: %@) sender name: \"%s\"\n"),
-              ACE_TEXT (LIBCOMMON_PACKAGE_NAME),
+              ACE_TEXT (Common_PACKAGE_NAME),
               Common_DBus_Tools::bus,
               ACE_TEXT (string_p)));
 #endif // _DEBUG

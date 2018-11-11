@@ -177,7 +177,11 @@ clean:
 //////////////////////////////////////////
 
 Common_UI_DisplayAdapters_t
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 Common_UI_Tools::getAdapters (bool excludeMirroringDevices_in)
+#else
+Common_UI_Tools::getAdapters ()
+#endif // ACE_WIN32 || ACE_WIN64
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::getAdapters"));
 
@@ -597,14 +601,16 @@ Common_UI_Tools::getDisplays ()
   //         - system(3) call
   //         --> very inefficient; replace ASAP
 
-//  int result = -1;
   std::string display_records_string;
-  std::istringstream converter;
+  std::istringstream converter, converter_2;
   char buffer_a [BUFSIZ];
-  std::string regex_string =
-      ACE_TEXT_ALWAYS_CHAR ("^(.+) (?:connected)(?: primary)? (.+) \\((?:(.+)\\w*)+\\) ([[:digit:]]+)mm x ([[:digit:]]+)mm$");
-  std::regex regex (regex_string);
-  std::smatch match_results;
+  std::string regex_string_screen =
+      ACE_TEXT_ALWAYS_CHAR ("^Screen ([[:digit:]]+) (?:minimum) ([[:digit:]]+) x ([[:digit:]]+), (?:current) ([[:digit:]]+) x ([[:digit:]]+), (?:maximum) ([[:digit:]]+) x ([[:digit:]]+)$");
+  std::string regex_string_display =
+      ACE_TEXT_ALWAYS_CHAR ("^(.+) (connected|disconnected) (primary)? ([[:digit:]]+)x([[:digit:]]+)((+|-)[[:digit:]]+)((+|-)[[:digit:]]+) \\((?:(.+)\\w*)+\\) ([[:digit:]]+)mm x ([[:digit:]]+)mm$");
+  std::regex regex (regex_string_screen);
+  std::regex regex_2 (regex_string_display);
+  std::smatch match_results, match_results_2;
   std::string buffer_string;
   std::string command_line_string = ACE_TEXT_ALWAYS_CHAR ("xrandr");
   // *NOTE*: (qtcreator) gdb fails to debug this (hangs) unless you disable the
@@ -617,14 +623,15 @@ Common_UI_Tools::getDisplays ()
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
                 ACE_TEXT (command_line_string.c_str ())));
-    return false;
+    return result;
   } // end IF
 //  ACE_DEBUG ((LM_DEBUG,
-//              ACE_TEXT ("xrandr data: \"%s\"\n"),
+//              ACE_TEXT ("xrandr output: \"%s\"\n"),
 //              ACE_TEXT (display_record_string.c_str ())));
 
   struct Common_UI_DisplayDevice device_s;
   converter.str (display_records_string);
+  // parse screen entries
   do
   {
     converter.getline (buffer_a, sizeof (char[BUFSIZ]));
@@ -636,13 +643,78 @@ Common_UI_Tools::getDisplays ()
       continue;
     ACE_ASSERT (match_results.ready () && !match_results.empty ());
     ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
+    ACE_ASSERT (match_results[4].matched && !match_results[4].str ().empty ());
+    ACE_ASSERT (match_results[5].matched && !match_results[5].str ().empty ());
 
 #if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("found display device \"%s\"...\n"),
+                ACE_TEXT ("found screen %s\n"),
                 ACE_TEXT (match_results[1].str ().c_str ())));
 #endif // _DEBUG
-    device_s.device = match_results[1].str ();
+    converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
+    converter_2.clear ();
+    converter_2.str (match_results[4].str ());
+    converter_2 >> device_s.clippingArea.width;
+    converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
+    converter_2.clear ();
+    converter_2.str (match_results[5].str ());
+    converter_2 >> device_s.clippingArea.height;
+  } while (!converter.fail ());
+
+  // parse display entries
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter.clear ();
+  converter.str (display_records_string);
+  do
+  {
+    converter.getline (buffer_a, sizeof (char[BUFSIZ]));
+    buffer_string = buffer_a;
+    if (!std::regex_match (buffer_string,
+                           match_results_2,
+                           regex_2,
+                           std::regex_constants::match_default))
+      continue;
+    ACE_ASSERT (match_results_2.ready () && !match_results_2.empty ());
+    ACE_ASSERT (match_results_2[1].matched && !match_results_2[1].str ().empty ());
+    ACE_ASSERT (match_results_2[2].matched && !match_results_2[2].str ().empty ());
+    ACE_ASSERT (match_results_2[4].matched && !match_results_2[4].str ().empty ());
+    ACE_ASSERT (match_results_2[5].matched && !match_results_2[5].str ().empty ());
+    ACE_ASSERT (match_results_2[6].matched && !match_results_2[6].str ().empty ());
+    ACE_ASSERT (match_results_2[7].matched && !match_results_2[7].str ().empty ());
+    ACE_ASSERT (match_results_2[8].matched && !match_results_2[8].str ().empty ());
+    ACE_ASSERT (match_results_2[9].matched && !match_results_2[9].str ().empty ());
+    if (ACE_OS::strcmp (match_results_2[2].str ().c_str (),
+                        ACE_TEXT_ALWAYS_CHAR ("connected")))
+      continue;
+
+#if defined (_DEBUG)
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("found display device \"%s\"\n"),
+                ACE_TEXT (match_results_2[1].str ().c_str ())));
+#endif // _DEBUG
+    device_s.device = match_results_2[1].str ();
+    converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
+    converter_2.clear ();
+    converter_2.str (match_results[4].str ());
+    converter_2 >> device_s.clippingArea.width;
+    converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
+    converter_2.clear ();
+    converter_2.str (match_results[5].str ());
+    converter_2 >> device_s.clippingArea.height;
+    converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
+    converter_2.clear ();
+    converter_2.str (match_results[7].str ());
+    converter_2 >> device_s.clippingArea.x;
+    if (match_results[6].str ()[0] == '-')
+      device_s.clippingArea.x =
+          -device_s.clippingArea.x;
+    converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
+    converter_2.clear ();
+    converter_2.str (match_results[9].str ());
+    converter_2 >> device_s.clippingArea.y;
+    if (match_results[8].str ()[0] == '-')
+      device_s.clippingArea.y =
+          -device_s.clippingArea.y;
     result.push_back (device_s);
   } while (!converter.fail ());
 #endif // ACE_WIN32 || ACE_WIN64
@@ -715,7 +787,11 @@ Common_UI_Tools::getAdapter (const struct Common_UI_DisplayDevice& device_in)
   struct Common_UI_DisplayAdapter result;
 
   // sanity check(s)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   ACE_ASSERT (device_in.handle != NULL);
+#else
+  ACE_ASSERT (!device_in.device.empty ());
+#endif // ACE_WIN32 || ACE_WIN64
 
   Common_UI_DisplayAdapters_t display_adapters_a =
     Common_UI_Tools::getAdapters ();
@@ -728,7 +804,12 @@ Common_UI_Tools::getAdapter (const struct Common_UI_DisplayDevice& device_in)
     for (Common_UI_DisplayDevicesIterator_t iterator_2 = display_devices_a.begin ();
          iterator_2 != display_devices_a.end ();
          ++iterator_2)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
       if ((*iterator_2).handle == device_in.handle)
+#else
+      if (!ACE_OS::strcmp ((*iterator_2).device.c_str (),
+                           device_in.device.c_str ()))
+#endif // ACE_WIN32 || ACE_WIN64
         return *iterator;
   } // end FOR
 
@@ -763,7 +844,6 @@ Common_UI_Tools::getDesktopDisplays ()
   //         - system(3) call
   //         --> very inefficient; replace ASAP
 
-//  int result = -1;
   std::string display_records_string;
   std::istringstream converter;
   char buffer_a [BUFSIZ];
@@ -783,7 +863,7 @@ Common_UI_Tools::getDesktopDisplays ()
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
                 ACE_TEXT (command_line_string.c_str ())));
-    return false;
+    return result;
   } // end IF
 //  ACE_DEBUG ((LM_DEBUG,
 //              ACE_TEXT ("xrandr data: \"%s\"\n"),
@@ -902,8 +982,8 @@ Common_UI_Tools::get (const std::string& deviceIdentifier_in)
   } while (true);
 #else
     ACE_ASSERT (false);
-    ACE_NOTSUP_RETURN (false);
-    ACE_NOTREACHED (return false;)
+    ACE_NOTSUP_RETURN (result);
+    ACE_NOTREACHED (return result;)
 #endif // ACE_WIN32 || ACE_WIN64
   result.sort (common_ui_resolution_less ());
   result.unique (common_ui_resolution_equal ());
@@ -1097,21 +1177,45 @@ Common_UI_Tools::nearest (const Common_UI_Resolutions_t& resolutions_in,
        iterator != resolutions_a.end ();
        ++iterator)
   {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
     if ((*iterator).cx > resolution_in.cx)
+#else
+    if ((*iterator).width > resolution_in.width)
+#endif // ACE_WIN32 || ACE_WIN64
       return *iterator;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
     if ((*iterator).cx == resolution_in.cx)
+#else
+    if ((*iterator).width == resolution_in.width)
+#endif // ACE_WIN32 || ACE_WIN64
     {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
       if ((*iterator).cy >= resolution_in.cy)
+#else
+      if ((*iterator).height >= resolution_in.height)
+#endif // ACE_WIN32 || ACE_WIN64
         return *iterator;
       iterator_2 = iterator;
       if (++iterator_2 == resolutions_a.end ())
         return *iterator;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
       if ((*iterator_2).cx > resolution_in.cx)
+#else
+      if ((*iterator_2).width > resolution_in.width)
+#endif // ACE_WIN32 || ACE_WIN64
         return *iterator;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
       if ((*iterator_2).cy > resolution_in.cy)
+#else
+      if ((*iterator_2).height > resolution_in.height)
+#endif // ACE_WIN32 || ACE_WIN64
       { // the current y-resolution is smaller, the next larger
         // --> return the 'nearer' one
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
         return (((*iterator_2).cy - resolution_in.cy) < (resolution_in.cy - (*iterator).cy) ? *iterator_2
+#else
+        return (((*iterator_2).height - resolution_in.height) < (resolution_in.height - (*iterator).height) ? *iterator_2
+#endif // ACE_WIN32 || ACE_WIN64
                                                                                             : *iterator);
       } // end IF
       continue;
@@ -1119,10 +1223,18 @@ Common_UI_Tools::nearest (const Common_UI_Resolutions_t& resolutions_in,
     iterator_2 = iterator;
     if (++iterator_2 == resolutions_a.end ())
       return *iterator;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
     if ((*iterator_2).cx > resolution_in.cx)
+#else
+    if ((*iterator_2).width > resolution_in.width)
+#endif // ACE_WIN32 || ACE_WIN64
     { // the current x-resolution is smaller, the next resolution larger
       // --> return the 'nearest' one
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
       return (((*iterator_2).cx - resolution_in.cx) < (resolution_in.cx - (*iterator).cx) ? *iterator_2
+#else
+      return (((*iterator_2).width - resolution_in.width) < (resolution_in.width - (*iterator).width) ? *iterator_2
+#endif // ACE_WIN32 || ACE_WIN64
                                                                                           : *iterator);
     } // end IF
   } // end FOR

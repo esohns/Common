@@ -56,9 +56,10 @@ if (WIN32)
  endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 endif (WIN32)
 find_package (wxWidgets MODULE
-              COMPONENTS base core adv gl html xml xrc aui)
+              COMPONENTS aui base core adv gl net html xml xrc)
 if (wxWidgets_FOUND)
- set (WXWIDGETS_SUPPORT ON CACHE BOOL "wxWidgets support")
+  include (${wxWidgets_USE_FILE})
+  set (WXWIDGETS_SUPPORT ON CACHE BOOL "wxWidgets support")
  add_definitions (-DWXWIDGETS_SUPPORT)
 endif (wxWidgets_FOUND)
 

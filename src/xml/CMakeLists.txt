@@ -75,8 +75,6 @@ elseif (WIN32)
  if (LIBXML2_SUPPORT)
   target_include_directories (${PROJECT_NAME}XML PUBLIC
                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../libiconv-1.9.2-1/include>)
-  target_include_directories (${PROJECT_NAME}XML PUBLIC
-                              $<BUILD_INTERFACE:${LIBXML2_INCLUDE_DIR}>)
  endif (LIBXML2_SUPPORT)
 
  if (DEFINED ENV{ACE_ROOT})
@@ -88,6 +86,10 @@ elseif (WIN32)
  endif (DEFINED ENV{ACE_ROOT})
 # include_directories (${CMAKE_CURRENT_SOURCE_DIR}/err)
 endif ()
+if (LIBXML2_SUPPORT)
+ target_include_directories (${PROJECT_NAME}XML PUBLIC
+                             $<BUILD_INTERFACE:${LIBXML2_INCLUDE_DIR}>)
+endif (LIBXML2_SUPPORT)
 target_include_directories (${PROJECT_NAME}XML PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 target_include_directories (${PROJECT_NAME}XML PUBLIC

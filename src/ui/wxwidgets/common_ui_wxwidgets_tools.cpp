@@ -88,7 +88,6 @@ Common_UI_WxWidgets_Tools::finalize ()
   return true;
 }
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
 wxChar**
 Common_UI_WxWidgets_Tools::convertArgV (int argc_in,
                                         ACE_TCHAR** argv_in)
@@ -136,7 +135,32 @@ Common_UI_WxWidgets_Tools::convertArgV (int argc_in,
 
   return result_p;
 }
-#endif // ACE_WIN32 || ACE_WIN64
+
+int
+Common_UI_WxWidgets_Tools::clientDataToIndex (wxObject* object_in,
+                                              const std::string& clientData_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgets_Tools::clientDataToIndex"));
+
+  wxItemContainer* item_container_p =
+    dynamic_cast<wxItemContainer*> (object_in);
+  ACE_ASSERT (item_container_p);
+  ACE_ASSERT (item_container_p->HasClientObjectData ());
+  wxStringClientData* string_client_data_p = NULL;
+  for (unsigned int i = 0;
+       i < item_container_p->GetCount ();
+       ++i)
+  {
+    string_client_data_p =
+      dynamic_cast<wxStringClientData*> (item_container_p->GetClientObject (i));
+    ACE_ASSERT (string_client_data_p);
+    if (!ACE_OS::strcmp (string_client_data_p->GetData ().ToStdString ().c_str (),
+                         clientData_in.c_str ()))
+      return i;
+  } // end FOR
+
+  return wxNOT_FOUND;
+}
 
 bool
 Common_UI_WxWidgets_Tools::initializeLogging ()
@@ -178,30 +202,4 @@ Common_UI_WxWidgets_Tools::finalizeLogging ()
   ACE_ASSERT (log_p);
   delete log_p; log_p = NULL;
   Common_UI_WxWidgets_Tools::logger = NULL;
-}
-
-int
-Common_UI_WxWidgets_Tools::clientDataToIndex (wxObject* object_in,
-                                              const std::string& clientData_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgets_Tools::clientDataToIndex"));
-
-  wxItemContainer* item_container_p =
-    dynamic_cast<wxItemContainer*> (object_in);
-  ACE_ASSERT (item_container_p);
-  ACE_ASSERT (item_container_p->HasClientObjectData ());
-  wxStringClientData* string_client_data_p = NULL;
-  for (unsigned int i = 0;
-       i < item_container_p->GetCount ();
-       ++i)
-  {
-    string_client_data_p =
-      dynamic_cast<wxStringClientData*> (item_container_p->GetClientObject (i));
-    ACE_ASSERT (string_client_data_p);
-    if (!ACE_OS::strcmp (string_client_data_p->GetData ().ToStdString ().c_str (),
-                         clientData_in.c_str ()))
-      return i;
-  } // end FOR
-
-  return wxNOT_FOUND;
 }

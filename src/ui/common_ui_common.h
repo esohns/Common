@@ -31,6 +31,8 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <windef.h>
 #include <WinUser.h>
+#else
+#include "X11/Xlib.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/Containers_T.h"
@@ -56,10 +58,25 @@ struct common_ui_resolution_equal
 {
   inline bool operator() (const Common_UI_Resolution_t& lhs_in, const Common_UI_Resolution_t& rhs_in) const { return ((lhs_in.cx == rhs_in.cx) && (lhs_in.cy == rhs_in.cy)); }
 };
+#else
+struct Common_UI_Resolution
+{
+  unsigned int width;
+  unsigned int height;
+};
+typedef Common_UI_Resolution Common_UI_Resolution_t;
+struct common_ui_resolution_less
+{
+  inline bool operator() (const Common_UI_Resolution_t& lhs_in, const Common_UI_Resolution_t& rhs_in) const { return ((lhs_in.width == rhs_in.width) ? (lhs_in.height < rhs_in.height) : (lhs_in.width < rhs_in.width)); }
+};
+struct common_ui_resolution_equal
+{
+  inline bool operator() (const Common_UI_Resolution_t& lhs_in, const Common_UI_Resolution_t& rhs_in) const { return ((lhs_in.width == rhs_in.width) && (lhs_in.height == rhs_in.height)); }
+};
+#endif // ACE_WIN32 || ACE_WIN64
 typedef std::list<Common_UI_Resolution_t> Common_UI_Resolutions_t;
 typedef Common_UI_Resolutions_t::iterator Common_UI_ResolutionsIterator_t;
 typedef Common_UI_Resolutions_t::const_iterator Common_UI_ResolutionsConstIterator_t;
-#endif // ACE_WIN32 || ACE_WIN64
 
 // #######################################
 
@@ -92,7 +109,11 @@ struct Common_UI_DisplayAdapter
 #endif // ACE_WIN32 || ACE_WIN64
    , description ()
   {}
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   inline bool operator== (const struct Common_UI_DisplayAdapter& rhs_in) { return !ACE_OS::strcmp (id.c_str (), rhs_in.id.c_str ()); }
+#else
+  inline bool operator== (const struct Common_UI_DisplayAdapter& rhs_in) { return !ACE_OS::strcmp (device.c_str (), rhs_in.device.c_str ()); }
+#endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   Common_UI_DisplayAdapterHeads_t heads;
@@ -116,20 +137,20 @@ typedef Common_UI_DisplayAdapters_t::const_iterator Common_UI_DisplayAdaptersCon
 struct Common_UI_DisplayDevice
 {
   Common_UI_DisplayDevice ()
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
    : clippingArea ()
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
    , handle (NULL)
    , id ()
    , key ()
-   , description ()
-#else
-   : description ()
 #endif // ACE_WIN32 || ACE_WIN64
+   , description ()
    , device ()
   {
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
     BOOL result = SetRectEmpty (&clippingArea);
     ACE_ASSERT (result);
+#else
+    ACE_OS::memset (&clippingArea, 0, sizeof (XRectangle));
 #endif // ACE_WIN32 || ACE_WIN64
   }
 
@@ -138,6 +159,8 @@ struct Common_UI_DisplayDevice
   HMONITOR       handle;
   std::string    id;
   std::string    key;
+#else
+  XRectangle     clippingArea;
 #endif // ACE_WIN32 || ACE_WIN64
   std::string    description;
   std::string    device;

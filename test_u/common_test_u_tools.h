@@ -41,8 +41,8 @@ class Common_Test_U_Tools
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Test_U_Tools ())
-  ACE_UNIMPLEMENTED_FUNC (Common_Test_U_Tools (const Test_U_Tools&))
-  ACE_UNIMPLEMENTED_FUNC (Common_Test_U_Tools& operator= (const Test_U_Tools&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Test_U_Tools (const Common_Test_U_Tools&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Test_U_Tools& operator= (const Common_Test_U_Tools&))
 };
 
 // include template definition

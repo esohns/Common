@@ -83,6 +83,8 @@ Common_GL_Tools::loadModel (const std::string& path_in,
 #else
                             struct Common_GL_VectorF3& center_out)
 #endif // _MSC_VER && (_MSC_VER >= 1800)
+#else
+                            glm::vec3& center_out)
 #endif // ACE_WIN32 || ACE_WIN64
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::loadModel"));

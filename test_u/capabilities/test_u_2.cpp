@@ -40,11 +40,13 @@
 #include "common_logger.h"
 #include "common_tools.h"
 
+#include "common_log_tools.h"
+
 #include "common_timer_tools.h"
 
-#ifdef HAVE_CONFIG_H
-#include "libCommon_config.h"
-#endif
+#if defined (HAVE_CONFIG_H)
+#include "Common_config.h"
+#endif // HAVE_CONFIG_H
 
 //#include "test_u_common.h"
 //#include "test_u_defines.h"
@@ -318,14 +320,14 @@ do_printVersion (const std::string& programName_in)
   std::cout << ACE_TEXT ("libraries: ")
             << std::endl
 #if defined (HAVE_CONFIG_H)
-            << ACE_TEXT_ALWAYS_CHAR (LIBCOMMON_PACKAGE_NAME)
+            << ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME)
             << ACE_TEXT_ALWAYS_CHAR (": ")
 //            << ACE_TEXT_ALWAYS_CHAR (LIBCOMMON_VERSION)
-            << libCommon_VERSION_MAJOR << ACE_TEXT_ALWAYS_CHAR (".")
-            << libCommon_VERSION_MINOR << ACE_TEXT_ALWAYS_CHAR (".")
-            << libCommon_VERSION_MICRO
-            << (ACE_OS::strlen (ACE_TEXT_ALWAYS_CHAR (libCommon_VERSION_DEVEL)) ? ACE_TEXT_ALWAYS_CHAR ("-") : ACE_TEXT_ALWAYS_CHAR (""))
-            << (ACE_OS::strlen (ACE_TEXT_ALWAYS_CHAR (libCommon_VERSION_DEVEL)) ? ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_ALWAYS_CHAR (libCommon_VERSION_DEVEL)) : ACE_TEXT_ALWAYS_CHAR (""))
+            << Common_VERSION_MAJOR << ACE_TEXT_ALWAYS_CHAR (".")
+            << Common_VERSION_MINOR << ACE_TEXT_ALWAYS_CHAR (".")
+            << Common_VERSION_MICRO
+            << (ACE_OS::strlen (ACE_TEXT_ALWAYS_CHAR (Common_VERSION_DEVEL)) ? ACE_TEXT_ALWAYS_CHAR ("-") : ACE_TEXT_ALWAYS_CHAR (""))
+            << (ACE_OS::strlen (ACE_TEXT_ALWAYS_CHAR (Common_VERSION_DEVEL)) ? ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_ALWAYS_CHAR (Common_VERSION_DEVEL)) : ACE_TEXT_ALWAYS_CHAR (""))
             << std::endl
 #endif // HAVE_CONFIG_H
             ;
@@ -500,16 +502,16 @@ ACE_TMAIN (int argc_in,
   if (log_to_file)
   {
     log_file_name =
-        Common_File_Tools::getLogFilename (ACE_TEXT_ALWAYS_CHAR (LIBCOMMON_PACKAGE_NAME),
+        Common_Log_Tools::getLogFilename (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
                                            ACE::basename (argv_in[0]));
     ACE_ASSERT (!log_file_name.empty ());
   } // end IF
-  if (!Common_Tools::initializeLogging (ACE::basename (argv_in[0]),               // program name
-                                        log_file_name,                            // log file name
-                                        false,                                    // log to syslog ?
-                                        false,                                    // trace messages ?
-                                        trace_information,                        // debug messages ?
-                                        NULL))                                    // logger ?
+  if (!Common_Log_Tools::initializeLogging (ACE::basename (argv_in[0]),               // program name
+                                            log_file_name,                            // log file name
+                                            false,                                    // log to syslog ?
+                                            false,                                    // trace messages ?
+                                            trace_information,                        // debug messages ?
+                                            NULL))                                    // logger ?
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Tools::initializeLogging(), aborting\n")));
@@ -558,7 +560,7 @@ ACE_TMAIN (int argc_in,
 //                                   signal_set,
 //                                   previous_signal_actions,
 //                                   previous_signal_mask);
-    Common_Tools::finalizeLogging ();
+    Common_Log_Tools::finalizeLogging ();
     return EXIT_SUCCESS;
   } // end IF
 
@@ -669,7 +671,7 @@ ACE_TMAIN (int argc_in,
 //                                 signal_set,
 //                                 previous_signal_actions,
 //                                 previous_signal_mask);
-  Common_Tools::finalizeLogging ();
+  Common_Log_Tools::finalizeLogging ();
 
   return EXIT_SUCCESS;
 } // end main

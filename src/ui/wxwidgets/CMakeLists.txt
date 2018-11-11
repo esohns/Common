@@ -28,8 +28,8 @@ target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
                             "$<BUILD_INTERFACE:${wxWidgets_INCLUDE_DIRS}>")
 
 if (UNIX)
-# target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
-#                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../modules/ACE>)
+ target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../modules/ACE>)
 elseif (WIN32)
 #*TODO*: use pkg-config instead
 # if (DEFINED ENV{ACE_ROOT})

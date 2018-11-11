@@ -97,15 +97,16 @@ using namespace std;
 #include "common_defines.h"
 #include "common_file_tools.h"
 #include "common_macros.h"
+#if defined (ACE_LINUX)
+#include "common_string_tools.h"
+#endif // ACE_LINUX
 #include "common_time_common.h"
 
 #if defined (DBUS_SUPPORT)
 #include "common_dbus_tools.h"
 #endif // DBUS_SUPPORT
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "common_error_tools.h"
-#endif // ACE_WIN32 || ACE_WIN64
 
 // initialize statics
 unsigned int Common_Tools::randomSeed = 0;
@@ -535,7 +536,7 @@ Common_Tools::getDistribution (unsigned int& majorVersion_out,
   microVersion_out = 0;
 
   // sanity check(s)
-  if (unlikely (!Common_Tools::isOperatingSystem (COMMON_OPERATINGSYSTEM_GNU_LINUX)))
+  if (unlikely (!Common_Tools::is (COMMON_OPERATINGSYSTEM_GNU_LINUX)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("this is not a (GNU-) Linux system, aborting\n")));
@@ -1903,7 +1904,7 @@ Common_Tools::getUserName (uid_t userId_in,
                   ((user_id == ACE_OS::geteuid ()) ? ACE_TEXT_ALWAYS_CHAR ("falling back") : ACE_TEXT_ALWAYS_CHAR ("returning"))));
     if (user_id == ACE_OS::geteuid ())
       username_out =
-          ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEFAULT_USER_LOGIN_BASE)));
+          ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_ENVIRONMENT_USER_LOGIN_BASE)));
   } // end IF
   else
   {
@@ -2892,7 +2893,7 @@ Common_Tools::isInstalled (const std::string& executableName_in,
                     ACE_TEXT (COMMON_COMMAND_LOCATE_STRING)));
         return result; // *TODO*: avoid false negatives
       } // end IF
-      command_line_string = Common_Tools::strip (command_output_string);
+      command_line_string = Common_String_Tools::strip (command_output_string);
 //      ACE_ASSERT (Common_File_Tools::isExecutable (command_line_string));
       break;
     }

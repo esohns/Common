@@ -39,13 +39,16 @@ endif ()
 add_library (${PROJECT_NAME}Error STATIC "")
 
 if (UNIX)
-# include_directories (${PKG_GTK_GLADE_INCLUDE_DIRS})
  target_include_directories (${PROJECT_NAME}Error PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 elseif (WIN32)
-#*TODO*: use pkg-config instead
- target_include_directories (${PROJECT_NAME}Error PUBLIC
-                             $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
+ if (DEFINED ENV{ACE_ROOT})
+  target_include_directories (${PROJECT_NAME}Error PUBLIC
+                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
+ else ()
+  target_include_directories (${PROJECT_NAME}Error PUBLIC
+                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE>)
+ endif (DEFINED ENV{ACE_ROOT})
 endif ()
 target_include_directories (${PROJECT_NAME}Error PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)

@@ -75,19 +75,14 @@
 #add_definitions (-DHAVE_CONFIG_H)
 #set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
 
-#if (UNIX)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
-# include_directories (${PKG_CAP_INCLUDE_DIRS})
-# if (GTK3_SUPPORT)
-#  include_directories (${PKG_GTK3_INCLUDE_DIRS})
-# else ()
-#  include_directories (${PKG_GTK2_INCLUDE_DIRS})
-# endif ()
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/libCommon/src)
+if (UNIX)
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
+
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 # include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/libCommon/src/timer)
 # include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/libCommon/src/ui)
 # include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/libCommon/src/ui/gtk)
-#elseif (WIN32)
+elseif (WIN32)
 # include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE)
 # include_directories ($ENV{ACE_ROOT})
 # *TODO*: repair pkgconfig support
@@ -122,7 +117,7 @@
 # include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../libCommon/src/timer)
 # include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../libCommon/src/ui)
 # include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../libCommon/src/ui/gtk)
-#endif ()
+endif ()
 #include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 #include_directories (${CMAKE_CURRENT_BINARY_DIR}/../..)
 #include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
@@ -291,4 +286,3 @@ set_tests_properties (${EXECUTABLE}_test
                       PROPERTIES
                       ENVIRONMENT "PATH=D:\\projects\\ATCD\\ACE\\lib;D:\\projects\\gtk\\bin;D:\\projects\\libglade\\bin;D:\\projects\\libxml2-2.9.1\\.libs;G:\\software\\Development\\dll;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\ui\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\modules\\dev\\Debug;${PROJECT_SOURCE_DIR}\\..\\libACENetwork\\cmake\\src\\Debug;%PATH%")
 #PATH=%PATH%;$(ProjectDir)..\..\..\..\ATCD\ACE\lib;$(ProjectDir)..\..\..\..\gtk3\bin;$(ProjectDir)..\..\..\..\libav-11.7\libavcodec;$(ProjectDir)..\..\..\..\libav-11.7\libavresample;$(ProjectDir)..\..\..\..\libav-11.7\libavutil;$(ProjectDir)..\..\..\..\libCommon\cmake\src\Debug;$(ProjectDir)..\..\..\..\libCommon\cmake\src\err\Debug;$(ProjectDir)..\..\..\..\libCommon\cmake\src\ui\Debug;$(ProjectDir)..\..\src\Debug;$(ProjectDir)..\..\src\modules\dev\Debug;$(ProjectDir)..\..\src\modules\vis\Debug
-

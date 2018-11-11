@@ -30,12 +30,6 @@
 #include <GL/gl.h>
 #endif // ACE_WIN32 || ACE_WIN64
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if defined (_MSC_VER) && (_MSC_VER >= 1800)
-#include "glm/glm.hpp"
-#endif // _MSC_VER && (_MSC_VER >= 1800)
-#endif // ACE_WIN32 || ACE_WIN64
-
 #include "assimp/color4.h"
 #include "assimp/matrix4x4.h"
 #include "assimp/vector3.h"
@@ -62,6 +56,8 @@ class Common_GL_Tools
 #else
                            struct Common_GL_VectorF3&); // return value: center
 #endif // _MSC_VER && (_MSC_VER >= 1800)
+#else
+                           glm::vec3&);                 // return value: center
 #endif // ACE_WIN32 || ACE_WIN64
 
   // *NOTE*: invokes glTexImage2D() with 'target' GL_TEXTURE_2D and 'internal
