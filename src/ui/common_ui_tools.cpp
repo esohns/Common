@@ -36,11 +36,15 @@
 #if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
 #include <physicalmonitorenumerationapi.h>
 #endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0600)
+#else
+#include "X11/Xlib.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
+#include "ace/Dirent_Selector.h"
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
 
+#include "common_file_tools.h"
 #include "common_macros.h"
 #include "common_tools.h"
 
@@ -172,9 +176,112 @@ clean:
 
   return result;
 };
+#else
+int
+common_ui_adapter_selector_cb (const dirent* entry_in)
+{
+  //COMMON_TRACE (ACE_TEXT ("common_ui_adapter_selector_cb"));
+
+  // *NOTE*: select directories following the naming schema "card%u"
+  if (ACE::isdotdir (entry_in->d_name))
+    return 0;
+  std::string directory_string = ACE_TEXT_ALWAYS_CHAR ("/sys/class/drm");
+  directory_string += ACE_DIRECTORY_SEPARATOR_STR;
+  directory_string += ACE_TEXT_ALWAYS_CHAR (entry_in->d_name);
+  if (!Common_File_Tools::isDirectory (directory_string))
+    return 0;
+
+  std::string regex_string = ACE_TEXT_ALWAYS_CHAR ("^(?:card)([[:digit:]]+)$");
+  std::regex regex (regex_string);
+  std::cmatch match_results;
+  if (!std::regex_match (entry_in->d_name,
+                         match_results,
+                         regex,
+                         std::regex_constants::match_default))
+    return 0;
+  ACE_ASSERT (match_results.ready () && !match_results.empty ());
+  ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
+
+  return 1;
+}
+
+int
+common_ui_adapter_comparator_cb (const dirent** d1,
+                                 const dirent** d2)
+{
+  //COMMON_TRACE (ACE_TEXT ("common_ui_adapter_comparator_cb"));
+
+  return ACE_OS::strcmp ((*d1)->d_name,
+                         (*d2)->d_name);
+}
+
+int
+common_ui_display_selector_cb (const dirent* entry_in)
+{
+  //COMMON_TRACE (ACE_TEXT ("common_ui_display_selector_cb"));
+
+  // *NOTE*: select directories following the naming schema "card%u"
+  if (ACE::isdotdir (entry_in->d_name))
+    return 0;
+  std::string regex_string = ACE_TEXT_ALWAYS_CHAR ("^(card(?:[[:digit:]]+))-(.+)$");
+  std::regex regex (regex_string);
+  std::cmatch match_results;
+  if (!std::regex_match (entry_in->d_name,
+                         match_results,
+                         regex,
+                         std::regex_constants::match_default))
+    return 0;
+  ACE_ASSERT (match_results.ready () && !match_results.empty ());
+  ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
+  std::string directory_string = ACE_TEXT_ALWAYS_CHAR ("/sys/class/drm");
+  directory_string += ACE_DIRECTORY_SEPARATOR_STR;
+  directory_string += match_results[1].str ();
+  directory_string += ACE_DIRECTORY_SEPARATOR_STR;
+  directory_string += ACE_TEXT_ALWAYS_CHAR (entry_in->d_name);
+  if (!Common_File_Tools::isDirectory (directory_string))
+    return 0;
+
+  return 1;
+}
+
+int
+common_ui_display_comparator_cb (const dirent** d1,
+                                 const dirent** d2)
+{
+  //COMMON_TRACE (ACE_TEXT ("common_ui_display_comparator_cb"));
+
+  return ACE_OS::strcmp ((*d1)->d_name,
+                         (*d2)->d_name);
+}
 #endif // ACE_WIN32 || ACE_WIN64
 
 //////////////////////////////////////////
+
+bool
+Common_UI_Tools::initialize ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::initialize"));
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  Status result = XInitThreads ();
+  if (unlikely (result))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to XInitThreads(): \"%m\", aborting\n")));
+    return false;
+  } // end IF
+#endif // ACE_WIN32 || ACE_WIN64
+
+  return true;
+}
+bool
+Common_UI_Tools::finalize ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::finalize"));
+
+  return true;
+}
 
 Common_UI_DisplayAdapters_t
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -304,6 +411,148 @@ Common_UI_Tools::getAdapters ()
 continue_:
     ++index_i;
   } while (true);
+#elif defined (ACE_LINUX)
+  // retrieve all display adapters from /sys/class/drm
+  ACE_Dirent_Selector entries;
+  int result_2 = entries.open (ACE_TEXT ("/sys/class/drm"),
+                               &common_ui_adapter_selector_cb,
+                               &common_ui_adapter_comparator_cb);
+  if (unlikely (result_2 == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Dirent_Selector::open(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT ("/sys/class/drm")));
+    return result;
+  } // end IF
+  // *NOTE*: the /sys/class/drm/cardx/'device' contains the pci-bus slot address
+  //         that can be used to retrieve the adapter name with 'lspci'
+  // *TODO*: this should work on most Linux systems, but is in fact a really bad
+  //         idea:
+  //         - 'lspci' tool dependency
+  //         - system(3) call
+  //         --> very inefficient; replace ASAP
+
+  std::string device_file, pci_bus_address, uevent_file;
+  std::string pci_devices_string, buffer_string;
+  std::string regex_string =
+      ACE_TEXT_ALWAYS_CHAR ("^(?:\\.\\./)*(?:[[:digit:]]{4}:)(.+)$");
+  std::string regex_string_2 = ACE_TEXT_ALWAYS_CHAR ("^(?:DRIVER=)(.+)$");
+  std::string regex_string_3 =
+      ACE_TEXT_ALWAYS_CHAR ("^([[:digit:]:\\.]+) (?:VGA compatible controller: )(.+)$");
+  std::regex regex (regex_string);
+  std::regex regex_2 (regex_string_2);
+  std::regex regex_3 (regex_string_3);
+  std::smatch match_results;
+  std::istringstream converter;
+  char buffer_a [BUFSIZ];
+  std::string command_line_string = ACE_TEXT_ALWAYS_CHAR ("lspci");
+  int exit_status_i = 0;
+  uint8_t* buffer_p = NULL;
+  unsigned int file_size = 0;
+  for (int i = entries.length () - 1;
+       i >= 0;
+       i--)
+  {
+    display_adapter_s.device = ACE_TEXT_ALWAYS_CHAR ("/sys/class/drm");
+    display_adapter_s.device += ACE_DIRECTORY_SEPARATOR_STR;
+    display_adapter_s.device += ACE_TEXT_ALWAYS_CHAR (entries[i]->d_name);
+
+    // retrieve slot address
+    device_file = display_adapter_s.device;
+    device_file += ACE_DIRECTORY_SEPARATOR_STR;
+    device_file += ACE_TEXT_ALWAYS_CHAR ("device");
+    ACE_ASSERT (Common_File_Tools::isLink (device_file));
+    pci_bus_address = Common_File_Tools::linkTarget (device_file);
+    if (!std::regex_match (pci_bus_address,
+                           match_results,
+                           regex,
+                           std::regex_constants::match_default))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to parse pci slot address (was: \"%s\"), aborting\n"),
+                  ACE_TEXT (pci_bus_address.c_str ())));
+      return result;
+    } // end IF
+    ACE_ASSERT (match_results.ready () && !match_results.empty ());
+    ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
+    pci_bus_address = match_results[1].str ();
+
+    // retrieve driver
+    uevent_file = device_file;
+    uevent_file += ACE_DIRECTORY_SEPARATOR_STR;
+    uevent_file += ACE_TEXT_ALWAYS_CHAR ("uevent");
+    ACE_ASSERT (Common_File_Tools::isReadable (uevent_file));
+    if (!Common_File_Tools::load (uevent_file,
+                                  buffer_p,
+                                  file_size))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), aborting\n"),
+                  ACE_TEXT (uevent_file.c_str ())));
+      return result;
+    } // end IF
+    ACE_ASSERT (buffer_p);
+    buffer_string = reinterpret_cast<char*> (buffer_p);
+    delete [] buffer_p; buffer_p = NULL;
+    converter.str (buffer_string);
+    // parse display adapter entries
+    do
+    {
+      converter.getline (buffer_a, sizeof (char[BUFSIZ]));
+      buffer_string = buffer_a;
+      if (!std::regex_match (buffer_string,
+                             match_results,
+                             regex_2,
+                             std::regex_constants::match_default))
+        continue;
+      ACE_ASSERT (match_results.ready () && !match_results.empty ());
+      ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
+      display_adapter_s.driver = match_results[1].str ();
+      break;
+    } while (!converter.fail ());
+
+    // retrieve adapter description
+    // *NOTE*: (qtcreator) gdb fails to debug this (hangs) unless the
+    //         "Debug all children" option is disabled
+    if (unlikely (!Common_Tools::command (command_line_string.c_str (),
+                                          exit_status_i,
+                                          pci_devices_string)))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
+                  ACE_TEXT (command_line_string.c_str ())));
+      return result;
+    } // end IF
+    converter.str (pci_devices_string);
+    // parse display adapter entries
+    do
+    {
+      converter.getline (buffer_a, sizeof (char[BUFSIZ]));
+      buffer_string = buffer_a;
+      if (!std::regex_match (buffer_string,
+                             match_results,
+                             regex_3,
+                             std::regex_constants::match_default))
+        continue;
+      ACE_ASSERT (match_results.ready () && !match_results.empty ());
+      ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
+      ACE_ASSERT (match_results[2].matched && !match_results[2].str ().empty ());
+      if (ACE_OS::strcmp (match_results[1].str ().c_str (),
+                          pci_bus_address.c_str ()))
+        continue;
+#if defined (_DEBUG)
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("found display adapter \"%s\" (slot: %s, driver: %s) at /sys/class/drm/%s\n"),
+                  ACE_TEXT (match_results[2].str ().c_str ()),
+                  ACE_TEXT (match_results[1].str ().c_str ()),
+                  ACE_TEXT (display_adapter_s.driver.c_str ()),
+                  ACE_TEXT (entries[i]->d_name)));
+#endif // _DEBUG
+      display_adapter_s.description = match_results[2].str ();
+      display_adapter_s.slot = match_results[1].str ();
+      result.push_back (display_adapter_s);
+    } while (!converter.fail ());
+  } // end FOR
 #else
   ACE_ASSERT (false);
   ACE_NOTSUP_RETURN (result);
@@ -407,9 +656,77 @@ Common_UI_Tools::getDisplays (const struct Common_UI_DisplayAdapter& adapter_in)
     //} while (true);
   } // end FOR
 #else
-  ACE_ASSERT (false);
-  ACE_NOTSUP_RETURN (result);
-  ACE_NOTREACHED (return result;)
+  // retrieve all displays from /sys/class/drm/cardx
+  ACE_ASSERT (Common_File_Tools::isDirectory (adapter_in.device));
+  ACE_Dirent_Selector entries;
+  int result_2 = entries.open (ACE_TEXT (adapter_in.device.c_str ()),
+                               &common_ui_display_selector_cb,
+                               &common_ui_display_comparator_cb);
+  if (unlikely (result_2 == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Dirent_Selector::open(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (adapter_in.device.c_str ())));
+    return result;
+  } // end IF
+  // *NOTE*: the /sys/class/drm/cardx/cardx-yyyy/status file(s) contain the
+  //         status of the display connectors available on each adapter (i.e.
+  //         'connected'|'disconnected')
+  std::string regex_string = ACE_TEXT_ALWAYS_CHAR ("^(?:card(?:[[:digit:]]+))-(.+)$");
+  std::regex regex (regex_string);
+  std::cmatch match_results;
+  std::string status_file;
+  uint8_t* buffer_p = NULL;
+  unsigned int file_size = 0;
+  for (int i = entries.length () - 1;
+       i >= 0;
+       i--)
+  {
+    if (!std::regex_match (entries[i]->d_name,
+                           match_results,
+                           regex,
+                           std::regex_constants::match_default))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to parse display entry (was: \"%s\"), aborting\n"),
+                  ACE_TEXT (entries[i]->d_name)));
+      return result;
+    } // end IF
+    ACE_ASSERT (match_results.ready () && !match_results.empty ());
+    ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
+
+    status_file = adapter_in.device;
+    status_file += ACE_DIRECTORY_SEPARATOR_STR;
+    status_file += ACE_TEXT_ALWAYS_CHAR (entries[i]->d_name);
+    status_file += ACE_DIRECTORY_SEPARATOR_STR;
+    status_file += ACE_TEXT_ALWAYS_CHAR ("status");
+    ACE_ASSERT (Common_File_Tools::isReadable (status_file));
+    if (!Common_File_Tools::load (status_file,
+                                  buffer_p,
+                                  file_size))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), aborting\n"),
+                  ACE_TEXT (status_file.c_str ())));
+      return result;
+    } // end IF
+    ACE_ASSERT (buffer_p);
+    if (ACE_OS::strcmp (reinterpret_cast<char*> (buffer_p),
+                        ACE_TEXT_ALWAYS_CHAR ("connected\n")))
+    {
+      delete [] buffer_p; buffer_p = NULL;
+      continue;
+    } // end IF
+    delete [] buffer_p; buffer_p = NULL;
+#if defined (_DEBUG)
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("found display device on adapter \"%s\": \"%s\"\n"),
+                ACE_TEXT (adapter_in.description.c_str ()),
+                ACE_TEXT (match_results[1].str ().c_str())));
+#endif // _DEBUG
+    display_device_s.device = match_results[1].str ();
+    result.push_back (display_device_s);
+  } // end FOR
 #endif // ACE_WIN32 || ACE_WIN64
 
   return result;
@@ -605,9 +922,9 @@ Common_UI_Tools::getDisplays ()
   std::istringstream converter, converter_2;
   char buffer_a [BUFSIZ];
   std::string regex_string_screen =
-      ACE_TEXT_ALWAYS_CHAR ("^Screen ([[:digit:]]+) (?:minimum) ([[:digit:]]+) x ([[:digit:]]+), (?:current) ([[:digit:]]+) x ([[:digit:]]+), (?:maximum) ([[:digit:]]+) x ([[:digit:]]+)$");
+      ACE_TEXT_ALWAYS_CHAR ("^Screen ([[:digit:]]+): minimum ([[:digit:]]+) x ([[:digit:]]+), current ([[:digit:]]+) x ([[:digit:]]+), maximum ([[:digit:]]+) x ([[:digit:]]+)$");
   std::string regex_string_display =
-      ACE_TEXT_ALWAYS_CHAR ("^(.+) (connected|disconnected) (primary)? ([[:digit:]]+)x([[:digit:]]+)((+|-)[[:digit:]]+)((+|-)[[:digit:]]+) \\((?:(.+)\\w*)+\\) ([[:digit:]]+)mm x ([[:digit:]]+)mm$");
+      ACE_TEXT_ALWAYS_CHAR ("^([^[:space:]]+) (connected|disconnected) (?:(primary) )?([[:digit:]]+)x([[:digit:]]+)(\\+|-)([[:digit:]]+)(\\+|-)([[:digit:]]+) \\((?:([^[:space:]]+) )+([^\\)]+)\\) ([[:digit:]]+)mm x ([[:digit:]]+)mm$");
   std::regex regex (regex_string_screen);
   std::regex regex_2 (regex_string_display);
   std::smatch match_results, match_results_2;
@@ -695,6 +1012,10 @@ Common_UI_Tools::getDisplays ()
     device_s.device = match_results_2[1].str ();
     converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
     converter_2.clear ();
+    if (match_results_2[3].matched)
+    { ACE_ASSERT (!ACE_OS::strcmp (match_results_2[3].str ().c_str (), ACE_TEXT_ALWAYS_CHAR ("primary")));
+      device_s.primary = true;
+    } // end IF
     converter_2.str (match_results[4].str ());
     converter_2 >> device_s.clippingArea.width;
     converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
@@ -733,9 +1054,9 @@ Common_UI_Tools::getDisplay (const std::string& deviceIdentifier_in)
   Common_UI_DisplayDevices_t display_devices_a =
     Common_UI_Tools::getDisplays ();
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   if (deviceIdentifier_in.empty ())
   { // retrieve primary monitor handle
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
     struct tagPOINT origin_s;
     ACE_OS::memset (&origin_s, 0, sizeof (struct tagPOINT));
     DWORD flags_i = MONITOR_DEFAULTTONULL;
@@ -747,12 +1068,8 @@ Common_UI_Tools::getDisplay (const std::string& deviceIdentifier_in)
                   ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
       return result;
     } // end IF
-#else
-    ACE_ASSERT (false);
-    ACE_NOTSUP_RETURN (result);
-    ACE_NOTREACHED (return result;)
-#endif // ACE_WIN32 || ACE_WIN64
   } // end IF
+#endif // ACE_WIN32 || ACE_WIN64
 
   for (Common_UI_DisplayDevicesIterator_t iterator = display_devices_a.begin ();
        iterator != display_devices_a.end ();
@@ -765,9 +1082,8 @@ Common_UI_Tools::getDisplay (const std::string& deviceIdentifier_in)
       if ((*iterator).handle == result.handle)
         return *iterator;
 #else
-      ACE_ASSERT (false);
-      ACE_NOTSUP_RETURN (result);
-      ACE_NOTREACHED (return result;)
+      if ((*iterator).primary)
+        return *iterator;
 #endif // ACE_WIN32 || ACE_WIN64
     } // end IF
     else
@@ -777,6 +1093,48 @@ Common_UI_Tools::getDisplay (const std::string& deviceIdentifier_in)
   } // end FOR
 
   return result;
+}
+
+bool
+Common_UI_Tools::displayMatches (const std::string& identifier_in,
+                                 const std::string& identifier2_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::displayMatches"));
+
+  std::string regex_string = ACE_TEXT_ALWAYS_CHAR ("^([^-]+)-(?:[[:alpha:]]{1}-)?([[:digit:]]+)$");
+  std::regex regex (regex_string);
+  std::smatch match_results, match_results_2;
+  if (!std::regex_match (identifier_in,
+                         match_results,
+                         regex,
+                         std::regex_constants::match_default))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to parse device identifier (was: %s), aborting\n"),
+                ACE_TEXT (identifier_in.c_str ())));
+    return false;
+  } // end IF
+  ACE_ASSERT (match_results.ready () && !match_results.empty ());
+  ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
+  ACE_ASSERT (match_results[2].matched && !match_results[2].str ().empty ());
+  if (!std::regex_match (identifier2_in,
+                         match_results_2,
+                         regex,
+                         std::regex_constants::match_default))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to parse device identifier (was: %s), aborting\n"),
+                ACE_TEXT (identifier2_in.c_str ())));
+    return false;
+  } // end IF
+  ACE_ASSERT (match_results_2.ready () && !match_results_2.empty ());
+  ACE_ASSERT (match_results_2[1].matched && !match_results_2[1].str ().empty ());
+  ACE_ASSERT (match_results_2[2].matched && !match_results_2[2].str ().empty ());
+
+  return (!ACE_OS::strcmp (match_results[1].str ().c_str (),
+                           match_results_2[1].str ().c_str ()) &&
+          !ACE_OS::strcmp (match_results[2].str ().c_str (),
+                           match_results_2[2].str ().c_str ()));
 }
 
 struct Common_UI_DisplayAdapter
@@ -807,8 +1165,8 @@ Common_UI_Tools::getAdapter (const struct Common_UI_DisplayDevice& device_in)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
       if ((*iterator_2).handle == device_in.handle)
 #else
-      if (!ACE_OS::strcmp ((*iterator_2).device.c_str (),
-                           device_in.device.c_str ()))
+      if (Common_UI_Tools::displayMatches ((*iterator_2).device.c_str (),
+                                           device_in.device.c_str ()))
 #endif // ACE_WIN32 || ACE_WIN64
         return *iterator;
   } // end FOR
@@ -905,20 +1263,22 @@ Common_UI_Tools::get (const std::string& deviceIdentifier_in)
 
   Common_UI_Resolutions_t result;
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
   std::string device_identifier_string = deviceIdentifier_in;
+  struct Common_UI_DisplayDevice display_device_s;
   if (device_identifier_string.empty ())
   {
-    struct Common_UI_DisplayDevice display_device_s =
-      Common_UI_Tools::getDefaultDisplay ();
+    display_device_s = Common_UI_Tools::getDefaultDisplay ();
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
     ACE_ASSERT (display_device_s.handle != NULL);
+#endif // ACE_WIN32 || ACE_WIN64
     device_identifier_string = display_device_s.device;
   } // end IF
-
-  std::string device_name_string;
-  // *IMPORTANT NOTE*: devices becoming plug-and-play these days there is little
-  //                   sense in doing much error handling around here
+  // *NOTE*: devices becoming plug-and-play these days there is little sense in
+  //         handling any errors here
   ACE_ASSERT (Common_UI_Tools::is (device_identifier_string));
+
+  Common_UI_Resolution_t resolution_s;
+  std::string device_name_string;
   if (Common_UI_Tools::isAdapter (device_identifier_string))
   {
     struct Common_UI_DisplayAdapter display_adapter_s =
@@ -926,21 +1286,25 @@ Common_UI_Tools::get (const std::string& deviceIdentifier_in)
     for (Common_UI_DisplayAdapterHeadsConstIterator_t iterator = display_adapter_s.heads.begin ();
          iterator != display_adapter_s.heads.end ();
          ++iterator)
-    { ACE_ASSERT ((*iterator).index != std::numeric_limits<DWORD>::max ());
-      if (!ACE_OS::strcmp ((*iterator).device.c_str (),
-                           device_identifier_string.c_str ()))
-      {
+    {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      ACE_ASSERT ((*iterator).index != std::numeric_limits<DWORD>::max ());
+#endif // ACE_WIN32 || ACE_WIN64
+      // *TODO*: this should make more sense
+//      if (!ACE_OS::strcmp ((*iterator).device.c_str (),
+//                           device_identifier_string.c_str ()))
+//      {
         device_name_string = (*iterator).device;
         break;
-      } // end IF
+//      } // end IF
     } // end FOR
   } // end IF
   else
   { ACE_ASSERT (Common_UI_Tools::isDisplay (device_identifier_string));
-    struct Common_UI_DisplayDevice display_device_s =
-      Common_UI_Tools::getDisplay (deviceIdentifier_in);
-    ACE_ASSERT (display_device_s.handle != NULL);
+    display_device_s = Common_UI_Tools::getDisplay (device_identifier_string);
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
     device_name_string = display_device_s.device;
+    ACE_ASSERT (display_device_s.handle != NULL);
     // *NOTE*: apparently, EnumDisplaySettingsEx() supports only adapter modes
     //         --> crop device name pseudo-path to adapter name
     std::string::size_type position =
@@ -953,7 +1317,14 @@ Common_UI_Tools::get (const std::string& deviceIdentifier_in)
                 ACE_TEXT (display_device_s.device.c_str ()),
                 ACE_TEXT (device_name_string.c_str ())));
 #endif // _DEBUG
+#elif defined (ACE_LINUX)
+    struct Common_UI_DisplayAdapter display_adapter_s =
+      Common_UI_Tools::getAdapter (display_device_s);
+    device_name_string = display_adapter_s.device;
+#endif
   } // end ELSE
+  ACE_ASSERT (!device_name_string.empty ());
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   DWORD index_i = 0;
   DEVMODE device_mode_s;
   ACE_OS::memset (&device_mode_s, 0, sizeof (DEVMODE));
@@ -962,7 +1333,6 @@ Common_UI_Tools::get (const std::string& deviceIdentifier_in)
   DWORD dwFlags = 0;
     //(EDS_RAWMODE |
     // EDS_ROTATEDMODE);
-  Common_UI_Resolution_t resolution_s;
   do
   {
 #if defined (UNICODE)
@@ -978,12 +1348,77 @@ Common_UI_Tools::get (const std::string& deviceIdentifier_in)
     ACE_ASSERT (device_mode_s.dmFields & DM_PELSHEIGHT);
     resolution_s.cx = device_mode_s.dmPelsWidth;
     resolution_s.cy = device_mode_s.dmPelsHeight;
+#if defined (_DEBUG)
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("device \"%s\" supports resolution %ux%u\n"),
+                  ACE_TEXT (deviceIdentifier_in.c_str ()),
+                  resolution_s.cx, resolution_s.cy));
+#endif // _DEBUG
     result.push_back (resolution_s);
   } while (true);
 #else
-    ACE_ASSERT (false);
-    ACE_NOTSUP_RETURN (result);
-    ACE_NOTREACHED (return result;)
+  // *NOTE*: /sys/class/drm/cardx/cardx-displayy/'modes' contains the supported
+  //         resolutions
+  std::string modes_file, buffer_string;
+  std::string regex_string =
+      ACE_TEXT_ALWAYS_CHAR ("^([[:digit:]]+)x([[:digit:]]+)$");
+  std::regex regex (regex_string);
+  std::smatch match_results;
+  std::istringstream converter, converter_2;
+  uint8_t* buffer_p = NULL;
+  char buffer_a[BUFSIZ];
+  unsigned int file_size = 0;
+  modes_file = device_name_string;
+  modes_file += ACE_DIRECTORY_SEPARATOR_STR;
+  std::string::size_type position =
+    device_name_string.find_last_of ('/', std::string::npos);
+  ACE_ASSERT (position != std::string::npos);
+  modes_file += device_name_string.substr (position + 1, std::string::npos);
+  modes_file += ACE_TEXT_ALWAYS_CHAR ("-");
+  modes_file += deviceIdentifier_in;
+  modes_file += ACE_DIRECTORY_SEPARATOR_STR;
+  modes_file += ACE_TEXT_ALWAYS_CHAR ("modes");
+  ACE_ASSERT (Common_File_Tools::isReadable (modes_file));
+  if (unlikely (!Common_File_Tools::load (modes_file,
+                                          buffer_p,
+                                          file_size)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), aborting\n"),
+                ACE_TEXT (modes_file.c_str ())));
+    return result;
+  } // end IF
+  ACE_ASSERT (buffer_p);
+  buffer_string = reinterpret_cast<char*> (buffer_p);
+  delete [] buffer_p; buffer_p = NULL;
+  converter.str (buffer_string);
+  // parse resolution entries
+  do
+  {
+    converter.getline (buffer_a, sizeof (char[BUFSIZ]));
+    buffer_string = buffer_a;
+    if (!std::regex_match (buffer_string,
+                           match_results,
+                           regex,
+                           std::regex_constants::match_default))
+      continue;
+    ACE_ASSERT (match_results.ready () && !match_results.empty ());
+    ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
+    ACE_ASSERT (match_results[2].matched && !match_results[2].str ().empty ());
+    converter_2.clear ();
+    converter_2.str (match_results[1].str ());
+    converter_2 >> resolution_s.width;
+    converter_2.clear ();
+    converter_2.str (match_results[2].str ());
+    converter_2 >> resolution_s.height;
+    result.push_back (resolution_s);
+#if defined (_DEBUG)
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("device \"%s\" supports resolution %ux%u\n"),
+                  ACE_TEXT (deviceIdentifier_in.c_str ()),
+                  resolution_s.width, resolution_s.height));
+#endif // _DEBUG
+  } while (!converter.fail ());
 #endif // ACE_WIN32 || ACE_WIN64
   result.sort (common_ui_resolution_less ());
   result.unique (common_ui_resolution_equal ());

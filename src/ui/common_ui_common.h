@@ -81,31 +81,36 @@ typedef Common_UI_Resolutions_t::const_iterator Common_UI_ResolutionsConstIterat
 // #######################################
 
 // adapters (i.e. 'graphics' cards/chips)
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
 struct Common_UI_DisplayAdapterHead
 {
   Common_UI_DisplayAdapterHead ()
    : device ()
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
    , index (std::numeric_limits<DWORD>::max ())
    , key ()
+#endif // ACE_WIN32 || ACE_WIN64
   {}
 
-  std::string device;
-  DWORD       index; // iDevNum
-  std::string key; // registry-
+  std::string device; // display-
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  DWORD       index;  // iDevNum
+  std::string key;    // registry-
+#endif // ACE_WIN32 || ACE_WIN64
 };
 typedef std::list<struct Common_UI_DisplayAdapterHead> Common_UI_DisplayAdapterHeads_t;
 typedef Common_UI_DisplayAdapterHeads_t::iterator Common_UI_DisplayAdapterHeadsIterator_t;
 typedef Common_UI_DisplayAdapterHeads_t::const_iterator Common_UI_DisplayAdapterHeadsConstIterator_t;
-#endif // ACE_WIN32 || ACE_WIN64
 struct Common_UI_DisplayAdapter
 {
   Common_UI_DisplayAdapter ()
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
    : heads ()
+   , clippingArea ()
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
    , id ()
 #else
-   : device ()
+   , device ()
+   , driver ()
+   , slot () // PCI-
 #endif // ACE_WIN32 || ACE_WIN64
    , description ()
   {}
@@ -115,11 +120,15 @@ struct Common_UI_DisplayAdapter
   inline bool operator== (const struct Common_UI_DisplayAdapter& rhs_in) { return !ACE_OS::strcmp (device.c_str (), rhs_in.device.c_str ()); }
 #endif // ACE_WIN32 || ACE_WIN64
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
   Common_UI_DisplayAdapterHeads_t heads;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  struct tagRECT                  clippingArea;
   std::string                     id;
 #else
+  XRectangle                      clippingArea;
   std::string                     device;
+  std::string                     driver;
+  std::string                     slot;
 #endif // ACE_WIN32 || ACE_WIN64
   std::string                     description;
 };
@@ -145,6 +154,7 @@ struct Common_UI_DisplayDevice
 #endif // ACE_WIN32 || ACE_WIN64
    , description ()
    , device ()
+   , primary (false)
   {
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
     BOOL result = SetRectEmpty (&clippingArea);
@@ -164,6 +174,7 @@ struct Common_UI_DisplayDevice
 #endif // ACE_WIN32 || ACE_WIN64
   std::string    description;
   std::string    device;
+  bool           primary;
 };
 typedef std::list<struct Common_UI_DisplayDevice> Common_UI_DisplayDevices_t;
 typedef Common_UI_DisplayDevices_t::iterator Common_UI_DisplayDevicesIterator_t;

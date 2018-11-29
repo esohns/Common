@@ -25,11 +25,17 @@
 
 #include "ace/Global_Macros.h"
 
+#include "common_iinitialize.h"
+
 #include "common_ui_common.h"
 
 class Common_UI_Tools
+ : public Common_SInitializeFinalize_T<Common_UI_Tools>
 {
  public:
+  static bool initialize ();
+  static bool finalize ();
+
   // *NOTE*: these refer to graphics adapters (i.e. cards/chips) connected
   //         to the motherboard/CPU, NOT 'physical' display devices
   inline static struct Common_UI_DisplayAdapter getDefaultAdapter () { return Common_UI_Tools::getAdapter (ACE_TEXT_ALWAYS_CHAR ("")); }
@@ -40,6 +46,14 @@ class Common_UI_Tools
   static Common_UI_DisplayAdapters_t getAdapters (bool = true); // exclude 'mirroring' devices ?
 #else
   static Common_UI_DisplayAdapters_t getAdapters (); // return value: available devices
+
+  // *IMPORTANT NOTE*: for reasons yet unknown, xrandr outputs display
+  //                   identifiers of the form HDMI-1, HDMI-2, etc, whereas the
+  //                   display adapter connectors under /sys/class/cardx/cardx-yyyy
+  //                   have the form HDMI-A-1, HDMI-A-2, etc
+  // *TODO*: find out why this is
+  static bool displayMatches (const std::string&,
+                              const std::string&);
 #endif // ACE_WIN32 || ACE_WIN64
   // *NOTE*: on Win32 systems, callers may specify either a 'DeviceID' or
   //         'DeviceName', identifying an adapter or specific output (aka
@@ -55,6 +69,9 @@ class Common_UI_Tools
   static struct Common_UI_DisplayAdapter getAdapter (const struct Common_UI_DisplayDevice&); // return value: corresponding graphics adapter (if any)
   static Common_UI_DisplayDevices_t getDesktopDisplays (); // return value: devices forming the desktop
 
+  // *NOTE*: the identifier may specify either a graphics adapter or a display
+  // *NOTE*: iff the identifier specifies a graphics adapter, this returns the
+  //         resolutions of the first (!) connected display (if any)
   static Common_UI_Resolutions_t get (const std::string&); // device identifier
   static bool has (const std::string&,             // device identifier
                    const Common_UI_Resolution_t&); // resolution
@@ -71,10 +88,13 @@ class Common_UI_Tools
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools& operator= (const Common_UI_Tools&));
 
   // helper methods
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
   inline static bool is (const std::string& deviceIdentifier_in) { return (Common_UI_Tools::isAdapter (deviceIdentifier_in) || Common_UI_Tools::isDisplay (deviceIdentifier_in)); }
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   inline static bool isAdapter (const std::string& deviceIdentifier_in) { struct Common_UI_DisplayAdapter adapter_s = Common_UI_Tools::getAdapter (deviceIdentifier_in); return !adapter_s.id.empty (); }
-  inline static bool isDisplay (const std::string& deviceIdentifier_in) { struct Common_UI_DisplayDevice device_s = Common_UI_Tools::getDisplay (deviceIdentifier_in); return (device_s.handle != NULL); }
+  inline static bool isDisplay (const std::string& deviceIdentifier_in) { struct Common_UI_DisplayDevice display_s = Common_UI_Tools::getDisplay (deviceIdentifier_in); return (display_s.handle != NULL); }
+#else
+  inline static bool isAdapter (const std::string& deviceIdentifier_in) { struct Common_UI_DisplayAdapter adapter_s = Common_UI_Tools::getAdapter (deviceIdentifier_in); return !adapter_s.device.empty (); }
+  inline static bool isDisplay (const std::string& deviceIdentifier_in) { struct Common_UI_DisplayDevice display_s = Common_UI_Tools::getDisplay (deviceIdentifier_in); return !display_s.device.empty (); }
 #endif // ACE_WIN32 || ACE_WIN64
 };
 

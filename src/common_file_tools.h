@@ -102,6 +102,7 @@ class Common_File_Tools
 
   static bool isEmpty (const std::string&); // (FQ) path
   static bool isDirectory (const std::string&); // directory
+  static bool isLink (const std::string&); // directory
   static bool isEmptyDirectory (const std::string&); // directory
   static bool isValidFilename (const std::string&); // (FQ) path
   static bool isValidPath (const std::string&); // (FQ) path
@@ -119,6 +120,7 @@ class Common_File_Tools
   static unsigned int size (const ACE_FILE_Addr&); // file name
   static unsigned int size (const std::string&); // (FQ) path
 
+  static std::string linkTarget (const std::string&); // path
   static std::string realPath (const std::string&); // path
 
   // *PORTABILITY*: this can be influenced by #define BASEDIR and returns

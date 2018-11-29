@@ -768,6 +768,37 @@ Common_File_Tools::isDirectory (const std::string& directory_in)
 //#endif
 }
 
+bool
+Common_File_Tools::isLink (const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isLink"));
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  ACE_ASSERT (false); // *TODO*
+  ACE_NOTSUP_RETURN (false);
+  ACE_NOTREACHED (return false;)
+#else
+  int result = -1;
+  ACE_stat stat;
+  ACE_OS::memset (&stat, 0, sizeof (ACE_stat));
+  result = ACE_OS::lstat (path_in.c_str (),
+                          &stat);
+  if (unlikely (result == -1))
+  {
+    int error = ACE_OS::last_error ();
+    if (error != ENOENT) // 2:
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::lstat(\"%s\"): \"%m\", aborting\n"),
+                  ACE_TEXT (path_in.c_str ())));
+
+    // URI doesn't even exist --> NOT a directory !
+    return false;
+  } // end IF
+
+  return ((stat.st_mode & S_IFMT) & S_IFLNK);
+#endif // ACE_WIN32 || ACE_WIN64
+}
+
 //int
 //Common_File_Tools::selector(const dirent* dirEntry_in)
 //{
@@ -1356,10 +1387,11 @@ Common_File_Tools::load (const std::string& path_in,
   // read data
   result_3 =
     ACE_OS::fread (static_cast<void*> (file_out),     // target buffer
-                   static_cast<size_t> (file_size_i), // read everything ...
-                   1,                                 // ... at once
+                   1,                                 // read everything ...
+                   static_cast<size_t> (file_size_i), // ... at once
                    file_p);                           // stream handle
-  if (unlikely (result_3 != 1))
+  if (unlikely ((result_3 != static_cast<size_t> (file_size_i) &&
+                 !::feof (file_p))))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fread(\"%s\",%d): \"%m\", aborting\n"),
@@ -1375,8 +1407,7 @@ Common_File_Tools::load (const std::string& path_in,
 error:
   if (file_out)
   {
-    delete [] file_out;
-    file_out = NULL;
+    delete [] file_out; file_out = NULL;
   } // end IF
   fileSize_out = 0;
 continue_:
@@ -1484,7 +1515,7 @@ clean:
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("wrote file \"%s\"\n"),
                 ACE_TEXT (path_in.c_str ())));
-#endif
+#endif // _DEBUG
 
   return result;
 }
@@ -1569,6 +1600,31 @@ Common_File_Tools::size (const std::string& path_in)
   } // end IF
 
   return static_cast<unsigned int> (stat_s.st_size);
+}
+
+std::string
+Common_File_Tools::linkTarget (const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::linkTarget"));
+
+  // initialize result(s)
+  std::string return_value;
+
+  char buffer_a[PATH_MAX];
+  // *NOTE*: "...readlink() does not append a null byte to buf..."
+  ACE_OS::memset (buffer_a, 0, sizeof (char[PATH_MAX]));
+  if (unlikely (!ACE_OS::readlink (path_in.c_str (),
+                                   buffer_a,
+                                   sizeof (char[PATH_MAX]))))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::readlink(\"%s\"): %m, aborting\n"),
+                ACE_TEXT (path_in.c_str ())));
+    return return_value;
+  } // end IF
+  return_value = buffer_a;
+
+  return return_value;
 }
 
 std::string

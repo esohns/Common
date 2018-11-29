@@ -71,7 +71,7 @@ class Comon_UI_WxWidgets_Application_T
 
   // implement Common_UI_wxWidgets_IApplication_T
   inline virtual const StateType& getR () const { return state_; }
-  inline virtual bool initialize (const ConfigurationType& configuration_in) { configuration_ = &const_cast<ConfigurationType&> (configuration_in); return true; }
+  inline virtual bool initialize (const ConfigurationType& configuration_in) { configuration_ = &const_cast<ConfigurationType&> (configuration_in); configuration_->UIState = &state_; return true; }
   inline virtual const ConfigurationType& getR_2 () const { ACE_ASSERT (configuration_); return *configuration_; }
   virtual bool run ();
   inline virtual void wait () { while (inherited::HasPendingEvents ()) inherited::ProcessPendingEvents(); }
