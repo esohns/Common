@@ -29,7 +29,6 @@
 
 #include "ace/Global_Macros.h"
 
-//#include "common_exports.h"
 #include "common_iinitialize.h"
 
 #include "common_dbus_common.h"
@@ -39,7 +38,6 @@
 struct sd_bus;
 #endif // SD_BUS_SUPPORT
 
-//class Common_Export Common_DBus_Tools
 class Common_DBus_Tools
  : public Common_SInitializeFinalize_T<Common_DBus_Tools>
 {

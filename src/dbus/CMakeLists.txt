@@ -1,69 +1,58 @@
 ﻿option (SD_BUS_SUPPORT "compile sd-bus (libsystemd) support" ON)
 
-include (FindPkgConfig)
 if (UNIX)
- pkg_check_modules (PKG_DBUS REQUIRED dbus-1)
-#  pkg_check_modules (PKG_NETWORKMANAGER REQUIRED NetworkManager)
- pkg_check_modules (PKG_NETWORKMANAGER REQUIRED libnm)
+# find_package (DBus1 MODULE)
+ find_package (DBus1)
+ if (NOT DBus1_DIR)
+  find_library (DBUS_LIBRARY libdbus-1.so.3
+                DOC "searching for libdbus-1")
+  if (NOT DBUS_LIBRARY)
+   message (FATAL_ERROR "could not find libdbus-1, aborting")
+  endif ()
+#  pkg_check_modules (PKG_DBUS REQUIRED dbus-1)
+ endif (NOT DBus1_DIR)
+ add_definitions (-DDBUS_SUPPORT)
 
  if (SD_BUS_SUPPORT)
+#  find_library (SYSTEMD_LIBRARY libsystemd.so.0
+#                DOC "searching for libsystemd")
+#  if (NOT SYSTEMD_LIBRARY)
+#   message (FATAL_ERROR "could not find libsystemd, aborting")
+#  endif (NOT SYSTEMD_LIBRARY)
   pkg_check_modules (PKG_SYSTEMD REQUIRED libsystemd)
+  if (PKG_SYSTEMD_FOUND)
+   # *TODO*: on Fedora 29 systems /usr/lib64/pkgconfig/libsystemd.pc is broken
+#   message (STATUS "PKG_SYSTEMD_INCLUDE_DIRS: ${PKG_SYSTEMD_INCLUDE_DIRS}")
+   set (PKG_SYSTEMD_INCLUDE_DIRS "/usr/include/systemd")
+  endif (PKG_SYSTEMD_FOUND)
+  add_definitions (-DSD_BUS_SUPPORT)
  endif (SD_BUS_SUPPORT)
-endif ()
-#pkg_check_modules (PKG_ACE REQUIRED ACE)
 
-set (ACE_LIB_FILE libACE.so)
-if (UNIX)
- set (AIO_LIB_FILE libaio.so)
- find_library (AIO_LIBRARY ${AIO_LIB_FILE}
-               PATHS /lib /usr/lib
-               PATH_SUFFIXES x86_64-linux-gnu
-               DOC "searching for ${AIO_LIB_FILE}")
-# message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
- find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-               HINTS ${CMAKE_CURRENT_BINARY_DIR}/../../../ATCD/ACE /usr/local
-               PATHS ENV ACE_ROOT
-               PATH_SUFFIXES lib
-               DOC "searching for ${ACE_LIB_FILE}"
-               NO_DEFAULT_PATH)
-# else ()
-#  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-#                DOC "searching for ${ACE_LIB_FILE} (system paths)")
-# endif ()
-elseif (WIN32)
- if (CMAKE_BUILD_TYPE STREQUAL Debug)
-  set (LIB_FILE_SUFFIX d)
- endif ()
- unset (ACE_LIB_FILE)
- set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
- find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-               PATHS ENV ACE_ROOT
-               PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
-               DOC "searching for ${ACE_LIB_FILE}")
-endif ()
-#if (NOT EXISTS ACE_LIBRARY)
-if (NOT ACE_LIBRARY)
- message (FATAL_ERROR "Could not find ${ACE_LIB_FILE} (was: \"${ACE_LIBRARY}\"), aborting")
-else ()
- #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
-endif ()
-
-if (SD_BUS_SUPPORT)
- add_definitions (-DSD_BUS_SUPPORT)
-endif (SD_BUS_SUPPORT)
+ find_library (NETWORKMANAGER_LIBRARY libnm.so.0
+               DOC "searching for libnm")
+ if (NOT NETWORKMANAGER_LIBRARY)
+  message (FATAL_ERROR "could not find libnm, aborting")
+ endif (NOT NETWORKMANAGER_LIBRARY)
+#  pkg_check_modules (PKG_NETWORKMANAGER REQUIRED NetworkManager)
+# pkg_check_modules (PKG_NETWORKMANAGER REQUIRED libnm)
+endif (UNIX)
 
 add_library (${PROJECT_NAME}DBus STATIC "")
 
 if (UNIX)
 # *NOTE*: a bug in cmake (3.10.2) requires the additional comment
  target_include_directories (${PROJECT_NAME}DBus PUBLIC
-                             "$<BUILD_INTERFACE:${PKG_DBUS_INCLUDE_DIRS}>")
+                             $<BUILD_INTERFACE:${DBus1_INCLUDE_DIR}>)
+ target_include_directories (${PROJECT_NAME}DBus PUBLIC
+                             $<BUILD_INTERFACE:${DBus1_ARCH_INCLUDE_DIR}>)
+# target_include_directories (${PROJECT_NAME}DBus PUBLIC
+#                             "$<BUILD_INTERFACE:${PKG_DBUS_INCLUDE_DIRS}>")
  target_include_directories (${PROJECT_NAME}DBus PUBLIC
                              "$<BUILD_INTERFACE:${PKG_NETWORKMANAGER_INCLUDE_DIRS}>")
 
  if (SD_BUS_SUPPORT)
   target_include_directories (${PROJECT_NAME}DBus PUBLIC
-                              "$<BUILD_INTERFACE:${PKG_SYSTEMD_INCLUDE_DIRS};/usr/include/systemd>")
+                              $<BUILD_INTERFACE:${PKG_SYSTEMD_INCLUDE_DIRS}>)
  endif (SD_BUS_SUPPORT)
 
  target_include_directories (${PROJECT_NAME}DBus PUBLIC
@@ -101,8 +90,8 @@ target_sources (${PROJECT_NAME}DBus
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-get_target_property (debug ${PROJECT_NAME}DBus INTERFACE_INCLUDE_DIRECTORIES)
-message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
+#get_target_property (debug ${PROJECT_NAME}DBus INTERFACE_INCLUDE_DIRECTORIES)
+#message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
 
 #add_dependencies (${PROJECT_NAME} ACE)
 

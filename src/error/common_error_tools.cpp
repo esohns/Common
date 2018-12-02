@@ -31,7 +31,7 @@
 #include <errors.h>
 #include <strsafe.h>
 #else
-#include <sys/prctl.h>
+#include "sys/prctl.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/FILE_Connector.h"
@@ -39,12 +39,12 @@
 #include "ace/OS.h"
 
 #include "common_macros.h"
-
-#include "common_log_tools.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 #include "common_tools.h"
 #endif // ACE_WIN32 || ACE_WIN64
+
+#include "common_log_tools.h"
 
 #include "common_error_defines.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

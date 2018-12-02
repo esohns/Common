@@ -24,7 +24,10 @@ if (GUI_SUPPORT)
   endif (WIN32)
   add_definitions (-DwxUSE_GUI=1)
   if (CMAKE_BUILD_TYPE STREQUAL Debug)
-   add_definitions (-D__WXDEBUG__)
+    add_definitions (${wxWidgets_DEFINITIONS_DEBUG})
+    add_definitions (-D__WXDEBUG__)
+  else ()
+   add_definitions (${wxWidgets_DEFINITIONS})
   endif (CMAKE_BUILD_TYPE STREQUAL Debug)
  endif (WXWIDGETS_SUPPORT)
 
@@ -41,7 +44,6 @@ endif (GUI_SUPPORT)
 
 add_library (${PROJECT_NAME}_Test_U STATIC "")
 
-include (FindPkgConfig)
 if (UNIX)
  if (GUI_SUPPORT)
   if (GTK_SUPPORT)
@@ -287,6 +289,7 @@ if (UNIX)
 endif (UNIX)
 add_subdirectory (file)
 add_subdirectory (regex)
+add_subdirectory (ui)
 
 # phonies
 add_custom_target (test_u ALL
@@ -294,11 +297,12 @@ add_custom_target (test_u ALL
 if (UNIX)
  add_dependencies (test_u capabilities)
  add_dependencies (test_u capabilities_2)
- add_dependencies (test_u debug)
+ add_dependencies (test_u debug_wrapper)
  add_dependencies (test_u features)
 endif (UNIX)
 add_dependencies (test_u file)
 add_dependencies (test_u regex)
+add_dependencies (test_u wxwidgets)
 
 if (NOT BUILD_TEST_U)
  set_target_properties (test_u PROPERTIES EXCLUDE_FROM_ALL 1)

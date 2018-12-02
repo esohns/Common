@@ -29,7 +29,7 @@
 #include <guiddef.h>
 #include <Ks.h>
 #else
-#include <sys/capability.h>
+#include "sys/capability.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/ACE.h"

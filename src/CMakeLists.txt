@@ -1,4 +1,5 @@
-﻿if (UNIX)
+﻿# *TODO*: compile in support as available automatically
+if (UNIX)
  option (DBUS_SUPPORT "compile DBus support" ON)
 endif (UNIX)
 
@@ -28,17 +29,26 @@ if (UNIX)
  include (CheckLibraryExists)
  #*TODO*: why isn't the function found ?
  check_library_exists (rt aio_init "" HAVE_LIB_AIO)
+
+ set (AIO_LIB_FILE libaio.so.1)
+ find_library (AIO_LIBRARY ${AIO_LIB_FILE}
+               PATHS /lib /usr/lib /usr/lib64
+               PATH_SUFFIXES x86_64-linux-gnu
+               DOC "searching for ${AIO_LIB_FILE}")
+ if (NOT AIO_LIBRARY)
+  message (FATAL_ERROR "could not find libaio, aborting")
+ endif (NOT AIO_LIBRARY)
+
+# find_library (CAP_LIBRARY libcap.so.2
+#               DOC "searching for libcap")
+# if (NOT CAP_LIBRARY)
+#  message (FATAL_ERROR "could not find libcap, aborting")
+# endif ()
+ pkg_check_modules (PKG_LIBCAP REQUIRED libcap)
 endif (UNIX)
 
 set (ACE_LIB_FILE libACE.so)
 if (UNIX)
- set (AIO_LIB_FILE libaio.so)
- find_library (AIO_LIBRARY ${AIO_LIB_FILE}
-               PATHS /lib /usr/lib
-               PATH_SUFFIXES x86_64-linux-gnu
-               DOC "searching for ${AIO_LIB_FILE}")
-# message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
- message ("CMAKE_CURRENT_BINARY_DIR is ${CMAKE_CURRENT_BINARY_DIR}")
  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
                PATHS ${CMAKE_CURRENT_BINARY_DIR}/../../../ATCD/ACE /usr/local
     #           HINTS ENV ACE_ROOT
@@ -68,15 +78,6 @@ else ()
  #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
 endif ()
 add_definitions (-DACE_HAS_DLL)
-
-include (FindPkgConfig)
-if (UNIX)
- pkg_check_modules (PKG_LIBCAP REQUIRED libcap)
- if (DBUS_SUPPORT)
-  pkg_check_modules (PKG_DBUS REQUIRED dbus-1)
-  add_definitions (-DDBUS_SUPPORT)
- endif (DBUS_SUPPORT)
-endif (UNIX)
 #pkg_check_modules (PKG_ACE REQUIRED ACE)
 
 if (UNIX)
@@ -112,14 +113,17 @@ add_library (${PROJECT_NAME} STATIC "")
 
 if (UNIX)
  target_include_directories (${PROJECT_NAME} PUBLIC
+                             $<BUILD_INTERFACE:${PKG_LIBCAP_INCLUDE_DIRS}>)
+
+  target_include_directories (${PROJECT_NAME} PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE>)
 
- if (DBUS_SUPPORT)
-  target_include_directories (${PROJECT_NAME} PUBLIC
-                              "$<BUILD_INTERFACE:${PKG_DBUS_INCLUDE_DIRS}>")
-  target_include_directories (${PROJECT_NAME} PUBLIC
-                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dbus>)
- endif (DBUS_SUPPORT)
+# if (DBUS_SUPPORT)
+#  target_include_directories (${PROJECT_NAME} PUBLIC
+#                              "$<BUILD_INTERFACE:${PKG_DBUS_INCLUDE_DIRS}>")
+#  target_include_directories (${PROJECT_NAME} PUBLIC
+#                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dbus>)
+# endif (DBUS_SUPPORT)
 elseif (WIN32)
  if (DEFINED ENV{ACE_ROOT})
   target_include_directories (${PROJECT_NAME} PUBLIC
@@ -238,6 +242,7 @@ if (UNIX)
 endif (UNIX)
 
 if (UNIX)
+ target_link_libraries (${PROJECT_NAME} rt)
  target_link_libraries (${PROJECT_NAME} ${PKG_LIBCAP_LIBRARIES})
  if (DBUS_SUPPORT)
   target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}DBus)

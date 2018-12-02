@@ -1,4 +1,7 @@
-﻿include (FindOpenGL)
+﻿if (${CMAKE_VERSION} VERSION_GREATER "3.10")
+ cmake_policy (SET CMP0072 OLD) # set OpenGL_GL_PREFERENCE to LEGACY|GLVND
+endif (${CMAKE_VERSION} VERSION_GREATER "3.10")
+include (FindOpenGL)
 if (NOT OPENGL_FOUND)
  if (UNIX)
   set (OPENGL_LIB_FILE libGL.so)
@@ -17,7 +20,6 @@ if (NOT OPENGL_FOUND)
  endif (NOT OPENGL_FOUND AND NOT OPENGL_LIBRARY)
 endif (NOT OPENGL_FOUND)
 
-include (FindPkgConfig)
 if (UNIX)
 # pkg_check_modules (PKG_GLM REQUIRED glm)
  find_file (GLM_HPP_FILE
@@ -28,14 +30,23 @@ if (UNIX)
             DOC "searching for glm.h"
             NO_DEFAULT_PATH)
  if (NOT GLM_HPP_FILE)
-  message (FATAL_ERROR "Could not find GLM header (was: \"${GLM_HPP_FILE}\"), aborting")
+  message (FATAL_ERROR "Could not find GLM header, aborting")
  else ()
   #message (STATUS "Found GLM header \"${GLM_HPP_FILE}\"")
  endif ()
- pkg_check_modules (PKG_LIBPNG REQUIRED libpng)
+ find_library (PNG_LIBRARY libpng16.so.16
+               DOC "searching for libpng")
+ if (NOT PNG_LIBRARY)
+  message (FATAL_ERROR "could not find libpng, aborting")
+ endif (NOT PNG_LIBRARY)
+# pkg_check_modules (PKG_LIBPNG REQUIRED libpng)
+# find_library (ASSIMP_LIBRARY libassimp.so.3
+#               DOC "searching for libassimp")
+# if (NOT ASSIMP_LIBRARY)
+#  message (FATAL_ERROR "could not find libassimp, aborting")
+# endif (NOT ASSIMP_LIBRARY)
  pkg_check_modules (PKG_ASSIMP REQUIRED assimp)
 endif (UNIX)
-#pkg_check_modules (PKG_ACE REQUIRED ACE)
 
 add_library (${PROJECT_NAME}OpenGL STATIC "")
 

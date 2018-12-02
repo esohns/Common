@@ -19,10 +19,10 @@
 ***************************************************************************/
 #include "stdafx.h"
 
-#include <sys/prctl.h>
-
 #include <iostream>
 #include <string>
+
+#include "sys/prctl.h"
 
 #include "ace/Get_Opt.h"
 #include "ace/High_Res_Timer.h"
@@ -33,6 +33,8 @@
 #include "common_defines.h"
 #include "common_file_tools.h"
 #include "common_tools.h"
+
+#include "common_log_tools.h"
 
 #include "common_timer_tools.h"
 
@@ -290,15 +292,15 @@ ACE_TMAIN (int argc_in,
 
   // step1d: initialize logging and/or tracing
   std::string log_file_name;
-  if (!Common_Tools::initializeLogging (ACE::basename (argv_in[0]), // program name
-                                        log_file_name,              // log file name
-                                        false,                      // log to syslog ?
-                                        false,                      // trace messages ?
-                                        trace_information_b,        // debug messages ?
-                                        NULL))                      // logger ?
+  if (!Common_Log_Tools::initializeLogging (ACE::basename (argv_in[0]), // program name
+                                            log_file_name,              // log file name
+                                            false,                      // log to syslog ?
+                                            false,                      // trace messages ?
+                                            trace_information_b,        // debug messages ?
+                                            NULL))                      // logger ?
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_Tools::initializeLogging(), aborting\n")));
+                ACE_TEXT ("failed to Common_Log_Tools::initializeLogging(), aborting\n")));
     return EXIT_FAILURE;
   } // end IF
 

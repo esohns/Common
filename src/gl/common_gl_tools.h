@@ -27,7 +27,7 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <gl/GL.h>
 #else
-#include <GL/gl.h>
+#include "GL/gl.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "assimp/color4.h"

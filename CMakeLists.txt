@@ -9,6 +9,21 @@ include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/Configuration.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/Macros.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/VersionConfig.cmake)
 
+# detect version
+#include (MacrosAutotools)
+#autoinit (configure.ac)
+#autoversion (Common)
+#if (EXISTS config.h.in)
+# autoheaderchecks (config.h.in ConfigureChecks.cmake config.h.cmake)
+#else ()
+# message (STATUS "Generate config.h.in with autogen.sh to enable cmake header difference check.")
+#endif ()
+# set PACKAGE_... variables
+#autopackage (dbus
+#             ${DBUS_VERSION_STRING}
+#             "http://dbus.freedesktop.org"
+#             "https://bugs.freedesktop.org/enter_bug.cgi?product=dbus")
+
 cmake_minimum_required (VERSION 2.8)
 
 cmake_policy (SET CMP0069 NEW) # IPO is enforced when enabled
@@ -24,12 +39,18 @@ endif (IPO_SUPPORTED)
 #set (CMAKE_VERBOSE_MAKEFILE ON)
 #set (MSVC_INCREMENTAL_DEFAULT OFF)
 set_property (GLOBAL PROPERTY USE_FOLDERS ON)
+
+#include (MacroLibrary)
 if (UNIX)
+# include (ConfigureChecks.cmake)
  find_program (CCACHE_PROGRAM ccache)
  if (CCACHE_PROGRAM)
   set_property (GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
  endif (CCACHE_PROGRAM)
-endif (UNIX)
+elseif (WIN32)
+ include (Win32Macros)
+ include (ProjectSourceGroup)
+endif ()
 
 # build type
 #variable_watch (CMAKE_BUILD_TYPE)
@@ -57,6 +78,9 @@ project (${PROJECT_NAME}
 # directories
 # override the installation directories ?
 #set (CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION OFF)
+if (UNIX)
+ include (GNUInstallDirs)
+endif (UNIX)
 set (INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
 set (INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
 set (INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
@@ -105,6 +129,13 @@ elseif (CMAKE_BUILD_TYPE STREQUAL Release)
  endif ()
 endif ()
 
+if (UNIX)
+ include (FindPkgConfig)
+ if (NOT PKG_CONFIG_FOUND)
+  message (FATAL_ERROR "pkg-config not found, aborting")
+ endif (NOT PKG_CONFIG_FOUND)
+endif (UNIX)
+
 option (TRACING "enable tracing" OFF)
 if (TRACING)
  add_definitions (-DCOMMON_NTRACE=0)
@@ -120,7 +151,6 @@ if (VALGRIND_SUPPORT)
  check_include_files (valgrind/valgrind.h HAVE_VALGRIND_H)
 #  include (CheckLibraryExists)
 #  check_library_exists (libvalgrind "" "" HAVE_LIB_VALGRIND)
- include (FindPkgConfig)
  pkg_check_modules (PKGVALGRIND REQUIRED valgrind)
  add_definitions (-DLIBCOMMON_ENABLE_VALGRIND_SUPPORT)
 #  set_property (SOURCE PROPERTY COMPILE_DEFINITIONS LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
@@ -128,28 +158,31 @@ endif ()
 
 option (BUILD_MODULES "build (git) sub-modules" OFF)
 
-if (CMAKE_COMPILER_IS_GNUCXX)
- add_compile_options (-ansi)
- add_compile_options (-std=c++11)
- add_compile_options (-Wall)
- set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS} -g")
- add_definitions (-D_GNU_SOURCE)
+if (UNIX)
+ if (CMAKE_COMPILER_IS_GNUCXX)
+  add_compile_options (-ansi)
+  add_compile_options (-std=c++11)
+  add_compile_options (-Wall)
+  set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS} -g")
+  add_definitions (-D_GNU_SOURCE)
 #  set_property (SOURCE PROPERTY COMPILE_DEFINITIONS _GNU_SOURCE)
-endif ()
-if (MSVC)
- add_compile_options (/MP)
-# add_definitions (-D_CRT_SECURE_NO_WARNINGS)
+ endif (CMAKE_COMPILER_IS_GNUCXX)
+elseif (WIN32)
+ if (MSVC)
+  add_compile_options (/MP)
+ # add_definitions (-D_CRT_SECURE_NO_WARNINGS)
 
- set (MSVC_INCREMENTAL_YES_FLAG "/INCREMENTAL:NO")
- foreach (FLAG_TYPE EXE MODULE SHARED STATIC)
-  string (REGEX REPLACE "/INCREMENTAL* " "/INCREMENTAL:NO " CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG "${CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG}")
+  set (MSVC_INCREMENTAL_YES_FLAG "/INCREMENTAL:NO")
+  foreach (FLAG_TYPE EXE MODULE SHARED STATIC)
+   string (REGEX REPLACE "/INCREMENTAL* " "/INCREMENTAL:NO " CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG "${CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG}")
 #  message (STATUS "flag: ${FLAG_TYPE}: ${CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG}")
-  string (REPLACE "/EDITANDCONTINUE"     ""                 CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG "${CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG}")
-  set (CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG "${CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG}"
-       CACHE STRING "Overriding default debug ${FLAG_TYPE} linker flags." FORCE)
-  mark_as_advanced (CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG)
- endforeach ()
-endif (MSVC)
+   string (REPLACE "/EDITANDCONTINUE"     ""                 CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG "${CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG}")
+   set (CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG "${CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG}"
+        CACHE STRING "Overriding default debug ${FLAG_TYPE} linker flags." FORCE)
+   mark_as_advanced (CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG)
+  endforeach ()
+ endif (MSVC)
+endif ()
 
 ################################################################################
 
