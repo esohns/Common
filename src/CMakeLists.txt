@@ -115,15 +115,8 @@ if (UNIX)
  target_include_directories (${PROJECT_NAME} PUBLIC
                              $<BUILD_INTERFACE:${PKG_LIBCAP_INCLUDE_DIRS}>)
 
-  target_include_directories (${PROJECT_NAME} PUBLIC
+ target_include_directories (${PROJECT_NAME} PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE>)
-
-# if (DBUS_SUPPORT)
-#  target_include_directories (${PROJECT_NAME} PUBLIC
-#                              "$<BUILD_INTERFACE:${PKG_DBUS_INCLUDE_DIRS}>")
-#  target_include_directories (${PROJECT_NAME} PUBLIC
-#                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dbus>)
-# endif (DBUS_SUPPORT)
 elseif (WIN32)
  if (DEFINED ENV{ACE_ROOT})
   target_include_directories (${PROJECT_NAME} PUBLIC

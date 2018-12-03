@@ -1,7 +1,7 @@
 ﻿include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/PreUIFramework.cmake)
 #include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/SetUIFramework.cmake)
 if (GTK_SUPPORT)
- include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/SetGTKVersion.cmake)
+# include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/SetGTKVersion.cmake)
 endif (GTK_SUPPORT)
 if (WXWIDGETS_SUPPORT)
  message (STATUS "wxWidgets_DEFINITIONS: ${wxWidgets_DEFINITIONS}")
@@ -25,15 +25,6 @@ if (WXWIDGETS_SUPPORT)
   add_definitions (-D__WXDEBUG__)
  endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 endif (WXWIDGETS_SUPPORT)
-
-if (GTK_SUPPORT)
- CMAKE_DEPENDENT_OPTION (GTKGL_SUPPORT "enable GTK OpenGL support" ON
-                         "GTK_SUPPORT" OFF)
-# *IMPORTANT NOTE*: to use gtkglarea on gtk2, check out the 'gtkglarea-2' branch
-#                   of the project
- CMAKE_DEPENDENT_OPTION (GTKGLAREA_SUPPORT "enable GtkGLArea support" OFF
-                         "GTKGL_SUPPORT" OFF)
-endif (GTK_SUPPORT)
 
 add_library (${PROJECT_NAME}UI STATIC "")
 

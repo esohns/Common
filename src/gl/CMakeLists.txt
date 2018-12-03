@@ -21,6 +21,7 @@ if (NOT OPENGL_FOUND)
 endif (NOT OPENGL_FOUND)
 
 if (UNIX)
+# GLM
 # pkg_check_modules (PKG_GLM REQUIRED glm)
  find_file (GLM_HPP_FILE
             NAMES "glm.hpp"
@@ -34,12 +35,15 @@ if (UNIX)
  else ()
   #message (STATUS "Found GLM header \"${GLM_HPP_FILE}\"")
  endif ()
+
+# assimp
  find_library (PNG_LIBRARY libpng16.so.16
                DOC "searching for libpng")
  if (NOT PNG_LIBRARY)
   message (FATAL_ERROR "could not find libpng, aborting")
  endif (NOT PNG_LIBRARY)
 # pkg_check_modules (PKG_LIBPNG REQUIRED libpng)
+
 # find_library (ASSIMP_LIBRARY libassimp.so.3
 #               DOC "searching for libassimp")
 # if (NOT ASSIMP_LIBRARY)

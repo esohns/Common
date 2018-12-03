@@ -1,12 +1,4 @@
-﻿#include (CMakeDependentOption)
-#CMAKE_DEPENDENT_OPTION (GTK3_SUPPORT "enable GTK 3 support" ON
-#                        "GTK_SUPPORT" OFF)
-#option (GTK3_SUPPORT "enable GTK 3 support" ON)
-#CMAKE_DEPENDENT_OPTION (GTK2_SUPPORT "enable GTK 2 support" ON
-#                        "GTK_SUPPORT; NOT GTK3_SUPPORT" OFF)
-#option (GTK2_SUPPORT "enable GTK2 support" OFF)
-
-# *NOTE*: early versions of gtk do not support GtkBuilder
+﻿# *NOTE*: early versions of gtk do not support GtkBuilder
 # *TODO*: --> find the version number(s) and auto-enable this feature for these
 #             target systems
 # *NOTE*: on Win32 systems, the (binary) gtk3 applications have linkage issues
@@ -16,42 +8,14 @@
 #         --> disable libglade support when targeting gtk3
 # *TODO*: retrieve the available gtk version number(s) from the pkg-config
 #         output and pre-set this option accordingly
-#option (LIBGLADE_SUPPORT "enable libglade support" OFF)
+include (CMakeDependentOption)
 CMAKE_DEPENDENT_OPTION (LIBGLADE_SUPPORT "enable libglade support" OFF
                         "GTK_SUPPORT; NOT GTK3_SUPPORT" OFF)
 
-option (GTKGL_SUPPORT "enable GTK OpenGL support" ON)
-# *IMPORTANT NOTE*: to use gtkglarea on gtk2, check out the 'gtkglarea-2' branch
-#                   of the project
-#option (GTKGLAREA_SUPPORT "enable GtkGLArea support" OFF)
-CMAKE_DEPENDENT_OPTION (GTKGLAREA_SUPPORT "enable GtkGLArea support" OFF
-                        "GTKGL_SUPPORT" OFF)
-
-#include (CheckLibraryExists)
-#check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
-#find_library (HAVE_LIB_ACE libACE)
-
-include (FindPkgConfig)
-#pkg_check_modules (PKG_ACE REQUIRED ACE)
 if (UNIX)
- if (GTK3_SUPPORT)
-  pkg_check_modules (PKG_GTK3 REQUIRED gtk+-3.0)
-  if (GTKGL_SUPPORT AND GTKGLAREA_SUPPORT)
-   pkg_check_modules (PKG_GTKGL3 REQUIRED gtkgl-3.0)
-  endif ()
- else ()
-  pkg_check_modules (PKG_GTK2 REQUIRED libpng gmodule-2.0 gthread-2.0 gtk+-2.0)
-  if (GTKGL_SUPPORT)
-   if (GTKGLAREA_SUPPORT)
-    pkg_check_modules (PKG_GTKGLAREA REQUIRED gtkgl-2.0)
-   else ()
-    pkg_check_modules (PKG_GTKGL2 REQUIRED gdkglext-1.0 gtkglext-1.0)
-   endif ()
-  endif ()
- endif ()
  if (LIBGLADE_SUPPORT)
   pkg_check_modules (PKG_GLADE REQUIRED libglade-2.0)
- endif ()
+ endif (LIBGLADE_SUPPORT)
 endif (UNIX)
 # *TODO*: repair WIN32 pkgconfig support
 
@@ -81,13 +45,6 @@ if (GTKGL_SUPPORT)
  endif (NOT OPENGL_FOUND)
 endif (GTKGL_SUPPORT)
 
-if (GTKGL_SUPPORT)
- add_definitions (-DGTKGL_SUPPORT)
-endif (GTKGL_SUPPORT)
-if (GTKGLAREA_SUPPORT)
- add_definitions (-DGTKGLAREA_SUPPORT)
-endif (GTKGLAREA_SUPPORT)
-
 if (LIBGLADE_SUPPORT)
  add_definitions (-DLIBGLADE_SUPPORT)
 endif (LIBGLADE_SUPPORT)
@@ -95,41 +52,43 @@ endif (LIBGLADE_SUPPORT)
 add_library (${PROJECT_NAME}UI_GTK STATIC "")
 
 if (UNIX)
- if (GTK3_SUPPORT)
-  # *NOTE*: a bug in cmake (3.10.2) requires the additional comment
+ if (GTK3_FOUND)
   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
-                              "$<BUILD_INTERFACE:${PKG_GTK3_INCLUDE_DIRS}>")
-  if (GTKGL_SUPPORT AND GTKGLAREA_SUPPORT)
-   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
-                               $<BUILD_INTERFACE:${PKG_GTKGLAREA_INCLUDE_DIRS}>)
-# *NOTE*: check out the 'master' branch for gtk3-based applications
-   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
-                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtkglarea>)
-  endif ()
+                              $<BUILD_INTERFACE:${GTK3_INCLUDE_DIRS}>)
+ elseif (GTK2_FOUND)
+  target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                              $<BUILD_INTERFACE:${GTK2_INCLUDE_DIRS}>)
+ elseif (GTK_FOUND)
+  target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                              $<BUILD_INTERFACE:${GTK_INCLUDE_DIR}>)
  else ()
-  target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
-                              $<BUILD_INTERFACE:${PKG_GTK2_INCLUDE_DIRS}>)
-  if (GTKGL_SUPPORT)
-   if (GTKGLAREA_SUPPORT)
-    target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
-                                $<BUILD_INTERFACE:${PKG_GTKGLAREA_INCLUDE_DIRS}>)
-   else ()
-    target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
-                                $<BUILD_INTERFACE:${PKG_GTKGL2_INCLUDE_DIRS}>)
-# *NOTE*: check out the 'gtkglarea-2' branch for gtk2-based applications
-    target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
-                                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtkglarea>)
-   endif ()
+  if (GTK2_SUPPORT)
+   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                               $<BUILD_INTERFACE:${PKG_GTK2_INCLUDE_DIRS}>)
+  elseif (GTK3_SUPPORT)
+# *NOTE*: a bug in cmake (3.10.2) requires the additional comment
+   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                               "$<BUILD_INTERFACE:${PKG_GTK3_INCLUDE_DIRS}>")
   endif ()
+ endif ()
+
+ if (GTKGLAREA_SUPPORT)
+#  target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+#                              $<BUILD_INTERFACE:${PKG_GTKGLAREA_INCLUDE_DIRS}>)
+# *NOTE*: check out the 'master' branch for gtk3-based applications
+# *NOTE*: check out the 'gtkglarea-2' branch for gtk2-based applications
+# 'TODO*: verify automatically
+  target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtkglarea>)
  endif ()
 
  if (LIBGLADE_SUPPORT)
   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
                               $<BUILD_INTERFACE:${PKG_GLADE_INCLUDE_DIRS}>)
- endif ()
+ endif (LIBGLADE_SUPPORT)
 
-# target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
-#                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../modules/ACE>)
+ target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../modules/ACE>)
 elseif (WIN32)
 #*TODO*: use pkg-config instead
 # gtk
@@ -197,6 +156,8 @@ target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>)
 target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../log>)
+target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../timer>)
 
 ############## next target ################
 set (source_files
