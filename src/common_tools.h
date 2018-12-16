@@ -157,8 +157,7 @@ class Common_Tools
   // --- UID ---
   static std::string GUIDToString (REFGUID);
   static struct _GUID StringToGUID (const std::string&);
-  // *WARNING* does not recognize GUID_NULL
-  inline static bool isGUID (const std::string& string_in) { return !InlineIsEqualGUID (Common_Tools::StringToGUID (string_in), GUID_NULL); }
+  static bool isGUID (const std::string&);
 
   // --- registry ---
   static std::string getKeyValue (HKEY,                // parent key

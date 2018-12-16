@@ -1,9 +1,19 @@
+if (UNIX)
+ set (OpenGL_Components "OpenGL EGL GLX")
+elseif (WIN32)
+ set (OpenGL_Components "OpenGL")
+endif ()
 find_package (OpenGL MODULE
-              COMPONENTS OpenGL EGL GLX)
+              COMPONENTS ${OpenGL_Components})
 if (OPENGL_FOUND)
  set (OPENGL_SUPPORT ON CACHE BOOL "OpenGL support")
  add_definitions (-DOPENGL_SUPPORT)
 endif (OPENGL_FOUND)
+# *TODO*
+if (WIN32)
+ set (OPENGL_SUPPORT ON CACHE BOOL "OpenGL support")
+ add_definitions (-DOPENGL_SUPPORT)
+endif (WIN32)
 
 ##########################################
 
@@ -26,6 +36,19 @@ if (UNIX)
    set (GTK2_SUPPORT ON CACHE BOOL "GTK2 support")
    add_definitions (-DGTK2_SUPPORT)
   endif (NOT GTK2_FOUND)
+
+# *NOTE*: early versions of gtk do not support GtkBuilder
+# *TODO*: --> find the version number(s) and auto-enable this feature for these
+#             target systems
+# *TODO*: retrieve the available gtk version number(s) from the pkg-config
+#         output and pre-set this option accordingly
+  pkg_check_modules (PKG_GLADE libglade-2.0)
+  if (PKG_GLADE_FOUND)
+   set (LIBGLADE_SUPPORT ON CACHE BOOL "libglade support")
+   add_definitions (-DLIBGLADE_SUPPORT)
+   option (LIBGLADE_SUPPORT "enable libglade support" OFF)
+  endif (PKG_GLADE_FOUND)
+  set (LIBGLADE_USE OFF CACHE BOOL "use libglade")
  else ()
   set (GTK_SUPPORT ON CACHE BOOL "GTK support")
   add_definitions (-DGTK_SUPPORT)
@@ -138,7 +161,42 @@ elseif (WIN32)
   add_definitions (-DGTK_SUPPORT)
   set (GTK3_SUPPORT ON CACHE BOOL "GTK3 support")
   add_definitions (-DGTK3_SUPPORT)
+
+# *NOTE*: early versions of gtk do not support GtkBuilder
+# *TODO*: --> find the version number(s) and auto-enable this feature for these
+#             target systems
+# *NOTE*: on Win32 systems, the (binary) gtk3 applications have linkage issues
+#         with the latest (2.6.4) libglade distribution (specifically, the
+#         libxml2 dll cannot be easily shared between these two packages; also,
+#         the 'embedded' library names do not match ('lib'-prefixes))
+#         --> disable libglade support when targeting gtk3
+# *TODO*: retrieve the available gtk version number(s) from the pkg-config
+#         output and pre-set this option accordingly
+  set (LIBGLADE_SUPPORT OFF CACHE BOOL "libglade support")
+#  add_definitions (-DLIBGLADE_SUPPORT)
+  option (LIBGLADE_SUPPORT "enable libglade support" OFF)
+  set (LIBGLADE_USE OFF CACHE BOOL "use libglade")
 # endif (NOT GTK2_FOUND)
+
+ if (GTK_SUPPORT)
+  if (OPENGL_SUPPORT)
+   if (GTK_GL_FOUND)
+#   message (STATUS "GTK has GL support")
+    set (GTKGL_SUPPORT ON CACHE BOOL "GTK GL support")
+    add_definitions (-DGTKGL_SUPPORT)
+    option (GTKGL_SUPPORT "enable GTK OpenGL support" ON)
+   else ()
+    message (WARNING "GTK has no GL support, falling back")
+# *IMPORTANT NOTE*: to use gtkglarea on gtk2, check out the 'gtkglarea-2' branch
+#                   of the project
+    set (GTKGLAREA_SUPPORT ON CACHE BOOL "GtkGLArea support")
+    add_definitions (-DGTKGLAREA_SUPPORT)
+    option (GTKGLAREA_SUPPORT "enable GtkGLArea support" ON)
+   endif (GTK_GL_FOUND)
+  else ()
+   message (WARNING "GL not supported, continuing")
+  endif (OPENGL_SUPPORT)
+ endif (GTK_SUPPORT)
 endif ()
 
 ##########################################

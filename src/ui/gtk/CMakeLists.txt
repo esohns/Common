@@ -1,25 +1,4 @@
-﻿# *NOTE*: early versions of gtk do not support GtkBuilder
-# *TODO*: --> find the version number(s) and auto-enable this feature for these
-#             target systems
-# *NOTE*: on Win32 systems, the (binary) gtk3 applications have linkage issues
-#         with the latest (2.6.4) libglade distribution (specifically, the
-#         libxml2 dll cannot be easily shared between these two packages; also,
-#         the 'embedded' library names do not match ('lib'-prefixes))
-#         --> disable libglade support when targeting gtk3
-# *TODO*: retrieve the available gtk version number(s) from the pkg-config
-#         output and pre-set this option accordingly
-include (CMakeDependentOption)
-CMAKE_DEPENDENT_OPTION (LIBGLADE_SUPPORT "enable libglade support" OFF
-                        "GTK_SUPPORT; NOT GTK3_SUPPORT" OFF)
-
-if (UNIX)
- if (LIBGLADE_SUPPORT)
-  pkg_check_modules (PKG_GLADE REQUIRED libglade-2.0)
- endif (LIBGLADE_SUPPORT)
-endif (UNIX)
-# *TODO*: repair WIN32 pkgconfig support
-
-if (GTKGL_SUPPORT)
+﻿if (GTKGL_SUPPORT)
  include (FindOpenGL)
  if (NOT OPENGL_FOUND)
   if (UNIX)
@@ -44,10 +23,6 @@ if (GTKGL_SUPPORT)
   endif () # NOT OPENGL_FOUND AND NOT OPENGL_LIBRARY
  endif (NOT OPENGL_FOUND)
 endif (GTKGL_SUPPORT)
-
-if (LIBGLADE_SUPPORT)
- add_definitions (-DLIBGLADE_SUPPORT)
-endif (LIBGLADE_SUPPORT)
 
 add_library (${PROJECT_NAME}UI_GTK STATIC "")
 
@@ -77,10 +52,10 @@ if (UNIX)
 #                              $<BUILD_INTERFACE:${PKG_GTKGLAREA_INCLUDE_DIRS}>)
 # *NOTE*: check out the 'master' branch for gtk3-based applications
 # *NOTE*: check out the 'gtkglarea-2' branch for gtk2-based applications
-# 'TODO*: verify automatically
+# *TODO*: verify automatically
   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtkglarea>)
- endif ()
+ endif (GTKGLAREA_SUPPORT)
 
  if (LIBGLADE_SUPPORT)
   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
@@ -107,10 +82,6 @@ elseif (WIN32)
                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtk3/include/glib-2.0>)
   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtk3/include/gtk-3.0>)
-  if (GTKGL_SUPPORT AND GTKGLAREA_SUPPORT)
-   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
-                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtkglarea>)
-  endif (GTKGL_SUPPORT AND GTKGLAREA_SUPPORT)
  elseif (GTK2_SUPPORT)
   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtk2/include/atk-1.0>)
@@ -128,11 +99,15 @@ elseif (WIN32)
                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtk2/lib/gtk-2.0/include>)
   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtk2/include/gtk-2.0>)
-  if (GTKGL_SUPPORT AND GTKGLAREA_SUPPORT)
-   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
-                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtkglarea>)
-  endif (GTKGL_SUPPORT AND GTKGLAREA_SUPPORT)
- endif (GTK3_SUPPORT)
+ endif ()
+
+ if (GTKGLAREA_SUPPORT)
+# *NOTE*: check out the 'master' branch for gtk3-based applications
+# *NOTE*: check out the 'gtkglarea-2' branch for gtk2-based applications
+# *TODO*: verify automatically
+  target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtkglarea>)
+ endif (GTKGLAREA_SUPPORT)
 
  if (LIBGLADE_SUPPORT)
 # libglade

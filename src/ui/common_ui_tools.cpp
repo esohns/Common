@@ -802,25 +802,25 @@ Common_UI_Tools::getDisplays ()
 #endif // _DEBUG
         display_device_s.id =
 #if defined (UNICODE)
-          ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceID);
+          ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceID));
 #else
           display_device_2.DeviceID;
 #endif // UNICODE
         display_device_s.key =
 #if defined (UNICODE)
-          ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceKey);
+          ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceKey));
 #else
           display_device_2.DeviceKey;
 #endif // UNICODE
         display_device_s.device =
 #if defined (UNICODE)
-          ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceName);
+          ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceName));
 #else
           display_device_2.DeviceName;
 #endif // UNICODE
         display_device_s.description =
 #if defined (UNICODE)
-          ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceString);
+          ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceString));
 #else
           display_device_2.DeviceString;
 #endif // UNICODE
@@ -1095,6 +1095,8 @@ Common_UI_Tools::getDisplay (const std::string& deviceIdentifier_in)
   return result;
 }
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
 bool
 Common_UI_Tools::displayMatches (const std::string& identifier_in,
                                  const std::string& identifier2_in)
@@ -1136,6 +1138,7 @@ Common_UI_Tools::displayMatches (const std::string& identifier_in,
           !ACE_OS::strcmp (match_results[2].str ().c_str (),
                            match_results_2[2].str ().c_str ()));
 }
+#endif // ACE_WIN32 || ACE_WIN64
 
 struct Common_UI_DisplayAdapter
 Common_UI_Tools::getAdapter (const struct Common_UI_DisplayDevice& device_in)

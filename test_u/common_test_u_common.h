@@ -79,13 +79,14 @@ struct Common_Test_U_UI_CBData
   Common_Test_U_UI_CBData ()
    : allowUserRuntimeStatistic (true)
    , progressData ()
-#if defined (GTK_USE)
    , UIState (NULL)
-#elif defined (WXWIDGETS_USE)
-   , iapplication (NULL)
-#endif
+//#if defined (GTK_USE)
+//#elif defined (WXWIDGETS_USE)
+//   , iapplication (NULL)
+//#endif
   {
     progressData.CBData = this;
+    progressData.state = UIState;
   }
 
   bool                                  allowUserRuntimeStatistic;
@@ -93,7 +94,8 @@ struct Common_Test_U_UI_CBData
 #if defined (GTK_USE)
   Common_UI_GTK_State_t*                UIState;
 #elif defined (WXWIDGETS_USE)
-  Common_UI_wxWidgets_IApplicationBase* iapplication;
+  Common_UI_wxWidgets_State*            UIState;
+  //Common_UI_wxWidgets_IApplicationBase* iapplication;
 #endif
 };
 

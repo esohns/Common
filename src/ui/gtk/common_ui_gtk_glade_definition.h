@@ -23,23 +23,23 @@
 
 #include "ace/Global_Macros.h"
 
-//#include "common_ui_common.h"
-//#include "common_ui_exports.h"
+#include "common_ui_idefinition.h"
 
 #include "common_ui_gtk_common.h"
-#include "common_ui_igtk.h"
 
-//class Common_UI_Export Common_UI_GladeDefinition
 class Common_UI_GladeDefinition
- : public Common_UI_IGTK_T<struct Common_UI_GTK_State>
+ : public Common_UI_IDefinition_T<Common_UI_GTK_State_t>
 {
  public:
+  // convenient types
+  typedef Common_UI_IDefinition_T<Common_UI_GTK_State_t> INTERFACE_T;
+
   Common_UI_GladeDefinition (int,          // argc
                              ACE_TCHAR**); // argv
   virtual ~Common_UI_GladeDefinition ();
 
-  // implement Common_UI_IGTK_T
-  virtual bool initialize (struct Common_UI_GTK_State&); // return value: GTK state
+  // implement Common_UI_IDefinition_T
+  virtual bool initialize (Common_UI_GTK_State_t&); // return value: UI state
   virtual void finalize ();
 
  private:
@@ -47,9 +47,9 @@ class Common_UI_GladeDefinition
   ACE_UNIMPLEMENTED_FUNC (Common_UI_GladeDefinition (const Common_UI_GladeDefinition&))
   ACE_UNIMPLEMENTED_FUNC (Common_UI_GladeDefinition& operator= (const Common_UI_GladeDefinition&))
 
-  int                         argc_;
-  ACE_TCHAR**                 argv_;
-  struct Common_UI_GTK_State* state_;
+  int                    argc_;
+  ACE_TCHAR**            argv_;
+  Common_UI_GTK_State_t* state_;
 };
 
 #endif

@@ -72,7 +72,7 @@ Common_UI_GladeDefinition::~Common_UI_GladeDefinition ()
 }
 
 bool
-Common_UI_GladeDefinition::initialize (struct Common_UI_GTK_State& state_inout)
+Common_UI_GladeDefinition::initialize (Common_UI_GTK_State_t& state_inout)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GladeDefinition::initialize"));
 

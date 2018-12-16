@@ -256,10 +256,10 @@ struct Common_UI_State
 struct Common_UI_CBData
 {
   Common_UI_CBData ()
-   : UIState ()
+   : UIState (NULL)
   {}
 
-  struct Common_UI_State UIState;
+  struct Common_UI_State* UIState;
 };
 
 #endif

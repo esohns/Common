@@ -48,8 +48,8 @@ if (UNIX)
 #  set_property (GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
  endif (CCACHE_PROGRAM)
 elseif (WIN32)
- include (Win32Macros)
- include (ProjectSourceGroup)
+# include (Win32Macros)
+# include (ProjectSourceGroup)
 endif ()
 
 # build type

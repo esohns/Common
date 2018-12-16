@@ -1963,6 +1963,7 @@ Common_Tools::GUIDToString (REFGUID GUID_in)
 
   return result;
 }
+
 struct _GUID
 Common_Tools::StringToGUID (const std::string& string_in)
 {
@@ -1981,7 +1982,7 @@ Common_Tools::StringToGUID (const std::string& string_in)
 #endif // OLE2ANSI
   if (unlikely (FAILED (result_2)))
   {
-    ACE_DEBUG ((LM_WARNING,
+    ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to CLSIDFromString(\"%s\"): \"%s\", aborting\n"),
                 ACE_TEXT (string_in.c_str ()),
                 ACE_TEXT (Common_Error_Tools::errorToString (result_2).c_str ())));
@@ -1989,6 +1990,25 @@ Common_Tools::StringToGUID (const std::string& string_in)
   } // end IF
 
   return result;
+}
+
+bool
+Common_Tools::isGUID (const std::string& string_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::isGUID"));
+
+  struct _GUID GUID_s = GUID_NULL;
+
+  HRESULT result =
+#if defined (OLE2ANSI)
+    CLSIDFromString (string_in.c_str (),
+                     &GUID_s);
+#else
+    CLSIDFromString (ACE_TEXT_ALWAYS_WCHAR (string_in.c_str ()),
+                     &GUID_s);
+#endif // OLE2ANSI
+
+  return !FAILED (result);
 }
 
 std::string
