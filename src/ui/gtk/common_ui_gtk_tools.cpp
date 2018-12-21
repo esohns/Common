@@ -519,8 +519,25 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::dumpGtkOpenGLInfo"));
 
+  bool release_context = false;
   GdkWindow* window_p = NULL;
   bool release_window = false;
+  std::ostringstream converter;
+  std::string information_string;
+
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
+  window_p = gdk_gl_context_get_window (context_in);
+#else
+#if defined (GTKGLAREA_SUPPORT)
+#else
+#endif /* GTKGLAREA_SUPPORT */
+#endif // GTK_CHECK_VERSION (3,16,0)
+#else
+#if defined (GTKGLAREA_SUPPORT)
+#else
+#endif /* GTKGLAREA_SUPPORT */
+#endif // GTK_CHECK_VERSION (3,0,0)
 
   // sanity check(s)
 #if GTK_CHECK_VERSION(3,0,0)
@@ -560,16 +577,11 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
 #else
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION(3,0,0)
-
-  std::ostringstream converter;
-  std::string information_string;
+  ACE_ASSERT (window_p);
 
 #if GTK_CHECK_VERSION(3,0,0)
 #if GTK_CHECK_VERSION(3,16,0)
-  ACE_ASSERT (window_p);
-
   GdkGLContext* gl_context_p = gdk_gl_context_get_current ();
-  bool release_context = false;
   if (unlikely (!gl_context_p))
   {
     GError* error_p = NULL;
@@ -581,11 +593,13 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to gdk_window_create_gl_context(0x%@): \"%s\", returning\n"),
-                  window_in,
+                  window_p,
                   ACE_TEXT (error_p->message)));
       g_error_free (error_p); error_p = NULL;
       if (release_window)
-        g_object_unref (window_p);
+      {
+        g_object_unref (window_p); window_p = NULL;
+      } // end IF
       return;
     } // end IF
     release_context = true;
@@ -602,7 +616,9 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
                   ACE_TEXT (error_p->message)));
       g_error_free (error_p); error_p = NULL;
       if (release_window)
-        g_object_unref (window_p);
+      {
+        g_object_unref (window_p); window_p = NULL;
+      } // end IF
       g_object_unref (gl_context_p); gl_context_p = NULL;
       return;
     } // end IF

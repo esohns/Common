@@ -54,6 +54,9 @@
 #include "common_ui_defines.h"
 
 #include "common_ui_gtk_defines.h"
+#if defined (GTKGL_SUPPORT)
+#include "common_ui_gtk_gl_common.h"
+#endif // GTKGL_SUPPORT
 #include "common_ui_gtk_tools.h"
 
 template <ACE_SYNCH_DECL,

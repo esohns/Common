@@ -26,6 +26,39 @@ if (WXWIDGETS_SUPPORT)
  endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 endif (WXWIDGETS_SUPPORT)
 
+set (ACEXML_LIB_FILE libACEXML.so)
+if (UNIX)
+# message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
+ find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
+               HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE/ACEXML /usr/local
+#               PATHS ENV ACE_ROOT
+               PATH_SUFFIXES common
+               DOC "searching for ${ACEXML_LIB_FILE}"
+               NO_DEFAULT_PATH)
+# else ()
+#  find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
+#                DOC "searching for ${ACEXML_LIB_FILE} (system paths)")
+# endif ()
+elseif (WIN32)
+ if (CMAKE_BUILD_TYPE STREQUAL Debug)
+  set (LIB_FILE_SUFFIX d)
+ endif ()
+ unset (ACEXML_LIB_FILE)
+ set (ACEXML_LIB_FILE ACEXML${LIB_FILE_SUFFIX}.lib)
+ find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
+               PATHS ENV ACE_ROOT
+               PATHS ${CMAKE_CURRENT_BINARY_DIR}/../../../../ATCD/ACE
+               PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
+               DOC "searching for ${ACEXML_LIB_FILE}")
+endif ()
+#if (NOT EXISTS ACEXML_LIBRARY)
+if (NOT ACEXML_LIBRARY)
+ message (FATAL_ERROR "Could not find ${ACEXML_LIB_FILE} (was: \"${ACEXML_LIBRARY}\"), aborting")
+else ()
+ #message (STATUS "Found ACEXML library \"${ACEXML_LIBRARY}\"")
+endif ()
+#add_definitions (-DACEXML_HAS_DLL)
+
 add_library (${PROJECT_NAME}UI STATIC "")
 
 if (UNIX)
@@ -46,6 +79,10 @@ target_include_directories (${PROJECT_NAME}UI PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
 target_include_directories (${PROJECT_NAME}UI PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../log>)
+if (UNIX)
+ target_include_directories (${PROJECT_NAME}UI PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../xml>)
+endif (UNIX)
 target_include_directories (${PROJECT_NAME}UI PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
 
@@ -53,12 +90,18 @@ target_include_directories (${PROJECT_NAME}UI PUBLIC
 set (source_files
      common_ui_common.h
      common_ui_defines.h
-     common_ui_exports.h
+#     common_ui_exports.h
      common_ui_idefinition.h
      common_ui_ifullscreen.h
      common_ui_tools.cpp
      common_ui_tools.h
      common_ui_types.h)
+if (UNIX)
+ set (source_files
+      ${source_files}
+      common_ui_monitor_setup_xml_handler.cpp
+      common_ui_monitor_setup_xml_handler.h)
+endif (UNIX)
 
 # Include dir for installed targets
 set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})

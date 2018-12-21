@@ -70,11 +70,11 @@ Common_XML_Parser_T<ACE_SYNCH_USE,
                 ACE_TEXT (filename_in.c_str ())));
     return;
   } // end IF
-
+#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("parsing \"%s\"\n"),
+              ACE_TEXT ("parsing XML file \"%s\"\n"),
               ACE_TEXT (filename_in.c_str ())));
-
+#endif // _DEBUG
   parse (&input_source);
 }
 template <ACE_SYNCH_DECL,

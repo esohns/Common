@@ -1,38 +1,66 @@
 ﻿include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/PreXMLImplementation.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/SetXMLImplementation.cmake)
 
-set (ACEXML_LIB_FILE libACEXML.so)
+set (ACE_XML_LIB_FILE libACEXML.so)
 if (UNIX)
 # message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
- find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
-               HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE/ACEXML /usr/local
-#               PATHS ENV ACE_ROOT
-               PATH_SUFFIXES common
-               DOC "searching for ${ACEXML_LIB_FILE}"
+ find_library (ACE_XML_LIBRARY ${ACE_XML_LIB_FILE}
+               HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE /usr/local
+               PATHS ENV ACE_ROOT
+               PATH_SUFFIXES lib
+               DOC "searching for ${ACE_XML_LIB_FILE}"
                NO_DEFAULT_PATH)
 # else ()
-#  find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
-#                DOC "searching for ${ACEXML_LIB_FILE} (system paths)")
+#  find_library (ACEXML_LIBRARY ${ACE_XML_LIB_FILE}
+#                DOC "searching for ${ACE_XML_LIB_FILE} (system paths)")
 # endif ()
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
   set (LIB_FILE_SUFFIX d)
  endif ()
- unset (ACEXML_LIB_FILE)
- set (ACEXML_LIB_FILE ACEXML${LIB_FILE_SUFFIX}.lib)
- find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
+ unset (ACE_XML_LIB_FILE)
+ set (ACE_XML_LIB_FILE ACEXML${LIB_FILE_SUFFIX}.lib)
+ find_library (ACE_XML_LIBRARY ${ACE_XML_LIB_FILE}
                PATHS ENV ACE_ROOT
-               PATHS ${CMAKE_CURRENT_BINARY_DIR}/../../../../ATCD/ACE
                PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
-               DOC "searching for ${ACEXML_LIB_FILE}")
+               DOC "searching for ${ACE_XML_LIB_FILE}")
 endif ()
-#if (NOT EXISTS ACEXML_LIBRARY)
-if (NOT ACEXML_LIBRARY)
- message (FATAL_ERROR "Could not find ${ACEXML_LIB_FILE} (was: \"${ACEXML_LIBRARY}\"), aborting")
+#if (NOT EXISTS ACE_XML_LIBRARY)
+if (NOT ACE_XML_LIBRARY)
+ message (FATAL_ERROR "Could not find ${ACE_XML_LIB_FILE} (was: \"${ACE_XML_LIBRARY}\"), aborting")
 else ()
- #message (STATUS "Found ACEXML library \"${ACEXML_LIBRARY}\"")
+ #message (STATUS "Found ACEXML library \"${ACE_XML_LIBRARY}\"")
 endif ()
-#add_definitions (-DACEXML_HAS_DLL)
+set (ACE_XML_PARSER_LIB_FILE libACEXML_Parser.so)
+if (UNIX)
+# message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
+ find_library (ACE_XML_PARSER_LIBRARY ${ACE_XML_PARSER_LIB_FILE}
+               HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE /usr/local
+               PATHS ENV ACE_ROOT
+               PATH_SUFFIXES lib
+               DOC "searching for ${ACE_XML_PARSER_LIB_FILE}"
+               NO_DEFAULT_PATH)
+# else ()
+#  find_library (ACE_XML_PARSER_LIBRARY ${ACE_XML_PARSER_LIB_FILE}
+#                DOC "searching for ${ACE_XML_PARSER_LIB_FILE} (system paths)")
+# endif ()
+elseif (WIN32)
+ if (CMAKE_BUILD_TYPE STREQUAL Debug)
+  set (LIB_FILE_SUFFIX d)
+ endif ()
+ unset (ACE_XML_PARSER_LIB_FILE)
+ set (ACE_XML_PARSER_LIB_FILE ACEXML_Parser${LIB_FILE_SUFFIX}.lib)
+ find_library (ACE_XML_PARSER_LIBRARY ${ACE_XML_PARSER_LIB_FILE}
+               PATHS ENV ACE_ROOT
+               PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
+               DOC "searching for ${ACE_XML_PARSER_LIB_FILE}")
+endif ()
+#if (NOT EXISTS ACE_XML_PARSER_LIBRARY)
+if (NOT ACE_XML_PARSER_LIBRARY)
+ message (FATAL_ERROR "Could not find ${ACE_XML_PARSER_LIB_FILE} (was: \"${ACE_XML_PARSER_LIBRARY}\"), aborting")
+else ()
+ #message (STATUS "Found ACEXML parser library \"${ACE_XML_PARSER_LIBRARY}\"")
+endif ()
 
 add_library (${PROJECT_NAME}XML STATIC "")
 
@@ -116,21 +144,8 @@ set_target_properties (${PROJECT_NAME}XML PROPERTIES
                        VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
                        SOVERSION 1)
 
-if (UNIX)
-elseif (WIN32)
- if (CMAKE_BUILD_TYPE STREQUAL Debug)
-#  target_link_libraries (${PROJECT_NAME}Timer Msvcrtd.lib)
- else ()
-#  target_link_libraries (${PROJECT_NAME}Timer Msvcrt.lib)
- endif ()
-# target_link_libraries (${PROJECT_NAME}Timer Quartz.lib)
-# target_link_libraries (${PROJECT_NAME}Timer Secur32.lib)
-# target_link_libraries (${PROJECT_NAME}Timer Userenv.lib)
-
-# target_link_libraries (${PROJECT_NAME}Timer ${ACE_LIBRARY})
-
-# target_link_libraries (${PROJECT_NAME}Timer ${PROJECT_NAME}Error)
-endif ()
+target_link_libraries (${PROJECT_NAME}XML ${ACE_XML_LIBRARY})
+target_link_libraries (${PROJECT_NAME}XML ${ACE_XML_PARSER_LIBRARY})
 
 # add PCH
 set_target_properties (${PROJECT_NAME}XML PROPERTIES

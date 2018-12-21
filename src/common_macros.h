@@ -57,7 +57,7 @@
 #else
 #define COMMON_TRY if (1)
 #define COMMON_CATCH(X) while (0)
-#endif // EXCEPTION_CPP_USE
+#endif
 #else
 #error invalid/unknown C++ compiler; not supported, check implementation
 #endif
@@ -68,11 +68,11 @@
 #define COMMON_OS_WIN32_SDK_VERSION(version)                   (_WIN32_WINNT && (_WIN32_WINNT >= version))
 #define COMMON_OS_WIN32_TARGET_PLATFORM(version)               (WINVER && (WINVER >= version))
 #elif defined (ACE_LINUX)
-#define COMMON_OS_LINUX_IF_DISTRIBUTION_AT_LEAST(distribution, major,minor,micro)       \
-  unsigned int major_i, minor_i, micro_i;                                               \
-  if ((distribution == Common_Tools::getDistribution (major_i, minor_i, micro_i)) &&    \
-      ((major_i > major)                                             ||                 \
-       ((major_i == major) && minor_i > minor)                       ||                 \
+#define COMMON_OS_LINUX_IF_DISTRIBUTION_AT_LEAST(distribution, major,minor,micro)    \
+  unsigned int major_i, minor_i, micro_i;                                            \
+  if ((distribution == Common_Tools::getDistribution (major_i, minor_i, micro_i)) && \
+      ((major_i > major)                                             ||              \
+       ((major_i == major) && minor_i > minor)                       ||              \
        ((major_i == major) && (minor_i == minor) && (micro_i >= micro))))
 #endif // ACE_WIN32 || ACE_WIN64
 
