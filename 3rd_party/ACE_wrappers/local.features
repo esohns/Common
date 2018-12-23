@@ -1,3 +1,17 @@
+//debug=1
+//buildbits=64
+//exceptions=1
+//inline=1
+//rtti=1
+//threads=1
+//uses_wchar=0
+qos=1
 //etcl=1
 ssl=1
+//zlib=1
+//gtk=1
+//wxWindows=1
+
+acetest=0
+examples=0
 

@@ -142,9 +142,9 @@ fi
 #echo "INFO: \$SSL_ROOT is: \"${SSL_ROOT}\")"
 
 # step1: apply patches
-PROJECTS="libCommon
-libACEStream
-libACENetwork"
+PROJECTS="Common
+ACEStream
+ACENetwork"
 for PROJECT in $PROJECTS
 do
  echo "INFO: processing project \"${PROJECT}\"..."
@@ -216,7 +216,7 @@ then
  # MWC_PL_OPTIONS="-name_modifier *_gnu"
  #fi
  cd ${ACE_BUILD_DIRECTORY}
- perl ${MWC_PL} -feature_file ${LOCAL_FEATURES_FILE} ${MWC_PL_OPTIONS} -type ${PROJECT_TYPE} ${ACE_MWC_FILE}
+ perl ${MWC_PL} -feature_file ${LOCAL_FEATURES_FILE} ${MWC_PL_OPTIONS} -type ${PROJECT_TYPE} ${ACE_MWC_FILE} -workers 4 -exclude tests -exclude performance-tests -exclude examples
  [ $? -ne 0 ] && echo "ERROR: failed to mwc.pl \"${ACE_MWC_FILE}\": $?, aborting" && exit 1
  echo "processing ${ACE_MWC_FILE}...DONE"
 fi
@@ -225,3 +225,5 @@ fi
 MAKE_OPTIONS=-j4
 make ${MAKE_OPTIONS}
 [ $? -ne 0 ] && echo "ERROR: failed to make: $?, aborting" && exit 1
+# *NOTE*: if this fails, try 'cd /mnt/win_d/projects/ATCD/ACE/apps/gperf/tests'; export LD_LIBRARY_PATH=$ACE_ROOT/lib; make realclean; make
+

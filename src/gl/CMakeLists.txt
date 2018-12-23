@@ -134,6 +134,7 @@ set_target_properties (${PROJECT_NAME}OpenGL PROPERTIES
                        SOVERSION 1)
 
 if (UNIX)
+ target_link_libraries (${PROJECT_NAME}OpenGL ${PNG_LIBRARY})
  target_link_libraries (${PROJECT_NAME}OpenGL ${PKG_ASSIMP_LIBRARIES})
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -144,13 +145,12 @@ elseif (WIN32)
 # target_link_libraries (${PROJECT_NAME}OpenGL Quartz.lib)
 # target_link_libraries (${PROJECT_NAME}OpenGL Secur32.lib)
 # target_link_libraries (${PROJECT_NAME}OpenGL Userenv.lib)
-
- if (OPENGL_FOUND)
-  target_link_libraries (${PROJECT_NAME}OpenGL ${OPENGL_LIBRARIES})
- else ()
-  target_link_libraries (${PROJECT_NAME}OpenGL ${OPENGL_LIBRARY})
- endif (OPENGL_FOUND)
 endif ()
+if (OPENGL_FOUND)
+ target_link_libraries (${PROJECT_NAME}OpenGL ${OPENGL_LIBRARIES})
+else ()
+ target_link_libraries (${PROJECT_NAME}OpenGL ${OPENGL_LIBRARY})
+endif (OPENGL_FOUND)
 
 # add PCH
 set_target_properties (${PROJECT_NAME}OpenGL PROPERTIES

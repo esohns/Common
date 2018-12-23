@@ -47,24 +47,23 @@
 #include "common_ui_gtk_common.h"
 
 #if GTK_CHECK_VERSION(3,0,0)
-#if GTK_CHECK_VERSION(3,16,0)
+#if GTK_CHECK_VERSION(3,24,1)
+typedef std::map<GtkGLArea*, GdkGLContext*> Common_UI_GTK_GLContexts_t;
+#elif GTK_CHECK_VERSION(3,16,0)
 typedef std::map<GdkWindow*, GdkGLContext*> Common_UI_GTK_GLContexts_t;
-typedef Common_UI_GTK_GLContexts_t::iterator Common_UI_GTK_GLContextsIterator_t;
 #else
 #if defined (GTKGLAREA_SUPPORT)
 typedef std::map<GglaArea*, GglaContext*> Common_UI_GTK_GLContexts_t;
-typedef Common_UI_GTK_GLContexts_t::iterator Common_UI_GTK_GLContextsIterator_t;
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,16,0) */
 #else
 #if defined (GTKGLAREA_SUPPORT)
 typedef std::map<GtkGLArea*, GdkGLContext*> Common_UI_GTK_GLContexts_t;
-typedef Common_UI_GTK_GLContexts_t::iterator Common_UI_GTK_GLContextsIterator_t;
 #else
 typedef std::map<GdkWindow*, GdkGLConfig*> Common_UI_GTK_GLContexts_t;
-typedef Common_UI_GTK_GLContexts_t::iterator Common_UI_GTK_GLContextsIterator_t;
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,0,0) */
+typedef Common_UI_GTK_GLContexts_t::iterator Common_UI_GTK_GLContextsIterator_t;
 
 struct Common_UI_GTK_GLState
  : Common_UI_GTK_State
