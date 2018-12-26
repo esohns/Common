@@ -303,21 +303,37 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     } // end IF
   } // end IF
 
+  // step2: initialize UI
+  if (likely (!UIIsInitialized_))
+  { ACE_ASSERT (configuration_->interface);
+    UIIsInitialized_ = configuration_->interface->initialize (state_);
+    if (unlikely (!UIIsInitialized_))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_UI_IGTK_t::initialize(): \"%m\", aborting\n")));
+      result = -1;
+      goto done;
+    } // end IF
+  } // end IF
+
 #if defined (GTKGL_SUPPORT)
-  // step2: initialize OpenGL
+  // step3: initialize OpenGL
+  // sanity check(s)
+  ACE_ASSERT (!state_.builders.empty ());
+  iterator =
+    state_.builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
+  ACE_ASSERT (iterator != state_.builders.end ());
+  ACE_ASSERT (state_.OpenGLContexts.empty ());
+  if (configuration_->widgetName.empty ())
+    goto continue_;
+
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("initializing OpenGL...\n")));
 #endif // _DEBUG
-  // sanity check(s)
-  ACE_ASSERT (!state_.builders.empty ());
-  iterator_2 =
-    state_.builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
-  ACE_ASSERT (iterator != state_.builders.end ());
-  ACE_ASSERT (state_.OpenGLContexts.empty ());
   widget_p =
     GTK_WIDGET (gtk_builder_get_object ((*iterator).second.second,
-                                        ACE_TEXT_ALWAYS_CHAR (COMMON_UI_GTK_DEFINITION_WIDGET_MAIN)));
+                                        ACE_TEXT_ALWAYS_CHAR (configuration_->widgetName.c_str ())));
   ACE_ASSERT (widget_p);
 #if GTK_CHECK_VERSION(3,0,0)
 #if GTK_CHECK_VERSION(3,16,0)
@@ -510,19 +526,9 @@ clean:
 #endif // _DEBUG
 #endif // GTKGL_SUPPORT
 
-  // step3: initialize UI
-  if (likely (!UIIsInitialized_))
-  { ACE_ASSERT (configuration_->interface);
-    UIIsInitialized_ = configuration_->interface->initialize (state_);
-    if (unlikely (!UIIsInitialized_))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to Common_UI_IGTK_t::initialize(): \"%m\", aborting\n")));
-      result = -1;
-      goto done;
-    } // end IF
-  } // end IF
-
+#if defined (GTKGL_SUPPORT)
+continue_:
+#endif // GTKGL_SUPPORT
   if (configuration_->eventHooks.initHook)
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_.lock, -1);
     event_source_id = g_idle_add (configuration_->eventHooks.initHook,
@@ -537,12 +543,6 @@ clean:
     state_.eventSourceIds.insert (event_source_id);
   } // end IF
 
-#if defined (GTKGL_SUPPORT)
-#if GTK_CHECK_VERSION (3,0,0)
-#else
-continue_:
-#endif // GTK_CHECK_VERSION (3,0,0)
-#endif // GTKGL_SUPPORT
 #if GTK_CHECK_VERSION(3,6,0)
 #else
   if (likely (g_thread_get_initialized ()))
@@ -691,8 +691,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #endif // GTK_CHECK_VERSION (3,0,0)
 #endif // GTKGL_SUPPORT
 
-  if (unlikely (!gtk_init_check (&configuration_->argc_,
-                                 &configuration_->argv_)))
+  if (unlikely (!gtk_init_check (&configuration_->argc,
+                                 &configuration_->argv)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to gtk_init_check(), aborting\n")));
