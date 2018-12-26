@@ -25,18 +25,12 @@
 
 #include "common_ui_idefinition.h"
 
-template <typename StateType,
-          typename CallBackDataType>
+template <typename StateType>
 class Common_UI_GtkBuilderDefinition_T
  : public Common_UI_IDefinition_T<StateType>
 {
  public:
-  // convenient types
-  typedef Common_UI_IDefinition_T<StateType> INTERFACE_T;
-
-  Common_UI_GtkBuilderDefinition_T (int,                // argc
-                                    ACE_TCHAR**,        // argv
-                                    CallBackDataType*); // callback data handle
+  Common_UI_GtkBuilderDefinition_T ();
   virtual ~Common_UI_GtkBuilderDefinition_T ();
 
   // implement Common_UI_IDefinition_T
@@ -44,14 +38,11 @@ class Common_UI_GtkBuilderDefinition_T
   virtual void finalize ();
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_GtkBuilderDefinition_T ());
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_GtkBuilderDefinition_T (const Common_UI_GtkBuilderDefinition_T&));
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_GtkBuilderDefinition_T& operator= (const Common_UI_GtkBuilderDefinition_T&));
+//  ACE_UNIMPLEMENTED_FUNC (Common_UI_GtkBuilderDefinition_T ())
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_GtkBuilderDefinition_T (const Common_UI_GtkBuilderDefinition_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_GtkBuilderDefinition_T& operator= (const Common_UI_GtkBuilderDefinition_T&))
 
-  int               argc_;
-  ACE_TCHAR**       argv_;
-  CallBackDataType* CBData_;
-  StateType*        state_;
+  StateType* state_;
 };
 
 // include template definition

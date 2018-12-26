@@ -60,59 +60,70 @@
 #include "common_ui_gtk_tools.h"
 
 template <ACE_SYNCH_DECL,
-          typename StateType>
+          typename ConfigurationType,
+          typename StateType,
+          typename CallBackDataType>
 Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
-                        StateType>::Common_UI_GTK_Manager_T ()
+                        ConfigurationType,
+                        StateType,
+                        CallBackDataType>::Common_UI_GTK_Manager_T ()
  : inherited (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_EVENT_THREAD_NAME), // thread name
               COMMON_UI_EVENT_THREAD_GROUP_ID,                    // group id
               1,                                                  // # threads
               false)                                              // do NOT auto-start !
- , argc_ (0)
- , argv_ (NULL)
+ , configuration_ (NULL)
+ , CBData_ (NULL)
  , GTKIsInitialized_ (false)
- , isInitialized_ (false)
  , state_ ()
- , UIInterfaceHandle_ (NULL)
+ , UIIsInitialized_ (false)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::Common_UI_GTK_Manager_T"));
 
 }
 
 template <ACE_SYNCH_DECL,
-          typename StateType>
+          typename ConfigurationType,
+          typename StateType,
+          typename CallBackDataType>
 bool
 Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
-                        StateType>::initialize (int argc_in,
-                                                ACE_TCHAR** argv_in,
-                                                UI_INTERFACE_T* interfaceHandle_in)
+                        ConfigurationType,
+                        StateType,
+                        CallBackDataType>::initialize (const ConfigurationType& configuration_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::initialize"));
 
-  argc_ = argc_in;
-  argv_ = argv_in;
-  UIInterfaceHandle_ = interfaceHandle_in;
+  configuration_ = &const_cast<ConfigurationType&> (configuration_in);
+  CBData_ = configuration_in.CBData;
 
-  if (likely (!GTKIsInitialized_))
-  {
-    GTKIsInitialized_ = initializeGTK ();
-    if (unlikely (!GTKIsInitialized_))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to Common_UI_GTK_Manager_T::initializeGTK(): \"%m\", aborting\n")));
-      return false;
-    } // end IF
-  } // end IF
+//  if (likely (!GTKIsInitialized_))
+//  {
+//    GTKIsInitialized_ = initializeGTK ();
+//    if (unlikely (!GTKIsInitialized_))
+//    {
+//      ACE_DEBUG ((LM_ERROR,
+//                  ACE_TEXT ("failed to Common_UI_GTK_Manager_T::initializeGTK(): \"%m\", aborting\n")));
+//      return false;
+//    } // end IF
+//  } // end IF
 
   return true;
 }
 
 template <ACE_SYNCH_DECL,
-          typename StateType>
+          typename ConfigurationType,
+          typename StateType,
+          typename CallBackDataType>
 void
 Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
-                        StateType>::start ()
+                        ConfigurationType,
+                        StateType,
+                        CallBackDataType>::start ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::start"));
+
+  // sanity check(s)
+  ACE_ASSERT (configuration_);
 
   int result = inherited::open (NULL);
   if (unlikely (result == -1))
@@ -121,11 +132,15 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 }
 
 template <ACE_SYNCH_DECL,
-          typename StateType>
+          typename ConfigurationType,
+          typename StateType,
+          typename CallBackDataType>
 void
 Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
-                        StateType>::stop (bool waitForCompletion_in,
-                                          bool lockedAccess_in)
+                        ConfigurationType,
+                        StateType,
+                        CallBackDataType>::stop (bool waitForCompletion_in,
+                                                 bool lockedAccess_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::stop"));
 
@@ -141,10 +156,14 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 }
 
 template <ACE_SYNCH_DECL,
-          typename StateType>
+          typename ConfigurationType,
+          typename StateType,
+          typename CallBackDataType>
 int
 Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
-                        StateType>::close (u_long arg_in)
+                        ConfigurationType,
+                        StateType,
+                        CallBackDataType>::close (u_long arg_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::close"));
 
@@ -168,10 +187,29 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
       if (unlikely (inherited::thr_count_ == 0))
         return 0; // nothing to do
 
-      if (likely (UIInterfaceHandle_))
-      {
+
+      // sanity check(s)
+      ACE_ASSERT (configuration_);
+
+      // schedule UI finalization
+      guint event_source_id = 0;
+      if (configuration_->eventHooks.finiHook)
+      { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_.lock, -1);
+        event_source_id = g_idle_add (configuration_->eventHooks.finiHook,
+                                      CBData_);
+        if (unlikely (!event_source_id))
+        {
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to g_idle_add(): \"%m\", aborting")));
+          return -1;
+        } // end IF
+        state_.eventSourceIds.insert (event_source_id);
+      } // end lock scope
+
+      if (likely (UIIsInitialized_))
+      { ACE_ASSERT (configuration_->interface);
         try {
-          UIInterfaceHandle_->finalize ();
+          configuration_->interface->finalize ();
         } catch (...) {
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("caught exception in Common_UI_IGTK_T::finalize, continuing\n")));
@@ -179,11 +217,17 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
       } // end IF
       else
       {
+#if GTK_CHECK_VERSION(3,6,0)
+#else
         gdk_threads_enter ();
+#endif // GTK_CHECK_VERSION(3,6,0)
         guint level = gtk_main_level ();
         if (level > 0)
           gtk_main_quit ();
+#if GTK_CHECK_VERSION(3,6,0)
+#else
         gdk_threads_leave ();
+#endif // GTK_CHECK_VERSION(3,6,0)
       } // end ELSE
 
       break;
@@ -201,10 +245,14 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 }
 
 template <ACE_SYNCH_DECL,
-          typename StateType>
+          typename ConfigurationType,
+          typename StateType,
+          typename CallBackDataType>
 int
 Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
-                        StateType>::svc (void)
+                        ConfigurationType,
+                        StateType,
+                        CallBackDataType>::svc (void)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::svc"));
 
@@ -219,16 +267,30 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
               inherited::grp_id_));
 #endif // _DEBUG
 
+  // sanity check(s)
+  ACE_ASSERT (configuration_);
+
   int result = 0;
+  guint event_source_id = 0;
+#if GTK_CHECK_VERSION(3,6,0)
+#else
   bool leave_gdk_threads = false;
-//  GError* error_p = NULL;
+#endif // GTK_CHECK_VERSION(3,6,0)
 #if defined (GTKGL_SUPPORT)
+  Common_UI_GTK_BuildersIterator_t iterator;
+  GtkWidget* widget_p = NULL;
+  GError* error_p = NULL;
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(3,16,0)
+  GdkGLContext* context_p = NULL;
+#endif // GTK_CHECK_VERSION(3,16,0)
+#endif // GTK_CHECK_VERSION(3,0,0)
 #if defined (_DEBUG)
-  Common_UI_GTK_GLContextsIterator_t iterator;
+  Common_UI_GTK_GLContextsIterator_t iterator_2;
 #endif // _DEBUG
 #endif // GTKGL_SUPPORT
 
-  // step0: initialize GTK
+  // step1: initialize GTK
   if (unlikely (!GTKIsInitialized_))
   {
     GTKIsInitialized_ = initializeGTK ();
@@ -241,28 +303,53 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     } // end IF
   } // end IF
 
-  // step1: initialize UI
-  if (likely (!isInitialized_ && UIInterfaceHandle_))
-  {
-    isInitialized_ = UIInterfaceHandle_->initialize (state_);
-    if (unlikely (!isInitialized_))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to Common_UI_IGTK_t::initialize(): \"%m\", aborting\n")));
-      result = -1;
-      goto done;
-    } // end IF
-  } // end IF
-
 #if defined (GTKGL_SUPPORT)
-  // step2: initialize OpenGL ?
+  // step2: initialize OpenGL
+#if defined (_DEBUG)
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("initializing OpenGL...\n")));
+#endif // _DEBUG
+  // sanity check(s)
+  ACE_ASSERT (!state_.builders.empty ());
+  iterator_2 =
+    state_.builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
+  ACE_ASSERT (iterator != state_.builders.end ());
+  ACE_ASSERT (state_.OpenGLContexts.empty ());
+  widget_p =
+    GTK_WIDGET (gtk_builder_get_object ((*iterator).second.second,
+                                        ACE_TEXT_ALWAYS_CHAR (COMMON_UI_GTK_DEFINITION_WIDGET_MAIN)));
+  ACE_ASSERT (widget_p);
 #if GTK_CHECK_VERSION(3,0,0)
 #if GTK_CHECK_VERSION(3,16,0)
+  context_p =
+      gdk_window_create_gl_context (gtk_widget_get_window (widget_p),
+                                    &error_p);
+  if (unlikely (!context_p || error_p))
+  { // *NOTE*: on UNIX, try setting a 'GDK_BACKEND=x11' environment variable
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to gdk_window_create_gl_context(%@): \"%s\", aborting\n"),
+                gtk_widget_get_window (widget_p),
+                ACE_TEXT (error_p->message)));
+    g_error_free (error_p); error_p = NULL;
+    result = -1;
+    goto clean;
+  } // end IF
+  if (unlikely (!gdk_gl_context_realize (context_p,
+                                         &error_p)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to gdk_gl_context_realize(0x%@): \"%s\", aborting\n"),
+                context_p,
+                ACE_TEXT (error_p->message)));
+    g_error_free (error_p); error_p = NULL;
+    result = -1;
+    goto clean;
+  } // end IF
+  state_.OpenGLContexts.insert (std::make_pair (static_cast<GtkGLArea*> (NULL),
+                                                context_p));
+  context_p = NULL;
 #else
 #if defined (GTKGLAREA_SUPPORT)
-  // sanity check(s)
-  ACE_ASSERT (state_.OpenGLContexts.empty ());
-
   GglaContext* context_p = NULL;
   /* Attribute list for gtkglarea widget. Specifies a list of Boolean attributes
      and enum/integer attribute/value pairs. The last attribute must be
@@ -298,11 +385,12 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("could not find visual, aborting\n")));
-      g_object_unref (screen_p);
+
+      g_object_unref (screen_p); screen_p = NULL;
       result = -1;
-      goto clean;
+      goto clean_2;
     } // end IF
-    g_object_unref (screen_p);
+    g_object_unref (screen_p); screen_p = NULL;
   } // end IF
   ACE_ASSERT (visual_p);
   context_p = ggla_context_new (visual_p);
@@ -311,17 +399,17 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ggla_context_new(), aborting\n")));
     result = -1;
-    goto clean;
+    goto clean_2;
   } // end IF
   state_.OpenGLContexts.insert (std::make_pair (static_cast<GglaArea*> (NULL),
                                                 context_p));
   context_p = NULL;
 
-clean:
-  if (context_p)
-    g_object_unref (context_p);
+clean_2:
   if (visual_p)
-    g_object_unref (visual_p);
+  {
+    g_object_unref (visual_p); visual_p = NULL;
+  } // end IF
 #else
   // sanity check(s)
   ACE_ASSERT (!state_.openGLContext);
@@ -395,6 +483,11 @@ clean:
   } // end IF
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION(3,0,0) */
+clean:
+  if (context_p)
+  {
+    g_object_unref (context_p); context_p = NULL;
+  } // end IF
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("initializing OpenGL...DONE\n")));
@@ -403,13 +496,13 @@ clean:
 
 #if defined (GTKGL_SUPPORT)
 #if defined (_DEBUG)
-  iterator = state_.OpenGLContexts.find (NULL);
-  ACE_ASSERT (iterator != state_.OpenGLContexts.end ());
+  iterator_2 = state_.OpenGLContexts.find (NULL);
+  ACE_ASSERT (iterator_2 != state_.OpenGLContexts.end ());
 #if GTK_CHECK_VERSION(3,0,0)
-  Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator).second);
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator_2).second);
 #else
 #if defined (GTKGLAREA_SUPPORT)
-  Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator).second);
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator_2).second);
 #else
   Common_UI_GTK_Tools::dumpGtkOpenGLInfo ();
 #endif // GTKGLAREA_SUPPORT
@@ -417,20 +510,53 @@ clean:
 #endif // _DEBUG
 #endif // GTKGL_SUPPORT
 
+  // step3: initialize UI
+  if (likely (!UIIsInitialized_))
+  { ACE_ASSERT (configuration_->interface);
+    UIIsInitialized_ = configuration_->interface->initialize (state_);
+    if (unlikely (!UIIsInitialized_))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_UI_IGTK_t::initialize(): \"%m\", aborting\n")));
+      result = -1;
+      goto done;
+    } // end IF
+  } // end IF
+
+  if (configuration_->eventHooks.initHook)
+  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_.lock, -1);
+    event_source_id = g_idle_add (configuration_->eventHooks.initHook,
+                                  CBData_);
+    if (unlikely (!event_source_id))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to g_idle_add(): \"%m\", aborting\n")));
+      result = -1;
+      goto done;
+    } // end IF
+    state_.eventSourceIds.insert (event_source_id);
+  } // end IF
+
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
 #else
 continue_:
 #endif // GTK_CHECK_VERSION (3,0,0)
 #endif // GTKGL_SUPPORT
+#if GTK_CHECK_VERSION(3,6,0)
+#else
   if (likely (g_thread_get_initialized ()))
   {
     gdk_threads_enter ();
     leave_gdk_threads = true;
   } // end IF
+#endif // GTK_CHECK_VERSION (3,6,0)
   gtk_main ();
+#if GTK_CHECK_VERSION(3,6,0)
+#else
   if (likely (leave_gdk_threads))
     gdk_threads_leave ();
+#endif // GTK_CHECK_VERSION (3,6,0)
 
   // stop() (close() --> gtk_main_quit ()) was called...
 
@@ -445,12 +571,19 @@ done:
 }
 
 template <ACE_SYNCH_DECL,
-          typename StateType>
+          typename ConfigurationType,
+          typename StateType,
+          typename CallBackDataType>
 bool
 Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
-                        StateType>::initializeGTK ()
+                        ConfigurationType,
+                        StateType,
+                        CallBackDataType>::initializeGTK ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::initializeGTK"));
+
+  // sanity check(s)
+  ACE_ASSERT (configuration_);
 
   u_long process_priority_mask =
     ACE_LOG_MSG->priority_mask (ACE_Log_Msg::PROCESS);
@@ -492,12 +625,9 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #endif // _DEBUG
 #endif // GTK_CHECK_VERSION(2,36,0)
 
-#if GTK_CHECK_VERSION(3,0,0)
-  GError* error_p = NULL;
-#else
 #if GTK_CHECK_VERSION(2,32,0)
 #else
-  if (likely (!g_thread_supported ())) // *NOTE*: sad but true...
+  if (likely (g_thread_supported ())) // *NOTE*: sad but true...
   {
 #if defined (_DEBUG)
     g_thread_init_with_errorcheck_mutexes (NULL);
@@ -505,9 +635,15 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     g_thread_init (NULL);
 #endif // _DEBUG
   } // end IF
-#endif // GTK_CHECK_VERSION (2,32,0)
-#endif // GTK_CHECK_VERSION (3,0,0)
+#endif // GTK_CHECK_VERSION(2,32,0)
+#if GTK_CHECK_VERSION(3,6,0)
+#else
+  gdk_threads_init ();
+#endif // GTK_CHECK_VERSION(3,6,0)
 
+#if GTK_CHECK_VERSION(3,0,0)
+  GError* error_p = NULL;
+#endif // GTK_CHECK_VERSION (3,0,0)
   // step1a: set log handlers
   //g_set_print_handler (glib_print_debug_handler);
   g_set_printerr_handler (glib_print_error_handler);
@@ -531,10 +667,12 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                      static_cast <GLogLevelFlags> (log_flags | log_level),
                      glib_log_handler, user_data_p);
 
-  gdk_threads_init ();
+#if GTK_CHECK_VERSION(3,6,0)
+#else
   bool leave_gdk_threads = false;
   gdk_threads_enter ();
   leave_gdk_threads = true;
+#endif // GTK_CHECK_VERSION(3,6,0)
   int i = 1;
 
 #if defined (GTKGL_SUPPORT)
@@ -553,8 +691,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #endif // GTK_CHECK_VERSION (3,0,0)
 #endif // GTKGL_SUPPORT
 
-  if (unlikely (!gtk_init_check (&argc_,
-                                 &argv_)))
+  if (unlikely (!gtk_init_check (&configuration_->argc_,
+                                 &configuration_->argv_)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to gtk_init_check(), aborting\n")));
@@ -587,8 +725,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #endif // LIBGLADE_SUPPORT
 
   // step3a: specify any .rc files
-  for (Common_UI_GTK_RCFilesIterator_t iterator = state_.RCFiles.begin ();
-       iterator != state_.RCFiles.end ();
+  for (Common_UI_GTK_RCFilesIterator_t iterator = configuration_->RCFiles.begin ();
+       iterator != configuration_->RCFiles.end ();
        ++iterator, ++i)
   {
     gtk_rc_add_default_file ((*iterator).c_str ());
@@ -603,8 +741,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #if GTK_CHECK_VERSION(3,0,0)
   // step3b: specify any .css files
   i = 1;
-  for (Common_UI_GTK_CSSProvidersIterator_t iterator = state_.CSSProviders.begin ();
-       iterator != state_.CSSProviders.end ();
+  for (Common_UI_GTK_CSSProvidersIterator_t iterator = configuration_->CSSProviders.begin ();
+       iterator != configuration_->CSSProviders.end ();
        ++iterator, ++i)
   { ACE_ASSERT (!(*iterator).second);
     (*iterator).second = gtk_css_provider_new ();
@@ -654,13 +792,19 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   //                                    NULL);                               // property name(s)
   //  ACE_ASSERT(gnomeProgram);
 
+#if GTK_CHECK_VERSION(3,6,0)
+#else
   gdk_threads_leave ();
+#endif // GTK_CHECK_VERSION(3,6,0)
 
   return true;
 
 error:
+#if GTK_CHECK_VERSION(3,6,0)
+#else
   if (leave_gdk_threads)
     gdk_threads_leave ();
+#endif // GTK_CHECK_VERSION(3,6,0)
 
   return false;
 }

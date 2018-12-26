@@ -21,13 +21,16 @@
 #ifndef COMMON_UI_GTK_MANAGER_COMMON_H
 #define COMMON_UI_GTK_MANAGER_COMMON_H
 
+#include "gtk/gtk.h"
+
 #include "ace/Singleton.h"
 #include "ace/Synch_Traits.h"
 
+#include "common_ilock.h"
+#include "common_task_base.h"
+#include "common_time_common.h"
+
 #include "common_ui_gtk_common.h"
-#if defined (GTKGL_SUPPORT)
-#include "common_ui_gtk_gl_common.h"
-#endif // GTKGL_SUPPORT
 #include "common_ui_gtk_manager.h"
 
 //typedef Common_TaskBase_T<ACE_MT_SYNCH,
@@ -40,7 +43,9 @@ typedef Common_TaskBase_T<ACE_MT_SYNCH,
 //////////////////////////////////////////
 
 typedef Common_UI_GTK_Manager_T<ACE_MT_SYNCH,
-                                Common_UI_GTK_State_t> Common_UI_GTK_Manager_t;
+                                Common_UI_GTK_Configuration_t,
+                                Common_UI_GTK_State_t,
+                                gpointer> Common_UI_GTK_Manager_t;
 typedef ACE_Singleton<Common_UI_GTK_Manager_t,
                       ACE_MT_SYNCH::MUTEX> COMMON_UI_GTK_MANAGER_SINGLETON;
 

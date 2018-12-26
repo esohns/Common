@@ -34,10 +34,18 @@
 #include "common_ui_common.h"
 #include "common_ui_idefinition.h"
 
+//#include "common_ui_gtk_builder_definition.h"
+
 // forward declarations
 #if defined (LIGBGLADE_SUPPORT)
 struct _GladeXML;
 #endif // LIGBGLADE_SUPPORT
+#if defined (GTKGL_SUPPORT)
+struct Common_UI_GTK_GLConfiguration;
+struct Common_UI_GTK_GLState;
+#endif // GTKGL_SUPPORT
+template <typename StateType>
+class Common_UI_GtkBuilderDefinition_T;
 
 //enum Common_UI_GTK_InterfaceDefinitionType : int
 enum Common_UI_GTK_InterfaceDefinitionType
@@ -87,6 +95,35 @@ typedef Common_UI_GladeXMLs_t::iterator Common_UI_GladeXMLsIterator_t;
 typedef Common_UI_GladeXMLs_t::const_iterator Common_UI_GladeXMLsConstIterator_t;
 #endif // LIBGLADE_SUPPORT
 
+struct Common_UI_GTK_State
+ : Common_UI_State
+{
+  Common_UI_GTK_State ()
+   : Common_UI_State ()
+   , builders ()
+   , contextIds ()
+//, cursor (NULL)
+   , eventSourceIds ()
+#if defined (LIBGLADE_SUPPORT)
+   , gladeXML ()
+#endif // LIBGLADE_SUPPORT
+   ///////////////////////////////////////
+   , userData (NULL)
+  {}
+
+  Common_UI_GTK_Builders_t         builders;
+  Common_UI_GTK_StatusContextIds_t contextIds; // status bar context ids
+//GdkCursor*                    cursor;
+  Common_UI_GTK_EventSourceIds_t   eventSourceIds;
+#if defined (LIBGLADE_SUPPORT)
+  Common_UI_GladeXMLs_t            gladeXML;
+#endif // LIBGLADE_SUPPORT
+
+  ////////////////////////////////////////
+
+  gpointer                         userData; // cb user data
+};
+
 struct Common_UI_GTK_EventHookConfiguration
 {
   Common_UI_GTK_EventHookConfiguration ()
@@ -104,57 +141,47 @@ struct Common_UI_GTK_EventHookConfiguration
   GSourceFunc statisticHook;
 };
 
-struct Common_UI_GTK_State
- : Common_UI_State
-{
-  Common_UI_GTK_State ()
-   : Common_UI_State ()
-   , argc (0)
-   , argv (NULL)
-   , builders ()
-   , contextIds ()
-#if GTK_CHECK_VERSION(3,0,0)
-   , CSSProviders ()
-#endif // GTK_CHECK_VERSION(3,0,0)
-//, cursor (NULL)
-   , eventHooks ()
-   , eventSourceIds ()
-#if defined (LIBGLADE_SUPPORT)
-   , gladeXML ()
-#endif // LIBGLADE_SUPPORT
-   , RCFiles ()
-   ///////////////////////////////////////
-   , userData (NULL)
-  {}
-
-  int                                         argc;
-  ACE_TCHAR**                                 argv;
-  Common_UI_GTK_Builders_t                    builders;
-  Common_UI_GTK_StatusContextIds_t            contextIds; // status bar context ids
-//GdkCursor*                    cursor;
-#if GTK_CHECK_VERSION(3,0,0)
-  Common_UI_GTK_CSSProviders_t                CSSProviders;
-#endif // GTK_CHECK_VERSION(3,0,0)
-  struct Common_UI_GTK_EventHookConfiguration eventHooks;
-  Common_UI_GTK_EventSourceIds_t              eventSourceIds;
-#if defined (LIBGLADE_SUPPORT)
-  Common_UI_GladeXMLs_t                       gladeXML;
-#endif // LIBGLADE_SUPPORT
-  Common_UI_GTK_RCFiles_t                     RCFiles;
-
-  ////////////////////////////////////////
-
-  gpointer                                    userData; // cb user data
-};
-
-//////////////////////////////////////////
-
 #if defined (GTKGL_SUPPORT)
 typedef struct Common_UI_GTK_GLState Common_UI_GTK_State_t;
 #else
 typedef struct Common_UI_GTK_State Common_UI_GTK_State_t;
 #endif // GTKGL_SUPPORT
 typedef Common_UI_IDefinition_T<Common_UI_GTK_State_t> Common_UI_GTK_IDefinition_t;
+
+struct Common_UI_GTK_Configuration
+{
+  Common_UI_GTK_Configuration ()
+   : argc (0)
+   , argv (NULL)
+   , CBData (NULL)
+#if GTK_CHECK_VERSION(3,0,0)
+   , CSSProviders ()
+#endif // GTK_CHECK_VERSION(3,0,0)
+   , eventHooks ()
+   , interface (NULL)
+   , RCFiles ()
+  {}
+
+  int                                         argc;
+  ACE_TCHAR**                                 argv;
+  gpointer                                    CBData; // widget cb user data
+#if GTK_CHECK_VERSION(3,0,0)
+  Common_UI_GTK_CSSProviders_t                CSSProviders;
+#endif // GTK_CHECK_VERSION(3,0,0)
+  struct Common_UI_GTK_EventHookConfiguration eventHooks;
+  Common_UI_GTK_IDefinition_t*                interface;
+  Common_UI_GTK_RCFiles_t                     RCFiles;
+};
+
+#if defined (GTKGL_SUPPORT)
+typedef struct Common_UI_GTK_GLConfiguration Common_UI_GTK_Configuration_t;
+#else
+typedef struct Common_UI_GTK_Configuration Common_UI_GTK_Configuration_t;
+#endif // GTKGL_SUPPORT
+
+typedef Common_UI_GtkBuilderDefinition_T<Common_UI_GTK_State_t> Common_UI_GtkBuilderDefinition_t;
+
+//////////////////////////////////////////
 
 typedef std::map<guint, ACE_Thread_ID> Common_UI_GTK_PendingActions_t;
 typedef Common_UI_GTK_PendingActions_t::iterator Common_UI_GTK_PendingActionsIterator_t;

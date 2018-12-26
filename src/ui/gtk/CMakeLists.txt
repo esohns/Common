@@ -189,6 +189,10 @@ target_sources (${PROJECT_NAME}UI_GTK
 # add_definitions (-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS)
 #endif ()
 
+if (CMAKE_BUILD_TYPE STREQUAL Debug)
+ add_definitions (-DG_ERRORCHECK_MUTEXES)
+endif ()
+
 if (UNIX)
 # if (GTK3_SUPPORT)
 #  target_link_libraries (${PROJECT_NAME}UI_GTK ${PKG_GTKGL3_LIBRARIES})

@@ -66,7 +66,7 @@ if (UNIX)
    add_definitions (-DGTK2_SUPPORT)
   endif (PKG_GTK2_FOUND)
 
-  pkg_check_modules (PKG_GTK3 gtk+-3.0)
+  pkg_check_modules (PKG_GTK3 gmodule-2.0 gthread-2.0 gtk+-3.0)
   if (PKG_GTK3_FOUND)
    set (GTK_SUPPORT ON CACHE BOOL "GTK support")
    add_definitions (-DGTK_SUPPORT)

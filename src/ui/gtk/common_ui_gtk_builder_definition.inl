@@ -31,25 +31,16 @@
 
 #include "common_ui_gtk_common.h"
 
-template <typename StateType,
-          typename CallBackDataType>
-Common_UI_GtkBuilderDefinition_T<StateType,
-                                 CallBackDataType>::Common_UI_GtkBuilderDefinition_T (int argc_in,
-                                                                                      ACE_TCHAR** argv_in,
-                                                                                      CallBackDataType* CBData_in)
- : argc_ (argc_in)
- , argv_ (argv_in)
- , CBData_ (CBData_in)
- , state_ (NULL)
+template <typename StateType>
+Common_UI_GtkBuilderDefinition_T<StateType>::Common_UI_GtkBuilderDefinition_T ()
+ : state_ (NULL)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition_T::Common_UI_GtkBuilderDefinition_T"));
 
 }
 
-template <typename StateType,
-          typename CallBackDataType>
-Common_UI_GtkBuilderDefinition_T<StateType,
-                                 CallBackDataType>::~Common_UI_GtkBuilderDefinition_T ()
+template <typename StateType>
+Common_UI_GtkBuilderDefinition_T<StateType>::~Common_UI_GtkBuilderDefinition_T ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition_T::~Common_UI_GtkBuilderDefinition_T"));
 
@@ -83,11 +74,9 @@ continue_:
   return;
 }
 
-template <typename StateType,
-          typename CallBackDataType>
+template <typename StateType>
 bool
-Common_UI_GtkBuilderDefinition_T<StateType,
-                                 CallBackDataType>::initialize (StateType& state_inout)
+Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition_T::initialize"));
 
@@ -134,53 +123,17 @@ Common_UI_GtkBuilderDefinition_T<StateType,
         std::make_pair ((*iterator).second.first, builder_p);
       builder_p = NULL;
     } // end FOR
-
-    // step2: schedule UI initialization
-
-    // sanity check(s)
-    ACE_ASSERT (state_->eventHooks.initHook);
-
-    guint event_source_id = g_idle_add (state_->eventHooks.initHook,
-                                        CBData_);
-    if (unlikely (!event_source_id))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to g_idle_add(): \"%m\", aborting\n")));
-      return false;
-    } // end IF
-    state_->eventSourceIds.insert (event_source_id);
   } // end lock scope
 
   return true;
 }
 
-template <typename StateType,
-          typename CallBackDataType>
+template <typename StateType>
 void
-Common_UI_GtkBuilderDefinition_T<StateType,
-                                 CallBackDataType>::finalize ()
+Common_UI_GtkBuilderDefinition_T<StateType>::finalize ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition_T::finalize"));
 
   if (unlikely (!state_))
     return; // not initialized, nothing to do
-
-  // schedule UI finalization
-
-  // sanity check(s)
-  ACE_ASSERT (state_->eventHooks.finiHook);
-
-  ACE_Reverse_Lock<ACE_SYNCH_MUTEX> reverse_lock (state_->lock);
-  guint event_source_id = 0;
-  { ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, state_->lock);
-    event_source_id = g_idle_add (state_->eventHooks.finiHook,
-                                  CBData_);
-    if (unlikely (!event_source_id))
-    { ACE_GUARD (ACE_Reverse_Lock<ACE_SYNCH_MUTEX>, aGuard_2, reverse_lock);
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to g_idle_add(): \"%m\", returning")));
-      return;
-    } // end IF
-    state_->eventSourceIds.insert (event_source_id);
-  } // end lock scope
 }

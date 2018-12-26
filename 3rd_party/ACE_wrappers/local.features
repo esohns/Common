@@ -12,6 +12,6 @@ ssl=1
 //gtk=1
 //wxWindows=1
 
-acetest=0
-examples=0
+//acetest=0
+//examples=0
 

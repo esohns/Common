@@ -65,6 +65,17 @@ typedef std::map<GdkWindow*, GdkGLConfig*> Common_UI_GTK_GLContexts_t;
 #endif /* GTK_CHECK_VERSION (3,0,0) */
 typedef Common_UI_GTK_GLContexts_t::iterator Common_UI_GTK_GLContextsIterator_t;
 
+struct Common_UI_GTK_GLConfiguration
+ : Common_UI_GTK_Configuration
+{
+  Common_UI_GTK_GLConfiguration ()
+   : Common_UI_GTK_Configuration ()
+   , widgetName ()
+  {}
+
+  std::string widgetName;
+};
+
 struct Common_UI_GTK_GLState
  : Common_UI_GTK_State
 {
