@@ -278,16 +278,17 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   if (unlikely (inherited::thr_count_ == threadCount_))
   {
     if (inherited::mod_)
-      ACE_DEBUG ((LM_DEBUG,
+      ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("%s: object already active (thread pool size: %u), returning\n"),
                   inherited::mod_->name (),
                   inherited::thr_count_));
     else
-      ACE_DEBUG ((LM_DEBUG,
+      ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("object already active (thread pool size: %u), returning\n"),
                   inherited::thr_count_));
     return;
   } // end IF
+#if defined (_DEBUG)
   if (unlikely (inherited::thr_count_ > 0))
   {
     if (inherited::mod_)
@@ -300,6 +301,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                   ACE_TEXT ("object already active (current thread pool size: %u), continuing\n"),
                   inherited::thr_count_));
   } // end IF
+#endif // _DEBUG
 
   // spawn one worker thread
   ACE_thread_t* thread_ids_p = NULL;
@@ -307,9 +309,15 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                     ACE_thread_t[1]);
   if (unlikely (!thread_ids_p))
   {
-    ACE_DEBUG ((LM_CRITICAL,
-                ACE_TEXT ("failed to allocate memory (%u), returning\n"),
-                sizeof (ACE_thread_t)));
+    if (inherited::mod_)
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("%s: failed to allocate memory (%u), returning\n"),
+                  inherited::mod_->name (),
+                  sizeof (ACE_thread_t)));
+    else
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("failed to allocate memory (%u), returning\n"),
+                  sizeof (ACE_thread_t)));
     return;
   } // end IF
   ACE_OS::memset (thread_ids_p, 0, sizeof (thread_ids_p));
@@ -318,13 +326,16 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                     ACE_hthread_t[1]);
   if (unlikely (!thread_handles_p))
   {
-    ACE_DEBUG ((LM_CRITICAL,
-                ACE_TEXT ("failed to allocate memory (%u), returning\n"),
-                sizeof (ACE_hthread_t)));
-
-    // clean up
-    delete [] thread_ids_p;
-
+    if (inherited::mod_)
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("%s: failed to allocate memory (%u), returning\n"),
+                  inherited::mod_->name (),
+                  sizeof (ACE_hthread_t)));
+    else
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("failed to allocate memory (%u), returning\n"),
+                  sizeof (ACE_hthread_t)));
+    delete [] thread_ids_p; thread_ids_p = NULL;
     return;
   } // end IF
   ACE_OS::memset (thread_handles_p, 0, sizeof (thread_handles_p));
@@ -333,14 +344,17 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                     const char*[1]);
   if (unlikely (!thread_names_p))
   {
-    ACE_DEBUG ((LM_CRITICAL,
-                ACE_TEXT ("failed to allocate memory (%u), returning\n"),
-                sizeof (const char*)));
-
-    // clean up
-    delete [] thread_ids_p;
-    delete [] thread_handles_p;
-
+    if (inherited::mod_)
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("%s: failed to allocate memory (%u), returning\n"),
+                  inherited::mod_->name (),
+                  sizeof (const char*)));
+    else
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("failed to allocate memory (%u), returning\n"),
+                  sizeof (const char*)));
+    delete [] thread_ids_p; thread_ids_p = NULL;
+    delete [] thread_handles_p; thread_handles_p = NULL;
     return;
   } // end IF
   ACE_OS::memset (thread_names_p, 0, sizeof (thread_names_p));
@@ -349,15 +363,18 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                     char[BUFSIZ]);
   if (unlikely (!thread_name_p))
   {
-    ACE_DEBUG ((LM_CRITICAL,
-                ACE_TEXT ("failed to allocate memory (%u), returning\n"),
-                sizeof (char) * BUFSIZ));
-
-    // clean up
-    delete [] thread_ids_p;
-    delete [] thread_handles_p;
-    delete [] thread_names_p;
-
+    if (inherited::mod_)
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("%s: failed to allocate memory (%u), returning\n"),
+                  inherited::mod_->name (),
+                  sizeof (char) * BUFSIZ));
+    else
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("failed to allocate memory (%u), returning\n"),
+                  sizeof (char) * BUFSIZ));
+    delete [] thread_ids_p; thread_ids_p = NULL;
+    delete [] thread_handles_p; thread_handles_p = NULL;
+    delete [] thread_names_p; thread_names_p = NULL;
     return;
   } // end IF
   ACE_OS::memset (thread_name_p, 0, sizeof (thread_name_p));
@@ -382,16 +399,18 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                              thread_names_p);             // thread name(s)
     if (unlikely (result == -1))
     {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Task::activate(%u): \"%m\", returning\n"),
-                  1));
-
-      // clean up
-      delete [] thread_ids_p;
-      delete [] thread_handles_p;
-      delete [] thread_names_p[0];
-      delete [] thread_names_p;
-
+      if (inherited::mod_)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("%s: failed to ACE_Task::activate(%u): \"%m\", returning\n"),
+                    inherited::mod_->name (),
+                    1));
+      else
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_Task::activate(%u): \"%m\", returning\n")));
+      delete [] thread_ids_p; thread_ids_p = NULL;
+      delete [] thread_handles_p; thread_handles_p = NULL;
+      delete [] thread_names_p[0]; thread_names_p[0] = NULL;
+      delete [] thread_names_p; thread_names_p = NULL;
       return;
     } // end IF
 
@@ -402,18 +421,20 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
     std::ostringstream string_stream;
     string_stream << thread_ids_p[0];
+#if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("spawned a worker thread (\"%s\", group: %d, id: %s)\n"),
                 ACE_TEXT (threadName_.c_str ()),
                 inherited::grp_id_,
                 ACE_TEXT (string_stream.str ().c_str ())));
+#endif // _DEBUG
   } // end lock scope
 
   // clean up
-  delete [] thread_ids_p;
-  delete [] thread_handles_p;
-  delete [] thread_names_p[0];
-  delete [] thread_names_p;
+  delete [] thread_ids_p; thread_ids_p = NULL;
+  delete [] thread_handles_p; thread_handles_p = NULL;
+  delete [] thread_names_p[0]; thread_names_p[0] = NULL;
+  delete [] thread_names_p; thread_names_p = NULL;
 }
 
 template <ACE_SYNCH_DECL,
@@ -460,7 +481,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   do
   {
     count = inherited::msg_queue_->message_count ();
-    if (likely (!count))
+    if (!count)
       break;
 #if defined (_DEBUG)
     has_waited = true;
@@ -848,8 +869,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Task::putq(): \"%m\", continuing\n")));
 
-    // clean up
-    message_block_p->release ();
+    message_block_p->release (); message_block_p = NULL;
   } // end IF
 }
 

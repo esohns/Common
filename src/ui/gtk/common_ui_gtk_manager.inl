@@ -691,6 +691,13 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #endif // GTK_CHECK_VERSION (3,0,0)
 #endif // GTKGL_SUPPORT
 
+//  GdkDisplay* display_p =
+//      gdk_display_manager_open_display (gdk_display_manager_get (),
+//                                        ACE_TEXT_ALWAYS_CHAR ("wayland-0"));
+//  ACE_ASSERT (display_p);
+//  gdk_display_manager_set_default_display (gdk_display_manager_get (),
+//                                           display_p);
+
   if (unlikely (!gtk_init_check (&configuration_->argc,
                                  &configuration_->argv)))
   {
