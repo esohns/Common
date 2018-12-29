@@ -114,7 +114,7 @@ template <ACE_SYNCH_DECL,
           typename ConfigurationType,
           typename StateType,
           typename CallBackDataType>
-void
+ACE_thread_t
 Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                         ConfigurationType,
                         StateType,
@@ -122,13 +122,15 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::start"));
 
-  // sanity check(s)
-  ACE_ASSERT (configuration_);
-
   int result = inherited::open (NULL);
   if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_TaskBase_T::open(NULL): \"%m\", continuing\n")));
+
+  { ACE_GUARD_RETURN (typename inherited::ITASKCONTROL_T::MUTEX_T, aGuard, inherited::lock_, 0);
+    ACE_ASSERT (inherited::threads_.size () == 1);
+    return inherited::threads_[0].id ();
+  } // end lock scope
 }
 
 template <ACE_SYNCH_DECL,

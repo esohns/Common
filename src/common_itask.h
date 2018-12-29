@@ -23,6 +23,7 @@
 
 #include "ace/Global_Macros.h"
 #include "ace/Message_Block.h"
+#include "ace/OS.h"
 
 #include "common_ilock.h"
 
@@ -32,7 +33,7 @@ class Common_ITask_T
  : virtual public LockType
 {
  public:
-  virtual void start () = 0;
+  virtual ACE_thread_t start () = 0; // retuns thread handle (if any)
   virtual void stop (bool = true,      // wait for completion ?
                      bool = true) = 0; // locked access ?
   virtual bool isRunning () const = 0;

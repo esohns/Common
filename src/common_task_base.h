@@ -70,7 +70,7 @@ class Common_TaskBase_T
   //         thread (up to threadCount_)
   // *TODO*: derivates may want to implement a dynamic thread pool
   //         --> call ACE_Task_Base::activate() directly in this case
-  virtual void start ();
+  virtual ACE_thread_t start ();
   // enqueue MB_STOP --> stop worker thread(s)
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?

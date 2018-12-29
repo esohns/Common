@@ -79,7 +79,7 @@ class Common_UI_GTK_Manager_T
                         ACE_SYNCH_MUTEX_T> SINGLETON_T;
 
   // override (part of) Common_ITask
-  virtual void start ();
+  virtual ACE_thread_t start ();
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?
 

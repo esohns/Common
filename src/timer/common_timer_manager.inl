@@ -80,16 +80,19 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 template <ACE_SYNCH_DECL,
           typename ConfigurationType,
           typename TimerQueueAdapterType>
-void
+ACE_thread_t
 Common_Timer_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
                        TimerQueueAdapterType>::start ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::start"));
 
+  // initialize return value(s)
+  ACE_thread_t return_value = 0;
+
   // sanity check(s)
   if (unlikely (isRunning ()))
-    return;
+    return return_value;
 
   // *TODO*: remove type inference
   switch (dispatch_)
@@ -131,8 +134,8 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       if (unlikely (result == -1))
       {
         ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::activate(): \"%m\", returning\n")));
-        return;
+                    ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::activate(): \"%m\", aborting\n")));
+        return return_value;
       } // end IF
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
       Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_NAME),
@@ -144,16 +147,19 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
                   ACE_TEXT (COMMON_TIMER_THREAD_NAME),
                   inherited::grp_id_));
 #endif // _DEBUG
+      return_value = thread_ids[0];
       break;
     }
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown mode (was: %d), continuing\n"),
+                  ACE_TEXT ("invalid/unknown mode (was: %d), aborting\n"),
                   dispatch_));
       break;
     }
   } // end SWITCH
+
+  return return_value;
 }
 
 template <ACE_SYNCH_DECL,
