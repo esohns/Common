@@ -80,19 +80,19 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 template <ACE_SYNCH_DECL,
           typename ConfigurationType,
           typename TimerQueueAdapterType>
-ACE_thread_t
+void
 Common_Timer_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
-                       TimerQueueAdapterType>::start ()
+                       TimerQueueAdapterType>::start (ACE_thread_t& threadId_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::start"));
 
   // initialize return value(s)
-  ACE_thread_t return_value = 0;
+  threadId_out = 0;
 
   // sanity check(s)
   if (unlikely (isRunning ()))
-    return return_value;
+    return;
 
   // *TODO*: remove type inference
   switch (dispatch_)
@@ -107,16 +107,17 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 
       // spawn the dispatching worker thread
       int result = -1;
-      ACE_thread_t thread_ids[1];
-      thread_ids[0] = 0;
-      ACE_hthread_t thread_handles[1];
-      thread_handles[0] = 0;
-      char thread_name[BUFSIZ];
-      ACE_OS::memset (thread_name, 0, sizeof (thread_name));
-      ACE_OS::strcpy (thread_name,
+      ACE_thread_t thread_ids_a[1];
+      ACE_OS::memset (thread_ids_a, 0, sizeof (ACE_thread_t[1]));
+      ACE_hthread_t thread_handles_a[1];
+      ACE_OS::memset (thread_handles_a, 0, sizeof (ACE_hthread_t[1]));
+      char thread_name_a[BUFSIZ];
+      ACE_OS::memset (thread_name_a, 0, sizeof (char[BUFSIZ]));
+      ACE_OS::strcpy (thread_name_a,
                       ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_NAME));
-      const char* thread_names[1];
-      thread_names[0] = thread_name;
+      const char* thread_names_a[1];
+      ACE_OS::memset (thread_names_a, 0, sizeof (const char*[1]));
+      thread_names_a[0] = thread_name_a;
       result =
         task_base_r.activate ((THR_NEW_LWP      |
                                THR_JOINABLE     |
@@ -126,20 +127,20 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
                               ACE_DEFAULT_THREAD_PRIORITY,  // priority
                               COMMON_TIMER_THREAD_GROUP_ID, // group id
                               NULL,                         // task base
-                              thread_handles,               // thread handle(s)
+                              thread_handles_a,             // thread handle(s)
                               NULL,                         // stack(s)
                               NULL,                         // stack size(s)
-                              thread_ids,                   // thread id(s)
-                              thread_names);                // thread name(s)
+                              thread_ids_a,                 // thread id(s)
+                              thread_names_a);              // thread name(s)
       if (unlikely (result == -1))
       {
         ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::activate(): \"%m\", aborting\n")));
-        return return_value;
+                    ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::activate(): \"%m\", returning\n")));
+        return;
       } // end IF
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
       Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_NAME),
-                                         thread_ids[0]);
+                                         thread_ids_a[0]);
 #endif // ACE_WIN32 || ACE_WIN64
 #if defined (_DEBUG)
       ACE_DEBUG ((LM_DEBUG,
@@ -147,19 +148,17 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
                   ACE_TEXT (COMMON_TIMER_THREAD_NAME),
                   inherited::grp_id_));
 #endif // _DEBUG
-      return_value = thread_ids[0];
+      threadId_out = thread_ids_a[0];
       break;
     }
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown mode (was: %d), aborting\n"),
+                  ACE_TEXT ("invalid/unknown mode (was: %d), returning\n"),
                   dispatch_));
       break;
     }
   } // end SWITCH
-
-  return return_value;
 }
 
 template <ACE_SYNCH_DECL,
@@ -616,7 +615,11 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   } // end IF
 
   if (unlikely (was_running))
-    start ();
+  {
+    ACE_thread_t thread_id = 0;
+    start (thread_id);
+    ACE_UNUSED_ARG (thread_id);
+  } // end IF
 
   return true;
 }
@@ -1080,7 +1083,11 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   } // end SWITCH
 
   if (unlikely (was_running))
-    start ();
+  {
+    ACE_thread_t thread_id = 0;
+    start (thread_id);
+    ACE_UNUSED_ARG (thread_id);
+  } // end IF
 
   isInitialized_ = true;
 

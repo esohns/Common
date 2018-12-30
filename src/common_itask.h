@@ -33,7 +33,7 @@ class Common_ITask_T
  : virtual public LockType
 {
  public:
-  virtual ACE_thread_t start () = 0; // retuns thread handle (if any)
+  virtual void start (ACE_thread_t&) = 0; // return value: thread handle (if any)
   virtual void stop (bool = true,      // wait for completion ?
                      bool = true) = 0; // locked access ?
   virtual bool isRunning () const = 0;

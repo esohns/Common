@@ -88,7 +88,7 @@ class Common_Timer_Manager_T
   inline virtual const ConfigurationType& getR_2 () const { ACE_ASSERT (configuration_); return *configuration_; }
 
   // implement (part of) Common_ITaskControl_T
-  virtual ACE_thread_t start ();
+  virtual void start (ACE_thread_t&); // return value: thread handle (if any)
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true); // locked access ?
   virtual bool isRunning () const;

@@ -297,6 +297,7 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
   //  COMMON_ASYNCHTIMERMANAGER_SINGLETON::instance ();
   //ACE_ASSERT (timer_manager_2);
 
+  ACE_thread_t thread_id = 0;
   switch (configuration_in.dispatch)
   {
     case COMMON_TIMER_DISPATCH_PROACTOR:
@@ -308,7 +309,7 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
         return false;
       } // end IF
 
-      timer_manager_p->start ();
+      timer_manager_p->start (thread_id);
 
       return true;
     }
@@ -321,7 +322,7 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
         return false;
       } // end IF
 
-      timer_manager_p->start ();
+      timer_manager_p->start (thread_id);
       if (unlikely (!timer_manager_p->isRunning ()))
       {
         ACE_DEBUG ((LM_ERROR,
@@ -340,7 +341,7 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
         return false;
       } // end IF
 
-      timer_manager_p->start ();
+      timer_manager_p->start (thread_id);
 
       return true;
     }
@@ -357,7 +358,7 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
       //  return false;
       //} // end IF
 
-      //timer_manager_2->start ();
+      //timer_manager_2->start (thread_id);
 
       //return true;
     }
@@ -369,6 +370,7 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
       break;
     }
   } // end SWITCH
+  ACE_UNUSED_ARG (thread_id);
 
   return false;
 }

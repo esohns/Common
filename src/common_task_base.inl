@@ -131,19 +131,18 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
   int result = -1;
 
-  result = (block_in ? lock_.tryacquire () : lock_.acquire ());
+  result = (block_in ? lock_.acquire () : lock_.tryacquire ());
   if (unlikely (result == -1))
   {
-    int error = ACE_OS::last_error ();
     if (block_in)
-    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_SYNCH_MUTEX::acquire(): \"%m\", aborting\n")));
+    else
+    { int error = ACE_OS::last_error ();
       if (error != EBUSY)
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_SYNCH_MUTEX::tryacquire(): \"%m\", aborting\n")));
-    } // end IF
-    else
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_SYNCH_MUTEX::acquire(): \"%m\", aborting\n")));
+    } // end ELSE
   } // end IF
 
   return (result == 0);
@@ -265,15 +264,15 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
           typename LockType>
-ACE_thread_t
+void
 Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType,
-                  LockType>::start ()
+                  LockType>::start (ACE_thread_t& threadId_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::start"));
 
   // initialize return value(s)
-  ACE_thread_t return_value = 0;
+  threadId_out = 0;
 
   // sanity check(s)
   ACE_ASSERT (threadCount_);
@@ -282,14 +281,14 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   {
     if (inherited::mod_)
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("%s: object already active (thread pool size: %u), aborting\n"),
+                  ACE_TEXT ("%s: object already active (thread pool size: %u), returning\n"),
                   inherited::mod_->name (),
                   inherited::thr_count_));
     else
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("object already active (thread pool size: %u), aborting\n"),
+                  ACE_TEXT ("object already active (thread pool size: %u), returning\n"),
                   inherited::thr_count_));
-    return return_value;
+    return;
   } // end IF
 #if defined (_DEBUG)
   if (unlikely (inherited::thr_count_ > 0))
@@ -314,14 +313,14 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   {
     if (inherited::mod_)
       ACE_DEBUG ((LM_CRITICAL,
-                  ACE_TEXT ("%s: failed to allocate memory (%u), aborting\n"),
+                  ACE_TEXT ("%s: failed to allocate memory (%u), returning\n"),
                   inherited::mod_->name (),
                   sizeof (ACE_thread_t)));
     else
       ACE_DEBUG ((LM_CRITICAL,
-                  ACE_TEXT ("failed to allocate memory (%u), aborting\n"),
+                  ACE_TEXT ("failed to allocate memory (%u), returning\n"),
                   sizeof (ACE_thread_t)));
-    return return_value;
+    return;
   } // end IF
   ACE_OS::memset (thread_ids_p, 0, sizeof (thread_ids_p));
   ACE_hthread_t* thread_handles_p = NULL;
@@ -331,15 +330,15 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   {
     if (inherited::mod_)
       ACE_DEBUG ((LM_CRITICAL,
-                  ACE_TEXT ("%s: failed to allocate memory (%u), aborting\n"),
+                  ACE_TEXT ("%s: failed to allocate memory (%u), returning\n"),
                   inherited::mod_->name (),
                   sizeof (ACE_hthread_t)));
     else
       ACE_DEBUG ((LM_CRITICAL,
-                  ACE_TEXT ("failed to allocate memory (%u), aborting\n"),
+                  ACE_TEXT ("failed to allocate memory (%u), returning\n"),
                   sizeof (ACE_hthread_t)));
     delete [] thread_ids_p; thread_ids_p = NULL;
-    return return_value;
+    return;
   } // end IF
   ACE_OS::memset (thread_handles_p, 0, sizeof (thread_handles_p));
   const char** thread_names_p = NULL;
@@ -349,16 +348,16 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   {
     if (inherited::mod_)
       ACE_DEBUG ((LM_CRITICAL,
-                  ACE_TEXT ("%s: failed to allocate memory (%u), aborting\n"),
+                  ACE_TEXT ("%s: failed to allocate memory (%u), returning\n"),
                   inherited::mod_->name (),
                   sizeof (const char*)));
     else
       ACE_DEBUG ((LM_CRITICAL,
-                  ACE_TEXT ("failed to allocate memory (%u), aborting\n"),
+                  ACE_TEXT ("failed to allocate memory (%u), returning\n"),
                   sizeof (const char*)));
     delete [] thread_ids_p; thread_ids_p = NULL;
     delete [] thread_handles_p; thread_handles_p = NULL;
-    return return_value;
+    return;
   } // end IF
   ACE_OS::memset (thread_names_p, 0, sizeof (thread_names_p));
   char* thread_name_p = NULL;
@@ -368,17 +367,17 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   {
     if (inherited::mod_)
       ACE_DEBUG ((LM_CRITICAL,
-                  ACE_TEXT ("%s: failed to allocate memory (%u), aborting\n"),
+                  ACE_TEXT ("%s: failed to allocate memory (%u), returning\n"),
                   inherited::mod_->name (),
                   sizeof (char) * BUFSIZ));
     else
       ACE_DEBUG ((LM_CRITICAL,
-                  ACE_TEXT ("failed to allocate memory (%u), aborting\n"),
+                  ACE_TEXT ("failed to allocate memory (%u), returning\n"),
                   sizeof (char) * BUFSIZ));
     delete [] thread_ids_p; thread_ids_p = NULL;
     delete [] thread_handles_p; thread_handles_p = NULL;
     delete [] thread_names_p; thread_names_p = NULL;
-    return return_value;
+    return;
   } // end IF
   ACE_OS::memset (thread_name_p, 0, sizeof (thread_name_p));
   ACE_OS::strcpy (thread_name_p,
@@ -387,7 +386,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
   int result = -1;
   ACE_Thread_ID thread_id;
-  { ACE_GUARD_RETURN (typename ITASKCONTROL_T::MUTEX_T, aGuard, lock_, return_value);
+  { ACE_GUARD (typename ITASKCONTROL_T::MUTEX_T, aGuard, lock_);
     result =
         inherited::activate ((THR_NEW_LWP      |
                               THR_JOINABLE     |
@@ -406,17 +405,17 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     {
       if (inherited::mod_)
         ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("%s: failed to ACE_Task::activate(%u): \"%m\", aborting\n"),
+                    ACE_TEXT ("%s: failed to ACE_Task::activate(%u): \"%m\", returning\n"),
                     inherited::mod_->name (),
                     1));
       else
         ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_Task::activate(%u): \"%m\", aborting\n")));
+                    ACE_TEXT ("failed to ACE_Task::activate(%u): \"%m\", returning\n")));
       delete [] thread_ids_p; thread_ids_p = NULL;
       delete [] thread_handles_p; thread_handles_p = NULL;
       delete [] thread_names_p[0]; thread_names_p[0] = NULL;
       delete [] thread_names_p; thread_names_p = NULL;
-      return return_value;
+      return;
     } // end IF
     thread_id.handle (thread_handles_p[0]);
     thread_id.id (thread_ids_p[0]);
@@ -431,15 +430,13 @@ Common_TaskBase_T<ACE_SYNCH_USE,
               inherited::grp_id_,
               ACE_TEXT (string_stream.str ().c_str ())));
 #endif // _DEBUG
-  return_value = thread_ids_p[0];
+  threadId_out = thread_ids_p[0];
 
   // clean up
   delete [] thread_ids_p; thread_ids_p = NULL;
   delete [] thread_handles_p; thread_handles_p = NULL;
   delete [] thread_names_p[0]; thread_names_p[0] = NULL;
   delete [] thread_names_p; thread_names_p = NULL;
-
-  return return_value;
 }
 
 template <ACE_SYNCH_DECL,
@@ -631,14 +628,13 @@ Common_TaskBase_T<ACE_SYNCH_USE,
         result = 0;
 
       // clean up
-      message_block_p->release ();
+      message_block_p->release (); message_block_p = NULL;
 
       break; // done
     } // end IF
 
     // clean up
-    message_block_p->release ();
-    message_block_p = NULL;
+    message_block_p->release (); message_block_p = NULL;
   } while (true);
 
 #if defined (_DEBUG)
@@ -915,4 +911,98 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   } // end lock scope
 
   return result;
+}
+
+//////////////////////////////////////////
+
+template <typename TimePolicyType,
+          typename LockType>
+Common_TaskBase_T<ACE_NULL_SYNCH,
+                  TimePolicyType,
+                  LockType>::Common_TaskBase_T (const std::string& threadName_in,
+                                                int threadGroupId_in,
+                                                unsigned int threadCount_in,
+                                                bool autoStart_in,
+                                                MESSAGE_QUEUE_T* messageQueue_in)
+#if defined (ACE_THREAD_MANAGER_LACKS_STATICS)
+ : inherited (ACE_THREAD_MANAGER_SINGLETON::instance (), // thread manager instance
+#else /* ! ACE_THREAD_MANAGER_LACKS_STATICS */
+ : inherited (ACE_Thread_Manager::instance (),           // thread manager instance
+#endif /* ACE_THREAD_MANAGER_LACKS_STATICS */
+              messageQueue_in)                           // message queue handle
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::Common_TaskBase_T"));
+
+  ACE_UNUSED_ARG (threadName_in);
+  ACE_UNUSED_ARG (threadGroupId_in);
+  ACE_UNUSED_ARG (threadCount_in);
+  ACE_UNUSED_ARG (autoStart_in);
+}
+
+template <typename TimePolicyType,
+          typename LockType>
+void
+Common_TaskBase_T<ACE_NULL_SYNCH,
+                  TimePolicyType,
+                  LockType>::control (int messageType_in,
+                                      bool highPriority_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::control"));
+
+  ACE_UNUSED_ARG (highPriority_in);
+
+  int result = -1;
+  ACE_Message_Block* message_block_p = NULL;
+
+  // sanity check(s)
+  if (unlikely (!inherited::msg_queue_))
+  {
+    if (inherited::mod_)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("%s: task has no message queue, returning\n"),
+                  inherited::mod_->name ()));
+    else
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("task has no message queue, returning\n")));
+    return;
+  } // end IF
+
+  // enqueue a control message
+  ACE_NEW_NORETURN (message_block_p,
+                    ACE_Message_Block (0,                                  // size
+                                       messageType_in,                     // type
+                                       NULL,                               // continuation
+                                       NULL,                               // data
+                                       NULL,                               // buffer allocator
+                                       NULL,                               // locking strategy
+                                       ACE_DEFAULT_MESSAGE_BLOCK_PRIORITY, // priority
+                                       ACE_Time_Value::zero,               // execution time
+                                       ACE_Time_Value::max_time,           // deadline time
+                                       NULL,                               // data block allocator
+                                       NULL));                             // message allocator
+  if (unlikely (!message_block_p))
+  {
+    if (inherited::mod_)
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("%s: failed to allocate ACE_Message_Block: \"%m\", returning\n"),
+                  inherited::mod_->name ()));
+    else
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("failed to allocate ACE_Message_Block: \"%m\", returning\n")));
+    return;
+  } // end IF
+
+  result = inherited::put (message_block_p, NULL);
+  if (unlikely (result == -1))
+  {
+    if (inherited::mod_)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("%s: failed to ACE_Task::put(): \"%m\", continuing\n"),
+                  inherited::mod_->name ()));
+    else
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Task::put(): \"%m\", continuing\n")));
+
+    message_block_p->release (); message_block_p = NULL;
+  } // end IF
 }
