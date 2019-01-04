@@ -1,5 +1,38 @@
 ﻿option (BUILD_TEST_U "build test_u" OFF)
 
+set (ACE_LIB_FILE libACE.so)
+if (UNIX)
+ find_library (ACE_LIBRARY ${ACE_LIB_FILE}
+               PATHS ${CMAKE_CURRENT_BINARY_DIR}/../../../ATCD/ACE /usr/local
+    #           HINTS ENV ACE_ROOT
+               PATH_SUFFIXES lib
+               DOC "searching for ${ACE_LIB_FILE}"
+               NO_DEFAULT_PATH)
+# else ()
+#  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
+#                DOC "searching for ${ACE_LIB_FILE} (system paths)")
+# endif ()
+elseif (WIN32)
+ if (CMAKE_BUILD_TYPE STREQUAL Debug)
+  set (LIB_FILE_SUFFIX d)
+ endif ()
+ unset (ACE_LIB_FILE)
+ set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
+ find_library (ACE_LIBRARY ${ACE_LIB_FILE}
+               PATHS ENV ACE_ROOT
+               PATHS ${CMAKE_CURRENT_BINARY_DIR}/../../../ATCD/ACE
+               PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
+               DOC "searching for ${ACE_LIB_FILE}")
+endif ()
+#if (NOT EXISTS ACE_LIBRARY)
+if (NOT ACE_LIBRARY)
+ message (FATAL_ERROR "Could not find ${ACE_LIB_FILE} (was: \"${ACE_LIBRARY}\"), aborting")
+else ()
+ #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
+endif ()
+add_definitions (-DACE_HAS_DLL)
+#pkg_check_modules (PKG_ACE REQUIRED ACE)
+
 # user interface
 option (GUI_SUPPORT "enable graphical user interface support" ON)
 if (GUI_SUPPORT)
@@ -299,6 +332,7 @@ add_dependencies (test_u file)
 add_dependencies (test_u regex)
 if (WXWIDGETS_USE)
  add_dependencies (test_u wxwidgets)
+ add_dependencies (test_u wxwidgets_2)
 endif (WXWIDGETS_USE)
 
 if (NOT BUILD_TEST_U)
@@ -316,3 +350,4 @@ endif ()
 # enable (unit/integration) tests
 #include (CTest)
 enable_testing ()
+

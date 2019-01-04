@@ -32,6 +32,7 @@
 #ifdef __cplusplus
 extern "C"
 {
+#include "libavutil/pixdesc.h"
 #include "libavutil/pixfmt.h"
 }
 #endif /* __cplusplus */
@@ -54,18 +55,41 @@ class Common_Image_Tools
                     enum AVPixelFormat,  // source pixel format
                     uint8_t*[],          // source buffer(s)
                     const std::string&); // target file path
-  // *TODO*: currently supports AV_PIX_FMT_RGB24 only
+  // *TODO*: currently supports AV_PIX_FMT_RGB24 input only
   static bool savePNG (unsigned int,        // source width
                        unsigned int,        // source height
                        enum AVPixelFormat,  // source pixel format
                        uint8_t*[],          // source buffer(s)
                        const std::string&); // target file path
 
+  // *NOTE*: callers need to delete[] the returned memory buffer(s) (iff any)
+  static bool convert (struct SwsContext*, // context ? : use sws_getCachedContext()
+                       unsigned int,       // source width
+                       unsigned int,       // source height
+                       enum AVPixelFormat, // source pixel format
+                       uint8_t*[],         // source buffer(s)
+                       unsigned int,       // target width
+                       unsigned int,       // target height
+                       enum AVPixelFormat, // target pixel format
+                       uint8_t*&);         // return value: target buffer(s)
+  static bool scale (struct SwsContext*, // context ? : use sws_getCachedContext()
+                     unsigned int,       // source width
+                     unsigned int,       // source height
+                     enum AVPixelFormat, // source pixel format
+                     uint8_t*[],         // source buffer(s)
+                     unsigned int,       // target width
+                     unsigned int,       // target height
+                     uint8_t*&);         // return value: target buffer(s)
+
+  inline static std::string pixelFormatToString (enum AVPixelFormat format_in) { std::string result = ((format_in == AV_PIX_FMT_NONE) ? ACE_TEXT_ALWAYS_CHAR ("") : av_get_pix_fmt_name (format_in)); return result; }
+
+  static std::string errorToString (int); // error code
+
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_Image_Tools ());
-  ACE_UNIMPLEMENTED_FUNC (~Common_Image_Tools ());
-  ACE_UNIMPLEMENTED_FUNC (Common_Image_Tools (const Common_Image_Tools&));
-  ACE_UNIMPLEMENTED_FUNC (Common_Image_Tools& operator= (const Common_Image_Tools&));
+  ACE_UNIMPLEMENTED_FUNC (Common_Image_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (~Common_Image_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (Common_Image_Tools (const Common_Image_Tools&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Image_Tools& operator= (const Common_Image_Tools&))
 };
 
 #endif

@@ -57,6 +57,7 @@ class Common_TaskBase_T
 
  public:
   // convenient types
+  typedef ACE_SYNCH_USE SYNCH_T;
   typedef Common_ITaskControl_T<ACE_SYNCH_USE,
                                 LockType> ITASKCONTROL_T;
   typedef typename ITASKCONTROL_T::ITASK_T ITASK_T;

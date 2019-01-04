@@ -28,7 +28,7 @@ extern "C"
 {
 #include "libavcodec/avcodec.h"
 #include "libavutil/imgutils.h"
-//#include <libswscale/swscale.h>
+#include "libswscale/swscale.h"
 }
 #endif /* __cplusplus */
 
@@ -220,12 +220,12 @@ Common_Image_Tools::savePNG (unsigned int width_in,
   int got_picture = 0;
   FILE* file_p = NULL;
   struct AVPacket packet_s;
+  av_init_packet (&packet_s);
   struct AVFrame* frame_p = av_frame_alloc ();
   if (!frame_p)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("av_frame_alloc() failed (result was: %d), aborting\n"),
-                result_2));
+                ACE_TEXT ("failed to av_frame_alloc(): \"%m\", aborting\n")));
     return false;
   } // end IF
   frame_p->format = format_in;
@@ -247,33 +247,34 @@ Common_Image_Tools::savePNG (unsigned int width_in,
   if (!codec_p)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("avcodec_find_encoder(AV_CODEC_ID_PNG) failed, aborting\n")));
+                ACE_TEXT ("failed to avcodec_find_encoder(%d): \"%m\", aborting\n"),
+                AV_CODEC_ID_PNG));
     goto clean;
   } // end IF
   codec_context_p = avcodec_alloc_context3 (codec_p);
   if (!codec_context_p)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("avcodec_alloc_context3() failed, aborting\n")));
+                ACE_TEXT ("failed to avcodec_alloc_context3(): \"%m\", aborting\n")));
     goto clean;
   } // end IF
 
   codec_context_p->codec_type = AVMEDIA_TYPE_VIDEO;
   codec_context_p->height = height_in;
   codec_context_p->width = width_in;
-  codec_context_p->pix_fmt = AV_PIX_FMT_RGB24;
+  codec_context_p->pix_fmt = format_in;
+  codec_context_p->time_base.num = codec_context_p->time_base.den = 1;
   result_2 = avcodec_open2 (codec_context_p,
                             codec_p,
                             NULL);
   if (result_2 < 0)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("avcodec_open2() failed (result was: %d), aborting\n"),
-                result_2));
+                ACE_TEXT ("failed to avcodec_open2(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
     goto clean;
   } // end IF
 
-  av_init_packet (&packet_s);
   packet_s.size = 0;
   packet_s.data = NULL;
   result_2 = avcodec_encode_video2 (codec_context_p,
@@ -283,8 +284,8 @@ Common_Image_Tools::savePNG (unsigned int width_in,
   if ((result_2 < 0) || !got_picture)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("avcodec_encode_video2() failed (result was: %d), aborting\n"),
-                result_2));
+                ACE_TEXT ("failed to avcodec_encode_video2(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
     goto clean;
   } // end IF
 
@@ -320,8 +321,8 @@ clean:
     av_frame_free (&frame_p);
   if (codec_context_p)
   {
-    avcodec_close (codec_context_p);
-    av_free (codec_context_p);
+    avcodec_close (codec_context_p); codec_context_p = NULL;
+    av_free (codec_context_p); codec_context_p = NULL;
   } // end IF
   if (file_p)
   {
@@ -330,6 +331,7 @@ clean:
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
                   ACE_TEXT (path_in.c_str ())));
+    file_p = NULL;
   } // end IF
 
 #if defined (_DEBUG)
@@ -337,7 +339,273 @@ clean:
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("wrote file \"%s\"\n"),
                 ACE_TEXT (path_in.c_str ())));
-#endif
+#endif // _DEBUG
 
   return result;
+}
+
+bool
+Common_Image_Tools::convert (struct SwsContext* context_in,
+                             unsigned int sourceWidth_in,
+                             unsigned int sourceHeight_in,
+                             enum AVPixelFormat sourcePixelFormat_in,
+                             uint8_t* sourceBuffers_in[],
+                             unsigned int targetWidth_in,
+                             unsigned int targetHeight_in,
+                             enum AVPixelFormat targetPixelFormat_in,
+                             uint8_t*& targetBuffers_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::convert"));
+
+  // initialize return value(s)
+  ACE_ASSERT (!targetBuffers_out);
+
+  // sanity check(s)
+  if (unlikely (!sws_isSupportedInput (sourcePixelFormat_in) ||
+                !sws_isSupportedOutput (targetPixelFormat_in)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("unsupported format conversion (was: %s --> %s), aborting\n"),
+                ACE_TEXT (Common_Image_Tools::pixelFormatToString (sourcePixelFormat_in).c_str ()),
+                ACE_TEXT (Common_Image_Tools::pixelFormatToString (targetPixelFormat_in).c_str ())));
+    return false;
+  } // end IF
+  if (unlikely (sourcePixelFormat_in == targetPixelFormat_in))
+    return Common_Image_Tools::scale (context_in,
+                                      sourceWidth_in, sourceHeight_in,
+                                      sourcePixelFormat_in,
+                                      sourceBuffers_in,
+                                      targetWidth_in, targetHeight_in,
+                                      targetBuffers_out);
+
+  // *TODO*: define a balanced scaler parametrization that suits most
+  //         applications, or expose this as a parameter
+  int flags = (//SWS_BILINEAR | SWS_FAST_BILINEAR | // interpolation
+               SWS_BICUBIC);
+  struct SwsContext* context_p = NULL;
+  int result_2 = -1;
+  int in_linesize[AV_NUM_DATA_POINTERS];
+  int out_linesize[AV_NUM_DATA_POINTERS];
+  uint8_t* out_data[AV_NUM_DATA_POINTERS];
+  int size_i = av_image_get_buffer_size (targetPixelFormat_in,
+                                         targetWidth_in, targetHeight_in,
+                                         1); // *TODO*: linesize alignment
+
+  ACE_NEW_NORETURN (targetBuffers_out,
+                    uint8_t[size_i]);
+  if (unlikely (!targetBuffers_out))
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to allocate memory: %m, aborting\n")));
+    return false;
+  } // end IF
+
+  context_p =
+      (context_in ? context_in
+                  : sws_getCachedContext (NULL,
+                                          sourceWidth_in, sourceHeight_in, sourcePixelFormat_in,
+                                          targetWidth_in, targetHeight_in, targetPixelFormat_in,
+                                          flags,                             // flags
+                                          NULL, NULL,
+                                          0));                               // parameters
+  if (unlikely (!context_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to sws_getCachedContext(): \"%m\", aborting\n")));
+    goto error;
+  } // end IF
+
+  result_2 = av_image_fill_linesizes (in_linesize,
+                                      sourcePixelFormat_in,
+                                      static_cast<int> (sourceWidth_in));
+  ACE_ASSERT (result_2 >= 0);
+  result_2 = av_image_fill_linesizes (out_linesize,
+                                      targetPixelFormat_in,
+                                      static_cast<int> (targetWidth_in));
+  ACE_ASSERT (result_2 >= 0);
+  result_2 =
+      av_image_fill_pointers (out_data,
+                              targetPixelFormat_in,
+                              targetHeight_in,
+                              targetBuffers_out,
+                              out_linesize);
+  ACE_ASSERT (result_2 == size_i);
+
+  result_2 = sws_scale (context_p,
+                        sourceBuffers_in, in_linesize,
+                        0, sourceHeight_in,
+                        out_data, out_linesize);
+  if (unlikely (result_2 <= 0))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to sws_scale(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
+    goto error;
+  } // end IF
+  // *NOTE*: ffmpeg returns fewer than the expected number of rows in some cases
+  // *TODO*: find out when and why
+  else if (unlikely (result_2 != static_cast<int> (targetHeight_in)))
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("sws_scale() returned: %d (expected: %u), continuing\n"),
+                result_2, targetHeight_in));
+
+  if (unlikely (!context_in))
+  {
+    sws_freeContext (context_p); context_p = NULL;
+  } // end IF
+
+  return true;
+
+error:
+  if (targetBuffers_out)
+  {
+    delete [] targetBuffers_out; targetBuffers_out = NULL;
+  } // end IF
+  if (unlikely (!context_in))
+  {
+    sws_freeContext (context_p); context_p = NULL;
+  } // end IF
+
+  return false;
+}
+
+bool
+Common_Image_Tools::scale (struct SwsContext* context_in,
+                           unsigned int sourceWidth_in,
+                           unsigned int sourceHeight_in,
+                           enum AVPixelFormat pixelFormat_in,
+                           uint8_t* sourceBuffers_in[],
+                           unsigned int targetWidth_in,
+                           unsigned int targetHeight_in,
+                           uint8_t*& targetBuffers_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::scale"));
+
+  // initialize return value(s)
+  ACE_ASSERT (!targetBuffers_out);
+
+  // sanity check(s)
+  if (unlikely (!sws_isSupportedInput (pixelFormat_in) ||
+                !sws_isSupportedOutput (pixelFormat_in)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("unsupported format conversion (was: %s --> %s), aborting\n"),
+                ACE_TEXT (Common_Image_Tools::pixelFormatToString (pixelFormat_in).c_str ()),
+                ACE_TEXT (Common_Image_Tools::pixelFormatToString (pixelFormat_in).c_str ())));
+    return false;
+  } // end IF
+
+  // *TODO*: define a balanced scaler parametrization that suits most
+  //         applications, or expose this as a parameter
+  int flags = (//SWS_BILINEAR | SWS_FAST_BILINEAR | // interpolation
+               SWS_BICUBIC);
+  struct SwsContext* context_p = NULL;
+  int result_2 = -1;
+  int in_linesize[AV_NUM_DATA_POINTERS];
+  int out_linesize[AV_NUM_DATA_POINTERS];
+  uint8_t* out_data[AV_NUM_DATA_POINTERS];
+  int size_i = av_image_get_buffer_size (pixelFormat_in,
+                                         targetWidth_in, targetHeight_in,
+                                         1); // *TODO*: linesize alignment
+
+  ACE_NEW_NORETURN (targetBuffers_out,
+                    uint8_t[size_i]);
+  if (unlikely (!targetBuffers_out))
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to allocate memory: %m, aborting\n")));
+    return false;
+  } // end IF
+
+  context_p =
+      (context_in ? context_in
+                  : sws_getCachedContext (NULL,
+                                          sourceWidth_in, sourceHeight_in, pixelFormat_in,
+                                          targetWidth_in, targetHeight_in, pixelFormat_in,
+                                          flags,                             // flags
+                                          NULL, NULL,
+                                          0));                               // parameters
+  if (unlikely (!context_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to sws_getCachedContext(): \"%m\", aborting\n")));
+    goto error;
+  } // end IF
+
+  result_2 = av_image_fill_linesizes (in_linesize,
+                                      pixelFormat_in,
+                                      static_cast<int> (sourceWidth_in));
+  ACE_ASSERT (result_2 >= 0);
+  result_2 = av_image_fill_linesizes (out_linesize,
+                                      pixelFormat_in,
+                                      static_cast<int> (targetWidth_in));
+  ACE_ASSERT (result_2 >= 0);
+  result_2 =
+      av_image_fill_pointers (out_data,
+                              pixelFormat_in,
+                              targetHeight_in,
+                              targetBuffers_out,
+                              out_linesize);
+  ACE_ASSERT (result_2 == size_i);
+
+  result_2 = sws_scale (context_p,
+                        sourceBuffers_in, in_linesize,
+                        0, sourceHeight_in,
+                        out_data, out_linesize);
+  if (unlikely (result_2 <= 0))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to sws_scale(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
+    goto error;
+  } // end IF
+  // *NOTE*: ffmpeg returns fewer than the expected number of rows in some cases
+  // *TODO*: find out when and why
+  else if (unlikely (result_2 != static_cast<int> (targetHeight_in)))
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("sws_scale() returned: %d (expected: %u), continuing\n"),
+                result_2, targetHeight_in));
+
+  if (unlikely (!context_in))
+  {
+    sws_freeContext (context_p); context_p = NULL;
+  } // end IF
+
+  return true;
+
+error:
+  if (targetBuffers_out)
+  {
+    delete [] targetBuffers_out; targetBuffers_out = NULL;
+  } // end IF
+  if (unlikely (!context_in))
+  {
+    sws_freeContext (context_p); context_p = NULL;
+  } // end IF
+
+  return false;
+}
+
+std::string
+Common_Image_Tools::errorToString (int errorCode_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::errorToString"));
+
+  // initialize return value(s)
+  std::string return_value;
+
+  char buffer_a[AV_ERROR_MAX_STRING_SIZE];
+  int result = av_strerror (errorCode_in,
+                            buffer_a,
+                            sizeof (char[AV_ERROR_MAX_STRING_SIZE]));
+  if (result < 0)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to av_strerror(%d): \"%m\", aborting\n"),
+                errorCode_in));
+    return return_value;
+  } // end IF
+  return_value = buffer_a;
+
+  return return_value;
 }
