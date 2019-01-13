@@ -84,8 +84,11 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::~Common_UI_WxWidgets_Manager_T (
   wxThreadError result = wxTHREAD_NO_ERROR;
   if (inherited::IsAlive ())
   {
-    result = inherited::Delete (&exit_code,
-                                wxTHREAD_WAIT_DEFAULT);
+    result = inherited::Delete (&exit_code
+#if wxCHECK_VERSION(3,0,0)
+                                ,wxTHREAD_WAIT_DEFAULT
+#endif // wxCHECK_VERSION
+                               );
     if (unlikely (result != wxTHREAD_NO_ERROR))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to wxThread::Delete(): %d, continuing\n"),
@@ -93,7 +96,11 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::~Common_UI_WxWidgets_Manager_T (
   } // end IF
   if (inherited::IsPaused ())
     inherited::Resume ();
-  exit_code = inherited::Wait (wxTHREAD_WAIT_DEFAULT);
+  exit_code = inherited::Wait (
+#if wxCHECK_VERSION(3,0,0)
+                wxTHREAD_WAIT_DEFAULT
+#endif // wxCHECK_VERSION
+                              );
   ACE_UNUSED_ARG (exit_code);
 
   delete application_;
@@ -125,8 +132,11 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::stop (bool waitForCompletion_in,
   wxThreadError result = wxTHREAD_NO_ERROR;
   if (inherited::IsAlive ())
   {
-    result = inherited::Delete (&exit_code,
-                                wxTHREAD_WAIT_DEFAULT);
+    result = inherited::Delete (&exit_code
+#if wxCHECK_VERSION(3,0,0)
+                                ,wxTHREAD_WAIT_DEFAULT
+#endif // wxCHECK_VERSION
+                               );
     if (unlikely (result != wxTHREAD_NO_ERROR))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to wxThread::Delete(): %d, continuing\n"),
@@ -135,7 +145,11 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::stop (bool waitForCompletion_in,
 
   if (waitForCompletion_in)
   {
-    exit_code = inherited::Wait (wxTHREAD_WAIT_DEFAULT);
+    exit_code = inherited::Wait (
+#if wxCHECK_VERSION(3,0,0)
+                                 wxTHREAD_WAIT_DEFAULT
+#endif // wxCHECK_VERSION
+                                );
     ACE_UNUSED_ARG (exit_code);
   } // end IF
 }

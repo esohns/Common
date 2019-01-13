@@ -118,7 +118,7 @@ Common_UI_WxWidgets_Tools::convertArgV (int argc_in,
     wx_string = wxString::FromAscii (ACE_TEXT_ALWAYS_CHAR (argv_in[i]));
     string_p = NULL;
     ACE_NEW_NORETURN (string_p,
-                      wxChar[ACE_OS::strlen (wx_string.wc_str ()) + 1]);
+                      wxChar[ACE_OS::strlen (wx_string.c_str ().AsChar ()) + 1]);
     if (!string_p)
     {
       ACE_DEBUG ((LM_CRITICAL,
@@ -128,7 +128,7 @@ Common_UI_WxWidgets_Tools::convertArgV (int argc_in,
       delete [] result_p; result_p = NULL;
       return NULL;
     } // end IF
-    ACE_OS::strcpy (string_p, wx_string.wc_str ());
+    ACE_OS::strcpy (string_p, wx_string.c_str ());
     result_p[i] = string_p;
   } // end FOR
   result_p[argc_in] = NULL;
@@ -154,7 +154,7 @@ Common_UI_WxWidgets_Tools::clientDataToIndex (wxObject* object_in,
     string_client_data_p =
       dynamic_cast<wxStringClientData*> (item_container_p->GetClientObject (i));
     ACE_ASSERT (string_client_data_p);
-    if (!ACE_OS::strcmp (string_client_data_p->GetData ().ToStdString ().c_str (),
+    if (!ACE_OS::strcmp (string_client_data_p->GetData ().ToAscii (),
                          clientData_in.c_str ()))
       return i;
   } // end FOR

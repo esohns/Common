@@ -9,8 +9,8 @@
 //  g++ main.cpp $(wx-config --libs) $(wx-config --cxxflags) -o MyApp Dialog1.cpp Frame1.cpp
 //
 
-#ifndef TEST_U_2_H
-#define TEST_U_2_H
+#ifndef TEST_U_3_H
+#define TEST_U_3_H
 
 //#if defined (_DEBUG)
 //#undef _DEBUG // *NOTE*: do not (!) #define __WXDEBUG__

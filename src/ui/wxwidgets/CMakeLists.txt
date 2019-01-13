@@ -1,4 +1,9 @@
-﻿add_library (${PROJECT_NAME}UI_wxWidgets STATIC "")
+﻿
+if (UNIX)
+ add_definitions (-DwxUSE_FONTMAP=0)
+endif (UNIX)
+
+add_library (${PROJECT_NAME}UI_wxWidgets STATIC "")
 
 target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
                             "$<BUILD_INTERFACE:${wxWidgets_INCLUDE_DIRS}>")
@@ -68,10 +73,6 @@ target_sources (${PROJECT_NAME}UI_wxWidgets
 
 #get_target_property (debug ${PROJECT_NAME}UI_GTK INTERFACE_INCLUDE_DIRECTORIES)
 #message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
-
-#if (UNIX)
-# add_definitions (-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS)
-#endif ()
 
 if (UNIX)
 # if (GTK3_SUPPORT)

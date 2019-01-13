@@ -65,21 +65,35 @@ Common_UI_WxWidgetsXRCDefinition_T<StateType,
 
   // load widget tree(s)
   wxObject* object_p = NULL;
+#if wxCHECK_VERSION(3,0,0)
   wxFileName file_name;
+#elif wxCHECK_VERSION(2,0,0)
+  wxString file_name;
+#endif // wxCHECK_VERSION
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_->lock, false);
     for (Common_UI_wxWidgets_XmlResourcesIterator_t iterator = state_->resources.begin ();
          iterator != state_->resources.end ();
          ++iterator)
     { ACE_ASSERT (!(*iterator).second.second);
       ACE_ASSERT (!object_p);
-
-      file_name.Assign ((*iterator).second.first,
+#if wxCHECK_VERSION(3,0,0)
+      file_name.Assign (ACE_TEXT_ALWAYS_CHAR ((*iterator).second.first.c_str ()),
                         wxPATH_NATIVE);
       if (unlikely (!resource_p->LoadFile (file_name)))
+#elif wxCHECK_VERSION(2,0,0)
+      file_name  = ACE_TEXT_ALWAYS_WCHAR ((*iterator).second.first.c_str ());
+      if (unlikely (!resource_p->Load (file_name)))
+#endif // wxCHECK_VERSION
       {
+#if wxCHECK_VERSION(3,0,0)
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to wxXmlResource::LoadFile(\"%s\"): \"%m\", aborting\n"),
                     ACE_TEXT ((*iterator).second.first.c_str ())));
+#elif wxCHECK_VERSION(2,0,0)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to wxXmlResource::Load(\"%s\"): \"%m\", aborting\n"),
+                    ACE_TEXT ((*iterator).second.first.c_str ())));
+#endif // wxCHECK_VERSION
         return false;
       } // end IF
 
@@ -88,8 +102,8 @@ Common_UI_WxWidgetsXRCDefinition_T<StateType,
       { ACE_ASSERT (handle_ && !name_.empty ());
         if (unlikely (!resource_p->LoadObject (handle_,
                                                NULL,                                   // parent widget handle
-                                               name_,
-                                               ACE_TEXT_ALWAYS_CHAR (TopLevelClassName))))
+                                               wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())),
+                                               wxString (ACE_TEXT_ALWAYS_WCHAR (TopLevelClassName)))))
         {
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to wxXmlResource::LoadObject(0x%@,\"%s\"): \"%m\", aborting\n"),
@@ -102,8 +116,8 @@ Common_UI_WxWidgetsXRCDefinition_T<StateType,
       else
         object_p =
           resource_p->LoadObject (NULL,                                   // parent widget handle
-                                  name_,
-                                  ACE_TEXT_ALWAYS_CHAR (TopLevelClassName));
+                                  wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())),
+                                  wxString (ACE_TEXT_ALWAYS_CHAR (TopLevelClassName)));
       if (unlikely (!object_p))
       {
         ACE_DEBUG ((LM_ERROR,

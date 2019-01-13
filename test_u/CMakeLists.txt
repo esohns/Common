@@ -333,6 +333,7 @@ add_dependencies (test_u regex)
 if (WXWIDGETS_USE)
  add_dependencies (test_u wxwidgets)
  add_dependencies (test_u wxwidgets_2)
+ add_dependencies (test_u wxwidgets_3)
 endif (WXWIDGETS_USE)
 
 if (NOT BUILD_TEST_U)
@@ -350,4 +351,3 @@ endif ()
 # enable (unit/integration) tests
 #include (CTest)
 enable_testing ()
-

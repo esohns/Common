@@ -91,7 +91,13 @@ Common_UI_WxWidgets_Logger::DoLogTextAtLevel (wxLogLevel logLevel_in,
 #else
     return; // don't log
 #endif // _DEBUG
+#if wxCHECK_VERSION(3,0,0)
   ACE_DEBUG ((log_priority,
               ACE_TEXT ("%s\n"),
               ACE_TEXT (message_in.ToStdString ().c_str ())));
+#elif wxCHECK_VERSION(2,0,0)
+  ACE_DEBUG ((log_priority,
+              ACE_TEXT ("%s\n"),
+              ACE_TEXT (message_in.c_str ())));
+#endif // wxCHECK_VERSION
 }

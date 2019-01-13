@@ -9,11 +9,12 @@
 //  g++ main.cpp $(wx-config --libs) $(wx-config --cxxflags) -o MyApp Dialog1.cpp Frame1.cpp
 //
 
+#include "wx/apptrait.h"
 #include "wx/xrc/xmlres.h"
 
 #include "ace/Log_Msg.h"
 
-#include "test_u_2.h"
+#include "test_u_3.h"
 
 // begin wxGlade: ::extracode
 // end wxGlade
@@ -97,20 +98,31 @@ public:
   bool OnInit();
 };
 
+int
+main (int argc, char** argv)
+{
+  Test_U_wxWidgets_Application application_s;
+  wxGUIAppTraits* traits_p =
+      static_cast<wxGUIAppTraits*> (application_s.GetTraits ());
+  traits_p->CreateFontMapper ();
+
+  return wxEntry (argc, argv);
+}
+
 #if wxCHECK_VERSION(3,0,0)
-wxIMPLEMENT_APP (Test_U_wxWidgets_Application);
+//wxIMPLEMENT_APP (Test_U_wxWidgets_Application);
 #elif wxCHECK_VERSION(2,0,0)
-IMPLEMENT_APP(Test_U_wxWidgets_Application)
+//IMPLEMENT_APP(Test_U_wxWidgets_Application)
 
 void wxApp::OnAssertFailure (const wxChar *file,
                              int line,
                              const wxChar *func,
                              const wxChar *cond,
-                             const wxChar *msg) {};
+                             const wxChar *msg) {}
 void wxAppConsole::OnAssert (const wxChar *file,
                              int line,
                              const wxChar *cond,
-                             const wxChar *msg) {};
+                             const wxChar *msg) {}
 #endif // wxCHECK_VERSION
 
 bool Test_U_wxWidgets_Application::OnInit()

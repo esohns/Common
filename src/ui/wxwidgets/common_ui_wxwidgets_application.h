@@ -23,7 +23,15 @@
 
 #include <string>
 
+//#if defined (_DEBUG)
+//#undef _DEBUG // *NOTE*: do not (!) #define __WXDEBUG__
+//#define REDEDINE_DEBUG 1
+//#endif // _DEBUG
 #include "wx/wx.h"
+//#if defined (REDEDINE_DEBUG)
+//#undef REDEDINE_DEBUG
+//#define _DEBUG
+//#endif // REDEDINE_DEBUG
 
 #include "ace/Global_Macros.h"
 
@@ -74,7 +82,11 @@ class Comon_UI_WxWidgets_Application_T
   inline virtual bool initialize (const ConfigurationType& configuration_in) { configuration_ = &const_cast<ConfigurationType&> (configuration_in); configuration_->UIState = &state_; return true; }
   inline virtual const ConfigurationType& getR_2 () const { ACE_ASSERT (configuration_); return *configuration_; }
   virtual bool run ();
+#if wxCHECK_VERSION(3,0,0)
   inline virtual void wait () { while (inherited::HasPendingEvents ()) inherited::ProcessPendingEvents(); }
+#elif wxCHECK_VERSION(2,0,0)
+  inline virtual void wait () { inherited::ProcessPendingEvents(); }
+#endif // wxCHECK_VERSION
 
  protected:
   // convenient types

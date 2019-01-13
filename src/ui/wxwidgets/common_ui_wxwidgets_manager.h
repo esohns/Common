@@ -23,7 +23,15 @@
 
 #include <string>
 
+//#if defined (_DEBUG)
+//#undef _DEBUG // *NOTE*: do not (!) #define __WXDEBUG__
+//#define REDEDINE_DEBUG 1
+//#endif // _DEBUG
 #include "wx/wx.h"
+//#if defined (REDEDINE_DEBUG)
+//#undef REDEDINE_DEBUG
+//#define _DEBUG
+//#endif // REDEDINE_DEBUG
 
 #include "ace/Global_Macros.h"
 #include "ace/Synch_Traits.h"
@@ -65,8 +73,11 @@ class Common_UI_WxWidgets_Manager_T
   inline virtual int unlock (bool = false) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (-1); ACE_NOTREACHED (return -1;) }
   inline virtual const ACE_NULL_SYNCH::MUTEX& getR () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (ACE_NULL_SYNCH::MUTEX ()); ACE_NOTREACHED (return ACE_NULL_SYNCH::MUTEX ();) }
   inline virtual void finished () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
+#if wxCHECK_VERSION(3,0,0)
   inline virtual void wait (bool = true) const { OWN_TYPE_T* this_p = const_cast<OWN_TYPE_T*> (this);  wxThread::ExitCode exit_code = this_p->Wait (wxTHREAD_WAIT_DEFAULT); ACE_UNUSED_ARG (exit_code); }
-
+#elif wxCHECK_VERSION(2,0,0)
+  inline virtual void wait (bool = true) const { OWN_TYPE_T* this_p = const_cast<OWN_TYPE_T*> (this);  wxThread::ExitCode exit_code = this_p->Wait (); ACE_UNUSED_ARG (exit_code); }
+#endif // wxCHECK_VERSION
   inline virtual const typename ApplicationType::INTERFACE_T* const getP () const { return application_; }
 
  protected:

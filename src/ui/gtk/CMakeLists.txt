@@ -32,7 +32,7 @@ if (UNIX)
                               $<BUILD_INTERFACE:${GTK3_INCLUDE_DIRS}>)
  elseif (GTK2_FOUND)
   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
-                              $<BUILD_INTERFACE:${GTK2_INCLUDE_DIRS}>)
+                              ${GTK2_INCLUDE_DIRS})
  elseif (GTK_FOUND)
   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
                               $<BUILD_INTERFACE:${GTK_INCLUDE_DIR}>)
@@ -182,8 +182,8 @@ target_sources (${PROJECT_NAME}UI_GTK
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-#get_target_property (debug ${PROJECT_NAME}UI_GTK INTERFACE_INCLUDE_DIRECTORIES)
-#message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
+get_target_property (debug ${PROJECT_NAME}UI_GTK INTERFACE_INCLUDE_DIRECTORIES)
+message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
 
 #if (UNIX)
 # add_definitions (-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS)
