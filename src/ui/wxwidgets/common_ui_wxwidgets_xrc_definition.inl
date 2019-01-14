@@ -99,7 +99,7 @@ Common_UI_WxWidgetsXRCDefinition_T<StateType,
 
       if (!ACE_OS::strcmp ((*iterator).first.c_str (),
                            ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN)))
-      { ACE_ASSERT (handle_ && !name_.empty ());
+      { ACE_ASSERT (!name_.empty ());
         if (unlikely (!resource_p->LoadObject (handle_,
                                                NULL,                                   // parent widget handle
                                                wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())),

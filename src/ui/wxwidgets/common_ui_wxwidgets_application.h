@@ -97,7 +97,6 @@ class Comon_UI_WxWidgets_Application_T
   typedef Common_UI_wxWidgets_ITopLevel_T<StateType,
                                           ConfigurationType> ITOPLEVEL_T;
 
-  TopLevelClassType  instance_;
   ConfigurationType* configuration_;
   StateType          state_;
 

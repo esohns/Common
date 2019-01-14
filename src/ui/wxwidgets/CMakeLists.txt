@@ -1,9 +1,4 @@
-﻿
-if (UNIX)
- add_definitions (-DwxUSE_FONTMAP=0)
-endif (UNIX)
-
-add_library (${PROJECT_NAME}UI_wxWidgets STATIC "")
+﻿add_library (${PROJECT_NAME}UI_wxWidgets STATIC "")
 
 target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
                             "$<BUILD_INTERFACE:${wxWidgets_INCLUDE_DIRS}>")

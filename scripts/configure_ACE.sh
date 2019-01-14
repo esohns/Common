@@ -177,8 +177,10 @@ then
     CREATE_ACE_BUILD=${ACE_DIRECTORY}/bin/create_ace_build.pl
     [ ! -x ${CREATE_ACE_BUILD} ] && echo "ERROR: invalid file (was: \"${CREATE_ACE_BUILD}\"): not executable, aborting" && exit 1
     cd ${ACE_DIRECTORY}
-    perl ${CREATE_ACE_BUILD} -a -v ${PLATFORM}
-    [ $? -ne 0 ] && echo "ERROR: failed to \"${CREATE_ACE_BUILD}\": $?, aborting" && exit 1
+    # *TODO*: platform-specific build trees do not work ATM
+#    perl ${CREATE_ACE_BUILD} -a -v ${PLATFORM}
+#    [ $? -ne 0 ] && echo "ERROR: failed to \"${CREATE_ACE_BUILD}\": $?, aborting" && exit 1
+    ACE_BUILD_DIRECTORY=${ACE_DIRECTORY}
    fi
    ;;
   win32)

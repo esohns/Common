@@ -7,7 +7,7 @@
 #add_definitions (-DCOMMON_TIMER_HAS_DLL)
 
 if (UNIX)
- add_definitions (-DwxUSE_FONTMAP=0)
+# add_definitions (-DwxUSE_FONTMAP=0)
 endif (UNIX)
 
 ############## includes ###############

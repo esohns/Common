@@ -41,12 +41,10 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
                                                                                 wxChar** argv_in,
                                                                                 bool parseCommandLine_in)
  : inherited ()
- , instance_ (NULL)
  , configuration_ ()
  , state_ ()
  , definition_ (topLevelWidgetName_in,
-                &instance_)
- //, initializer_ (argc_in, argv_in)
+                NULL)
  , parseCommandLine_ (parseCommandLine_in)
 {
   COMMON_TRACE (ACE_TEXT ("Comon_UI_WxWidgets_Application_T::Comon_UI_WxWidgets_Application_T"));

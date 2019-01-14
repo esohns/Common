@@ -22,7 +22,7 @@ if (WXWIDGETS_SUPPORT)
   add_definitions (-D__WXDEBUG__)
  endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 # *NOTE*: re-enable ANSI mode, iff available
- add_definitions (-DwxUSE_UNICODE=0)
+# add_definitions (-DwxUSE_UNICODE=0)
  add_definitions (-DwxUSE_GUI=1)
 endif (WXWIDGETS_SUPPORT)
 
