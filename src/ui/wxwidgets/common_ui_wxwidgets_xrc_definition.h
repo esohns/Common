@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2010 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -43,8 +43,7 @@ class Common_UI_WxWidgetsXRCDefinition_T
  : public Common_UI_IDefinition_T<StateType>
 {
  public:
-  Common_UI_WxWidgetsXRCDefinition_T (const std::string&, // (top-level-) widget name
-                                      wxObject*);         // (top-level-) widget instance handle
+  Common_UI_WxWidgetsXRCDefinition_T (const std::string&); // (top-level-) widget name
   inline virtual ~Common_UI_WxWidgetsXRCDefinition_T () {}
 
   // implement Common_UI_IDefinition_T
@@ -56,8 +55,7 @@ class Common_UI_WxWidgetsXRCDefinition_T
   ACE_UNIMPLEMENTED_FUNC (Common_UI_WxWidgetsXRCDefinition_T (const Common_UI_WxWidgetsXRCDefinition_T&));
   ACE_UNIMPLEMENTED_FUNC (Common_UI_WxWidgetsXRCDefinition_T& operator= (const Common_UI_WxWidgetsXRCDefinition_T&));
 
-  std::string name_;
-  wxObject*   handle_;
+  std::string name_; // 'top-level' widget-
   StateType*  state_;
 };
 

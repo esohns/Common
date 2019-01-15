@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -58,11 +58,13 @@ struct Common_UI_wxWidgets_State
    : Common_UI_State ()
    , argc (0)
    , argv (NULL)
+   , instance (NULL)
    , resources ()
   {}
 
   int                                argc;
   wxChar**                           argv;
+  wxObject*                          instance;
   Common_UI_wxWidgets_XmlResources_t resources;
 };
 

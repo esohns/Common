@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -43,8 +43,7 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
  : inherited ()
  , configuration_ ()
  , state_ ()
- , definition_ (topLevelWidgetName_in,
-                NULL)
+ , definition_ (topLevelWidgetName_in)
  , parseCommandLine_ (parseCommandLine_in)
 {
   COMMON_TRACE (ACE_TEXT ("Comon_UI_WxWidgets_Application_T::Comon_UI_WxWidgets_Application_T"));
@@ -102,6 +101,9 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
 {
   COMMON_TRACE (ACE_TEXT ("Comon_UI_WxWidgets_Application_T::OnInit"));
 
+  // sanity check(s)
+  ACE_ASSERT (!state_.instance);
+
   // parse the command-line arguments ?
   // *NOTE*: this works iff wxUSE_CMDLINE_PARSER was set
   if (parseCommandLine_)
@@ -112,17 +114,28 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
       return false;
     } // end IF
 
+  Common_UI_wxWidgets_XmlResourcesConstIterator_t iterator;
+  ITOPLEVEL_T* itop_level_p = NULL;
+  TopLevelClassType* widget_p = NULL;
+
+  ACE_NEW_NORETURN (state_.instance,
+                    TopLevelClassType (NULL));
+  if (unlikely (!state_.instance))
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to allocate memory: %m, aborting\n")));
+    return false;
+  } // end IF
+
   if (unlikely (!definition_.initialize (state_)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to initialize interface definition, aborting\n")));
+    delete widget_p; widget_p = NULL;
     return false;
   } // end IF
   ACE_ASSERT (!state_.resources.empty ());
 
-  Common_UI_wxWidgets_XmlResourcesConstIterator_t iterator;
-  ITOPLEVEL_T* itop_level_p = NULL;
-  TopLevelClassType* widget_p = NULL;
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_.lock, false);
     iterator =
       state_.resources.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
@@ -130,19 +143,20 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
 
     itop_level_p = dynamic_cast<ITOPLEVEL_T*> ((*iterator).second.second);
     ACE_ASSERT (itop_level_p);
-    try {
-      itop_level_p->OnInit_2 (this);
-    } catch (...) {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("caught exception in Common_UI_wxWidgets_ITopLevel_T::OnInit_2(), aborting\n")));
-      return false;
-    }
-
-    widget_p = dynamic_cast<TopLevelClassType*> ((*iterator).second.second);
-    ACE_ASSERT (widget_p);
-    inherited::SetTopWindow (widget_p);
-    widget_p->Show (true);
   } // end lock scope
+
+  try {
+    itop_level_p->OnInit_2 (this);
+  } catch (...) {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("caught exception in Common_UI_wxWidgets_ITopLevel_T::OnInit_2(), aborting\n")));
+    return false;
+  }
+
+  widget_p = dynamic_cast<TopLevelClassType*> (itop_level_p);
+  ACE_ASSERT (widget_p);
+  inherited::SetTopWindow (widget_p);
+  widget_p->Show (true);
 
   return true;
 }

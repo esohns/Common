@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2010 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -33,10 +33,8 @@
 template <typename StateType,
           const char* TopLevelClassName>
 Common_UI_WxWidgetsXRCDefinition_T<StateType,
-                                   TopLevelClassName>::Common_UI_WxWidgetsXRCDefinition_T (const std::string& name_in,
-                                                                                           wxObject* handle_in)
+                                   TopLevelClassName>::Common_UI_WxWidgetsXRCDefinition_T (const std::string& name_in)
  : name_ (name_in)
- , handle_ (handle_in)
  , state_ (NULL)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgetsXRCDefinition_T::Common_UI_WxWidgetsXRCDefinition_T"));
@@ -99,25 +97,27 @@ Common_UI_WxWidgetsXRCDefinition_T<StateType,
 
       if (!ACE_OS::strcmp ((*iterator).first.c_str (),
                            ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN)))
-      { ACE_ASSERT (!name_.empty ());
-        if (unlikely (!resource_p->LoadObject (handle_,
+      {
+        if (unlikely (!resource_p->LoadObject (state_->instance,
                                                NULL,                                   // parent widget handle
                                                wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())),
                                                wxString (ACE_TEXT_ALWAYS_WCHAR (TopLevelClassName)))))
         {
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to wxXmlResource::LoadObject(0x%@,\"%s\"): \"%m\", aborting\n"),
-                      handle_,
+                      state_->instance,
                       ACE_TEXT (name_.c_str ())));
           return false;
         } // end IF
-        object_p = handle_;
+        object_p = state_->instance;
       } // end IF
       else
+      {
         object_p =
           resource_p->LoadObject (NULL,                                   // parent widget handle
                                   wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())),
                                   wxString (ACE_TEXT_ALWAYS_CHAR (TopLevelClassName)));
+      } // end ELSE
       if (unlikely (!object_p))
       {
         ACE_DEBUG ((LM_ERROR,
