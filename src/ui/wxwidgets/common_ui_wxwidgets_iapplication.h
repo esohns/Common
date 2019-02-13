@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -21,6 +21,7 @@
 #ifndef COMMON_UI_WXWIDGETS_IAPPLICATION_T_H
 #define COMMON_UI_WXWIDGETS_IAPPLICATION_T_H
 
+#include "common_idumpstate.h"
 #include "common_iget.h"
 #include "common_iinitialize.h"
 
@@ -35,6 +36,7 @@ template <typename StateType>
 class Common_UI_wxWidgets_IApplicationBase_T
  : public Common_UI_wxWidgets_IApplicationBase
  , public Common_IGetR_T<StateType>
+ , public Common_IDumpState
 {
  public:
   // convenient types

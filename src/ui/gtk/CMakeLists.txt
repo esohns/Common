@@ -28,8 +28,12 @@ add_library (${PROJECT_NAME}UI_GTK STATIC "")
 
 if (UNIX)
  if (GTK3_FOUND)
+# *TODO*: FindGTK3.cmake is currently badly broken; use pkg_check_modules
+#  target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
+#                              $<BUILD_INTERFACE:${GTK3_INCLUDE_DIRS}>)
+# *NOTE*: a bug in cmake (3.12.1) requires the additional comment
   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
-                              $<BUILD_INTERFACE:${GTK3_INCLUDE_DIRS}>)
+                              "$<BUILD_INTERFACE:${PKG_GTK3_INCLUDE_DIRS}>")
  elseif (GTK2_FOUND)
   target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
                               ${GTK2_INCLUDE_DIRS})
@@ -182,8 +186,8 @@ target_sources (${PROJECT_NAME}UI_GTK
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-get_target_property (debug ${PROJECT_NAME}UI_GTK INTERFACE_INCLUDE_DIRECTORIES)
-message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
+#get_target_property (debug ${PROJECT_NAME}UI_GTK INTERFACE_INCLUDE_DIRECTORIES)
+#message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
 
 #if (UNIX)
 # add_definitions (-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS)

@@ -63,6 +63,56 @@ template <typename DefinitionType,
           typename StateType,
           typename TopLevelClassType,
           typename TraitsType>
+int
+Comon_UI_WxWidgets_Application_T<DefinitionType,
+                                 ConfigurationType,
+                                 StateType,
+                                 TopLevelClassType,
+                                 TraitsType>::FilterEvent (wxEvent& event_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Comon_UI_WxWidgets_Application_T::FilterEvent"));
+
+  wxEventType event_type_i = event_in.GetEventType ();
+  wxObject* object_p = event_in.GetEventObject ();
+
+  // Continue processing the event normally as well.
+  return Event_Skip;
+}
+
+template <typename DefinitionType,
+          typename ConfigurationType,
+          typename StateType,
+          typename TopLevelClassType,
+          typename TraitsType>
+void
+Comon_UI_WxWidgets_Application_T<DefinitionType,
+                                 ConfigurationType,
+                                 StateType,
+                                 TopLevelClassType,
+                                 TraitsType>::dump_state () const
+{
+  COMMON_TRACE (ACE_TEXT ("Comon_UI_WxWidgets_Application_T::dump_state"));
+
+//  wxClientData* client_data_p = NULL;
+
+//  wxENTER_CRIT_SECT (inherited::m_handlersWithPendingEventsLocker);
+
+//  for (inherited::m_handlersWithPendingEvents::const_iterator iterator = inherited::m_handlersWithPendingEvents.begin ();
+//       iterator != inherited::m_handlersWithPendingEvents.end ();
+//       ++iterator)
+//  {
+//    client_data_p = (*iterator)->GetClientObject ();
+
+//  } // end FOR
+
+//  wxLEAVE_CRIT_SECT (inherited::m_handlersWithPendingEventsLocker);
+}
+
+template <typename DefinitionType,
+          typename ConfigurationType,
+          typename StateType,
+          typename TopLevelClassType,
+          typename TraitsType>
 bool
 Comon_UI_WxWidgets_Application_T<DefinitionType,
                                  ConfigurationType,

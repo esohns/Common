@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -77,8 +77,11 @@ class Comon_UI_WxWidgets_Application_T
 
   //wxDECLARE_APP(OWN_TYPE_T);
 
+  virtual int FilterEvent (wxEvent&);
+
   // implement Common_UI_wxWidgets_IApplication_T
   inline virtual const StateType& getR () const { return state_; }
+  virtual void dump_state () const;
   inline virtual bool initialize (const ConfigurationType& configuration_in) { configuration_ = &const_cast<ConfigurationType&> (configuration_in); configuration_->UIState = &state_; return true; }
   inline virtual const ConfigurationType& getR_2 () const { ACE_ASSERT (configuration_); return *configuration_; }
   virtual bool run ();
