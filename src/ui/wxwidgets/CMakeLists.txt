@@ -23,6 +23,8 @@ target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
 target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>)
 target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../image>)
+target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../log>)
 
 ############## next target ################

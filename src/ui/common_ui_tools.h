@@ -72,20 +72,20 @@ class Common_UI_Tools
   // *NOTE*: the identifier may specify either a graphics adapter or a display
   // *NOTE*: iff the identifier specifies a graphics adapter, this returns the
   //         resolutions of the first (!) connected display (if any)
-  static Common_UI_Resolutions_t get (const std::string&); // device identifier
-  static bool has (const std::string&,             // device identifier
-                   const Common_UI_Resolution_t&); // resolution
+  static Common_Image_Resolutions_t get (const std::string&); // device identifier
+  static bool has (const std::string&,                // device identifier
+                   const Common_Image_Resolution_t&); // resolution
   static struct Common_UI_DisplayMode mode (const std::string&); // device identifier
   // *NOTE*: this implementation 'prefers' width over height and exactness over
   //         area; IOW it is still pretty naive
-  static Common_UI_Resolution_t nearest (const Common_UI_Resolutions_t&, // resolutions
-                                         const Common_UI_Resolution_t&); // resolution
+  static Common_Image_Resolution_t nearest (const Common_Image_Resolutions_t&, // resolutions
+                                            const Common_Image_Resolution_t&); // resolution
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools ());
-  ACE_UNIMPLEMENTED_FUNC (~Common_UI_Tools ());
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools (const Common_UI_Tools&));
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools& operator= (const Common_UI_Tools&));
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (~Common_UI_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools (const Common_UI_Tools&))
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools& operator= (const Common_UI_Tools&))
 
   // helper methods
   inline static bool is (const std::string& deviceIdentifier_in) { return (Common_UI_Tools::isAdapter (deviceIdentifier_in) || Common_UI_Tools::isDisplay (deviceIdentifier_in)); }

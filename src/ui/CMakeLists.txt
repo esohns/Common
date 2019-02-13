@@ -78,6 +78,8 @@ target_include_directories (${PROJECT_NAME}UI PUBLIC
 target_include_directories (${PROJECT_NAME}UI PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
 target_include_directories (${PROJECT_NAME}UI PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../image>)
+target_include_directories (${PROJECT_NAME}UI PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../log>)
 if (UNIX)
  target_include_directories (${PROJECT_NAME}UI PUBLIC

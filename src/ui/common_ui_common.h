@@ -39,6 +39,8 @@
 #include "ace/OS.h"
 #include "ace/Synch_Traits.h"
 
+#include "common_image_common.h"
+
 #include "common_log_common.h"
 
 // #######################################
@@ -47,36 +49,6 @@
 typedef std::vector<unsigned int> Common_UI_Framerates_t;
 typedef Common_UI_Framerates_t::iterator Common_UI_FrameratesIterator_t;
 typedef Common_UI_Framerates_t::const_iterator Common_UI_FrameratesConstIterator_t;
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-typedef struct tagSIZE Common_UI_Resolution_t;
-struct common_ui_resolution_less
-{
-  inline bool operator() (const Common_UI_Resolution_t& lhs_in, const Common_UI_Resolution_t& rhs_in) const { return ((lhs_in.cx == rhs_in.cx) ? (lhs_in.cy < rhs_in.cy) : (lhs_in.cx < rhs_in.cx)); }
-};
-struct common_ui_resolution_equal
-{
-  inline bool operator() (const Common_UI_Resolution_t& lhs_in, const Common_UI_Resolution_t& rhs_in) const { return ((lhs_in.cx == rhs_in.cx) && (lhs_in.cy == rhs_in.cy)); }
-};
-#else
-struct Common_UI_Resolution
-{
-  unsigned int width;
-  unsigned int height;
-};
-typedef Common_UI_Resolution Common_UI_Resolution_t;
-struct common_ui_resolution_less
-{
-  inline bool operator() (const Common_UI_Resolution_t& lhs_in, const Common_UI_Resolution_t& rhs_in) const { return ((lhs_in.width == rhs_in.width) ? (lhs_in.height < rhs_in.height) : (lhs_in.width < rhs_in.width)); }
-};
-struct common_ui_resolution_equal
-{
-  inline bool operator() (const Common_UI_Resolution_t& lhs_in, const Common_UI_Resolution_t& rhs_in) const { return ((lhs_in.width == rhs_in.width) && (lhs_in.height == rhs_in.height)); }
-};
-#endif // ACE_WIN32 || ACE_WIN64
-typedef std::list<Common_UI_Resolution_t> Common_UI_Resolutions_t;
-typedef Common_UI_Resolutions_t::iterator Common_UI_ResolutionsIterator_t;
-typedef Common_UI_Resolutions_t::const_iterator Common_UI_ResolutionsConstIterator_t;
 
 // #######################################
 
@@ -189,10 +161,10 @@ struct Common_UI_DisplayMode
    , resolution ()
   {}
 
-  uint8_t                bitsperpixel;
-  uint8_t                frequency;
-  bool                   fullscreen;
-  Common_UI_Resolution_t resolution;
+  uint8_t                   bitsperpixel;
+  uint8_t                   frequency;
+  bool                      fullscreen;
+  Common_Image_Resolution_t resolution;
 };
 
 // #######################################

@@ -75,8 +75,7 @@ Common_Image_Tools::save (const std::string& path_in,
 #endif // ACE_WIN32 || ACE_WIN64
 
 bool
-Common_Image_Tools::save (unsigned int width_in,
-                          unsigned int height_in,
+Common_Image_Tools::save (const Common_Image_Resolution_t& resolution_in,
                           enum AVPixelFormat format_in,
                           uint8_t* sourceBuffers_in[],
                           const std::string& path_in)
@@ -91,7 +90,7 @@ Common_Image_Tools::save (unsigned int width_in,
   int linesizes[AV_NUM_DATA_POINTERS];
   result_2 = av_image_fill_linesizes (linesizes,
                                       format_in,
-                                      width_in);
+                                      resolution_in.width);
   ACE_ASSERT (result_2 != -1);
 
   file_p = ACE_OS::fopen (path_in.c_str (),
@@ -110,56 +109,56 @@ Common_Image_Tools::save (unsigned int width_in,
     {
       // write Y plane
       for (unsigned int i = 0;
-           i < height_in;
+           i < resolution_in.height;
            ++i)
       {
         result_3 = ACE_OS::fwrite ((sourceBuffers_in[0] + (i * linesizes[0])),
-                                   width_in,
+                                   resolution_in.width,
                                    1,
                                    file_p);
         if (result_3 != 1)
         {
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to ACE_OS::fwrite(%u) (file was: \"%s\"): \"%m\", aborting\n"),
-                      width_in,
+                      resolution_in.width,
                       ACE_TEXT (path_in.c_str ())));
           goto clean;
         } // end IF
       } // end FOR
       // write U plane
-      height_in >>= 1;
-      width_in >>= 1;
+      const_cast<Common_Image_Resolution_t&> (resolution_in).height >>= 1;
+      const_cast<Common_Image_Resolution_t&> (resolution_in).width >>= 1;
       for (unsigned int i = 0;
-           i < height_in;
+           i < resolution_in.height;
            ++i)
       {
         result_3 = ACE_OS::fwrite ((sourceBuffers_in[1] + (i * linesizes[1])),
-                                   width_in,
+                                   resolution_in.width,
                                    1,
                                    file_p);
         if (result_3 != 1)
         {
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to ACE_OS::fwrite(%u) (file was: \"%s\"): \"%m\", aborting\n"),
-                      width_in,
+                      resolution_in.width,
                       ACE_TEXT (path_in.c_str ())));
           goto clean;
         } // end IF
       } // end FOR
       // write V plane
       for (unsigned int i = 0;
-           i < height_in;
+           i < resolution_in.height;
            ++i)
       {
         result_3 = ACE_OS::fwrite ((sourceBuffers_in[2] + (i * linesizes[2])),
-                                   width_in,
+                                   resolution_in.width,
                                    1,
                                    file_p);
         if (result_3 != 1)
         {
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to ACE_OS::fwrite(%u) (file was: \"%s\"): \"%m\", aborting\n"),
-                      width_in,
+                      resolution_in.width,
                       ACE_TEXT (path_in.c_str ())));
           goto clean;
         } // end IF
@@ -200,8 +199,7 @@ clean:
 }
 
 bool
-Common_Image_Tools::savePNG (unsigned int width_in,
-                             unsigned int height_in,
+Common_Image_Tools::savePNG (const Common_Image_Resolution_t& resolution_in,
                              enum AVPixelFormat format_in,
                              uint8_t* sourceBuffers_in[],
                              const std::string& path_in)
@@ -229,16 +227,16 @@ Common_Image_Tools::savePNG (unsigned int width_in,
     return false;
   } // end IF
   frame_p->format = format_in;
-  frame_p->height = height_in;
-  frame_p->width = width_in;
+  frame_p->height = resolution_in.height;
+  frame_p->width = resolution_in.width;
   result_2 = av_image_fill_linesizes (frame_p->linesize,
                                       format_in,
-                                      static_cast<int> (width_in));
+                                      static_cast<int> (resolution_in.width));
   ACE_ASSERT (result_2 >= 0);
   result_2 =
       av_image_fill_pointers (frame_p->data,
                               format_in,
-                              static_cast<int> (height_in),
+                              static_cast<int> (resolution_in.height),
                               sourceBuffers_in[0],
                               frame_p->linesize);
   ACE_ASSERT (result_2 >= 0);
@@ -260,8 +258,8 @@ Common_Image_Tools::savePNG (unsigned int width_in,
   } // end IF
 
   codec_context_p->codec_type = AVMEDIA_TYPE_VIDEO;
-  codec_context_p->height = height_in;
-  codec_context_p->width = width_in;
+  codec_context_p->height = resolution_in.height;
+  codec_context_p->width = resolution_in.width;
   codec_context_p->pix_fmt = format_in;
   codec_context_p->time_base.num = codec_context_p->time_base.den = 1;
   result_2 = avcodec_open2 (codec_context_p,
@@ -346,12 +344,10 @@ clean:
 
 bool
 Common_Image_Tools::convert (struct SwsContext* context_in,
-                             unsigned int sourceWidth_in,
-                             unsigned int sourceHeight_in,
+                             const Common_Image_Resolution_t& sourceResolution_in,
                              enum AVPixelFormat sourcePixelFormat_in,
                              uint8_t* sourceBuffers_in[],
-                             unsigned int targetWidth_in,
-                             unsigned int targetHeight_in,
+                             const Common_Image_Resolution_t& targetResolution_in,
                              enum AVPixelFormat targetPixelFormat_in,
                              uint8_t*& targetBuffers_out)
 {
@@ -372,10 +368,10 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
   } // end IF
   if (unlikely (sourcePixelFormat_in == targetPixelFormat_in))
     return Common_Image_Tools::scale (context_in,
-                                      sourceWidth_in, sourceHeight_in,
+                                      sourceResolution_in,
                                       sourcePixelFormat_in,
                                       sourceBuffers_in,
-                                      targetWidth_in, targetHeight_in,
+                                      targetResolution_in,
                                       targetBuffers_out);
 
   // *TODO*: define a balanced scaler parametrization that suits most
@@ -387,9 +383,10 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
   int in_linesize[AV_NUM_DATA_POINTERS];
   int out_linesize[AV_NUM_DATA_POINTERS];
   uint8_t* out_data[AV_NUM_DATA_POINTERS];
-  int size_i = av_image_get_buffer_size (targetPixelFormat_in,
-                                         targetWidth_in, targetHeight_in,
-                                         1); // *TODO*: linesize alignment
+  int size_i =
+      av_image_get_buffer_size (targetPixelFormat_in,
+                                targetResolution_in.width, targetResolution_in.height,
+                                1); // *TODO*: linesize alignment
 
   ACE_NEW_NORETURN (targetBuffers_out,
                     uint8_t[size_i]);
@@ -403,8 +400,8 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
   context_p =
       (context_in ? context_in
                   : sws_getCachedContext (NULL,
-                                          sourceWidth_in, sourceHeight_in, sourcePixelFormat_in,
-                                          targetWidth_in, targetHeight_in, targetPixelFormat_in,
+                                          sourceResolution_in.width, sourceResolution_in.height, sourcePixelFormat_in,
+                                          targetResolution_in.width, targetResolution_in.height, targetPixelFormat_in,
                                           flags,                             // flags
                                           NULL, NULL,
                                           0));                               // parameters
@@ -417,23 +414,23 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
 
   result_2 = av_image_fill_linesizes (in_linesize,
                                       sourcePixelFormat_in,
-                                      static_cast<int> (sourceWidth_in));
+                                      static_cast<int> (sourceResolution_in.width));
   ACE_ASSERT (result_2 >= 0);
   result_2 = av_image_fill_linesizes (out_linesize,
                                       targetPixelFormat_in,
-                                      static_cast<int> (targetWidth_in));
+                                      static_cast<int> (targetResolution_in.width));
   ACE_ASSERT (result_2 >= 0);
   result_2 =
       av_image_fill_pointers (out_data,
                               targetPixelFormat_in,
-                              targetHeight_in,
+                              targetResolution_in.height,
                               targetBuffers_out,
                               out_linesize);
   ACE_ASSERT (result_2 == size_i);
 
   result_2 = sws_scale (context_p,
                         sourceBuffers_in, in_linesize,
-                        0, sourceHeight_in,
+                        0, sourceResolution_in.height,
                         out_data, out_linesize);
   if (unlikely (result_2 <= 0))
   {
@@ -444,10 +441,10 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
   } // end IF
   // *NOTE*: ffmpeg returns fewer than the expected number of rows in some cases
   // *TODO*: find out when and why
-  else if (unlikely (result_2 != static_cast<int> (targetHeight_in)))
+  else if (unlikely (result_2 != static_cast<int> (targetResolution_in.height)))
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("sws_scale() returned: %d (expected: %u), continuing\n"),
-                result_2, targetHeight_in));
+                result_2, targetResolution_in.height));
 
   if (unlikely (!context_in))
   {
@@ -471,12 +468,10 @@ error:
 
 bool
 Common_Image_Tools::scale (struct SwsContext* context_in,
-                           unsigned int sourceWidth_in,
-                           unsigned int sourceHeight_in,
+                           const Common_Image_Resolution_t& sourceResolution_in,
                            enum AVPixelFormat pixelFormat_in,
                            uint8_t* sourceBuffers_in[],
-                           unsigned int targetWidth_in,
-                           unsigned int targetHeight_in,
+                           const Common_Image_Resolution_t& targetResolution_in,
                            uint8_t*& targetBuffers_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::scale"));
@@ -505,7 +500,7 @@ Common_Image_Tools::scale (struct SwsContext* context_in,
   int out_linesize[AV_NUM_DATA_POINTERS];
   uint8_t* out_data[AV_NUM_DATA_POINTERS];
   int size_i = av_image_get_buffer_size (pixelFormat_in,
-                                         targetWidth_in, targetHeight_in,
+                                         targetResolution_in.width, targetResolution_in.height,
                                          1); // *TODO*: linesize alignment
 
   ACE_NEW_NORETURN (targetBuffers_out,
@@ -520,8 +515,8 @@ Common_Image_Tools::scale (struct SwsContext* context_in,
   context_p =
       (context_in ? context_in
                   : sws_getCachedContext (NULL,
-                                          sourceWidth_in, sourceHeight_in, pixelFormat_in,
-                                          targetWidth_in, targetHeight_in, pixelFormat_in,
+                                          sourceResolution_in.width, sourceResolution_in.height, pixelFormat_in,
+                                          targetResolution_in.width, targetResolution_in.height, pixelFormat_in,
                                           flags,                             // flags
                                           NULL, NULL,
                                           0));                               // parameters
@@ -534,23 +529,23 @@ Common_Image_Tools::scale (struct SwsContext* context_in,
 
   result_2 = av_image_fill_linesizes (in_linesize,
                                       pixelFormat_in,
-                                      static_cast<int> (sourceWidth_in));
+                                      static_cast<int> (sourceResolution_in.width));
   ACE_ASSERT (result_2 >= 0);
   result_2 = av_image_fill_linesizes (out_linesize,
                                       pixelFormat_in,
-                                      static_cast<int> (targetWidth_in));
+                                      static_cast<int> (targetResolution_in.width));
   ACE_ASSERT (result_2 >= 0);
   result_2 =
       av_image_fill_pointers (out_data,
                               pixelFormat_in,
-                              targetHeight_in,
+                              targetResolution_in.height,
                               targetBuffers_out,
                               out_linesize);
   ACE_ASSERT (result_2 == size_i);
 
   result_2 = sws_scale (context_p,
                         sourceBuffers_in, in_linesize,
-                        0, sourceHeight_in,
+                        0, sourceResolution_in.height,
                         out_data, out_linesize);
   if (unlikely (result_2 <= 0))
   {
@@ -561,10 +556,10 @@ Common_Image_Tools::scale (struct SwsContext* context_in,
   } // end IF
   // *NOTE*: ffmpeg returns fewer than the expected number of rows in some cases
   // *TODO*: find out when and why
-  else if (unlikely (result_2 != static_cast<int> (targetHeight_in)))
+  else if (unlikely (result_2 != static_cast<int> (targetResolution_in.height)))
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("sws_scale() returned: %d (expected: %u), continuing\n"),
-                result_2, targetHeight_in));
+                result_2, targetResolution_in.height));
 
   if (unlikely (!context_in))
   {

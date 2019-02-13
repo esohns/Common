@@ -60,8 +60,9 @@ target_include_directories (${PROJECT_NAME}Image PUBLIC
 
 ############## next target ################
 set (source_files
+     common_image_common.h
      common_image_defines.h
-     common_image_exports.h
+#     common_image_exports.h
      common_image_tools.cpp
      common_image_tools.h)
 
@@ -127,8 +128,9 @@ export (TARGETS ${PROJECT_NAME}Image
 
 ############### install files ################
 install (FILES
+         common_image_common.h
          common_image_defines.h
-         common_image_exports.h
+#         common_image_exports.h
          common_image_tools.h
          stdafx.h
          DESTINATION ${INSTALL_INCLUDE_DIR})

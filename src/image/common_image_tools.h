@@ -39,6 +39,8 @@ extern "C"
 
 #include "ace/Global_Macros.h"
 
+#include "common_image_common.h"
+
 class Common_Image_Tools
 {
  public:
@@ -50,36 +52,30 @@ class Common_Image_Tools
 
   // --- libav/ffmpeg ---
   // *TODO*: currently supports AV_PIX_FMT_YUV420P only
-  static bool save (unsigned int,        // source width
-                    unsigned int,        // source height
-                    enum AVPixelFormat,  // source pixel format
-                    uint8_t*[],          // source buffer(s)
-                    const std::string&); // target file path
+  static bool save (const Common_Image_Resolution_t&, // source resolution
+                    enum AVPixelFormat,               // source pixel format
+                    uint8_t*[],                       // source buffer(s)
+                    const std::string&);              // target file path
   // *TODO*: currently supports AV_PIX_FMT_RGB24 input only
-  static bool savePNG (unsigned int,        // source width
-                       unsigned int,        // source height
-                       enum AVPixelFormat,  // source pixel format
-                       uint8_t*[],          // source buffer(s)
-                       const std::string&); // target file path
+  static bool savePNG (const Common_Image_Resolution_t&, // source resolution
+                       enum AVPixelFormat,               // source pixel format
+                       uint8_t*[],                       // source buffer(s)
+                       const std::string&);              // target file path
 
   // *NOTE*: callers need to delete[] the returned memory buffer(s) (iff any)
-  static bool convert (struct SwsContext*, // context ? : use sws_getCachedContext()
-                       unsigned int,       // source width
-                       unsigned int,       // source height
-                       enum AVPixelFormat, // source pixel format
-                       uint8_t*[],         // source buffer(s)
-                       unsigned int,       // target width
-                       unsigned int,       // target height
-                       enum AVPixelFormat, // target pixel format
-                       uint8_t*&);         // return value: target buffer(s)
-  static bool scale (struct SwsContext*, // context ? : use sws_getCachedContext()
-                     unsigned int,       // source width
-                     unsigned int,       // source height
-                     enum AVPixelFormat, // source pixel format
-                     uint8_t*[],         // source buffer(s)
-                     unsigned int,       // target width
-                     unsigned int,       // target height
-                     uint8_t*&);         // return value: target buffer(s)
+  static bool convert (struct SwsContext*,        // context ? : use sws_getCachedContext()
+                       const Common_Image_Resolution_t&, // source resolution
+                       enum AVPixelFormat,        // source pixel format
+                       uint8_t*[],                // source buffer(s)
+                       const Common_Image_Resolution_t&, // target resolution
+                       enum AVPixelFormat,        // target pixel format
+                       uint8_t*&);                // return value: target buffer(s)
+  static bool scale (struct SwsContext*,        // context ? : use sws_getCachedContext()
+                     const Common_Image_Resolution_t&, // source resolution
+                     enum AVPixelFormat,        // source pixel format
+                     uint8_t*[],                // source buffer(s)
+                     const Common_Image_Resolution_t&, // target resolution
+                     uint8_t*&);                // return value: target buffer(s)
 
   inline static std::string pixelFormatToString (enum AVPixelFormat format_in) { std::string result = ((format_in == AV_PIX_FMT_NONE) ? ACE_TEXT_ALWAYS_CHAR ("") : av_get_pix_fmt_name (format_in)); return result; }
 
