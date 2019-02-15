@@ -198,12 +198,7 @@ endif ()
 
 # gtk opengl support
 if (GTK_SUPPORT AND OPENGL_FOUND)
- if (GTK_GL_FOUND)
-  message (STATUS "GTK has native GL support")
-  set (GTKGL_SUPPORT ON CACHE BOOL "GTK GL support")
-  add_definitions (-DGTKGL_SUPPORT)
-  option (GTKGL_SUPPORT "enable GTK OpenGL support" ON)
- else ()
+ if (NOT GTK_GL_FOUND)
   if (UNIX)
    if (GTK3_FOUND)
 # *TODO*: found out the distribution release versions that require this package
@@ -226,6 +221,7 @@ if (GTK_SUPPORT AND OPENGL_FOUND)
    endif (GTK2_FOUND)
     
    if (GTK_FOUND)
+#    pkg_check_modules (PKG_GTKGLEXT gtkglext-libs gtkglext-devel)
     pkg_check_modules (PKG_GTKGLEXT gdkglext-1.0 gtkglext-1.0)
     if (PKG_GTKGLEXT_FOUND)
      set (GTKGL_SUPPORT ON CACHE BOOL "GTK GL support")
@@ -234,16 +230,18 @@ if (GTK_SUPPORT AND OPENGL_FOUND)
     endif (PKG_GTKGLEXT_FOUND)
    endif (GTK_FOUND)
   endif (UNIX)
- endif (GTK_GL_FOUND)
-  
- if (NOT GTKGL_SUPPORT)
-  message (WARNING "GTK has no GL support, falling back")
+ endif (NOT GTK_GL_FOUND)
+
+ set (GTKGLAREA_DEFAULT OFF)
 # *IMPORTANT NOTE*: to use gtkglarea on gtk2, check out the 'gtkglarea-2' branch
-#                   of the project
-  set (GTKGLAREA_SUPPORT ON CACHE BOOL "GtkGLArea support")
-  add_definitions (-DGTKGLAREA_SUPPORT)
-  option (GTKGLAREA_SUPPORT "enable GtkGLArea support" ON)
- endif (NOT GTKGL_SUPPORT)
+#                   of the project (instead of 'master')
+ set (GTKGLAREA_SUPPORT ${GTKGLAREA_DEFAULT} CACHE BOOL "GtkGLArea support")
+ add_definitions (-DGTKGLAREA_SUPPORT)
+ option (GTKGLAREA_SUPPORT "enable GtkGLArea support" ON)
+
+ set (GTKGL_SUPPORT ON CACHE BOOL "GTK GL support")
+ add_definitions (-DGTKGL_SUPPORT)
+ option (GTKGL_SUPPORT "enable GTK OpenGL support" ON)
 endif (GTK_SUPPORT AND OPENGL_FOUND)
 
 ##########################################

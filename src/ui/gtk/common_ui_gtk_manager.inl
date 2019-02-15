@@ -291,8 +291,51 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #if GTK_CHECK_VERSION(3,0,0)
 #if GTK_CHECK_VERSION(3,16,0)
   GdkGLContext* context_p = NULL;
+#else /* GTK_CHECK_VERSION(3,16,0) */
+#if defined (GTKGLAREA_SUPPORT)
+#endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION(3,16,0)
+#elif GTK_CHECK_VERSION(2,0,0)
+#if defined (GTKGLAREA_SUPPORT)
+  GtkWidget* widget_2 = NULL;
+
+  int gl_attributes_a[] = {
+    GDK_GL_USE_GL,
+// GDK_GL_BUFFER_SIZE
+// GDK_GL_LEVEL
+    GDK_GL_RGBA,
+    GDK_GL_DOUBLEBUFFER,
+//    GDK_GL_STEREO
+//    GDK_GL_AUX_BUFFERS
+    GDK_GL_RED_SIZE,   1,
+    GDK_GL_GREEN_SIZE, 1,
+    GDK_GL_BLUE_SIZE,  1,
+    GDK_GL_ALPHA_SIZE, 1,
+//    GDK_GL_DEPTH_SIZE
+//    GDK_GL_STENCIL_SIZE
+//    GDK_GL_ACCUM_RED_SIZE
+//    GDK_GL_ACCUM_GREEN_SIZE
+//    GDK_GL_ACCUM_BLUE_SIZE
+//    GDK_GL_ACCUM_ALPHA_SIZE
+//
+//    GDK_GL_X_VISUAL_TYPE_EXT
+//    GDK_GL_TRANSPARENT_TYPE_EXT
+//    GDK_GL_TRANSPARENT_INDEX_VALUE_EXT
+//    GDK_GL_TRANSPARENT_RED_VALUE_EXT
+//    GDK_GL_TRANSPARENT_GREEN_VALUE_EXT
+//    GDK_GL_TRANSPARENT_BLUE_VALUE_EXT
+//    GDK_GL_TRANSPARENT_ALPHA_VALUE_EXT
+    GDK_GL_NONE
+  };
+
+  GdkGLContext* context_p = NULL;
+#else
+  ACE_ASSERT (false); // *TODO*
+  ACE_NOTSUP_RETURN (false);
+  ACE_NOTREACHED (return false;)
+#endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION(3,0,0)
+
 #if defined (_DEBUG)
   Common_UI_GTK_GLContextsIterator_t iterator_2;
 #endif // _DEBUG
@@ -434,7 +477,7 @@ clean_2:
   {
     g_object_unref (visual_p); visual_p = NULL;
   } // end IF
-#else
+#else /* GTKGLAREA_SUPPORT */
   // sanity check(s)
   ACE_ASSERT (!state_.openGLContext);
   ACE_ASSERT (state_.openGLWindow);
@@ -466,16 +509,31 @@ clean_2:
   } // end IF
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION(3,16,0) */
-#else
-  // *TODO*: remove type inferences
-  if (unlikely (!state_.OpenGLWindow))
-    goto continue_;
-
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("initializing OpenGL (window handle: 0x%@)...\n"),
-              state_.OpenGLWindow));
-
+#elif GTK_CHECK_VERSION(2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
+  // sanity check(s)
+  ACE_ASSERT (state_.OpenGLContexts.empty ());
+
+  widget_2 = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  ACE_ASSERT (widget_2);
+  widget_p = gtk_gl_area_new (gl_attributes_a);
+  ACE_ASSERT (widget_p);
+  gtk_container_add (GTK_CONTAINER (widget_2), widget_p);
+  gtk_widget_show (widget_p);
+  ACE_ASSERT (gtk_widget_get_visible (widget_p));
+  gtk_widget_hide (widget_p);
+
+  context_p = GTK_GL_AREA (widget_p)->glcontext;
+  ACE_ASSERT (context_p);
+
+  state_.OpenGLContexts.insert (std::make_pair (static_cast<GtkGLArea*> (NULL),
+                                                context_p));
+  context_p = NULL;
+#else /* GTKGLAREA_SUPPORT */
+  ACE_ASSERT (false); // *TODO*
+  ACE_NOTSUP_RETURN (false);
+  ACE_NOTREACHED (return false;)
+#endif /* GTKGLAREA_SUPPORT */
 #else
   // sanity check(s)
   ACE_ASSERT (!state_.openGLContext);
@@ -505,7 +563,6 @@ clean_2:
     result = -1;
     goto done;
   } // end IF
-#endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION(3,0,0) */
 clean:
   if (context_p)

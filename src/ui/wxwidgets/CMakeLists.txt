@@ -1,4 +1,26 @@
-﻿add_library (${PROJECT_NAME}UI_wxWidgets STATIC "")
+﻿#include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/PreUIFramework.cmake)
+include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/SetUIFramework.cmake)
+include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/SetGTKVersion.cmake)
+
+message (STATUS "wxWidgets_DEFINITIONS: ${wxWidgets_DEFINITIONS}")
+message (STATUS "wxWidgets_DEFINITIONS_DEBUG: ${wxWidgets_DEFINITIONS_DEBUG}")
+message (STATUS "wxWidgets_CXX_FLAGS: ${wxWidgets_CXX_FLAGS}")
+message (STATUS "wxWidgets_USE_FILE: ${wxWidgets_USE_FILE}")
+# *NOTE*: re-enable ANSI mode
+# add_definitions (-DwxUSE_UNICODE=0)
+if (WIN32)
+ add_definitions (-D__WXMSW__)
+ add_definitions (-DWXUSINGDLL)
+ if (MSVC)
+  add_definitions (-DwxMSVC_VERSION_AUTO)
+ endif (MSVC)
+endif (WIN32)
+add_definitions (-DwxUSE_GUI=1)
+if (CMAKE_BUILD_TYPE STREQUAL Debug)
+ add_definitions (-D__WXDEBUG__)
+endif (CMAKE_BUILD_TYPE STREQUAL Debug)
+
+add_library (${PROJECT_NAME}UI_wxWidgets STATIC "")
 
 target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
                             "$<BUILD_INTERFACE:${wxWidgets_INCLUDE_DIRS}>")

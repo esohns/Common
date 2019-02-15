@@ -179,9 +179,6 @@ if (WIN32)
  endif (GUI_SUPPORT)
 endif (WIN32)
 
-get_target_property (debug ${PROJECT_NAME}_Test_U INTERFACE_INCLUDE_DIRECTORIES)
-message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
-
 set (source_files
      common_test_u_common.h
 #     test_u_defines.h

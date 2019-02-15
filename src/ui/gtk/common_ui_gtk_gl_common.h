@@ -39,9 +39,9 @@
 #if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gdkgl.h"
 #include "gtkgl/gtkglarea.h"
+#endif /* GTKGLAREA_SUPPORT */
 #else
 #include "gdk/gdkgl.h"
-#endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (x,0,0) */
 
 #include "common_ui_gtk_common.h"
