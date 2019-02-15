@@ -69,6 +69,14 @@ class Common_UI_Tools
   static struct Common_UI_DisplayAdapter getAdapter (const struct Common_UI_DisplayDevice&); // return value: corresponding graphics adapter (if any)
   static Common_UI_DisplayDevices_t getDesktopDisplays (); // return value: devices forming the desktop
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  static void dump (const Display&, // connection handle
+                    Drawable);      // drawable (window or pixmap)
+  static XWindowAttributes get (const Display&, // connection handle
+                                Window);        // window
+#endif // ACE_WIN32 || ACE_WIN64
+
   // *NOTE*: the identifier may specify either a graphics adapter or a display
   // *NOTE*: iff the identifier specifies a graphics adapter, this returns the
   //         resolutions of the first (!) connected display (if any)

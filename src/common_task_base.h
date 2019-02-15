@@ -67,7 +67,7 @@ class Common_TaskBase_T
   // implement Common_ITaskControl_T
   virtual bool lock (bool = true); // block ?
   inline virtual int unlock (bool = false) { return lock_.release (); }
-  inline virtual const typename ITASKCONTROL_T::MUTEX_T& getR () const { return lock_; }
+  inline virtual const typename LockType::MUTEX_T& getR () const { return lock_; }
   // *NOTE*: wraps ACE_Task_Base::activate() to spawn one additional (worker-)
   //         thread (up to threadCount_)
   // *TODO*: derivates may want to implement a dynamic thread pool
@@ -121,15 +121,15 @@ class Common_TaskBase_T
   //         --> use Common_MessageQueueIterator_T and lock the queue manually
   virtual bool hasShutDown ();
 
-  mutable typename ITASKCONTROL_T::MUTEX_T lock_;
+  mutable typename LockType::MUTEX_T lock_;
 
   // *NOTE*: this is the 'configured' (not the 'current') thread count
   //         --> see ACE_Task::thr_count_
-  unsigned int                             threadCount_;
-  std::string                              threadName_;
+  unsigned int                       threadCount_;
+  std::string                        threadName_;
   typedef std::vector<ACE_Thread_ID> THREAD_IDS_T;
   typedef THREAD_IDS_T::const_iterator THREAD_IDS_ITERATOR_T;
-  THREAD_IDS_T                             threads_;
+  THREAD_IDS_T                       threads_;
 
  private:
   // convenient types
@@ -177,7 +177,7 @@ class Common_TaskBase_T<ACE_NULL_SYNCH,
   // implement Common_ITaskControl_T
   inline virtual bool lock (bool block_in = true) { return ((block_in ? lock_.acquire () : lock_.tryacquire ()) == 0); }
   inline virtual int unlock (bool = false) { return lock_.release (); }
-  inline virtual const typename ITASKCONTROL_T::MUTEX_T& getR () const { return lock_; }
+  inline virtual const typename LockType::MUTEX_T& getR () const { return lock_; }
   inline virtual void start (ACE_thread_t& threadId_out) { threadId_out = 0; }
   inline virtual void stop (bool = true, bool = true) {}
   inline virtual bool isRunning () const { return true; }
@@ -217,7 +217,7 @@ class Common_TaskBase_T<ACE_NULL_SYNCH,
                 bool = false); // high-priority ?
   inline virtual bool hasShutDown () { return true; }
 
-  mutable typename ITASKCONTROL_T::MUTEX_T lock_;
+  mutable typename LockType::MUTEX_T lock_;
 
  private:
   // convenient types

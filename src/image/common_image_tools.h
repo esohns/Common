@@ -63,19 +63,19 @@ class Common_Image_Tools
                        const std::string&);              // target file path
 
   // *NOTE*: callers need to delete[] the returned memory buffer(s) (iff any)
-  static bool convert (struct SwsContext*,        // context ? : use sws_getCachedContext()
+  static bool convert (struct SwsContext*,               // context ? : use sws_getCachedContext()
                        const Common_Image_Resolution_t&, // source resolution
-                       enum AVPixelFormat,        // source pixel format
-                       uint8_t*[],                // source buffer(s)
+                       enum AVPixelFormat,               // source pixel format
+                       uint8_t*[],                       // source buffer(s)
                        const Common_Image_Resolution_t&, // target resolution
-                       enum AVPixelFormat,        // target pixel format
-                       uint8_t*&);                // return value: target buffer(s)
-  static bool scale (struct SwsContext*,        // context ? : use sws_getCachedContext()
+                       enum AVPixelFormat,               // target pixel format
+                       uint8_t*&);                       // return value: target buffer(s)
+  static bool scale (struct SwsContext*,               // context ? : use sws_getCachedContext()
                      const Common_Image_Resolution_t&, // source resolution
-                     enum AVPixelFormat,        // source pixel format
-                     uint8_t*[],                // source buffer(s)
+                     enum AVPixelFormat,               // source pixel format
+                     uint8_t*[],                       // source buffer(s)
                      const Common_Image_Resolution_t&, // target resolution
-                     uint8_t*&);                // return value: target buffer(s)
+                     uint8_t*&);                       // return value: target buffer(s)
 
   inline static std::string pixelFormatToString (enum AVPixelFormat format_in) { std::string result = ((format_in == AV_PIX_FMT_NONE) ? ACE_TEXT_ALWAYS_CHAR ("") : av_get_pix_fmt_name (format_in)); return result; }
 

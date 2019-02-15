@@ -90,7 +90,11 @@ Common_Image_Tools::save (const Common_Image_Resolution_t& resolution_in,
   int linesizes[AV_NUM_DATA_POINTERS];
   result_2 = av_image_fill_linesizes (linesizes,
                                       format_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                      resolution_in.cx);
+#else
                                       resolution_in.width);
+#endif // ACE_WIN32 || ACE_WIN64
   ACE_ASSERT (result_2 != -1);
 
   file_p = ACE_OS::fopen (path_in.c_str (),
@@ -109,57 +113,107 @@ Common_Image_Tools::save (const Common_Image_Resolution_t& resolution_in,
     {
       // write Y plane
       for (unsigned int i = 0;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+           i < static_cast<unsigned int> (resolution_in.cy);
+#else
            i < resolution_in.height;
+#endif // ACE_WIN32 || ACE_WIN64
            ++i)
       {
         result_3 = ACE_OS::fwrite ((sourceBuffers_in[0] + (i * linesizes[0])),
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                   resolution_in.cx,
+#else
                                    resolution_in.width,
+#endif // ACE_WIN32 || ACE_WIN64
                                    1,
                                    file_p);
         if (result_3 != 1)
         {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to ACE_OS::fwrite(%u) (file was: \"%s\"): \"%m\", aborting\n"),
+                      resolution_in.cx,
+                      ACE_TEXT (path_in.c_str ())));
+#else
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to ACE_OS::fwrite(%u) (file was: \"%s\"): \"%m\", aborting\n"),
                       resolution_in.width,
                       ACE_TEXT (path_in.c_str ())));
+#endif // ACE_WIN32 || ACE_WIN64
           goto clean;
         } // end IF
       } // end FOR
       // write U plane
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      const_cast<Common_Image_Resolution_t&> (resolution_in).cy >>= 1;
+      const_cast<Common_Image_Resolution_t&> (resolution_in).cx >>= 1;
+#else
       const_cast<Common_Image_Resolution_t&> (resolution_in).height >>= 1;
       const_cast<Common_Image_Resolution_t&> (resolution_in).width >>= 1;
+#endif // ACE_WIN32 || ACE_WIN64
       for (unsigned int i = 0;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+           i < static_cast<unsigned int> (resolution_in.cy);
+#else
            i < resolution_in.height;
+#endif // ACE_WIN32 || ACE_WIN64
            ++i)
       {
         result_3 = ACE_OS::fwrite ((sourceBuffers_in[1] + (i * linesizes[1])),
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                   resolution_in.cx,
+#else
                                    resolution_in.width,
+#endif // ACE_WIN32 || ACE_WIN64
                                    1,
                                    file_p);
         if (result_3 != 1)
         {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to ACE_OS::fwrite(%u) (file was: \"%s\"): \"%m\", aborting\n"),
+                      resolution_in.cx,
+                      ACE_TEXT (path_in.c_str ())));
+#else
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to ACE_OS::fwrite(%u) (file was: \"%s\"): \"%m\", aborting\n"),
                       resolution_in.width,
                       ACE_TEXT (path_in.c_str ())));
+#endif // ACE_WIN32 || ACE_WIN64
           goto clean;
         } // end IF
       } // end FOR
       // write V plane
       for (unsigned int i = 0;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+           i < static_cast<unsigned int> (resolution_in.cy);
+#else
            i < resolution_in.height;
+#endif // ACE_WIN32 || ACE_WIN64
            ++i)
       {
         result_3 = ACE_OS::fwrite ((sourceBuffers_in[2] + (i * linesizes[2])),
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                   resolution_in.cx,
+#else
                                    resolution_in.width,
+#endif // ACE_WIN32 || ACE_WIN64
                                    1,
                                    file_p);
         if (result_3 != 1)
         {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to ACE_OS::fwrite(%u) (file was: \"%s\"): \"%m\", aborting\n"),
+                      resolution_in.cx,
+                      ACE_TEXT (path_in.c_str ())));
+#else
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to ACE_OS::fwrite(%u) (file was: \"%s\"): \"%m\", aborting\n"),
                       resolution_in.width,
                       ACE_TEXT (path_in.c_str ())));
+#endif // ACE_WIN32 || ACE_WIN64
           goto clean;
         } // end IF
       } // end FOR
@@ -208,8 +262,26 @@ Common_Image_Tools::savePNG (const Common_Image_Resolution_t& resolution_in,
 
   bool result = false;
 
-  // sanity check(s)
-  ACE_ASSERT (format_in == AV_PIX_FMT_RGB24);
+  uint8_t* data_p = NULL;
+  uint8_t* buffer_p = sourceBuffers_in[0];
+
+  // *TODO*: this feature is broken
+  if (unlikely (format_in != AV_PIX_FMT_RGB24))
+  {
+    if (!Common_Image_Tools::convert (NULL,
+                                      resolution_in,
+                                      format_in,
+                                      sourceBuffers_in,
+                                      resolution_in,
+                                      AV_PIX_FMT_RGB24,
+                                      data_p))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_Image_Tools::convert(), aborting\n")));
+      return false;
+    } // end IF
+    buffer_p = data_p;
+  } // end IF
 
   int result_2 = -1;
   size_t result_3 = 0;
@@ -226,18 +298,32 @@ Common_Image_Tools::savePNG (const Common_Image_Resolution_t& resolution_in,
                 ACE_TEXT ("failed to av_frame_alloc(): \"%m\", aborting\n")));
     return false;
   } // end IF
-  frame_p->format = format_in;
+  frame_p->format = AV_PIX_FMT_RGB24;
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  frame_p->height = resolution_in.cy;
+  frame_p->width = resolution_in.cx;
+#else
   frame_p->height = resolution_in.height;
   frame_p->width = resolution_in.width;
+#endif // ACE_WIN32 || ACE_WIN64
   result_2 = av_image_fill_linesizes (frame_p->linesize,
                                       format_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                      static_cast<int> (resolution_in.cx));
+#else
                                       static_cast<int> (resolution_in.width));
+#endif // ACE_WIN32 || ACE_WIN64
   ACE_ASSERT (result_2 >= 0);
   result_2 =
       av_image_fill_pointers (frame_p->data,
                               format_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                              static_cast<int> (resolution_in.cy),
+#else
                               static_cast<int> (resolution_in.height),
-                              sourceBuffers_in[0],
+#endif // ACE_WIN32 || ACE_WIN64
+                              buffer_p,
                               frame_p->linesize);
   ACE_ASSERT (result_2 >= 0);
 
@@ -258,9 +344,14 @@ Common_Image_Tools::savePNG (const Common_Image_Resolution_t& resolution_in,
   } // end IF
 
   codec_context_p->codec_type = AVMEDIA_TYPE_VIDEO;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  codec_context_p->height = resolution_in.cy;
+  codec_context_p->width = resolution_in.cx;
+#else
   codec_context_p->height = resolution_in.height;
   codec_context_p->width = resolution_in.width;
-  codec_context_p->pix_fmt = format_in;
+#endif // ACE_WIN32 || ACE_WIN64
+  codec_context_p->pix_fmt = AV_PIX_FMT_RGB24;
   codec_context_p->time_base.num = codec_context_p->time_base.den = 1;
   result_2 = avcodec_open2 (codec_context_p,
                             codec_p,
@@ -385,7 +476,11 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
   uint8_t* out_data[AV_NUM_DATA_POINTERS];
   int size_i =
       av_image_get_buffer_size (targetPixelFormat_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                targetResolution_in.cx, targetResolution_in.cy,
+#else
                                 targetResolution_in.width, targetResolution_in.height,
+#endif // ACE_WIN32 || ACE_WIN64
                                 1); // *TODO*: linesize alignment
 
   ACE_NEW_NORETURN (targetBuffers_out,
@@ -400,8 +495,13 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
   context_p =
       (context_in ? context_in
                   : sws_getCachedContext (NULL,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                          sourceResolution_in.cx, sourceResolution_in.cy, sourcePixelFormat_in,
+                                          targetResolution_in.cx, targetResolution_in.cy, targetPixelFormat_in,
+#else
                                           sourceResolution_in.width, sourceResolution_in.height, sourcePixelFormat_in,
                                           targetResolution_in.width, targetResolution_in.height, targetPixelFormat_in,
+#endif // ACE_WIN32 || ACE_WIN64
                                           flags,                             // flags
                                           NULL, NULL,
                                           0));                               // parameters
@@ -414,23 +514,39 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
 
   result_2 = av_image_fill_linesizes (in_linesize,
                                       sourcePixelFormat_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                      static_cast<int> (sourceResolution_in.cx));
+#else
                                       static_cast<int> (sourceResolution_in.width));
+#endif // ACE_WIN32 || ACE_WIN64
   ACE_ASSERT (result_2 >= 0);
   result_2 = av_image_fill_linesizes (out_linesize,
                                       targetPixelFormat_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                      static_cast<int> (targetResolution_in.cx));
+#else
                                       static_cast<int> (targetResolution_in.width));
+#endif // ACE_WIN32 || ACE_WIN64
   ACE_ASSERT (result_2 >= 0);
   result_2 =
       av_image_fill_pointers (out_data,
                               targetPixelFormat_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                              targetResolution_in.cy,
+#else
                               targetResolution_in.height,
+#endif // ACE_WIN32 || ACE_WIN64
                               targetBuffers_out,
                               out_linesize);
   ACE_ASSERT (result_2 == size_i);
 
   result_2 = sws_scale (context_p,
                         sourceBuffers_in, in_linesize,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                        0, sourceResolution_in.cy,
+#else
                         0, sourceResolution_in.height,
+#endif // ACE_WIN32 || ACE_WIN64
                         out_data, out_linesize);
   if (unlikely (result_2 <= 0))
   {
@@ -441,10 +557,20 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
   } // end IF
   // *NOTE*: ffmpeg returns fewer than the expected number of rows in some cases
   // *TODO*: find out when and why
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  else if (unlikely (result_2 != static_cast<int> (targetResolution_in.cy)))
+#else
   else if (unlikely (result_2 != static_cast<int> (targetResolution_in.height)))
+#endif // ACE_WIN32 || ACE_WIN64
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("sws_scale() returned: %d (expected: %u), continuing\n"),
+                result_2, targetResolution_in.cy));
+#else
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("sws_scale() returned: %d (expected: %u), continuing\n"),
                 result_2, targetResolution_in.height));
+#endif // ACE_WIN32 || ACE_WIN64
 
   if (unlikely (!context_in))
   {
@@ -500,7 +626,11 @@ Common_Image_Tools::scale (struct SwsContext* context_in,
   int out_linesize[AV_NUM_DATA_POINTERS];
   uint8_t* out_data[AV_NUM_DATA_POINTERS];
   int size_i = av_image_get_buffer_size (pixelFormat_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                         targetResolution_in.cx, targetResolution_in.cy,
+#else
                                          targetResolution_in.width, targetResolution_in.height,
+#endif // ACE_WIN32 || ACE_WIN64
                                          1); // *TODO*: linesize alignment
 
   ACE_NEW_NORETURN (targetBuffers_out,
@@ -515,8 +645,13 @@ Common_Image_Tools::scale (struct SwsContext* context_in,
   context_p =
       (context_in ? context_in
                   : sws_getCachedContext (NULL,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                          sourceResolution_in.cx, sourceResolution_in.cy, pixelFormat_in,
+                                          targetResolution_in.cx, targetResolution_in.cy, pixelFormat_in,
+#else
                                           sourceResolution_in.width, sourceResolution_in.height, pixelFormat_in,
                                           targetResolution_in.width, targetResolution_in.height, pixelFormat_in,
+#endif // ACE_WIN32 || ACE_WIN64
                                           flags,                             // flags
                                           NULL, NULL,
                                           0));                               // parameters
@@ -529,23 +664,39 @@ Common_Image_Tools::scale (struct SwsContext* context_in,
 
   result_2 = av_image_fill_linesizes (in_linesize,
                                       pixelFormat_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                      static_cast<int> (sourceResolution_in.cx));
+#else
                                       static_cast<int> (sourceResolution_in.width));
+#endif // ACE_WIN32 || ACE_WIN64
   ACE_ASSERT (result_2 >= 0);
   result_2 = av_image_fill_linesizes (out_linesize,
                                       pixelFormat_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                      static_cast<int> (targetResolution_in.cx));
+#else
                                       static_cast<int> (targetResolution_in.width));
+#endif // ACE_WIN32 || ACE_WIN64
   ACE_ASSERT (result_2 >= 0);
   result_2 =
       av_image_fill_pointers (out_data,
                               pixelFormat_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                              targetResolution_in.cy,
+#else
                               targetResolution_in.height,
+#endif // ACE_WIN32 || ACE_WIN64
                               targetBuffers_out,
                               out_linesize);
   ACE_ASSERT (result_2 == size_i);
 
   result_2 = sws_scale (context_p,
                         sourceBuffers_in, in_linesize,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                        0, sourceResolution_in.cy,
+#else
                         0, sourceResolution_in.height,
+#endif // ACE_WIN32 || ACE_WIN64
                         out_data, out_linesize);
   if (unlikely (result_2 <= 0))
   {
@@ -556,10 +707,20 @@ Common_Image_Tools::scale (struct SwsContext* context_in,
   } // end IF
   // *NOTE*: ffmpeg returns fewer than the expected number of rows in some cases
   // *TODO*: find out when and why
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  else if (unlikely (result_2 != static_cast<int> (targetResolution_in.cy)))
+#else
   else if (unlikely (result_2 != static_cast<int> (targetResolution_in.height)))
+#endif // ACE_WIN32 || ACE_WIN64
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("sws_scale() returned: %d (expected: %u), continuing\n"),
+                result_2, targetResolution_in.cy));
+#else
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("sws_scale() returned: %d (expected: %u), continuing\n"),
                 result_2, targetResolution_in.height));
+#endif // ACE_WIN32 || ACE_WIN64
 
   if (unlikely (!context_in))
   {

@@ -215,9 +215,9 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
       } // end lock scope
 
       if (likely (UIIsInitialized_))
-      { ACE_ASSERT (configuration_->interface);
+      { ACE_ASSERT (configuration_->definition);
         try {
-          configuration_->interface->finalize ();
+          configuration_->definition->finalize ();
         } catch (...) {
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("caught exception in Common_UI_IGTK_T::finalize, continuing\n")));
@@ -313,8 +313,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 
   // step2: initialize UI
   if (likely (!UIIsInitialized_))
-  { ACE_ASSERT (configuration_->interface);
-    UIIsInitialized_ = configuration_->interface->initialize (state_);
+  { ACE_ASSERT (configuration_->definition);
+    UIIsInitialized_ = configuration_->definition->initialize (state_);
     if (unlikely (!UIIsInitialized_))
     {
       ACE_DEBUG ((LM_ERROR,
@@ -324,7 +324,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     } // end IF
   } // end IF
 
-#if defined (GTKGL_SUPPORT)
+#if defined (GTKGL_SUPPORT) && defined (GTKGL_USE)
   // step3: initialize OpenGL
   // sanity check(s)
   ACE_ASSERT (!state_.builders.empty ());
@@ -516,9 +516,9 @@ clean:
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("initializing OpenGL...DONE\n")));
 #endif // _DEBUG
-#endif // GTKGL_SUPPORT
+#endif // GTKGL_SUPPORT && GTKGL_USE
 
-#if defined (GTKGL_SUPPORT)
+#if defined (GTKGL_SUPPORT) && defined (GTKGL_USE)
 #if defined (_DEBUG)
   iterator_2 = state_.OpenGLContexts.find (NULL);
   ACE_ASSERT (iterator_2 != state_.OpenGLContexts.end ());
@@ -532,11 +532,11 @@ clean:
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION(3,0,0)
 #endif // _DEBUG
-#endif // GTKGL_SUPPORT
+#endif // GTKGL_SUPPORT && GTKGL_USE
 
-#if defined (GTKGL_SUPPORT)
+#if defined (GTKGL_SUPPORT) && defined (GTKGL_USE)
 continue_:
-#endif // GTKGL_SUPPORT
+#endif // GTKGL_SUPPORT && GTKGL_USE
   if (configuration_->eventHooks.initHook)
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_.lock, -1);
     event_source_id = g_idle_add (configuration_->eventHooks.initHook,

@@ -85,7 +85,7 @@ if NOT exist "%MPC_ROOT%" (
 )
 
 @rem step1: apply patches
-set PATCH_EXE=D:\temp\bin\patch.exe
+set PATCH_EXE=D:\bin\patch.exe
 if NOT exist "%PATCH_EXE%" (
  echo invalid executable ^(was: "%PATCH_EXE%"^)^, exiting
  goto Failed
@@ -95,7 +95,7 @@ if %ERRORLEVEL% NEQ 0 (
  echo failed to cd ^(was: "!ACE_ROOT!"^)^, exiting
  goto Failed
 )
-set PROJECTS=libCommon libACEStream libACENetwork
+set PROJECTS=Common ACEStream ACENetwork
 for %%a in (%PROJECTS%) do (
  echo INFO: processing project "%%a"...
  set PATCH_DIRECTORY=%PROJECT_DIRECTORY%\%%a\3rd_party\ACE_wrappers\patches
@@ -150,7 +150,7 @@ if NOT exist "%ACE_BUILD_DIRECTORY%" (
 @rem  goto Failed
 @rem )
 @rem set PERL_EXE=D:\perl\bin\perl.exe
-set PERL_EXE=D:\perl\perl\bin\perl.exe
+set PERL_EXE=C:\perl\bin\perl.exe
 if NOT exist "%PERL_EXE%" (
  echo invalid executable ^(was: "%PERL_EXE%"^)^, exiting
  goto Failed
@@ -162,7 +162,7 @@ if NOT exist "%PERL_EXE%" (
 @rem )
 
 @rem step3: generate Makefiles
-set FEATURES_FILE_DIRECTORY=%PROJECT_DIRECTORY%\libCommon\3rd_party\ACE_wrappers
+set FEATURES_FILE_DIRECTORY=%PROJECT_DIRECTORY%\Common\3rd_party\ACE_wrappers
 if NOT exist "%FEATURES_FILE_DIRECTORY%" (
  echo invalid directory ^(was: "%FEATURES_FILE_DIRECTORY%"^)^, exiting
  goto Failed

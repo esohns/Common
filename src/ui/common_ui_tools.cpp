@@ -1289,6 +1289,53 @@ Common_UI_Tools::getDesktopDisplays ()
   return result;
 }
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+XWindowAttributes
+Common_UI_Tools::get (const Display& display_in,
+                      Window id_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::get"));
+
+  // initialize return value(s)
+  XWindowAttributes return_value;
+  ACE_OS::memset (&return_value, 0, sizeof (XWindowAttributes));
+
+  Status result = XGetWindowAttributes (&const_cast<Display&> (display_in),
+                                        id_in,
+                                        &return_value);
+  ACE_ASSERT (result == True);
+
+  return return_value;
+}
+
+void
+Common_UI_Tools::dump (const Display& display_in,
+                       Drawable id_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::dump"));
+
+  Window window_i = 0;
+  int relative_position_x = 0, relative_position_y = 0;
+  Common_Image_Resolution_t resolution_s;
+  unsigned int border_width_i = 0, depth_i = 0;
+  Status result = XGetGeometry (&const_cast<Display&> (display_in),
+                                id_in,
+                                &window_i,
+                                &relative_position_x, &relative_position_y,
+                                &resolution_s.width, &resolution_s.height,
+                                &border_width_i,
+                                &depth_i);
+  ACE_ASSERT (result == True);
+  ACE_DEBUG ((LM_INFO,
+              ACE_TEXT ("drawable %u:\n\twindow: %u\n\tx/y: [%u,%u]; size: [%ux%u]\n\tborder: %u; depth: %u\n"),
+              id_in,
+              window_i,
+              relative_position_x, relative_position_y, resolution_s.width, resolution_s.height,
+              border_width_i, depth_i));
+}
+#endif // ACE_WIN32 || ACE_WIN64
+
 // ---------------------------------------
 
 Common_Image_Resolutions_t

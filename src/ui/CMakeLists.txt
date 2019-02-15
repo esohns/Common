@@ -1,30 +1,4 @@
 ﻿include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/PreUIFramework.cmake)
-#include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/SetUIFramework.cmake)
-if (GTK_SUPPORT)
-# include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/SetGTKVersion.cmake)
-endif (GTK_SUPPORT)
-if (WXWIDGETS_SUPPORT)
- message (STATUS "wxWidgets_DEFINITIONS: ${wxWidgets_DEFINITIONS}")
- message (STATUS "wxWidgets_DEFINITIONS_DEBUG: ${wxWidgets_DEFINITIONS_DEBUG}")
- message (STATUS "wxWidgets_CXX_FLAGS: ${wxWidgets_CXX_FLAGS}")
- message (STATUS "wxWidgets_USE_FILE: ${wxWidgets_USE_FILE}")
- foreach (DEFINITION ${wxWidgets_DEFINITIONS})
-  add_definitions (-D${DEFINITION})
- endforeach ()
- if (WIN32)
-#  add_definitions (-D__WXMSW__)
-#  add_definitions (-DWXUSINGDLL)
-  if (MSVC)
-   add_definitions (-DwxMSVC_VERSION_AUTO)
-  endif (MSVC)
- endif (WIN32)
- if (CMAKE_BUILD_TYPE STREQUAL Debug)
-  add_definitions (-D__WXDEBUG__)
- endif (CMAKE_BUILD_TYPE STREQUAL Debug)
-# *NOTE*: re-enable ANSI mode, iff available
-# add_definitions (-DwxUSE_UNICODE=0)
- add_definitions (-DwxUSE_GUI=1)
-endif (WXWIDGETS_SUPPORT)
 
 set (ACEXML_LIB_FILE libACEXML.so)
 if (UNIX)
@@ -81,10 +55,8 @@ target_include_directories (${PROJECT_NAME}UI PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../image>)
 target_include_directories (${PROJECT_NAME}UI PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../log>)
-if (UNIX)
- target_include_directories (${PROJECT_NAME}UI PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../xml>)
-endif (UNIX)
+target_include_directories (${PROJECT_NAME}UI PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../xml>)
 target_include_directories (${PROJECT_NAME}UI PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
 
