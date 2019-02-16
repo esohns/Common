@@ -107,8 +107,9 @@ gtk_tree_model_foreach_find_index_cb (GtkTreeModel* treeModel_in,
   GValue value = G_VALUE_INIT;
 #else
   GValue value;
-  g_value_init (&value, G_VALUE_TYPE (&cb_data_p->value));
+  ACE_OS::memset (&value, 0, sizeof (struct _GValue));
 #endif // GTK_CHECK_VERSION (2,30,0)
+  g_value_init (&value, G_VALUE_TYPE (&cb_data_p->value));
   gtk_tree_model_get_value (treeModel_in,
                             treeIterator_in,
                             cb_data_p->column, &value);

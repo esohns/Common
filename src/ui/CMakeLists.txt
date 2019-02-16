@@ -1,4 +1,8 @@
 ﻿include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/PreUIFramework.cmake)
+include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/SetUIFramework.cmake)
+if (GTK_SUPPORT)
+ include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/SetGTKVersion.cmake)
+endif (GTK_SUPPORT)
 
 set (ACEXML_LIB_FILE libACEXML.so)
 if (UNIX)
@@ -35,6 +39,10 @@ endif ()
 
 add_library (${PROJECT_NAME}UI STATIC "")
 
+if (GTK_SUPPORT)
+ target_include_directories (${PROJECT_NAME}UI PUBLIC
+                             "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
+endif (GTK_SUPPORT)
 if (UNIX)
  target_include_directories (${PROJECT_NAME}UI PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
@@ -69,7 +77,10 @@ set (source_files
      common_ui_ifullscreen.h
      common_ui_tools.cpp
      common_ui_tools.h
-     common_ui_types.h)
+     common_ui_types.h
+     common_ui_windowtype_converter.cpp
+     common_ui_windowtype_converter.h
+     common_ui_windowtype_converter.inl)
 if (UNIX)
  set (source_files
       ${source_files}
@@ -123,7 +134,9 @@ set (${PROJECT_NAME}UI_LIB_HDRS
      common_ui_idefinition.h
      common_ui_ifullscreen.h
      common_ui_tools.h
-     common_ui_types.h)
+     common_ui_types.h
+     common_ui_windowtype_converter.h
+     common_ui_windowtype_converter.inl)
 
 install (FILES
          ${CommonUI_LIB_HDRS}

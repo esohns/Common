@@ -164,7 +164,7 @@ struct Common_UI_GTK_Configuration
 
   int                                         argc;
   ACE_TCHAR**                                 argv;
-  gpointer                                    CBData; // widget cb user data
+  gpointer                                    CBData; // widget cb user data (inherits Common_UI_GTK_CBData)
 #if GTK_CHECK_VERSION(3,0,0)
   Common_UI_GTK_CSSProviders_t                CSSProviders;
 #endif // GTK_CHECK_VERSION(3,0,0)
@@ -203,6 +203,21 @@ struct Common_UI_GTK_ProgressData
   guint                            eventSourceId;
   Common_UI_GTK_PendingActions_t   pendingActions;
   Common_UI_GTK_State_t*           state;
+};
+
+struct Common_UI_GTK_CBData
+ : Common_UI_CBData
+{
+  Common_UI_GTK_CBData ()
+   : Common_UI_CBData ()
+   , progressData ()
+   , UIState (NULL)
+  {
+    progressData.state = UIState;
+  }
+
+  struct Common_UI_GTK_ProgressData progressData;
+  Common_UI_GTK_State_t*            UIState;
 };
 
 #endif

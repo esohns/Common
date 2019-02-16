@@ -62,14 +62,14 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../src)
 
 if (UNIX)
  add_subdirectory (capabilities)
-# add_subdirectory (ui)
+ add_subdirectory (ui)
 endif ()
 
 # phonies
 add_custom_target (test_i ALL
                    COMMENT "building test_i...")
 if (UNIX)
- add_dependencies (test_i capability_wrapper)
+ add_dependencies (test_i capability_wrapper gtk_ui)
 endif ()
 
 if (NOT BUILD_TEST_I)

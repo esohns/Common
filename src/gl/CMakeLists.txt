@@ -66,11 +66,11 @@ if (UNIX)
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 elseif (WIN32)
  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libpng-1.6.25>)
+ target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../glm>)
  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../assimp/include>)
- target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25>)
 
  if (DEFINED ENV{ACE_ROOT})
   target_include_directories (${PROJECT_NAME}OpenGL PUBLIC

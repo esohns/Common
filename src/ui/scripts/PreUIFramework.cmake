@@ -150,7 +150,7 @@ elseif (WIN32)
   set (GTK2_SUPPORT ON CACHE BOOL "GTK2 support")
   add_definitions (-DGTK2_SUPPORT)
   set (GTK2_INCLUDE_DIRS "$ENV{GTKDIR}/include/atk-1.0;$ENV{GTKDIR}/include/gdk-pixbuf-2.0;$ENV{GTKDIR}/include/cairo;$ENV{GTKDIR}/include/pango-1.0;$ENV{GTKDIR}/lib/glib-2.0/include;$ENV{GTKDIR}/include/glib-2.0;$ENV{GTKDIR}/lib/gtk-2.0/include;$ENV{GTKDIR}/include/gtk-2.0")
-  set (GTK2_LIBRARIES "$ENV{GTKDIR}/lib/gio-2.0.lib;$ENV{GTKDIR}/lib/glib-2.0.lib;$ENV{GTKDIR}/lib/gobject-2.0.lib;$ENV{GTKDIR}/lib/gthread-2.0.lib;$ENV{GTKDIR}/lib/gdk_pixbuf-2.0.lib;$ENV{GTKDIR}/lib/gdk-win32-2.0.lib;$ENV{GTKDIR}/lib/gtk-win32-2.0.lib;$ENV{GTKDIR}/lib/pango-1.0.lib")
+  set (GTK2_LIBRARIES "$ENV{GTKDIR}/lib/gio-2.0.lib;$ENV{GTKDIR}/lib/glib-2.0.lib;$ENV{GTKDIR}/lib/gobject-2.0.lib;$ENV{GTKDIR}/lib/gthread-2.0.lib;$ENV{GTKDIR}/lib/gdk_pixbuf-2.0.lib;$ENV{GTKDIR}/lib/gdk-win32-2.0.lib;$ENV{GTKDIR}/lib/gtk-win32-2.0.lib;$ENV{GTKDIR}/lib/pango-1.0.lib;$ENV{GTKDIR}/lib/cairo.lib")
 
   message (STATUS "found Gtk version 2")
  else ()

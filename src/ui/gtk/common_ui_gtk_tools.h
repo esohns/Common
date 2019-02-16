@@ -43,6 +43,7 @@
 #endif // GTKGL_SUPPORT
 
 #include "ace/Global_Macros.h"
+#include "ace/OS.h"
 
 #include "common_ui_common.h"
 
@@ -63,7 +64,7 @@ class Common_UI_GTK_Tools
      , index (std::numeric_limits<guint>::max ())
      , value ()
     {
-      g_value_unset (&value);
+      ACE_OS::memset (&value, 0, sizeof (struct _GValue));
     }
 
     gint   column;
