@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include <iostream>
 #include <string>
 
@@ -9,6 +11,10 @@
 #include "ace/Profile_Timer.h"
 #include "ace/Synch.h"
 #include "ace/Time_Value.h"
+
+#if defined (HAVE_CONFIG_H)
+#include "Common_config.h"
+#endif // HAVE_CONFIG_H
 
 #include "common_file_tools.h"
 #include "common_tools.h"

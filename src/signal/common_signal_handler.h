@@ -33,7 +33,7 @@
 #include "common_iinitialize.h"
 #include "common_isignal.h"
 
-template <typename ConfigurationType>
+template <typename ConfigurationType> // derives off Common_SignalHandlerConfiguration
 class Common_SignalHandler_T
  : public ACE_Handler
  , public ACE_Event_Handler
