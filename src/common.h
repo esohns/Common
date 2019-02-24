@@ -32,6 +32,7 @@
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/Global_Macros.h"
+#include "ace/OS_NS_dirent.h"
 #include "ace/OS_NS_signal.h"
 #include "ace/Signal.h"
 #include "ace/Synch_Traits.h"
@@ -76,6 +77,29 @@ enum Common_OperatingSystemDistributionType
   COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID,
   COMMON_OPERATINGSYSTEM_DISTRIBUTION_MAX
 };
+
+// *** file ***
+struct Common_File_Identifier
+{
+  Common_File_Identifier ()
+   : identifier ()
+   , identifierDiscriminator (Common_File_Identifier::FILE)
+   , selector (NULL) // *NOTE*: NULL will select all (!) entries by default
+  {}
+
+  enum discriminatorType
+  {
+    FILE = 0,
+    DIRECTORY,
+    INVALID
+  };
+
+  std::string            identifier;
+  enum discriminatorType identifierDiscriminator;
+  ACE_SCANDIR_SELECTOR   selector;
+};
+typedef std::list<struct Common_File_Identifier> Common_File_IdentifierList_t;
+typedef Common_File_IdentifierList_t::const_iterator Common_File_IdentifierListIterator_t;
 
 // *** signals ***
 

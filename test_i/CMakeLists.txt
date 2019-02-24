@@ -62,15 +62,24 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../src)
 
 if (UNIX)
  add_subdirectory (capabilities)
- add_subdirectory (ui)
 endif ()
+add_subdirectory (ffmpeg)
+if (UNIX)
+ add_subdirectory (imagemagick)
+endif ()
+add_subdirectory (ui)
 
 # phonies
 add_custom_target (test_i ALL
                    COMMENT "building test_i...")
 if (UNIX)
- add_dependencies (test_i capability_wrapper gtk_ui)
+ add_dependencies (test_i capability_wrapper)
 endif ()
+add_dependencies (test_i ffmpeg)
+if (UNIX)
+ add_dependencies (test_i imagemagick)
+endif ()
+add_dependencies (test_i gtk_ui)
 
 if (NOT BUILD_TEST_I)
  set_target_properties (test_i PROPERTIES EXCLUDE_FROM_ALL 1)

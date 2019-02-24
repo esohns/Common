@@ -35,9 +35,35 @@ extern "C"
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
 
+#include "common_file_tools.h"
 #include "common_macros.h"
 
 #include "common_error_tools.h"
+
+enum AVPixelFormat
+common_image_tools_get_format_cb (struct AVCodecContext* context_in,
+                                  const enum AVPixelFormat* formats_in)
+{
+  // sanity check(s)
+  struct Common_Image_Tools_GetFormatCBData* cb_data_p =
+      static_cast<struct Common_Image_Tools_GetFormatCBData*> (context_in->opaque);
+  ACE_ASSERT (cb_data_p);
+  ACE_ASSERT (formats_in);
+
+  // *NOTE*: this prefers the highest quality over the relevance of the format
+  Common_Image_FFMPEGPixelFormatsIterator_t iterator =
+      cb_data_p->formats.end ();
+  for (const enum AVPixelFormat* iterator_2 = formats_in;
+       *iterator_2 != -1;
+       ++iterator_2)
+    for (iterator = cb_data_p->formats.begin ();
+         iterator != cb_data_p->formats.end ();
+         ++iterator)
+      if (*iterator == *iterator_2)
+        break;
+
+  return (iterator != cb_data_p->formats.end () ? *iterator : AV_PIX_FMT_NONE);
+}
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 bool
@@ -77,7 +103,7 @@ Common_Image_Tools::save (const std::string& path_in,
 bool
 Common_Image_Tools::save (const Common_Image_Resolution_t& resolution_in,
                           enum AVPixelFormat format_in,
-                          uint8_t* sourceBuffers_in[],
+                          const uint8_t* sourceBuffers_in[],
                           const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::save"));
@@ -255,21 +281,20 @@ clean:
 bool
 Common_Image_Tools::savePNG (const Common_Image_Resolution_t& resolution_in,
                              enum AVPixelFormat format_in,
-                             uint8_t* sourceBuffers_in[],
+                             const uint8_t* sourceBuffers_in,
                              const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::savePNG"));
 
   bool result = false;
-
-  uint8_t* data_p = NULL;
-  uint8_t* buffer_p = sourceBuffers_in[0];
+  bool delete_buffer_b = false;
+  const uint8_t* buffer_p = sourceBuffers_in;
 
   // *TODO*: this feature is broken
   if (unlikely (format_in != AV_PIX_FMT_RGB24))
   {
-    if (!Common_Image_Tools::convert (NULL,
-                                      resolution_in,
+    uint8_t* data_p = NULL;
+    if (!Common_Image_Tools::convert (resolution_in,
                                       format_in,
                                       sourceBuffers_in,
                                       resolution_in,
@@ -280,15 +305,227 @@ Common_Image_Tools::savePNG (const Common_Image_Resolution_t& resolution_in,
                   ACE_TEXT ("failed to Common_Image_Tools::convert(), aborting\n")));
       return false;
     } // end IF
+    ACE_ASSERT (data_p);
     buffer_p = data_p;
+    delete_buffer_b = true;
   } // end IF
 
+  if (!Common_Image_Tools::save (resolution_in,
+                                 format_in,
+                                 buffer_p,
+                                 AV_CODEC_ID_PNG,
+                                 path_in))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_Image_Tools::save(), aborting\n")));
+    goto error;
+  } // end IF
+
+  result = true;
+
+error:
+  if (delete_buffer_b)
+  {
+    delete [] buffer_p; buffer_p = NULL;
+  } // end IF
+
+  return result;
+}
+
+bool
+Common_Image_Tools::load (const uint8_t* sourceBuffers_in,
+                          unsigned int sourceBuffersSize_in,
+                          enum AVCodecID codecId_in,
+                          enum AVPixelFormat format_in,
+                          Common_Image_Resolution_t& resolution_out,
+                          uint8_t*& targetBuffers_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::savePNG"));
+
+  // sanity check(s)
+  ACE_ASSERT (codecId_in != AV_CODEC_ID_NONE); // *TODO*
+
+//  enum AVPixelFormat pixel_format_e;
+  if (!Common_Image_Tools::decode (sourceBuffers_in,
+                                   sourceBuffersSize_in,
+                                   codecId_in,
+                                   format_in,
+                                   resolution_out,
+                                   targetBuffers_out))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_Image_Tools::decode(%d), aborting\n"),
+                codecId_in));
+    return false;
+  } // end IF
+  ACE_ASSERT (targetBuffers_out);
+
+//  if (pixel_format_e != format_in)
+//  {
+//    uint8_t* buffer_p = targetBuffers_out;
+//    targetBuffers_out = NULL;
+//    if (!Common_Image_Tools::convert (resolution_out, pixel_format_e,
+//                                      buffer_p,
+//                                      resolution_out, format_in,
+//                                      targetBuffers_out))
+//    {
+//      ACE_DEBUG ((LM_ERROR,
+//                  ACE_TEXT ("failed to Common_Image_Tools::convert(), returning\n")));
+//      delete [] buffer_p; buffer_p = NULL;
+//      return false;
+//    } // end IF
+//    delete [] buffer_p; buffer_p = NULL;
+//    ACE_ASSERT (targetBuffers_out);
+//  } // end IF
+
+  return true;
+}
+
+bool
+Common_Image_Tools::load (const std::string& path_in,
+                          enum AVCodecID codecId_in,
+                          Common_Image_Resolution_t& resolution_out,
+                          enum AVPixelFormat& format_out,
+                          uint8_t*& targetBuffers_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::load"));
+
+  // sanity check(s)
+  ACE_ASSERT (codecId_in != AV_CODEC_ID_NONE); // *TODO*
+
+  bool result = false;
   int result_2 = -1;
-  size_t result_3 = 0;
+  struct AVCodec* codec_p = NULL;
+  struct AVCodecContext* codec_context_p = NULL;
+  struct AVFrame* frame_p = NULL;
+  int got_picture = 0;
+  struct AVPacket packet_s;
+  av_init_packet (&packet_s);
+  unsigned int file_size_i = 0;
+  if (!Common_File_Tools::load (path_in,
+                                packet_s.data,
+                                file_size_i))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), aborting\n"),
+                ACE_TEXT (path_in.c_str ())));
+    goto error;
+  } // end IF
+  packet_s.size = static_cast<int> (file_size_i);
+
+  frame_p = av_frame_alloc ();
+  if (!frame_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to av_frame_alloc(): \"%m\", aborting\n")));
+    goto error;
+  } // end IF
+
+  codec_p = avcodec_find_encoder (codecId_in);
+  if (!codec_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to avcodec_find_encoder(%d): \"%m\", aborting\n"),
+                codecId_in));
+    goto error;
+  } // end IF
+  // *NOTE*: fire-and-forget codec_p
+  codec_context_p = avcodec_alloc_context3 (codec_p);
+  if (!codec_context_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to avcodec_alloc_context3(): \"%m\", aborting\n")));
+    goto error;
+  } // end IF
+
+  codec_context_p->codec_type = AVMEDIA_TYPE_VIDEO;
+//  codec_context_p->flags = 0;
+//  codec_context_p->flags2 = 0;
+//  codec_context_p->get_format = common_image_tools_get_format_cb;
+//  codec_context_p->request_sample_fmt = AV_PIX_FMT_RGB24;
+  codec_context_p->refcounted_frames = 1; // *NOTE*: caller 'owns' the frame buffer
+  codec_context_p->workaround_bugs = 0xFFFFFFFF;
+  codec_context_p->strict_std_compliance = FF_COMPLIANCE_UNOFFICIAL;
+  codec_context_p->error_concealment = 0xFFFFFFFF;
+#if defined (_DEBUG)
+  codec_context_p->debug = 0xFFFFFFFF;
+#endif // _DEBUG
+//  codec_context_p->err_recognition = 0xFFFFFFFF;
+//  hwaccel_context
+//  idct_algo
+//  bits_per_coded_sample
+//  thread_count
+//  thread_type
+//  pkt_timebase
+//  hw_frames_ctx
+//  hw_device_ctx
+//  hwaccel_flags
+
+  result_2 = avcodec_open2 (codec_context_p,
+                            codec_p,
+                            NULL);
+  if (result_2 < 0)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to avcodec_open2(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
+    goto error;
+  } // end IF
+
+  result_2 = avcodec_decode_video2 (codec_context_p,
+                                    frame_p,
+                                    &got_picture,
+                                    &packet_s);
+  if ((result_2 < 0) || !got_picture)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to avcodec_decode_video2(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
+    goto error;
+  } // end IF
+#if defined (_DEBUG)
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("loaded image \"%s\" (%ux%u %s)\n"),
+              ACE_TEXT (path_in.c_str ()),
+              frame_p->width, frame_p->height,
+              ACE_TEXT (Common_Image_Tools::pixelFormatToString (static_cast<enum AVPixelFormat> (frame_p->format)).c_str ())));
+#endif // _DEBUG
+
+  resolution_out.width = frame_p->width;
+  resolution_out.height = frame_p->height;
+  format_out = static_cast<enum AVPixelFormat> (frame_p->format);
+  // *NOTE*: do not av_frame_unref the frame, keep the data
+  targetBuffers_out = reinterpret_cast<uint8_t*> (frame_p->data);
+
+  result = true;
+
+error:
+  av_packet_unref (&packet_s);
+  if (frame_p)
+    av_frame_free (&frame_p);
+  if (codec_context_p)
+  {
+    avcodec_close (codec_context_p); codec_context_p = NULL;
+    av_free (codec_context_p); codec_context_p = NULL;
+  } // end IF
+
+  return result;
+}
+
+bool
+Common_Image_Tools::save (const Common_Image_Resolution_t& sourceResolution_in,
+                          enum AVPixelFormat sourcePixelFormat_in,
+                          const uint8_t* sourceBuffers_in,
+                          enum AVCodecID codecId_in,
+                          const std::string& targetPath_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::save"));
+
+  bool result = false;
+  int result_2 = -1;
   struct AVCodec* codec_p = NULL;
   struct AVCodecContext* codec_context_p = NULL;
   int got_picture = 0;
-  FILE* file_p = NULL;
   struct AVPacket packet_s;
   av_init_packet (&packet_s);
   struct AVFrame* frame_p = av_frame_alloc ();
@@ -296,62 +533,63 @@ Common_Image_Tools::savePNG (const Common_Image_Resolution_t& resolution_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to av_frame_alloc(): \"%m\", aborting\n")));
-    return false;
+    goto error;
   } // end IF
-  frame_p->format = AV_PIX_FMT_RGB24;
+  frame_p->format = sourcePixelFormat_in;
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  frame_p->height = resolution_in.cy;
-  frame_p->width = resolution_in.cx;
+  frame_p->height = sourceResolution_in.cy;
+  frame_p->width = sourceResolution_in.cx;
 #else
-  frame_p->height = resolution_in.height;
-  frame_p->width = resolution_in.width;
+  frame_p->height = sourceResolution_in.height;
+  frame_p->width = sourceResolution_in.width;
 #endif // ACE_WIN32 || ACE_WIN64
   result_2 = av_image_fill_linesizes (frame_p->linesize,
-                                      format_in,
+                                      sourcePixelFormat_in,
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-                                      static_cast<int> (resolution_in.cx));
+                                      static_cast<int> (sourceResolution_in.cx));
 #else
-                                      static_cast<int> (resolution_in.width));
+                                      static_cast<int> (sourceResolution_in.width));
 #endif // ACE_WIN32 || ACE_WIN64
   ACE_ASSERT (result_2 >= 0);
   result_2 =
       av_image_fill_pointers (frame_p->data,
-                              format_in,
+                              sourcePixelFormat_in,
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-                              static_cast<int> (resolution_in.cy),
+                              static_cast<int> (sourceResolution_in.cy),
 #else
-                              static_cast<int> (resolution_in.height),
+                              static_cast<int> (sourceResolution_in.height),
 #endif // ACE_WIN32 || ACE_WIN64
-                              buffer_p,
+                              const_cast<uint8_t*> (sourceBuffers_in),
                               frame_p->linesize);
   ACE_ASSERT (result_2 >= 0);
 
-  codec_p = avcodec_find_encoder (AV_CODEC_ID_PNG);
+  codec_p = avcodec_find_encoder (codecId_in);
   if (!codec_p)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to avcodec_find_encoder(%d): \"%m\", aborting\n"),
-                AV_CODEC_ID_PNG));
-    goto clean;
+                codecId_in));
+    goto error;
   } // end IF
+  // *NOTE*: fire-and-forget codec_p
   codec_context_p = avcodec_alloc_context3 (codec_p);
   if (!codec_context_p)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to avcodec_alloc_context3(): \"%m\", aborting\n")));
-    goto clean;
+    goto error;
   } // end IF
 
   codec_context_p->codec_type = AVMEDIA_TYPE_VIDEO;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  codec_context_p->height = resolution_in.cy;
-  codec_context_p->width = resolution_in.cx;
+  codec_context_p->height = sourceResolution_in.cy;
+  codec_context_p->width = sourceResolution_in.cx;
 #else
-  codec_context_p->height = resolution_in.height;
-  codec_context_p->width = resolution_in.width;
+  codec_context_p->height = sourceResolution_in.height;
+  codec_context_p->width = sourceResolution_in.width;
 #endif // ACE_WIN32 || ACE_WIN64
-  codec_context_p->pix_fmt = AV_PIX_FMT_RGB24;
+  codec_context_p->pix_fmt = sourcePixelFormat_in;
   codec_context_p->time_base.num = codec_context_p->time_base.den = 1;
   result_2 = avcodec_open2 (codec_context_p,
                             codec_p,
@@ -361,7 +599,7 @@ Common_Image_Tools::savePNG (const Common_Image_Resolution_t& resolution_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to avcodec_open2(): \"%s\", aborting\n"),
                 ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
-    goto clean;
+    goto error;
   } // end IF
 
   packet_s.size = 0;
@@ -375,36 +613,28 @@ Common_Image_Tools::savePNG (const Common_Image_Resolution_t& resolution_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to avcodec_encode_video2(): \"%s\", aborting\n"),
                 ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
-    goto clean;
+    goto error;
   } // end IF
 
-  file_p = ACE_OS::fopen (path_in.c_str (),
-                          ACE_TEXT_ALWAYS_CHAR ("wb"));
-  if (!file_p)
+  if (!Common_File_Tools::store (targetPath_in,
+                                 packet_s.data,
+                                 packet_s.size))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (path_in.c_str ())));
-    goto clean;
+                ACE_TEXT ("failed to Common_File_Tools::store(\"%s\"), aborting\n"),
+                ACE_TEXT (targetPath_in.c_str ())));
+    goto error;
   } // end IF
-
-  result_3 = ACE_OS::fwrite (packet_s.data,
-                             packet_s.size,
-                             1,
-                             file_p);
-  if (result_3 != 1)
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::fwrite(%u) (file was: \"%s\"): \"%m\", aborting\n"),
-                packet_s.size,
-                ACE_TEXT (path_in.c_str ())));
-    goto clean;
-  } // end IF
+#if defined (_DEBUG)
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("wrote file \"%s\" (%u byte(s)\n"),
+              ACE_TEXT (targetPath_in.c_str ()),
+              packet_s.size));
+#endif // _DEBUG
 
   result = true;
 
-clean:
-  // clean up
+error:
   av_packet_unref (&packet_s);
   if (frame_p)
     av_frame_free (&frame_p);
@@ -413,24 +643,216 @@ clean:
     avcodec_close (codec_context_p); codec_context_p = NULL;
     av_free (codec_context_p); codec_context_p = NULL;
   } // end IF
-  if (file_p)
-  {
-    result_2 = ACE_OS::fclose (file_p);
-    if (result_2 == -1)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
-                  ACE_TEXT (path_in.c_str ())));
-    file_p = NULL;
-  } // end IF
-
-#if defined (_DEBUG)
-  if (result)
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("wrote file \"%s\"\n"),
-                ACE_TEXT (path_in.c_str ())));
-#endif // _DEBUG
 
   return result;
+}
+
+bool
+Common_Image_Tools::decode (const uint8_t* sourceBuffers_in,
+                            unsigned int sourceBuffersSize_in,
+                            enum AVCodecID codecId_in,
+                            enum AVPixelFormat format_in,
+                            Common_Image_Resolution_t& resolution_out,
+                            uint8_t*& targetBuffers_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::decode"));
+
+  // sanity check(s)
+  ACE_ASSERT (codecId_in != AV_CODEC_ID_NONE); // *TODO*
+
+  bool result = false;
+  int result_2 = -1;
+  struct AVCodec* codec_p = NULL;
+  struct AVCodecContext* codec_context_p = NULL;
+  Common_Image_Tools_GetFormatCBData cb_data_s;
+  cb_data_s.formats.push_back (format_in);
+  struct AVFrame* frame_p = NULL;
+  int got_picture = 0;
+  struct AVPacket packet_s;
+  av_init_packet (&packet_s);
+  packet_s.data = const_cast<uint8_t*> (sourceBuffers_in);
+  packet_s.size = sourceBuffersSize_in;
+
+  frame_p = av_frame_alloc ();
+  if (!frame_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to av_frame_alloc(): \"%m\", aborting\n")));
+    goto error;
+  } // end IF
+
+  codec_p = avcodec_find_encoder (codecId_in);
+  if (!codec_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to avcodec_find_encoder(%d): \"%m\", aborting\n"),
+                codecId_in));
+    goto error;
+  } // end IF
+  // *NOTE*: fire-and-forget codec_p
+  codec_context_p = avcodec_alloc_context3 (codec_p);
+  if (!codec_context_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to avcodec_alloc_context3(): \"%m\", aborting\n")));
+    goto error;
+  } // end IF
+
+  codec_context_p->codec_type = AVMEDIA_TYPE_VIDEO;
+//  codec_context_p->flags = 0;
+//  codec_context_p->flags2 = 0;
+  codec_context_p->time_base.den = 1;
+  codec_context_p->time_base.num = 1;
+  codec_context_p->width = 1;
+  codec_context_p->height = 1;
+  codec_context_p->pix_fmt = format_in;
+//  codec_context_p->opaque = &cb_data_s;
+//  codec_context_p->get_format = common_image_tools_get_format_cb;
+//  codec_context_p->request_sample_fmt = AV_PIX_FMT_RGB24;
+  codec_context_p->refcounted_frames = 1; // *NOTE*: caller 'owns' the frame buffer
+  codec_context_p->workaround_bugs = 0xFFFFFFFF;
+  codec_context_p->strict_std_compliance = FF_COMPLIANCE_UNOFFICIAL;
+  codec_context_p->error_concealment = 0xFFFFFFFF;
+#if defined (_DEBUG)
+  codec_context_p->debug = 0xFFFFFFFF;
+#endif // _DEBUG
+//  codec_context_p->err_recognition = 0xFFFFFFFF;
+//  hwaccel_context
+//  idct_algo
+//  bits_per_coded_sample
+//  thread_count
+//  thread_type
+//  pkt_timebase
+//  hw_frames_ctx
+//  hw_device_ctx
+//  hwaccel_flags
+
+  result_2 = avcodec_open2 (codec_context_p,
+                            codec_p,
+                            NULL);
+  if (result_2 < 0)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to avcodec_open2(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
+    goto error;
+  } // end IF
+
+  result_2 = avcodec_decode_video2 (codec_context_p,
+                                    frame_p,
+                                    &got_picture,
+                                    &packet_s);
+  if ((result_2 < 0) || !got_picture)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to avcodec_decode_video2(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
+    goto error;
+  } // end IF
+  ACE_ASSERT (format_in == static_cast<enum AVPixelFormat> (frame_p->format));
+
+  resolution_out.width = frame_p->width;
+  resolution_out.height = frame_p->height;
+  // *NOTE*: do not av_frame_unref the frame, keep the data
+  targetBuffers_out = reinterpret_cast<uint8_t*> (frame_p->data);
+
+  result = true;
+
+error:
+  av_packet_unref (&packet_s);
+  if (frame_p)
+    av_frame_free (&frame_p);
+  if (codec_context_p)
+  {
+    avcodec_close (codec_context_p); codec_context_p = NULL;
+    av_free (codec_context_p); codec_context_p = NULL;
+  } // end IF
+
+  return result;
+}
+
+bool
+Common_Image_Tools::convert (const Common_Image_Resolution_t& sourceResolution_in,
+                             enum AVPixelFormat sourcePixelFormat_in,
+                             const uint8_t* sourceBuffers_in,
+                             const Common_Image_Resolution_t& targetResolution_in,
+                             enum AVPixelFormat targetPixelFormat_in,
+                             uint8_t*& targetBuffers_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::convert"));
+
+  // initialize return value(s)
+  ACE_ASSERT (!targetBuffers_out);
+
+  int line_sizes_a[AV_NUM_DATA_POINTERS];
+  uint8_t* data_pointers_a[AV_NUM_DATA_POINTERS];
+  ACE_OS::memset (&line_sizes_a, 0, sizeof (int[AV_NUM_DATA_POINTERS]));
+  ACE_OS::memset (&data_pointers_a, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
+
+  int result = av_image_fill_linesizes (line_sizes_a,
+                                        sourcePixelFormat_in,
+                                        static_cast<int> (sourceResolution_in.width));
+  ACE_ASSERT (result >= 0);
+  result =
+      av_image_fill_pointers (data_pointers_a,
+                              sourcePixelFormat_in,
+                              static_cast<int> (sourceResolution_in.height),
+                              const_cast<uint8_t*> (sourceBuffers_in),
+                              line_sizes_a);
+  ACE_ASSERT (result >= 0);
+  if (unlikely (!Common_Image_Tools::convert (NULL,
+                                              sourceResolution_in, sourcePixelFormat_in,
+                                              data_pointers_a,
+                                              targetResolution_in, targetPixelFormat_in,
+                                              targetBuffers_out)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_Image_Tools::convert(), returning\n")));
+    return false;
+  } // end IF
+
+  return true;
+}
+bool
+Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
+                           enum AVPixelFormat sourcePixelFormat_in,
+                           const uint8_t* sourceBuffers_in,
+                           const Common_Image_Resolution_t& targetResolution_in,
+                           uint8_t*& targetBuffers_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::scale"));
+
+  // initialize return value(s)
+  ACE_ASSERT (!targetBuffers_out);
+
+  int line_sizes_a[AV_NUM_DATA_POINTERS];
+  uint8_t* data_pointers_a[AV_NUM_DATA_POINTERS];
+  ACE_OS::memset (&line_sizes_a, 0, sizeof (int[AV_NUM_DATA_POINTERS]));
+  ACE_OS::memset (&data_pointers_a, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
+
+  int result = av_image_fill_linesizes (line_sizes_a,
+                                        sourcePixelFormat_in,
+                                        static_cast<int> (sourceResolution_in.width));
+  ACE_ASSERT (result >= 0);
+  result =
+      av_image_fill_pointers (data_pointers_a,
+                              sourcePixelFormat_in,
+                              static_cast<int> (sourceResolution_in.height),
+                              const_cast<uint8_t*> (sourceBuffers_in),
+                              line_sizes_a);
+  ACE_ASSERT (result >= 0);
+  if (unlikely (!Common_Image_Tools::scale (NULL,
+                                            sourceResolution_in, sourcePixelFormat_in,
+                                            data_pointers_a,
+                                            targetResolution_in,
+                                            targetBuffers_out)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_Image_Tools::scale(), returning\n")));
+    return false;
+  } // end IF
+
+  return true;
 }
 
 bool
@@ -762,6 +1184,26 @@ Common_Image_Tools::errorToString (int errorCode_in)
     return return_value;
   } // end IF
   return_value = buffer_a;
+
+  return return_value;
+}
+
+enum AVCodecID
+Common_Image_Tools::stringToCodecId (const std::string& format_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::stringToCodecId"));
+
+  // initialize return value(s)
+  enum AVCodecID return_value = AV_CODEC_ID_NONE;
+
+  if (format_in == ACE_TEXT_ALWAYS_CHAR ("RGB"))
+    return_value = AV_CODEC_ID_NONE;
+  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("PNG"))
+    return_value = AV_CODEC_ID_PNG;
+  else
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("invalid/unknown format (was: \"%s\"), aborting\n"),
+                ACE_TEXT (format_in.c_str ())));
 
   return return_value;
 }
