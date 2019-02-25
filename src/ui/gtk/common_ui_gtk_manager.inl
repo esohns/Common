@@ -763,11 +763,11 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 //  gdk_display_manager_set_default_display (gdk_display_manager_get (),
 //                                           display_p);
 
-  if (unlikely (!gtk_init_check (&configuration_->argc,
-                                 &configuration_->argv)))
+  if (unlikely (!Common_UI_GTK_Tools::initialize (configuration_->argc,
+                                                  configuration_->argv)))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to gtk_init_check(), aborting\n")));
+                ACE_TEXT ("failed to Common_UI_GTK_Tools::initialize(), aborting\n")));
     goto error;
   } // end IF
 //  gtk_init (&argc_,

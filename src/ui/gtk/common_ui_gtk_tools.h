@@ -48,8 +48,13 @@
 #include "common_ui_common.h"
 
 class Common_UI_GTK_Tools
+// : public Common_SInitializeFinalize_T<Common_UI_Tools>
 {
  public:
+  static bool initialize (int,           // argc
+                          ACE_TCHAR*[]); // argv
+  static bool finalize ();
+
   static std::string UTF8ToLocale (const gchar*, // string
                                    gssize = -1); // length in byte(s) (-1: '\0'-terminated)
   inline static std::string UTF8ToLocale (const std::string& string_in) { return Common_UI_GTK_Tools::UTF8ToLocale (string_in.c_str (), -1); }
@@ -107,6 +112,8 @@ class Common_UI_GTK_Tools
 #endif // GTK_CHECK_VERSION (3,0,0)
 #endif // GTKGL_SUPPORT
 #endif // _DEBUG
+
+  static bool GTKInitialized;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Tools ())

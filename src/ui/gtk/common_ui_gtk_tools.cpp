@@ -52,6 +52,9 @@
 
 #include "common_macros.h"
 
+// initialize statics
+bool Common_UI_GTK_Tools::GTKInitialized = false;
+
 #if defined (_DEBUG)
 void
 gtk_container_dump_cb (GtkWidget* widget_in,
@@ -212,6 +215,41 @@ gtk_tree_model_foreach_find_index_cb (GtkTreeModel* treeModel_in,
 }
 
 // ---------------------------------------
+
+bool
+Common_UI_GTK_Tools::initialize (int argc_in,
+                                 ACE_TCHAR* argv_in[])
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::initialize"));
+
+  // sanity check(s)
+  if (Common_UI_GTK_Tools::GTKInitialized)
+    return true;
+
+  if (!gdk_init_check (&argc_in, &argv_in))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to gdk_init_check(): \"%m\", aborting\n")));
+    return false;
+  } // end IF
+
+  /* gdk_rgb_init() is a function which I can only guess sets up the
+   * true colour colour map. It returns void so we can't check its
+   * return value.
+   */
+  gdk_rgb_init ();
+
+  Common_UI_GTK_Tools::GTKInitialized = true;
+
+  return true;
+}
+bool
+Common_UI_GTK_Tools::finalize ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::finalize"));
+
+  return true;
+}
 
 std::string
 Common_UI_GTK_Tools::UTF8ToLocale (const gchar* string_in,
