@@ -46,9 +46,9 @@ inline void glib_print_debug_handler (const gchar* message_in) { glib_log_handle
 inline void glib_print_error_handler (const gchar* message_in) { glib_log_handler (G_LOG_DOMAIN, G_LOG_LEVEL_ERROR, message_in, NULL); }
 
 template <ACE_SYNCH_DECL,
-          typename ConfigurationType,
-          typename StateType,
-          typename CallBackDataType>
+          typename ConfigurationType = Common_UI_GTK_Configuration_t,
+          typename StateType = Common_UI_GTK_State_t,
+          typename CallBackDataType = gpointer>
 class Common_UI_GTK_Manager_T
  : public Common_TaskBase_T<ACE_SYNCH_USE,
                             Common_TimePolicy_t,

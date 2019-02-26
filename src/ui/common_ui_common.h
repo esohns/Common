@@ -152,6 +152,21 @@ typedef std::list<struct Common_UI_DisplayDevice> Common_UI_DisplayDevices_t;
 typedef Common_UI_DisplayDevices_t::iterator Common_UI_DisplayDevicesIterator_t;
 typedef Common_UI_DisplayDevices_t::const_iterator Common_UI_DisplayDevicesConstIterator_t;
 
+struct Common_UI_Display // logical-
+{
+  Common_UI_Display ()
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+    : display (NULL)
+#endif // ACE_WIN32 || ACE_WIN64
+  {}
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  struct _XDisplay* display;
+#endif // ACE_WIN32 || ACE_WIN64
+};
+
 struct Common_UI_DisplayMode
 {
   Common_UI_DisplayMode ()
