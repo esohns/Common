@@ -1,4 +1,6 @@
 if (UNIX)
+ include (FindPkgConfig)
+
 # set (OpenGL_Components "OpenGL EGL GLX")
  set (OpenGL_Components "OpenGL")
 elseif (WIN32)
@@ -23,11 +25,15 @@ if (UNIX)
 # *TODO*: FindGTK3.cmake is currently badly broken; use pkg_check_modules
 # find_package (GTK3 MODULE)
 # if (GTK3_QUARTZ_FOUND OR GTK3_X11_FOUND OR GTK3_WAYLAND_FOUND)
- pkg_check_modules (PKG_GTK3 gmodule-2.0 gthread-2.0 gtk+-3.0)
- if (PKG_GTK3_FOUND)
+# pkg_check_modules (PKG_GTK3 gmodule-2.0 gthread-2.0 gtk+-3.0)
+ pkg_check_modules (PKG_GTK_3 gtk+-3.0)
+ if (PKG_GTK_3_FOUND)
   set (GTK3_FOUND ON)
+
+  set (GTK3_INCLUDE_DIRS ${PKG_GTK_3_INCLUDE_DIRS})
+  set (GTK3_LIBRARIES ${PKG_GTK_3_LIBRARIES})
 # endif (GTK3_QUARTZ_FOUND OR GTK3_X11_FOUND OR GTK3_WAYLAND_FOUND)
- endif (PKG_GTK3_FOUND)
+ endif (PKG_GTK_3_FOUND)
  find_package (GTK2 MODULE)
  find_package (GTK MODULE)
 

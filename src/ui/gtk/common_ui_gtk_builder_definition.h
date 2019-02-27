@@ -30,11 +30,14 @@ class Common_UI_GtkBuilderDefinition_T
  : public Common_UI_IDefinition_T<StateType>
 {
  public:
+  // convenient types
+  typedef Common_UI_IDefinition_T<StateType> INTERFACE_T;
+
   Common_UI_GtkBuilderDefinition_T ();
   virtual ~Common_UI_GtkBuilderDefinition_T ();
 
   // implement Common_UI_IDefinition_T
-  virtual bool initialize (StateType&); // return value: UI state
+  virtual bool initialize (StateType&); // UI state
   virtual void finalize ();
 
  private:
