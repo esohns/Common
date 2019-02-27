@@ -2730,7 +2730,8 @@ continue_:
 
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("started event dispatch\n")));
+              ACE_TEXT ("started event dispatch; spawned %u thread(s)\n"),
+              dispatchState_inout.configuration->numberOfProactorThreads + dispatchState_inout.configuration->numberOfReactorThreads));
 #endif // _DEBUG
 
   return true;
