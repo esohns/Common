@@ -57,7 +57,8 @@ elseif (WIN32)
 #  if (MSVC_VERSION GREATER 1600) # MSVC 10 (*TODO*: inaccurate)
   if (MSVC_RELEASE GREATER 10) # MSVC 10 (*TODO*: inaccurate)
    set (MSVC_PATH_ROOT "C:/Program Files (x86)/Microsoft Visual Studio")
-   set (MSVC_BIN_PATH "${MSVC_PATH_ROOT}/2017/Community/VC/Tools/MSVC/14.14.26428/bin/Hostx64/x86")
+#   set (MSVC_BIN_PATH "${MSVC_PATH_ROOT}/2017/Community/VC/Tools/MSVC/14.14.26428/bin/Hostx64/x86")
+   set (MSVC_BIN_PATH "${MSVC_PATH_ROOT}/2017/Community/VC/Tools/MSVC/14.16.27023/bin/Hostx64/x86")
 #  elseif (MSVC_VERSION EQUAL 1600) # MSVC 10
   elseif (MSVC_RELEASE EQUAL 10) # MSVC 10
 #   message (STATUS "MSVC_VERSION: ${MSVC_VERSION}")

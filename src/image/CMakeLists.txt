@@ -39,9 +39,10 @@ elseif (WIN32)
 
 #*TODO*: use pkg-config instead
  target_include_directories (${PROJECT_NAME}Image PUBLIC
-                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libpng-1.6.25>)
+                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libpng>)
+
  target_include_directories (${PROJECT_NAME}Image PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../ffmpeg>)
+                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ffmpeg>)
 
  if (DEFINED ENV{ACE_ROOT})
   target_include_directories (${PROJECT_NAME}Image PUBLIC
