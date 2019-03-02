@@ -491,8 +491,13 @@ Common_Image_Tools::load (const std::string& path_in,
               ACE_TEXT (Common_Image_Tools::pixelFormatToString (static_cast<enum AVPixelFormat> (frame_p->format)).c_str ())));
 #endif // _DEBUG
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  resolution_out.cx = frame_p->width;
+  resolution_out.cy = frame_p->height;
+#else
   resolution_out.width = frame_p->width;
   resolution_out.height = frame_p->height;
+#endif // ACE_WIN32 || ACE_WIN64
   format_out = static_cast<enum AVPixelFormat> (frame_p->format);
   // *NOTE*: do not av_frame_unref the frame, keep the data
   targetBuffers_out = reinterpret_cast<uint8_t*> (frame_p->data);
@@ -751,8 +756,13 @@ Common_Image_Tools::decode (const uint8_t* sourceBuffers_in,
   } // end IF
   ACE_ASSERT (format_in == static_cast<enum AVPixelFormat> (frame_p->format));
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  resolution_out.cx = frame_p->width;
+  resolution_out.cy = frame_p->height;
+#else
   resolution_out.width = frame_p->width;
   resolution_out.height = frame_p->height;
+#endif // ACE_WIN32 || ACE_WIN64
   // *NOTE*: do not av_frame_unref the frame, keep the data
   targetBuffers_out = reinterpret_cast<uint8_t*> (frame_p->data);
 
@@ -791,12 +801,20 @@ Common_Image_Tools::convert (const Common_Image_Resolution_t& sourceResolution_i
 
   int result = av_image_fill_linesizes (line_sizes_a,
                                         sourcePixelFormat_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                        static_cast<int> (sourceResolution_in.cx));
+#else
                                         static_cast<int> (sourceResolution_in.width));
+#endif // ACE_WIN32 || ACE_WIN64
   ACE_ASSERT (result >= 0);
   result =
       av_image_fill_pointers (data_pointers_a,
                               sourcePixelFormat_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                              static_cast<int> (sourceResolution_in.cy),
+#else
                               static_cast<int> (sourceResolution_in.height),
+#endif // ACE_WIN32 || ACE_WIN64
                               const_cast<uint8_t*> (sourceBuffers_in),
                               line_sizes_a);
   ACE_ASSERT (result >= 0);
@@ -832,12 +850,20 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
 
   int result = av_image_fill_linesizes (line_sizes_a,
                                         sourcePixelFormat_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                        static_cast<int> (sourceResolution_in.cx));
+#else
                                         static_cast<int> (sourceResolution_in.width));
-  ACE_ASSERT (result >= 0);
+#endif // ACE_WIN32 || ACE_WIN64
+    ACE_ASSERT (result >= 0);
   result =
       av_image_fill_pointers (data_pointers_a,
                               sourcePixelFormat_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                              static_cast<int> (sourceResolution_in.cy),
+#else
                               static_cast<int> (sourceResolution_in.height),
+#endif // ACE_WIN32 || ACE_WIN64
                               const_cast<uint8_t*> (sourceBuffers_in),
                               line_sizes_a);
   ACE_ASSERT (result >= 0);

@@ -241,9 +241,10 @@ if (GTK_SUPPORT AND OPENGL_FOUND)
  set (GTKGLAREA_DEFAULT OFF)
 # *IMPORTANT NOTE*: to use gtkglarea on gtk2, check out the 'gtkglarea-2' branch
 #                   of the project (instead of 'master')
- set (GTKGLAREA_SUPPORT ${GTKGLAREA_DEFAULT} CACHE BOOL "GtkGLArea support")
- add_definitions (-DGTKGLAREA_SUPPORT)
- option (GTKGLAREA_SUPPORT "enable GtkGLArea support" ON)
+ option (GTKGLAREA_SUPPORT "enable GtkGLArea support" ${GTKGLAREA_DEFAULT})
+ if (GTKGLAREA_SUPPORT)
+  add_definitions (-DGTKGLAREA_SUPPORT)
+ endif (GTKGLAREA_SUPPORT)
 
  set (GTKGL_SUPPORT ON CACHE BOOL "GTK GL support")
  add_definitions (-DGTKGL_SUPPORT)

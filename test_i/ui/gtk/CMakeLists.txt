@@ -76,8 +76,12 @@ add_executable (${EXECUTABLE}
                 ${gtk_ui_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
-target_link_libraries (${EXECUTABLE} X11)
-target_link_libraries (${EXECUTABLE} GL)
+if (UNIX)
+ target_link_libraries (${EXECUTABLE} X11)
+ target_link_libraries (${EXECUTABLE} GL)
+elseif (WIN32)
+ target_link_libraries (${EXECUTABLE} OpenGL32)
+endif (UNIX)
 target_link_libraries (${EXECUTABLE} ${GTK_LIBRARIES})
 target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
 

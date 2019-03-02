@@ -1425,13 +1425,8 @@ key_cb (GtkWidget* widget_in,
           !is_active_b)
         break; // <-- not in fullscreen mode, nothing to do
 
-#if GTK_CHECK_VERSION(3,0,0)
-      gtk_toggle_action_set_active (toggle_action_p,
-                                    !is_active_b);
-#elif GTK_CHECK_VERSION(2,0,0)
       gtk_toggle_button_set_active (toggle_button_p,
                                     !is_active_b);
-#endif // GTK_CHECK_VERSION
 
       break;
     }

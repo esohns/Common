@@ -26,6 +26,7 @@
 #include <string>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+#define __CGUID_H__ // *NOTE*: avoid compilation issue
 #include <d3d9.h>
 #include <d3dx9tex.h>
 #endif // ACE_WIN32 || ACE_WIN64

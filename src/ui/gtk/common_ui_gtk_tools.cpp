@@ -233,11 +233,14 @@ Common_UI_GTK_Tools::initialize (int argc_in,
     return false;
   } // end IF
 
+#if GTK_CHECK_VERSION(3,0,0)
+#else
   /* gdk_rgb_init() is a function which I can only guess sets up the
    * true colour colour map. It returns void so we can't check its
    * return value.
    */
   gdk_rgb_init ();
+#endif // GTK_CHECK_VERSION(2,0,0)
 
   Common_UI_GTK_Tools::GTKInitialized = true;
 

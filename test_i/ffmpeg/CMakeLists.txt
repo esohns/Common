@@ -1,21 +1,6 @@
 find_package (Threads REQUIRED)
 
 if (UNIX)
-# find_library (SWSCALE_LIBRARY libswscale.so.5
-#               DOC "searching for libswscale")
-# if (NOT SWSCALE_LIBRARY)
-#  message (FATAL_ERROR "could not find libswscale, aborting")
-# endif (NOT SWSCALE_LIBRARY)
-# find_library (AVFORMAT_LIBRARY libavformat.so.58
-#               DOC "searching for libavformat")
-# if (NOT AVFORMAT_LIBRARY)
-#  message (FATAL_ERROR "could not find libavformat, aborting")
-# endif (NOT AVFORMAT_LIBRARY)
-# find_library (AVCODEC_LIBRARY libavcodec.so.58
-#               DOC "searching for libavcodec")
-# if (NOT AVCODEC_LIBRARY)
-#  message (FATAL_ERROR "could not find libavcodec, aborting")
-# endif (NOT AVCODEC_LIBRARY)
  pkg_check_modules (PKG_FFMPEG REQUIRED libavcodec libavformat libavutil)
 endif (UNIX)
 
@@ -88,7 +73,12 @@ endif ()
 if (CMAKE_THREAD_LIBS_INIT)
  target_link_libraries (${EXECUTABLE} "${CMAKE_THREAD_LIBS_INIT}")
 endif ()
-target_link_libraries (${EXECUTABLE} ${PKG_FFMPEG_LIBRARIES})
+if (UNIX)
+ target_link_libraries (${EXECUTABLE} ${PKG_FFMPEG_LIBRARIES})
+elseif (WIN32)
+ target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/ffmpeg/libavcodec/libavcodec.dll.a)
+endif ()
+
 target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
 
 target_link_libraries (${EXECUTABLE} Common)
@@ -124,4 +114,3 @@ set_tests_properties (${EXECUTABLE}_test
                       PROPERTIES
                       ENVIRONMENT "PATH=D:\\projects\\ATCD\\ACE\\lib;D:\\projects\\gtk\\bin;D:\\projects\\libglade\\bin;D:\\projects\\libxml2-2.9.1\\.libs;G:\\software\\Development\\dll;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\ui\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\modules\\dev\\Debug;${PROJECT_SOURCE_DIR}\\..\\libACENetwork\\cmake\\src\\Debug;%PATH%")
 #PATH=%PATH%;$(ProjectDir)..\..\..\..\ATCD\ACE\lib;$(ProjectDir)..\..\..\..\gtk3\bin;$(ProjectDir)..\..\..\..\libav-11.7\libavcodec;$(ProjectDir)..\..\..\..\libav-11.7\libavresample;$(ProjectDir)..\..\..\..\libav-11.7\libavutil;$(ProjectDir)..\..\..\..\libCommon\cmake\src\Debug;$(ProjectDir)..\..\..\..\libCommon\cmake\src\err\Debug;$(ProjectDir)..\..\..\..\libCommon\cmake\src\ui\Debug;$(ProjectDir)..\..\src\Debug;$(ProjectDir)..\..\src\modules\dev\Debug;$(ProjectDir)..\..\src\modules\vis\Debug
-
