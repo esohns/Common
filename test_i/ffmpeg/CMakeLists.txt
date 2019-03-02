@@ -77,6 +77,8 @@ if (UNIX)
  target_link_libraries (${EXECUTABLE} ${PKG_FFMPEG_LIBRARIES})
 elseif (WIN32)
  target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/ffmpeg/libavcodec/libavcodec.dll.a)
+ target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/ffmpeg/libavformat/libavformat.dll.a)
+ target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/ffmpeg/libavutil/libavutil.dll.a)
 endif ()
 
 target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})

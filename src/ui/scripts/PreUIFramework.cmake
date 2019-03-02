@@ -173,7 +173,7 @@ elseif (WIN32)
   set (GTK3_SUPPORT ON CACHE BOOL "GTK3 support")
   add_definitions (-DGTK3_SUPPORT)
   set (GTK3_INCLUDE_DIRS "$ENV{GTK3DIR}/include/atk-1.0;$ENV{GTK3DIR}/include/gdk-pixbuf-2.0;$ENV{GTK3DIR}/include/cairo;$ENV{GTK3DIR}/include/pango-1.0;$ENV{GTK3DIR}/lib/glib-2.0/include;$ENV{GTK3DIR}/include/glib-2.0;$ENV{GTK3DIR}/include/gtk-3.0")
-  set (GTK3_LIBRARIES "$ENV{GTK3DIR}/lib/gio-2.0.lib;$ENV{GTK3DIR}/lib/glib-2.0.lib;$ENV{GTK3DIR}/lib/gobject-2.0.lib;$ENV{GTK3DIR}/lib/gthread-2.0.lib;$ENV{GTK3DIR}/lib/gdk_pixbuf-2.0.lib;$ENV{GTK3DIR}/lib/gdk-win32-3.0.lib;$ENV{GTK3DIR}/lib/gtk-win32-3.0.lib;$ENV{GTK3DIR}/lib/pango-1.0.lib")
+  set (GTK3_LIBRARIES "$ENV{GTK3DIR}/lib/gio-2.0.lib;$ENV{GTK3DIR}/lib/glib-2.0.lib;$ENV{GTK3DIR}/lib/gobject-2.0.lib;$ENV{GTK3DIR}/lib/gthread-2.0.lib;$ENV{GTK3DIR}/lib/gdk_pixbuf-2.0.lib;$ENV{GTK3DIR}/lib/gdk-win32-3.0.lib;$ENV{GTK3DIR}/lib/gtk-win32-3.0.lib;$ENV{GTK3DIR}/lib/pango-1.0.lib;$ENV{GTK3DIR}/lib/cairo.lib")
 
   message (STATUS "found Gtk version 3")
  else ()
