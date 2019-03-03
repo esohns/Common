@@ -284,7 +284,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #else
   bool leave_gdk_threads = false;
 #endif // GTK_CHECK_VERSION(3,6,0)
-#if defined (GTKGL_SUPPORT)
+#if defined (GTKGL_SUPPORT) && defined (GTKGL_USE)
   Common_UI_GTK_BuildersIterator_t iterator;
   GtkWidget* widget_p = NULL;
   GError* error_p = NULL;
@@ -293,6 +293,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   GdkGLContext* context_p = NULL;
 #else /* GTK_CHECK_VERSION(3,16,0) */
 #if defined (GTKGLAREA_SUPPORT)
+  GglaContext* context_p = NULL;
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION(3,16,0)
 #elif GTK_CHECK_VERSION(2,0,0)
@@ -339,7 +340,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #if defined (_DEBUG)
   Common_UI_GTK_GLContextsIterator_t iterator_2;
 #endif // _DEBUG
-#endif // GTKGL_SUPPORT
+#endif // GTKGL_SUPPORT && GTKGL_USE
 
   // step1: initialize GTK
   if (unlikely (!GTKIsInitialized_))
@@ -399,7 +400,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                 ACE_TEXT (error_p->message)));
     g_error_free (error_p); error_p = NULL;
     result = -1;
-    goto clean;
+    goto done;
   } // end IF
   if (unlikely (!gdk_gl_context_realize (context_p,
                                          &error_p)))
@@ -409,15 +410,15 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                 context_p,
                 ACE_TEXT (error_p->message)));
     g_error_free (error_p); error_p = NULL;
+    g_object_unref (context_p); context_p = NULL;
     result = -1;
-    goto clean;
+    goto done;
   } // end IF
   state_.OpenGLContexts.insert (std::make_pair (static_cast<GtkGLArea*> (NULL),
                                                 context_p));
   context_p = NULL;
 #else
 #if defined (GTKGLAREA_SUPPORT)
-  GglaContext* context_p = NULL;
   /* Attribute list for gtkglarea widget. Specifies a list of Boolean attributes
      and enum/integer attribute/value pairs. The last attribute must be
      GGLA_NONE. See glXChooseVisual manpage for further explanation. */
@@ -478,35 +479,9 @@ clean_2:
     g_object_unref (visual_p); visual_p = NULL;
   } // end IF
 #else /* GTKGLAREA_SUPPORT */
-  // sanity check(s)
-  ACE_ASSERT (!state_.openGLContext);
-  ACE_ASSERT (state_.openGLWindow);
-
-  state_.openGLContext = gdk_window_create_gl_context (state_.openGLWindow,
-                                                       &error_p);
-  if (unlikely (!state_.openGLContext))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to gdk_window_create_gl_context(0x%@): \"%s\", aborting\n"),
-                state_.openGLWindow,
-                ACE_TEXT (error_p->message)));
-    g_error_free (error_p); error_p = NULL;
-    result = -1;
-    goto done;
-  } // end IF
-
-  error_p = NULL;
-  if (unlikely (gdk_gl_context_realize (state_.openGLContext,
-                                        &error_p)))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to gdk_gl_context_realize(0x%@): \"%s\", aborting\n"),
-                state_.openGLContext,
-                ACE_TEXT (error_p->message)));
-    g_error_free (error_p); error_p = NULL;
-    result = -1;
-    goto done;
-  } // end IF
+  ACE_ASSERT (false); // *TODO*
+  ACE_NOTSUP_RETURN (false);
+  ACE_NOTREACHED (return false;)
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION(3,16,0) */
 #elif GTK_CHECK_VERSION(2,0,0)
@@ -539,7 +514,7 @@ clean_2:
   ACE_ASSERT (!state_.openGLContext);
 
   state_.openGLContext = gdk_window_create_gl_context (state_.openGLWindow,
-                                                        &error_p);
+                                                       &error_p);
   if (unlikely (!state_.openGLContext))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -564,11 +539,6 @@ clean_2:
     goto done;
   } // end IF
 #endif /* GTK_CHECK_VERSION(3,0,0) */
-clean:
-  if (context_p)
-  {
-    g_object_unref (context_p); context_p = NULL;
-  } // end IF
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("initializing OpenGL...DONE\n")));
@@ -580,7 +550,15 @@ clean:
   iterator_2 = state_.OpenGLContexts.find (NULL);
   ACE_ASSERT (iterator_2 != state_.OpenGLContexts.end ());
 #if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(3,16,0)
   Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator_2).second);
+#else
+#if defined (GTKGLAREA_SUPPORT)
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator_2).second);
+#else
+  Common_UI_GTK_Tools::dumpGtkOpenGLInfo (NULL);
+#endif // GTKGLAREA_SUPPORT
+#endif // GTK_CHECK_VERSION(3,0,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
   Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator_2).second);

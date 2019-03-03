@@ -21,7 +21,7 @@
 #ifndef COMMON_GL_DEFINES_H
 #define COMMON_GL_DEFINES_H
 
-// *** ASSIMP ***
+// *** assimp ***
 #define COMMON_GL_ASSIMP_LOG_FILENAME_STRING                 "assimp.log"
 #define COMMON_GL_ASSIMP_MIN(x,y)                            (x<y?x:y)
 #define COMMON_GL_ASSIMP_MAX(x,y)                            (y>x?y:x)
