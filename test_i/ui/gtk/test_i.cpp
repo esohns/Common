@@ -28,6 +28,7 @@
 #include "common_ui_gtk_manager_common.h"
 
 #include "test_i_gtk_callbacks.h"
+#include "test_i_gtk_defines.h"
 
 void
 do_print_usage (const std::string& programName_in)
@@ -45,15 +46,17 @@ do_print_usage (const std::string& programName_in)
             << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("currently available options:")
             << std::endl;
-  std::cout << ACE_TEXT_ALWAYS_CHAR ("-t          : trace information [")
-            << false
-            << ACE_TEXT_ALWAYS_CHAR ("]")
-            << std::endl;
   std::string ui_definition_file_path = path_root;
   ui_definition_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  ui_definition_file_path += ACE_TEXT_ALWAYS_CHAR ("gtk_ui.gtk2");
-  std::cout << ACE_TEXT_ALWAYS_CHAR ("-u [PATH]   : ui definition file [")
+  ui_definition_file_path += COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY;
+  ui_definition_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
+  ui_definition_file_path += ACE_TEXT_ALWAYS_CHAR (TEST_U_UI_DEFINITION_FILE);
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-g [FILEPATH]: ui definition file [")
             << ui_definition_file_path
+            << ACE_TEXT_ALWAYS_CHAR ("]")
+            << std::endl;
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-t           : trace information [")
+            << false
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
 }
@@ -71,11 +74,13 @@ do_process_arguments (int argc_in,
   traceInformation_out = false;
   UIDefinitionFilePath_out = path_root;
   UIDefinitionFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  UIDefinitionFilePath_out += ACE_TEXT_ALWAYS_CHAR ("gtk_ui.gtk2");
+  UIDefinitionFilePath_out += COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY;
+  UIDefinitionFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
+  UIDefinitionFilePath_out += ACE_TEXT_ALWAYS_CHAR (TEST_U_UI_DEFINITION_FILE);
 
   ACE_Get_Opt argument_parser (argc_in,
                                argv_in,
-                               ACE_TEXT ("tu:"),
+                               ACE_TEXT ("g:t"),
                                1,                         // skip command name
                                1,                         // report parsing errors
                                ACE_Get_Opt::PERMUTE_ARGS, // ordering
@@ -87,15 +92,15 @@ do_process_arguments (int argc_in,
   {
     switch (option)
     {
-      case 't':
-      {
-        traceInformation_out = true;
-        break;
-      }
-      case 'u':
+      case 'g':
       {
         UIDefinitionFilePath_out =
           ACE_TEXT_ALWAYS_CHAR (argument_parser.opt_arg ());
+        break;
+      }
+      case 't':
+      {
+        traceInformation_out = true;
         break;
       }
       // error handling
@@ -219,7 +224,9 @@ ACE_TMAIN (int argc_in,
   bool trace_information = false;
   std::string ui_definition_file_path = path_root;
   ui_definition_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  ui_definition_file_path += ACE_TEXT_ALWAYS_CHAR ("gtk_ui.gtk2");
+  ui_definition_file_path += COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY;
+  ui_definition_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
+  ui_definition_file_path += ACE_TEXT_ALWAYS_CHAR (TEST_U_UI_DEFINITION_FILE);
 
   // step1b: parse/process/validate configuration
   if (!do_process_arguments (argc_in,

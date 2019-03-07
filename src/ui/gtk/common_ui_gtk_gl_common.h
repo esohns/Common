@@ -58,11 +58,11 @@ typedef std::map<GglaArea*, GglaContext*> Common_UI_GTK_GLContexts_t;
 typedef std::map<GdkWindow*, gpointer> Common_UI_GTK_GLContexts_t;
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,24,1) */
-#else
+#elif GTK_CHECK_VERSION(2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
-typedef std::map<GtkGLArea*, GdkGLContext*> Common_UI_GTK_GLContexts_t;
+typedef std::map<GglaArea*, GglaContext*> Common_UI_GTK_GLContexts_t;
 #else
-typedef std::map<GdkWindow*, GdkGLConfig*> Common_UI_GTK_GLContexts_t;
+typedef std::map<GdkWindow*, gpointer> Common_UI_GTK_GLContexts_t;
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,0,0) */
 typedef Common_UI_GTK_GLContexts_t::iterator Common_UI_GTK_GLContextsIterator_t;

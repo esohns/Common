@@ -27,9 +27,16 @@
 #include <string>
 
 // System Library Header Files
+
+// Library Header Files
+#include "wx/wx.h"
+
+#define ACE_HAS_SSIZE_T
 #include "ace/config-lite.h"
+#undef ACE_LACKS_MODE_T
 #include "ace/Global_Macros.h"
 #include "ace/Log_Msg.h"
+#include "ace/OS.h"
 
 #if defined (VALGRIND_SUPPORT)
 #include "valgrind/valgrind.h"

@@ -8,6 +8,8 @@
 
 if (UNIX)
 # add_definitions (-DwxUSE_FONTMAP=0)
+elseif (WIN32)
+#add_definitions (-DHAVE_SSIZE_T)
 endif (UNIX)
 
 ############## includes ###############
@@ -76,9 +78,9 @@ else ()
                  EXCLUDE_FROM_ALL
                  ${wxwidgets_EXE_3_SRCS})
 endif (WIN32)
-set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_u")
-set_property (TARGET ${EXECUTABLE_2} PROPERTY FOLDER "test_u")
-set_property (TARGET ${EXECUTABLE_3} PROPERTY FOLDER "test_u")
+set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
+set_property (TARGET ${EXECUTABLE_2} PROPERTY FOLDER "test_i")
+set_property (TARGET ${EXECUTABLE_3} PROPERTY FOLDER "test_i")
 
 target_link_libraries (${EXECUTABLE} ${wxWidgets_LIBRARIES})
 target_link_libraries (${EXECUTABLE_2} ${wxWidgets_LIBRARIES})
@@ -91,31 +93,32 @@ target_link_libraries (${EXECUTABLE_3} ${ACE_LIBRARY})
 set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
 cotire (${EXECUTABLE})
 set_target_properties (${EXECUTABLE_2} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${EXECUTABLE_2})
+#cotire (${EXECUTABLE_2})
 set_target_properties (${EXECUTABLE_3} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${EXECUTABLE_3})
+#cotire (${EXECUTABLE_3})
 
 ############### installation #############
 install (TARGETS ${EXECUTABLE}
          EXPORT ${PROJECT_NAME}Targets
-         RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_u)
+         RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 install (TARGETS ${EXECUTABLE_2}
          EXPORT ${PROJECT_NAME}Targets
-         RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_u)
+         RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 install (TARGETS ${EXECUTABLE_3}
          EXPORT ${PROJECT_NAME}Targets
-         RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_u)
+         RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 # install (FILES etc/${EXECUTABLE}.glade
 #          DESTINATION "${INSTALL_SHARE_DIR}/${PROJECT_NAME}/${EXECUTABLE}" COMPONENT config)
 
 ################ launchers ###############
+file (TO_CMAKE_PATH "${wxWidgets_LIB_DIR}" wxWidgets_LIB_DIR)
 create_target_launcher (${EXECUTABLE}
                         ARGS ""
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
                                              ${wxWidgets_LIB_DIR}
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/ui/wxwidgets
+                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/wxwidgets
                         ENVIRONMENT foo=bar)
 
 create_target_launcher (${EXECUTABLE_2}
@@ -124,7 +127,7 @@ create_target_launcher (${EXECUTABLE_2}
                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
                                              ${wxWidgets_LIB_DIR}
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/ui/wxwidgets
+                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/wxwidgets
                         ENVIRONMENT foo=bar)
 
 create_target_launcher (${EXECUTABLE_3}
@@ -133,7 +136,7 @@ create_target_launcher (${EXECUTABLE_3}
                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
                                              ${wxWidgets_LIB_DIR}
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/ui/wxwidgets
+                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/wxwidgets
                         ENVIRONMENT foo=bar)
 
 ################ tests ###################

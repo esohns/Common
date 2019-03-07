@@ -147,8 +147,8 @@ if (UNIX)
 elseif (WIN32)
 # *TODO*: repair win32 module support
  find_library (GTK2_LIBRARY gtk-win32-2.0.lib
-               HINTS $ENV{GTKDIR}/lib
-               PATHS ENV GTKDIR
+               HINTS $ENV{LIB_ROOT}/gtk2
+               PATHS $ENV{LIB_ROOT}/gtk2
                PATH_SUFFIXES lib
                DOC "searching for gtk-win32-2.0.lib"
                NO_DEFAULT_PATH)
@@ -164,8 +164,8 @@ elseif (WIN32)
  endif ()
 
  find_library (GTK3_LIBRARY gtk-win32-3.0.lib
-               HINTS $ENV{GTK3DIR}/lib
-               PATHS ENV GTK3DIR
+               HINTS $ENV{LIB_ROOT}/gtk3
+               PATHS $ENV{LIB_ROOT}/gtk3
                PATH_SUFFIXES lib
                DOC "searching for gtk-win32-3.0.lib"
                NO_DEFAULT_PATH)
@@ -200,7 +200,7 @@ elseif (WIN32)
 #  option (LIBGLADE_SUPPORT "enable libglade support" OFF)
 #  set (LIBGLADE_USE OFF CACHE BOOL "use libglade")
 # endif (NOT GTK2_FOUND)
-endif ()
+endif () # UNIX || WIN32
 
 # gtk opengl support
 if (GTK_SUPPORT AND OPENGL_FOUND)
@@ -264,11 +264,13 @@ if (UNIX)
 # set (wxWidgets_CONFIG_OPTIONS --toolkit=base --prefix=/usr)
 elseif (WIN32)
 # message (STATUS "wxWidgets_ROOT_DIR: ${wxWidgets_ROOT_DIR}")
- set (wxWidgets_ROOT_DIR "D:/projects/wxWidgets_win32/wxWidgets-3.0.0")
- set (wxWidgets_LIB_DIR "${wxWidgets_ROOT_DIR}/lib/vc100_dll")
+ set (wxWidgets_ROOT_DIR "$ENV{LIB_ROOT}/wxwidgets")
+ set (wxWidgets_LIB_DIR "${wxWidgets_ROOT_DIR}/lib/vc120_dll")
  set (wxWidgets_CONFIGURATION mswu)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
-  set (wxWidgets_CONFIGURATION ${wxWidgets_CONFIGURATION}d)
+# *WARNING*: linking against debug versions incurs dependencies to the debug
+#            vcrt libraries; these may not exist on your platform
+#  set (wxWidgets_CONFIGURATION ${wxWidgets_CONFIGURATION}d)
  endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 endif ()
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -277,6 +279,7 @@ endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 find_package (wxWidgets MODULE
               COMPONENTS aui base core adv gl net html xml xrc)
 if (wxWidgets_FOUND)
+ message (STATUS "wxWidgets found: ${wxWidgets_ROOT_DIR}")
  include (${wxWidgets_USE_FILE})
  set (WXWIDGETS_SUPPORT ON CACHE BOOL "wxWidgets support")
  add_definitions (-DWXWIDGETS_SUPPORT)

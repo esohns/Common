@@ -19,7 +19,13 @@
 ***************************************************************************/
 
 #ifndef TEST_I_GTK_DEFINES_H
-#define TEST_I_GTK__DEFINES_H
+#define TEST_I_GTK_DEFINES_H
+
+#if (GTK2_USE)
+#define TEST_U_UI_DEFINITION_FILE                      "gtk_ui.gtk2"
+#elif (GTK3_USE)
+#define TEST_U_UI_DEFINITION_FILE                      "gtk_ui.gtk3"
+#endif // GTKX_USE
 
 #define TEST_I_UI_GTK_BUTTON_ABOUT_NAME                "about"
 #define TEST_I_UI_GTK_BUTTON_QUIT_NAME                 "quit"

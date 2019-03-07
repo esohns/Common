@@ -103,13 +103,39 @@ install (TARGETS ${EXECUTABLE}
 #          DESTINATION "${INSTALL_SHARE_DIR}/${PROJECT_NAME}/${EXECUTABLE}" COMPONENT config)
 
 ################ launchers ###############
+
+set (ui_definition_file "")
+if (GTK_USE)
+ if (GTK3_USE)
+  set (ui_definition_file ${EXECUTABLE}.gtk3)
+ elseif (GTK2_USE)
+  set (ui_definition_file ${EXECUTABLE}.gtk2)
+ endif ()
+elseif (WXWIDGETS_USE)
+endif ()
+
+if (UNIX)
+ if (GTK_USE)
+  set (ARGS "-g./etc/${ui_definition_file} ${ARGS}")
+ elseif (WXWIDGETS_USE)
+  set (ENVIRONMENT "DISPLAY=:0")
+ endif ()
+elseif (WIN32)
+ if (GTK_USE)
+  set (ARGS "-g.\\\\etc\\\\${ui_definition_file} ${ARGS}")
+ elseif (WXWIDGETS_USE)
+ endif ()
+endif ()
+
+file (TO_CMAKE_PATH $ENV{LIB_ROOT}/gtk3/bin GTK_LIB_PATH)
 create_target_launcher (${EXECUTABLE}
-                        ARGS "12 /bin/bash"
+                        ARGS ${ARGS}
 #                         FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
+                        RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
+                                             ${PROJECT_SOURCE_DIR}/../ATCD/ACE/lib
                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/capabilities
-                        ENVIRONMENT foo=bar)
+                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
+                        ENVIRONMENT ${ENVIRONMENT})
 
 ################ tests ###################
 add_test (NAME ${EXECUTABLE}_test
