@@ -25,7 +25,7 @@ class Common_IRegister
 {
  public:
   // *IMPORTANT NOTE*: 'register' is a keyword an cannot be used as identifier
-  virtual bool registerc () = 0;
+  virtual bool register_ () = 0;
   virtual void deregister () = 0;
 };
 
@@ -34,7 +34,7 @@ class Common_IRegister_T
 {
  public:
   // *IMPORTANT NOTE*: 'register' is a keyword an cannot be used as identifier
-  virtual bool registerc (InterfaceType*) = 0;
+  virtual bool register_ (InterfaceType*) = 0;
   virtual void deregister (InterfaceType*) = 0;
 };
 
