@@ -174,6 +174,10 @@ Common_Tools::initialize (bool initializeRandomNumberGenerator_in)
                   ACE_TEXT ("failed to initialize random seed: \"%s\", returning\n")));
       return;
     } // end IF
+#if defined (_DEBUG)
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("initializing random seed...DONE\n")));
+#endif // _DEBUG
 #endif // ACE_WIN32 || ACE_WIN64
   } // end IF
 
