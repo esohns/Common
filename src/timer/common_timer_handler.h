@@ -39,9 +39,11 @@ class Common_TimerHandler
   typedef ACE_Handler inherited2;
 
  public:
+  // *NOTE*: if there is no default ctor, this will not compile
+  inline Common_TimerHandler () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
   // *NOTE*: the second argument applies to reactor-based dispatch only
-  Common_TimerHandler (Common_ITimerHandler* = NULL, // effective dispatch interface (NULL: 'this')
-                       bool = false);                // invoke only once ?
+  Common_TimerHandler (Common_ITimerHandler*, // effective dispatch interface (NULL: 'this')
+                       bool);                 // invoke only once ?
   inline virtual ~Common_TimerHandler () {}
 
   // implement Common_ITimerHandler
@@ -65,7 +67,6 @@ class Common_TimerHandler
   bool                  isOneShot_;
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler ())
   ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler (const Common_TimerHandler&))
   ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler& operator= (const Common_TimerHandler&))
 

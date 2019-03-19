@@ -24,13 +24,13 @@
 wxDialog_main::wxDialog_main(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style):
   wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
 {
-  // begin wxGlade: wxDialog_main::wxDialog_main
-  button_1 = new wxButton(this, wxID_NEW, wxEmptyString);
-  button_2 = new wxButton(this, wxID_COPY, wxEmptyString);
-  button_3 = new wxButton(this, wxID_CLEAR, wxEmptyString);
+//  // begin wxGlade: wxDialog_main::wxDialog_main
+//  button_1 = new wxButton(this, wxID_NEW, wxEmptyString);
+//  button_2 = new wxButton(this, wxID_COPY, wxEmptyString);
+//  button_3 = new wxButton(this, wxID_CLEAR, wxEmptyString);
 
-  set_properties();
-  do_layout();
+//  set_properties();
+//  do_layout();
   // end wxGlade
 }
 
@@ -73,6 +73,9 @@ void wxDialog_main::button_1_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDi
   event.Skip();
   // notify the user that he hasn't implemented the event handler yet
 //  wxLogDebug(wxT("Event handler (wxDialog_main::button_1_clicked_cb) not implemented yet"));
+
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("button 1, clicked\n")));
 }
 
 void wxDialog_main::button_2_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
@@ -80,6 +83,9 @@ void wxDialog_main::button_2_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDi
   event.Skip();
   // notify the user that he hasn't implemented the event handler yet
 //  wxLogDebug(wxT("Event handler (wxDialog_main::button_2_clicked_cb) not implemented yet"));
+
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("button 2, clicked\n")));
 }
 
 void wxDialog_main::button_3_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
@@ -87,6 +93,9 @@ void wxDialog_main::button_3_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDi
   event.Skip();
   // notify the user that he hasn't implemented the event handler yet
 //  wxLogDebug(wxT("Event handler (wxDialog_main::button_3_clicked_cb) not implemented yet"));
+
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("button 3, clicked\n")));
 }
 
 
@@ -129,8 +138,6 @@ bool Test_U_wxWidgets_Application::OnInit()
 {
   wxInitAllImageHandlers ();
 
-  wxDialog_main* dialog_main = new wxDialog_main(NULL, wxID_ANY, wxEmptyString);
-
   if (!wxAppConsole::OnInit ())
   {
     ACE_DEBUG ((LM_ERROR,
@@ -172,6 +179,7 @@ bool Test_U_wxWidgets_Application::OnInit()
     return false;
   } // end IF
 
+  wxDialog_main* dialog_main = new wxDialog_main(NULL, wxID_ANY, wxEmptyString);
   if (!resource_p->LoadDialog (dialog_main,
                                NULL,
                                wxString (ACE_TEXT_ALWAYS_WCHAR ("dialog_main"))))

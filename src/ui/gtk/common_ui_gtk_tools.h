@@ -103,12 +103,12 @@ class Common_UI_GTK_Tools
   static void dumpGtkOpenGLInfo (GdkWindow*); // GtkGLArea window handle
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION (3,16,0)
-#else
+#elif GTK_CHECK_VERSION (2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
-  static void dumpGtkOpenGLInfo (GglaContext*); // OpenGL context handle
+  static void dumpGtkOpenGLInfo (GdkGLContext*); // OpenGL context handle
+#endif // GTKGLAREA_SUPPORT
 #else
   static void dumpGtkOpenGLInfo ();
-#endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION (3,0,0)
 #endif // GTKGL_SUPPORT
 #endif // _DEBUG

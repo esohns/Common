@@ -104,12 +104,10 @@ struct Common_SignalHandlerConfiguration
 {
   Common_SignalHandlerConfiguration ()
    : dispatchState (NULL)
-   , hasUI (false)
    , lock ()
   {}
 
   struct Common_EventDispatchState* dispatchState;
-  bool                              hasUI;
   ACE_SYNCH_RECURSIVE_MUTEX         lock;
 };
 

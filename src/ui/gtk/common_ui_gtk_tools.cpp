@@ -551,12 +551,12 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GglaContext* context_in)
 Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkWindow* window_in)
 #endif /* GTKGLAREA_SUPPORT */
 #endif // GTK_CHECK_VERSION (3,16,0)
-#else
+#elif GTK_CHECK_VERSION (2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
-Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GglaContext* context_in)
+Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkGLContext* context_in)
+#endif /* GTKGLAREA_SUPPORT */
 #else
 Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
-#endif /* GTKGLAREA_SUPPORT */
 #endif // GTK_CHECK_VERSION (3,0,0)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::dumpGtkOpenGLInfo"));
@@ -613,13 +613,13 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
   ACE_ASSERT (window_p);
 #endif /* GTKGLAREA_SUPPORT */
 #endif // GTK_CHECK_VERSION(3,16,0)
-#else
+#elif GTK_CHECK_VERSION (2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
   ACE_ASSERT (context_in);
-#else
 #endif // GTKGLAREA_SUPPORT
+#else
 #endif // GTK_CHECK_VERSION(3,0,0)
-  ACE_ASSERT (window_p);
+//  ACE_ASSERT (window_p);
 
 #if GTK_CHECK_VERSION(3,0,0)
 #if GTK_CHECK_VERSION(3,16,0)
@@ -686,15 +686,15 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
 #endif // GTK_CHECK_VERSION(3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
-  gint result = ggla_query ();
+  gint result = gdk_gl_query ();
   if (!result)
   {
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("OpenGL not supported\n")));
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("OpenGL not supported, returning\n")));
     return;
   } // end IF
 
-  gchar* info_string_p = ggla_get_info ();
+  gchar* info_string_p = gdk_gl_get_info ();
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("OpenGL information: \"%s\"\n"),
               ACE_TEXT (info_string_p)));
@@ -761,7 +761,7 @@ continue_:
   if (release_window)
     g_object_unref (window_p);
 #else
-#endif
+#endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
 #else

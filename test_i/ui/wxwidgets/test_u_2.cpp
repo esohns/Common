@@ -72,6 +72,8 @@ void wxDialog_main::button_1_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDi
   event.Skip();
   // notify the user that he hasn't implemented the event handler yet
 //  wxLogDebug(wxT("Event handler (wxDialog_main::button_1_clicked_cb) not implemented yet"));
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("button 1, clicked\n")));
 }
 
 void wxDialog_main::button_2_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
@@ -79,6 +81,8 @@ void wxDialog_main::button_2_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDi
   event.Skip();
   // notify the user that he hasn't implemented the event handler yet
 //  wxLogDebug(wxT("Event handler (wxDialog_main::button_2_clicked_cb) not implemented yet"));
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("button 2, clicked\n")));
 }
 
 void wxDialog_main::button_3_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
@@ -86,6 +90,8 @@ void wxDialog_main::button_3_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDi
   event.Skip();
   // notify the user that he hasn't implemented the event handler yet
 //  wxLogDebug(wxT("Event handler (wxDialog_main::button_3_clicked_cb) not implemented yet"));
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("button 3, clicked\n")));
 }
 
 
@@ -117,8 +123,6 @@ bool Test_U_wxWidgets_Application::OnInit()
 {
   wxInitAllImageHandlers ();
 
-  wxDialog_main* dialog_main = new wxDialog_main(NULL, wxID_ANY, wxEmptyString);
-
   if (!wxAppConsole::OnInit ())
   {
     ACE_DEBUG ((LM_ERROR,
@@ -126,54 +130,55 @@ bool Test_U_wxWidgets_Application::OnInit()
     return false;
   } // end IF
 
-  // step0: initialize XRC
-  wxXmlResource* resource_p = wxXmlResource::Get ();
-  if (!resource_p)
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to wxXmlResource::Get(): \"%m\", aborting\n")));
-    return false;
-  } // end IF
-  resource_p->InitAllHandlers ();
+//  // step0: initialize XRC
+//  wxXmlResource* resource_p = wxXmlResource::Get ();
+//  if (!resource_p)
+//  {
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to wxXmlResource::Get(): \"%m\", aborting\n")));
+//    return false;
+//  } // end IF
+//  resource_p->InitAllHandlers ();
 
-  // load widget tree
-//  wxObject* object_p = NULL;
-#if wxCHECK_VERSION(3,0,0)
-  wxFileName file_name;
-  file_name.Assign (wxString (ACE_TEXT_ALWAYS_WCHAR ("test_u_2.xrc")),
-                    wxPATH_NATIVE);
-  if (!resource_p->LoadFile (file_name))
-#elif wxCHECK_VERSION(2,0,0)
-  wxString file_name (ACE_TEXT_ALWAYS_WCHAR ("test_u_2.xrc"));
-  if (unlikely (!resource_p->Load (file_name)))
-#endif // wxCHECK_VERSION
-  {
-#if wxCHECK_VERSION(3,0,0)
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to wxXmlResource::LoadFile(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT ("test_u_2.xrc")));
-#elif wxCHECK_VERSION(2,0,0)
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to wxXmlResource::Load(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT ("test_u_2.xrc")));
-#endif // wxCHECK_VERSION
-    return false;
-  } // end IF
+//  // load widget tree
+////  wxObject* object_p = NULL;
+//#if wxCHECK_VERSION(3,0,0)
+//  wxFileName file_name;
+//  file_name.Assign (wxString (ACE_TEXT_ALWAYS_WCHAR ("test_u_2.xrc")),
+//                    wxPATH_NATIVE);
+//  if (!resource_p->LoadFile (file_name))
+//#elif wxCHECK_VERSION(2,0,0)
+//  wxString file_name (ACE_TEXT_ALWAYS_WCHAR ("test_u_2.xrc"));
+//  if (unlikely (!resource_p->Load (file_name)))
+//#endif // wxCHECK_VERSION
+//  {
+//#if wxCHECK_VERSION(3,0,0)
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to wxXmlResource::LoadFile(\"%s\"): \"%m\", aborting\n"),
+//                ACE_TEXT ("test_u_2.xrc")));
+//#elif wxCHECK_VERSION(2,0,0)
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to wxXmlResource::Load(\"%s\"): \"%m\", aborting\n"),
+//                ACE_TEXT ("test_u_2.xrc")));
+//#endif // wxCHECK_VERSION
+//    return false;
+//  } // end IF
 
-  if (!resource_p->LoadDialog (dialog_main,
-                               NULL,
-                               wxString (ACE_TEXT_ALWAYS_WCHAR ("dialog_main"))))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to wxXmlResource::LoadDialog(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT ("dialog_main")));
-    return false;
-  } // end IF
-#if defined (_DEBUG)
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("loaded widget tree \"%s\"\n"),
-              ACE_TEXT ("test_u_2.xrc")));
-#endif // _DEBUG
+  wxDialog_main* dialog_main = new wxDialog_main(NULL, wxID_ANY, wxEmptyString);
+//  if (!resource_p->LoadDialog (dialog_main,
+//                               NULL,
+//                               wxString (ACE_TEXT_ALWAYS_WCHAR ("dialog_main"))))
+//  {
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to wxXmlResource::LoadDialog(\"%s\"): \"%m\", aborting\n"),
+//                ACE_TEXT ("dialog_main")));
+//    return false;
+//  } // end IF
+//#if defined (_DEBUG)
+//  ACE_DEBUG ((LM_DEBUG,
+//              ACE_TEXT ("loaded widget tree \"%s\"\n"),
+//              ACE_TEXT ("test_u_2.xrc")));
+//#endif // _DEBUG
 
   SetTopWindow (dialog_main);
   dialog_main->Show (true);

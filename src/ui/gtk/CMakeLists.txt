@@ -116,6 +116,7 @@ target_link_libraries (${PROJECT_NAME}UI_GTK ${GTK_LIBRARIES})
 
 if (UNIX)
  if (GTKGLAREA_SUPPORT)
+  target_link_libraries (${PROJECT_NAME}UI_GTK GL)
   target_link_libraries (${PROJECT_NAME}UI_GTK ${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtkglarea/gtkgl/.libs/libgtkgl-2.0.a)
  endif (GTKGLAREA_SUPPORT)
 elseif (WIN32)

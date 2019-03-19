@@ -59,22 +59,19 @@ if (GTK_SUPPORT AND GTK_USE)
  else ()
   message (FATAL_ERROR "invalid/unknown GTK version, aborting")
  endif ()
-
-# *NOTE*: unify include dirs and libraries; includers use GTK_INCLUDE_DIRS and GTK_LIBRARIES
- if (GTK3_USE)
-  set (GTK_INCLUDE_DIRS ${GTK3_INCLUDE_DIRS})
-  set (GTK_LIBRARIES ${GTK3_LIBRARIES})
- elseif (GTK2_USE)
-  set (GTK_INCLUDE_DIRS ${GTK2_INCLUDE_DIRS})
-  set (GTK_LIBRARIES ${GTK2_LIBRARIES})
-
-  if (OPENGL_FOUND)
-   set (GTKGLAREA_SUPPORT ON CACHE BOOL "enable GTK GL support" FORCE)
-  endif (OPENGL_FOUND)
- endif ()
-
- message (STATUS "GTK_INCLUDE_DIRS: ${GTK_INCLUDE_DIRS}")
- message (STATUS "GTK_LIBRARIES: ${GTK_LIBRARIES}")
-
 endif (GTK_SUPPORT AND GTK_USE)
 
+# *NOTE*: unify include dirs and libraries; includers use GTK_INCLUDE_DIRS and GTK_LIBRARIES
+if (GTK3_USE)
+ set (GTK_INCLUDE_DIRS ${GTK3_INCLUDE_DIRS})
+ set (GTK_LIBRARIES ${GTK3_LIBRARIES})
+elseif (GTK2_USE)
+ set (GTK_INCLUDE_DIRS ${GTK2_INCLUDE_DIRS})
+ set (GTK_LIBRARIES ${GTK2_LIBRARIES})
+
+ if (OPENGL_FOUND)
+  set (GTKGLAREA_SUPPORT ON CACHE BOOL "enable GTK GL support" FORCE)
+ endif (OPENGL_FOUND)
+endif ()
+message (STATUS "GTK_INCLUDE_DIRS: ${GTK_INCLUDE_DIRS}")
+message (STATUS "GTK_LIBRARIES: ${GTK_LIBRARIES}")

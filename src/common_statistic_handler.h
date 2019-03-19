@@ -39,6 +39,8 @@ class Common_StatisticHandler_T
   // convenient types
   typedef Common_IStatistic_T<StatisticContainerType> ISTATISTIC_T;
 
+  // *NOTE*: if there is no default ctor, this will not compile
+  inline Common_StatisticHandler_T () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
   Common_StatisticHandler_T (enum Common_StatisticActionType, // handler action
                              ISTATISTIC_T*,                   // interface handle
                              bool = false);                   // report on collect ?
@@ -48,7 +50,6 @@ class Common_StatisticHandler_T
   virtual void handle (const void*); // asynchronous completion token
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_StatisticHandler_T ())
   ACE_UNIMPLEMENTED_FUNC (Common_StatisticHandler_T (const Common_StatisticHandler_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_StatisticHandler_T& operator= (const Common_StatisticHandler_T&))
 

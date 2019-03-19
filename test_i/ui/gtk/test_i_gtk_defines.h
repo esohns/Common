@@ -25,6 +25,8 @@
 #define TEST_U_UI_DEFINITION_FILE                      "gtk_ui.gtk2"
 #elif (GTK3_USE)
 #define TEST_U_UI_DEFINITION_FILE                      "gtk_ui.gtk3"
+#else
+#define TEST_U_UI_DEFINITION_FILE                      "gtk_ui.glade"
 #endif // GTKX_USE
 
 #define TEST_I_UI_GTK_BUTTON_ABOUT_NAME                "about"

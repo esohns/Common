@@ -22,10 +22,12 @@
 #define COMMON_UI_WINDOWTYPE_CONVERTER_H
 
 #include "ace/config-lite.h"
+#if defined (GTK_SUPPORT)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "gdk/gdkwin32.h"
 #endif // ACE_WIN32 || ACE_WIN64
 #include "gtk/gtk.h"
+#endif // GTK_SUPPORT
 
 #include "ace/Global_Macros.h"
 
@@ -44,11 +46,15 @@ class Common_UI_WindowTypeConverter_T
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   inline void getWindowType (const HWND windowType_in, HWND& windowType_out) { windowType_out = windowType_in; }
+#if defined (GTK_SUPPORT)
   // *TODO*: consider static_cast<HWND> (GDK_WINDOW_HWND (window_p));
   inline void getWindowType (const GdkWindow* windowType_in, HWND& windowType_out) { ACE_ASSERT (gdk_win32_window_is_win32 (const_cast<GdkWindow*> (windowType_in))); windowType_out = gdk_win32_window_get_impl_hwnd (const_cast<GdkWindow*> (windowType_in)); }
+#endif // GTK_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
+#if defined (GTK_SUPPORT)
   // *IMPORTANT NOTE*: GdkWindow* return values need to be g_object_unref()ed !
   inline void getWindowType (const GdkWindow* windowType_in, GdkWindow*& windowType_out) { ACE_ASSERT (windowType_in); g_object_ref (windowType_in); windowType_out = windowType_in; }
+#endif // GTK_SUPPORT
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_WindowTypeConverter_T (const Common_UI_WindowTypeConverter_T&))
