@@ -45,15 +45,15 @@ class Common_UI_wxWidgets_IApplicationBase_T
 
 template <typename StateType,
           ////////////////////////////////
-          typename ConfigurationType>
+          typename CBDataType>
 class Common_UI_wxWidgets_IApplication_T
  : public Common_UI_wxWidgets_IApplicationBase_T<StateType>
- , public Common_IInitialize_T<ConfigurationType>
- , public Common_IGetR_2_T<ConfigurationType>
+ , public Common_IInitialize_T<CBDataType>
+ , public Common_IGetR_2_T<CBDataType>
 {
  public:
   // convenient types
-  typedef ConfigurationType CONFIGURATION_T;
+  typedef CBDataType CBDATA_T;
 };
 
 #endif

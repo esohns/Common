@@ -50,7 +50,7 @@ protected:
   wxButton* button_3;
   // end wxGlade
 
-  DECLARE_EVENT_TABLE();
+//  DECLARE_EVENT_TABLE();
 
 public:
   void button_1_clicked_cb(wxCommandEvent &event); // wxGlade: <event_handler>

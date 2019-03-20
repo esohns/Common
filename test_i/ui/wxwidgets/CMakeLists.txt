@@ -23,6 +23,10 @@ endif ()
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src)
 #include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/timer)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/image)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/log)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/ui)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/ui/wxwidgets)
 
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/../../..)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../..)
@@ -51,7 +55,12 @@ set (wxwidgets_EXE_3_SRCS
 #     ../test_u_common.h
 #     ../test_u_defines.h
      test_u_3.cpp
-     test_u_3.h)
+     test_u_3.h
+     test_u_3_ui.cpp
+     test_u_3_ui.h
+     test_u_3_ui.inl
+     test_u_3_ui_base.cpp
+     test_u_3_ui_base.h)
 
 #cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
 set (EXECUTABLE wxwidgets)

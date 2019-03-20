@@ -13,6 +13,7 @@
 #include "wx/xrc/xmlres.h"
 
 #include "ace/Log_Msg.h"
+#include "ace/Synch.h"
 
 #include "test_u_3.h"
 
@@ -21,8 +22,8 @@
 
 
 
-wxDialog_main::wxDialog_main(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style):
-  wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
+dialog_main::dialog_main(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style):
+  dialog_main_base(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
 {
 //  // begin wxGlade: wxDialog_main::wxDialog_main
 //  button_1 = new wxButton(this, wxID_NEW, wxEmptyString);
@@ -34,41 +35,44 @@ wxDialog_main::wxDialog_main(wxWindow* parent, wxWindowID id, const wxString& ti
   // end wxGlade
 }
 
-void wxDialog_main::set_properties()
-{
-  // begin wxGlade: wxDialog_main::set_properties
-  SetTitle(wxT("dialog"));
-  button_1->SetFocus();
-  button_1->SetDefault();
-  button_3->Enable(0);
-  // end wxGlade
-}
+//void dialog_main::set_properties()
+//{
+//  // begin wxGlade: wxDialog_main::set_properties
+//  SetTitle(wxT("dialog"));
+//  button_1->SetFocus();
+//  button_1->SetDefault();
+//  button_3->Enable(0);
+//  // end wxGlade
+//}
 
 
-void wxDialog_main::do_layout()
-{
-  // begin wxGlade: wxDialog_main::do_layout
-  wxBoxSizer* sizer_v_main = new wxBoxSizer(wxVERTICAL);
-  sizer_v_main->Add(button_1, 0, 0, 0);
-  sizer_v_main->Add(button_2, 0, 0, 0);
-  sizer_v_main->Add(button_3, 0, 0, 0);
-  SetSizer(sizer_v_main);
-  sizer_v_main->Fit(this);
-  Layout();
-  // end wxGlade
-}
+//void dialog_main::do_layout()
+//{
+//  // begin wxGlade: wxDialog_main::do_layout
+//  wxBoxSizer* sizer_v_main = new wxBoxSizer(wxVERTICAL);
+//  sizer_v_main->Add(button_1, 0, 0, 0);
+//  sizer_v_main->Add(button_2, 0, 0, 0);
+//  sizer_v_main->Add(button_3, 0, 0, 0);
+//  SetSizer(sizer_v_main);
+//  sizer_v_main->Fit(this);
+//  Layout();
+//  // end wxGlade
+//}
 
 
-BEGIN_EVENT_TABLE(wxDialog_main, wxDialog)
-  // begin wxGlade: wxDialog_main::event_table
-  EVT_BUTTON(wxID_ANY, wxDialog_main::button_1_clicked_cb)
-  EVT_BUTTON(wxID_ANY, wxDialog_main::button_2_clicked_cb)
-  EVT_BUTTON(wxID_ANY, wxDialog_main::button_3_clicked_cb)
-  // end wxGlade
-END_EVENT_TABLE();
+//BEGIN_EVENT_TABLE(wxDialog_main, wxDialog)
+//  // begin wxGlade: wxDialog_main::event_table
+////  EVT_BUTTON(wxID_NEW, wxDialog_main::button_1_clicked_cb)
+////  EVT_BUTTON(wxID_COPY, wxDialog_main::button_2_clicked_cb)
+////  EVT_BUTTON(wxID_CLEAR, wxDialog_main::button_3_clicked_cb)
+//  EVT_BUTTON(XRCID("button_1"), wxDialog_main::button_1_clicked_cb)
+//  EVT_BUTTON(XRCID("button_2"), wxDialog_main::button_2_clicked_cb)
+//  EVT_BUTTON(XRCID("button_3"), wxDialog_main::button_3_clicked_cb)
+//  // end wxGlade
+//END_EVENT_TABLE();
 
 
-void wxDialog_main::button_1_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
+void dialog_main::button_1_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
 {
   event.Skip();
   // notify the user that he hasn't implemented the event handler yet
@@ -78,7 +82,7 @@ void wxDialog_main::button_1_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDi
               ACE_TEXT ("button 1, clicked\n")));
 }
 
-void wxDialog_main::button_2_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
+void dialog_main::button_2_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
 {
   event.Skip();
   // notify the user that he hasn't implemented the event handler yet
@@ -88,7 +92,7 @@ void wxDialog_main::button_2_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDi
               ACE_TEXT ("button 2, clicked\n")));
 }
 
-void wxDialog_main::button_3_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
+void dialog_main::button_3_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
 {
   event.Skip();
   // notify the user that he hasn't implemented the event handler yet
@@ -111,9 +115,9 @@ int
 main (int argc, char** argv)
 {
   Test_U_wxWidgets_Application application_s;
-  wxGUIAppTraits* traits_p =
-      static_cast<wxGUIAppTraits*> (application_s.GetTraits ());
-  traits_p->CreateFontMapper ();
+//  wxGUIAppTraits* traits_p =
+//      static_cast<wxGUIAppTraits*> (application_s.GetTraits ());
+//  traits_p->CreateFontMapper ();
 
   return wxEntry (argc, argv);
 }
@@ -179,24 +183,35 @@ bool Test_U_wxWidgets_Application::OnInit()
     return false;
   } // end IF
 
-  wxDialog_main* dialog_main = new wxDialog_main(NULL, wxID_ANY, wxEmptyString);
-  if (!resource_p->LoadDialog (dialog_main,
-                               NULL,
-                               wxString (ACE_TEXT_ALWAYS_WCHAR ("dialog_main"))))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to wxXmlResource::LoadDialog(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT ("dialog_main")));
-    return false;
-  } // end IF
+  dialog_main* dialog_main_p = new dialog_main(NULL, wxID_ANY, wxEmptyString);
+//  wxDialog dialog_s;
+ //  if (!resource_p->LoadDialog (&dialog_s,
+//                               dialog_main,
+//                               wxString (ACE_TEXT_ALWAYS_WCHAR ("dialog_main_base"))))
+//  {
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to wxXmlResource::LoadDialog(\"%s\"): \"%m\", aborting\n"),
+//                ACE_TEXT ("dialog_main")));
+//    return false;
+//  } // end IF
+  wxDialog* dialog_p =
+      resource_p->LoadDialog (dialog_main_p,
+                              wxString (ACE_TEXT_ALWAYS_WCHAR ("dialog_main_base")));
+  ACE_ASSERT (dialog_p);
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("loaded widget tree \"%s\"\n"),
               ACE_TEXT ("test_u_2.xrc")));
 #endif // _DEBUG
 
-  SetTopWindow (dialog_main);
-  dialog_main->Show (true);
+  SetTopWindow (dialog_main_p);
+//  dialog_main->Show (true);
+  dialog_p->Show (true);
+
+  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &dialog_main::button_1_clicked_cb, dialog_main_p, wxID_NEW);
+//  Connect (XRCID("button_1"), wxEVT_COMMAND_BUTTON_CLICKED, (wxObjectEventFunction)&wxDialog_main::button_1_clicked_cb);
+  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &dialog_main::button_2_clicked_cb, dialog_main_p, wxID_COPY);
+  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &dialog_main::button_3_clicked_cb, dialog_main_p, wxID_CLEAR);
 
   return true;
 }

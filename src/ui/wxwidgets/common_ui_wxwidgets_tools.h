@@ -37,7 +37,7 @@
 
 #include "common_iinitialize.h"
 
-#include "common_ui_common.h"
+//#include "common_ui_common.h"
 
 // forward declarations
 class Common_UI_WxWidgets_Logger;

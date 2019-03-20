@@ -42,14 +42,14 @@
 template <typename DefinitionType,    // implements Common_UI_IDefinition_T
           ////////////////////////////////
           typename StateType,
-          typename ConfigurationType,
+          typename CBDataType,
           ////////////////////////////////
           typename TopLevelClassType, // i.e. wxDialog, wxWindow, etc.
           typename TraitsType>        // *NOTE*: needs to inherit wxGUIAppTraits
 class Comon_UI_WxWidgets_Application_T
  : public wxApp
  , public Common_UI_wxWidgets_IApplication_T<StateType,
-                                             ConfigurationType>
+                                             CBDataType>
 {
   typedef wxApp inherited;
 
@@ -61,8 +61,8 @@ class Comon_UI_WxWidgets_Application_T
   //                                         TopLevelClassType,
   //                                         TraitsType> OWN_TYPE_T;
   typedef Common_UI_wxWidgets_IApplication_T<StateType,
-                                             ConfigurationType> INTERFACE_T;
-  typedef Common_IInitialize_T<ConfigurationType> IINITIALIZE_T;
+                                             CBDataType> INTERFACE_T;
+  typedef Common_IInitialize_T<CBDataType> IINITIALIZE_T;
 
    Comon_UI_WxWidgets_Application_T (const std::string&, // (top-level-) widget name
                                      int,                // argc
@@ -82,8 +82,8 @@ class Comon_UI_WxWidgets_Application_T
   // implement Common_UI_wxWidgets_IApplication_T
   inline virtual const StateType& getR () const { return state_; }
   virtual void dump_state () const;
-  inline virtual bool initialize (const ConfigurationType& configuration_in) { configuration_ = &const_cast<ConfigurationType&> (configuration_in); configuration_->UIState = &state_; return true; }
-  inline virtual const ConfigurationType& getR_2 () const { ACE_ASSERT (configuration_); return *configuration_; }
+  inline virtual bool initialize (const CBDataType& CBData_in) { CBData_ = &const_cast<CBDataType&> (CBData_in); CBData_->UIState = &state_; return true; }
+  inline virtual const CBDataType& getR_2 () const { ACE_ASSERT (CBData_); return *CBData_; }
   virtual bool run ();
 #if wxCHECK_VERSION(3,0,0)
   inline virtual void wait () { while (inherited::HasPendingEvents ()) inherited::ProcessPendingEvents(); }
@@ -98,10 +98,10 @@ class Comon_UI_WxWidgets_Application_T
   //                                         ConfigurationType,
   //                                         TopLevelClassType> OWN_TYPE_T;
   typedef Common_UI_wxWidgets_ITopLevel_T<StateType,
-                                          ConfigurationType> ITOPLEVEL_T;
+                                          CBDataType> ITOPLEVEL_T;
 
-  ConfigurationType* configuration_;
-  StateType          state_;
+  CBDataType* CBData_;
+  StateType   state_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Comon_UI_WxWidgets_Application_T ())

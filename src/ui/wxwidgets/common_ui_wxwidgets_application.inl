@@ -23,7 +23,7 @@
 
 #include "common_macros.h"
 
-#include "common_ui_defines.h"
+//#include "common_ui_defines.h"
 
 #include "common_ui_wxwidgets_common.h"
 
@@ -41,7 +41,7 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
                                                                                 wxChar** argv_in,
                                                                                 bool parseCommandLine_in)
  : inherited ()
- , configuration_ ()
+ , CBData_ ()
  , state_ ()
  , definition_ (topLevelWidgetName_in)
  , parseCommandLine_ (parseCommandLine_in)
