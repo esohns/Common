@@ -90,6 +90,23 @@ struct Common_UI_wxWidgets_ProgressData
 
 //////////////////////////////////////////
 
+struct Common_UI_wxWidgets_CBData
+ : Common_UI_CBData
+{
+  Common_UI_wxWidgets_CBData ()
+   : Common_UI_CBData ()
+   , progressData ()
+   , UIState (NULL)
+  {
+    progressData.state = UIState;
+  }
+
+  struct Common_UI_wxWidgets_ProgressData progressData;
+  struct Common_UI_wxWidgets_State*       UIState;
+};
+
+//////////////////////////////////////////
+
 typedef Common_UI_IDefinition_T<struct Common_UI_wxWidgets_State> Common_UI_wxWidgets_IDefinition_t;
 typedef Common_UI_wxWidgets_IApplicationBase_T<struct Common_UI_wxWidgets_State> Common_UI_wxWidgets_IApplicationBase_t;
 typedef Common_ITaskControl_T<ACE_NULL_SYNCH, Common_ILock_T<ACE_NULL_SYNCH> > Common_UI_wxWidgets_IManager_t;

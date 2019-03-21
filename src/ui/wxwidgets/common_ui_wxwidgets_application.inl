@@ -167,6 +167,7 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
   Common_UI_wxWidgets_XmlResourcesConstIterator_t iterator;
   ITOPLEVEL_T* itop_level_p = NULL;
   TopLevelClassType* widget_p = NULL;
+  wxWindow* window_p = NULL;
 
   ACE_NEW_NORETURN (state_.instance,
                     TopLevelClassType (NULL));
@@ -181,7 +182,7 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to initialize interface definition, aborting\n")));
-    delete widget_p; widget_p = NULL;
+    delete state_.instance; state_.instance = NULL;
     return false;
   } // end IF
   ACE_ASSERT (!state_.resources.empty ());
@@ -190,8 +191,12 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
     iterator =
       state_.resources.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
     ACE_ASSERT (iterator != state_.resources.end ());
+    window_p = dynamic_cast<wxWindow*> ((*iterator).second.second);
+    ACE_ASSERT (window_p);
 
-    itop_level_p = dynamic_cast<ITOPLEVEL_T*> ((*iterator).second.second);
+//    itop_level_p = dynamic_cast<ITOPLEVEL_T*> ((*iterator).second.second);
+//    ACE_ASSERT (itop_level_p);
+    itop_level_p = dynamic_cast<ITOPLEVEL_T*> (state_.instance);
     ACE_ASSERT (itop_level_p);
   } // end lock scope
 
@@ -206,7 +211,8 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
   widget_p = dynamic_cast<TopLevelClassType*> (itop_level_p);
   ACE_ASSERT (widget_p);
   inherited::SetTopWindow (widget_p);
-  widget_p->Show (true);
+//  widget_p->Show (true);
+  window_p->Show (true);
 
   return true;
 }

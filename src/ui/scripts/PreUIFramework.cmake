@@ -253,6 +253,15 @@ endif (GTK_SUPPORT AND OPENGL_FOUND)
 
 ##########################################
 
+find_package (Qt5 CONFIG COMPONENTS Widgets)
+if (Qt5_FOUND)
+# message (STATUS "qt found")
+ set (QT_SUPPORT ON CACHE BOOL "qt support")
+ add_definitions (-DQT_SUPPORT)
+endif (Qt5_FOUND)
+
+##########################################
+
 #unset (CYGWIN)
 #unset (MSYS)
 unset (CMAKE_CROSSCOMPILING)

@@ -240,6 +240,8 @@ struct Common_UI_State
   ACE_SYNCH_RECURSIVE_MUTEX subscribersLock;
 };
 
+//////////////////////////////////////////
+
 struct Common_UI_CBData
 {
   Common_UI_CBData ()

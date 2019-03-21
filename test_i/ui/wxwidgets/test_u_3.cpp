@@ -17,14 +17,12 @@
 
 #include "test_u_3.h"
 
-// begin wxGlade: ::extracode
-// end wxGlade
+extern const char toplevel_widget_classname_string_[] =
+    ACE_TEXT_ALWAYS_CHAR ("dialog_main_base");
 
-
-
-dialog_main::dialog_main(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style):
-  dialog_main_base(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
-{
+//dialog_main::dialog_main(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style):
+//  dialog_main_base(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
+//{
 //  // begin wxGlade: wxDialog_main::wxDialog_main
 //  button_1 = new wxButton(this, wxID_NEW, wxEmptyString);
 //  button_2 = new wxButton(this, wxID_COPY, wxEmptyString);
@@ -33,7 +31,7 @@ dialog_main::dialog_main(wxWindow* parent, wxWindowID id, const wxString& title,
 //  set_properties();
 //  do_layout();
   // end wxGlade
-}
+//}
 
 //void dialog_main::set_properties()
 //{
@@ -72,54 +70,59 @@ dialog_main::dialog_main(wxWindow* parent, wxWindowID id, const wxString& title,
 //END_EVENT_TABLE();
 
 
-void dialog_main::button_1_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
-{
-  event.Skip();
-  // notify the user that he hasn't implemented the event handler yet
-//  wxLogDebug(wxT("Event handler (wxDialog_main::button_1_clicked_cb) not implemented yet"));
+//void dialog_main::button_1_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
+//{
+//  event.Skip();
+//  // notify the user that he hasn't implemented the event handler yet
+////  wxLogDebug(wxT("Event handler (wxDialog_main::button_1_clicked_cb) not implemented yet"));
 
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("button 1, clicked\n")));
-}
+//  ACE_DEBUG ((LM_DEBUG,
+//              ACE_TEXT ("button 1, clicked\n")));
+//}
 
-void dialog_main::button_2_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
-{
-  event.Skip();
-  // notify the user that he hasn't implemented the event handler yet
-//  wxLogDebug(wxT("Event handler (wxDialog_main::button_2_clicked_cb) not implemented yet"));
+//void dialog_main::button_2_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
+//{
+//  event.Skip();
+//  // notify the user that he hasn't implemented the event handler yet
+////  wxLogDebug(wxT("Event handler (wxDialog_main::button_2_clicked_cb) not implemented yet"));
 
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("button 2, clicked\n")));
-}
+//  ACE_DEBUG ((LM_DEBUG,
+//              ACE_TEXT ("button 2, clicked\n")));
+//}
 
-void dialog_main::button_3_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
-{
-  event.Skip();
-  // notify the user that he hasn't implemented the event handler yet
-//  wxLogDebug(wxT("Event handler (wxDialog_main::button_3_clicked_cb) not implemented yet"));
+//void dialog_main::button_3_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
+//{
+//  event.Skip();
+//  // notify the user that he hasn't implemented the event handler yet
+////  wxLogDebug(wxT("Event handler (wxDialog_main::button_3_clicked_cb) not implemented yet"));
 
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("button 3, clicked\n")));
-}
+//  ACE_DEBUG ((LM_DEBUG,
+//              ACE_TEXT ("button 3, clicked\n")));
+//}
 
 
 // wxGlade: add wxDialog_main event handlers
 
-
-class Test_U_wxWidgets_Application: public wxApp {
-public:
-  bool OnInit();
-};
-
 int
 main (int argc, char** argv)
 {
-  Test_U_wxWidgets_Application application_s;
-//  wxGUIAppTraits* traits_p =
-//      static_cast<wxGUIAppTraits*> (application_s.GetTraits ());
-//  traits_p->CreateFontMapper ();
+  Test_U_WxWidgetsApplication_t application_s (toplevel_widget_classname_string_,
+                                               argc,
+                                               Common_UI_WxWidgets_Tools::convertArgV (argc,
+                                                                                       argv),
+                                               COMMON_UI_WXWIDGETS_APP_CMDLINE_DEFAULT_PARSE);
+  struct Common_UI_wxWidgets_CBData ui_cb_data;
+  application_s.initialize (ui_cb_data);
+  // *NOTE*: this sets ui_cb_data.UIState
+  struct Common_UI_wxWidgets_State& state_r =
+    const_cast<struct Common_UI_wxWidgets_State&> (application_s.getR ());
+  state_r.resources[ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN)] =
+    std::make_pair (ACE_TEXT_ALWAYS_CHAR ("test_u_3.xrc"), static_cast<wxObject*> (NULL));
 
-  return wxEntry (argc, argv);
+  application_s.run ();
+  application_s.wait ();
+
+  return 0;
 }
 
 #if wxCHECK_VERSION(3,0,0)
@@ -138,80 +141,80 @@ void wxAppConsole::OnAssert (const wxChar *file,
                              const wxChar *msg) {}
 #endif // wxCHECK_VERSION
 
-bool Test_U_wxWidgets_Application::OnInit()
-{
-  wxInitAllImageHandlers ();
+//bool Test_U_wxWidgets_Application::OnInit()
+//{
+//  wxInitAllImageHandlers ();
 
-  if (!wxAppConsole::OnInit ())
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to wxAppConsole::OnInit(), aborting\n")));
-    return false;
-  } // end IF
-
-  // step0: initialize XRC
-  wxXmlResource* resource_p = wxXmlResource::Get ();
-  if (!resource_p)
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to wxXmlResource::Get(): \"%m\", aborting\n")));
-    return false;
-  } // end IF
-  resource_p->InitAllHandlers ();
-
-  // load widget tree
-//  wxObject* object_p = NULL;
-#if wxCHECK_VERSION(3,0,0)
-  wxFileName file_name;
-  file_name.Assign (wxString (ACE_TEXT_ALWAYS_WCHAR ("test_u_2.xrc")),
-                    wxPATH_NATIVE);
-  if (!resource_p->LoadFile (file_name))
-#elif wxCHECK_VERSION(2,0,0)
-  wxString file_name (ACE_TEXT_ALWAYS_WCHAR ("test_u_2.xrc"));
-  if (unlikely (!resource_p->Load (file_name)))
-#endif // wxCHECK_VERSION
-  {
-#if wxCHECK_VERSION(3,0,0)
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to wxXmlResource::LoadFile(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT ("test_u_2.xrc")));
-#elif wxCHECK_VERSION(2,0,0)
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to wxXmlResource::Load(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT ("test_u_2.xrc")));
-#endif // wxCHECK_VERSION
-    return false;
-  } // end IF
-
-  dialog_main* dialog_main_p = new dialog_main(NULL, wxID_ANY, wxEmptyString);
-//  wxDialog dialog_s;
- //  if (!resource_p->LoadDialog (&dialog_s,
-//                               dialog_main,
-//                               wxString (ACE_TEXT_ALWAYS_WCHAR ("dialog_main_base"))))
+//  if (!wxAppConsole::OnInit ())
 //  {
 //    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("failed to wxXmlResource::LoadDialog(\"%s\"): \"%m\", aborting\n"),
-//                ACE_TEXT ("dialog_main")));
+//                ACE_TEXT ("failed to wxAppConsole::OnInit(), aborting\n")));
 //    return false;
 //  } // end IF
-  wxDialog* dialog_p =
-      resource_p->LoadDialog (dialog_main_p,
-                              wxString (ACE_TEXT_ALWAYS_WCHAR ("dialog_main_base")));
-  ACE_ASSERT (dialog_p);
-#if defined (_DEBUG)
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("loaded widget tree \"%s\"\n"),
-              ACE_TEXT ("test_u_2.xrc")));
-#endif // _DEBUG
 
-  SetTopWindow (dialog_main_p);
-//  dialog_main->Show (true);
-  dialog_p->Show (true);
+//  // step0: initialize XRC
+//  wxXmlResource* resource_p = wxXmlResource::Get ();
+//  if (!resource_p)
+//  {
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to wxXmlResource::Get(): \"%m\", aborting\n")));
+//    return false;
+//  } // end IF
+//  resource_p->InitAllHandlers ();
 
-  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &dialog_main::button_1_clicked_cb, dialog_main_p, wxID_NEW);
-//  Connect (XRCID("button_1"), wxEVT_COMMAND_BUTTON_CLICKED, (wxObjectEventFunction)&wxDialog_main::button_1_clicked_cb);
-  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &dialog_main::button_2_clicked_cb, dialog_main_p, wxID_COPY);
-  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &dialog_main::button_3_clicked_cb, dialog_main_p, wxID_CLEAR);
+//  // load widget tree
+////  wxObject* object_p = NULL;
+//#if wxCHECK_VERSION(3,0,0)
+//  wxFileName file_name;
+//  file_name.Assign (wxString (ACE_TEXT_ALWAYS_WCHAR ("test_u_2.xrc")),
+//                    wxPATH_NATIVE);
+//  if (!resource_p->LoadFile (file_name))
+//#elif wxCHECK_VERSION(2,0,0)
+//  wxString file_name (ACE_TEXT_ALWAYS_WCHAR ("test_u_2.xrc"));
+//  if (unlikely (!resource_p->Load (file_name)))
+//#endif // wxCHECK_VERSION
+//  {
+//#if wxCHECK_VERSION(3,0,0)
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to wxXmlResource::LoadFile(\"%s\"): \"%m\", aborting\n"),
+//                ACE_TEXT ("test_u_2.xrc")));
+//#elif wxCHECK_VERSION(2,0,0)
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to wxXmlResource::Load(\"%s\"): \"%m\", aborting\n"),
+//                ACE_TEXT ("test_u_2.xrc")));
+//#endif // wxCHECK_VERSION
+//    return false;
+//  } // end IF
 
-  return true;
-}
+//  dialog_main* dialog_main_p = new dialog_main(NULL, wxID_ANY, wxEmptyString);
+////  wxDialog dialog_s;
+// //  if (!resource_p->LoadDialog (&dialog_s,
+////                               dialog_main,
+////                               wxString (ACE_TEXT_ALWAYS_WCHAR ("dialog_main_base"))))
+////  {
+////    ACE_DEBUG ((LM_ERROR,
+////                ACE_TEXT ("failed to wxXmlResource::LoadDialog(\"%s\"): \"%m\", aborting\n"),
+////                ACE_TEXT ("dialog_main")));
+////    return false;
+////  } // end IF
+//  wxDialog* dialog_p =
+//      resource_p->LoadDialog (dialog_main_p,
+//                              wxString (ACE_TEXT_ALWAYS_WCHAR ("dialog_main_base")));
+//  ACE_ASSERT (dialog_p);
+//#if defined (_DEBUG)
+//  ACE_DEBUG ((LM_DEBUG,
+//              ACE_TEXT ("loaded widget tree \"%s\"\n"),
+//              ACE_TEXT ("test_u_2.xrc")));
+//#endif // _DEBUG
+
+//  SetTopWindow (dialog_main_p);
+////  dialog_main->Show (true);
+//  dialog_p->Show (true);
+
+//  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &dialog_main::button_1_clicked_cb, dialog_main_p, wxID_NEW);
+////  Connect (XRCID("button_1"), wxEVT_COMMAND_BUTTON_CLICKED, (wxObjectEventFunction)&wxDialog_main::button_1_clicked_cb);
+//  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &dialog_main::button_2_clicked_cb, dialog_main_p, wxID_COPY);
+//  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &dialog_main::button_3_clicked_cb, dialog_main_p, wxID_CLEAR);
+
+//  return true;
+//}

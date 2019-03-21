@@ -150,6 +150,10 @@ install (TARGETS ${PROJECT_NAME}UI
 if (GTK_SUPPORT)
  add_subdirectory (gtk)
 endif (GTK_SUPPORT)
+if (QT_SUPPORT)
+ add_subdirectory (qt)
+endif (QT_SUPPORT)
 if (WXWIDGETS_SUPPORT)
  add_subdirectory (wxwidgets)
 endif (WXWIDGETS_SUPPORT)
+

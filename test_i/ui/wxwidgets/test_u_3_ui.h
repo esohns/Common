@@ -12,14 +12,14 @@ template <typename WidgetBaseClassType, // implements wxWindow (e.g. wxDialog)
 class Test_U_WxWidgetsDialog_T
  : public WidgetBaseClassType
  , public Common_UI_wxWidgets_ITopLevel_T<typename InterfaceType::STATE_T,
-                                          typename InterfaceType::CONFIGURATION_T>
+                                          typename InterfaceType::CBDATA_T>
 {
   typedef WidgetBaseClassType inherited;
 
  public:
   // convenient types
   typedef Common_UI_wxWidgets_IApplication_T<typename InterfaceType::STATE_T,
-                                             typename InterfaceType::CONFIGURATION_T> IAPPLICATION_T;
+                                             typename InterfaceType::CBDATA_T> IAPPLICATION_T;
 
   Test_U_WxWidgetsDialog_T (wxWindow* = NULL); // parent window (if any)
   inline virtual ~Test_U_WxWidgetsDialog_T () {}
@@ -41,10 +41,13 @@ class Test_U_WxWidgetsDialog_T
   virtual void dialog_main_keydown_cb (wxKeyEvent&);
 
   // control handlers
-  virtual void button_about_clicked_cb (wxCommandEvent&);
-  virtual void button_quit_clicked_cb (wxCommandEvent&);
+  void button_1_clicked_cb(wxCommandEvent&);
+  void button_2_clicked_cb(wxCommandEvent&);
+  void button_3_clicked_cb(wxCommandEvent&);
+  void button_about_clicked_cb (wxCommandEvent&);
+  void button_quit_clicked_cb (wxCommandEvent&);
 
-  wxDECLARE_DYNAMIC_CLASS (OWN_TYPE_T);
+//  wxDECLARE_DYNAMIC_CLASS (OWN_TYPE_T);
 //  wxDECLARE_EVENT_TABLE ();
 
   InterfaceType* application_;

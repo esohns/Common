@@ -11,7 +11,7 @@ template <typename WidgetBaseClassType,
           typename InterfaceType>
 Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
                          InterfaceType>::Test_U_WxWidgetsDialog_T (wxWindow* parent_in)
- : inherited (parent_in)
+ : inherited (parent_in, wxID_ANY, wxEmptyString)
  , application_ (NULL)
  , initializing_ (true)
  , untoggling_ (false)
@@ -38,9 +38,15 @@ Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
   application_ = dynamic_cast<InterfaceType*> (iapplication_in);
   ACE_ASSERT (application_);
 
-  inherited::button_1 = XRCCTRL (*this, "button_1", wxButton);
-  inherited::button_2 = XRCCTRL (*this, "button_2", wxButton);
-  inherited::button_2 = XRCCTRL (*this, "button_2", wxButton);
+  WidgetBaseClassType* base_p = this;
+  inherited::button_1 = XRCCTRL (*base_p, "button_1", wxButton);
+  inherited::button_2 = XRCCTRL (*base_p, "button_2", wxButton);
+  inherited::button_3 = XRCCTRL (*base_p, "button_3", wxButton);
+
+  this->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &OWN_TYPE_T::button_1_clicked_cb, this, wxID_NEW);
+//  Connect (XRCID("button_1"), wxEVT_COMMAND_BUTTON_CLICKED, (wxObjectEventFunction)&wxDialog_main::button_1_clicked_cb);
+  this->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &OWN_TYPE_T::button_2_clicked_cb, this, wxID_COPY);
+  this->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &OWN_TYPE_T::button_3_clicked_cb, this, wxID_CLEAR);
 
   // populate controls
 
@@ -74,7 +80,7 @@ Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
   typename InterfaceType::CBDATA_T& CBData_r =
     const_cast<typename InterfaceType::CBDATA_T&> (application_->getR_2 ());
 
-  inherited::gauge_progress->Pulse ();
+//  inherited::gauge_progress->Pulse ();
 }
 
 template <typename WidgetBaseClassType,
@@ -94,38 +100,46 @@ Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
 
 //////////////////////////////////////////
 
-//template <typename WidgetBaseClassType,
-//          typename InterfaceType>
-//void
-//Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
-//                         InterfaceType>::togglebutton_record_toggled_cb (wxCommandEvent& event_in)
-//{
-//  COMMON_TRACE (ACE_TEXT ("Test_U_WxWidgetsDialog_T::togglebutton_record_toggled_cb"));
+template <typename WidgetBaseClassType,
+          typename InterfaceType>
+void
+Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
+                         InterfaceType>::button_1_clicked_cb (wxCommandEvent& event_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Test_U_WxWidgetsDialog_T::button_1_clicked_cb"));
 
-//}
-//template <typename WidgetBaseClassType,
-//          typename InterfaceType>
-//void
-//Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
-//                         InterfaceType>::button_snapshot_clicked_cb (wxCommandEvent& event_in)
-//{
-//  COMMON_TRACE (ACE_TEXT ("Test_U_WxWidgetsDialog_T::button_snapshot_clicked_cb"));
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("button_1, clicked\n")));
+}
+template <typename WidgetBaseClassType,
+          typename InterfaceType>
+void
+Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
+                         InterfaceType>::button_2_clicked_cb (wxCommandEvent& event_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Test_U_WxWidgetsDialog_T::button_2_clicked_cb"));
 
-//  // sanity check(s)
-//  ACE_ASSERT (application_);
+  // sanity check(s)
+  ACE_ASSERT (application_);
 
-//  typename InterfaceType::CBDATA_T& CBData_r =
-//    const_cast<typename InterfaceType::CBDATA_T&> (application_->getR_2 ());
-//}
-//template <typename WidgetBaseClassType,
-//          typename InterfaceType>
-//void
-//Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
-//                         InterfaceType>::button_cut_clicked_cb (wxCommandEvent& event_in)
-//{
-//  COMMON_TRACE (ACE_TEXT ("Test_U_WxWidgetsDialog_T::button_cut_clicked_cb"));
+  typename InterfaceType::CBDATA_T& CBData_r =
+    const_cast<typename InterfaceType::CBDATA_T&> (application_->getR_2 ());
 
-//}
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("button_2, clicked\n")));
+}
+template <typename WidgetBaseClassType,
+          typename InterfaceType>
+void
+Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
+                         InterfaceType>::button_3_clicked_cb (wxCommandEvent& event_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Test_U_WxWidgetsDialog_T::button_3_clicked_cb"));
+
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("button_3, clicked\n")));
+}
+
 //template <typename WidgetBaseClassType,
 //          typename InterfaceType>
 //void

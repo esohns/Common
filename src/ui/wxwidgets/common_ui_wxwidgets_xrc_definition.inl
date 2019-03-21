@@ -98,18 +98,21 @@ Common_UI_WxWidgetsXRCDefinition_T<StateType,
       if (!ACE_OS::strcmp ((*iterator).first.c_str (),
                            ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN)))
       {
-        if (unlikely (!resource_p->LoadObject (state_->instance,
-                                               NULL,                                   // parent widget handle
-                                               wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())),
-                                               wxString (ACE_TEXT_ALWAYS_WCHAR (TopLevelClassName)))))
-        {
-          ACE_DEBUG ((LM_ERROR,
-                      ACE_TEXT ("failed to wxXmlResource::LoadObject(0x%@,\"%s\"): \"%m\", aborting\n"),
-                      state_->instance,
-                      ACE_TEXT (name_.c_str ())));
-          return false;
-        } // end IF
-        object_p = state_->instance;
+        object_p =
+            resource_p->LoadDialog (dynamic_cast<wxWindow*> (state_->instance),
+                                    wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())));
+//        if (unlikely (!resource_p->LoadObject (state_->instance,
+//                                               NULL,                                   // parent widget handle
+//                                               wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())),
+//                                               wxString (ACE_TEXT_ALWAYS_WCHAR (TopLevelClassName)))))
+//        {
+//          ACE_DEBUG ((LM_ERROR,
+//                      ACE_TEXT ("failed to wxXmlResource::LoadObject(0x%@,\"%s\"): \"%m\", aborting\n"),
+//                      state_->instance,
+//                      ACE_TEXT (name_.c_str ())));
+//          return false;
+//        } // end IF
+//        object_p = state_->instance;
       } // end IF
       else
       {

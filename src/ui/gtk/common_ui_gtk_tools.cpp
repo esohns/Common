@@ -42,7 +42,7 @@
 #if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gdkgl.h"
 #else
-#include "gtk/gtkgl.h" // gtkglext
+//#include "gtk/gtkgl.h" // gtkglext
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION (3,0,0)
 #endif // GTKGL_SUPPORT
@@ -503,33 +503,33 @@ Common_UI_GTK_Tools::dumpGtkLibraryInfo ()
 #else
 #if defined (GTKGLAREA_SUPPORT)
 #else
-  information_string +=
-      ACE_TEXT_ALWAYS_CHAR ("\ngtk OpenGL extension library version: ");
-  converter.clear ();
-  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
-  converter << GDKGLEXT_MAJOR_VERSION;
-  information_string += converter.str ();
-  information_string += ACE_TEXT_ALWAYS_CHAR (".");
-  converter.clear ();
-  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
-  converter << GDKGLEXT_MINOR_VERSION;
-  information_string += converter.str ();
-  information_string += ACE_TEXT_ALWAYS_CHAR (".");
-  converter.clear ();
-  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
-  converter << GDKGLEXT_MICRO_VERSION;
-  information_string += converter.str ();
-  information_string += ACE_TEXT_ALWAYS_CHAR (" [age (binary/interface): ");
-  converter.clear ();
-  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
-  converter << GDKGLEXT_BINARY_AGE;
-  information_string += converter.str ();
-  information_string += ACE_TEXT_ALWAYS_CHAR (", ");
-  converter.clear ();
-  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
-  converter << GDKGLEXT_INTERFACE_AGE;
-  information_string += converter.str ();
-  information_string += ACE_TEXT_ALWAYS_CHAR ("]");
+//  information_string +=
+//      ACE_TEXT_ALWAYS_CHAR ("\ngtk OpenGL extension library version: ");
+//  converter.clear ();
+//  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+//  converter << GDKGLEXT_MAJOR_VERSION;
+//  information_string += converter.str ();
+//  information_string += ACE_TEXT_ALWAYS_CHAR (".");
+//  converter.clear ();
+//  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+//  converter << GDKGLEXT_MINOR_VERSION;
+//  information_string += converter.str ();
+//  information_string += ACE_TEXT_ALWAYS_CHAR (".");
+//  converter.clear ();
+//  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+//  converter << GDKGLEXT_MICRO_VERSION;
+//  information_string += converter.str ();
+//  information_string += ACE_TEXT_ALWAYS_CHAR (" [age (binary/interface): ");
+//  converter.clear ();
+//  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+//  converter << GDKGLEXT_BINARY_AGE;
+//  information_string += converter.str ();
+//  information_string += ACE_TEXT_ALWAYS_CHAR (", ");
+//  converter.clear ();
+//  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+//  converter << GDKGLEXT_INTERFACE_AGE;
+//  information_string += converter.str ();
+//  information_string += ACE_TEXT_ALWAYS_CHAR ("]");
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION (3,0,0)
 #endif // GTKGL_SUPPORT
@@ -554,9 +554,9 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkWindow* window_in)
 #elif GTK_CHECK_VERSION (2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
 Common_UI_GTK_Tools::dumpGtkOpenGLInfo (GdkGLContext* context_in)
-#endif /* GTKGLAREA_SUPPORT */
 #else
 Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
+#endif /* GTKGLAREA_SUPPORT */
 #endif // GTK_CHECK_VERSION (3,0,0)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::dumpGtkOpenGLInfo"));
