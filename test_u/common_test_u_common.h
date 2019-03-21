@@ -28,8 +28,10 @@
 #if defined (GUI_SUPPORT)
 #if defined (GTK_USE)
 #include "common_ui_gtk_common.h"
+#elif defined (QT_USE)
+#include "common_ui_qt_common.h"
 #elif defined (WXWIDGETS_USE)
-#include "common_ui_wxwidgets_iapplication.h"
+#include "common_ui_wxwidgets_common.h"
 #endif
 #endif // GUI_SUPPORT
 
@@ -67,11 +69,19 @@ struct Common_Test_U_UI_ProgressData
 {
   Common_Test_U_UI_ProgressData ()
    : CBData (NULL)
+#if defined (GUI_SUPPORT)
+#if defined (GTK_USE) || defined (QT_USE) || defined (WXWIDGETS_USE)
    , state (NULL)
+#endif // GTK_USE || QT_USE || WXWIDGETS_USE
+#endif // GUI_SUPPORT
   {}
 
   struct Common_Test_U_UI_CBData* CBData;
+#if defined (GUI_SUPPORT)
+#if defined (GTK_USE) || defined (QT_USE) || defined (WXWIDGETS_USE)
   struct Common_UI_State*         state;
+#endif // GTK_USE || QT_USE || WXWIDGETS_USE
+#endif // GUI_SUPPORT
 };
 
 struct Common_Test_U_UI_CBData
@@ -79,24 +89,31 @@ struct Common_Test_U_UI_CBData
   Common_Test_U_UI_CBData ()
    : allowUserRuntimeStatistic (true)
    , progressData ()
+#if defined (GUI_SUPPORT)
+#if defined (GTK_USE) || defined (QT_USE) || defined (WXWIDGETS_USE)
    , UIState (NULL)
-//#if defined (GTK_USE)
-//#elif defined (WXWIDGETS_USE)
-//   , iapplication (NULL)
-//#endif
+#endif // GTK_USE || QT_USE || WXWIDGETS_USE
+#endif // GUI_SUPPORT
   {
     progressData.CBData = this;
+#if defined (GUI_SUPPORT)
+#if defined (GTK_USE) || defined (QT_USE) || defined (WXWIDGETS_USE)
     progressData.state = UIState;
+#endif // GTK_USE || QT_USE || WXWIDGETS_USE
+#endif // GUI_SUPPORT
   }
 
   bool                                  allowUserRuntimeStatistic;
   struct Common_Test_U_UI_ProgressData  progressData;
+#if defined (GUI_SUPPORT)
 #if defined (GTK_USE)
   Common_UI_GTK_State_t*                UIState;
+#elif defined (QT_USE)
+  struct Common_UI_Qt_State*            UIState;
 #elif defined (WXWIDGETS_USE)
   Common_UI_wxWidgets_State*            UIState;
-  //Common_UI_wxWidgets_IApplicationBase* iapplication;
 #endif
+#endif // GUI_SUPPORT
 };
 
 struct Common_Test_U_ThreadData
