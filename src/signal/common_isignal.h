@@ -21,8 +21,7 @@
 #ifndef COMMON_ISIGNAL_H
 #define COMMON_ISIGNAL_H
 
-// forward declarations
-struct Common_Signal;
+#include "common.h"
 
 class Common_ISignal
 {
