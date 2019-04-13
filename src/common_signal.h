@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -18,15 +18,51 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_ISIGNAL_H
-#define COMMON_ISIGNAL_H
+#ifndef COMMON_SIGNAL_H
+#define COMMON_SIGNAL_H
 
-#include "common_signal.h"
+#include <map>
+#include <vector>
 
-class Common_ISignal
+#include "ace/Global_Macros.h"
+#include "ace/OS_NS_signal.h"
+#include "ace/Signal.h"
+
+enum Common_SignalDispatchType
 {
- public:
-  virtual void handle (const struct Common_Signal&) = 0; // signal
+  COMMON_SIGNAL_DISPATCH_PROACTOR = 0,
+  COMMON_SIGNAL_DISPATCH_REACTOR,
+  COMMON_SIGNAL_DISPATCH_SIGNAL, // inline (i.e. signal handler context restrictions apply)
+  /////////////////////////////////////
+  COMMON_SIGNAL_DISPATCH_MAX,
+  COMMON_SIGNAL_DISPATCH_INVALID
 };
+
+struct Common_Signal
+{
+  Common_Signal ()
+   : signal (-1)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  , siginfo (ACE_INVALID_HANDLE)
+  , ucontext (-1)
+#else
+  , siginfo ()
+  , ucontext ()
+#endif // ACE_WIN32 || ACE_WIN64
+  {}
+
+  int               signal;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  struct siginfo_t  siginfo;
+#else
+  siginfo_t         siginfo;
+#endif // ACE_WIN32 || ACE_WIN64
+  struct ucontext_t ucontext;
+};
+typedef std::vector <struct Common_Signal> Common_Signals_t;
+typedef Common_Signals_t::const_iterator Common_SignalsIterator_t;
+
+typedef std::map<int, ACE_Sig_Action> Common_SignalActions_t;
+typedef Common_SignalActions_t::const_iterator Common_SignalActionsIterator_t;
 
 #endif

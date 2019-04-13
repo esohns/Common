@@ -22,7 +22,6 @@
 #define COMMON_H
 
 #include <list>
-#include <map>
 #include <string>
 #include <vector>
 
@@ -33,8 +32,6 @@
 
 #include "ace/Global_Macros.h"
 #include "ace/OS_NS_dirent.h"
-#include "ace/OS_NS_signal.h"
-#include "ace/Signal.h"
 #include "ace/Synch_Traits.h"
 
 #include "common_defines.h"
@@ -100,45 +97,6 @@ struct Common_File_Identifier
 };
 typedef std::list<struct Common_File_Identifier> Common_File_IdentifierList_t;
 typedef Common_File_IdentifierList_t::const_iterator Common_File_IdentifierListIterator_t;
-
-// *** signals ***
-
-enum Common_SignalDispatchType
-{
-  COMMON_SIGNAL_DISPATCH_PROACTOR = 0,
-  COMMON_SIGNAL_DISPATCH_REACTOR,
-  COMMON_SIGNAL_DISPATCH_SIGNAL, // inline (i.e. signal handler context restrictions apply)
-  /////////////////////////////////////
-  COMMON_SIGNAL_DISPATCH_MAX,
-  COMMON_SIGNAL_DISPATCH_INVALID
-};
-
-struct Common_Signal
-{
-  Common_Signal ()
-   : signal (-1)
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  , siginfo (ACE_INVALID_HANDLE)
-  , ucontext (-1)
-#else
-  , siginfo ()
-  , ucontext ()
-#endif // ACE_WIN32 || ACE_WIN64
-  {}
-
-  int              signal;
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  struct siginfo_t siginfo;
-#else
-  siginfo_t        siginfo;
-#endif // ACE_WIN32 || ACE_WIN64
-  ucontext_t       ucontext;
-};
-typedef std::vector <struct Common_Signal> Common_Signals_t;
-typedef Common_Signals_t::const_iterator Common_SignalsIterator_t;
-
-typedef std::map<int, ACE_Sig_Action> Common_SignalActions_t;
-typedef Common_SignalActions_t::const_iterator Common_SignalActionsIterator_t;
 
 // *** user/groups ***
 

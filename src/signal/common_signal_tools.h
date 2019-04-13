@@ -27,14 +27,12 @@
 #include "ace/os_include/os_signal.h"
 #include "ace/Sig_Handler.h"
 
-#include "common.h"
-//#include "common_exports.h"
+#include "common_signal.h"
 
 // forward declaration(s)
 class ACE_Event_Handler;
 class ACE_Sig_Set;
 
-//class Common_Export Common_Signal_Tools
 class Common_Signal_Tools
 {
  public:
