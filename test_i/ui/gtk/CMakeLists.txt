@@ -1,7 +1,6 @@
+include (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/ui/scripts/PreUIFramework.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/ui/scripts/SetUIFramework.cmake)
-if (GTK_SUPPORT)
- include (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/ui/scripts/SetGTKVersion.cmake)
-endif (GTK_SUPPORT)
+include (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/ui/scripts/SetGTKVersion.cmake)
 
 set (ACE_LIB_FILE libACE.so)
 if (DEFINED ENV{ACE_ROOT})
@@ -82,6 +81,7 @@ if (UNIX)
 elseif (WIN32)
  target_link_libraries (${EXECUTABLE} OpenGL32)
 endif (UNIX)
+message (STATUS "GTK_LIBRARIES: ${GTK_LIBRARIES}")
 target_link_libraries (${EXECUTABLE} ${GTK_LIBRARIES})
 target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
 

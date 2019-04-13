@@ -103,7 +103,7 @@ idle_initialize_UI_cb (gpointer userData_in)
                                             ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_LISTSTORE_SOURCE_NAME)));
   ACE_ASSERT (list_store_p);
   gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (list_store_p),
-                                        1, GTK_SORT_DESCENDING);
+                                        0, GTK_SORT_DESCENDING);
   load_entries (list_store_p);
   GtkComboBox* combo_box_p =
     GTK_COMBO_BOX (gtk_builder_get_object ((*iterator).second.second,
@@ -294,28 +294,28 @@ idle_initialize_UI_cb (gpointer userData_in)
 
   // step11: select default capture source (if any)
   //         --> populate the options comboboxes
-  list_store_p =
-    GTK_LIST_STORE (gtk_builder_get_object ((*iterator).second.second,
-                                            ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_LISTSTORE_SOURCE_NAME)));
-  ACE_ASSERT (list_store_p);
-  gint n_rows =
-    gtk_tree_model_iter_n_children (GTK_TREE_MODEL (list_store_p), NULL);
-  if (n_rows)
-  {
-//    GtkFrame* frame_p =
-//      GTK_FRAME (gtk_builder_get_object ((*iterator).second.second,
-//                                         ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_FRAME_SOURCE_NAME)));
-//    ACE_ASSERT (frame_p);
-//    gtk_widget_set_sensitive (GTK_WIDGET (frame_p), true);
+//  list_store_p =
+//    GTK_LIST_STORE (gtk_builder_get_object ((*iterator).second.second,
+//                                            ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_LISTSTORE_SOURCE_NAME)));
+//  ACE_ASSERT (list_store_p);
+//  gint n_rows =
+//    gtk_tree_model_iter_n_children (GTK_TREE_MODEL (list_store_p), NULL);
+//  if (n_rows)
+//  {
+////    GtkFrame* frame_p =
+////      GTK_FRAME (gtk_builder_get_object ((*iterator).second.second,
+////                                         ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_FRAME_SOURCE_NAME)));
+////    ACE_ASSERT (frame_p);
+////    gtk_widget_set_sensitive (GTK_WIDGET (frame_p), true);
 
-    combo_box_p =
-      GTK_COMBO_BOX (gtk_builder_get_object ((*iterator).second.second,
-                                             ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_COMBOBOX_SOURCE_NAME)));
-    ACE_ASSERT (combo_box_p);
-    gtk_widget_set_sensitive (GTK_WIDGET (combo_box_p), TRUE);
+//    combo_box_p =
+//      GTK_COMBO_BOX (gtk_builder_get_object ((*iterator).second.second,
+//                                             ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_COMBOBOX_SOURCE_NAME)));
+//    ACE_ASSERT (combo_box_p);
+//    gtk_widget_set_sensitive (GTK_WIDGET (combo_box_p), TRUE);
 
-    gtk_combo_box_set_active (combo_box_p, static_cast<gint> (0));
-  } // end IF
+//    gtk_combo_box_set_active (combo_box_p, static_cast<gint> (0));
+//  } // end IF
 
   return G_SOURCE_REMOVE;
 }

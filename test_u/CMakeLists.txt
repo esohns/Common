@@ -68,7 +68,7 @@ if (UNIX)
 elseif (WIN32)
  if (GUI_SUPPORT)
   if (GTK_USE)
-   message (STATUS "GTK_INCLUDE_DIRS: \"${GTK_INCLUDE_DIRS}\"")
+#   message (STATUS "GTK_INCLUDE_DIRS: \"${GTK_INCLUDE_DIRS}\"")
    target_include_directories (${PROJECT_NAME}_Test_U PUBLIC
                                "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
 

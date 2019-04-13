@@ -28,32 +28,68 @@ if (UNIX)
 # pkg_check_modules (PKG_GTK3 gmodule-2.0 gthread-2.0 gtk+-3.0)
  pkg_check_modules (PKG_GTK_3 gtk+-3.0)
  if (PKG_GTK_3_FOUND)
+  message (STATUS "found gtk3")
   set (GTK3_FOUND ON)
+
+  # *TODO*: this is broken; PKG_GTK_3_CFLAGS and PKG_GTK_3_INCLUDE_DIRS are not set;
+  #         only PKG_GTK_3_LIBRARIES is
+  #   message (STATUS "PKG_GTK3_CFLAGS: ${PKG_GTK_3_CFLAGS}")
+  #   message (STATUS "PKG_GTK3_INCLUDE_DIRS: ${PKG_GTK_3_INCLUDE_DIRS}")
+  #   message (STATUS "PKG_GTK3_LIBRARIES: ${PKG_GTK_3_LIBRARIES}")
+    set (pkgconfig_cmd "pkg-config")
+    set (pkgconfig_arg "gtk+-3.0")
+    unset (PKG_GTK_3_INCLUDE_DIRS)
+    unset (PKG_GTK_3_ERROR)
+    unset (PKG_GTK_3_RESULT)
+  # *TODO*: this is totally broken; ('--libs' works, but '--cflags'|'--cflags-only-I' do not)
+  #   execute_process (COMMAND ${pkgconfig_cmd} --cflags-only-I ${pkgconfig_arg}
+  #                    RESULT_VARIABLE PKG_GTK3_RESULT
+  #                    OUTPUT_VARIABLE PKG_GTK3_INCLUDE_DIRS
+  #                    ERROR_VARIABLE PKG_GTK3_ERROR
+  #                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  #   exec_program (${pkgconfig_cmd}
+  #                 ARGS --cflags-only-I ${pkgconfig_arg}
+  #                 OUTPUT_VARIABLE PKG_GTK3_INCLUDE_DIRS
+  #                 RETURN_VALUE PKG_GTK3_RESULT)
+  #   if (NOT ${PKG_GTK3_RESULT} EQUAL 0)
+  #    message (FATAL_ERROR "Command \"pkg-config --cflags-only-I gtk+-3.0\" failed with output:\n${PKG_GTK3_ERROR}\n${PKG_GTK3_RESULT}, aborting")
+  #    message (FATAL_ERROR "Command \"pkg-config --cflags-only-I gtk+-3.0\" failed with output:\n${PKG_GTK3_INCLUDE_DIRS}\n${PKG_GTK3_RESULT}, aborting")
+  #   endif (NOT ${PKG_GTK3_RESULT} EQUAL 0)
+  #   message (STATUS "PKG_GTK3_INCLUDE_DIRS: ${PKG_GTK3_INCLUDE_DIRS}")
+    set (PKG_GTK_3_INCLUDE_DIRS "-I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include -I/usr/include/fribidi -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/uuid -I/usr/include/harfbuzz -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/libdrm -I/usr/include/atk-1.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib64/dbus-1.0/include")
+    string (REGEX REPLACE "-I([^ ]+) " "\\1;" PKG_GTK_3_INCLUDE_DIRS "${PKG_GTK_3_INCLUDE_DIRS}")
+    string (REGEX REPLACE "-I([^ ]+)" "\\1" PKG_GTK_3_INCLUDE_DIRS "${PKG_GTK_3_INCLUDE_DIRS}")
+  #  message (STATUS "PKG_GTK3_INCLUDE_DIRS: ${PKG_GTK3_INCLUDE_DIRS}")
+#  message (STATUS "GTK3_LIBRARIES: ${GTK3_LIBRARIES}")
 
   set (GTK3_INCLUDE_DIRS ${PKG_GTK_3_INCLUDE_DIRS})
   set (GTK3_LIBRARIES ${PKG_GTK_3_LIBRARIES})
+
 # endif (GTK3_QUARTZ_FOUND OR GTK3_X11_FOUND OR GTK3_WAYLAND_FOUND)
  endif (PKG_GTK_3_FOUND)
  find_package (GTK2 MODULE)
  find_package (GTK MODULE)
 
  if (NOT GTK3_FOUND)
-  pkg_check_modules (PKG_GTK3 gmodule-2.0 gthread-2.0 gtk+-3.0)
-  if (PKG_GTK3_FOUND)
+  pkg_check_modules (PKG_GTK_3 gmodule-2.0 gthread-2.0 gtk+-3.0)
+  if (PKG_GTK_3_FOUND)
+   message (STATUS "found gtk3")
    set (GTK3_FOUND TRUE)
-   
-   set (GTK3_INCLUDE_DIRS ${PKG_GTK3_INCLUDE_DIRS})
-   set (GTK3_LIBRARIES ${PKG_GTK3_LIBRARIES})
-  endif (PKG_GTK3_FOUND)
+
+   set (GTK3_INCLUDE_DIRS ${PKG_GTK_3_INCLUDE_DIRS})
+   set (GTK3_LIBRARIES ${PKG_GTK_3_LIBRARIES})
+  endif (PKG_GTK_3_FOUND)
  endif (NOT GTK3_FOUND)
+
  if (NOT GTK2_FOUND)
-  pkg_check_modules (PKG_GTK2 gmodule-2.0 gthread-2.0 gtk+-2.0)
-  if (PKG_GTK2_FOUND)
+  pkg_check_modules (PKG_GTK_2 gmodule-2.0 gthread-2.0 gtk+-2.0)
+  if (PKG_GTK_2_FOUND)
+   message (STATUS "found gtk2")
    set (GTK2_FOUND TRUE)
    
-   set (GTK2_INCLUDE_DIRS ${PKG_GTK2_INCLUDE_DIRS})
-   set (GTK2_LIBRARIES ${PKG_GTK2_LIBRARIES})
-  endif (PKG_GTK2_FOUND)
+   set (GTK2_INCLUDE_DIRS ${PKG_GTK_2_INCLUDE_DIRS})
+   set (GTK2_LIBRARIES ${PKG_GTK_2_LIBRARIES})
+  endif (PKG_GTK_2_FOUND)
  endif (NOT GTK2_FOUND)
 # if (NOT GTK_FOUND)
 #  pkg_check_modules (PKG_GTK gmodule-1.0 gthread-1.0 gtk+)
@@ -69,6 +105,7 @@ if (UNIX)
   set (GTK3_SUPPORT ON CACHE BOOL "GTK3 support")
   add_definitions (-DGTK3_SUPPORT)
  endif (GTK3_FOUND)
+
  if (GTK2_FOUND)
   set (GTK2_SUPPORT ON CACHE BOOL "GTK2 support")
   add_definitions (-DGTK2_SUPPORT)
@@ -109,40 +146,8 @@ if (UNIX)
    set (GTK3_INCLUDE_DIRS ${GTK3_WAYLAND_INCLUDE_DIRS})
   endif ()
 
-# *TODO*: this is broken; PKG_GTK3_CFLAGS and PKG_GTK3_INCLUDE_DIRS are not set;
-#         only PKG_GTK3_LIBRARIES is
-#   message (STATUS "PKG_GTK3_CFLAGS: ${PKG_GTK3_CFLAGS}")
-#   message (STATUS "PKG_GTK3_INCLUDE_DIRS: ${PKG_GTK3_INCLUDE_DIRS}")
-#   message (STATUS "PKG_GTK3_LIBRARIES: ${PKG_GTK3_LIBRARIES}")
-  set (pkgconfig_cmd "pkg-config")
-  set (pkgconfig_arg "gtk+-3.0")
-  unset (PKG_GTK3_INCLUDE_DIRS)
-  unset (PKG_GTK3_ERROR)
-  unset (PKG_GTK3_RESULT)
-# *TODO*: this is totally broken; ('--libs' works, but '--cflags'|'--cflags-only-I' do not)
-#   execute_process (COMMAND ${pkgconfig_cmd} --cflags-only-I ${pkgconfig_arg}
-#                    RESULT_VARIABLE PKG_GTK3_RESULT
-#                    OUTPUT_VARIABLE PKG_GTK3_INCLUDE_DIRS
-#                    ERROR_VARIABLE PKG_GTK3_ERROR
-#                    OUTPUT_STRIP_TRAILING_WHITESPACE)
-#   exec_program (${pkgconfig_cmd}
-#                 ARGS --cflags-only-I ${pkgconfig_arg}
-#                 OUTPUT_VARIABLE PKG_GTK3_INCLUDE_DIRS
-#                 RETURN_VALUE PKG_GTK3_RESULT)
-#   if (NOT ${PKG_GTK3_RESULT} EQUAL 0)
-#    message (FATAL_ERROR "Command \"pkg-config --cflags-only-I gtk+-3.0\" failed with output:\n${PKG_GTK3_ERROR}\n${PKG_GTK3_RESULT}, aborting")
-#    message (FATAL_ERROR "Command \"pkg-config --cflags-only-I gtk+-3.0\" failed with output:\n${PKG_GTK3_INCLUDE_DIRS}\n${PKG_GTK3_RESULT}, aborting")
-#   endif (NOT ${PKG_GTK3_RESULT} EQUAL 0)
-#   message (STATUS "PKG_GTK3_INCLUDE_DIRS: ${PKG_GTK3_INCLUDE_DIRS}")
-  set (PKG_GTK3_INCLUDE_DIRS "-I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include -I/usr/include/fribidi -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/uuid -I/usr/include/harfbuzz -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/libdrm -I/usr/include/atk-1.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib64/dbus-1.0/include")
-  string (REGEX REPLACE "-I([^ ]+) " "\\1;" PKG_GTK3_INCLUDE_DIRS "${PKG_GTK3_INCLUDE_DIRS}")
-  string (REGEX REPLACE "-I([^ ]+)" "\\1" PKG_GTK3_INCLUDE_DIRS "${PKG_GTK3_INCLUDE_DIRS}")
-#  message (STATUS "PKG_GTK3_INCLUDE_DIRS: ${PKG_GTK3_INCLUDE_DIRS}")
-
 # *TODO*: Gtk < 3.16 do not have native opengl support
   set (GTK_GL_FOUND TRUE)
-  set (GTK3_INCLUDE_DIRS ${PKG_GTK3_INCLUDE_DIRS})
-  set (GTK3_LIBRARIES ${PKG_GTK3_LIBRARIES})
  endif (GTK3_FOUND)
 elseif (WIN32)
 # *TODO*: repair win32 module support
