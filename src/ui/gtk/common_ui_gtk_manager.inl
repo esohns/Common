@@ -343,10 +343,10 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #endif // GTKGL_SUPPORT && GTKGL_USE
 
   // step1: initialize GTK
-  if (unlikely (!GTKIsInitialized_))
+  if (!GTKIsInitialized_)
   {
     GTKIsInitialized_ = initializeGTK ();
-    if (!GTKIsInitialized_)
+    if (unlikely (!GTKIsInitialized_))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_UI_GTK_Manager_T::initializeGTK(): \"%m\", aborting\n")));
@@ -632,13 +632,15 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     ACE_LOG_MSG->priority_mask (ACE_Log_Msg::PROCESS);
 
   char* locale_p = ::setlocale (LC_ALL, "");
-  if (likely (locale_p))
+  if (unlikely (!locale_p))
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::setlocale(): \"%m\", continuing\n")));
+#if defined (_DEBUG)
+  else
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("set locale to \"%s\"\n"),
                 ACE_TEXT (locale_p)));
-  else
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ::setlocale(): \"%m\", continuing\n")));
+#endif // _DEBUG
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else

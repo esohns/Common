@@ -64,8 +64,6 @@ set (gtk_ui_EXE_SRCS
      stdafx.cpp
      stdafx.h
      test_i.cpp
-     test_i_gtk_callbacks.cpp
-     test_i_gtk_callbacks.h
      test_i_gtk_defines.h)
 
 #cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
@@ -73,6 +71,42 @@ set (EXECUTABLE gtk_ui)
 add_executable (${EXECUTABLE}
                 EXCLUDE_FROM_ALL
                 ${gtk_ui_EXE_SRCS})
+set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
+
+if (UNIX)
+ target_link_libraries (${EXECUTABLE} X11)
+ target_link_libraries (${EXECUTABLE} GL)
+elseif (WIN32)
+ target_link_libraries (${EXECUTABLE} OpenGL32)
+endif (UNIX)
+message (STATUS "GTK_LIBRARIES: ${GTK_LIBRARIES}")
+target_link_libraries (${EXECUTABLE} ${GTK_LIBRARIES})
+target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
+
+target_link_libraries (${EXECUTABLE} Common)
+target_link_libraries (${EXECUTABLE} CommonLog)
+target_link_libraries (${EXECUTABLE} CommonTimer)
+target_link_libraries (${EXECUTABLE} CommonUI)
+target_link_libraries (${EXECUTABLE} CommonUI_GTK)
+
+# add PCH
+#set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+#cotire (${EXECUTABLE})
+
+############## next target ###############
+set (gtk_ui_2_EXE_SRCS
+     stdafx.cpp
+     stdafx.h
+     test_i_2.cpp
+     test_i_gtk_callbacks.cpp
+     test_i_gtk_callbacks.h
+     test_i_gtk_defines.h)
+
+#cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
+set (EXECUTABLE gtk_ui_2)
+add_executable (${EXECUTABLE}
+                EXCLUDE_FROM_ALL
+                ${gtk_ui_2_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
 if (UNIX)

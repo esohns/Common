@@ -138,57 +138,54 @@ do_process_arguments (int argc_in,
 }
 
 void
+on_button_pressed_cb (GtkWidget* widget,
+                      GdkEventButton* event,
+                      gpointer callback_data)
+{
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("button pressed\n")));
+}
+
+gboolean
+on_delete_cb (GtkWidget* widget,
+              GdkEvent* event,
+              gpointer data)
+{
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("delete event\n")));
+}
+void
+on_destroy_cb (GtkWidget* widget,
+               gpointer data)
+{
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("destroy event\n")));
+
+  gtk_main_quit ();
+}
+
+void
 do_work (int argc_in,
          ACE_TCHAR* argv_in[],
          const std::string& UIDefinitionFilePath_in)
 {
-  Common_UI_GTK_Configuration_t gtk_configuration;
-  struct Common_UI_GTK_CBData ui_cb_data;
-  Common_UI_GtkBuilderDefinition_t gtk_ui_definition;
-  Common_UI_GTK_Manager_t* gtk_manager_p =
-    COMMON_UI_GTK_MANAGER_SINGLETON::instance ();
-  ACE_ASSERT (gtk_manager_p);
-  Common_UI_GTK_State_t& state_r =
-    const_cast<Common_UI_GTK_State_t&> (gtk_manager_p->getR_2 ());
-
-  gtk_configuration.argc = argc_in;
-  gtk_configuration.argv = argv_in;
-  gtk_configuration.CBData = &ui_cb_data;
-  gtk_configuration.eventHooks.finiHook = idle_finalize_UI_cb;
-  gtk_configuration.eventHooks.initHook = idle_initialize_UI_cb;
-  gtk_configuration.definition = &gtk_ui_definition;
-
-  ui_cb_data.UIState = &state_r;
-  ui_cb_data.progressData.state = &state_r;
-
-  state_r.builders[ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN)] =
-    std::make_pair (UIDefinitionFilePath_in, static_cast<GtkBuilder*> (NULL));
-
-  int result = gtk_manager_p->initialize (gtk_configuration);
-  if (!result)
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_UI_GTK_Manager_T::initialize(), returning\n")));
-    return;
-  } // end IF
-
-  ACE_thread_t thread_id = 0;
-  gtk_manager_p->start (thread_id);
-  ACE_UNUSED_ARG (thread_id);
-  ACE_Time_Value timeout (0,
-                          COMMON_UI_GTK_TIMEOUT_DEFAULT_MANAGER_INITIALIZATION * 1000);
-  result = ACE_OS::sleep (timeout);
-  if (result == -1)
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::sleep(%#T): \"%m\", continuing\n"),
-                &timeout));
-  if (!gtk_manager_p->isRunning ())
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to start GTK event dispatch, returning\n")));
-    return;
-  } // end IF
-  gtk_manager_p->wait ();
+  // initialize GTK
+  gtk_init(&argc_in, &argv_in);
+//  gdk_rgb_init();
+  // Create Main Window...
+  // Create widgets
+  GtkWidget* window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  GtkWidget* button = gtk_button_new_with_label("Push the button.");
+  // Connect widget signals
+  g_signal_connect(G_OBJECT(button), "button_press_event", G_CALLBACK(on_button_pressed_cb), NULL);
+  // Add widgets to main window (pack multiple widgets)
+  gtk_container_add(GTK_CONTAINER(window), button);
+  // Show window
+  gtk_widget_show_all(window);
+  // Connect Main Window Signals
+  g_signal_connect(G_OBJECT(window), "delete_event", G_CALLBACK(on_delete_cb), NULL);
+  g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(on_destroy_cb), NULL);  // Listen
+  gtk_main();
 }
 
 int

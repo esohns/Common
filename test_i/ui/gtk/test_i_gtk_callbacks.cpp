@@ -62,7 +62,7 @@ load_entries (GtkListStore* listStore_in)
     gtk_list_store_append (listStore_in, &iterator);
     gtk_list_store_set (listStore_in, &iterator,
                         0, converter.str ().c_str (),
-                        1, i,
+                        1, converter.str ().c_str (),
                         -1);
   } // end FOR
 }
@@ -93,17 +93,17 @@ idle_initialize_UI_cb (gpointer userData_in)
   //gtk_window4096_set_title (,
   //                      caption.c_str ());
 
-  GtkWidget* about_dialog_p =
-    GTK_WIDGET (gtk_builder_get_object ((*iterator).second.second,
-                                        ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_DIALOG_ABOUT_NAME)));
-  ACE_ASSERT (about_dialog_p);
+//  GtkWidget* about_dialog_p =
+//    GTK_WIDGET (gtk_builder_get_object ((*iterator).second.second,
+//                                        ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_DIALOG_ABOUT_NAME)));
+//  ACE_ASSERT (about_dialog_p);
 
   GtkListStore* list_store_p =
     GTK_LIST_STORE (gtk_builder_get_object ((*iterator).second.second,
                                             ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_LISTSTORE_SOURCE_NAME)));
   ACE_ASSERT (list_store_p);
   gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (list_store_p),
-                                        0, GTK_SORT_DESCENDING);
+                                        1, GTK_SORT_DESCENDING);
   load_entries (list_store_p);
   GtkComboBox* combo_box_p =
     GTK_COMBO_BOX (gtk_builder_get_object ((*iterator).second.second,
@@ -128,6 +128,30 @@ idle_initialize_UI_cb (gpointer userData_in)
                                   //"text", 1,
                                   "text", 0,
                                   NULL);
+
+//  combo_box_p =
+//      GTK_COMBO_BOX (gtk_builder_get_object ((*iterator).second.second,
+//                                             ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_COMBOBOX_SOURCE_2_NAME)));
+//  ACE_ASSERT (combo_box_p);
+//  //gtk_combo_box_set_model (combo_box_p,
+//  //                         GTK_TREE_MODEL (list_store_p));
+//  cell_renderer_p = gtk_cell_renderer_text_new ();
+//  if (!cell_renderer_p)
+//  {
+//    ACE_DEBUG ((LM_CRITICAL,
+//                ACE_TEXT ("failed to gtk_cell_renderer_text_new(), aborting\n")));
+//    return G_SOURCE_REMOVE;
+//  } // end IF
+//  gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (combo_box_p), cell_renderer_p,
+//                              true);
+//  // *NOTE*: cell_renderer_p does not need to be g_object_unref()ed because it
+//  //         is GInitiallyUnowned and the floating reference has been
+//  //         passed to combo_box_p by the gtk_cell_layout_pack_start() call
+//  gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (combo_box_p), cell_renderer_p,
+//                                  //"cell-background", 0,
+//                                  //"text", 1,
+//                                  "text", 0,
+//                                  NULL);
 
 //  GtkFileChooserButton* file_chooser_button_p =
 //    GTK_FILE_CHOOSER_BUTTON (gtk_builder_get_object ((*iterator).second.second,
@@ -244,11 +268,11 @@ idle_initialize_UI_cb (gpointer userData_in)
                         NULL);
   ACE_ASSERT (result_2);
 
-  result_2 = g_signal_connect_swapped (G_OBJECT (about_dialog_p),
-                                       ACE_TEXT_ALWAYS_CHAR ("response"),
-                                       G_CALLBACK (gtk_widget_hide),
-                                       about_dialog_p);
-  ACE_ASSERT (result_2);
+//  result_2 = g_signal_connect_swapped (G_OBJECT (about_dialog_p),
+//                                       ACE_TEXT_ALWAYS_CHAR ("response"),
+//                                       G_CALLBACK (gtk_widget_hide),
+//                                       about_dialog_p);
+//  ACE_ASSERT (result_2);
 
   //result_2 =
   //  g_signal_connect (file_chooser_button_p,
@@ -294,28 +318,28 @@ idle_initialize_UI_cb (gpointer userData_in)
 
   // step11: select default capture source (if any)
   //         --> populate the options comboboxes
-//  list_store_p =
-//    GTK_LIST_STORE (gtk_builder_get_object ((*iterator).second.second,
-//                                            ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_LISTSTORE_SOURCE_NAME)));
-//  ACE_ASSERT (list_store_p);
-//  gint n_rows =
-//    gtk_tree_model_iter_n_children (GTK_TREE_MODEL (list_store_p), NULL);
-//  if (n_rows)
-//  {
-////    GtkFrame* frame_p =
-////      GTK_FRAME (gtk_builder_get_object ((*iterator).second.second,
-////                                         ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_FRAME_SOURCE_NAME)));
-////    ACE_ASSERT (frame_p);
-////    gtk_widget_set_sensitive (GTK_WIDGET (frame_p), true);
+  list_store_p =
+    GTK_LIST_STORE (gtk_builder_get_object ((*iterator).second.second,
+                                            ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_LISTSTORE_SOURCE_NAME)));
+  ACE_ASSERT (list_store_p);
+  gint n_rows =
+    gtk_tree_model_iter_n_children (GTK_TREE_MODEL (list_store_p), NULL);
+  if (n_rows)
+  {
+//    GtkFrame* frame_p =
+//      GTK_FRAME (gtk_builder_get_object ((*iterator).second.second,
+//                                         ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_FRAME_SOURCE_NAME)));
+//    ACE_ASSERT (frame_p);
+//    gtk_widget_set_sensitive (GTK_WIDGET (frame_p), true);
 
-//    combo_box_p =
-//      GTK_COMBO_BOX (gtk_builder_get_object ((*iterator).second.second,
-//                                             ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_COMBOBOX_SOURCE_NAME)));
-//    ACE_ASSERT (combo_box_p);
-//    gtk_widget_set_sensitive (GTK_WIDGET (combo_box_p), TRUE);
+    combo_box_p =
+      GTK_COMBO_BOX (gtk_builder_get_object ((*iterator).second.second,
+                                             ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_COMBOBOX_SOURCE_NAME)));
+    ACE_ASSERT (combo_box_p);
+    gtk_widget_set_sensitive (GTK_WIDGET (combo_box_p), TRUE);
 
-//    gtk_combo_box_set_active (combo_box_p, static_cast<gint> (0));
-//  } // end IF
+    gtk_combo_box_set_active (combo_box_p, static_cast<gint> (0));
+  } // end IF
 
   return G_SOURCE_REMOVE;
 }
@@ -666,6 +690,28 @@ idle_update_progress_cb (gpointer userData_in)
 extern "C"
 {
 #endif /* __cplusplus */
+gint
+dialog_main_delete_cb(GtkWidget* w,
+                      GdkEventAny* e,
+                      gpointer data)
+{
+  /* callback for "delete" signal */
+  g_print("main.c:delete_event_cb()n");
+  return 0;
+}
+gint
+dialog_main_destroy_cb (GtkWidget* w,
+                        GdkEventAny* e,
+                        gpointer data)
+{
+  /* callback for "destroy" signal */
+  g_print("main.c:destroy_event_cb()n");
+
+  /* quit application */
+  gtk_main_quit();
+  return 0;
+}
+
 void
 togglebutton_record_toggled_cb (GtkToggleButton* toggleButton_in,
                                 gpointer userData_in)
@@ -985,7 +1031,7 @@ combobox_source_changed_cb (GtkWidget* widget_in,
                                              ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_COMBOBOX_SOURCE_2_NAME)));
     ACE_ASSERT (combo_box_p);
     gtk_widget_set_sensitive (GTK_WIDGET (combo_box_p), true);
-    gtk_combo_box_set_active (combo_box_p, 0);
+//    gtk_combo_box_set_active (combo_box_p, 0);
   } // end IF
 } // combobox_source_changed_cb
 
