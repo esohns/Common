@@ -226,10 +226,10 @@ Common_UI_GTK_Tools::initialize (int argc_in,
   if (Common_UI_GTK_Tools::GTKInitialized)
     return true;
 
-  if (!gdk_init_check (&argc_in, &argv_in))
+  if (!gtk_init_check (&argc_in, &argv_in))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to gdk_init_check(): \"%m\", aborting\n")));
+                ACE_TEXT ("failed to gtk_init_check(): \"%m\", aborting\n")));
     return false;
   } // end IF
 

@@ -170,22 +170,40 @@ do_work (int argc_in,
          const std::string& UIDefinitionFilePath_in)
 {
   // initialize GTK
-  gtk_init(&argc_in, &argv_in);
-//  gdk_rgb_init();
-  // Create Main Window...
-  // Create widgets
-  GtkWidget* window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  GtkWidget* button = gtk_button_new_with_label("Push the button.");
-  // Connect widget signals
-  g_signal_connect(G_OBJECT(button), "button_press_event", G_CALLBACK(on_button_pressed_cb), NULL);
-  // Add widgets to main window (pack multiple widgets)
-  gtk_container_add(GTK_CONTAINER(window), button);
-  // Show window
-  gtk_widget_show_all(window);
-  // Connect Main Window Signals
-  g_signal_connect(G_OBJECT(window), "delete_event", G_CALLBACK(on_delete_cb), NULL);
-  g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(on_destroy_cb), NULL);  // Listen
-  gtk_main();
+//  gtk_init(&argc_in, &argv_in);
+////  gdk_rgb_init();
+//  // Create Main Window...
+//  // Create widgets
+//  GtkWidget* window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+//  GtkWidget* button = gtk_button_new_with_label("Push the button.");
+//  // Connect widget signals
+//  g_signal_connect(G_OBJECT(button), "button_press_event", G_CALLBACK(on_button_pressed_cb), NULL);
+//  // Add widgets to main window (pack multiple widgets)
+//  gtk_container_add(GTK_CONTAINER(window), button);
+//  // Show window
+//  gtk_widget_show_all(window);
+//  // Connect Main Window Signals
+//  g_signal_connect(G_OBJECT(window), "delete_event", G_CALLBACK(on_delete_cb), NULL);
+//  g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(on_destroy_cb), NULL);  // Listen
+//  gtk_main();
+
+  gtk_init (&argc_in, &argv_in);
+
+//  std::string ui_definition_file = Common_File_Tools::getWorkingDirectory();
+//  ui_definition_file += ACE_DIRECTORY_SEPARATOR_STR;
+//  ui_definition_file += ACE_TEXT_ALWAYS_CHAR ("etc");
+//  ui_definition_file += ACE_DIRECTORY_SEPARATOR_STR;
+//  ui_definition_file += ACE_TEXT_ALWAYS_CHAR ("gtk_ui.gtk3");
+
+  GtkBuilder* gtkBuilder= gtk_builder_new();
+  gtk_builder_add_from_file(gtkBuilder,UIDefinitionFilePath_in.c_str (),NULL);
+  gtk_builder_connect_signals ( gtkBuilder, NULL );
+  GtkWidget* mainwin= GTK_WIDGET(gtk_builder_get_object(gtkBuilder,"dialog_main"));
+  g_object_unref ( G_OBJECT(gtkBuilder) );
+
+  gtk_widget_show_all ( mainwin );
+
+  gtk_main ();
 }
 
 int
