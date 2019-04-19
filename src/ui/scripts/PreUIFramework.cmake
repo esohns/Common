@@ -67,7 +67,7 @@ if (UNIX)
 
 # endif (GTK3_QUARTZ_FOUND OR GTK3_X11_FOUND OR GTK3_WAYLAND_FOUND)
  endif (PKG_GTK_3_FOUND)
- find_package (GTK2 MODULE)
+# find_package (GTK2 MODULE)
  find_package (GTK MODULE)
 
  if (NOT GTK3_FOUND)
