@@ -112,7 +112,7 @@ struct Common_UI_DisplayAdapter
 //#endif // ACE_WIN32 || ACE_WIN64
 typedef std::list<struct Common_UI_DisplayAdapter> Common_UI_DisplayAdapters_t;
 typedef Common_UI_DisplayAdapters_t::iterator Common_UI_DisplayAdaptersIterator_t;
-typedef Common_UI_DisplayAdapters_t::const_iterator Common_UI_DisplayAdaptersConstIterator_t;
+//typedef Common_UI_DisplayAdapters_t::const_iterator Common_UI_DisplayAdaptersConstIterator_t;
 
 // device ('physical'- i.e. screens, monitors, etc.)
 struct Common_UI_DisplayDevice
@@ -150,7 +150,7 @@ struct Common_UI_DisplayDevice
 };
 typedef std::list<struct Common_UI_DisplayDevice> Common_UI_DisplayDevices_t;
 typedef Common_UI_DisplayDevices_t::iterator Common_UI_DisplayDevicesIterator_t;
-typedef Common_UI_DisplayDevices_t::const_iterator Common_UI_DisplayDevicesConstIterator_t;
+//typedef Common_UI_DisplayDevices_t::const_iterator Common_UI_DisplayDevicesConstIterator_t;
 
 struct Common_UI_Display // logical-
 {

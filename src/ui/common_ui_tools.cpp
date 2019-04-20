@@ -579,7 +579,7 @@ Common_UI_Tools::getAdapter (const std::string& deviceIdentifier_in)
   Common_UI_DisplayAdapters_t display_adapters_a =
     Common_UI_Tools::getAdapters ();
 
-  for (Common_UI_DisplayAdaptersConstIterator_t iterator = display_adapters_a.begin ();
+  for (Common_UI_DisplayAdaptersIterator_t iterator = display_adapters_a.begin ();
        iterator != display_adapters_a.end ();
        ++iterator)
   {
