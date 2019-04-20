@@ -38,6 +38,7 @@
 #endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0600)
 #else
 #include "X11/Xlib.h"
+#include "X11/extensions/Xrandr.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/Dirent_Selector.h"
@@ -51,6 +52,7 @@
 #include "common_error_tools.h"
 
 #include "common_ui_common.h"
+#include "common_ui_defines.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 #include "common_ui_monitor_setup_xml_handler.h"
@@ -1291,6 +1293,87 @@ Common_UI_Tools::getDesktopDisplays ()
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
+std::string
+Common_UI_Tools::getX11DisplayName (const std::string& outputName_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::getX11DisplayName"));
+
+  std::string return_value =
+      ACE_OS::getenv (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_X11_DISPLAY_ENVIRONMENT_VARIABLE));
+  if (return_value.empty ())
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("environment \"%s\" not set, cannot open X11 display, aborting\n"),
+                ACE_TEXT (COMMON_UI_X11_DISPLAY_ENVIRONMENT_VARIABLE)));
+    return return_value;
+  } // end IF
+
+  int result = -1;
+  Display* display_p = XOpenDisplay (return_value.c_str ());
+  if (!display_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to XOpenDisplay(%s), aborting\n"),
+                ACE_TEXT (return_value.c_str ())));
+    return_value.clear ();
+    return return_value;
+  } // end IF
+
+  // verify that the output is being used by the X11 session
+  Screen* screen_p = NULL;
+  XRRScreenResources* screen_resources_p = NULL;
+  XRROutputInfo* output_info_p = NULL;
+  XRRCrtcInfo* crtc_info_p = NULL;
+  for (int i = 0;
+       i < ScreenCount (display_p);
+       ++i)
+  {
+    screen_p = ScreenOfDisplay (display_p, i);
+    ACE_ASSERT (screen_p);
+    screen_resources_p =
+        XRRGetScreenResources (display_p,
+                               RootWindow (display_p, i));
+    ACE_ASSERT (screen_resources_p);
+    for (int j = 0;
+         j < screen_resources_p->noutput;
+         ++j)
+    {
+      output_info_p = XRRGetOutputInfo (display_p,
+                                        screen_resources_p,
+                                        screen_resources_p->outputs[j]);
+      ACE_ASSERT (output_info_p);
+      if ((output_info_p->connection != RR_Connected) ||
+          ACE_OS::strcmp (output_info_p->name,
+                          outputName_in.c_str ()))
+      {
+        XRRFreeOutputInfo (output_info_p); output_info_p = NULL;
+        continue;
+      } // end IF
+      crtc_info_p = XRRGetCrtcInfo (display_p,
+                                    screen_resources_p,
+                                    output_info_p->crtc);
+      ACE_ASSERT (crtc_info_p);
+#if defined (_DEBUG)
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("found output \"%s\" in X11 session \"%s\" [%dx%d+%dx%d]\n"),
+                  ACE_TEXT (outputName_in.c_str ()),
+                  ACE_TEXT (return_value.c_str ()),
+                  crtc_info_p->x, crtc_info_p->y, crtc_info_p->width, crtc_info_p->height));
+#endif // _DEBUG
+      XRRFreeCrtcInfo (crtc_info_p); crtc_info_p = NULL;
+      XRRFreeOutputInfo (output_info_p); output_info_p = NULL;
+    } // end FOR
+    XRRFreeScreenResources (screen_resources_p); screen_resources_p = NULL;
+  } // end FOR
+
+  result = XCloseDisplay (display_p);
+  if (result)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to XCloseDisplay(), continuing\n")));
+
+  return return_value;
+}
+
 XWindowAttributes
 Common_UI_Tools::get (const Display& display_in,
                       Window id_in)

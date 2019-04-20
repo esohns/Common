@@ -75,6 +75,11 @@ class Common_UI_Tools
                     Drawable);      // drawable (window or pixmap)
   static XWindowAttributes get (const Display&, // connection handle
                                 Window);        // window
+  // *NOTE*: queries the display name from the 'DISPLAY' environment to verify
+  //         that the X11 session is using the screen connected to the given
+  //         output
+  static std::string getX11DisplayName (const std::string&); // output name
+
 #endif // ACE_WIN32 || ACE_WIN64
 
   // *NOTE*: the identifier may specify either a graphics adapter or a display

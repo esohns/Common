@@ -109,6 +109,7 @@ target_sources (${PROJECT_NAME}UI
 
 add_dependencies (${PROJECT_NAME}UI Common)
 if (UNIX)
+ target_link_libraries (${PROJECT_NAME}UI X11 Xrandr)
 elseif (WIN32)
 # target_link_libraries (${PROJECT_NAME}UI Common)
 endif ()
@@ -156,4 +157,3 @@ endif (QT_SUPPORT)
 if (WXWIDGETS_SUPPORT)
  add_subdirectory (wxwidgets)
 endif (WXWIDGETS_SUPPORT)
-

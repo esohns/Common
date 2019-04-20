@@ -82,7 +82,11 @@ class Common_UI_GTK_Tools
                              const GValue&,
                              gint = 0);     // column
 
-  static bool getDisplayDevices (Common_UI_DisplayDevices_t&); // return value: connected devices
+  static void selectValue (GtkComboBox*,
+                           const GValue&,
+                           gint = 0);     // column
+
+  static Common_UI_DisplayDevices_t getDisplayDevices (); // return value: connected devices
 
 #if defined (_DEBUG)
   // *NOTE*: recurses into any children

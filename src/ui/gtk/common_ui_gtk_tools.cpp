@@ -342,13 +342,28 @@ Common_UI_GTK_Tools::valueToIndex (GtkTreeModel* treeModel_in,
                           : std::numeric_limits<guint>::max ());
 }
 
-bool
-Common_UI_GTK_Tools::getDisplayDevices (Common_UI_DisplayDevices_t& devices_out)
+void
+Common_UI_GTK_Tools::selectValue (GtkComboBox* comboBox_in,
+                                  const GValue& value_in,
+                                  gint column_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::selectValue"));
+
+  guint index_i =
+      Common_UI_GTK_Tools::valueToIndex (gtk_combo_box_get_model (comboBox_in),
+                                         value_in,
+                                         column_in);
+  ACE_ASSERT (index_i != std::numeric_limits<unsigned int>::max ());
+  gtk_combo_box_set_active (comboBox_in, static_cast<gint> (index_i));
+}
+
+Common_UI_DisplayDevices_t
+Common_UI_GTK_Tools::getDisplayDevices ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::getDisplayDevices"));
 
   // initialize return value(s)
-  devices_out.clear ();
+  Common_UI_DisplayDevices_t return_value;
 
   struct Common_UI_DisplayDevice device_s;
   GdkDisplayManager* display_manager_p = gdk_display_manager_get ();
@@ -393,12 +408,11 @@ Common_UI_GTK_Tools::getDisplayDevices (Common_UI_DisplayDevices_t& devices_out)
                   ACE_TEXT (gdk_monitor_get_model (monitor_p))));
 #endif // _DEBUG
 
-      if (gdk_monitor_is_primary (monitor_p))
-        device_s.description = ACE_TEXT_ALWAYS_CHAR ("*");
       device_s.description += gdk_monitor_get_manufacturer (monitor_p);
       device_s.description += ACE_TEXT_ALWAYS_CHAR (" / ");
       device_s.description += gdk_monitor_get_model (monitor_p);
-      devices_out.push_back (device_s);
+      device_s.primary = gdk_monitor_is_primary (monitor_p);
+      return_value.push_back (device_s);
     } // end FOR
 #else
     number_of_screens = gdk_display_get_n_screens (display_p);
@@ -433,14 +447,14 @@ Common_UI_GTK_Tools::getDisplayDevices (Common_UI_DisplayDevices_t& devices_out)
           device_s.description = ACE_TEXT_ALWAYS_CHAR ("*");
         device_s.description += gdk_screen_get_monitor_plug_name (screen_p,
                                                                   i);
-        devices_out.push_back (device_s);
+        return_value.push_back (device_s);
       } // end FOR
     } // end FOR
 #endif // GTK_CHECK_VERSION (3,22,0)
   } // end FOR
   g_slist_free (list_p); list_p = NULL;
 
-  return true;
+  return return_value;
 }
 
 #if defined (_DEBUG)

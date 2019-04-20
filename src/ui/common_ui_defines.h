@@ -37,6 +37,12 @@
 // interface definition
 #define COMMON_UI_DEFINITION_DESCRIPTOR_MAIN                      "main"
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+// X11
+#define COMMON_UI_X11_DISPLAY_ENVIRONMENT_VARIABLE                "DISPLAY"
+#endif // ACE_WIN32 || ACE_WIN64
+
 // ************************************ SDL ************************************
 
 // event dispatch
