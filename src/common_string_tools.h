@@ -44,10 +44,12 @@ class Common_String_Tools
 
   static std::string sanitizeURI (const std::string&); // URI
   // replace ' ' with '_'
-  static std::string sanitize (const std::string&); // string
+  static std::string sanitize (const std::string&);
   // remove leading and trailing whitespace
-  static std::string strip (const std::string&); // string
-  static bool isspace (const std::string&); // string
+  static std::string strip (const std::string&);
+  static bool isspace (const std::string&);
+
+  static std::string toupper (const std::string&);
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_String_Tools ())

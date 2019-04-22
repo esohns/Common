@@ -114,9 +114,9 @@ class Common_File_Tools
   static bool open (const std::string&, // (FQ) path
                     int,                // flags
                     ACE_FILE_IO&);      // return value: file stream
-  static bool store (const std::string&,   // (FQ) path
-                     const unsigned char*, // buffer handle
-                     unsigned int);        // buffer size
+  static bool store (const std::string&, // (FQ) path
+                     const uint8_t*,     // buffer handle
+                     unsigned int);      // buffer size
   static unsigned int size (const ACE_FILE_Addr&); // file name
   static unsigned int size (const std::string&); // (FQ) path
 

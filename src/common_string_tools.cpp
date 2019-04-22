@@ -20,6 +20,7 @@
 #include "stdafx.h"
 
 #include <algorithm>
+#include <locale>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <OleAuto.h>
@@ -321,4 +322,21 @@ Common_String_Tools::isspace (const std::string& string_in)
       return false;
 
   return true;
+}
+
+std::string
+Common_String_Tools::toupper (const std::string& string_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_String_Tools::toupper"));
+
+  // initialize return value
+  std::string return_value;
+
+  std::locale locale;
+  for (std::string::size_type i = 0;
+       i < string_in.length ();
+       ++i)
+    return_value += std::toupper (string_in[i], locale);
+
+  return return_value;
 }

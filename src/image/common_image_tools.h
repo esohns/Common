@@ -44,6 +44,8 @@ extern "C"
 
 #include "common_image_common.h"
 
+// forward declarations
+struct _MagickWand;
 
 typedef std::list<enum AVPixelFormat> Common_Image_FFMPEGPixelFormats_t;
 typedef Common_Image_FFMPEGPixelFormats_t::const_iterator Common_Image_FFMPEGPixelFormatsIterator_t;
@@ -120,6 +122,7 @@ class Common_Image_Tools
 
   // --- ImageMagick ---
   static enum AVCodecID stringToCodecId (const std::string&);
+  static std::string errorToString (struct _MagickWand*); // context
 
  private:
   // *NOTE*: callers need to delete[] the returned memory buffer(s) (iff any)

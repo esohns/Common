@@ -32,6 +32,12 @@ extern "C"
 }
 #endif /* __cplusplus */
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "MagickWand/MagickWand.h"
+#else
+#include "wand/magick_wand.h"
+#endif // ACE_WIN32 || ACE_WIN64
+
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
 
@@ -710,14 +716,15 @@ Common_Image_Tools::decode (const uint8_t* sourceBuffers_in,
   codec_context_p->time_base.num = 1;
   codec_context_p->width = 1;
   codec_context_p->height = 1;
-  codec_context_p->pix_fmt = format_in;
-//  codec_context_p->opaque = &cb_data_s;
-//  codec_context_p->get_format = common_image_tools_get_format_cb;
+  codec_context_p->pix_fmt = AV_PIX_FMT_RGB24;
+  codec_context_p->opaque = &cb_data_s;
+  codec_context_p->get_format = common_image_tools_get_format_cb;
 //  codec_context_p->request_sample_fmt = AV_PIX_FMT_RGB24;
+  codec_context_p->thread_count = 1;
   codec_context_p->refcounted_frames = 1; // *NOTE*: caller 'owns' the frame buffer
   codec_context_p->workaround_bugs = 0xFFFFFFFF;
   codec_context_p->strict_std_compliance = FF_COMPLIANCE_UNOFFICIAL;
-  codec_context_p->error_concealment = 0xFFFFFFFF;
+//  codec_context_p->error_concealment = 0xFFFFFFFF;
 #if defined (_DEBUG)
   codec_context_p->debug = 0xFFFFFFFF;
 #endif // _DEBUG
@@ -1224,12 +1231,31 @@ Common_Image_Tools::stringToCodecId (const std::string& format_in)
 
   if (format_in == ACE_TEXT_ALWAYS_CHAR ("RGB"))
     return_value = AV_CODEC_ID_NONE;
+  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("RGBA"))
+    return_value = AV_CODEC_ID_NONE;
   else if (format_in == ACE_TEXT_ALWAYS_CHAR ("PNG"))
     return_value = AV_CODEC_ID_PNG;
   else
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("invalid/unknown format (was: \"%s\"), aborting\n"),
                 ACE_TEXT (format_in.c_str ())));
+
+  return return_value;
+}
+
+std::string
+Common_Image_Tools::errorToString (struct _MagickWand* context_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::errorToString"));
+
+  // initialize return value(s)
+  std::string return_value;
+
+  ExceptionType severity;
+  char* description_p = MagickGetException (context_in, &severity);
+  ACE_ASSERT (description_p);
+  return_value = description_p;
+  MagickRelinquishMemory (description_p); description_p = NULL;
 
   return return_value;
 }

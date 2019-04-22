@@ -15,6 +15,7 @@
 #  message (FATAL_ERROR "could not find libavcodec, aborting")
 # endif (NOT AVCODEC_LIBRARY)
  pkg_check_modules (PKG_FFMPEG REQUIRED libavcodec libavformat libswscale)
+ find_package (ImageMagick COMPONENTS MagickCore MagickWand)
 endif (UNIX)
 
 add_library (${PROJECT_NAME}Image STATIC "")
@@ -22,6 +23,8 @@ add_library (${PROJECT_NAME}Image STATIC "")
 if (UNIX)
  target_include_directories (${PROJECT_NAME}Image PUBLIC
                              $<BUILD_INTERFACE:${PKG_FFMPEG_INCLUDE_DIRS}>)
+ target_include_directories (${PROJECT_NAME}Image PUBLIC
+                             $<BUILD_INTERFACE:${ImageMagick_INCLUDE_DIRS}>)
 
  target_include_directories (${PROJECT_NAME}Image PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
