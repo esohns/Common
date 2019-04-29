@@ -153,6 +153,7 @@ on_delete_cb (GtkWidget* widget,
 {
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("delete event\n")));
+  return TRUE;
 }
 void
 on_destroy_cb (GtkWidget* widget,

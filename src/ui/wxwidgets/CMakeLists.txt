@@ -75,6 +75,7 @@ set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 #set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 if (WIN32)
  add_definitions(-DUNICODE -D_UNICODE)
+ add_definitions (-DWX_HIDE_MODE_T)
 endif (WIN32)
 
 unset (absolute_source_files)

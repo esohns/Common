@@ -33,6 +33,7 @@ extern "C"
 #endif /* __cplusplus */
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+#define ssize_t ssize_t // *NOTE*: use ACEs' declaration
 #include "MagickWand/MagickWand.h"
 #else
 #include "wand/magick_wand.h"

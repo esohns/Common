@@ -47,6 +47,8 @@ elseif (WIN32)
  target_include_directories (${PROJECT_NAME}Image PUBLIC
                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ffmpeg/include>)
 #                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ffmpeg>)
+ target_include_directories (${PROJECT_NAME}Image PUBLIC
+                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ImageMagick/include>)
 
  if (DEFINED ENV{ACE_ROOT})
   target_include_directories (${PROJECT_NAME}Image PUBLIC

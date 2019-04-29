@@ -91,6 +91,10 @@ target_link_libraries (${EXECUTABLE} CommonImage)
 target_link_libraries (${EXECUTABLE} CommonLog)
 target_link_libraries (${EXECUTABLE} CommonTimer)
 
+if (WIN32)
+ set_target_properties (${EXECUTABLE} PROPERTIES LINK_FLAGS /SAFESEH:NO)
+endif (WIN32)
+
 # add PCH
 #set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
 #cotire (${EXECUTABLE})

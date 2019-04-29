@@ -766,7 +766,7 @@ Common_UI_Tools::getDisplays ()
   ////device_mode_s.dmDriverExtra = 0;
   //DWORD dwFlags = (EDS_RAWMODE |
   //                 EDS_ROTATEDMODE);
-  for (Common_UI_DisplayAdaptersConstIterator_t iterator = display_adapters_a.begin ();
+  for (Common_UI_DisplayAdaptersIterator_t iterator = display_adapters_a.begin ();
        iterator != display_adapters_a.end ();
        ++iterator)
     for (Common_UI_DisplayAdapterHeadsConstIterator_t iterator_2 = (*iterator).heads.begin ();

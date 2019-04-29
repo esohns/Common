@@ -8,14 +8,13 @@
 // Example for compiling a multi file project under Linux using g++:
 //  g++ main.cpp $(wx-config --libs) $(wx-config --cxxflags) -o MyApp Dialog1.cpp Frame1.cpp
 //
+#include "ace/Synch.h"
+#include "test_u_3.h"
 
 #include "wx/apptrait.h"
 #include "wx/xrc/xmlres.h"
 
 #include "ace/Log_Msg.h"
-#include "ace/Synch.h"
-
-#include "test_u_3.h"
 
 extern const char toplevel_widget_classname_string_[] =
     ACE_TEXT_ALWAYS_CHAR ("dialog_main_base");

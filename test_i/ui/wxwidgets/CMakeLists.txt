@@ -31,6 +31,8 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../..)
 
 set (CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+add_definitions (-DWX_HIDE_MODE_T)
+
 ############## next target ###############
 set (wxwidgets_EXE_SRCS
      stdafx.cpp

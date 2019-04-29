@@ -54,10 +54,11 @@ struct Common_Signal
   int               signal;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   struct siginfo_t  siginfo;
+  ucontext_t        ucontext;
 #else
   siginfo_t         siginfo;
-#endif // ACE_WIN32 || ACE_WIN64
   struct ucontext_t ucontext;
+#endif // ACE_WIN32 || ACE_WIN64
 };
 typedef std::vector <struct Common_Signal> Common_Signals_t;
 typedef Common_Signals_t::const_iterator Common_SignalsIterator_t;

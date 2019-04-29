@@ -85,7 +85,7 @@ elseif (WIN32)
 # target_link_libraries (${PROJECT_NAME}Timer Secur32.lib)
 # target_link_libraries (${PROJECT_NAME}Timer Userenv.lib)
 
-# target_link_libraries (${PROJECT_NAME}Timer ${ACE_LIBRARY})
+ target_link_libraries (${PROJECT_NAME}Timer ${ACE_LIBRARY})
 
 # target_link_libraries (${PROJECT_NAME}Timer ${PROJECT_NAME}Error)
 endif ()

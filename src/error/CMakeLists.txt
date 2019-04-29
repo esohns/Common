@@ -60,13 +60,13 @@ endif ()
 
 #*TODO*: use pkg-config instead
 if (WIN32)
-# target_link_libraries (${PROJECT_NAME}Error ${COMMON_TARGET_NAME})
-endif ()
+ target_link_libraries (${PROJECT_NAME}Error ${ACE_LIBRARY})
+endif (WIN32)
 
 # *WARNING*: linking libglade-2.dll(.a) requires "/SAFESEH:NO""
 if (WIN32)
 # set_target_properties (${PROJECT_NAME}Error PROPERTIES LINK_FLAGS /SAFESEH:NO)
-endif ()
+endif (WIN32)
 set_target_properties (${PROJECT_NAME}Error PROPERTIES DEFINE_SYMBOL COMMON_ERR_BUILD_DLL)
 set_target_properties (${PROJECT_NAME}Error PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 

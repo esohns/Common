@@ -12,12 +12,16 @@
 #ifndef TEST_U_2_H
 #define TEST_U_2_H
 
+//#include "ace/config-lite.h"
+#include "ace/os_include/sys/os_types.h"
+
 //#if defined (_DEBUG)
 //#undef _DEBUG // *NOTE*: do not (!) #define __WXDEBUG__
 //#define REDEDINE_DEBUG 1
 //#endif // _DEBUG
+//#define WX_HIDE_MODE_T
 #include <wx/wx.h>
-#include <wx/image.h>
+//#include <wx/image.h>
 //#if defined (REDEDINE_DEBUG)
 //#undef REDEDINE_DEBUG
 //#define _DEBUG

@@ -29,11 +29,12 @@
 // System Library Header Files
 
 // Library Header Files
+#include "ace/os_include/sys/os_types.h"
 #include "wx/wx.h"
 
-#define ACE_HAS_SSIZE_T
+//#define ACE_HAS_SSIZE_T
 #include "ace/config-lite.h"
-#undef ACE_LACKS_MODE_T
+//#undef ACE_LACKS_MODE_T
 #include "ace/Global_Macros.h"
 #include "ace/Log_Msg.h"
 #include "ace/Synch.h"
@@ -43,11 +44,11 @@
 #include "valgrind/valgrind.h"
 #endif // VALGRIND_SUPPORT
 
+// Local Header Files
 #if defined (HAVE_CONFIG_H)
 #include "Common_config.h"
 #endif // HAVE_CONFIG_H
 
-// Local Header Files
 #include "common.h"
 #include "common_macros.h"
 #include "common_pragmas.h"
