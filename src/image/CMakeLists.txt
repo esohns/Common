@@ -1,4 +1,6 @@
-﻿if (UNIX)
+﻿option (IMAGEMAGICK_SUPPORT "compile ImageMagick support" OFF)
+
+if (UNIX)
 # find_library (SWSCALE_LIBRARY libswscale.so.5
 #               DOC "searching for libswscale")
 # if (NOT SWSCALE_LIBRARY)
@@ -15,7 +17,9 @@
 #  message (FATAL_ERROR "could not find libavcodec, aborting")
 # endif (NOT AVCODEC_LIBRARY)
  pkg_check_modules (PKG_FFMPEG REQUIRED libavcodec libavformat libswscale)
- find_package (ImageMagick COMPONENTS MagickCore MagickWand)
+ if (IMAGEMAGICK_SUPPORT)
+  find_package (ImageMagick COMPONENTS MagickCore MagickWand)
+ endif (IMAGEMAGICK_SUPPORT)
 endif (UNIX)
 
 add_library (${PROJECT_NAME}Image STATIC "")
@@ -47,8 +51,10 @@ elseif (WIN32)
  target_include_directories (${PROJECT_NAME}Image PUBLIC
                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ffmpeg/include>)
 #                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ffmpeg>)
- target_include_directories (${PROJECT_NAME}Image PUBLIC
-                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ImageMagick/include>)
+ if (IMAGEMAGICK_SUPPORT)
+  target_include_directories (${PROJECT_NAME}Image PUBLIC
+                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ImageMagick/include>)
+ endif (IMAGEMAGICK_SUPPORT)
 
  if (DEFINED ENV{ACE_ROOT})
   target_include_directories (${PROJECT_NAME}Image PUBLIC
@@ -111,6 +117,11 @@ if (WIN32)
  target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ffmpeg/lib/avutil.lib)
 # target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ffmpeg/libavcodec/avcodec.lib)
 # target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ffmpeg/libavutil/avutil.lib)
+
+ if (IMAGEMAGICK_SUPPORT)
+  target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickCore_.lib>)
+  target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickWand_.lib>)
+ endif (IMAGEMAGICK_SUPPORT)
 
 # target_link_libraries (${PROJECT_NAME}Image ${COMMON_TARGET_NAME})
 endif ()

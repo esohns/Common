@@ -121,8 +121,10 @@ class Common_Image_Tools
   static std::string errorToString (int); // error code
 
   // --- ImageMagick ---
+#if defined (IMAGEMAGICK_SUPPORT)
   static enum AVCodecID stringToCodecId (const std::string&);
   static std::string errorToString (struct _MagickWand*); // context
+#endif // IMAGEMAGICK_SUPPORT
 
  private:
   // *NOTE*: callers need to delete[] the returned memory buffer(s) (iff any)

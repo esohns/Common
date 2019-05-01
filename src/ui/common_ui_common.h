@@ -75,34 +75,31 @@ typedef Common_UI_DisplayAdapterHeads_t::const_iterator Common_UI_DisplayAdapter
 struct Common_UI_DisplayAdapter
 {
   Common_UI_DisplayAdapter ()
-   : heads ()
-   , clippingArea ()
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-   , id ()
-#else
+   : clippingArea ()
+   , description ()
    , device ()
+   , heads ()
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
    , driver ()
    , slot () // PCI-
 #endif // ACE_WIN32 || ACE_WIN64
-   , description ()
   {}
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  inline bool operator== (const struct Common_UI_DisplayAdapter& rhs_in) { return !ACE_OS::strcmp (id.c_str (), rhs_in.id.c_str ()); }
-#else
   inline bool operator== (const struct Common_UI_DisplayAdapter& rhs_in) { return !ACE_OS::strcmp (device.c_str (), rhs_in.device.c_str ()); }
-#endif // ACE_WIN32 || ACE_WIN64
 
-  Common_UI_DisplayAdapterHeads_t heads;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   struct tagRECT                  clippingArea;
-  std::string                     id;
 #else
   XRectangle                      clippingArea;
+#endif // ACE_WIN32 || ACE_WIN64
+  std::string                     description;
   std::string                     device;
+  Common_UI_DisplayAdapterHeads_t heads;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   std::string                     driver;
   std::string                     slot;
 #endif // ACE_WIN32 || ACE_WIN64
-  std::string                     description;
 };
 //#if defined (ACE_WIN32) || defined (ACE_WIN64)
 //struct common_ui_adapter_equal

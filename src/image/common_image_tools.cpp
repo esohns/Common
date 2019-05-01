@@ -32,12 +32,14 @@ extern "C"
 }
 #endif /* __cplusplus */
 
+#if defined (IMAGEMAGICK_SUPPORT)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #define ssize_t ssize_t // *NOTE*: use ACEs' declaration
 #include "MagickWand/MagickWand.h"
 #else
 #include "wand/magick_wand.h"
 #endif // ACE_WIN32 || ACE_WIN64
+#endif // IMAGEMAGICK_SUPPORT
 
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
@@ -1222,6 +1224,7 @@ Common_Image_Tools::errorToString (int errorCode_in)
   return return_value;
 }
 
+#if defined (IMAGEMAGICK_SUPPORT)
 enum AVCodecID
 Common_Image_Tools::stringToCodecId (const std::string& format_in)
 {
@@ -1260,3 +1263,4 @@ Common_Image_Tools::errorToString (struct _MagickWand* context_in)
 
   return return_value;
 }
+#endif // IMAGEMAGICK_SUPPORT

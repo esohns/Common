@@ -379,7 +379,7 @@ Common_UI_Tools::getAdapters ()
         (display_device_s.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER))
       goto continue_;
     // check if it is another head on an existing adapter
-    display_adapter_s.id =
+    display_adapter_s.device =
 #if defined (UNICODE)
       ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_s.DeviceID));
 #else
@@ -397,7 +397,7 @@ Common_UI_Tools::getAdapters ()
       ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_s.DeviceName));
     display_adapter_head_s.key =
       ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_s.DeviceKey));
-    display_adapter_p->id =
+    display_adapter_p->device =
       ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_s.DeviceID));
     display_adapter_p->description =
       ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_s.DeviceString));
@@ -586,7 +586,7 @@ Common_UI_Tools::getAdapter (const std::string& deviceIdentifier_in)
        ++iterator)
   {
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-    if (!ACE_OS::strcmp ((*iterator).id.c_str (),
+    if (!ACE_OS::strcmp ((*iterator).device.c_str (),
                          deviceIdentifier_in.c_str ()))
       return *iterator;
     for (Common_UI_DisplayAdapterHeadsConstIterator_t iterator_2 = (*iterator).heads.begin ();

@@ -117,6 +117,8 @@ class Common_UI_GTK_Tools
 #endif // GTKGL_SUPPORT
 #endif // _DEBUG
 
+  static void dump (GtkBuilder*); // builder handle
+
   static bool GTKInitialized;
 
  private:

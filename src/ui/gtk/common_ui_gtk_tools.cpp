@@ -784,3 +784,24 @@ continue_:
 }
 #endif // GTKGL_SUPPORT
 #endif // _DEBUG
+
+void
+Common_UI_GTK_Tools::dump (GtkBuilder* builder_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::dump"));
+
+  GSList* list_p = NULL, *list_2 = NULL;
+
+  list_p = gtk_builder_get_objects (builder_in);
+  ACE_ASSERT (list_p);
+
+  g_print ("%p\n", list_p);
+  for (list_2 = list_p;
+       list_2 != NULL;
+       list_2 = list_2->next)
+  {
+    g_print ("%p\n", (char *)(list_2->data));
+  } // end FOR
+
+  g_slist_free (list_p); list_p = NULL;
+}

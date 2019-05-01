@@ -102,11 +102,10 @@ class Common_UI_Tools
 
   // helper methods
   inline static bool is (const std::string& deviceIdentifier_in) { return (Common_UI_Tools::isAdapter (deviceIdentifier_in) || Common_UI_Tools::isDisplay (deviceIdentifier_in)); }
+  inline static bool isAdapter (const std::string& deviceIdentifier_in) { struct Common_UI_DisplayAdapter adapter_s = Common_UI_Tools::getAdapter (deviceIdentifier_in); return !adapter_s.device.empty (); }
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  inline static bool isAdapter (const std::string& deviceIdentifier_in) { struct Common_UI_DisplayAdapter adapter_s = Common_UI_Tools::getAdapter (deviceIdentifier_in); return !adapter_s.id.empty (); }
   inline static bool isDisplay (const std::string& deviceIdentifier_in) { struct Common_UI_DisplayDevice display_s = Common_UI_Tools::getDisplay (deviceIdentifier_in); return (display_s.handle != NULL); }
 #else
-  inline static bool isAdapter (const std::string& deviceIdentifier_in) { struct Common_UI_DisplayAdapter adapter_s = Common_UI_Tools::getAdapter (deviceIdentifier_in); return !adapter_s.device.empty (); }
   inline static bool isDisplay (const std::string& deviceIdentifier_in) { struct Common_UI_DisplayDevice display_s = Common_UI_Tools::getDisplay (deviceIdentifier_in); return !display_s.device.empty (); }
 #endif // ACE_WIN32 || ACE_WIN64
 };
