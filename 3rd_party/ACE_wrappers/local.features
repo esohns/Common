@@ -1,48 +1,52 @@
 debug=1
 
-//exceptions=1
+exceptions=0
 //inline=1
 rtti=1
 threads=1
 buildbits=64
-//uses_wchar=0
+uses_wchar=0
 
 qos=1
 ssl=1
-//etcl=1
-xerces=0
+openssl11=1
+inet_ssl=0
+//xerces=0
 //zlib=1
 
-ace_svcconf_gen=0
-ace_for_tao=0
+ipv6=1
 
-gl=1
+//ace_svcconf_gen=0
+//ace_for_tao=0
 
-fl=0
-tao_flresource=0
-ace_flreactor=0
+gl=0
+
+//fl=0
+//tao_flresource=0
+//ace_flreactor=0
 
 //gtk=1
 
-tk=0
-tao_tkresource=0
-ace_tkreactor=0
+//tk=0
+//tao_tkresource=0
+//ace_tkreactor=0
 
-qt=0
-qt4_gui=0
-qt5_gui=0
+//qt=0
+//qt4_gui=0
+//qt5_gui=0
 //ace_qt4=0
 //ace_qt5=0
-tao_qtresource=0
-ace_qtreactor=0
+//tao_qtresource=0
+//ace_qtreactor=0
 
 //wxWindows=1
 
-x11=1
-athena=0
-motif=0
-tao_xtresource=0
-ace_xtreactor=1
+//x11=1
+//tao_xtresource=0
+//ace_xtreactor=1
+
+//athena=0
+//motif=0
 
 //acetest=0
 //examples=0

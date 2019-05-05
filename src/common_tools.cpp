@@ -2418,7 +2418,7 @@ common_event_dispatch_function (void* arg_in)
 
   ACE_THR_FUNC_RETURN result;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  result = std::numeric_limits<unsigned long>::max ();
+  result = std::numeric_limits<unsigned long>::max (); // DWORD
 #else
   result = arg_in;
 #endif // ACE_WIN32 || ACE_WIN64
@@ -2467,10 +2467,9 @@ common_event_dispatch_function (void* arg_in)
     // *NOTE*: transfer 'ownership' of the (select) reactor ?
     // *TODO*: determining the default ACE reactor type is not specified
     //         (platform-specific)
-    if ((state_p->configuration->numberOfReactorThreads == 1) &&
-        ((state_p->configuration->reactorType == COMMON_REACTOR_ACE_DEFAULT) ||
-         (state_p->configuration->reactorType == COMMON_REACTOR_SELECT)))
-    {
+    if ((state_p->configuration->reactorType == COMMON_REACTOR_ACE_DEFAULT) ||
+        (state_p->configuration->reactorType == COMMON_REACTOR_SELECT))
+    { ACE_ASSERT (state_p->configuration->numberOfReactorThreads == 1);
       ACE_thread_t thread_2;
       result_2 = reactor_p->owner (ACE_OS::thr_self (),
                                    &thread_2);
@@ -2481,7 +2480,7 @@ common_event_dispatch_function (void* arg_in)
 
     result_2 = reactor_p->run_reactor_event_loop (NULL);
   } // end IF
-  else
+  else if (group_id_i == state_p->proactorGroupId)
   {
     // *IMPORTANT NOTE*: "The signal disposition is a per-process attribute: in a
     //                   multithreaded application, the disposition of a
@@ -2510,23 +2509,33 @@ common_event_dispatch_function (void* arg_in)
 //    } // end IF
 #endif // ACE_WIN32 || ACE_WIN64
     result_2 = proactor_p->proactor_run_event_loop (NULL);
+  } // end ELSE IF
+  else
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("invalid/unknown event thread group id (was: %d), aborting\n"),
+                group_id_i));
+    ACE_ASSERT (false);
+    ACE_NOTSUP_RETURN (result);
+    ACE_NOTREACHED (return result;)
   } // end ELSE
   if (unlikely (result_2 == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("(%t) failed to handle events: \"%m\", aborting\n")));
+  else
+  {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    result = static_cast<ACE_THR_FUNC_RETURN> (result_2);
+#else
+    result = ((result_2 == 0) ? NULL : arg_in);
+#endif // ACE_WIN32 || ACE_WIN64
+  } // end ELSE
 
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): thread (id: %t) leaving\n"),
               ACE_TEXT (COMMON_EVENT_THREAD_NAME)));
 #endif // _DEBUG
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  if (result_2 != -1)
-    result = static_cast<ACE_THR_FUNC_RETURN> (result_2);
-#else
-  result = ((result_2 == 0) ? NULL : result);
-#endif // ACE_WIN32 || ACE_WIN64
 
   return result;
 }
