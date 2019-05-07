@@ -537,7 +537,7 @@ Common_GL_Tools::loadPNG (const std::string& path_in,
   int color_type, interlace_type;
   FILE* file_p = NULL;
   int result = -1;
-  unsigned int row_bytes = 0;
+  size_t row_bytes = 0;
   png_bytepp row_pointers_pp = NULL;
   png_uint_32 width, height;
   int bit_depth, compression_method, filter_method;
@@ -611,7 +611,7 @@ Common_GL_Tools::loadPNG (const std::string& path_in,
 
   // if we have already read some of the signature
   ACE_ASSERT (bytes_read <= COMMON_IMAGE_PNG_NUMBER_OF_MAGIC_BYTES);
-  png_set_sig_bytes (png_p, bytes_read);
+  png_set_sig_bytes (png_p, static_cast<int> (bytes_read));
 
   png_read_info (png_p, png_info_p);
 

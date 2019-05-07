@@ -404,7 +404,7 @@ Common_UI_Tools::getAdapters ()
 #else
     display_adapter_head_s.device = display_device_s.DeviceName;
     display_adapter_head_s.key = display_device_s.DeviceKey;
-    display_adapter_p->id = display_device_s.DeviceID;
+    display_adapter_p->device = display_device_s.DeviceID;
     display_adapter_p->description = display_device_s.DeviceString;
 #endif // UNICODE
     if (iterator == result.end ())

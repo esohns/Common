@@ -76,6 +76,7 @@ set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 if (WIN32)
  add_definitions(-DUNICODE -D_UNICODE)
  add_definitions (-DWX_HIDE_MODE_T)
+ set_target_properties (${PROJECT_NAME}UI_wxWidgets PROPERTIES DEFINE_SYMBOL _CRT_SECURE_NO_WARNINGS)
 endif (WIN32)
 
 unset (absolute_source_files)

@@ -32,6 +32,11 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../..)
 set (CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 add_definitions (-DWX_HIDE_MODE_T)
+if (WIN32)
+# add_definitions(-DUNICODE -D_UNICODE)
+ add_definitions (-D_CRT_SECURE_NO_WARNINGS)
+ add_definitions (-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
+endif (WIN32)
 
 ############## next target ###############
 set (wxwidgets_EXE_SRCS

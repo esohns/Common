@@ -260,7 +260,7 @@ do_work (int argc_in,
     if (!data_size)
       break;
     packet_s.data = buffer_a;
-    packet_s.size = data_size;
+    packet_s.size = static_cast<int> (data_size);
 
     result = avcodec_send_packet (context_p, &packet_s);
     if (result < 0)
