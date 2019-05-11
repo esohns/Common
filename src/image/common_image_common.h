@@ -24,6 +24,17 @@
 #include <list>
 #include <vector>
 
+enum Common_Image_FileType
+{
+  COMMON_IMAGE_FILE_BMP = 0,
+  COMMON_IMAGE_FILE_GIF,
+  COMMON_IMAGE_FILE_JPG,
+  COMMON_IMAGE_FILE_PNG,
+  ///////////////////////////////////////
+  COMMON_IMAGE_FILE_INVALID,
+  COMMON_IMAGE_FILE_MAX
+};
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 typedef struct tagSIZE Common_Image_Resolution_t;
 struct common_image_resolution_less

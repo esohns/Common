@@ -28,24 +28,22 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #define __CGUID_H__ // *NOTE*: avoid compilation issue
 #include <d3d9.h>
-#include <d3dx9tex.h>
 #endif // ACE_WIN32 || ACE_WIN64
-
-#ifdef __cplusplus
-extern "C"
-{
-#include "libavcodec/avcodec.h"
-#include "libavutil/pixdesc.h"
-#include "libavutil/pixfmt.h"
-}
-#endif /* __cplusplus */
 
 #include "ace/Global_Macros.h"
 
 #include "common_image_common.h"
 
 // forward declarations
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+enum _D3DXIMAGE_FILEFORMAT;
+#endif // ACE_WIN32 || ACE_WIN64
+enum AVPixelFormat;
+enum AVCodecID;
+struct SwsContext;
+#if defined (IMAGEMAGICK_SUPPORT)
 struct _MagickWand;
+#endif // IMAGEMAGICK_SUPPORT
 
 typedef std::list<enum AVPixelFormat> Common_Image_FFMPEGPixelFormats_t;
 typedef Common_Image_FFMPEGPixelFormats_t::const_iterator Common_Image_FFMPEGPixelFormatsIterator_t;
@@ -61,7 +59,10 @@ common_image_tools_get_format_cb (struct AVCodecContext*,
 class Common_Image_Tools
 {
  public:
+  static enum Common_Image_FileType fileExtensionToType (const std::string&); // path
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+  // DirectX
   static bool save (const std::string&,         // target file path
                     enum _D3DXIMAGE_FILEFORMAT, // file format
                     const IDirect3DSurface9*);  // data
@@ -116,7 +117,7 @@ class Common_Image_Tools
                      const Common_Image_Resolution_t&, // target resolution
                      uint8_t*&);                       // return value: target buffer(s)
 
-  inline static std::string pixelFormatToString (enum AVPixelFormat format_in) { std::string result = ((format_in == AV_PIX_FMT_NONE) ? ACE_TEXT_ALWAYS_CHAR ("") : av_get_pix_fmt_name (format_in)); return result; }
+  static std::string pixelFormatToString (enum AVPixelFormat);
 
   static std::string errorToString (int); // error code
 

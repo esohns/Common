@@ -23,6 +23,10 @@
 
 #include <sstream>
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include <d3dx9tex.h>
+#endif // ACE_WIN32 || ACE_WIN64
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -46,6 +50,7 @@ extern "C"
 
 #include "common_file_tools.h"
 #include "common_macros.h"
+#include "common_string_tools.h"
 
 #include "common_error_tools.h"
 
@@ -72,6 +77,37 @@ common_image_tools_get_format_cb (struct AVCodecContext* context_in,
         break;
 
   return (iterator != cb_data_p->formats.end () ? *iterator : AV_PIX_FMT_NONE);
+}
+
+enum Common_Image_FileType
+Common_Image_Tools::fileExtensionToType (const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::fileExtensionToType"));
+
+  std::string file_extension_string =
+    Common_File_Tools::fileExtension (path_in,
+                                      false);
+  file_extension_string =
+    Common_String_Tools::toupper (file_extension_string);
+  
+  if (!ACE_OS::strcmp (file_extension_string.c_str (),
+                       ACE_TEXT_ALWAYS_CHAR ("BMP")))
+    return COMMON_IMAGE_FILE_BMP;
+  else if (!ACE_OS::strcmp (file_extension_string.c_str (),
+                            ACE_TEXT_ALWAYS_CHAR ("GIF")))
+    return COMMON_IMAGE_FILE_GIF;
+  else if (!ACE_OS::strcmp (file_extension_string.c_str (),
+                            ACE_TEXT_ALWAYS_CHAR ("JPG")))
+    return COMMON_IMAGE_FILE_JPG;
+  else if (!ACE_OS::strcmp (file_extension_string.c_str (),
+                            ACE_TEXT_ALWAYS_CHAR ("PNG")))
+    return COMMON_IMAGE_FILE_PNG;
+  else
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("invalid/unknown file extension (was: \"%s\"), aborting\n"),
+                ACE_TEXT (file_extension_string.c_str ())));
+
+  return COMMON_IMAGE_FILE_INVALID;
 }
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -1198,6 +1234,20 @@ error:
   } // end IF
 
   return false;
+}
+
+std::string
+Common_Image_Tools::pixelFormatToString (enum AVPixelFormat format_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::pixelFormatToString"));
+
+  std::string result;
+
+  result =
+    ((format_in == AV_PIX_FMT_NONE) ? ACE_TEXT_ALWAYS_CHAR ("") 
+                                    : av_get_pix_fmt_name (format_in));
+  
+  return result;
 }
 
 std::string

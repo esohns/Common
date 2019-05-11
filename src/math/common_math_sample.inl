@@ -138,13 +138,12 @@ Common_Math_Sample_T<ValueType,
   COMMON_TRACE (ACE_TEXT ("Common_Math_Sample_T::Initialize"));
 
   // sanity check(s)
-//  if (slots_in % 2)
-//  {
-//    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("buffer size must be a power of 2 (was: %d), aborting\n"),
-//                slots_in));
-//    return false;
-//  } // end IF
+#if defined (_DEBUG)
+  if (slots_in % 2)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("buffer size must be a power of 2 (was: %d), continuing\n"),
+                slots_in));
+#endif // _DEBUG
 
   if (isInitialized_)
   {

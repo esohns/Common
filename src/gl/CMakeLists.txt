@@ -97,9 +97,13 @@ target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
 set (source_files
      common_gl_common.h
      common_gl_defines.h
-     common_gl_exports.h
+#     common_gl_exports.h
      common_gl_tools.cpp
-     common_gl_tools.h)
+     common_gl_tools.h
+     common_gl_assimp_tools.cpp
+     common_gl_assimp_tools.h
+     common_gl_image_tools.cpp
+     common_gl_image_tools.h)
 
 # Include dir for installed targets
 set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
@@ -171,8 +175,9 @@ export (TARGETS ${PROJECT_NAME}OpenGL
 install (FILES
          common_gl_common.h
          common_gl_defines.h
-         common_gl_exports.h
+#         common_gl_exports.h
          common_gl_tools.h
+         common_gl_assimp_tools.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
 install (TARGETS ${PROJECT_NAME}OpenGL
          EXPORT ${PROJECT_NAME}Targets

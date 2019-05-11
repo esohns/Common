@@ -37,11 +37,13 @@ elseif (WIN32)
   target_include_directories (${PROJECT_NAME}Image PUBLIC
                               $<BUILD_INTERFACE:$ENV{DXSDK_DIR}/Include>)
  else ()
-  set (DXSDK_DIR
-       "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (June 2010)/Include")
+ # set (DXSDK_DIR
+ #      "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (June 2010)/Include")
 # message (STATUS "DirectX SDK directory: \"${DXSDK_DIR}\"")
+ # target_include_directories (${PROJECT_NAME}Image PUBLIC
+ #                             $<BUILD_INTERFACE:${DXSDK_DIR}>)
   target_include_directories (${PROJECT_NAME}Image PUBLIC
-                              $<BUILD_INTERFACE:${DXSDK_DIR}>)
+                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/DXSDK/Include>)
  endif (DEFINED ENV{DXSDK_DIR})
 
 #*TODO*: use pkg-config instead
@@ -107,14 +109,16 @@ endif ()
 
 #*TODO*: use pkg-config instead
 if (WIN32)
- target_link_libraries (${PROJECT_NAME}Image ${ACE_LIBRARY})
+ target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/DXSDK/Lib/x86/d3dx9.lib)
 
 # libpng
  target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/libpng/cmake/${CMAKE_BUILD_TYPE}/libpng16${LIB_FILE_SUFFIX}.lib)
 # target_link_libraries (${PROJECT_NAME}Image ${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25/projects/vstudio/Debug/libpng16.lib)
+
 # ffmpeg
  target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ffmpeg/lib/avcodec.lib)
  target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ffmpeg/lib/avutil.lib)
+ target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ffmpeg/lib/swscale.lib)
 # target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ffmpeg/libavcodec/avcodec.lib)
 # target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ffmpeg/libavutil/avutil.lib)
 
@@ -123,12 +127,8 @@ if (WIN32)
   target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickWand_.lib>)
  endif (IMAGEMAGICK_SUPPORT)
 
+ target_link_libraries (${PROJECT_NAME}Image ${ACE_LIBRARY})
 # target_link_libraries (${PROJECT_NAME}Image ${COMMON_TARGET_NAME})
-endif ()
-
-# *WARNING*: linking libglade-2.dll(.a) requires "/SAFESEH:NO""
-if (WIN32)
-# set_target_properties (${PROJECT_NAME}Image PROPERTIES LINK_FLAGS /SAFESEH:NO)
 endif ()
 #set_target_properties (${PROJECT_NAME}Image PROPERTIES DEFINE_SYMBOL COMMON_IMAGE_BUILD_DLL)
 set_target_properties (${PROJECT_NAME}Image PROPERTIES
