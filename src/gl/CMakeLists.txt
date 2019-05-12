@@ -1,4 +1,13 @@
-﻿if (${CMAKE_VERSION} VERSION_GREATER "3.10")
+﻿option (IMAGEMAGICK_SUPPORT "compile ImageMagick support" ON)
+if (IMAGEMAGICK_SUPPORT)
+ add_definitions (-DIMAGEMAGICK_SUPPORT)
+endif (IMAGEMAGICK_SUPPORT)
+option (LIBPNG_SUPPORT "compile libpng support" OFF)
+if (LIBPNG_SUPPORT)
+ add_definitions (-DLIBPNG_SUPPORT)
+endif (LIBPNG_SUPPORT)
+
+if (${CMAKE_VERSION} VERSION_GREATER "3.10")
  cmake_policy (SET CMP0072 OLD) # set OpenGL_GL_PREFERENCE to LEGACY|GLVND
 endif (${CMAKE_VERSION} VERSION_GREATER "3.10")
 include (FindOpenGL)
@@ -37,11 +46,13 @@ if (UNIX)
  endif ()
 
 # assimp
- find_library (PNG_LIBRARY libpng16.so.16
-               DOC "searching for libpng")
- if (NOT PNG_LIBRARY)
-  message (FATAL_ERROR "could not find libpng, aborting")
- endif (NOT PNG_LIBRARY)
+ if (LIBPNG_SUPPORT)
+  find_library (PNG_LIBRARY libpng16.so.16
+                DOC "searching for libpng")
+  if (NOT PNG_LIBRARY)
+   message (FATAL_ERROR "could not find libpng, aborting")
+  endif (NOT PNG_LIBRARY)
+ endif (LIBPNG_SUPPORT)
 # pkg_check_modules (PKG_LIBPNG REQUIRED libpng)
 
 # find_library (ASSIMP_LIBRARY libassimp.so.3
@@ -65,10 +76,17 @@ if (UNIX)
  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 elseif (WIN32)
- target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
-                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libpng/cmake>)
- target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
-                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libpng>)
+ if (LIBPNG_SUPPORT)
+  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libpng/cmake>)
+  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libpng>)
+ endif (LIBPNG_SUPPORT)
+
+ if (IMAGEMAGICK_SUPPORT)
+  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ImageMagick/include>)
+ endif (IMAGEMAGICK_SUPPORT)
 
  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/glm>)
@@ -144,23 +162,26 @@ set_target_properties (${PROJECT_NAME}OpenGL PROPERTIES
                        SOVERSION 1)
 
 if (UNIX)
- target_link_libraries (${PROJECT_NAME}OpenGL ${PNG_LIBRARY})
+ if (LIBPNG_SUPPORT)
+  target_link_libraries (${PROJECT_NAME}OpenGL ${PNG_LIBRARY})
+ endif (LIBPNG_SUPPORT)
  target_link_libraries (${PROJECT_NAME}OpenGL ${PKG_ASSIMP_LIBRARIES})
 elseif (WIN32)
- if (CMAKE_BUILD_TYPE STREQUAL Debug)
-#  target_link_libraries (${PROJECT_NAME}OpenGL Msvcrtd.lib)
- else ()
-#  target_link_libraries (${PROJECT_NAME}OpenGL Msvcrt.lib)
- endif ()
-# target_link_libraries (${PROJECT_NAME}OpenGL Quartz.lib)
-# target_link_libraries (${PROJECT_NAME}OpenGL Secur32.lib)
-# target_link_libraries (${PROJECT_NAME}OpenGL Userenv.lib)
+ if (LIBPNG_SUPPORT)
+  target_link_libraries (${PROJECT_NAME}OpenGL $ENV{LIB_ROOT}/libpng/cmake/${CMAKE_BUILD_TYPE}/libpng16${LIB_FILE_SUFFIX}.lib)
+ endif (LIBPNG_SUPPORT)
+
+ if (IMAGEMAGICK_SUPPORT)
+  target_link_libraries (${PROJECT_NAME}OpenGL $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickCore_.lib)
+  target_link_libraries (${PROJECT_NAME}OpenGL $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickWand_.lib)
+ endif (IMAGEMAGICK_SUPPORT)
 endif ()
 if (OPENGL_FOUND)
  target_link_libraries (${PROJECT_NAME}OpenGL ${OPENGL_LIBRARIES})
 else ()
  target_link_libraries (${PROJECT_NAME}OpenGL ${OPENGL_LIBRARY})
 endif (OPENGL_FOUND)
+target_link_libraries (${PROJECT_NAME}OpenGL ${PROJECT_NAME}Image)
 
 # add PCH
 set_target_properties (${PROJECT_NAME}OpenGL PROPERTIES

@@ -44,7 +44,9 @@ if (UNIX)
  include_directories (${PKG_FFMPEG_INCLUDE_DIRS})
 
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
-endif (UNIX)
+elseif (WIN32)
+ include_directories ($ENV{LIB_ROOT}/ffmpeg/include)
+endif ()
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/image)

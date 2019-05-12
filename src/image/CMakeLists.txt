@@ -1,4 +1,11 @@
-﻿option (IMAGEMAGICK_SUPPORT "compile ImageMagick support" OFF)
+﻿option (IMAGEMAGICK_SUPPORT "compile ImageMagick support" ON)
+if (IMAGEMAGICK_SUPPORT)
+ add_definitions (-DIMAGEMAGICK_SUPPORT)
+endif (IMAGEMAGICK_SUPPORT)
+option (LIBPNG_SUPPORT "compile libpng support" OFF)
+if (LIBPNG_SUPPORT)
+ add_definitions (-DLIBPNG_SUPPORT)
+endif (LIBPNG_SUPPORT)
 
 if (UNIX)
 # find_library (SWSCALE_LIBRARY libswscale.so.5
@@ -46,9 +53,10 @@ elseif (WIN32)
                               $<BUILD_INTERFACE:$ENV{LIB_ROOT}/DXSDK/Include>)
  endif (DEFINED ENV{DXSDK_DIR})
 
-#*TODO*: use pkg-config instead
- target_include_directories (${PROJECT_NAME}Image PUBLIC
-                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libpng>)
+ if (LIBPNG_SUPPORT)
+  target_include_directories (${PROJECT_NAME}Image PUBLIC
+                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libpng>)
+ endif (LIBPNG_SUPPORT)
 
  target_include_directories (${PROJECT_NAME}Image PUBLIC
                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ffmpeg/include>)
@@ -112,8 +120,10 @@ if (WIN32)
  target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/DXSDK/Lib/x86/d3dx9.lib)
 
 # libpng
- target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/libpng/cmake/${CMAKE_BUILD_TYPE}/libpng16${LIB_FILE_SUFFIX}.lib)
+ if (LIBPNG_SUPPORT)
+  target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/libpng/cmake/${CMAKE_BUILD_TYPE}/libpng16${LIB_FILE_SUFFIX}.lib)
 # target_link_libraries (${PROJECT_NAME}Image ${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25/projects/vstudio/Debug/libpng16.lib)
+ endif (LIBPNG_SUPPORT)
 
 # ffmpeg
  target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ffmpeg/lib/avcodec.lib)
@@ -123,8 +133,8 @@ if (WIN32)
 # target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ffmpeg/libavutil/avutil.lib)
 
  if (IMAGEMAGICK_SUPPORT)
-  target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickCore_.lib>)
-  target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickWand_.lib>)
+  target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickCore_.lib)
+  target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickWand_.lib)
  endif (IMAGEMAGICK_SUPPORT)
 
  target_link_libraries (${PROJECT_NAME}Image ${ACE_LIBRARY})

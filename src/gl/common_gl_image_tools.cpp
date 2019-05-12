@@ -21,7 +21,18 @@
 
 #include "common_gl_image_tools.h"
 
+#if defined (LIBPNG_SUPPORT)
 #include "png.h"
+#endif // LIBPNG_SUPPORT
+
+#if defined (IMAGEMAGICK_SUPPORT)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#define ssize_t ssize_t
+#include "MagickWand/MagickWand.h"
+#else
+#include "wand/magick_wand.h"
+#endif // ACE_WIN32 || ACE_WIN64
+#endif // IMAGEMAGICK_SUPPORT
 
 #include "ace/Log_Msg.h"
 
@@ -29,7 +40,9 @@
 #include "common_macros.h"
 
 #include "common_image_defines.h"
+#include "common_image_tools.h"
 
+#if defined (LIBPNG_SUPPORT)
 bool
 Common_GL_Image_Tools::loadPNG (const std::string& path_in,
                                 unsigned int& width_out,
@@ -194,3 +207,80 @@ error:
 
   return false;
 }
+#endif // LIBPNG_SUPPORT
+
+#if defined (IMAGEMAGICK_SUPPORT)
+bool
+Common_GL_Image_Tools::loadPNG (const std::string& path_in,
+                                unsigned int& width_out,
+                                unsigned int& height_out,
+                                GLubyte*& data_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Image_Tools::loadPNG"));
+
+  // sanity check(s)
+  ACE_ASSERT (!data_out);
+
+  struct _MagickWand* context_p = NULL;
+  MagickBooleanType result = MagickTrue;
+  unsigned char* blob_p = NULL;
+  size_t file_size_i = 0;
+
+  MagickWandGenesis ();
+
+  context_p = NewMagickWand ();
+  if (!context_p)
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to allocate memory, aborting\n")));
+    goto error;
+  } // end IF
+
+  MagickSetImageType (context_p, TrueColorType);
+  MagickSetImageColorspace (context_p, sRGBColorspace);
+
+  result = MagickReadImage (context_p,
+                            path_in.c_str ());
+  if (result != MagickTrue)
+  { // see also: MAGICK_CODER_MODULE_PATH
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to MagickReadImage(): \"%s\", returning\n"),
+                ACE_TEXT (Common_Image_Tools::errorToString (context_p).c_str ())));
+    goto error;
+  } // end IF
+
+  width_out = MagickGetImageWidth (context_p);
+  height_out = MagickGetImageHeight (context_p);
+
+  result = MagickSetImageFormat (context_p, "RGBA");
+  ACE_ASSERT (result == MagickTrue);
+
+  blob_p = MagickGetImageBlob (context_p,
+                               &file_size_i);
+  ACE_ASSERT (blob_p);
+
+  data_out = static_cast<GLubyte*> (malloc (file_size_i));
+  if (!data_out)
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
+    goto error;
+  } // end IF
+  ACE_OS::memcpy (data_out, blob_p, file_size_i);
+
+  MagickRelinquishMemory (blob_p); blob_p = NULL;
+  DestroyMagickWand (context_p); context_p = NULL;
+  MagickWandTerminus ();
+
+  return true;
+
+error:
+  if (blob_p)
+    MagickRelinquishMemory (blob_p);
+  if (context_p)
+    DestroyMagickWand (context_p);
+  MagickWandTerminus ();
+
+  return false;
+}
+#endif // IMAGEMAGICK_SUPPORT

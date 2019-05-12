@@ -35,12 +35,22 @@
 class Common_GL_Image_Tools
 {
  public:
+#if defined (LIBPNG_SUPPORT)
   // *IMPORTANT NOTE*: callers need to free() allocated memory (5th argument)
   static bool loadPNG (const std::string&, // path
                        unsigned int&,      // return value: width
                        unsigned int&,      // return value: height
                        bool&,              // return value: has alpha channel ?
                        GLubyte*&);         // return value: data
+#endif // LIBPNG_SUPPORT
+
+#if defined (IMAGEMAGICK_SUPPORT)
+  // *IMPORTANT NOTE*: callers need to free() allocated memory (5th argument)
+  static bool loadPNG (const std::string&, // path
+                       unsigned int&,      // return value: width
+                       unsigned int&,      // return value: height
+                       GLubyte*&);         // return value: data
+#endif // IMAGEMAGICK_SUPPORT
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_GL_Image_Tools ())

@@ -21,10 +21,7 @@
 
 #include "common_gl_tools.h"
 
-#include "png.h"
-
 #include "assimp/cimport.h"
-#include "assimp/postprocess.h"
 #include "assimp/scene.h"
 
 #include "ace/Log_Msg.h"
@@ -174,16 +171,23 @@ Common_GL_Tools::loadTexture (const std::string& path_in)
   {
     case COMMON_IMAGE_FILE_PNG:
     {
+#if defined (LIBPNG_SUPPORT)
       if (!Common_GL_Image_Tools::loadPNG (path_in,
                                            width, height,
                                            has_alpha,
                                            image_p))
+#elif defined (IMAGEMAGICK_SUPPORT)
+      if (!Common_GL_Image_Tools::loadPNG (path_in,
+                                           width, height,
+                                           image_p))
+#endif // LIBPNG_SUPPORT || IMAGEMAGICK_SUPPORT
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to Common_GL_Image_Tools::loadPNG(\"%s\"), aborting\n"),
                     ACE_TEXT (path_in.c_str ())));
         return return_value;
       } // end IF
+      has_alpha = true;
       break;
     }
     default:
