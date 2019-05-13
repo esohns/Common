@@ -36,7 +36,7 @@
 #undef ACE_LACKS_MODE_T
 #include "ace/Global_Macros.h"
 #include "ace/Log_Msg.h"
-#include "ace/Synch.h"
+//#include "ace/Synch.h"
 
 //#if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
 #if defined (VALGRIND_SUPPORT)

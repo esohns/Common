@@ -101,14 +101,14 @@ then
 fi
 #echo "INFO: \$MPC_ROOT is: \"${MPC_ROOT}\")"
 
-DEFAULT_ACE_DIRECTORY=/mnt/win_d/projects/ATCD/ACE # <-- UNIX
+DEFAULT_ACE_DIRECTORY=/mnt/win_d/projects/ACE_TAO/ACE # <-- UNIX
 if [ ! -d ${DEFAULT_ACE_DIRECTORY} ]
 then
  if [ ! -z ${ACE_ROOT} ]
  then
   DEFAULT_ACE_DIRECTORY=${ACE_ROOT} # <-- cygwin/mingw/msys
  else
-  DEFAULT_ACE_DIRECTORY=/d/projects/ATCD/ACE # <-- mingw/msys
+  DEFAULT_ACE_DIRECTORY=/d/projects/ACE_TAO/ACE # <-- mingw/msys
  fi
  [ ! -d ${DEFAULT_ACE_DIRECTORY} ] && echo "ERROR: invalid directory (was: \"${DEFAULT_ACE_DIRECTORY}\"), aborting" && exit 1
 fi

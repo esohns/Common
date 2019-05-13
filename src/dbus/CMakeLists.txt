@@ -56,10 +56,9 @@ if (UNIX)
  endif (SD_BUS_SUPPORT)
 
  target_include_directories (${PROJECT_NAME}DBus PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
-elseif (WIN32)
- include_directories ($ENV{ACE_ROOT})
-endif ()
+                     #        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE>)
+endif (UNIX)
 target_include_directories (${PROJECT_NAME}DBus PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 target_include_directories (${PROJECT_NAME}DBus PUBLIC

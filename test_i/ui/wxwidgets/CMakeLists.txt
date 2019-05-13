@@ -14,9 +14,10 @@ endif ()
 #include_directories (${PKG_CAP_INCLUDE_DIRS})
 
 if (UNIX)
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../modules/ACE)
+# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../modules/ACE)
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../../ACE_TAO/ACE)
 elseif (WIN32)
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../../ATCD/ACE)
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../../ACE_TAO/ACE)
 endif ()
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src)

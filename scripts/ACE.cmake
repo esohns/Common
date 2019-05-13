@@ -9,7 +9,7 @@ if (UNIX)
  else ()
   find_library (ACE_LIBRARY ${ACE_LIB_FILE}
 #                HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE
-                PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE
+                PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../../ACE_TAO/ACE
                 PATH_SUFFIXES lib
                 DOC "searching for ${ACE_LIB_FILE} (system paths)")
  endif ()
@@ -23,7 +23,7 @@ elseif (WIN32)
  unset (ACE_LIB_FILE)
  set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-               PATHS $ENV{ACE_ROOT} ${CMAKE_CURRENT_BINARY_DIR}/../../../ATCD/ACE
+               PATHS $ENV{ACE_ROOT} ${CMAKE_CURRENT_BINARY_DIR}/../../../ACE_TAO/ACE
                PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
                DOC "searching for ${ACE_LIB_FILE}")
 endif ()

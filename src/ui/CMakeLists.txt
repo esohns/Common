@@ -8,7 +8,7 @@ set (ACEXML_LIB_FILE libACEXML.so)
 if (UNIX)
 # message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
  find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
-               HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE/ACEXML /usr/local
+               HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE/ACEXML /usr/local
 #               PATHS ENV ACE_ROOT
                PATH_SUFFIXES common
                DOC "searching for ${ACEXML_LIB_FILE}"
@@ -25,7 +25,7 @@ elseif (WIN32)
  set (ACEXML_LIB_FILE ACEXML${LIB_FILE_SUFFIX}.lib)
  find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
                PATHS ENV ACE_ROOT
-               PATHS ${CMAKE_CURRENT_BINARY_DIR}/../../../../ATCD/ACE
+               PATHS ${CMAKE_CURRENT_BINARY_DIR}/../../../../ACE_TAO/ACE
                PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
                DOC "searching for ${ACEXML_LIB_FILE}")
 endif ()
@@ -46,14 +46,15 @@ if (GTK_SUPPORT)
 endif (GTK_SUPPORT)
 if (UNIX)
  target_include_directories (${PROJECT_NAME}UI PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
+#                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE>)
 elseif (WIN32)
  if (DEFINED ENV{ACE_ROOT})
   target_include_directories (${PROJECT_NAME}UI PUBLIC
                               $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
  else ()
   target_include_directories (${PROJECT_NAME}UI PUBLIC
-                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../ATCD/ACE>)
+                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../ACE_TAO/ACE>)
  endif (DEFINED ENV{ACE_ROOT})
 endif ()
 target_include_directories (${PROJECT_NAME}UI PUBLIC

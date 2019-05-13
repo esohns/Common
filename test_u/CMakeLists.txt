@@ -1,37 +1,8 @@
-﻿option (BUILD_TEST_U "build test_u" OFF)
+﻿include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/Threads.cmake)
 
-set (ACE_LIB_FILE libACE.so)
-if (UNIX)
- find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-               PATHS ${CMAKE_CURRENT_BINARY_DIR}/../../../ATCD/ACE /usr/local
-    #           HINTS ENV ACE_ROOT
-               PATH_SUFFIXES lib
-               DOC "searching for ${ACE_LIB_FILE}"
-               NO_DEFAULT_PATH)
-# else ()
-#  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-#                DOC "searching for ${ACE_LIB_FILE} (system paths)")
-# endif ()
-elseif (WIN32)
- if (CMAKE_BUILD_TYPE STREQUAL Debug)
-  set (LIB_FILE_SUFFIX d)
- endif ()
- unset (ACE_LIB_FILE)
- set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
- find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-               PATHS ENV ACE_ROOT
-               PATHS ${CMAKE_CURRENT_BINARY_DIR}/../../../ATCD/ACE
-               PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
-               DOC "searching for ${ACE_LIB_FILE}")
-endif ()
-#if (NOT EXISTS ACE_LIBRARY)
-if (NOT ACE_LIBRARY)
- message (FATAL_ERROR "Could not find ${ACE_LIB_FILE} (was: \"${ACE_LIBRARY}\"), aborting")
-else ()
- #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
-endif ()
-add_definitions (-DACE_HAS_DLL)
-#pkg_check_modules (PKG_ACE REQUIRED ACE)
+include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/ACE.cmake)
+
+option (BUILD_TEST_U "build test_u" OFF)
 
 add_library (${PROJECT_NAME}_Test_U STATIC "")
 
@@ -47,7 +18,8 @@ if (UNIX)
  endif (GUI_SUPPORT)
 
  target_include_directories (${PROJECT_NAME}_Test_U PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE>)
+#                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE>)
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../ACE_TAO/ACE>)
 
  target_include_directories (${PROJECT_NAME}_Test_U PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src>)
@@ -88,7 +60,7 @@ elseif (WIN32)
                               $<BUILD_INTERFACE:${ACE_ROOT_CMAKE}>)
  else ()
   target_include_directories (${PROJECT_NAME}_Test_U PUBLIC
-                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../ATCD/ACE>)
+                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../ACE_TAO/ACE>)
  endif (DEFINED ENV{ACE_ROOT})
 
  target_include_directories (${PROJECT_NAME}_Test_U PUBLIC

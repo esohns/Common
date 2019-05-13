@@ -1,17 +1,14 @@
 ﻿add_library (${PROJECT_NAME}Timer STATIC "")
 
-if (UNIX)
+if (DEFINED ENV{ACE_ROOT})
  target_include_directories (${PROJECT_NAME}Timer PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
+                             $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
+else ()
+ target_include_directories (${PROJECT_NAME}Timer PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE>)
+endif (DEFINED ENV{ACE_ROOT})
+if (UNIX)
 elseif (WIN32)
- if (DEFINED ENV{ACE_ROOT})
-  target_include_directories (${PROJECT_NAME}Timer PUBLIC
-                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
- else ()
-  target_include_directories (${PROJECT_NAME}Timer PUBLIC
-                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE>)
- endif (DEFINED ENV{ACE_ROOT})
-
  target_include_directories (${PROJECT_NAME}Timer PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
 endif ()

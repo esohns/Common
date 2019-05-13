@@ -1,4 +1,8 @@
-﻿option (BUILD_TEST_I "build test_i" OFF)
+﻿include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/Threads.cmake)
+
+include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/ACE.cmake)
+
+option (BUILD_TEST_I "build test_i" OFF)
 
 if (UNIX)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE)

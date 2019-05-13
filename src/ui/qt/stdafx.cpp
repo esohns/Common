@@ -1,2 +1,2 @@
-#include "ace/Synch.h"
+//#include "ace/Synch.h"
 #include "stdafx.h"

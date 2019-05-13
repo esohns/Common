@@ -39,7 +39,7 @@ endif (UNIX)
 ############## includes ###############
 include_directories (${PKG_CAP_INCLUDE_DIRS})
 
-#include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/timer)
@@ -80,7 +80,7 @@ install (TARGETS ${EXECUTABLE}
 create_target_launcher (${EXECUTABLE}
                         ARGS "12 /bin/bash"
 #                         FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
+                        RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE_TAO/ACE/lib
                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/capabilities
                         ENVIRONMENT foo=bar)

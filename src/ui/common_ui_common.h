@@ -37,7 +37,8 @@
 
 #include "ace/Containers_T.h"
 #include "ace/OS.h"
-#include "ace/Synch_Traits.h"
+#include "ace/Recursive_Thread_Mutex.h"
+#include "ace/Thread_Mutex.h"
 
 #include "common_image_common.h"
 
@@ -230,11 +231,11 @@ struct Common_UI_State
    , subscribersLock ()
   {}
 
-  Common_UI_Events_t        eventStack;
-  ACE_SYNCH_MUTEX           lock;
-  Common_MessageStack_t     logStack;
-  ACE_SYNCH_MUTEX           logStackLock;
-  ACE_SYNCH_RECURSIVE_MUTEX subscribersLock;
+  Common_UI_Events_t         eventStack;
+  ACE_Thread_Mutex           lock;
+  Common_MessageStack_t      logStack;
+  ACE_Thread_Mutex           logStackLock;
+  ACE_Recursive_Thread_Mutex subscribersLock;
 };
 
 //////////////////////////////////////////

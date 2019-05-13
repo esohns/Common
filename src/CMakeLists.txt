@@ -1,29 +1,14 @@
-﻿# *TODO*: compile in support as available automatically
+﻿include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/Threads.cmake)
+
+include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/ACE.cmake)
+
+# *TODO*: compile in support as available automatically
 if (UNIX)
  option (DBUS_SUPPORT "compile DBus support" ON)
 endif (UNIX)
 
 # configure C/C++ exceptions
 include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/SetCppExceptions.cmake)
-
-# target system introspection (see configure.ac)
-include (CheckFunctionExists)
-check_function_exists (strerror HAVE_FUNC_STRERROR)
-check_function_exists (getcwd HAVE_FUNC_GETCWD)
-check_function_exists (memset HAVE_FUNC_MEMSET)
-check_function_exists (mkdir HAVE_FUNC_MKDIR)
-if (UNIX)
- check_function_exists (gettimeofday HAVE_FUNC_GETTIMEOFDAY)
- check_function_exists (realpath HAVE_FUNC_REALPATH)
- check_function_exists (uname HAVE_FUNC_UNAME)
-endif (UNIX)
-
-if (UNIX)
-# include (CheckLibraryExists)
-# check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
- set (CMAKE_THREAD_PREFER_PTHREAD ON)
- find_package (Threads)
-endif (UNIX)
 
 if (UNIX)
  include (CheckLibraryExists)
@@ -46,39 +31,6 @@ if (UNIX)
 # endif ()
  pkg_check_modules (PKG_LIBCAP REQUIRED libcap)
 endif (UNIX)
-
-set (ACE_LIB_FILE libACE.so)
-if (UNIX)
- find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-               PATHS ${CMAKE_CURRENT_BINARY_DIR}/../../../ATCD/ACE /usr/local
-    #           HINTS ENV ACE_ROOT
-               PATH_SUFFIXES lib
-               DOC "searching for ${ACE_LIB_FILE}"
-               NO_DEFAULT_PATH)
-# else ()
-#  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-#                DOC "searching for ${ACE_LIB_FILE} (system paths)")
-# endif ()
-elseif (WIN32)
- if (CMAKE_BUILD_TYPE STREQUAL Debug)
-  set (LIB_FILE_SUFFIX d)
- endif ()
- unset (ACE_LIB_FILE)
- set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
- find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-               PATHS ENV ACE_ROOT
-               PATHS ${CMAKE_CURRENT_BINARY_DIR}/../../../ATCD/ACE
-               PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
-               DOC "searching for ${ACE_LIB_FILE}")
-endif ()
-#if (NOT EXISTS ACE_LIBRARY)
-if (NOT ACE_LIBRARY)
- message (FATAL_ERROR "Could not find ${ACE_LIB_FILE} (was: \"${ACE_LIBRARY}\"), aborting")
-else ()
- #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
-endif ()
-add_definitions (-DACE_HAS_DLL)
-#pkg_check_modules (PKG_ACE REQUIRED ACE)
 
 if (UNIX)
  add_definitions (-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS)
@@ -116,14 +68,15 @@ if (UNIX)
                              $<BUILD_INTERFACE:${PKG_LIBCAP_INCLUDE_DIRS}>)
 
  target_include_directories (${PROJECT_NAME} PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE>)
+#                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE>)
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../ACE_TAO/ACE>)
 elseif (WIN32)
  if (DEFINED ENV{ACE_ROOT})
   target_include_directories (${PROJECT_NAME} PUBLIC
                               $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
  else ()
   target_include_directories (${PROJECT_NAME} PUBLIC
-                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../ATCD/ACE>)
+                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../ACE_TAO/ACE>)
  endif (DEFINED ENV{ACE_ROOT})
 endif ()
 target_include_directories (${PROJECT_NAME} PUBLIC

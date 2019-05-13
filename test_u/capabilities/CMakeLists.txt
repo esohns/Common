@@ -39,7 +39,8 @@ add_definitions (-DCOMMON_HAS_DLL)
 ############## includes ###############
 include_directories (${PKG_CAP_INCLUDE_DIRS})
 
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
+#include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/timer)

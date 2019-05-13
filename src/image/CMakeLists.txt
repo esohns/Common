@@ -38,7 +38,9 @@ if (UNIX)
                              $<BUILD_INTERFACE:${ImageMagick_INCLUDE_DIRS}>)
 
  target_include_directories (${PROJECT_NAME}Image PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
+#                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE>)
+
 elseif (WIN32)
  if (DEFINED ENV{DXSDK_DIR})
   target_include_directories (${PROJECT_NAME}Image PUBLIC
@@ -115,8 +117,11 @@ if (WIN32)
  endif ()
 endif ()
 
-#*TODO*: use pkg-config instead
-if (WIN32)
+if (UNIX)
+ target_link_libraries (${PROJECT_NAME}Image ${PKG_FFMPEG_LIBRARIES})
+
+ target_link_libraries (${PROJECT_NAME}Image ${ImageMagick_LIBRARIES})
+elseif (WIN32)
  target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/DXSDK/Lib/x86/d3dx9.lib)
 
 # libpng

@@ -30,6 +30,14 @@
 #include <d3d9.h>
 #endif // ACE_WIN32 || ACE_WIN64
 
+#ifdef __cplusplus
+extern "C"
+{
+#include "libavcodec/avcodec.h"
+#include "libavutil/imgutils.h"
+}
+#endif /* __cplusplus */
+
 #include "ace/Global_Macros.h"
 
 #include "common_image_common.h"
@@ -38,8 +46,8 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 enum _D3DXIMAGE_FILEFORMAT;
 #endif // ACE_WIN32 || ACE_WIN64
-enum AVPixelFormat;
-enum AVCodecID;
+//enum AVPixelFormat;
+//enum AVCodecID;
 struct SwsContext;
 #if defined (IMAGEMAGICK_SUPPORT)
 struct _MagickWand;

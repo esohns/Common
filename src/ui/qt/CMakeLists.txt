@@ -16,7 +16,8 @@ target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
 
 if (UNIX)
  target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../modules/ACE>)
+#                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../modules/ACE>)
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../ACE_TAO/ACE>)
 elseif (WIN32)
 #*TODO*: use pkg-config instead
 # if (DEFINED ENV{ACE_ROOT})
@@ -24,7 +25,7 @@ elseif (WIN32)
 #                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
 # else ()
 #  target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
-#                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../ATCD/ACE>)
+#                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../ACE_TAO/ACE>)
 # endif (DEFINED ENV{ACE_ROOT})
 endif ()
 target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
