@@ -20,7 +20,7 @@ if (NOT OPENGL_FOUND)
 # find_package (OPENGL REQUIRED)
  find_library (OPENGL_LIBRARY
                NAMES ${OPENGL_LIB_FILE}
-               PATHS /usr/lib/x86_64-linux-gnu
+               PATHS /usr/lib64 /usr/lib/x86_64-linux-gnu
                DOC "searching for ${OPENGL_LIB_FILE}")
  if (NOT OPENGL_FOUND AND NOT OPENGL_LIBRARY)
   message (FATAL_ERROR "could not find ${OPENGL_LIB_FILE} (was: \"${OPENGL_LIBRARY}\"), aborting")

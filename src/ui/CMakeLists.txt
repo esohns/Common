@@ -40,7 +40,7 @@ endif ()
 add_library (${PROJECT_NAME}UI STATIC "")
 
 if (GTK_SUPPORT)
-# message (STATUS "GTK_INCLUDE_DIRS: ${GTK_INCLUDE_DIRS}")
+ message (STATUS "GTK_INCLUDE_DIRS: ${GTK_INCLUDE_DIRS}")
  target_include_directories (${PROJECT_NAME}UI PUBLIC
                              "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
 endif (GTK_SUPPORT)

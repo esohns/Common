@@ -1,17 +1,10 @@
 if (UNIX)
- include (CheckLibraryExists)
- check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
- set (CMAKE_THREAD_PREFER_PTHREAD ON)
- find_package (Threads)
-endif (UNIX)
-
-if (UNIX)
- find_library (CAP_LIBRARY libcap.so.2
-               DOC "searching for libcap")
- if (NOT CAP_LIBRARY)
-  message (FATAL_ERROR "could not find libcap, aborting")
- endif ()
-# pkg_check_modules (PKG_CAP REQUIRED libcap)
+# find_library (CAP_LIBRARY libcap.so.2
+#               DOC "searching for libcap")
+# if (NOT CAP_LIBRARY)
+#  message (FATAL_ERROR "could not find libcap, aborting")
+# endif ()
+ pkg_check_modules (PKG_CAP REQUIRED libcap)
 endif ()
 
 #get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH DIRECTORY)

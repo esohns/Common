@@ -4,7 +4,8 @@ if (UNIX)
 # find_package (DBus1 MODULE)
  find_package (DBus1)
  if (NOT DBus1_DIR)
-  find_library (DBUS_LIBRARY libdbus-1.so.3
+  find_library (DBUS_LIBRARY libdbus-1.so.3.19.9
+                PATHS /usr/lib64
                 DOC "searching for libdbus-1")
   if (NOT DBUS_LIBRARY)
    message (FATAL_ERROR "could not find libdbus-1, aborting")
@@ -28,7 +29,8 @@ if (UNIX)
   add_definitions (-DSD_BUS_SUPPORT)
  endif (SD_BUS_SUPPORT)
 
- find_library (NETWORKMANAGER_LIBRARY libnm.so.0
+ find_library (NETWORKMANAGER_LIBRARY libnm.so.0.1.0
+               PATHS /usr/lib64
                DOC "searching for libnm")
  if (NOT NETWORKMANAGER_LIBRARY)
   message (FATAL_ERROR "could not find libnm, aborting")

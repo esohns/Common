@@ -9,7 +9,7 @@ if (UNIX)
  else ()
   find_library (ACE_LIBRARY ${ACE_LIB_FILE}
 #                HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE
-                PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../../ACE_TAO/ACE
+                PATHS ${CMAKE_CURRENT_LIST_DIR}/../../ACE_TAO/ACE
                 PATH_SUFFIXES lib
                 DOC "searching for ${ACE_LIB_FILE} (system paths)")
  endif ()
@@ -29,7 +29,7 @@ elseif (WIN32)
 endif ()
 #if (NOT EXISTS ACE_LIBRARY)
 if (NOT ACE_LIBRARY)
- message (FATAL_ERROR "could not find ${ACE_LIB_FILE} (was: \"${ACE_LIBRARY}\"), aborting")
+ message (FATAL_ERROR "could not find ${ACE_LIB_FILE}, aborting")
 else ()
  #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
 endif ()

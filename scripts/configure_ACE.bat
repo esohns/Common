@@ -149,8 +149,7 @@ if NOT exist "%ACE_BUILD_DIRECTORY%" (
 @rem  echo invalid directory ^(was: "%CREATE_ACE_BUILD%"^)^, exiting
 @rem  goto Failed
 @rem )
-@rem set PERL_EXE=D:\perl\bin\perl.exe
-set PERL_EXE=C:\bin\perl\bin\perl.exe
+set PERL_EXE=D:\bin\perl\bin\perl.exe
 if NOT exist "%PERL_EXE%" (
  echo invalid executable ^(was: "%PERL_EXE%"^)^, exiting
  goto Failed
