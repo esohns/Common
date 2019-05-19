@@ -14,7 +14,7 @@ inet_ssl=0
 //xerces=0
 //zlib=1
 
-ipv6=1
+ipv6=0
 
 //ace_svcconf_gen=0
 //ace_for_tao=0

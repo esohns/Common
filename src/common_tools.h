@@ -130,6 +130,7 @@ class Common_Tools
   static void getUserName (uid_t,         // user id {-1: euid}
                            std::string&,  // return value: user name
                            std::string&); // return value: "real" name (if any)
+  static std::string getUserName (); // return value: current user name
 
   // (effective) uid
   // *IMPORTANT NOTE*: (on Linux) the process requires the CAP_SETUID capability

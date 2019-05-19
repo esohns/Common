@@ -230,7 +230,7 @@ Common_SignalHandler_T<ConfigurationType>::handle_exception (ACE_HANDLE handle_i
                 ACE_TEXT ("%D: received [%u/\"%S\"]: %s\n"),
                 signal_r.signal, signal_r.signal,
                 ACE_TEXT (Common_Signal_Tools::signalToString (signal_r).c_str ())));
-#endif
+#endif // _DEBUG
 
     try {
       callback_p->handle (signal_r);

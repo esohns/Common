@@ -1862,11 +1862,11 @@ Common_Tools::getUserName (uid_t userId_in,
 //  username_out = user_name;
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  ACE_TCHAR buffer[BUFSIZ];
-  ACE_OS::memset (buffer, 0, sizeof (buffer));
-  DWORD buffer_size = sizeof (buffer);
+  ACE_TCHAR buffer_a[BUFSIZ];
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[BUFSIZ]));
+  DWORD buffer_size = sizeof (ACE_TCHAR[BUFSIZ]);
   if (unlikely (!ACE_TEXT_GetUserNameEx (NameDisplay, // EXTENDED_NAME_FORMAT
-                                         buffer,
+                                         buffer_a,
                                          &buffer_size)))
   {
     DWORD error = GetLastError ();
@@ -1876,7 +1876,7 @@ Common_Tools::getUserName (uid_t userId_in,
                   ACE_TEXT (ACE_TEXT_GetUserNameEx)));
   } // end IF
   else
-    realname_out = ACE_TEXT_ALWAYS_CHAR (buffer);
+    realname_out = ACE_TEXT_ALWAYS_CHAR (buffer_a);
 #else
   int            result = -1;
   struct passwd  passwd_s;
@@ -1923,6 +1923,28 @@ Common_Tools::getUserName (uid_t userId_in,
   } // end ELSE
 #endif // ACE_WIN32 || ACE_WIN64
 }
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+std::string
+Common_Tools::getUserName ()
+{
+  std::string return_value;
+
+  ACE_TCHAR buffer_a[L_cuserid];
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[L_cuserid]));
+  char* result_p = ACE_OS::cuserid (buffer_a);
+  if (unlikely (!result_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::cuserid() : \"%m\", returning\n")));
+    return ACE_TEXT_ALWAYS_CHAR ("");
+  } // end IF
+  return_value = buffer_a;
+
+  return return_value;
+}
+#endif // ACE_WIN32 || ACE_WIN64
 
 std::string
 Common_Tools::getHostName ()

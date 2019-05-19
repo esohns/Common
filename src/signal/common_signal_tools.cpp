@@ -34,6 +34,7 @@
 
 #include "common_defines.h"
 #include "common_macros.h"
+#include "common_tools.h"
 
 // initialize statics
 ACE_Sig_Handler Common_Signal_Tools::signalHandler_;
@@ -483,37 +484,13 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
   converter.clear ();
   converter << signal_in.siginfo.si_uid;
   result += converter.str ();
-
-  // (try to) get user name
-//  ACE_TCHAR buffer_a[BUFSIZ];
-  ACE_TCHAR buffer_a[L_cuserid];
-//  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[BUFSIZ]));
-  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[L_cuserid]));
-  char* result_p = ACE_OS::cuserid (buffer_a);
-  if (unlikely (!result_p))
-//  struct passwd passwd_s;
-//  struct passwd* passwd_p = NULL;
-// *PORTABILITY*: this isn't very portable (man getpwuid_r)
-//  result_2 = ::getpwuid_r (signal_in.siginfo.si_uid,
-//                           &passwd_s,
-//                           buffer_a,
-//                           sizeof (ACE_TCHAR[BUFSIZ]),
-//                           &passwd_p);
-//  if (unlikely (result_2 || !passwd_p))
-  {
-//    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("failed to ::getpwuid_r(%u) : \"%m\", continuing\n"),
-//                signal_in.siginfo.si_uid));
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::cuserid() : \"%m\", continuing\n")));
-  } // end IF
-  else
-  {
-    result += ACE_TEXT_ALWAYS_CHAR ("[\"");
-//    result += passwd_s.pw_name;
-    result += ACE_TEXT_ALWAYS_CHAR (buffer_a);
-    result += ACE_TEXT_ALWAYS_CHAR ("\"]");
-  } // end ELSE
+  std::string user_name_string, real_name_string;
+  Common_Tools::getUserName (signal_in.siginfo.si_uid,
+                             user_name_string,
+                             real_name_string);
+  result += ACE_TEXT_ALWAYS_CHAR ("[\"");
+  result += user_name_string;
+  result += ACE_TEXT_ALWAYS_CHAR ("\"]");
 
   // "si_signo,  si_errno  and  si_code are defined for all signals..."
   result += ACE_TEXT_ALWAYS_CHAR (", errno: ");
@@ -521,9 +498,14 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
   converter.clear ();
   converter << signal_in.siginfo.si_errno;
   result += converter.str ();
-  result += ACE_TEXT_ALWAYS_CHAR ("[\"");
-  result += ACE_OS::strerror (signal_in.siginfo.si_errno);
-  result += ACE_TEXT_ALWAYS_CHAR ("\"], code: ");
+  if (unlikely (signal_in.siginfo.si_errno))
+  {
+    result += ACE_TEXT_ALWAYS_CHAR ("[\"");
+    result += ACE_OS::strerror (signal_in.siginfo.si_errno);
+    result += ACE_TEXT_ALWAYS_CHAR ("\"], code: ");
+  } // end IF
+  else
+    result += ACE_TEXT_ALWAYS_CHAR (", code: ");
 
   // step1: retrieve signal code
   switch (signal_in.siginfo.si_code)
