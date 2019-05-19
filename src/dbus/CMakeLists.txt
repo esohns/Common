@@ -3,15 +3,18 @@
 if (UNIX)
 # find_package (DBus1 MODULE)
  find_package (DBus1)
- if (NOT DBus1_DIR)
+ if (NOT DBus1_FOUND)
   find_library (DBUS_LIBRARY libdbus-1.so.3.19.9
                 PATHS /usr/lib64
                 DOC "searching for libdbus-1")
   if (NOT DBUS_LIBRARY)
    message (FATAL_ERROR "could not find libdbus-1, aborting")
   endif ()
-#  pkg_check_modules (PKG_DBUS REQUIRED dbus-1)
- endif (NOT DBus1_DIR)
+  pkg_check_modules (PKG_DBUS REQUIRED dbus-1)
+ else ()
+  message (STATUS "found DBus1: ${DBus1_DIR}")
+  set (PKG_DBUS_INCLUDE_DIRS ${DBus1_INCLUDE_DIRS})
+ endif (NOT DBus1_FOUND)
  add_definitions (-DDBUS_SUPPORT)
 
  if (SD_BUS_SUPPORT)
@@ -43,12 +46,14 @@ add_library (${PROJECT_NAME}DBus STATIC "")
 
 if (UNIX)
 # *NOTE*: a bug in cmake (3.10.2) requires the additional comment
- target_include_directories (${PROJECT_NAME}DBus PUBLIC
-                             $<BUILD_INTERFACE:${DBus1_INCLUDE_DIR}>)
- target_include_directories (${PROJECT_NAME}DBus PUBLIC
-                             $<BUILD_INTERFACE:${DBus1_ARCH_INCLUDE_DIR}>)
 # target_include_directories (${PROJECT_NAME}DBus PUBLIC
-#                             "$<BUILD_INTERFACE:${PKG_DBUS_INCLUDE_DIRS}>")
+#                             $<BUILD_INTERFACE:${DBus1_INCLUDE_DIR}>)
+# target_include_directories (${PROJECT_NAME}DBus PUBLIC
+#                             $<BUILD_INTERFACE:${DBus1_ARCH_INCLUDE_DIR}>)
+
+ message (STATUS "PKG_DBUS_INCLUDE_DIRS: ${PKG_DBUS_INCLUDE_DIRS}")
+ target_include_directories (${PROJECT_NAME}DBus PUBLIC
+                             "$<BUILD_INTERFACE:${PKG_DBUS_INCLUDE_DIRS}>")
  target_include_directories (${PROJECT_NAME}DBus PUBLIC
                              "$<BUILD_INTERFACE:${PKG_NETWORKMANAGER_INCLUDE_DIRS}>")
 

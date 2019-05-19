@@ -29,7 +29,7 @@
 // System Library Header Files
 
 // Library Header Files
-#include "wx/wx.h"
+#include <QApplication>
 
 #define ACE_HAS_SSIZE_T
 #include "ace/config-lite.h"

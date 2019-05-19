@@ -87,6 +87,8 @@ if (UNIX)
    message (STATUS "found gtk2")
    set (GTK2_FOUND TRUE)
    
+   set (PKG_GTK_2_INCLUDE_DIRS "/usr/include/gtk-2.0;/usr/lib64/gtk-2.0/include;/usr/include/pango-1.0;/usr/include/glib-2.0;/usr/lib64/glib-2.0/include;/usr/include/fribidi;/usr/include/harfbuzz;/usr/include/freetype2;/usr/include/libpng16;/usr/include/uuid;/usr/include/cairo;/usr/include/pixman-1;/usr/include/gdk-pixbuf-2.0;/usr/include/libmount;/usr/include/blkid;/usr/include/atk-1.0")
+   message (STATUS "PKG_GTK_2_INCLUDE_DIRS: ${PKG_GTK_2_INCLUDE_DIRS}")
    set (GTK2_INCLUDE_DIRS ${PKG_GTK_2_INCLUDE_DIRS})
    set (GTK2_LIBRARIES ${PKG_GTK_2_LIBRARIES})
   endif (PKG_GTK_2_FOUND)

@@ -4,7 +4,7 @@ Linux Package Management:
 src: libcap-devel
 
 * Fedora 30 ('sudo dnf install')
-build: ninja-build
-src: libcap-devel dbus-devel systemd-devel NetworkManager-libnm-devel glm-devel assimp-devel ffmpeg-devel
-     gtk2-devel libxml2-devel
+build: ninja-build make
+src: libcap-devel dbus-devel systemd-devel NetworkManager-libnm-devel glm-devel
+     assimp-devel ffmpeg-devel gtk2-devel libxml2-devel ImageMagick-devel
 

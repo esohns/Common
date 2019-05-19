@@ -36,6 +36,7 @@ if (GTK_SUPPORT AND GTK_USE)
    mark_as_advanced (FORCE GTK2_USE)
    add_definitions (-DGTK2_USE)
 
+   message (STATUS "GTK2_INCLUDE_DIRS: ${GTK2_INCLUDE_DIRS}")
    set (GTK_INCLUDE_DIRS ${GTK2_INCLUDE_DIRS})
    set (GTK_LIBRARIES ${GTK2_LIBRARIES})
   endif (NOT GTK2_SUPPORT)

@@ -1,6 +1,9 @@
 ﻿option (IMAGEMAGICK_SUPPORT "compile ImageMagick support" ON)
 if (IMAGEMAGICK_SUPPORT)
  add_definitions (-DIMAGEMAGICK_SUPPORT)
+ if (UNIX)
+  pkg_check_modules (PKG_IMAGEMAGICK REQUIRED ImageMagick)
+ endif (UNIX)
 endif (IMAGEMAGICK_SUPPORT)
 option (LIBPNG_SUPPORT "compile libpng support" OFF)
 if (LIBPNG_SUPPORT)
@@ -72,6 +75,8 @@ if (UNIX)
                              $<BUILD_INTERFACE:${PKG_LIBPNG_INCLUDE_DIRS}>)
  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
                              $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
+ target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+                             $<BUILD_INTERFACE:${PKG_IMAGEMAGICK_INCLUDE_DIRS}>)
 
  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
 #                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
