@@ -177,6 +177,7 @@ Common_SignalHandler_T<ConfigurationType>::initialize (const ConfigurationType& 
     isInitialized_ = false;
   } // end IF
 
+  inherited2::reactor (ACE_Reactor::instance ());
   configuration_ = &const_cast<ConfigurationType&> (configuration_in);
   // *TODO*: remove type inference
   lock_ = &configuration_->lock;

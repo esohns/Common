@@ -766,12 +766,12 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
       converter.clear ();
       converter << signal_in.siginfo.si_status;
       result += converter.str ();
-      result += ACE_TEXT_ALWAYS_CHAR (", time consumed (user): ");
+      result += ACE_TEXT_ALWAYS_CHAR (", time consumed (user/system): ");
       converter.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter.clear ();
       converter << signal_in.siginfo.si_utime;
       result += converter.str ();
-      result += ACE_TEXT_ALWAYS_CHAR (" / (system): ");
+      result += ACE_TEXT_ALWAYS_CHAR (" / ");
       converter.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter.clear ();
       converter << signal_in.siginfo.si_stime;
