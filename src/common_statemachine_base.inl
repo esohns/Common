@@ -230,13 +230,13 @@ Common_StateMachine_Base_T<StateMachineName,
     if (likely (previous_state == state_))
       state_ = newState_in;
   } // end lock scope
-#if defined (_DEBUG)
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("%s: \"%s\" --> \"%s\"\n"),
-              ACE_TEXT (StateMachineName),
-              ACE_TEXT (this->stateToString (previous_state).c_str ()),
-              ACE_TEXT (this->stateToString (newState_in).c_str ())));
-#endif // _DEBUG
+//#if defined (_DEBUG)
+//  ACE_DEBUG ((LM_DEBUG,
+//              ACE_TEXT ("%s: \"%s\" --> \"%s\"\n"),
+//              ACE_TEXT (StateMachineName),
+//              ACE_TEXT (this->stateToString (previous_state).c_str ()),
+//              ACE_TEXT (this->stateToString (newState_in).c_str ())));
+//#endif // _DEBUG
 
   // signal any waiting threads
   if (likely (signal))
