@@ -77,10 +77,12 @@ struct Common_TimerConfiguration
 {
   Common_TimerConfiguration ()
    : dispatch (COMMON_TIMER_DEFAULT_DISPATCH)
+   , publishSeconds (false)
    , queueType (COMMON_TIMER_DEFAULT_QUEUE)
   {}
 
   enum Common_TimerDispatchType dispatch;
+  bool                          publishSeconds;
   // *NOTE*: applies to COMMON_TIMER_DISPATCH_QUEUE dispatch only
   enum Common_TimerQueueType    queueType;
 };

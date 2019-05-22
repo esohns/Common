@@ -26,14 +26,20 @@
 #include "ace/Global_Macros.h"
 #include "ace/Time_Value.h"
 
+#include "common_iinitialize.h"
+
 #include "common_timer_common.h"
 
 // forward declaration(s)
 //class Common_ITimer;
 
 class Common_Timer_Tools
+ : public Common_SInitializeFinalize_T<Common_Timer_Tools>
 {
  public:
+  static void initialize (bool = false); // initialize 'second'-publisher ?
+  static void finalize ();
+   
   //// --- singleton ---
   //static Common_ITimer* getTimerManager ();
 
@@ -54,16 +60,19 @@ class Common_Timer_Tools
                                         bool,                  // UTC ? : localtime
                                         bool = false);         // append timezone ?
 
-  // --- timers ---
-  static bool initializeTimers (const struct Common_TimerConfiguration&); // configuration
-  static void finalizeTimers (enum Common_TimerDispatchType, // dispatch type
-                              bool = true);                  // wait for completion ?
+  static struct Common_TimerConfiguration configuration_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Timer_Tools ())
   ACE_UNIMPLEMENTED_FUNC (~Common_Timer_Tools ())
   ACE_UNIMPLEMENTED_FUNC (Common_Timer_Tools (const Common_Timer_Tools&))
   ACE_UNIMPLEMENTED_FUNC (Common_Timer_Tools& operator= (const Common_Timer_Tools&))
+
+  // --- timers ---
+  static bool initializeTimers (const struct Common_TimerConfiguration&); // configuration
+  static void finalizeTimers (enum Common_TimerDispatchType, // dispatch type
+                              bool = true);                  // wait for completion ?
+
 };
 
 #endif

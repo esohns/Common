@@ -34,6 +34,43 @@
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "common_timer_manager_common.h"
+#include "common_timer_second_publisher.h"
+
+// initialize statics
+struct Common_TimerConfiguration Common_Timer_Tools::configuration_;
+
+void
+Common_Timer_Tools::initialize (bool initializeSecondPublisher_in)
+{
+  Common_Timer_Tools::configuration_.publishSeconds =
+    initializeSecondPublisher_in;
+
+  if (!Common_Timer_Tools::initializeTimers (Common_Timer_Tools::configuration_))
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_Timer_Tools::initializeTimers(), continuing\n")));
+
+  if (Common_Timer_Tools::configuration_.publishSeconds)
+  {
+    Common_Timer_SecondPublisher_t* publisher_p =
+      COMMON_TIMER_SECONDPUBLISHER_SINGLETON::instance ();
+    ACE_thread_t thread_id = 0;
+    publisher_p->start (thread_id);
+  } // end IF
+}
+void
+Common_Timer_Tools::finalize ()
+{
+  Common_Timer_Tools::finalizeTimers (Common_Timer_Tools::configuration_.dispatch,
+                                      true);
+
+  if (Common_Timer_Tools::configuration_.publishSeconds)
+  {
+    Common_Timer_SecondPublisher_t* publisher_p =
+      COMMON_TIMER_SECONDPUBLISHER_SINGLETON::instance ();
+    publisher_p->stop (true,
+                       true);
+  } // end IF
+}
 
 ACE_Time_Value
 Common_Timer_Tools::localToUTC (const ACE_Time_Value& localTime_in)
