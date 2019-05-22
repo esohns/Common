@@ -25,9 +25,13 @@ template <typename StatisticContainerType>
 class Common_IStatistic_T
 {
  public:
-  // *NOTE*: the argument MAY serve both as input/output, this depends on the
-  //         implementation
+  // *NOTE*: all methods implement a visitor pattern
+   
+  // *NOTE*: the argument may (!) serve both as input/output, this depends on
+   //        the implementation
   virtual bool collect (StatisticContainerType&) = 0;
+  virtual void update () = 0;
+
   virtual void report () const = 0;
 };
 

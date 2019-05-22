@@ -55,6 +55,10 @@ typedef Common_Timer_Manager_T<ACE_NULL_SYNCH,
 typedef Common_Timer_ManagerHeap_t Common_Timer_Manager_t;
 typedef Common_Timer_ManagerAsynchHeap_t Common_Timer_Manager_Asynch_t;
 
+typedef typename Common_Timer_Manager_t::INTERFACE_T Common_ITimer_Manager_t;
+// *TODO*: this will not quite compile as of yet
+//typedef typename Common_Timer_Manager_Asynch_t::INTERFACE_T Common_ITimer_Manager_Asynch_t;
+
 typedef ACE_Singleton<Common_Timer_Manager_t,
                       ACE_SYNCH_MUTEX> COMMON_TIMERMANAGER_SINGLETON;
 typedef ACE_Singleton<Common_Timer_Manager_Asynch_t,

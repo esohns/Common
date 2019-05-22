@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_TIMERHANDLER_H
-#define COMMON_TIMERHANDLER_H
+#ifndef Common_Timer_Handler_H
+#define Common_Timer_Handler_H
 
 #include "ace/Asynch_IO.h"
 #include "ace/Global_Macros.h"
@@ -29,7 +29,7 @@
 #include "common_iget.h"
 #include "common_itimerhandler.h"
 
-class Common_TimerHandler
+class Common_Timer_Handler
  : public ACE_Event_Handler
  , public ACE_Handler
  , public Common_ITimerHandler
@@ -40,15 +40,15 @@ class Common_TimerHandler
 
  public:
   // *NOTE*: if there is no default ctor, this will not compile
-  inline Common_TimerHandler () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
+  inline Common_Timer_Handler () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
   // *NOTE*: the second argument applies to reactor-based dispatch only
-  Common_TimerHandler (Common_ITimerHandler*, // effective dispatch interface (NULL: 'this')
-                       bool);                 // invoke only once ?
-  inline virtual ~Common_TimerHandler () {}
+  Common_Timer_Handler (Common_ITimerHandler*, // effective dispatch interface (NULL: 'this')
+                        bool);                 // invoke only once ?
+  inline virtual ~Common_Timer_Handler () {}
 
   // implement Common_ITimerHandler
   inline virtual const long get () const { return id_; }
-  inline virtual void handle (const void* act_in) { ACE_UNUSED_ARG (act_in); }
+  inline virtual void handle (const void* act_in) { ACE_UNUSED_ARG (act_in); ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
 
   // implement Common_ISet_T
   inline virtual void set (const long id_in) { id_ = id_in; }
@@ -67,8 +67,8 @@ class Common_TimerHandler
   bool                  isOneShot_;
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler (const Common_TimerHandler&))
-  ACE_UNIMPLEMENTED_FUNC (Common_TimerHandler& operator= (const Common_TimerHandler&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Timer_Handler (const Common_Timer_Handler&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Timer_Handler& operator= (const Common_Timer_Handler&))
 
   Common_ITimerHandler* handler_;
 };

@@ -187,6 +187,7 @@ struct Common_ScannerState
 enum Common_StatisticActionType
 {
   COMMON_STATISTIC_ACTION_COLLECT = 0,
+  COMMON_STATISTIC_ACTION_UPDATE,
   COMMON_STATISTIC_ACTION_REPORT,
   ////////////////////////////////////////
   COMMON_STATISTIC_ACTION_MAX,

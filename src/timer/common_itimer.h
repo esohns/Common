@@ -29,12 +29,12 @@
 // forward declarations
 //class ACE_Event_Handler;
 //class ACE_Handler;
-class Common_TimerHandler;
+class Common_Timer_Handler;
 
 class Common_ITimerBase
 {
  public:
-  virtual long schedule_timer (Common_TimerHandler*,                              // event handler handle
+  virtual long schedule_timer (Common_Timer_Handler*,                             // event handler handle
                                const void*,                                       // asynchronous completion token
                                const ACE_Time_Value&,                             // expiration time (absolute)
                                const ACE_Time_Value& = ACE_Time_Value::zero) = 0; // set periodic interval ?

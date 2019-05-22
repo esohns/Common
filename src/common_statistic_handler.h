@@ -31,9 +31,9 @@
 
 template <typename StatisticContainerType>
 class Common_StatisticHandler_T
- : public Common_TimerHandler
+ : public Common_Timer_Handler
 {
-  typedef Common_TimerHandler inherited;
+  typedef Common_Timer_Handler inherited;
 
  public:
   // convenient types

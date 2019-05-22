@@ -50,7 +50,6 @@ Common_StatisticHandler_T<StatisticContainerType>::handle (const void* arg_in)
     {
       StatisticContainerType result;
       ACE_OS::memset (&result, 0, sizeof (StatisticContainerType));
-
       try {
         if (!interfaceHandle_->collect (result))
           ACE_DEBUG ((LM_ERROR,
@@ -59,20 +58,29 @@ Common_StatisticHandler_T<StatisticContainerType>::handle (const void* arg_in)
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("caught an exception in Common_IStatistic::collect(), continuing\n")));
       }
-
-      if (!reportOnCollect_)
-        break;
-      // *WARNING*: falls through !
+      if (reportOnCollect_)
+        goto report;
+      break;
+    }
+    case COMMON_STATISTIC_ACTION_UPDATE:
+    {
+      try {
+        interfaceHandle_->update ();
+      } catch (...) {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("caught an exception in Common_IStatistic::update(), continuing\n")));
+      }
+      break;
     }
     case COMMON_STATISTIC_ACTION_REPORT:
     {
+report:
       try {
         interfaceHandle_->report ();
       } catch (...) {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("caught an exception in Common_IStatistic::report(), continuing\n")));
       }
-
       break;
     }
     default:

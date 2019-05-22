@@ -203,7 +203,7 @@
 #define COMMON_EVENT_REACTOR_THREAD_GROUP_ID                   102
 
 // reactor options
-#define COMMON_EVENT_REACTOR_DEFAULT_USE_THREADPOOL            false
+//#define COMMON_EVENT_REACTOR_DEFAULT_USE_THREADPOOL            false
 
 #define COMMON_EVENT_THREAD_NAME                               "event dispatch"
 #define COMMON_EVENT_DEFAULT_DISPATCH                          COMMON_EVENT_DISPATCH_PROACTOR

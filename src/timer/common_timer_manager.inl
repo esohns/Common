@@ -29,7 +29,7 @@
 #include "common_defines.h"
 #include "common_macros.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include "common_tools.h"
+#include "common_error_tools.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "common_timer_handler.h"
@@ -630,7 +630,7 @@ template <ACE_SYNCH_DECL,
 long
 Common_Timer_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
-                       TimerQueueAdapterType>::schedule_timer (Common_TimerHandler* handler_in,
+                       TimerQueueAdapterType>::schedule_timer (Common_Timer_Handler* handler_in,
                                                                const void* ACT_in,
                                                                const ACE_Time_Value& delay_in,
                                                                const ACE_Time_Value& interval_in)

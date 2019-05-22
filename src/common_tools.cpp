@@ -2154,26 +2154,55 @@ Common_Tools::deleteKeyValue (HKEY parentKey_in,
 #endif
 
 bool
+Common_Tools::defaultPlatformReactorIsSelectBased ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::defaultPlatformReactorIsSelectBased"));
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  return true;
+#elif defined (ACE_LINUX)
+  return true;
+#else
+  ACE_ASSERT (false);
+  ACE_NOTSUP_RETURN (false);
+  ACE_NOTREACHED (return false;)
+#endif
+}
+
+bool
 Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration& configuration_inout)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::initializeEventDispatch"));
 
-  // initialize return value(s)
-  configuration_inout.handlersRequireSerialization = false;
-
-  // step0: initialize reactor/proactor implementation
+  // step0: initialize configuration
   // *NOTE*: the appropriate type of event dispatch mechanism may depend on
   //         several factors:
   //         - targeted platform(s) (i.e. supported mechanisms, (software) environment)
   //         - envisioned application type (i.e. library, plugin)
   // *TODO*: the chosen event dispatch implementation should be based on
   //         #defines only (!, see above, common.h)
-  configuration_inout.reactorType = COMMON_EVENT_REACTOR_TYPE;
-  configuration_inout.proactorType = COMMON_EVENT_PROACTOR_TYPE;
-  if (configuration_inout.numberOfReactorThreads)
-    configuration_inout.reactorType =
-        (configuration_inout.useThreadPoolReactor ? COMMON_REACTOR_THREAD_POOL
-                                                  : configuration_inout.reactorType);
+  // sanity check(s)
+  if (unlikely (configuration_inout.numberOfReactorThreads))
+  {
+    if (configuration_inout.numberOfReactorThreads > 1)
+    {
+      if ((configuration_inout.reactorType == COMMON_REACTOR_SELECT) ||
+          ((configuration_inout.reactorType == COMMON_REACTOR_ACE_DEFAULT) &&
+           Common_Tools::defaultPlatformReactorIsSelectBased ()))
+      {
+        ACE_DEBUG ((LM_WARNING,
+                    ACE_TEXT ("cannot use the 'select' reactor from multiple threads, adjusting configuration\n")));
+        configuration_inout.reactorType = COMMON_REACTOR_THREAD_POOL;
+      } // end IF
+
+      if (!configuration_inout.callbacksRequireSynchronization)
+      {
+        ACE_DEBUG ((LM_WARNING,
+                    ACE_TEXT ("multi-threaded reactors require handler synchronization, adjusting configuration\n")));
+        configuration_inout.callbacksRequireSynchronization = true;
+      } // end IF
+    } // end IF
+  } // end IF
 
   // step1: initialize reactor
   if (configuration_inout.numberOfReactorThreads)
@@ -2183,8 +2212,10 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
     {
       case COMMON_REACTOR_ACE_DEFAULT:
       {
+#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using ACE default (platform-specific) reactor\n")));
+#endif // _DEBUG
         break;
       }
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -2204,9 +2235,6 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
                                                 NULL,                            // notification handler handle
                                                 1,                               // mask signals ?
                                                 ACE_DEV_POLL_TOKEN::FIFO));      // signal queue
-
-        configuration_inout.handlersRequireSerialization = true;
-
         break;
       }
 #endif // ACE_WIN32 || ACE_WIN64
@@ -2225,7 +2253,6 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
                                               NULL,                                               // notification handler handle
                                               true,                                               // mask signals ?
                                               ACE_SELECT_TOKEN::FIFO));                           // signal queue
-
         break;
       }
       case COMMON_REACTOR_THREAD_POOL:
@@ -2241,9 +2268,6 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
                                           NULL,                                               // timer queue handle
                                           true,                                               // mask signals ?
                                           ACE_Select_Reactor_Token::FIFO));                   // signal queue
-
-        configuration_inout.handlersRequireSerialization = true;
-
         break;
       }
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -2305,7 +2329,7 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
     struct aioinit aioinit_s;
-    ACE_OS::memset (&aioinit_s, 0, sizeof (aioinit_s));
+    ACE_OS::memset (&aioinit_s, 0, sizeof (struct aioinit));
     aioinit_s.aio_threads = configuration_inout.numberOfProactorThreads; // default: 20
     aioinit_s.aio_num =
       COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS;                        // default: 64

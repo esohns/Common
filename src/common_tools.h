@@ -172,9 +172,8 @@ class Common_Tools
 #endif // ACE_WIN32 || ACE_WIN64
 
   // --- event loop ---
-  // *NOTE*: the configuration is updated with the platform-specific proactor/
-  //         reactor types and corresponding options; hence the non-const
-  //         argument
+  // *WARNING*: the configuration may (!) be updated with platform-specific
+  //            settings; hence the non-const argument
   static bool initializeEventDispatch (struct Common_EventDispatchConfiguration&); // configuration (i/o)
   // *NOTE*: the state handle is updated with the thread group ids (if any);
   //         hence the non-const argument
@@ -210,6 +209,11 @@ class Common_Tools
   ACE_UNIMPLEMENTED_FUNC (~Common_Tools ())
   ACE_UNIMPLEMENTED_FUNC (Common_Tools (const Common_Tools&))
   ACE_UNIMPLEMENTED_FUNC (Common_Tools& operator= (const Common_Tools&))
+
+  // --- event loop ---
+  // *IMPORTANT NOTE*: -in the sense of what COMMON_REACTOR_ACE_DEFAULT maps to
+  //                   on this (!) platform (check ACE source code)
+  static bool defaultPlatformReactorIsSelectBased();
 };
 
 #endif

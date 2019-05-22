@@ -26,8 +26,8 @@
 #include "common_macros.h"
 #include "common_itimerhandler.h"
 
-Common_TimerHandler::Common_TimerHandler (Common_ITimerHandler* handler_in,
-                                          bool isOneShot_in)
+Common_Timer_Handler::Common_Timer_Handler (Common_ITimerHandler* handler_in,
+                                            bool isOneShot_in)
  : inherited (NULL,                           // --> default reactor
               ACE_Event_Handler::LO_PRIORITY) // priority
  , inherited2 (NULL) // no proactor
@@ -35,17 +35,17 @@ Common_TimerHandler::Common_TimerHandler (Common_ITimerHandler* handler_in,
  , isOneShot_ (isOneShot_in)
  , handler_ (handler_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_TimerHandler::Common_TimerHandler"));
+  COMMON_TRACE (ACE_TEXT ("Common_Timer_Handler::Common_Timer_Handler"));
 
   // sanity check(s)
   ACE_ASSERT (handler_);
 }
 
 int
-Common_TimerHandler::handle_close (ACE_HANDLE handle_in,
-                                   ACE_Reactor_Mask mask_in)
+Common_Timer_Handler::handle_close (ACE_HANDLE handle_in,
+                                    ACE_Reactor_Mask mask_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_TimerHandler::handle_close"));
+  COMMON_TRACE (ACE_TEXT ("Common_Timer_Handler::handle_close"));
 
   // sanity check(s)
   ACE_ASSERT (handle_in == ACE_INVALID_HANDLE);
@@ -71,10 +71,10 @@ Common_TimerHandler::handle_close (ACE_HANDLE handle_in,
 }
 
 int
-Common_TimerHandler::handle_timeout (const ACE_Time_Value& dipatchTime_in,
-                                     const void* arg_in)
+Common_Timer_Handler::handle_timeout (const ACE_Time_Value& dipatchTime_in,
+                                      const void* arg_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_TimerHandler::handle_timeout"));
+  COMMON_TRACE (ACE_TEXT ("Common_Timer_Handler::handle_timeout"));
 
   ACE_UNUSED_ARG (dipatchTime_in);
 
@@ -90,10 +90,10 @@ Common_TimerHandler::handle_timeout (const ACE_Time_Value& dipatchTime_in,
 }
 
 void
-Common_TimerHandler::handle_time_out (const ACE_Time_Value& requestedTime_in,
-                                      const void* arg_in)
+Common_Timer_Handler::handle_time_out (const ACE_Time_Value& requestedTime_in,
+                                       const void* arg_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_TimerHandler::handle_time_out"));
+  COMMON_TRACE (ACE_TEXT ("Common_Timer_Handler::handle_time_out"));
 
   ACE_UNUSED_ARG (requestedTime_in);
 

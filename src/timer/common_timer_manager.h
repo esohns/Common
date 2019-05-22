@@ -34,7 +34,7 @@
 #include "common_timer_common.h"
 
 // forward declarations
-class Common_TimerHandler;
+class Common_Timer_Handler;
 
 template <ACE_SYNCH_DECL,
           typename ConfigurationType,
@@ -72,7 +72,7 @@ class Common_Timer_Manager_T
   virtual int reset_timer_interval (long,                   // timer id
                                     const ACE_Time_Value&); // interval
 //  inline virtual bool useReactor () const { ACE_ASSERT (configuration_); return (configuration_->mode != COMMON_TIMER_MODE_PROACTOR); }; // ? : uses proactor
-  virtual long schedule_timer (Common_TimerHandler*,                          // event handler handle
+  virtual long schedule_timer (Common_Timer_Handler*,                         // event handler handle
                                const void*,                                   // asynchronous completion token
                                const ACE_Time_Value&,                         // expiration time (absolute)
                                const ACE_Time_Value& = ACE_Time_Value::zero); // set periodic interval ?
