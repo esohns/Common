@@ -42,7 +42,7 @@ if (GTKGL_SUPPORT)
 # *NOTE*: check out the 'master' branch for gtk3-based applications
 # *NOTE*: check out the 'gtkglarea-2' branch for gtk2-based applications
 # *TODO*: verify automatically
-  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtkglarea)
+  include_directories ($ENV{LIB_ROOT}/gtkglarea)
  endif (GTKGLAREA_SUPPORT)
 endif (GTKGL_SUPPORT)
 
@@ -82,7 +82,7 @@ endif (UNIX)
 #message (STATUS "GTK_LIBRARIES: ${GTK_LIBRARIES}")
 target_link_libraries (${EXECUTABLE} ${GTK_LIBRARIES})
 if (GTKGLAREA_SUPPORT)
- target_link_libraries (${EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/../../../../../gtkglarea/cmake/Debug/gtkglarea.lib)
+ target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/gtkglarea/cmake/Debug/gtkglarea.lib)
 endif (GTKGLAREA_SUPPORT)
 target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
 
@@ -106,34 +106,37 @@ set (gtk_ui_2_EXE_SRCS
      test_i_gtk_defines.h)
 
 #cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
-set (EXECUTABLE gtk_ui_2)
-add_executable (${EXECUTABLE}
+set (EXECUTABLE_2 gtk_ui_2)
+add_executable (${EXECUTABLE_2}
                 EXCLUDE_FROM_ALL
                 ${gtk_ui_2_EXE_SRCS})
-set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
+set_property (TARGET ${EXECUTABLE_2} PROPERTY FOLDER "test_i")
 
 if (UNIX)
- target_link_libraries (${EXECUTABLE} X11)
- target_link_libraries (${EXECUTABLE} GL)
+ target_link_libraries (${EXECUTABLE_2} X11)
+ target_link_libraries (${EXECUTABLE_2} GL)
 elseif (WIN32)
- target_link_libraries (${EXECUTABLE} OpenGL32)
+ target_link_libraries (${EXECUTABLE_2} OpenGL32)
 endif (UNIX)
 #message (STATUS "GTK_LIBRARIES: ${GTK_LIBRARIES}")
-target_link_libraries (${EXECUTABLE} ${GTK_LIBRARIES})
-target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
+target_link_libraries (${EXECUTABLE_2} ${GTK_LIBRARIES})
+if (GTKGLAREA_SUPPORT)
+ target_link_libraries (${EXECUTABLE_2} $ENV{LIB_ROOT}/gtkglarea/cmake/Debug/gtkglarea.lib)
+endif (GTKGLAREA_SUPPORT)
+target_link_libraries (${EXECUTABLE_2} ${ACE_LIBRARY})
 
-target_link_libraries (${EXECUTABLE} Common)
-target_link_libraries (${EXECUTABLE} CommonLog)
-target_link_libraries (${EXECUTABLE} CommonTimer)
-target_link_libraries (${EXECUTABLE} CommonUI)
-target_link_libraries (${EXECUTABLE} CommonUI_GTK)
+target_link_libraries (${EXECUTABLE_2} Common)
+target_link_libraries (${EXECUTABLE_2} CommonLog)
+target_link_libraries (${EXECUTABLE_2} CommonTimer)
+target_link_libraries (${EXECUTABLE_2} CommonUI)
+target_link_libraries (${EXECUTABLE_2} CommonUI_GTK)
 
 # add PCH
-set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${EXECUTABLE})
+set_target_properties (${EXECUTABLE_2} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+cotire (${EXECUTABLE_2})
 
 ############### installation #############
-install (TARGETS ${EXECUTABLE}
+install (TARGETS ${EXECUTABLE} ${EXECUTABLE_2}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 # install (FILES etc/${EXECUTABLE}.glade
@@ -169,7 +172,16 @@ create_target_launcher (${EXECUTABLE}
                         ARGS ${ARGS}
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
-                                             ${PROJECT_SOURCE_DIR}/../ATCD/ACE/lib
+                                             ${PROJECT_SOURCE_DIR}/../ACE_TAO/ACE/lib
+                                             ${PROJECT_SOURCE_DIR}/cmake/src/Debug
+                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
+                        ENVIRONMENT ${ENVIRONMENT})
+
+create_target_launcher (${EXECUTABLE_2}
+                        ARGS ${ARGS}
+#                         FORWARD_ARGS
+                        RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
+                                             ${PROJECT_SOURCE_DIR}/../ACE_TAO/ACE/lib
                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
                         ENVIRONMENT ${ENVIRONMENT})
@@ -183,3 +195,9 @@ set_tests_properties (${EXECUTABLE}_test
                       ENVIRONMENT "PATH=D:\\projects\\ATCD\\ACE\\lib;D:\\projects\\gtk\\bin;D:\\projects\\libglade\\bin;D:\\projects\\libxml2-2.9.1\\.libs;G:\\software\\Development\\dll;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\ui\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\modules\\dev\\Debug;${PROJECT_SOURCE_DIR}\\..\\libACENetwork\\cmake\\src\\Debug;%PATH%")
 #PATH=%PATH%;$(ProjectDir)..\..\..\..\ATCD\ACE\lib;$(ProjectDir)..\..\..\..\gtk3\bin;$(ProjectDir)..\..\..\..\libav-11.7\libavcodec;$(ProjectDir)..\..\..\..\libav-11.7\libavresample;$(ProjectDir)..\..\..\..\libav-11.7\libavutil;$(ProjectDir)..\..\..\..\libCommon\cmake\src\Debug;$(ProjectDir)..\..\..\..\libCommon\cmake\src\err\Debug;$(ProjectDir)..\..\..\..\libCommon\cmake\src\ui\Debug;$(ProjectDir)..\..\src\Debug;$(ProjectDir)..\..\src\modules\dev\Debug;$(ProjectDir)..\..\src\modules\vis\Debug
 
+add_test (NAME ${EXECUTABLE_2}_test
+          COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE_2}
+          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+set_tests_properties (${EXECUTABLE_2}_test
+                      PROPERTIES
+                      ENVIRONMENT "PATH=D:\\projects\\ATCD\\ACE\\lib;D:\\projects\\gtk\\bin;D:\\projects\\libglade\\bin;D:\\projects\\libxml2-2.9.1\\.libs;G:\\software\\Development\\dll;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\ui\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\modules\\dev\\Debug;${PROJECT_SOURCE_DIR}\\..\\libACENetwork\\cmake\\src\\Debug;%PATH%")

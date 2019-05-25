@@ -21,16 +21,18 @@
 #ifndef COMMON_ISTATISTIC_H
 #define COMMON_ISTATISTIC_H
 
+#include "ace/Time_Value.h"
+
 template <typename StatisticContainerType>
 class Common_IStatistic_T
 {
  public:
-  // *NOTE*: all methods implement a visitor pattern
+  // *NOTE*: how all methods implement a visitor pattern
    
   // *NOTE*: the argument may (!) serve both as input/output, this depends on
    //        the implementation
   virtual bool collect (StatisticContainerType&) = 0;
-  virtual void update () = 0;
+  virtual void update (const ACE_Time_Value&) = 0; // update interval
 
   virtual void report () const = 0;
 };

@@ -12,7 +12,7 @@ if (GTKGLAREA_SUPPORT)
 # *NOTE*: check out the 'gtkglarea-2' branch for gtk2-based applications
 # *TODO*: verify automatically
  target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtkglarea>)
+                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/gtkglarea>)
 endif (GTKGLAREA_SUPPORT)
 
 if (UNIX)
@@ -129,7 +129,7 @@ elseif (WIN32)
 
  if (GTKGLAREA_SUPPORT)
   target_link_libraries (${PROJECT_NAME}UI_GTK $ENV{LIB_ROOT}/libepoxy/lib/epoxy.lib)
-  target_link_libraries (${PROJECT_NAME}UI_GTK ${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtkglarea/cmake/${CMAKE_BUILD_TYPE}/gtkglarea.lib)
+  target_link_libraries (${PROJECT_NAME}UI_GTK $ENV{LIB_ROOT}/gtkglarea/cmake/${CMAKE_BUILD_TYPE}/gtkglarea.lib)
 # else (GTKGLAREA_SUPPORT)
  # target_link_libraries (${EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtkglext/gdk/.libs/libgdkglext-win32-1.0.dll.a)
  # target_link_libraries (${EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtkglext/gtk/.libs/libgtkglext-win32-1.0.dll.a)

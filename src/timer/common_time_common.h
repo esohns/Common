@@ -62,6 +62,7 @@ typedef ACE_System_Time_Policy Common_TimePolicy_t;
 //#pragma GCC diagnostic ignored "-Wunused-variable"
 #endif // __GNUG__
 COMMON_COMPILER_UNUSED_SYMBOL_PREFIX static Common_TimePolicy_t COMMON_TIME_POLICY;
+COMMON_COMPILER_UNUSED_SYMBOL_PREFIX static ACE_Time_Value_T<ACE_HR_Time_Policy> COMMON_TIME_POLICY_HR;
 #if defined (__GNUG__)
 //#pragma GCC diagnostic pop
 #endif // __GNUG__
@@ -71,6 +72,9 @@ COMMON_COMPILER_UNUSED_SYMBOL_PREFIX static Common_TimePolicy_t COMMON_TIME_POLI
 #endif // ACE_VERSION (> 6.1.6)
 
 #define COMMON_TIME_NOW_UTC Common_Timer_Tools::localToUTC (COMMON_TIME_NOW)
+
+// high-resolution time
+#define COMMON_TIME_NOW_HR COMMON_TIME_POLICY_HR.now ()
 
 #define COMMON_DATE_NOW ACE_Date_Time (COMMON_TIME_NOW)
 #define COMMON_DATE_NOW_UTC ACE_Date_Time (Common_Timer_Tools::localToUTC (COMMON_TIME_NOW))

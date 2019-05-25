@@ -65,7 +65,7 @@ Common_StatisticHandler_T<StatisticContainerType>::handle (const void* arg_in)
     case COMMON_STATISTIC_ACTION_UPDATE:
     {
       try {
-        interfaceHandle_->update ();
+        interfaceHandle_->update (ACE_Time_Value::zero);
       } catch (...) {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("caught an exception in Common_IStatistic::update(), continuing\n")));
