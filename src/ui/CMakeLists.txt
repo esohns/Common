@@ -8,7 +8,7 @@ set (ACEXML_LIB_FILE libACEXML.so)
 if (UNIX)
 # message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
  find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
-               HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE/ACEXML /usr/local
+               HINTS $ENV{LIB_ROOT}/ACE_TAO/ACE/ACEXML /usr/local
 #               PATHS ENV ACE_ROOT
                PATH_SUFFIXES common
                DOC "searching for ${ACEXML_LIB_FILE}"
@@ -47,7 +47,7 @@ endif (GTK_SUPPORT)
 if (UNIX)
  target_include_directories (${PROJECT_NAME}UI PUBLIC
 #                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE>)
+                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
 elseif (WIN32)
  if (DEFINED ENV{ACE_ROOT})
   target_include_directories (${PROJECT_NAME}UI PUBLIC
@@ -158,3 +158,4 @@ endif (QT_SUPPORT)
 if (WXWIDGETS_SUPPORT)
  add_subdirectory (wxwidgets)
 endif (WXWIDGETS_SUPPORT)
+

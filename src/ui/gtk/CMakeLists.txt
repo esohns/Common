@@ -23,7 +23,7 @@ if (UNIX)
 
  target_include_directories (${PROJECT_NAME}UI_GTK PUBLIC
 #                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../modules/ACE>)
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../ACE_TAO/ACE>)
+                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
 elseif (WIN32)
  if (LIBGLADE_SUPPORT)
 # libglade
@@ -118,7 +118,7 @@ target_link_libraries (${PROJECT_NAME}UI_GTK ${GTK_LIBRARIES})
 if (UNIX)
  if (GTKGLAREA_SUPPORT)
   target_link_libraries (${PROJECT_NAME}UI_GTK GL)
-  target_link_libraries (${PROJECT_NAME}UI_GTK ${CMAKE_CURRENT_SOURCE_DIR}/../../../../gtkglarea/gtkgl/.libs/libgtkgl-2.0.a)
+  target_link_libraries (${PROJECT_NAME}UI_GTK $ENV{LIB_ROOT}/gtkglarea/gtkgl/.libs/libgtkgl-2.0.a)
  endif (GTKGLAREA_SUPPORT)
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)

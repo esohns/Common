@@ -39,7 +39,7 @@ if (UNIX)
 
  target_include_directories (${PROJECT_NAME}Image PUBLIC
 #                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE>)
+                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
 
 elseif (WIN32)
  if (DEFINED ENV{DXSDK_DIR})

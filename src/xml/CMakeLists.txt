@@ -67,7 +67,7 @@ add_library (${PROJECT_NAME}XML STATIC "")
 if (UNIX)
  target_include_directories (${PROJECT_NAME}XML PUBLIC
 #                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE>)
+                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
 elseif (WIN32)
  if (LIBXML2_SUPPORT)
   target_include_directories (${PROJECT_NAME}XML PUBLIC
