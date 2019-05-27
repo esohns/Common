@@ -22,7 +22,9 @@
 #define COMMON_ITASKCONTROL_H
 
 #include "ace/Global_Macros.h"
+#include "ace/Synch_Traits.h"
 
+#include "common_ilock.h"
 #include "common_itask.h"
 
 template <ACE_SYNCH_DECL,
@@ -42,5 +44,10 @@ class Common_ITaskControl_T
 };
 
 //////////////////////////////////////////
+
+typedef Common_ITaskControl_T<ACE_MT_SYNCH,
+                              Common_ILock_T<ACE_MT_SYNCH> > Common_ITaskControl_t;
+typedef Common_ITaskControl_T<ACE_MT_SYNCH,
+                              Common_IRecursiveLock_T<ACE_MT_SYNCH> > Common_IRecursiveTaskControl_t;
 
 #endif

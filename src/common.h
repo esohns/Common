@@ -35,9 +35,6 @@
 #include "ace/Synch_Traits.h"
 
 #include "common_defines.h"
-#include "common_ilock.h"
-#include "common_itask.h"
-#include "common_itaskcontrol.h"
 
 // *** platform ***
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -193,17 +190,6 @@ enum Common_StatisticActionType
   COMMON_STATISTIC_ACTION_MAX,
   COMMON_STATISTIC_ACTION_INVALID
 };
-
-// *** task ***
-
-typedef Common_ITaskControl_T<ACE_MT_SYNCH,
-                              Common_ILock_T<ACE_MT_SYNCH> > Common_ITaskControl_t;
-typedef Common_ITaskControl_T<ACE_MT_SYNCH,
-                              Common_IRecursiveLock_T<ACE_MT_SYNCH> > Common_IRecursiveTaskControl_t;
-typedef Common_ITask_T<ACE_MT_SYNCH,
-                       Common_ILock_T<ACE_MT_SYNCH> > Common_ITask_t;
-typedef Common_ITask_T<ACE_MT_SYNCH,
-                       Common_IRecursiveLock_T<ACE_MT_SYNCH> > Common_IRecursiveTask_t;
 
 // *** application ***
 

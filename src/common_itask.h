@@ -24,6 +24,7 @@
 #include "ace/Global_Macros.h"
 #include "ace/Message_Block.h"
 #include "ace/OS.h"
+#include "ace/Synch_Traits.h"
 
 #include "common_ilock.h"
 
@@ -47,5 +48,12 @@ class Common_ITaskHandler_T
  public:
   virtual void handle (MessageType*&) = 0; // message handle
 };
+
+//////////////////////////////////////////
+
+typedef Common_ITask_T<ACE_MT_SYNCH,
+                       Common_ILock_T<ACE_MT_SYNCH> > Common_ITask_t;
+typedef Common_ITask_T<ACE_MT_SYNCH,
+                       Common_IRecursiveLock_T<ACE_MT_SYNCH> > Common_IRecursiveTask_t;
 
 #endif
