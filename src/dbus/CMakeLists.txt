@@ -64,7 +64,8 @@ if (UNIX)
 
  target_include_directories (${PROJECT_NAME}DBus PUBLIC
                      #        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
-                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
+                      #       $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
+                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
 endif (UNIX)
 target_include_directories (${PROJECT_NAME}DBus PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
@@ -117,15 +118,6 @@ if (UNIX)
   target_link_libraries (${PROJECT_NAME}DBus ${PKG_SYSTEMD_LIBRARIES})
  endif (SD_BUS_SUPPORT)
 elseif (WIN32)
-# if (CMAKE_BUILD_TYPE STREQUAL Debug)
-#  target_link_libraries (${PROJECT_NAME}_DBus Msvcrtd.lib)
-# else ()
-#  target_link_libraries (${PROJECT_NAME}_DBus Msvcrt.lib)
-# endif ()
-# target_link_libraries (${PROJECT_NAME}_DBus Quartz.lib)
-# target_link_libraries (${PROJECT_NAME}_DBus Secur32.lib)
-# target_link_libraries (${PROJECT_NAME_DBus} Userenv.lib)
-
 # target_link_libraries (${PROJECT_NAME}DBus ${ACE_LIBRARY})
 endif ()
 

@@ -22,12 +22,22 @@
 #define COMMON_STATISTIC_HANDLER_H
 
 #include "ace/Global_Macros.h"
-#include "ace/Time_Value.h"
 
-#include "common.h"
 #include "common_istatistic.h"
 
 #include "common_timer_handler.h"
+
+// *** statistic ***
+
+enum Common_StatisticActionType
+{
+  COMMON_STATISTIC_ACTION_COLLECT = 0,
+  COMMON_STATISTIC_ACTION_UPDATE,
+  COMMON_STATISTIC_ACTION_REPORT,
+  ////////////////////////////////////////
+  COMMON_STATISTIC_ACTION_MAX,
+  COMMON_STATISTIC_ACTION_INVALID
+};
 
 template <typename StatisticContainerType>
 class Common_StatisticHandler_T

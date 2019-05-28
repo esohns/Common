@@ -69,7 +69,8 @@ if (UNIX)
 
  target_include_directories (${PROJECT_NAME} PUBLIC
 #                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE>)
-                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
+#                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
+                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
 elseif (WIN32)
  if (DEFINED ENV{ACE_ROOT})
   target_include_directories (${PROJECT_NAME} PUBLIC
@@ -95,7 +96,8 @@ set (source_files
      common_defines.h
      common_event_handler.cpp
      common_event_handler.h
-     common_exports.h
+#     common_exports.h
+     common_file_common.h
      common_file_tools.cpp
      common_file_tools.h
      common_iclone.h
@@ -188,6 +190,7 @@ if (UNIX)
 endif (UNIX)
 
 if (UNIX)
+ target_link_libraries (${PROJECT_NAME} pthread)
  target_link_libraries (${PROJECT_NAME} rt)
  target_link_libraries (${PROJECT_NAME} ${PKG_LIBCAP_LIBRARIES})
  if (DBUS_SUPPORT)
@@ -226,7 +229,8 @@ install (FILES
          common_configuration.h
          common_defines.h
          common_event_handler.h
-         common_exports.h
+#         common_exports.h
+         common_file_common.h
          common_file_tools.h
          common_iclone.h
          common_icontrol.h

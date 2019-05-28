@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef Common_Timer_Handler_H
-#define Common_Timer_Handler_H
+#ifndef COMMON_TIMER_HANDLER_H
+#define COMMON_TIMER_HANDLER_H
 
 #include "ace/Asynch_IO.h"
 #include "ace/Global_Macros.h"

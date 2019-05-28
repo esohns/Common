@@ -1,4 +1,4 @@
-/***************************************************************************
+﻿/***************************************************************************
  *   Copyright (C) 2009 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
@@ -18,24 +18,36 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_ISTATISTIC_H
-#define COMMON_ISTATISTIC_H
+#ifndef COMMON_FILE_COMMON_H
+#define COMMON_FILE_COMMON_H
+
+#include <list>
+#include <string>
 
 #include "ace/config-lite.h"
-#include "ace/Time_Value.h"
+#include "ace/OS_NS_dirent.h"
 
-template <typename StatisticContainerType>
-class Common_IStatistic_T
+// *** file ***
+struct Common_File_Identifier
 {
- public:
-  // *NOTE*: how all methods implement a visitor pattern
-   
-  // *NOTE*: the argument may (!) serve both as input/output, this depends on
-   //        the implementation
-  virtual bool collect (StatisticContainerType&) = 0;
-  virtual void update (const ACE_Time_Value&) = 0; // update interval
+  Common_File_Identifier ()
+   : identifier ()
+   , identifierDiscriminator (Common_File_Identifier::FILE)
+   , selector (NULL) // *NOTE*: NULL will select all (!) entries by default
+  {}
 
-  virtual void report () const = 0;
+  enum discriminatorType
+  {
+    FILE = 0,
+    DIRECTORY,
+    INVALID
+  };
+
+  std::string            identifier;
+  enum discriminatorType identifierDiscriminator;
+  ACE_SCANDIR_SELECTOR   selector;
 };
+typedef std::list<struct Common_File_Identifier> Common_File_IdentifierList_t;
+typedef Common_File_IdentifierList_t::const_iterator Common_File_IdentifierListIterator_t;
 
 #endif

@@ -39,7 +39,8 @@ endif (UNIX)
 ############## includes ###############
 include_directories (${PKG_CAP_INCLUDE_DIRS})
 
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE)
+#include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE)
+include_directories (/usr/local/src/ACE_wrappers)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/timer)

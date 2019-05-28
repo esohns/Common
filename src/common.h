@@ -21,7 +21,6 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <list>
 #include <string>
 #include <vector>
 
@@ -29,10 +28,6 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <guiddef.h>
 #endif // ACE_WIN32 || ACE_WIN64
-
-#include "ace/Global_Macros.h"
-#include "ace/OS_NS_dirent.h"
-#include "ace/Synch_Traits.h"
 
 #include "common_defines.h"
 
@@ -72,34 +67,11 @@ enum Common_OperatingSystemDistributionType
   COMMON_OPERATINGSYSTEM_DISTRIBUTION_MAX
 };
 
-// *** file ***
-struct Common_File_Identifier
-{
-  Common_File_Identifier ()
-   : identifier ()
-   , identifierDiscriminator (Common_File_Identifier::FILE)
-   , selector (NULL) // *NOTE*: NULL will select all (!) entries by default
-  {}
-
-  enum discriminatorType
-  {
-    FILE = 0,
-    DIRECTORY,
-    INVALID
-  };
-
-  std::string            identifier;
-  enum discriminatorType identifierDiscriminator;
-  ACE_SCANDIR_SELECTOR   selector;
-};
-typedef std::list<struct Common_File_Identifier> Common_File_IdentifierList_t;
-typedef Common_File_IdentifierList_t::const_iterator Common_File_IdentifierListIterator_t;
-
 // *** user/groups ***
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-typedef std::vector <std::string> Common_UserGroups_t;
+typedef std::vector<std::string> Common_UserGroups_t;
 typedef Common_UserGroups_t::const_iterator Common_UserGroupsIterator_t;
 #endif // ACE_WIN32 || ACE_WIN64
 
@@ -177,18 +149,6 @@ struct Common_ScannerState
   {}
 
   unsigned int offset;
-};
-
-// *** statistic ***
-
-enum Common_StatisticActionType
-{
-  COMMON_STATISTIC_ACTION_COLLECT = 0,
-  COMMON_STATISTIC_ACTION_UPDATE,
-  COMMON_STATISTIC_ACTION_REPORT,
-  ////////////////////////////////////////
-  COMMON_STATISTIC_ACTION_MAX,
-  COMMON_STATISTIC_ACTION_INVALID
 };
 
 // *** application ***

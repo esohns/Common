@@ -4,8 +4,9 @@ if (UNIX)
 # include_directories (${PKG_GTK_GLADE_INCLUDE_DIRS})
  target_include_directories (${PROJECT_NAME}Math PUBLIC
 #                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
-                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
-elseif (WIN32)
+#                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
+                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
+ elseif (WIN32)
 #*TODO*: use pkg-config instead
  include_directories ($ENV{ACE_ROOT})
 endif ()

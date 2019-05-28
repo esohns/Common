@@ -5,9 +5,9 @@ set (ACE_XML_LIB_FILE libACEXML.so)
 if (UNIX)
 # message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
  find_library (ACE_XML_LIBRARY ${ACE_XML_LIB_FILE}
-               HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE /usr/local
+               HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE /usr/local/src/ACE_wrappers/ACEXML
                PATHS ENV ACE_ROOT
-               PATH_SUFFIXES lib
+               PATH_SUFFIXES lib common
                DOC "searching for ${ACE_XML_LIB_FILE}"
                NO_DEFAULT_PATH)
 # else ()
@@ -35,9 +35,9 @@ set (ACE_XML_PARSER_LIB_FILE libACEXML_Parser.so)
 if (UNIX)
 # message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
  find_library (ACE_XML_PARSER_LIBRARY ${ACE_XML_PARSER_LIB_FILE}
-               HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE /usr/local
+               HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE /usr/local/src/ACE_wrappers/ACEXML/parser
                PATHS ENV ACE_ROOT
-               PATH_SUFFIXES lib
+               PATH_SUFFIXES lib parser
                DOC "searching for ${ACE_XML_PARSER_LIB_FILE}"
                NO_DEFAULT_PATH)
 # else ()
@@ -67,7 +67,8 @@ add_library (${PROJECT_NAME}XML STATIC "")
 if (UNIX)
  target_include_directories (${PROJECT_NAME}XML PUBLIC
 #                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
-                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
+#                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
+                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
 elseif (WIN32)
  if (LIBXML2_SUPPORT)
   target_include_directories (${PROJECT_NAME}XML PUBLIC

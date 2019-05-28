@@ -1,18 +1,11 @@
-set (ACE_LIB_FILE libACE.so)
 if (UNIX)
- if (DEFINED ENV{ACE_ROOT})
-  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
- #               HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE
-                PATHS $ENV{ACE_ROOT}
-                PATH_SUFFIXES lib
-                DOC "searching for ${ACE_LIB_FILE}")
- else ()
-  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
+ set (ACE_LIB_FILE libACE.so)
+ find_library (ACE_LIBRARY ${ACE_LIB_FILE}
 #                HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE
-                PATHS ${CMAKE_CURRENT_LIST_DIR}/../../ACE_TAO/ACE
-                PATH_SUFFIXES lib
-                DOC "searching for ${ACE_LIB_FILE} (system paths)")
- endif ()
+               PATHS $ENV{ACE_ROOT} /usr/local/src/ACE_wrappers
+               PATHS ${CMAKE_CURRENT_LIST_DIR}/../../ACE_TAO/ACE
+               PATH_SUFFIXES lib
+               DOC "searching for ${ACE_LIB_FILE} (system paths)")
 elseif (WIN32)
 # *TODO*: this does not work
  set (LIB_FILE_SUFFIX "")
@@ -20,7 +13,6 @@ elseif (WIN32)
      CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
   set (LIB_FILE_SUFFIX "d")
  endif ()
- unset (ACE_LIB_FILE)
  set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
                PATHS $ENV{ACE_ROOT} ${CMAKE_CURRENT_BINARY_DIR}/../../../ACE_TAO/ACE

@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 
+#include "ace/config-lite.h"
 #include "ace/Global_Macros.h"
 //#include "ace/Message_Queue_T.h"
 #include "ace/OS_NS_Thread.h"
