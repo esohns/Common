@@ -100,6 +100,12 @@ using namespace std;
 #if defined (ACE_LINUX)
 #include "common_string_tools.h"
 #endif // ACE_LINUX
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+#include "common_signal_tools.h"
+#endif // ACE_WIN32 || ACE_WIN64
+
 #include "common_time_common.h"
 
 #if defined (DBUS_SUPPORT)
@@ -2541,17 +2547,16 @@ common_event_dispatch_function (void* arg_in)
     ACE_Proactor* proactor_p = ACE_Proactor::instance ();
     ACE_ASSERT (proactor_p);
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-//#else
+#else
 //    ACE_POSIX_Proactor* proactor_impl_p =
 //        dynamic_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
 //    ACE_ASSERT (proactor_impl_p);
 //    ACE_POSIX_Proactor::Proactor_Type proactor_type =
 //        proactor_impl_p->get_impl_type ();
-//    if (!use_reactor &&
-//        (proactor_type == ACE_POSIX_Proactor::PROACTOR_SIG))
+//    if (proactor_type == ACE_POSIX_Proactor::PROACTOR_SIG)
 //    {
 //      sigset_t original_mask;
-//      Common_Tools::unblockRealtimeSignals (original_mask);
+//      Common_Signal_Tools::unblockRealtimeSignals (original_mask);
 //    } // end IF
 #endif // ACE_WIN32 || ACE_WIN64
     result_2 = proactor_p->proactor_run_event_loop (NULL);

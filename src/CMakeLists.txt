@@ -85,6 +85,8 @@ target_include_directories (${PROJECT_NAME} PUBLIC
 target_include_directories (${PROJECT_NAME} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/error>)
 target_include_directories (${PROJECT_NAME} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/signal>)
+target_include_directories (${PROJECT_NAME} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/timer>)
 target_include_directories (${PROJECT_NAME} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/..>)
@@ -193,10 +195,11 @@ if (UNIX)
  target_link_libraries (${PROJECT_NAME} pthread)
  target_link_libraries (${PROJECT_NAME} rt)
  target_link_libraries (${PROJECT_NAME} ${PKG_LIBCAP_LIBRARIES})
+# target_link_libraries (${PROJECT_NAME} ${ACE_LIBRARY})
  if (DBUS_SUPPORT)
   target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}DBus)
  endif (DBUS_SUPPORT)
-# target_link_libraries (${PROJECT_NAME} ${ACE_LIBRARY})
+ target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}Signal)
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
   target_link_libraries (${PROJECT_NAME} Msvcrtd.lib)

@@ -58,7 +58,10 @@ class Common_Signal_Tools
                         const sigset_t&);               // previous mask
 
   static std::string signalToString (const struct Common_Signal&); // signal information
-//static void unblockRealtimeSignals (sigset_t&); // return value: original mask
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  static void unblockRealtimeSignals (sigset_t&); // return value: original mask
+#endif // ACE_WIN32 || ACE_WIN64
 
   static ACE_Sig_Handler signalHandler_;
 

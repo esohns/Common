@@ -121,7 +121,7 @@ Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
       goto _continue;
     } // end IF
     proactor_type = proactor_impl_p->get_impl_type ();
-    if (proactor_type != ACE_POSIX_Proactor::PROACTOR_SIG)
+//    if (proactor_type != ACE_POSIX_Proactor::PROACTOR_SIG)
       goto _continue;
 
     sigset_t rt_signal_set;
@@ -173,8 +173,8 @@ Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
 #if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("%t: blocked %d real-time signal(s) [%d: %S - %d: %S]\n"),
-                ACE_SIGRTMIN, ACE_SIGRTMIN, ACE_SIGRTMAX, ACE_SIGRTMAX,
-                number));
+                number,
+                ACE_SIGRTMIN, ACE_SIGRTMIN, ACE_SIGRTMAX, ACE_SIGRTMAX));
 #endif
   } // end IF
 _continue:
@@ -819,50 +819,53 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
   return result;
 }
 
-//void
-//Common_Signal_Tools::unblockRealtimeSignals (sigset_t& originalMask_out)
-//{
-//  COMMON_TRACE (ACE_TEXT ("Common_Signal_Tools::unblockRealtimeSignals"));
-//
-//  int result = -1;
-//
-//  // initialize return value(s)
-//  result = ACE_OS::sigemptyset (&originalMask_out);
-//  if (result == - 1)
-//  {
-//    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", returning\n")));
-//    return;
-//  } // end IF
-//
-//  sigset_t signal_set;
-//  result = ACE_OS::sigemptyset (&signal_set);
-//  if (result == - 1)
-//  {
-//    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", returning\n")));
-//    return;
-//  } // end IF
-//  for (int i = ACE_SIGRTMIN;
-//       i <= ACE_SIGRTMAX;
-//       i++)
-//  {
-//    result = ACE_OS::sigaddset (&signal_set, i);
-//    if (result == -1)
-//    {
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("failed to ACE_OS::sigaddset(): \"%m\", returning\n")));
-//      return;
-//    } // end IF
-//  } // end FOR
-//
-//  result = ACE_OS::thr_sigsetmask (SIG_UNBLOCK,
-//                                   &signal_set,
-//                                   &originalMask_out);
-//  if (result == -1)
-//  {
-//    ACE_DEBUG ((LM_DEBUG,
-//                ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(SIG_UNBLOCK): \"%m\", returning\n")));
-//    return;
-//  } // end IF
-//}
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+void
+Common_Signal_Tools::unblockRealtimeSignals (sigset_t& originalMask_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Signal_Tools::unblockRealtimeSignals"));
+
+  int result = -1;
+
+  // initialize return value(s)
+  result = ACE_OS::sigemptyset (&originalMask_out);
+  if (result == - 1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", returning\n")));
+    return;
+  } // end IF
+
+  sigset_t signal_set;
+  result = ACE_OS::sigemptyset (&signal_set);
+  if (result == - 1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", returning\n")));
+    return;
+  } // end IF
+  for (int i = ACE_SIGRTMIN;
+       i <= ACE_SIGRTMAX;
+       i++)
+  {
+    result = ACE_OS::sigaddset (&signal_set, i);
+    if (result == -1)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::sigaddset(): \"%m\", returning\n")));
+      return;
+    } // end IF
+  } // end FOR
+
+  result = ACE_OS::thr_sigsetmask (SIG_UNBLOCK,
+                                   &signal_set,
+                                   &originalMask_out);
+  if (result == -1)
+  {
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(SIG_UNBLOCK): \"%m\", returning\n")));
+    return;
+  } // end IF
+}
+#endif // ACE_WIN32 || ACE_WIN64
