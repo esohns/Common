@@ -23,6 +23,8 @@ set (source_files
      common_itimer.h
      common_itimerhandler.h
      common_time_common.h
+     common_timer.cpp
+     common_timer.h
      common_timer_common.h
      common_timer_defines.h
      common_timer_handler.cpp
@@ -107,6 +109,7 @@ install (FILES
          common_itimer.h
          common_itimerhandler.h
          common_time_common.h
+         common_timer.h
          common_timer_common.h
          common_timer_defines.h
          common_timer_handler.h

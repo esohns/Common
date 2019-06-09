@@ -13,6 +13,8 @@ endif ()
 target_include_directories (${PROJECT_NAME}Math PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 target_include_directories (${PROJECT_NAME}Math PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../timer>)
+target_include_directories (${PROJECT_NAME}Math PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
 
 add_definitions (-D_USE_MATH_DEFINES)
@@ -20,9 +22,16 @@ add_definitions (-D_USE_MATH_DEFINES)
 ############## next target ################
 set (source_files
      common_math_defines.h
-     common_math_exports.h
+#     common_math_exports.h
      common_math_fft.cpp
      common_math_fft.h
+     common_math_pidcontrol.cpp
+     common_math_pidcontrol.h
+     common_math_pidcontrol_zieglernichols.cpp
+     common_math_pidcontrol_zieglernichols.h
+     common_math_pt1_tracker.cpp
+     common_math_pt1_tracker.h
+     common_math_pt1_tracker.inl
      common_math_sample.cpp
      common_math_sample.h
      common_math_sample.inl
@@ -79,8 +88,12 @@ export (TARGETS ${PROJECT_NAME}Math
 ############### install files ################
 install (FILES
          common_math_defines.h
-         common_math_exports.h
+#         common_math_exports.h
          common_math_fft.h
+         common_math_pidcontrol.h
+         common_math_pidcontrol_zieglernichols.h
+         common_math_pt1_tracker.h
+         common_math_pt1_tracker.inl
          common_math_sample.h
          common_math_sample.inl
          common_math_tools.h

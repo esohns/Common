@@ -21,17 +21,29 @@
 #ifndef COMMON_ITIMER_H
 #define COMMON_ITIMER_H
 
+#include <time.h>
+
 #include "ace/Time_Value.h"
 
 #include "common_iget.h"
 #include "common_iinitialize.h"
 
 // forward declarations
-//class ACE_Event_Handler;
-//class ACE_Handler;
 class Common_Timer_Handler;
 
-class Common_ITimerBase
+class Common_ITimer
+{
+ public:
+  virtual void tic () = 0; // update
+  virtual double toc () const = 0; // returns ms since last 'tic'
+  virtual double tocTic () = 0; // returns ms since last 'tic' and updates
+  virtual bool isRunning () const = 0;
+  virtual void reset () = 0;
+};
+
+// ---------------------------------------
+
+class Common_ITimerCBBase
 {
  public:
   virtual long schedule_timer (Common_Timer_Handler*,                             // event handler handle
@@ -74,12 +86,12 @@ class Common_ITimerBase
 //////////////////////////////////////////
 
 template <typename ConfigurationType>
-class Common_ITimer_T
+class Common_ITimerCB_T
 // : public Common_IReactorTimer
 // , public Common_IProactorTimer
- : public Common_ITimerBase
+ : public Common_ITimerCBBase
  , public Common_IInitialize_T<ConfigurationType>
  , public Common_IGetR_2_T<ConfigurationType>
 {};
 
-#endif
+#endif // COMMON_ITIMER_H

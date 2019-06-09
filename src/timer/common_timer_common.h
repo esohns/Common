@@ -138,6 +138,6 @@ typedef ACE_Abstract_Timer_Queue<ACE_Event_Handler*> Common_ITimerQueue_t;
 
 //////////////////////////////////////////
 
-typedef Common_ITimer_T<struct Common_TimerConfiguration> Common_ITimer_t;
+typedef Common_ITimerCB_T<struct Common_TimerConfiguration> Common_ITimerCB_t;
 
 #endif

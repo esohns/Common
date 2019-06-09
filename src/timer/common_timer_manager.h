@@ -43,7 +43,7 @@ class Common_Timer_Manager_T
  : public TimerQueueAdapterType
  , public Common_ITaskControl_T<ACE_SYNCH_USE,
                                 Common_ILock_T<ACE_SYNCH_USE> >
- , public Common_ITimer_T<ConfigurationType>
+ , public Common_ITimerCB_T<ConfigurationType>
  , private Common_IGetR_3_T<ACE_SYNCH_RECURSIVE_MUTEX>
  //, private Common_IGetR_4_T<typename TimerQueueAdapterType::TIMER_QUEUE>
  , private Common_IGetR_5_T<ACE_Task_Base>
@@ -59,13 +59,13 @@ class Common_Timer_Manager_T
 
  public:
   // convenient types
-  typedef Common_ITimer_T<ConfigurationType> INTERFACE_T;
+  typedef Common_ITimerCB_T<ConfigurationType> INTERFACE_T;
   typedef ACE_Singleton<Common_Timer_Manager_T<ACE_SYNCH_USE,
                                                ConfigurationType,
                                                TimerQueueAdapterType>,
                         ACE_SYNCH_MUTEX> SINGLETON_T;
 
-  // implement Common_ITimer_T
+  // implement Common_ITimerCB_T
   virtual int cancel_timer (long,             // timer id
                             const void** = 0, // return value: asynchronous completion token
                             int = 1);         // do not (!) call handle_close() ?
