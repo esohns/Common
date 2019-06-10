@@ -132,6 +132,7 @@ class Common_Image_Tools
   // --- ImageMagick ---
 #if defined (IMAGEMAGICK_SUPPORT)
   static enum AVCodecID stringToCodecId (const std::string&);
+
   static std::string errorToString (struct _MagickWand*); // context
 #endif // IMAGEMAGICK_SUPPORT
 
