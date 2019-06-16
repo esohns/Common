@@ -8,21 +8,6 @@ if (LIBPNG_SUPPORT)
 endif (LIBPNG_SUPPORT)
 
 if (UNIX)
-# find_library (SWSCALE_LIBRARY libswscale.so.5
-#               DOC "searching for libswscale")
-# if (NOT SWSCALE_LIBRARY)
-#  message (FATAL_ERROR "could not find libswscale, aborting")
-# endif (NOT SWSCALE_LIBRARY)
-# find_library (AVFORMAT_LIBRARY libavformat.so.58
-#               DOC "searching for libavformat")
-# if (NOT AVFORMAT_LIBRARY)
-#  message (FATAL_ERROR "could not find libavformat, aborting")
-# endif (NOT AVFORMAT_LIBRARY)
-# find_library (AVCODEC_LIBRARY libavcodec.so.58
-#               DOC "searching for libavcodec")
-# if (NOT AVCODEC_LIBRARY)
-#  message (FATAL_ERROR "could not find libavcodec, aborting")
-# endif (NOT AVCODEC_LIBRARY)
  pkg_check_modules (PKG_FFMPEG REQUIRED libavcodec libavformat libswscale)
  if (IMAGEMAGICK_SUPPORT)
   find_package (ImageMagick COMPONENTS MagickCore MagickWand)

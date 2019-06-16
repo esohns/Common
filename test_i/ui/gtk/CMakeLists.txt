@@ -49,6 +49,7 @@ endif (GTKGL_SUPPORT)
 #include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/gl)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/image)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/log)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/timer)
@@ -115,6 +116,8 @@ set_property (TARGET ${EXECUTABLE_2} PROPERTY FOLDER "test_i")
 if (UNIX)
  target_link_libraries (${EXECUTABLE_2} X11)
  target_link_libraries (${EXECUTABLE_2} GL)
+
+ target_link_libraries (${EXECUTABLE_2} ${PKG_FFMPEG_LIBRARIES})
 elseif (WIN32)
  target_link_libraries (${EXECUTABLE_2} OpenGL32)
 endif (UNIX)
@@ -126,17 +129,60 @@ endif (GTKGLAREA_SUPPORT)
 target_link_libraries (${EXECUTABLE_2} ${ACE_LIBRARY})
 
 target_link_libraries (${EXECUTABLE_2} Common)
+target_link_libraries (${EXECUTABLE_2} CommonOpenGL)
 target_link_libraries (${EXECUTABLE_2} CommonLog)
 target_link_libraries (${EXECUTABLE_2} CommonTimer)
 target_link_libraries (${EXECUTABLE_2} CommonUI)
 target_link_libraries (${EXECUTABLE_2} CommonUI_GTK)
 
 # add PCH
-set_target_properties (${EXECUTABLE_2} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${EXECUTABLE_2})
+#set_target_properties (${EXECUTABLE_2} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+#cotire (${EXECUTABLE_2})
+
+############## next target ###############
+set (gtk_ui_3_EXE_SRCS
+     stdafx.cpp
+     stdafx.h
+     test_i_3.cpp
+     test_i_gtk_callbacks.cpp
+     test_i_gtk_callbacks.h
+     test_i_gtk_defines.h)
+
+#cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
+set (EXECUTABLE_3 gtk_ui_3)
+add_executable (${EXECUTABLE_3}
+                EXCLUDE_FROM_ALL
+                ${gtk_ui_3_EXE_SRCS})
+set_property (TARGET ${EXECUTABLE_2} PROPERTY FOLDER "test_i")
+
+if (UNIX)
+ target_link_libraries (${EXECUTABLE_3} X11)
+ target_link_libraries (${EXECUTABLE_3} GL)
+
+ target_link_libraries (${EXECUTABLE_3} ${PKG_FFMPEG_LIBRARIES})
+elseif (WIN32)
+ target_link_libraries (${EXECUTABLE_3} OpenGL32)
+endif (UNIX)
+#message (STATUS "GTK_LIBRARIES: ${GTK_LIBRARIES}")
+target_link_libraries (${EXECUTABLE_3} ${GTK_LIBRARIES})
+if (GTKGLAREA_SUPPORT)
+ target_link_libraries (${EXECUTABLE_3} $ENV{LIB_ROOT}/gtkglarea/cmake/Debug/gtkglarea.lib)
+endif (GTKGLAREA_SUPPORT)
+target_link_libraries (${EXECUTABLE_3} ${ACE_LIBRARY})
+
+target_link_libraries (${EXECUTABLE_3} Common)
+target_link_libraries (${EXECUTABLE_3} CommonLog)
+target_link_libraries (${EXECUTABLE_3} CommonOpenGL)
+target_link_libraries (${EXECUTABLE_3} CommonTimer)
+target_link_libraries (${EXECUTABLE_3} CommonUI)
+target_link_libraries (${EXECUTABLE_3} CommonUI_GTK)
+
+# add PCH
+#set_target_properties (${EXECUTABLE_3} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+#cotire (${EXECUTABLE_3})
 
 ############### installation #############
-install (TARGETS ${EXECUTABLE} ${EXECUTABLE_2}
+install (TARGETS ${EXECUTABLE} ${EXECUTABLE_2} ${EXECUTABLE_3}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 # install (FILES etc/${EXECUTABLE}.glade
@@ -178,6 +224,15 @@ create_target_launcher (${EXECUTABLE}
                         ENVIRONMENT ${ENVIRONMENT})
 
 create_target_launcher (${EXECUTABLE_2}
+                        ARGS ${ARGS}
+#                         FORWARD_ARGS
+                        RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
+                                             ${PROJECT_SOURCE_DIR}/../ACE_TAO/ACE/lib
+                                             ${PROJECT_SOURCE_DIR}/cmake/src/Debug
+                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
+                        ENVIRONMENT ${ENVIRONMENT})
+
+create_target_launcher (${EXECUTABLE_3}
                         ARGS ${ARGS}
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}

@@ -1,14 +1,15 @@
-﻿option (IMAGEMAGICK_SUPPORT "compile ImageMagick support" ON)
+﻿option (LIBPNG_SUPPORT "compile libpng support" OFF)
+if (LIBPNG_SUPPORT)
+ add_definitions (-DLIBPNG_SUPPORT)
+endif (LIBPNG_SUPPORT)
+
+option (IMAGEMAGICK_SUPPORT "compile ImageMagick support" ON)
 if (IMAGEMAGICK_SUPPORT)
  add_definitions (-DIMAGEMAGICK_SUPPORT)
  if (UNIX)
   pkg_check_modules (PKG_IMAGEMAGICK REQUIRED ImageMagick)
  endif (UNIX)
 endif (IMAGEMAGICK_SUPPORT)
-option (LIBPNG_SUPPORT "compile libpng support" OFF)
-if (LIBPNG_SUPPORT)
- add_definitions (-DLIBPNG_SUPPORT)
-endif (LIBPNG_SUPPORT)
 
 if (${CMAKE_VERSION} VERSION_GREATER "3.10")
  cmake_policy (SET CMP0072 OLD) # set OpenGL_GL_PREFERENCE to LEGACY|GLVND
@@ -128,7 +129,9 @@ set (source_files
      common_gl_assimp_tools.cpp
      common_gl_assimp_tools.h
      common_gl_image_tools.cpp
-     common_gl_image_tools.h)
+     common_gl_image_tools.h
+     common_gl_texture.cpp
+     common_gl_texture.h)
 
 # Include dir for installed targets
 set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
@@ -206,6 +209,7 @@ install (FILES
 #         common_gl_exports.h
          common_gl_tools.h
          common_gl_assimp_tools.h
+         common_gl_texture.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
 install (TARGETS ${PROJECT_NAME}OpenGL
          EXPORT ${PROJECT_NAME}Targets

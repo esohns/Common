@@ -21,6 +21,14 @@
 
 #include <sstream>
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include <gl/GL.h>
+#include <gl/GLU.h>
+#else
+#include "GL/gl.h"
+#include "GL/glu.h"
+#endif // ACE_WIN32 || ACE_WIN64
+
 #include "ace/Synch.h"
 #include "test_i_gtk_callbacks.h"
 
@@ -36,6 +44,11 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "common_tools.h"
 #endif // ACE_WIN32 || ACE_WIN64
+#include "common_file_tools.h"
+
+#include "common_gl_defines.h"
+#include "common_gl_texture.h"
+#include "common_gl_tools.h"
 
 #include "common_timer_manager.h"
 
@@ -1369,18 +1382,249 @@ drawingarea_size_allocate_cb (GtkWidget* widget_in,
 #endif // GTK_CHECK_VERSION
 } // drawingarea_size_allocate_cb
 
+GdkGLContext*
+glarea_create_context_cb (GtkGLArea* GLArea_in,
+                          gpointer userData_in)
+{
+  // sanity check(s)
+  ACE_ASSERT (GLArea_in);
+  ACE_ASSERT (userData_in);
+  ACE_ASSERT (!gtk_gl_area_get_context (GLArea_in));
+
+  GdkGLContext* result_p = NULL;
+
+  GError* error_p = NULL;
+  // *TODO*: this currently fails on Wayland (Gnome 3.22.24)
+  // *WORKAROUND*: set GDK_BACKEND=x11 environment to force XWayland
+  result_p =
+    gdk_window_create_gl_context (gtk_widget_get_window (GTK_WIDGET (GLArea_in)),
+                                  &error_p);
+  if (!result_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to gdk_window_create_gl_context(): \"%s\", aborting\n"),
+                ACE_TEXT (error_p->message)));
+    gtk_gl_area_set_error (GLArea_in, error_p);
+    g_error_free (error_p); error_p = NULL;
+    return NULL;
+  } // end IF
+
+  gdk_gl_context_set_required_version (result_p,
+                                       2, 1);
+#if defined (_DEBUG)
+  gdk_gl_context_set_debug_enabled (result_p,
+                                    TRUE);
+#endif // _DEBUG
+  //gdk_gl_context_set_forward_compatible (result_p,
+  //                                       FALSE);
+  gdk_gl_context_set_use_es (result_p,
+                             -1); // auto-detect
+
+  if (!gdk_gl_context_realize (result_p,
+                               &error_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to realize OpenGL context: \"%s\", continuing\n"),
+                ACE_TEXT (error_p->message)));
+    gtk_gl_area_set_error (GLArea_in, error_p);
+    g_error_free (error_p); error_p = NULL;
+    return NULL;
+  } // end IF
+
+  gdk_gl_context_make_current (result_p);
+
+  // initialize options
+  glClearColor (0.0F, 0.0F, 0.0F, 1.0F);              // Black Background
+  COMMON_GL_ASSERT;
+  //glClearDepth (1.0);                                 // Depth Buffer Setup
+  //COMMON_GL_ASSERT;
+  /* speedups */
+  //  glDisable (GL_CULL_FACE);
+  //  glEnable (GL_DITHER);
+  //  glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
+  //  glHint (GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
+  COMMON_GL_ASSERT;
+  //glColorMaterial (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+  //COMMON_GL_ASSERT;
+  //glEnable (GL_COLOR_MATERIAL);
+  //COMMON_GL_ASSERT;
+  //glEnable (GL_LIGHTING);
+  //COMMON_GL_ASSERT;
+  glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // Really Nice Perspective
+  COMMON_GL_ASSERT;
+  glDepthFunc (GL_LESS);                              // The Type Of Depth Testing To Do
+  COMMON_GL_ASSERT;
+  glDepthMask (GL_TRUE);
+  COMMON_GL_ASSERT;
+  glEnable (GL_TEXTURE_2D);                           // Enable Texture Mapping
+  COMMON_GL_ASSERT;
+  glShadeModel (GL_SMOOTH);                           // Enable Smooth Shading
+  COMMON_GL_ASSERT;
+  glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+  COMMON_GL_ASSERT;
+  //glEnable (GL_BLEND);                                // Enable Semi-Transparency
+  //COMMON_GL_ASSERT;
+  //glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  //COMMON_GL_ASSERT;
+  glEnable (GL_DEPTH_TEST);                           // Enables Depth Testing
+  COMMON_GL_ASSERT;
+
+  return result_p;
+}
+
+static Common_GL_Texture texture_c;
+gboolean
+glarea_render_cb (GtkGLArea* area_in,
+                  GdkGLContext* context_in,
+                  gpointer userData_in)
+{
+  // sanity check(s)
+  struct Common_UI_GTK_CBData* ui_cb_data_p =
+    static_cast<struct Common_UI_GTK_CBData*> (userData_in);
+  ACE_ASSERT (ui_cb_data_p);
+
+  static bool is_first = true;
+  if (is_first)
+  {
+    is_first = false;
+
+    // initialize options
+    glClearColor (0.0F, 0.0F, 0.0F, 1.0F);              // Black Background
+    COMMON_GL_ASSERT;
+    //glClearDepth (1.0);                                 // Depth Buffer Setup
+    //COMMON_GL_ASSERT;
+    /* speedups */
+    //  glDisable (GL_CULL_FACE);
+    //  glEnable (GL_DITHER);
+    //  glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
+    //  glHint (GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
+//    COMMON_GL_ASSERT;
+    glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // Really Nice Perspective
+    COMMON_GL_ASSERT;
+    glDepthFunc (GL_LESS);                              // The Type Of Depth Testing To Do
+    COMMON_GL_ASSERT;
+    glDepthMask (GL_TRUE);
+    COMMON_GL_ASSERT;
+    glEnable (GL_TEXTURE_2D);                           // Enable Texture Mapping
+    COMMON_GL_ASSERT;
+    glShadeModel (GL_SMOOTH);                           // Enable Smooth Shading
+    COMMON_GL_ASSERT;
+    glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+    COMMON_GL_ASSERT;
+    glEnable (GL_BLEND);                                // Enable Semi-Transparency
+    COMMON_GL_ASSERT;
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//    glBlendFunc (GL_ONE, GL_ZERO);
+//    glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    COMMON_GL_ASSERT;
+    glEnable (GL_DEPTH_TEST);                           // Enables Depth Testing
+    COMMON_GL_ASSERT;
+
+    glColorMaterial (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    COMMON_GL_ASSERT;
+    glEnable (GL_COLOR_MATERIAL);
+    COMMON_GL_ASSERT;
+    glEnable (GL_NORMALIZE);
+    COMMON_GL_ASSERT;
+//    glEnable (GL_LIGHTING);
+//    COMMON_GL_ASSERT;
+
+    // initialize texture
+    std::string filename = Common_File_Tools::getWorkingDirectory ();
+    filename += ACE_DIRECTORY_SEPARATOR_CHAR;
+    filename += ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY);
+    filename += ACE_DIRECTORY_SEPARATOR_CHAR;
+//    filename += ACE_TEXT_ALWAYS_CHAR ("image.png");
+    filename += ACE_TEXT_ALWAYS_CHAR ("crate.png");
+//    filename += ACE_TEXT_ALWAYS_CHAR ("red_alpha.png");
+    if (!texture_c.load (filename))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_GL_Texture::load(\"%s\"), returning\n"),
+                  ACE_TEXT (filename.c_str ())));
+      return FALSE;
+    } // end IF
+#if defined (_DEBUG)
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("OpenGL texture id: %u\n"),
+                texture_c.id_));
+#endif // _DEBUG
+  } // end IF
+
+  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  // *TODO*: find out why this reports GL_INVALID_OPERATION
+  COMMON_GL_PRINT_ERROR;
+
+  // step1: position camera
+  glLoadIdentity ();				// Reset the transformation matrix.
+  COMMON_GL_ASSERT;
+
+  glTranslatef (0.0f, 0.0f, -5.0f);		// Move back into the screen 7
+  COMMON_GL_ASSERT;
+
+  static GLfloat cube_rotation = 0.0f;
+  glRotatef (cube_rotation, 0.9f, -1.0f, 1.1f);		// Rotate The Cube On X, Y, and Z
+  glRotatef (cube_rotation, 1.1f, 1.0f, 0.9f);		// Rotate The Cube On X, Y, and Z
+  COMMON_GL_ASSERT;
+
+  // step2: draw cube
+  ACE_ASSERT (texture_c.id_);
+  texture_c.bind (0);
+  Common_GL_Tools::drawCube (true);
+
+  cube_rotation += 1.0f;					// Decrease The Rotation Variable For The Cube
+  if (cube_rotation > 360.0f)
+    cube_rotation -= 360.0f;
+
+  gtk_gl_area_queue_render (area_in);
+
+  return FALSE;
+}
+
+void
+glarea_resize_cb (GtkGLArea* GLArea_in,
+                  gint width_in,
+                  gint height_in,
+                  gpointer userData_in)
+{
+  // sanity check(s)
+  ACE_ASSERT (GLArea_in);
+  ACE_ASSERT (userData_in);
+
+//  struct Test_U_AudioEffect_UI_CBDataBase* ui_cb_data_base_p =
+//    static_cast<struct Test_U_AudioEffect_UI_CBDataBase*> (userData_in);
+
+//  // sanity check(s)
+//  ACE_ASSERT (ui_cb_data_base_p);
+
+  glViewport (0, 0,
+              static_cast<GLsizei> (width_in), static_cast<GLsizei> (height_in));
+  // *TODO*: find out why this reports GL_INVALID_OPERATION
+  COMMON_GL_PRINT_ERROR;
+
+  glMatrixMode (GL_PROJECTION);
+  COMMON_GL_ASSERT;
+
+  glLoadIdentity ();
+  COMMON_GL_ASSERT;
+
+  gluPerspective (45.0,
+                  static_cast<GLdouble> (width_in) / static_cast<GLdouble> (height_in),
+                  0.1, 100.0);
+  COMMON_GL_ASSERT;
+
+  glMatrixMode (GL_MODELVIEW);
+  COMMON_GL_ASSERT
+}
+
 void
 filechooserbutton_cb (GtkFileChooserButton* fileChooserButton_in,
                       gpointer userData_in)
 {
   // sanity check(s)
   ACE_ASSERT (fileChooserButton_in);
-  ACE_ASSERT (userData_in);
-
   struct Common_UI_GTK_CBData* ui_cb_data_p =
     static_cast<struct Common_UI_GTK_CBData*> (userData_in);
-
-  // sanity check(s)
   ACE_ASSERT (ui_cb_data_p);
 
   Common_UI_GTK_BuildersIterator_t iterator =

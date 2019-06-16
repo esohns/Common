@@ -55,7 +55,7 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
   // sanity check(s)
   ACE_ASSERT (!data_out);
 
-  png_byte magic[COMMON_IMAGE_PNG_NUMBER_OF_MAGIC_BYTES];
+  png_byte magic_a[COMMON_IMAGE_PNG_NUMBER_OF_MAGIC_BYTES];
   size_t bytes_read = 0;
   int is_png = 0;
   png_structp png_p = NULL;
@@ -68,8 +68,8 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
   png_uint_32 width, height;
   int bit_depth, compression_method, filter_method;
 
-  if ((file_p = ACE_OS::fopen (path_in.c_str (),
-                               ACE_TEXT_ALWAYS_CHAR ("rb"))) == NULL)
+  if (unlikely ((file_p = ACE_OS::fopen (path_in.c_str (),
+                                         ACE_TEXT_ALWAYS_CHAR ("rb"))) == NULL))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
@@ -78,21 +78,21 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
   } // end IF
 
   // read the header magic, test if this could be a PNG file
-  bytes_read = ACE_OS::fread (magic,
+  bytes_read = ACE_OS::fread (magic_a,
                               1,
                               COMMON_IMAGE_PNG_NUMBER_OF_MAGIC_BYTES,
                               file_p);
-  if (bytes_read != COMMON_IMAGE_PNG_NUMBER_OF_MAGIC_BYTES)
+  if (unlikely (bytes_read != COMMON_IMAGE_PNG_NUMBER_OF_MAGIC_BYTES))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fread(%d): \"%m\", aborting\n"),
                 COMMON_IMAGE_PNG_NUMBER_OF_MAGIC_BYTES));
     goto error;
   } // end IF
-  is_png = !png_sig_cmp (magic,
+  is_png = !png_sig_cmp (magic_a,
                          0,
                          COMMON_IMAGE_PNG_NUMBER_OF_MAGIC_BYTES);
-  if (!is_png)
+  if (unlikely (!is_png))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to png_sig_cmp(): \"%m\", aborting\n")));
@@ -106,7 +106,7 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
   // compatible version of the library. REQUIRED
   png_p = png_create_read_struct (PNG_LIBPNG_VER_STRING,
                                   NULL, NULL, NULL);
-  if (!png_p)
+  if (unlikely (!png_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to png_create_read_struct(): \"%m\", aborting\n")));
@@ -115,7 +115,7 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
 
   // allocate/initialize the memory for image information. REQUIRED
   png_info_p = png_create_info_struct (png_p);
-  if (!png_info_p)
+  if (unlikely (!png_info_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to png_create_info_struct(): \"%m\", aborting\n")));
@@ -125,7 +125,7 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
   // set error handling if you are using the setjmp/longjmp method (this is the
   // normal method of doing things with libpng). REQUIRED unless you set up your
   // own error handlers in the png_create_read_struct() earlier
-  if (setjmp (png_jmpbuf (png_p)))
+  if (unlikely (setjmp (png_jmpbuf (png_p))))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to setjmp(): \"%m\", aborting\n")));
@@ -156,7 +156,7 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
   row_bytes += 3 - ((row_bytes - 1) % 4);
 
   data_out = static_cast<GLubyte*> (malloc (row_bytes * height_out));
-  if (!data_out)
+  if (unlikely (!data_out))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
@@ -166,7 +166,7 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
   // row_pointers is for pointing to image_data for reading the png with libpng
   row_pointers_pp =
     static_cast<png_bytepp> (malloc (sizeof (png_bytep) * height_out));
-  if (!row_pointers_pp)
+  if (unlikely (!row_pointers_pp))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
@@ -182,21 +182,22 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
   png_read_image (png_p, row_pointers_pp);
 
   // clean up after the read, and free any memory allocated
-  free (row_pointers_pp);
+  free (row_pointers_pp); row_pointers_pp = NULL;
   png_destroy_read_struct (&png_p, &png_info_p, NULL);
 
   // close the file
   result = ACE_OS::fclose (file_p);
-  if (result == -1)
+  if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fclose(): \"%m\", continuing\n")));
 
   return true;
 
 error:
+  if (row_pointers_pp)
+    free (row_pointers_pp);
   if (png_p)
     png_destroy_read_struct (&png_p, &png_info_p, NULL);
-
   if (file_p)
   {
     result = ACE_OS::fclose (file_p);
@@ -229,46 +230,56 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
   MagickWandGenesis ();
 
   context_p = NewMagickWand ();
-  if (!context_p)
+  if (unlikely (!context_p))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory, aborting\n")));
     goto error;
   } // end IF
 
-  MagickSetImageType (context_p, TrueColorType);
-  MagickSetImageColorspace (context_p, sRGBColorspace);
+//  MagickSetImageType (context_p, TrueColorType);
+//  MagickSetImageColorspace (context_p, sRGBColorspace);
 
   result = MagickReadImage (context_p,
                             path_in.c_str ());
-  if (result != MagickTrue)
+  if (unlikely (result != MagickTrue))
   { // see also: MAGICK_CODER_MODULE_PATH
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to MagickReadImage(): \"%s\", returning\n"),
                 ACE_TEXT (Common_Image_Tools::errorToString (context_p).c_str ())));
     goto error;
   } // end IF
-
   width_out = MagickGetImageWidth (context_p);
   height_out = MagickGetImageHeight (context_p);
 
   result = MagickSetImageFormat (context_p, "RGBA");
-  ACE_ASSERT (result == MagickTrue);
-
+  if (unlikely (result != MagickTrue))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to MagickSetImageFormat(RGBA): \"%s\", returning\n"),
+                ACE_TEXT (Common_Image_Tools::errorToString (context_p).c_str ())));
+    goto error;
+  } // end IF
   blob_p = MagickGetImageBlob (context_p,
                                &file_size_i);
-  ACE_ASSERT (blob_p);
-
+  if (unlikely (!blob_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to MagickGetImageBlob(): \"%s\", returning\n"),
+                ACE_TEXT (Common_Image_Tools::errorToString (context_p).c_str ())));
+    goto error;
+  } // end IF
+  ACE_ASSERT (file_size_i == (4 * width_out * height_out));
   data_out = static_cast<GLubyte*> (malloc (file_size_i));
-  if (!data_out)
+  if (unlikely (!data_out))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
     goto error;
   } // end IF
   ACE_OS::memcpy (data_out, blob_p, file_size_i);
-
   MagickRelinquishMemory (blob_p); blob_p = NULL;
+
   DestroyMagickWand (context_p); context_p = NULL;
   MagickWandTerminus ();
 

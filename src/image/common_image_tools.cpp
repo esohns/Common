@@ -332,11 +332,12 @@ Common_Image_Tools::savePNG (const Common_Image_Resolution_t& resolution_in,
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::savePNG"));
 
   bool result = false;
+  enum AVPixelFormat format_e = format_in;
   bool delete_buffer_b = false;
   const uint8_t* buffer_p = sourceBuffers_in;
 
-  // *TODO*: this feature is broken
-  if (unlikely (format_in != AV_PIX_FMT_RGB24))
+  if (unlikely (format_in != AV_PIX_FMT_RGB24))// &&
+//               (format_in != AV_PIX_FMT_RGB32))
   {
     uint8_t* data_p = NULL;
     if (!Common_Image_Tools::convert (resolution_in,
@@ -351,12 +352,13 @@ Common_Image_Tools::savePNG (const Common_Image_Resolution_t& resolution_in,
       return false;
     } // end IF
     ACE_ASSERT (data_p);
+    format_e = AV_PIX_FMT_RGB24;
     buffer_p = data_p;
     delete_buffer_b = true;
   } // end IF
 
   if (!Common_Image_Tools::save (resolution_in,
-                                 format_in,
+                                 format_e,
                                  buffer_p,
                                  AV_CODEC_ID_PNG,
                                  path_in))

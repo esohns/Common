@@ -47,6 +47,9 @@ G_MODULE_EXPORT gboolean dialog_main_key_press_event_cb (GtkWidget*, GdkEventKey
 G_MODULE_EXPORT void drawingarea_configure_event_cb (GtkWindow*, GdkEvent*, gpointer);
 G_MODULE_EXPORT gboolean drawingarea_expose_cb (GtkWidget*, cairo_t*, gpointer);
 G_MODULE_EXPORT gboolean drawingarea_key_press_event_cb (GtkWidget*, GdkEventKey*, gpointer);
+G_MODULE_EXPORT GdkGLContext* glarea_create_context_cb (GtkGLArea*, gpointer);
+G_MODULE_EXPORT gboolean glarea_render_cb (GtkGLArea*, GdkGLContext*, gpointer);
+G_MODULE_EXPORT void glarea_resize_cb (GtkGLArea*, gint, gint, gpointer);
 G_MODULE_EXPORT void filechooserbutton_cb (GtkFileChooserButton*, gpointer);
 //G_MODULE_EXPORT void filechooserdialog_cb (GtkFileChooser*, gpointer);
 G_MODULE_EXPORT gboolean key_cb (GtkWidget*, GdkEventKey*, gpointer);

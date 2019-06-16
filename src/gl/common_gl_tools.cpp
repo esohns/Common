@@ -55,8 +55,8 @@ Common_GL_Tools::errorToString (GLenum error_in)
       return_value = ACE_TEXT_ALWAYS_CHAR ("A numeric argument is out of range"); break;
     case GL_INVALID_OPERATION:
       return_value = ACE_TEXT_ALWAYS_CHAR ("The specified operation is not allowed in the current state"); break;
-    //case GL_INVALID_FRAMEBUFFER_OPERATION:
-    //  return_value = ACE_TEXT_ALWAYS_CHAR ("The framebuffer object is not complete"); break;
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
+      return_value = ACE_TEXT_ALWAYS_CHAR ("The framebuffer object is not complete"); break;
     case GL_STACK_OVERFLOW:
       return_value = ACE_TEXT_ALWAYS_CHAR ("An attempt has been made to perform an operation that would cause an internal stack to overflow"); break;
     case GL_STACK_UNDERFLOW:
@@ -110,20 +110,14 @@ Common_GL_Tools::loadModel (const std::string& path_in,
   ACE_ASSERT (scene_p);
 
   return_value = glGenLists (1);
-#if defined (_DEBUG)
   COMMON_GL_ASSERT;
-#endif // _DEBUG
   glNewList (return_value, GL_COMPILE);
-#if defined (_DEBUG)
   COMMON_GL_ASSERT;
-#endif // _DEBUG
   // now begin at the root node of the imported data and traverse the scenegraph
   // by multiplying subsequent local transforms together on GLs' matrix stack
   Common_GL_Assimp_Tools::render (scene_p, scene_p->mRootNode);
   glEndList ();
-#if defined (_DEBUG)
   COMMON_GL_ASSERT;
-#endif // _DEBUG
 
   // compute the scenes' bounding box / center
   aiVector3D min, max;
@@ -187,7 +181,10 @@ Common_GL_Tools::loadTexture (const std::string& path_in)
                     ACE_TEXT (path_in.c_str ())));
         return return_value;
       } // end IF
+#if defined (LIBPNG_SUPPORT)
+#elif defined (IMAGEMAGICK_SUPPORT)
       has_alpha = true;
+#endif // LIBPNG_SUPPORT || IMAGEMAGICK_SUPPORT
       break;
     }
     default:
@@ -201,77 +198,65 @@ Common_GL_Tools::loadTexture (const std::string& path_in)
   ACE_ASSERT (width && height);
   ACE_ASSERT (image_p);
   ACE_UNUSED_ARG (has_alpha);
+//#if defined (_DEBUG)
+//  Common_Image_Resolution_t resolution_s;
+//  resolution_s.width = width; resolution_s.height = height;
+//  std::string path = Common_File_Tools::getTempDirectory ();
+//  path += ACE_DIRECTORY_SEPARATOR_STR;
+//  path += Common_File_Tools::basename (path_in, false);
+//  Common_Image_Tools::savePNG (resolution_s,
+//                               (has_alpha ? AV_PIX_FMT_RGB32 : AV_PIX_FMT_RGB24),
+//                               image_p,
+//                               path);
+//#endif // _DEBUG
 
   glGenTextures (1, &return_value);
-#if defined (_DEBUG)
   COMMON_GL_ASSERT;
-#endif // _DEBUG
   glBindTexture (GL_TEXTURE_2D, return_value);
-#if defined (_DEBUG)
   COMMON_GL_ASSERT;
-#endif // _DEBUG
+
   glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-#if defined (_DEBUG)
   COMMON_GL_ASSERT;
-#endif // _DEBUG
   glEnableClientState (GL_VERTEX_ARRAY);
-#if defined (_DEBUG)
   COMMON_GL_ASSERT;
-#endif // _DEBUG
   glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-#if defined (_DEBUG)
   COMMON_GL_ASSERT;
-#endif // _DEBUG
   // select modulate to mix texture with color for shading
 //    glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 //    ACE_ASSERT (glGetError () == GL_NO_ERROR);
 
-#if defined (GL_VERSION_1_1)
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); // GL_CLAMP_TO_EDGE
-#else
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-#endif // GL_VERSION_1_1
-#if defined (_DEBUG)
+//#if !defined (GL_VERSION_1_2)
+//  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); // GL_CLAMP_TO_EDGE
+//#else
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+//#endif // GL_VERSION_1_2
+//  COMMON_GL_ASSERT;
+//#if !defined (GL_VERSION_1_2)
+//  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP); // GL_CLAMP_TO_EDGE
+//#else
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+//#endif // GL_VERSION_1_1
   COMMON_GL_ASSERT;
-#endif // _DEBUG
-#if defined (GL_VERSION_1_1)
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP); // GL_CLAMP_TO_EDGE
-#else
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-#endif // GL_VERSION_1_1
-#if defined (_DEBUG)
-  COMMON_GL_ASSERT;
-#endif // _DEBUG
 
-  glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0,
+  glTexImage2D (GL_TEXTURE_2D, 0, (has_alpha ? GL_RGBA8 : GL_RGB8), width, height, 0,
                 (has_alpha ? GL_RGBA : GL_RGB),
                 GL_UNSIGNED_BYTE, image_p);
-#if defined (_DEBUG)
   COMMON_GL_ASSERT;
-#endif // _DEBUG
 
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-#if defined (_DEBUG)
   COMMON_GL_ASSERT;
-#endif // _DEBUG
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-#if defined (_DEBUG)
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   COMMON_GL_ASSERT;
-#endif // _DEBUG
 #if defined (GL_VERSION_1_4)
   glTexParameteri (GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-#if defined (_DEBUG)
   COMMON_GL_ASSERT;
-#endif // _DEBUG
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-#if defined (_DEBUG)
   COMMON_GL_ASSERT;
-#endif // _DEBUG
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1000);
-#if defined (_DEBUG)
   COMMON_GL_ASSERT;
-#endif // _DEBUG
 #endif // GL_VERSION_1_4
+
+  glBindTexture (GL_TEXTURE_2D, 0);
 
   // clean up
   free (image_p); image_p = NULL;
@@ -282,13 +267,15 @@ Common_GL_Tools::loadTexture (const std::string& path_in)
 void
 Common_GL_Tools::drawCube (bool setTextureCoordinates_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::drawCube"));
+//  COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::drawCube"));
 
   glBegin (GL_QUADS);
 
   // Front Face
   if (setTextureCoordinates_in)
     glTexCoord2f (0.0f, 0.0f);
+  else
+    glColor3f (1.0f, 0.0f, 0.0f);
   glVertex3f (-1.0f, -1.0f,  1.0f); // Bottom Left Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 0.0f);
@@ -303,6 +290,8 @@ Common_GL_Tools::drawCube (bool setTextureCoordinates_in)
   // Back Face
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 0.0f);
+  else
+    glColor3f (0.0f, 1.0f, 0.0f);
   glVertex3f (-1.0f, -1.0f, -1.0f); // Bottom Right Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 1.0f);
@@ -317,6 +306,8 @@ Common_GL_Tools::drawCube (bool setTextureCoordinates_in)
   // Top Face
   if (setTextureCoordinates_in)
     glTexCoord2f (0.0f, 1.0f);
+  else
+    glColor3f (0.0f, 0.0f, 1.0f);
   glVertex3f (-1.0f,  1.0f, -1.0f); // Top Left Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (0.0f, 0.0f);
@@ -331,6 +322,8 @@ Common_GL_Tools::drawCube (bool setTextureCoordinates_in)
   // Bottom Face
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 1.0f);
+  else
+    glColor3f (1.0f, 1.0f, 0.0f);
   glVertex3f (-1.0f, -1.0f, -1.0f); // Top Right Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (0.0f, 1.0f);
@@ -345,6 +338,8 @@ Common_GL_Tools::drawCube (bool setTextureCoordinates_in)
   // Right face
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 0.0f);
+  else
+    glColor3f (1.0f, 0.0f, 1.0f);
   glVertex3f ( 1.0f, -1.0f, -1.0f); // Bottom Right Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 1.0f);
@@ -359,6 +354,8 @@ Common_GL_Tools::drawCube (bool setTextureCoordinates_in)
   // Left Face
   if (setTextureCoordinates_in)
     glTexCoord2f (0.0f, 0.0f);
+  else
+    glColor3f (1.0f, 1.0f, 1.0f);
   glVertex3f (-1.0f, -1.0f, -1.0f); // Bottom Left Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 0.0f);
