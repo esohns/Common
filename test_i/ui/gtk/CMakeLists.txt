@@ -119,6 +119,8 @@ if (UNIX)
 
  target_link_libraries (${EXECUTABLE_2} ${PKG_FFMPEG_LIBRARIES})
 elseif (WIN32)
+ set_target_properties (${EXECUTABLE_2} PROPERTIES LINK_FLAGS /SAFESEH:NO)
+
  target_link_libraries (${EXECUTABLE_2} OpenGL32)
 endif (UNIX)
 #message (STATUS "GTK_LIBRARIES: ${GTK_LIBRARIES}")
@@ -153,7 +155,7 @@ set (EXECUTABLE_3 gtk_ui_3)
 add_executable (${EXECUTABLE_3}
                 EXCLUDE_FROM_ALL
                 ${gtk_ui_3_EXE_SRCS})
-set_property (TARGET ${EXECUTABLE_2} PROPERTY FOLDER "test_i")
+set_property (TARGET ${EXECUTABLE_3} PROPERTY FOLDER "test_i")
 
 if (UNIX)
  target_link_libraries (${EXECUTABLE_3} X11)
@@ -161,6 +163,8 @@ if (UNIX)
 
  target_link_libraries (${EXECUTABLE_3} ${PKG_FFMPEG_LIBRARIES})
 elseif (WIN32)
+ set_target_properties (${EXECUTABLE_3} PROPERTIES LINK_FLAGS /SAFESEH:NO)
+
  target_link_libraries (${EXECUTABLE_3} OpenGL32)
 endif (UNIX)
 #message (STATUS "GTK_LIBRARIES: ${GTK_LIBRARIES}")
@@ -194,8 +198,10 @@ set (ui_definition_file "")
 if (GTK_USE)
  if (GTK3_USE)
   set (ui_definition_file ${EXECUTABLE}.gtk3)
+  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/gtk3/bin GTK_LIB_PATH)
  elseif (GTK2_USE)
   set (ui_definition_file ${EXECUTABLE}.gtk2)
+  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/gtk2/bin GTK_LIB_PATH)
  endif ()
 elseif (WXWIDGETS_USE)
 endif ()
@@ -213,12 +219,15 @@ elseif (WIN32)
  endif ()
 endif ()
 
-file (TO_CMAKE_PATH $ENV{LIB_ROOT}/gtk3/bin GTK_LIB_PATH)
+file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
+file (TO_CMAKE_PATH $ENV{LIB_ROOT}/assimp/cmake/code/${CMAKE_BUILD_TYPE} ASSIMP_LIB_PATH)
+file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ffmpeg/bin FFMPEG_LIB_PATH)
+file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ImageMagick IMAGEMAGICK_LIB_PATH)
 create_target_launcher (${EXECUTABLE}
                         ARGS ${ARGS}
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
-                                             ${PROJECT_SOURCE_DIR}/../ACE_TAO/ACE/lib
+                                             ${ACE_LIB_PATH}
                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
                         ENVIRONMENT ${ENVIRONMENT})
@@ -227,7 +236,10 @@ create_target_launcher (${EXECUTABLE_2}
                         ARGS ${ARGS}
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
-                                             ${PROJECT_SOURCE_DIR}/../ACE_TAO/ACE/lib
+                                             ${ASSIMP_LIB_PATH}
+                                             ${FFMPEG_LIB_PATH}
+                                             ${IMAGEMAGICK_LIB_PATH}
+                                             ${ACE_LIB_PATH}
                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
                         ENVIRONMENT ${ENVIRONMENT})
@@ -236,7 +248,10 @@ create_target_launcher (${EXECUTABLE_3}
                         ARGS ${ARGS}
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
-                                             ${PROJECT_SOURCE_DIR}/../ACE_TAO/ACE/lib
+                                             ${ASSIMP_LIB_PATH}
+                                             ${FFMPEG_LIB_PATH}
+                                             ${IMAGEMAGICK_LIB_PATH}
+                                             ${ACE_LIB_PATH}
                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
                         ENVIRONMENT ${ENVIRONMENT})

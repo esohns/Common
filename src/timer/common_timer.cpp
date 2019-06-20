@@ -61,7 +61,11 @@ Common_Timer::tocTic ()
   do {
     next = Common_Timer::timeSinceUNIXEpoch ();
     previous = start_;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  } while (previous != InterlockedCompareExchange64 (&start_, next, previous));
+#else
   } while (previous != __sync_val_compare_and_swap (&start_, previous, next));
+#endif
 
   return (next - previous) * Common_Timer::toMilliSecondsFactor;
 }

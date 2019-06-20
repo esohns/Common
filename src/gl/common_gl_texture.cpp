@@ -68,8 +68,11 @@ Common_GL_Texture::bind (unsigned int unit_in)
   // sanity check(s)
   ACE_ASSERT (unit_in < 31);
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   glActiveTexture (GL_TEXTURE0 + unit_in);
   COMMON_GL_ASSERT;
+#endif // ACE_WIN32 || ACE_WIN64
   glBindTexture (GL_TEXTURE_2D, id_);
   COMMON_GL_ASSERT;
 }

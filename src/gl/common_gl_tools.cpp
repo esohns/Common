@@ -55,8 +55,11 @@ Common_GL_Tools::errorToString (GLenum error_in)
       return_value = ACE_TEXT_ALWAYS_CHAR ("A numeric argument is out of range"); break;
     case GL_INVALID_OPERATION:
       return_value = ACE_TEXT_ALWAYS_CHAR ("The specified operation is not allowed in the current state"); break;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
     case GL_INVALID_FRAMEBUFFER_OPERATION:
       return_value = ACE_TEXT_ALWAYS_CHAR ("The framebuffer object is not complete"); break;
+#endif // ACE_WIN32 || ACE_WIN64
     case GL_STACK_OVERFLOW:
       return_value = ACE_TEXT_ALWAYS_CHAR ("An attempt has been made to perform an operation that would cause an internal stack to overflow"); break;
     case GL_STACK_UNDERFLOW:

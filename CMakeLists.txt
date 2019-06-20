@@ -185,9 +185,8 @@ elseif (WIN32)
 endif ()
 
 ################################################################################
-
-list (APPEND CMAKE_MODULE_PATH "$ENV{LIB_ROOT}/cotire/CMake")
-#list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/scripts")
+file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/cotire/CMake" COTIRE_PATH)
+list (APPEND CMAKE_MODULE_PATH "${COTIRE_PATH}")
 include (cotire)
 set_directory_properties (PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 
@@ -256,16 +255,17 @@ install (FILES "${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_config.h"
          COMPONENT dev)
 
 ################################################################################
-
+file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/cmake-modules" CMAKE_MODULES_PATH)
+file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/CMakeHelpers" CMAKE_HELPERS_PATH)
 list (APPEND CMAKE_MODULE_PATH
-      "$ENV{LIB_ROOT}/cmake-modules"
-      "$ENV{LIB_ROOT}/CMakeHelpers")
+      "${CMAKE_MODULES_PATH}"
+      "${CMAKE_HELPERS_PATH}")
 #include (UseBackportedModules)
 cmake_policy (SET CMP0026 OLD)
 cmake_policy (SET CMP0053 OLD)
 include (CreateLaunchers)
 if (WIN32)
-include (generate_product_version)
+ include (generate_product_version)
 endif (WIN32)
 
 # enable (unit/integration) tests

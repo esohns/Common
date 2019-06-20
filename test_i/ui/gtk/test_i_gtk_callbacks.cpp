@@ -1389,7 +1389,11 @@ glarea_create_context_cb (GtkGLArea* GLArea_in,
   // sanity check(s)
   ACE_ASSERT (GLArea_in);
   ACE_ASSERT (userData_in);
+#if GTK_CHECK_VERSION (3, 16, 0)
   ACE_ASSERT (!gtk_gl_area_get_context (GLArea_in));
+#else
+  ACE_ASSERT (!GLArea_in->glcontext);
+#endif // GTK_CHECK_VERSION (3, 16, 0)
 
   GdkGLContext* result_p = NULL;
 
@@ -1397,18 +1401,25 @@ glarea_create_context_cb (GtkGLArea* GLArea_in,
   // *TODO*: this currently fails on Wayland (Gnome 3.22.24)
   // *WORKAROUND*: set GDK_BACKEND=x11 environment to force XWayland
   result_p =
+#if GTK_CHECK_VERSION (3, 16, 0)
     gdk_window_create_gl_context (gtk_widget_get_window (GTK_WIDGET (GLArea_in)),
                                   &error_p);
+#else
+    NULL;
+#endif // GTK_CHECK_VERSION (3, 16, 0)
   if (!result_p)
-  {
+  { ACE_ASSERT (error_p);
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to gdk_window_create_gl_context(): \"%s\", aborting\n"),
                 ACE_TEXT (error_p->message)));
+#if GTK_CHECK_VERSION (3, 16, 0)
     gtk_gl_area_set_error (GLArea_in, error_p);
+#endif // GTK_CHECK_VERSION (3, 16, 0)
     g_error_free (error_p); error_p = NULL;
     return NULL;
   } // end IF
 
+#if GTK_CHECK_VERSION (3, 16, 0)
   gdk_gl_context_set_required_version (result_p,
                                        2, 1);
 #if defined (_DEBUG)
@@ -1419,7 +1430,9 @@ glarea_create_context_cb (GtkGLArea* GLArea_in,
   //                                       FALSE);
   gdk_gl_context_set_use_es (result_p,
                              -1); // auto-detect
+#endif // GTK_CHECK_VERSION (3, 16, 0)
 
+#if GTK_CHECK_VERSION (3, 16, 0)
   if (!gdk_gl_context_realize (result_p,
                                &error_p))
   {
@@ -1430,8 +1443,14 @@ glarea_create_context_cb (GtkGLArea* GLArea_in,
     g_error_free (error_p); error_p = NULL;
     return NULL;
   } // end IF
+#endif // GTK_CHECK_VERSION (3, 16, 0)
 
+#if GTK_CHECK_VERSION (3, 16, 0)
   gdk_gl_context_make_current (result_p);
+#else
+  gdk_gl_make_current (GDK_DRAWABLE (gtk_widget_get_window (GTK_WIDGET (&GLArea_in->darea))),
+                       GLArea_in->glcontext);
+#endif // GTK_CHECK_VERSION (3, 16, 0)
 
   // initialize options
   glClearColor (0.0F, 0.0F, 0.0F, 1.0F);              // Black Background
@@ -1576,7 +1595,9 @@ glarea_render_cb (GtkGLArea* area_in,
   if (cube_rotation > 360.0f)
     cube_rotation -= 360.0f;
 
+#if GTK_CHECK_VERSION (3, 16, 0)
   gtk_gl_area_queue_render (area_in);
+#endif // GTK_CHECK_VERSION (3, 16, 0)
 
   return FALSE;
 }

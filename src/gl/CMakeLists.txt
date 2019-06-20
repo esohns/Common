@@ -181,6 +181,8 @@ elseif (WIN32)
   target_link_libraries (${PROJECT_NAME}OpenGL $ENV{LIB_ROOT}/libpng/cmake/${CMAKE_BUILD_TYPE}/libpng16${LIB_FILE_SUFFIX}.lib)
  endif (LIBPNG_SUPPORT)
 
+ target_link_libraries (${PROJECT_NAME}OpenGL $ENV{LIB_ROOT}/assimp/cmake/code/${CMAKE_BUILD_TYPE}/assimp-vc140-mt.lib)
+
  if (IMAGEMAGICK_SUPPORT)
   target_link_libraries (${PROJECT_NAME}OpenGL $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickCore_.lib)
   target_link_libraries (${PROJECT_NAME}OpenGL $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickWand_.lib)

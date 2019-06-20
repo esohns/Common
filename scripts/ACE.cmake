@@ -15,7 +15,7 @@ elseif (WIN32)
  endif ()
  set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-               PATHS $ENV{ACE_ROOT} ${CMAKE_CURRENT_BINARY_DIR}/../../../ACE_TAO/ACE
+               PATHS $ENV{ACE_ROOT}
                PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
                DOC "searching for ${ACE_LIB_FILE}")
 endif ()

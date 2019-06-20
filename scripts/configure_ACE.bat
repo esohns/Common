@@ -54,6 +54,8 @@ if %ERRORLEVEL% NEQ 0 (
  goto switch_case_2_end
 :switch_case_2_vs2017
  goto switch_case_2_end
+:switch_case_2_vs2019
+ goto switch_case_2_end
 :switch_case_2_end
 echo project: "!PROJECT_TYPE!"...
 
@@ -85,7 +87,7 @@ if NOT exist "%MPC_ROOT%" (
 )
 
 @rem step1: apply patches
-set PATCH_EXE=D:\bin\patch.exe
+set PATCH_EXE=%BIN_ROOT%\patch.exe
 if NOT exist "%PATCH_EXE%" (
  echo invalid executable ^(was: "%PATCH_EXE%"^)^, exiting
  goto Failed
@@ -149,7 +151,7 @@ if NOT exist "%ACE_BUILD_DIRECTORY%" (
 @rem  echo invalid directory ^(was: "%CREATE_ACE_BUILD%"^)^, exiting
 @rem  goto Failed
 @rem )
-set PERL_EXE=D:\bin\perl\bin\perl.exe
+set PERL_EXE=C:\Perl64\bin\perl.exe
 if NOT exist "%PERL_EXE%" (
  echo invalid executable ^(was: "%PERL_EXE%"^)^, exiting
  goto Failed

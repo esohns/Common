@@ -21,12 +21,14 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <string>
-#include <vector>
-
 #include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include <list>
+
 #include <guiddef.h>
+#else
+#include <string>
+#include <vector>
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "common_defines.h"

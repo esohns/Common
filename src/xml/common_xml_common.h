@@ -21,8 +21,9 @@
 #ifndef COMMON_XML_COMMON_H
 #define COMMON_XML_COMMON_H
 
-//#include "common_xml_handler.h"
-//#include "common_xml_parser.h"
+#include <string>
+#include <utility>
+#include <vector>
 
 //// default tab width
 //#define XML2CPPCODE_INDENT                    2
