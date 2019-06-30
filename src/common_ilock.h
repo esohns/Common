@@ -33,7 +33,7 @@ class Common_ILock
   virtual bool lock (bool = true) = 0; // block ?
   // *NOTE*: returns the new nesting level (or -1, if the lock was not held by
   //         the caller)
-  virtual int unlock (bool = false) = 0; // unlock ?
+  virtual int unlock (bool = false) = 0; // unlock completely ?
 };
 
 template <ACE_SYNCH_DECL>

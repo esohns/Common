@@ -30,9 +30,6 @@
 
 #include "common_timer_common.h"
 
-// forward declaration(s)
-//class Common_ITimer;
-
 class Common_Timer_Tools
  : public Common_SInitializeFinalize_T<Common_Timer_Tools>
 {
@@ -72,7 +69,6 @@ class Common_Timer_Tools
   static bool initializeTimers (const struct Common_TimerConfiguration&); // configuration
   static void finalizeTimers (enum Common_TimerDispatchType, // dispatch type
                               bool = true);                  // wait for completion ?
-
 };
 
 #endif

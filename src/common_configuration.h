@@ -23,6 +23,7 @@
 
 #include <cstdio>
 
+#include "ace/Recursive_Thread_Mutex.h"
 #include "ace/Synch_Traits.h"
 
 #include "common.h"

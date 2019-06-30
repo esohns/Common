@@ -49,10 +49,10 @@ class Common_Log_Tools
                                      const std::string&); // program name
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_Log_Tools ());
-  ACE_UNIMPLEMENTED_FUNC (~Common_Log_Tools ());
-  ACE_UNIMPLEMENTED_FUNC (Common_Log_Tools (const Common_Log_Tools&));
-  ACE_UNIMPLEMENTED_FUNC (Common_Log_Tools& operator= (const Common_Log_Tools&));
+  ACE_UNIMPLEMENTED_FUNC (Common_Log_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (~Common_Log_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (Common_Log_Tools (const Common_Log_Tools&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Log_Tools& operator= (const Common_Log_Tools&))
 };
 
 #endif

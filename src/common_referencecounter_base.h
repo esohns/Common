@@ -21,6 +21,7 @@
 #ifndef COMMON_REFERENCECOUNTER_BASE_H
 #define COMMON_REFERENCECOUNTER_BASE_H
 
+#include "ace/Condition_T.h"
 #include "ace/Refcountable_T.h"
 #include "ace/Synch_Traits.h"
 
