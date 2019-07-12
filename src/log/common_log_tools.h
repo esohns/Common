@@ -45,7 +45,7 @@ class Common_Log_Tools
 
   static std::string getLogDirectory (const std::string&, // package name
                                       unsigned int = 0);  // fallback level {0: default}
-  static std::string getLogFilename (const std::string&,    // package name
+  static std::string getLogFilename (const std::string&,  // package name
                                      const std::string&); // program name
 
  private:

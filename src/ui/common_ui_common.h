@@ -231,11 +231,11 @@ struct Common_UI_State
    , subscribersLock ()
   {}
 
-  Common_UI_Events_t         eventStack;
-  ACE_Thread_Mutex           lock;
-  Common_MessageStack_t      logStack;
-  ACE_Thread_Mutex           logStackLock;
-  ACE_Recursive_Thread_Mutex subscribersLock;
+  Common_UI_Events_t        eventStack;
+  ACE_SYNCH_MUTEX           lock;
+  Common_MessageStack_t     logStack;
+  ACE_SYNCH_MUTEX           logStackLock;
+  ACE_SYNCH_RECURSIVE_MUTEX subscribersLock;
 };
 
 //////////////////////////////////////////
