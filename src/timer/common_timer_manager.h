@@ -24,6 +24,7 @@
 #include "ace/Global_Macros.h"
 #include "ace/Singleton.h"
 #include "ace/Synch_Traits.h"
+#include "ace/Task.h"
 #include "ace/Time_Value.h"
 
 #include "common.h"

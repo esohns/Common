@@ -21,13 +21,32 @@
 #ifndef COMMON_TIMER_MANAGER_COMMON_H
 #define COMMON_TIMER_MANAGER_COMMON_H
 
+#include "ace/Event_Handler.h"
 #include "ace/Singleton.h"
 #include "ace/Synch_Traits.h"
-
-//#include "common_exports.h"
+ // *NOTE*: try not to include this header in .h files (it's been poisoned)
+ // *TODO*: replace inclusion of Condition_Recursive_Thread_Mutex.h
+ //         with Synch_Traits.h --> submit an ACE issue
+#include "ace/Timer_Queue_Adapters.h"
 
 #include "common_timer_common.h"
 #include "common_timer_manager.h"
+
+typedef ACE_Async_Timer_Queue_Adapter<Common_TimerQueueHeapImpl_t,
+                                      ACE_Event_Handler*> Common_TimerManagerAsynchHeapBase_t;
+typedef ACE_Async_Timer_Queue_Adapter<Common_TimerQueueListImpl_t,
+                                      ACE_Event_Handler*> Common_TimerManagerAsynchListBase_t;
+typedef ACE_Async_Timer_Queue_Adapter<Common_TimerQueueWheelImpl_t,
+                                      ACE_Event_Handler*> Common_TimerManagerAsynchWheelBase_t;
+
+typedef ACE_Thread_Timer_Queue_Adapter<Common_TimerQueueHeapImpl_t,
+                                       ACE_Event_Handler*> Common_TimerManagerHeapBase_t;
+typedef ACE_Thread_Timer_Queue_Adapter<Common_TimerQueueListImpl_t,
+                                       ACE_Event_Handler*> Common_TimerManagerListBase_t;
+typedef ACE_Thread_Timer_Queue_Adapter<Common_TimerQueueWheelImpl_t,
+                                       ACE_Event_Handler*> Common_TimerManagerWheelBase_t;
+
+//////////////////////////////////////////
 
 typedef Common_Timer_Manager_T<ACE_NULL_SYNCH,
                                struct Common_TimerConfiguration,
