@@ -24,7 +24,7 @@ elseif (WIN32)
  unset (ACEXML_LIB_FILE)
  set (ACEXML_LIB_FILE ACEXML${LIB_FILE_SUFFIX}.lib)
  find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
-               PATHS ENV ACE_ROOT
+               PATHS $ENV{LIB_ROOT}/ACE_TAO/ACE
                PATHS ${CMAKE_CURRENT_BINARY_DIR}/../../../../ACE_TAO/ACE
                PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
                DOC "searching for ${ACEXML_LIB_FILE}")
@@ -37,38 +37,41 @@ else ()
 endif ()
 #add_definitions (-DACEXML_HAS_DLL)
 
-add_library (${PROJECT_NAME}UI STATIC "")
+set (LIBRARY ${PROJECT_NAME}UI)
+add_library (${LIBRARY} STATIC "")
 
 if (GTK_SUPPORT)
- message (STATUS "GTK_INCLUDE_DIRS: ${GTK_INCLUDE_DIRS}")
- target_include_directories (${PROJECT_NAME}UI PUBLIC
+# message (STATUS "GTK_INCLUDE_DIRS: ${GTK_INCLUDE_DIRS}")
+ target_include_directories (${LIBRARY} PUBLIC
                              "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
 endif (GTK_SUPPORT)
+
 if (UNIX)
- target_include_directories (${PROJECT_NAME}UI PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
 #                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 #                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
                              $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
 elseif (WIN32)
  if (DEFINED ENV{ACE_ROOT})
-  target_include_directories (${PROJECT_NAME}UI PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
  else ()
-  target_include_directories (${PROJECT_NAME}UI PUBLIC
-                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../ACE_TAO/ACE>)
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
  endif (DEFINED ENV{ACE_ROOT})
 endif ()
-target_include_directories (${PROJECT_NAME}UI PUBLIC
+
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
-target_include_directories (${PROJECT_NAME}UI PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
-target_include_directories (${PROJECT_NAME}UI PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../image>)
-target_include_directories (${PROJECT_NAME}UI PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../log>)
-target_include_directories (${PROJECT_NAME}UI PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../xml>)
-target_include_directories (${PROJECT_NAME}UI PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
 
 ############## next target ################
@@ -104,34 +107,34 @@ foreach (source_file ${source_files})
        )
  #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
-target_sources (${PROJECT_NAME}UI
+target_sources (${LIBRARY}
                 PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-add_dependencies (${PROJECT_NAME}UI Common)
+add_dependencies (${LIBRARY} Common)
 if (UNIX)
- target_link_libraries (${PROJECT_NAME}UI X11 Xrandr)
+ target_link_libraries (${LIBRARY} X11 Xrandr)
 elseif (WIN32)
-# target_link_libraries (${PROJECT_NAME}UI Common)
+# target_link_libraries (${LIBRARY} Common)
 endif ()
 
 if (WIN32)
-# set_target_properties (${PROJECT_NAME}UI PROPERTIES LINK_FLAGS /SAFESEH:NO)
+# set_target_properties (${LIBRARY} PROPERTIES LINK_FLAGS /SAFESEH:NO)
 endif ()
-set_target_properties (${PROJECT_NAME}UI PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
-set_target_properties (${PROJECT_NAME}UI PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
+set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
-set_target_properties (${PROJECT_NAME}UI PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${PROJECT_NAME}UI)
+set_target_properties (${LIBRARY} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+cotire (${LIBRARY})
 
 # add all targets to the build-tree export set
-export (TARGETS ${PROJECT_NAME}UI
+export (TARGETS ${LIBRARY}
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
-set (${PROJECT_NAME}UI_LIB_HDRS
+set (${LIBRARY}_LIB_HDRS
      common_ui_common.h
      common_ui_defines.h
      common_ui_exports.h
@@ -145,7 +148,7 @@ set (${PROJECT_NAME}UI_LIB_HDRS
 install (FILES
          ${CommonUI_LIB_HDRS}
          DESTINATION include)
-install (TARGETS ${PROJECT_NAME}UI
+install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)

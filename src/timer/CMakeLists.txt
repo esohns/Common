@@ -1,21 +1,29 @@
-﻿add_library (${PROJECT_NAME}Timer STATIC "")
+set (LIBRARY ${PROJECT_NAME}Timer)
+add_library (${LIBRARY} STATIC "")
 
-if (DEFINED ENV{ACE_ROOT})
- target_include_directories (${PROJECT_NAME}Timer PUBLIC
-                             $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
-else ()
- target_include_directories (${PROJECT_NAME}Timer PUBLIC
-#                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE>)
+if (UNIX)
+ target_include_directories (${LIBRARY} PUBLIC
+#                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE>)
+#                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
                              $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
-endif (DEFINED ENV{ACE_ROOT})
+elseif (WIN32)
+ if (DEFINED ENV{ACE_ROOT})
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
+ else ()
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
+ endif (DEFINED ENV{ACE_ROOT})
+endif ()
+
 if (UNIX)
 elseif (WIN32)
- target_include_directories (${PROJECT_NAME}Timer PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
 endif ()
-target_include_directories (${PROJECT_NAME}Timer PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
-target_include_directories (${PROJECT_NAME}Timer PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
 
 ############## next target ################

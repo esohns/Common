@@ -1,23 +1,32 @@
-﻿add_library (${PROJECT_NAME}Math STATIC "")
+﻿set (LIBRARY ${PROJECT_NAME}Math)
+add_library (${LIBRARY} STATIC "")
 
 if (UNIX)
 # include_directories (${PKG_GTK_GLADE_INCLUDE_DIRS})
- target_include_directories (${PROJECT_NAME}Math PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
 #                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 #                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
                              $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
- elseif (WIN32)
-#*TODO*: use pkg-config instead
- include_directories ($ENV{ACE_ROOT})
+elseif (WIN32)
+ if (DEFINED ENV{ACE_ROOT})
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
+ else ()
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
+ endif (DEFINED ENV{ACE_ROOT})
 endif ()
-target_include_directories (${PROJECT_NAME}Math PUBLIC
+
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
-target_include_directories (${PROJECT_NAME}Math PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../timer>)
-target_include_directories (${PROJECT_NAME}Math PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
 
-add_definitions (-D_USE_MATH_DEFINES)
+if (WIN32)
+ add_definitions (-D_USE_MATH_DEFINES)
+endif (WIN32)
 
 ############## next target ################
 set (source_files
@@ -51,7 +60,7 @@ foreach (source_file ${source_files})
        )
 #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
-target_sources (${PROJECT_NAME}Math
+target_sources (${LIBRARY}
                 PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
@@ -66,23 +75,23 @@ endif ()
 
 #*TODO*: use pkg-config instead
 if (WIN32)
-# target_link_libraries (${PROJECT_NAME}Math ${COMMON_TARGET_NAME})
- target_link_libraries (${PROJECT_NAME}Math ${ACE_LIBRARY})
+# target_link_libraries (${LIBRARY} ${COMMON_TARGET_NAME})
+ target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
 endif ()
 
 # *WARNING*: linking libglade-2.dll(.a) requires "/SAFESEH:NO""
 if (WIN32)
 # set_target_properties (${PROJECT_NAME}ERR PROPERTIES LINK_FLAGS /SAFESEH:NO)
 endif ()
-set_target_properties (${PROJECT_NAME}Math PROPERTIES DEFINE_SYMBOL COMMON_MATH_BUILD_DLL)
-set_target_properties (${PROJECT_NAME}Math PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_MATH_BUILD_DLL)
+set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
-set_target_properties (${PROJECT_NAME}Math PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${PROJECT_NAME}Math)
+set_target_properties (${LIBRARY} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+cotire (${LIBRARY})
 
 # add all targets to the build-tree export set
-export (TARGETS ${PROJECT_NAME}Math
+export (TARGETS ${LIBRARY}
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
@@ -98,7 +107,7 @@ install (FILES
          common_math_sample.inl
          common_math_tools.h
          DESTINATION include)
-install (TARGETS ${PROJECT_NAME}Math
+install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)

@@ -21,7 +21,7 @@ elseif (WIN32)
  unset (ACE_XML_LIB_FILE)
  set (ACE_XML_LIB_FILE ACEXML${LIB_FILE_SUFFIX}.lib)
  find_library (ACE_XML_LIBRARY ${ACE_XML_LIB_FILE}
-               PATHS ENV ACE_ROOT
+               PATHS $ENV{LIB_ROOT}/ACE_TAO/ACE
                PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
                DOC "searching for ${ACE_XML_LIB_FILE}")
 endif ()
@@ -51,7 +51,7 @@ elseif (WIN32)
  unset (ACE_XML_PARSER_LIB_FILE)
  set (ACE_XML_PARSER_LIB_FILE ACEXML_Parser${LIB_FILE_SUFFIX}.lib)
  find_library (ACE_XML_PARSER_LIBRARY ${ACE_XML_PARSER_LIB_FILE}
-               PATHS ENV ACE_ROOT
+               PATHS $ENV{LIB_ROOT}/ACE_TAO/ACE
                PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
                DOC "searching for ${ACE_XML_PARSER_LIB_FILE}")
 endif ()
@@ -62,35 +62,39 @@ else ()
  #message (STATUS "Found ACEXML parser library \"${ACE_XML_PARSER_LIBRARY}\"")
 endif ()
 
-add_library (${PROJECT_NAME}XML STATIC "")
+set (LIBRARY ${PROJECT_NAME}XML)
+add_library (${LIBRARY} STATIC "")
 
 if (UNIX)
- target_include_directories (${PROJECT_NAME}XML PUBLIC
-#                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
+elseif (WIN32)
+ if (LIBXML2_SUPPORT)
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libiconv-1.9.2-1/include>)
+ endif (LIBXML2_SUPPORT)
+endif ()
+if (LIBXML2_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${LIBXML2_INCLUDE_DIR}>)
+endif (LIBXML2_SUPPORT)
+
+if (UNIX)
+ target_include_directories (${LIBRARY} PUBLIC
+#                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE>)
 #                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
                              $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
 elseif (WIN32)
- if (LIBXML2_SUPPORT)
-  target_include_directories (${PROJECT_NAME}XML PUBLIC
-                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libiconv-1.9.2-1/include>)
- endif (LIBXML2_SUPPORT)
-
  if (DEFINED ENV{ACE_ROOT})
-  target_include_directories (${PROJECT_NAME}XML PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
  else ()
-  target_include_directories (${PROJECT_NAME}XML PUBLIC
-                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../ACE_TAO/ACE>)
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
  endif (DEFINED ENV{ACE_ROOT})
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/err)
 endif ()
-if (LIBXML2_SUPPORT)
- target_include_directories (${PROJECT_NAME}XML PUBLIC
-                             $<BUILD_INTERFACE:${LIBXML2_INCLUDE_DIR}>)
-endif (LIBXML2_SUPPORT)
-target_include_directories (${PROJECT_NAME}XML PUBLIC
+
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
-target_include_directories (${PROJECT_NAME}XML PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
 
 ############## next target ################

@@ -14,58 +14,59 @@ if (UNIX)
  endif (IMAGEMAGICK_SUPPORT)
 endif (UNIX)
 
-add_library (${PROJECT_NAME}Image STATIC "")
+set (LIBRARY ${PROJECT_NAME}Image)
+add_library (${LIBRARY} STATIC "")
 
 if (UNIX)
- target_include_directories (${PROJECT_NAME}Image PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${PKG_FFMPEG_INCLUDE_DIRS}>)
- target_include_directories (${PROJECT_NAME}Image PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${ImageMagick_INCLUDE_DIRS}>)
 
- target_include_directories (${PROJECT_NAME}Image PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
 #                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 #                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
                              $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
 elseif (WIN32)
  if (DEFINED ENV{DXSDK_DIR})
-  target_include_directories (${PROJECT_NAME}Image PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{DXSDK_DIR}/Include>)
  else ()
  # set (DXSDK_DIR
  #      "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (June 2010)/Include")
 # message (STATUS "DirectX SDK directory: \"${DXSDK_DIR}\"")
- # target_include_directories (${PROJECT_NAME}Image PUBLIC
+ # target_include_directories (${LIBRARY} PUBLIC
  #                             $<BUILD_INTERFACE:${DXSDK_DIR}>)
-  target_include_directories (${PROJECT_NAME}Image PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{LIB_ROOT}/DXSDK/Include>)
  endif (DEFINED ENV{DXSDK_DIR})
 
  if (LIBPNG_SUPPORT)
-  target_include_directories (${PROJECT_NAME}Image PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libpng>)
  endif (LIBPNG_SUPPORT)
 
- target_include_directories (${PROJECT_NAME}Image PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ffmpeg/include>)
 #                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ffmpeg>)
  if (IMAGEMAGICK_SUPPORT)
-  target_include_directories (${PROJECT_NAME}Image PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ImageMagick/include>)
  endif (IMAGEMAGICK_SUPPORT)
 
  if (DEFINED ENV{ACE_ROOT})
-  target_include_directories (${PROJECT_NAME}Image PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
  else ()
-  target_include_directories (${PROJECT_NAME}Image PUBLIC
-                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE>)
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
  endif (DEFINED ENV{ACE_ROOT})
 endif ()
-target_include_directories (${PROJECT_NAME}Image PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
-target_include_directories (${PROJECT_NAME}Image PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
-target_include_directories (${PROJECT_NAME}Image PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
 
 ############## next target ################
@@ -89,7 +90,7 @@ foreach (source_file ${source_files})
        )
 #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
-target_sources (${PROJECT_NAME}Image
+target_sources (${LIBRARY}
                 PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
@@ -103,45 +104,45 @@ if (WIN32)
 endif ()
 
 if (UNIX)
- target_link_libraries (${PROJECT_NAME}Image ${PKG_FFMPEG_LIBRARIES})
+ target_link_libraries (${LIBRARY} ${PKG_FFMPEG_LIBRARIES})
 
- target_link_libraries (${PROJECT_NAME}Image ${ImageMagick_LIBRARIES})
+ target_link_libraries (${LIBRARY} ${ImageMagick_LIBRARIES})
 elseif (WIN32)
- target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/DXSDK/Lib/x86/d3dx9.lib)
+ target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/DXSDK/Lib/x86/d3dx9.lib)
 
 # libpng
  if (LIBPNG_SUPPORT)
-  target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/libpng/cmake/${CMAKE_BUILD_TYPE}/libpng16${LIB_FILE_SUFFIX}.lib)
-# target_link_libraries (${PROJECT_NAME}Image ${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25/projects/vstudio/Debug/libpng16.lib)
+  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/libpng/cmake/${CMAKE_BUILD_TYPE}/libpng16${LIB_FILE_SUFFIX}.lib)
+# target_link_libraries (${LIBRARY} ${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25/projects/vstudio/Debug/libpng16.lib)
  endif (LIBPNG_SUPPORT)
 
 # ffmpeg
- target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ffmpeg/lib/avcodec.lib)
- target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ffmpeg/lib/avutil.lib)
- target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ffmpeg/lib/swscale.lib)
-# target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ffmpeg/libavcodec/avcodec.lib)
-# target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ffmpeg/libavutil/avutil.lib)
+ target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/lib/avcodec.lib)
+ target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/lib/avutil.lib)
+ target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/lib/swscale.lib)
+# target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/libavcodec/avcodec.lib)
+# target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/libavutil/avutil.lib)
 
  if (IMAGEMAGICK_SUPPORT)
-  target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickCore_.lib)
-  target_link_libraries (${PROJECT_NAME}Image $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickWand_.lib)
+  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickCore_.lib)
+  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickWand_.lib)
  endif (IMAGEMAGICK_SUPPORT)
 
- target_link_libraries (${PROJECT_NAME}Image ${ACE_LIBRARY})
-# target_link_libraries (${PROJECT_NAME}Image ${COMMON_TARGET_NAME})
+ target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
+# target_link_libraries (${LIBRARY} ${COMMON_TARGET_NAME})
 endif ()
-#set_target_properties (${PROJECT_NAME}Image PROPERTIES DEFINE_SYMBOL COMMON_IMAGE_BUILD_DLL)
-set_target_properties (${PROJECT_NAME}Image PROPERTIES
+#set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_IMAGE_BUILD_DLL)
+set_target_properties (${LIBRARY} PROPERTIES
                        VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
                        SOVERSION 1)
 
 # add PCH
-set_target_properties (${PROJECT_NAME}Image PROPERTIES
+set_target_properties (${LIBRARY} PROPERTIES
                        COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${PROJECT_NAME}Image)
+cotire (${LIBRARY})
 
 # add all targets to the build-tree export set
-export (TARGETS ${PROJECT_NAME}Image
+export (TARGETS ${LIBRARY}
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
@@ -152,7 +153,7 @@ install (FILES
          common_image_tools.h
          stdafx.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
-install (TARGETS ${PROJECT_NAME}Image
+install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)

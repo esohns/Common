@@ -1,19 +1,25 @@
-﻿add_library (${PROJECT_NAME}Log STATIC "")
+﻿set (LIBRARY ${PROJECT_NAME}Log)
+add_library (${LIBRARY} STATIC "")
 
 if (UNIX)
 # include_directories (${PKG_GTK_GLADE_INCLUDE_DIRS})
- target_include_directories (${PROJECT_NAME}Log PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
 #                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 #                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
                              $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
 elseif (WIN32)
-#*TODO*: use pkg-config instead
- target_include_directories (${PROJECT_NAME}Log PUBLIC
-                             $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
+ if (DEFINED ENV{ACE_ROOT})
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
+ else ()
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
+ endif (DEFINED ENV{ACE_ROOT})
 endif ()
-target_include_directories (${PROJECT_NAME}Log PUBLIC
+
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
-target_include_directories (${PROJECT_NAME}Log PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
 
 ############## next target ################
@@ -38,7 +44,7 @@ foreach (source_file ${source_files})
        )
 #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
-target_sources (${PROJECT_NAME}Log
+target_sources (${LIBRARY}
                 PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
@@ -53,22 +59,22 @@ endif ()
 
 #*TODO*: use pkg-config instead
 if (WIN32)
-# target_link_libraries (${PROJECT_NAME}Log ${COMMON_TARGET_NAME})
+# target_link_libraries (${LIBRARY} ${COMMON_TARGET_NAME})
 endif ()
 
 # *WARNING*: linking libglade-2.dll(.a) requires "/SAFESEH:NO""
 if (WIN32)
-# set_target_properties (${PROJECT_NAME}Log PROPERTIES LINK_FLAGS /SAFESEH:NO)
+# set_target_properties (${LIBRARY} PROPERTIES LINK_FLAGS /SAFESEH:NO)
 endif ()
-set_target_properties (${PROJECT_NAME}Log PROPERTIES DEFINE_SYMBOL COMMON_ERR_BUILD_DLL)
-set_target_properties (${PROJECT_NAME}Log PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_ERR_BUILD_DLL)
+set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
-set_target_properties (${PROJECT_NAME}Error PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${PROJECT_NAME}Log)
+set_target_properties (${LIBRARY} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+cotire (${LIBRARY})
 
 # add all targets to the build-tree export set
-export (TARGETS ${PROJECT_NAME}Log
+export (TARGETS ${LIBRARY}
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
@@ -78,7 +84,7 @@ install (FILES
          common_logger.h
          common_logger.inl
          DESTINATION include)
-install (TARGETS ${PROJECT_NAME}Log
+install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)

@@ -67,56 +67,58 @@ if (UNIX)
  pkg_check_modules (PKG_ASSIMP REQUIRED assimp)
 endif (UNIX)
 
-add_library (${PROJECT_NAME}OpenGL STATIC "")
+set (LIBRARY ${PROJECT_NAME}OpenGL)
+add_library (${LIBRARY} STATIC "")
 
 if (UNIX)
- target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${PKG_GLM_INCLUDE_DIRS}>)
- target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${PKG_LIBPNG_INCLUDE_DIRS}>)
- target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
- target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${PKG_IMAGEMAGICK_INCLUDE_DIRS}>)
 
- target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
 #                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
 #                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
                              $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
 elseif (WIN32)
  if (LIBPNG_SUPPORT)
-  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libpng/cmake>)
-  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libpng>)
  endif (LIBPNG_SUPPORT)
 
  if (IMAGEMAGICK_SUPPORT)
-  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ImageMagick/include>)
  endif (IMAGEMAGICK_SUPPORT)
 
- target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/glm>)
 
- target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/assimp/cmake/include>)
- target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/assimp/include>)
 
  if (DEFINED ENV{ACE_ROOT})
-  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
  else ()
-  target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
-                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../ATCD/ACE>)
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
  endif (DEFINED ENV{ACE_ROOT})
 endif ()
-target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
-target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../image>)
-target_include_directories (${PROJECT_NAME}OpenGL PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
 
 ############## next target ################
@@ -146,7 +148,7 @@ foreach (source_file ${source_files})
        )
 #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
-target_sources (${PROJECT_NAME}OpenGL
+target_sources (${LIBRARY}
                 PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
@@ -167,41 +169,41 @@ target_sources (${PROJECT_NAME}OpenGL
 #set_target_properties (${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
 #set_target_properties (${PROJECT_NAME} PROPERTIES
 #                       DEFINE_SYMBOL COMMON_BUILD_DLL)
-set_target_properties (${PROJECT_NAME}OpenGL PROPERTIES
+set_target_properties (${LIBRARY} PROPERTIES
                        VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
                        SOVERSION 1)
 
 if (UNIX)
  if (LIBPNG_SUPPORT)
-  target_link_libraries (${PROJECT_NAME}OpenGL ${PNG_LIBRARY})
+  target_link_libraries (${LIBRARY} ${PNG_LIBRARY})
  endif (LIBPNG_SUPPORT)
- target_link_libraries (${PROJECT_NAME}OpenGL ${PKG_ASSIMP_LIBRARIES})
+ target_link_libraries (${LIBRARY} ${PKG_ASSIMP_LIBRARIES})
 elseif (WIN32)
  if (LIBPNG_SUPPORT)
-  target_link_libraries (${PROJECT_NAME}OpenGL $ENV{LIB_ROOT}/libpng/cmake/${CMAKE_BUILD_TYPE}/libpng16${LIB_FILE_SUFFIX}.lib)
+  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/libpng/cmake/${CMAKE_BUILD_TYPE}/libpng16${LIB_FILE_SUFFIX}.lib)
  endif (LIBPNG_SUPPORT)
 
- target_link_libraries (${PROJECT_NAME}OpenGL $ENV{LIB_ROOT}/assimp/cmake/code/${CMAKE_BUILD_TYPE}/assimp-vc140-mt.lib)
+ target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/assimp/cmake/code/${CMAKE_BUILD_TYPE}/assimp-vc140-mt.lib)
 
  if (IMAGEMAGICK_SUPPORT)
-  target_link_libraries (${PROJECT_NAME}OpenGL $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickCore_.lib)
-  target_link_libraries (${PROJECT_NAME}OpenGL $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickWand_.lib)
+  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickCore_.lib)
+  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickWand_.lib)
  endif (IMAGEMAGICK_SUPPORT)
 endif ()
 if (OPENGL_FOUND)
- target_link_libraries (${PROJECT_NAME}OpenGL ${OPENGL_LIBRARIES})
+ target_link_libraries (${LIBRARY} ${OPENGL_LIBRARIES})
 else ()
- target_link_libraries (${PROJECT_NAME}OpenGL ${OPENGL_LIBRARY})
+ target_link_libraries (${LIBRARY} ${OPENGL_LIBRARY})
 endif (OPENGL_FOUND)
-target_link_libraries (${PROJECT_NAME}OpenGL ${PROJECT_NAME}Image)
+target_link_libraries (${LIBRARY} ${PROJECT_NAME}Image)
 
 # add PCH
-set_target_properties (${PROJECT_NAME}OpenGL PROPERTIES
+set_target_properties (${LIBRARY} PROPERTIES
                        COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${PROJECT_NAME}OpenGL)
+cotire (${LIBRARY})
 
 # add all targets to the build-tree export set
-export (TARGETS ${PROJECT_NAME}OpenGL
+export (TARGETS ${LIBRARY}
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
@@ -213,7 +215,7 @@ install (FILES
          common_gl_assimp_tools.h
          common_gl_texture.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
-install (TARGETS ${PROJECT_NAME}OpenGL
+install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)

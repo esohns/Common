@@ -1,24 +1,26 @@
-﻿add_library (${PROJECT_NAME}Error STATIC "")
+﻿set (LIBRARY ${PROJECT_NAME}Error)
+add_library (${LIBRARY} STATIC "")
 
 if (UNIX)
- target_include_directories (${PROJECT_NAME}Error PUBLIC
-#                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
+ target_include_directories (${LIBRARY} PUBLIC
+#                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE>)
 #                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
                              $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
 elseif (WIN32)
  if (DEFINED ENV{ACE_ROOT})
-  target_include_directories (${PROJECT_NAME}Error PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
  else ()
-  target_include_directories (${PROJECT_NAME}Error PUBLIC
-                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE>)
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
  endif (DEFINED ENV{ACE_ROOT})
 endif ()
-target_include_directories (${PROJECT_NAME}Error PUBLIC
+
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
-target_include_directories (${PROJECT_NAME}Error PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
-target_include_directories (${PROJECT_NAME}Error PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../log>)
 
 ############## next target ################
@@ -47,7 +49,7 @@ foreach (source_file ${source_files})
        )
 #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
-target_sources (${PROJECT_NAME}Error
+target_sources (${LIBRARY}
                 PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
@@ -62,22 +64,22 @@ endif ()
 
 #*TODO*: use pkg-config instead
 if (WIN32)
- target_link_libraries (${PROJECT_NAME}Error ${ACE_LIBRARY})
+ target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
 endif (WIN32)
 
 # *WARNING*: linking libglade-2.dll(.a) requires "/SAFESEH:NO""
 if (WIN32)
-# set_target_properties (${PROJECT_NAME}Error PROPERTIES LINK_FLAGS /SAFESEH:NO)
+# set_target_properties (${LIBRARY} PROPERTIES LINK_FLAGS /SAFESEH:NO)
 endif (WIN32)
-set_target_properties (${PROJECT_NAME}Error PROPERTIES DEFINE_SYMBOL COMMON_ERR_BUILD_DLL)
-set_target_properties (${PROJECT_NAME}Error PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_ERR_BUILD_DLL)
+set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
-set_target_properties (${PROJECT_NAME}Error PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${PROJECT_NAME}Error)
+set_target_properties (${LIBRARY} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+cotire (${LIBRARY})
 
 # add all targets to the build-tree export set
-export (TARGETS ${PROJECT_NAME}Error
+export (TARGETS ${LIBRARY}
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
@@ -92,7 +94,7 @@ if (WIN32)
           common_error_directx.h
           DESTINATION include)
 endif (WIN32)
-install (TARGETS ${PROJECT_NAME}Error
+install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)
