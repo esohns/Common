@@ -24,13 +24,19 @@
 #include "ace/Event_Handler.h"
 #include "ace/Singleton.h"
 #include "ace/Synch_Traits.h"
- // *NOTE*: try not to include this header in .h files (it's been poisoned)
+ // *NOTE*: try not to include this header in .h files (it's complicated)
  // *TODO*: replace inclusion of Condition_Recursive_Thread_Mutex.h
  //         with Synch_Traits.h --> submit an ACE issue
 #include "ace/Timer_Queue_Adapters.h"
 
 #include "common_timer_common.h"
 #include "common_timer_manager.h"
+
+//// forward declarations
+//template <class TQ, class TYPE>
+//class ACE_Async_Timer_Queue_Adapter;
+//template <class TQ, class TYPE>
+//class ACE_Thread_Timer_Queue_Adapter;
 
 typedef ACE_Async_Timer_Queue_Adapter<Common_TimerQueueHeapImpl_t,
                                       ACE_Event_Handler*> Common_TimerManagerAsynchHeapBase_t;

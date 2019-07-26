@@ -29,6 +29,7 @@
 #if ((ACE_MAJOR_VERSION >= 6) && \
      ((ACE_MINOR_VERSION > 1) || \
       ((ACE_MINOR_VERSION == 1) && (ACE_BETA_VERSION > 6))))
+//#include "ace/OS.h"
 #include "ace/Time_Policy.h"
 // *NOTE*: (where possible) use high-resolution timestamps for accuracy and low
 //         latency timers

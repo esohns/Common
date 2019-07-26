@@ -34,7 +34,7 @@
 #include "common_ui_common.h"
 #include "common_ui_idefinition.h"
 
-#include "common_ui_gtk_builder_definition.h"
+//#include "common_ui_gtk_builder_definition.h"
 
 // forward declarations
 #if defined (LIGBGLADE_SUPPORT)

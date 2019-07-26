@@ -25,7 +25,7 @@
 #include "ace/Refcountable_T.h"
 #include "ace/Synch_Traits.h"
 
-#include "common_exports.h"
+//#include "common_exports.h"
 #include "common_ireferencecount.h"
 
 class Common_ReferenceCounterBase

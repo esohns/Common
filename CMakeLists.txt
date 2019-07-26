@@ -187,6 +187,7 @@ endif ()
 ################################################################################
 file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/cotire/CMake" COTIRE_PATH)
 list (APPEND CMAKE_MODULE_PATH "${COTIRE_PATH}")
+message (STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 include (cotire)
 set_directory_properties (PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 
