@@ -315,14 +315,14 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("%s: failed to allocate memory (%u), returning\n"),
                   inherited::mod_->name (),
-                  sizeof (ACE_thread_t)));
+                  sizeof (ACE_thread_t[1])));
     else
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("failed to allocate memory (%u), returning\n"),
-                  sizeof (ACE_thread_t)));
+                  sizeof (ACE_thread_t[1])));
     return;
   } // end IF
-  ACE_OS::memset (thread_ids_p, 0, sizeof (thread_ids_p));
+  ACE_OS::memset (thread_ids_p, 0, sizeof (ACE_thread_t[1]));
   ACE_hthread_t* thread_handles_p = NULL;
   ACE_NEW_NORETURN (thread_handles_p,
                     ACE_hthread_t[1]);
@@ -340,7 +340,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     delete [] thread_ids_p; thread_ids_p = NULL;
     return;
   } // end IF
-  ACE_OS::memset (thread_handles_p, 0, sizeof (thread_handles_p));
+  ACE_OS::memset (thread_handles_p, 0, sizeof (ACE_hthread_t[1]));
   const char** thread_names_p = NULL;
   ACE_NEW_NORETURN (thread_names_p,
                     const char*[1]);
@@ -350,16 +350,16 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("%s: failed to allocate memory (%u), returning\n"),
                   inherited::mod_->name (),
-                  sizeof (const char*)));
+                  sizeof (const char*[1])));
     else
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("failed to allocate memory (%u), returning\n"),
-                  sizeof (const char*)));
+                  sizeof (const char*[1])));
     delete [] thread_ids_p; thread_ids_p = NULL;
     delete [] thread_handles_p; thread_handles_p = NULL;
     return;
   } // end IF
-  ACE_OS::memset (thread_names_p, 0, sizeof (thread_names_p));
+  ACE_OS::memset (thread_names_p, 0, sizeof (const char*[1]));
   char* thread_name_p = NULL;
   ACE_NEW_NORETURN (thread_name_p,
                     char[BUFSIZ]);
@@ -369,17 +369,17 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("%s: failed to allocate memory (%u), returning\n"),
                   inherited::mod_->name (),
-                  sizeof (char) * BUFSIZ));
+                  sizeof (char[BUFSIZ])));
     else
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("failed to allocate memory (%u), returning\n"),
-                  sizeof (char) * BUFSIZ));
+                  sizeof (char[BUFSIZ])));
     delete [] thread_ids_p; thread_ids_p = NULL;
     delete [] thread_handles_p; thread_handles_p = NULL;
     delete [] thread_names_p; thread_names_p = NULL;
     return;
   } // end IF
-  ACE_OS::memset (thread_name_p, 0, sizeof (thread_name_p));
+  ACE_OS::memset (thread_name_p, 0, sizeof (char[BUFSIZ]));
   ACE_OS::strcpy (thread_name_p,
                   threadName_.c_str ());
   thread_names_p[0] = thread_name_p;

@@ -61,12 +61,6 @@ class Common_Task_T
   virtual int svc (void);
 
  private:
-//  // convenient types
-//  typedef Common_Task_T<ACE_SYNCH_USE,
-//                        TimePolicyType,
-//                        LockType,
-//                        MessageType> OWN_TYPE_T;
-
   ACE_UNIMPLEMENTED_FUNC (Common_Task_T ())
   ACE_UNIMPLEMENTED_FUNC (Common_Task_T (const Common_Task_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_Task_T& operator= (const Common_Task_T&))

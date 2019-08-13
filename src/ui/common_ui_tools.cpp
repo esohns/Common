@@ -1060,7 +1060,7 @@ Common_UI_Tools::getDisplays ()
   configuration_file_path += ACE_TEXT_ALWAYS_CHAR (".config");
   configuration_file_path += ACE_DIRECTORY_SEPARATOR_STR;
   configuration_file_path += ACE_TEXT_ALWAYS_CHAR ("monitors.xml");
-  ACE_ASSERT (Common_File_Tools::isReadable (configuration_file_path));
+//  ACE_ASSERT (Common_File_Tools::isReadable (configuration_file_path));
 //  int result_2 = file_stream.open (configuration_file_path.c_str ());
 //  if (result_2 == -1)
 //  {
@@ -1070,7 +1070,7 @@ Common_UI_Tools::getDisplays ()
 //    return result;
 //  } // end IF
   parser.parseFile (configuration_file_path);
-  ACE_ASSERT (!parser_context.displays.empty ());
+//  ACE_ASSERT (!parser_context.displays.empty ());
   result = parser_context.displays;
 #endif // ACE_WIN32 || ACE_WIN64
 

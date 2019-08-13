@@ -2652,7 +2652,7 @@ spawn:
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory(%u), aborting\n"),
-                (sizeof (ACE_hthread_t) * number_of_threads_i)));
+                sizeof (ACE_hthread_t[number_of_threads_i])));
     return false;
   } // end IF
 //  ACE_OS::memset (thread_handles_p, 0, sizeof (thread_handles_p));
@@ -2664,11 +2664,11 @@ spawn:
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory(%u), aborting\n"),
-                (sizeof (char*) * number_of_threads_i)));
+                sizeof (const char*[number_of_threads_i])));
     delete [] thread_handles_p;
     return false;
   } // end IF
-  ACE_OS::memset (thread_names_p, 0, sizeof (thread_names_p));
+  ACE_OS::memset (thread_names_p, 0, sizeof (const char*[number_of_threads_i]));
   for (unsigned int i = 0;
        i < number_of_threads_i;
        ++i)
@@ -2690,7 +2690,7 @@ spawn:
       delete [] thread_names_p;
       return false;
     } // end IF
-    ACE_OS::memset (thread_name_p, 0, sizeof (thread_name_p));
+    ACE_OS::memset (thread_name_p, 0, sizeof (char[BUFSIZ]));
     converter.clear ();
     converter.str (ACE_TEXT_ALWAYS_CHAR (""));
     converter << (i + 1);

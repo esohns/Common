@@ -115,12 +115,17 @@ Common_Task_T<ACE_SYNCH_USE,
       {
         result_2 = inherited::putq (message_p, NULL);
         if (result_2 == -1)
+        {
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("(%s): failed to ACE_Task::putq(): \"%m\", aborting\n"),
                       ACE_TEXT (inherited::threadName_.c_str ())));
+          result = -1;
+        }
       } // end IF
       else
-        message_p->release ();
+      {
+        message_p->release (); message_p = NULL;
+      } // end ELSE
       break; // done
     } // end IF
 
@@ -136,8 +141,7 @@ Common_Task_T<ACE_SYNCH_USE,
     // clean up ?
     if (unlikely (message_p))
     {
-      message_p->release ();
-      message_p = NULL;
+      message_p->release (); message_p = NULL;
     } // end IF
   } while (true);
 

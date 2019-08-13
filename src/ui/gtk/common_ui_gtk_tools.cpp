@@ -353,7 +353,7 @@ Common_UI_GTK_Tools::selectValue (GtkComboBox* comboBox_in,
       Common_UI_GTK_Tools::valueToIndex (gtk_combo_box_get_model (comboBox_in),
                                          value_in,
                                          column_in);
-  ACE_ASSERT (index_i != std::numeric_limits<unsigned int>::max ());
+//  ACE_ASSERT (index_i != std::numeric_limits<unsigned int>::max ());
   gtk_combo_box_set_active (comboBox_in, static_cast<gint> (index_i));
 }
 
