@@ -211,8 +211,6 @@ if (UNIX)
  set (NEWLINE_STYLE UNIX)
 elseif (WIN32)
  set (NEWLINE_STYLE WIN32)
-else ()
- set (NEWLINE_STYLE UNIX)
 endif ()
 configure_file (${PROJECT_NAME}Config.cmake.in
                 "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
