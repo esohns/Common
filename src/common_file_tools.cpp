@@ -879,6 +879,14 @@ Common_File_Tools::isValidFilename (const std::string& string_in)
                                          ACE_DIRECTORY_SEPARATOR_CHAR));
 
   // *TODO*: this isn't entirely accurate
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  // *NOTE*: drivename: for root directories on Win32 cannot be stat()ed
+  //         successfully
+  //         --> append slash(es)
+  if ((directory.size () == 2) && (directory[1] == ':'))
+    directory += ACE_DIRECTORY_SEPARATOR_STR;
+#endif // ACE_WIN32 || ACE_WIN64
+
   return (!Common_File_Tools::isDirectory (string_in) &&
           (Common_File_Tools::isDirectory (directory) &&
            !file_name.empty ()));
@@ -889,6 +897,11 @@ Common_File_Tools::isValidPath (const std::string& string_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isValidPath"));
 
+  // sanity check(s)
+  // *TODO*: ACE::dirname() returns '.' on an empty argument; this isn't
+  //         entirely accurate
+  ACE_ASSERT (!string_in.empty ());
+
   std::string directory, file_name;
   directory =
     ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (string_in.c_str ()),
@@ -897,10 +910,7 @@ Common_File_Tools::isValidPath (const std::string& string_in)
     ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (string_in.c_str ()),
                                          ACE_DIRECTORY_SEPARATOR_CHAR));
 
-  // *TODO*: ACE::dirname() returns '.' on an empty argument; this isn't
-  //         entirely accurate
-  return ((directory != ACE_TEXT_ALWAYS_CHAR (".")) &&
-          Common_File_Tools::isDirectory (directory));
+  return Common_File_Tools::isDirectory (directory);
 }
 
 std::string
