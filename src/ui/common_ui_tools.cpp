@@ -379,11 +379,11 @@ Common_UI_Tools::getAdapters ()
         (display_device_s.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER))
       goto continue_;
     // check if it is another head on an existing adapter
-    display_adapter_s.device =
+    display_adapter_s.description =
 #if defined (UNICODE)
-      ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_s.DeviceID));
+      ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_s.DeviceString));
 #else
-      display_device_s.DeviceID;
+      display_device_s.DeviceString;
 #endif // UNICODE
     iterator =
       std::find (result.begin (), result.end (), display_adapter_s);

@@ -86,7 +86,7 @@ struct Common_UI_DisplayAdapter
    , slot () // PCI-
 #endif // ACE_WIN32 || ACE_WIN64
   {}
-  inline bool operator== (const struct Common_UI_DisplayAdapter& rhs_in) { return !ACE_OS::strcmp (device.c_str (), rhs_in.device.c_str ()); }
+  inline bool operator== (const struct Common_UI_DisplayAdapter& rhs_in) { return !ACE_OS::strcmp (description.c_str (), rhs_in.description.c_str ()); }
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   struct tagRECT                  clippingArea;
