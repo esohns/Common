@@ -25,7 +25,7 @@
 
 #include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include <gl/GL.h>
+#include "gl/GL.h"
 #else
 #include "GL/gl.h"
 #endif // ACE_WIN32 || ACE_WIN64
@@ -51,10 +51,13 @@ class Common_GL_Tools
                            glm::vec3&);                 // return value: center
 #endif // ACE_WIN32 || ACE_WIN64
 
-  // *NOTE*: invokes glTexImage2D() with 'target' GL_TEXTURE_2D and 'internal
+  // *NOTE*: invoke glTexImage2D() with 'target' GL_TEXTURE_2D and 'internal
   //         format' GL_RGBA8
   // *TODO*: currently, only PNG files are supported
   static GLuint loadTexture (const std::string&); // path
+  static GLuint loadTexture (const uint8_t*, // data
+                             unsigned int,   // width
+                             unsigned int);  // height
 
   // *NOTE*: includes glBegin()/glEnd() calls
   static void drawCube (bool = false); // set (2d-)texture coordinates ?

@@ -267,6 +267,66 @@ Common_GL_Tools::loadTexture (const std::string& path_in)
   return return_value;
 }
 
+GLuint
+Common_GL_Tools::loadTexture (const uint8_t* data_in,
+                              unsigned int width_in,
+                              unsigned int height_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::loadTexture"));
+
+  GLuint return_value = 0;
+
+  glGenTextures (1, &return_value);
+  //COMMON_GL_ASSERT;
+  glBindTexture (GL_TEXTURE_2D, return_value);
+  //COMMON_GL_ASSERT;
+
+  glEnableClientState (GL_TEXTURE_COORD_ARRAY);
+  //COMMON_GL_ASSERT;
+  glEnableClientState (GL_VERTEX_ARRAY);
+  //COMMON_GL_ASSERT;
+  glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  //COMMON_GL_ASSERT;
+  // select modulate to mix texture with color for shading
+//    glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+//    ACE_ASSERT (glGetError () == GL_NO_ERROR);
+
+//#if !defined (GL_VERSION_1_2)
+//  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); // GL_CLAMP_TO_EDGE
+//#else
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+//#endif // GL_VERSION_1_2
+//  COMMON_GL_ASSERT;
+//#if !defined (GL_VERSION_1_2)
+//  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP); // GL_CLAMP_TO_EDGE
+//#else
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+//#endif // GL_VERSION_1_1
+  //COMMON_GL_ASSERT;
+
+  glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, width_in, height_in, 0,
+                GL_RGBA,
+                GL_UNSIGNED_BYTE, data_in);
+  //COMMON_GL_ASSERT;
+
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  //COMMON_GL_ASSERT;
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  //COMMON_GL_ASSERT;
+#if defined (GL_VERSION_1_4)
+  glTexParameteri (GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+  //COMMON_GL_ASSERT;
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+  //COMMON_GL_ASSERT;
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1000);
+  //COMMON_GL_ASSERT;
+#endif // GL_VERSION_1_4
+
+  //glBindTexture (GL_TEXTURE_2D, 0);
+
+  return return_value;
+}
+
 void
 Common_GL_Tools::drawCube (bool setTextureCoordinates_in)
 {
