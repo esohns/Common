@@ -78,12 +78,11 @@ if (UNIX)
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
  target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:${PKG_IMAGEMAGICK_INCLUDE_DIRS}>)
+                             ${PKG_IMAGEMAGICK_INCLUDE_DIRS})
 
  target_include_directories (${LIBRARY} PUBLIC
-#                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
-#                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
-                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
+                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
+#                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
 elseif (WIN32)
  if (LIBPNG_SUPPORT)
   target_include_directories (${LIBRARY} PUBLIC
@@ -120,6 +119,7 @@ target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../image>)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
+message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: ${INTERFACE_INCLUDE_DIRECTORIES}")
 
 ############## next target ################
 set (source_files
@@ -215,7 +215,7 @@ install (FILES
          common_gl_assimp_tools.h
          common_gl_texture.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
-install (TARGETS ${LIBRARY}
-         EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-         COMPONENT lib)
+#install (TARGETS ${LIBRARY}
+#         EXPORT ${PROJECT_NAME}Targets
+#         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+#         COMPONENT lib)

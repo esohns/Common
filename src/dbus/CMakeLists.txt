@@ -63,9 +63,8 @@ if (UNIX)
  endif (SD_BUS_SUPPORT)
 
  target_include_directories (${PROJECT_NAME}DBus PUBLIC
-                     #        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
-                      #       $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
-                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
+                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
+#                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
 endif (UNIX)
 target_include_directories (${PROJECT_NAME}DBus PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)

@@ -8,7 +8,7 @@ if (LIBPNG_SUPPORT)
 endif (LIBPNG_SUPPORT)
 
 if (UNIX)
- pkg_check_modules (PKG_FFMPEG REQUIRED libavcodec libavformat libswscale)
+ pkg_check_modules (PKG_FFMPEG REQUIRED libavcodec libavformat libswscale libavutil)
  if (IMAGEMAGICK_SUPPORT)
   find_package (ImageMagick COMPONENTS MagickCore MagickWand)
  endif (IMAGEMAGICK_SUPPORT)
@@ -21,12 +21,11 @@ if (UNIX)
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${PKG_FFMPEG_INCLUDE_DIRS}>)
  target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:${ImageMagick_INCLUDE_DIRS}>)
+                             ${ImageMagick_INCLUDE_DIRS})
 
  target_include_directories (${LIBRARY} PUBLIC
-#                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE>)
-#                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
-                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
+                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
+#                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
 elseif (WIN32)
  if (DEFINED ENV{DXSDK_DIR})
   target_include_directories (${LIBRARY} PUBLIC
@@ -153,7 +152,7 @@ install (FILES
          common_image_tools.h
          stdafx.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
-install (TARGETS ${LIBRARY}
-         EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-         COMPONENT lib)
+#install (TARGETS ${LIBRARY}
+#         EXPORT ${PROJECT_NAME}Targets
+#         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+#         COMPONENT lib)
