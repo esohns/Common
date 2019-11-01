@@ -35,7 +35,7 @@ if NOT exist "%SourceDirectory%" (
  echo invalid directory ^(was: "%SourceDirectory%"^)^, exiting
  goto Failed
 )
-set ACE_ROOT_DEFAULT=%PROJECT_ROOT%\..\ATCD\ACE
+set ACE_ROOT_DEFAULT=%LIB_ROOT%\ACE_TAO\ACE
 if "%ACE_ROOT%" == "" (
  set ACE_ROOT=%ACE_ROOT_DEFAULT%
  echo "^%ACE_ROOT^%" not set^, default to ^"%ACE_ROOT_DEFAULT%^"

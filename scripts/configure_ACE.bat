@@ -69,7 +69,7 @@ if NOT exist "%PROJECT_DIRECTORY%" (
 set ACE_ROOT=%ACE_ROOT%
 if NOT exist "%ACE_ROOT%" (
  echo invalid directory ^(was: "%ACE_ROOT%"^)^, falling back
- set ACE_ROOT=%~dp0..\..\ATCD\ACE
+ set ACE_ROOT=%LIB_ROOT%\ACE_TAO\ACE
  if NOT exist "!ACE_ROOT!" (
   echo invalid directory ^(was: "!ACE_ROOT!"^)^, exiting
   goto Failed
@@ -79,7 +79,7 @@ if NOT exist "%ACE_ROOT%" (
 set MPC_ROOT=%MPC_ROOT%
 if NOT exist "%MPC_ROOT%" (
  echo invalid directory ^(was: "%MPC_ROOT%"^)^, falling back
- set MPC_ROOT=%~dp0..\..\MPC
+ set MPC_ROOT=%LIB_ROOT%\MPC
  if NOT exist "!MPC_ROOT!" (
   echo invalid directory ^(was: "!MPC_ROOT!"^)^, exiting
   goto Failed
