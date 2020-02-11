@@ -35,8 +35,8 @@ class Comon_UI_GTK_EventHandler_T
   inline virtual ~Comon_UI_GTK_EventHandler_T () {}
 
  protected:
-  struct Common_UI_GTK_EventConfiguration* hooks_;
-  CallbackDataType*                        CBData_;
+  struct Common_UI_GTK_EventHookConfiguration* hooks_;
+  CallbackDataType*                            CBData_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Comon_UI_GTK_EventHandler_T ())
