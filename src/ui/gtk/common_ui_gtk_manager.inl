@@ -195,7 +195,6 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
       if (unlikely (inherited::thr_count_ == 0))
         return 0; // nothing to do
 
-
       // sanity check(s)
       ACE_ASSERT (configuration_);
 
