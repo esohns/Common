@@ -1028,9 +1028,9 @@ combobox_source_changed_cb (GtkWidget* widget_in,
 #if GTK_CHECK_VERSION(3,0,0)
   GtkToggleAction* toggle_action_p = NULL;
 #elif GTK_CHECK_VERSION(2,0,0)
-  GtkToggleButton* toggle_button_p = NULL;
+//  GtkToggleButton* toggle_button_p = NULL;
 #endif // GTK_CHECK_VERSION
-  bool result = false;
+//  bool result = false;
 
   list_store_p =
       GTK_LIST_STORE (gtk_builder_get_object ((*iterator).second.second,

@@ -23,6 +23,8 @@
 
 #include <limits>
 
+#include <time.h>
+
 #include "ace/Global_Macros.h"
 
 #include "common_itimer.h"

@@ -87,6 +87,7 @@ set_target_properties (${PROJECT_NAME}Timer PROPERTIES
                        SOVERSION 1)
 
 if (UNIX)
+ set_property(TARGET ${PROJECT_NAME}Timer PROPERTY CXX_STANDARD 11)
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
 #  target_link_libraries (${PROJECT_NAME}Timer Msvcrtd.lib)
