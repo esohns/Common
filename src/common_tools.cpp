@@ -1852,22 +1852,22 @@ Common_Tools::getUserName (uid_t userId_in,
   username_out.clear ();
   realname_out.clear ();
 
-//  char user_name[ACE_MAX_USERID];
-//  ACE_OS::memset (user_name, 0, sizeof (user_name));
-//  if (unlikely (!ACE_OS::cuserid (user_name,
-//                                  ACE_MAX_USERID)))
-//  {
-//    ACE_DEBUG ((LM_WARNING,
-//                ACE_TEXT ("failed to ACE_OS::cuserid(): \"%m\", falling back\n")));
-
-//    username_out =
-//      ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_DEFAULT_USER_LOGIN_BASE)));
-
-//    return;
-//  } // end IF
-//  username_out = user_name;
-
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+  char user_name[ACE_MAX_USERID];
+  ACE_OS::memset (user_name, 0, sizeof (user_name));
+  if (unlikely (!ACE_OS::cuserid (user_name,
+                                  ACE_MAX_USERID)))
+  {
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("failed to ACE_OS::cuserid(): \"%m\", falling back\n")));
+
+    username_out =
+      ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_ENVIRONMENT_USER_LOGIN_BASE)));
+
+    return;
+  } // end IF
+  username_out = user_name;
+
   ACE_TCHAR buffer_a[BUFSIZ];
   ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[BUFSIZ]));
   DWORD buffer_size = sizeof (ACE_TCHAR[BUFSIZ]);
