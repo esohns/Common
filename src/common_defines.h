@@ -216,23 +216,6 @@
 #endif // ACE_WIN32 || ACE_WIN64
 #define COMMON_ENVIRONMENT_DIRECTORY_ROOT_PROJECTS             "PROJECTS_ROOT"
 
-// *** parser ***
-
-// (f)lex/yacc/bison
-#define YY_END_OF_BUFFER_CHAR                                  0 // "\0\0"
-#define COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE                2
-// *IMPORTANT NOTE*: scans buffers in-place (avoids a copy,
-//         see: http://flex.sourceforge.net/manual/Multiple-Input-Buffers.html)
-//         --> in order to use yy_scan_buffer(), the buffer needs to have been
-//             prepared for usage by flex: buffers need two trailing '\0's
-//             BEYOND their datas' tail byte (i.e. at positions length() + 1 and
-//             length() + 2)
-#define COMMON_PARSER_DEFAULT_FLEX_USE_YY_SCAN_BUFFER          true
-
-// output more debugging information ?
-#define COMMON_PARSER_DEFAULT_LEX_TRACE                        false
-#define COMMON_PARSER_DEFAULT_YACC_TRACE                       false
-
 // *** state machine ***
 #define COMMON_STATEMACHINE_THREAD_GROUP_ID                    110
 #define COMMON_STATEMACHINE_THREAD_NAME                        "state machine"

@@ -109,7 +109,6 @@ set (source_files
      common_ilock.h
      common_inotify.h
      common_ireferencecount.h
-     common_iscanner.h
      common_istatemachine.h
      common_istatistic.h
      common_isubscribe.h
@@ -243,7 +242,6 @@ install (FILES
          common_ilock.h
          common_inotify.h
          common_ireferencecount.h
-         common_iscanner.h
          common_istatemachine.h
          common_istatistic.h
          common_isubscribe.h
@@ -287,7 +285,9 @@ add_subdirectory (gl)
 add_subdirectory (image)
 add_subdirectory (log)
 add_subdirectory (math)
+add_subdirectory (parser)
 add_subdirectory (signal)
 add_subdirectory (timer)
 add_subdirectory (ui)
 add_subdirectory (xml)
+

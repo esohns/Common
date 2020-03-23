@@ -23,6 +23,7 @@ target_include_directories (${LIBRARY} PUBLIC
 ############## next target ################
 set (source_files
      common_isignal.h
+     common_signal_common.h
      common_signal_handler.cpp
      common_signal_handler.h
      common_signal_handler.inl
@@ -79,6 +80,7 @@ export (TARGETS ${PROJECT_NAME}Signal
 ############### install files ################
 install (FILES
          common_isignal.h
+         common_signal_common.h
          common_signal_handler.h
          common_signal_handler.inl
          common_signal_tools.h

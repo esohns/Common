@@ -21,16 +21,8 @@
 #ifndef COMMON_CONFIGURATION_H
 #define COMMON_CONFIGURATION_H
 
-#include <cstdio>
-
-#include "ace/Recursive_Thread_Mutex.h"
-#include "ace/Synch_Traits.h"
-
 #include "common.h"
 #include "common_defines.h"
-
-// forward declarations
-class ACE_Message_Queue_Base;
 
 struct Common_AllocatorConfiguration
 {
@@ -80,48 +72,6 @@ struct Common_EventDispatchConfiguration
   //                   Iff numberOfReactorThreads > 1, the 'threadpool' reactor
   //                   is used instead (see above)
   enum Common_ReactorType  reactorType;
-};
-
-struct Common_FlexParserAllocatorConfiguration
- : Common_AllocatorConfiguration
-{
-  Common_FlexParserAllocatorConfiguration ()
-   : Common_AllocatorConfiguration ()
-  {
-    // *NOTE*: this facilitates (message block) data buffers to be scanned with
-    //         'flex's yy_scan_buffer() method
-    paddingBytes = COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE;
-  }
-};
-
-struct Common_ParserConfiguration
-{
-  Common_ParserConfiguration ()
-   : block (true)
-   , messageQueue (NULL)
-   , useYYScanBuffer (true)
-   , debugParser (COMMON_PARSER_DEFAULT_YACC_TRACE)
-   , debugScanner (COMMON_PARSER_DEFAULT_LEX_TRACE)
-  {}
-
-  bool                    block; // block in parse (i.e. wait for data in yywrap() ?)
-  ACE_Message_Queue_Base* messageQueue; // queue (if any) to use for yywrap
-  bool                    useYYScanBuffer; // yy_scan_buffer() ? : yy_scan_bytes() (C parsers only)
-
-  // debug
-  bool                    debugParser;
-  bool                    debugScanner;
-};
-
-struct Common_SignalHandlerConfiguration
-{
-  Common_SignalHandlerConfiguration ()
-   : dispatchState (NULL)
-   , lock ()
-  {}
-
-  struct Common_EventDispatchState* dispatchState;
-  ACE_SYNCH_RECURSIVE_MUTEX         lock;
 };
 
 #endif

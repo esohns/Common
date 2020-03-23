@@ -142,17 +142,6 @@ struct Common_EventDispatchState
   int                                       reactorGroupId;
 };
 
-// *** parser ***
-
-struct Common_ScannerState
-{
-  Common_ScannerState ()
-   : offset (0)
-  {}
-
-  unsigned int offset;
-};
-
 // *** application ***
 
 struct Common_ApplicationVersion

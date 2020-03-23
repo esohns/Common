@@ -1,7 +1,5 @@
-find_package (Threads REQUIRED)
-
-if (UNIX)
- pkg_check_modules (PKG_FFMPEG REQUIRED libavcodec libavformat libavutil)
+﻿if (UNIX)
+# pkg_check_modules (PKG_FLEX_BISON REQUIRED flex bison)
 endif (UNIX)
 
 set (ACE_LIB_FILE libACE.so)
@@ -36,70 +34,56 @@ add_definitions (-DACE_HAS_DLL)
 add_definitions (-DHAVE_CONFIG_H)
 set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
 add_definitions (-DCOMMON_HAS_DLL)
-#add_definitions (-DCOMMON_TIMER_HAS_DLL)
 
 ############## includes ###############
+#include_directories (${PKG_FLEX_BISON_INCLUDE_DIRS})
 
-if (UNIX)
- include_directories (${PKG_FFMPEG_INCLUDE_DIRS})
-
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
-elseif (WIN32)
- include_directories ($ENV{LIB_ROOT}/ffmpeg/include)
-endif ()
+include_directories ($ENV{LIB_ROOT}/ACE_TAO/ACE)
+#include_directories (/usr/local/src/ACE_wrappers)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/image)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/log)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/parser)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/timer)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-include_directories (${CMAKE_CURRENT_BINARY_DIR}/..)
+include_directories (${CMAKE_CURRENT_BINARY_DIR}/../..)
 
 ############## next target ###############
-set (ffmpeg_EXE_SRCS
+set (parser_EXE_SRCS
+     bencoding_iparser.h
+     bencoding_parser.cpp
+     bencoding_parser.h
+     bencoding_parser_driver.cpp
+     bencoding_parser_driver.h
+     bencoding_scanner.cpp
+     bencoding_scanner.h
+     stdafx.cpp
+     stdafx.h
+#     ../test_i_common.h
+#     ../test_i_defines.h
      test_i.cpp)
 
 #cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
-set (EXECUTABLE ffmpeg)
+set (EXECUTABLE parser)
 add_executable (${EXECUTABLE}
                 EXCLUDE_FROM_ALL
-                ${ffmpeg_EXE_SRCS})
+                ${parser_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
-if (THREADS_HAVE_PTHREAD_ARG)
-  set_property (TARGET ${EXECUTABLE} PROPERTY COMPILE_OPTIONS "-pthread")
-  set_property (TARGET ${EXECUTABLE} PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
-endif ()
-
-if (CMAKE_THREAD_LIBS_INIT)
- target_link_libraries (${EXECUTABLE} "${CMAKE_THREAD_LIBS_INIT}")
-endif ()
-if (UNIX)
- target_link_libraries (${EXECUTABLE} ${PKG_FFMPEG_LIBRARIES})
-elseif (WIN32)
-# target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/ffmpeg/libavcodec/avcodec.lib)
-# target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/ffmpeg/libavformat/avformat.lib)
-# target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/ffmpeg/libavutil/avutil.lib)
- target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/ffmpeg/lib/avcodec.lib)
- target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/ffmpeg/lib/avformat.lib)
- target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/ffmpeg/lib/avutil.lib)
-endif ()
+#target_link_libraries (${EXECUTABLE} ${PKG_FLEX_BISON_LIBRARIES})
 
 target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
 
 target_link_libraries (${EXECUTABLE} Common)
-target_link_libraries (${EXECUTABLE} CommonImage)
 target_link_libraries (${EXECUTABLE} CommonLog)
+target_link_libraries (${EXECUTABLE} CommonParser)
 target_link_libraries (${EXECUTABLE} CommonTimer)
 
-if (WIN32)
- set_target_properties (${EXECUTABLE} PROPERTIES LINK_FLAGS /SAFESEH:NO)
-endif (WIN32)
-
 # add PCH
-#set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-#cotire (${EXECUTABLE})
+set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+cotire (${EXECUTABLE})
 
 ############### installation #############
 install (TARGETS ${EXECUTABLE}
@@ -110,9 +94,9 @@ install (TARGETS ${EXECUTABLE}
 
 ################ launchers ###############
 create_target_launcher (${EXECUTABLE}
-                        ARGS "12 /bin/bash"
+                        ARGS "-f test.txt -l -t"
 #                         FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
+                        RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE_TAO/ACE/lib
                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/capabilities
                         ENVIRONMENT foo=bar)
