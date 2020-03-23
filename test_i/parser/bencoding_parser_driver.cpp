@@ -68,13 +68,13 @@ Bencoding_ParserDriver::error (const yy::location& location_in,
   ACE_ASSERT (message_block_p);
   Common_IDumpState* idump_state_p =
     dynamic_cast<Common_IDumpState*> (message_block_p);
-  ACE_ASSERT (idump_state_p);
-  try {
-    idump_state_p->dump_state ();
-  } catch (...) {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("caught exception in Common_IDumpState::dump_state(), continuing\n")));
-  }
+  if (idump_state_p)
+    try {
+      idump_state_p->dump_state ();
+    } catch (...) {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("caught exception in Common_IDumpState::dump_state(), continuing\n")));
+    }
 
   //std::clog << location_in << ": " << message_in << std::endl;
 }

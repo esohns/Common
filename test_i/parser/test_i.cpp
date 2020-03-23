@@ -42,6 +42,14 @@ do_print_usage (const std::string& programName_in)
             << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("currently available options:")
             << std::endl;
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-d          : debug scanner [")
+            << false
+            << ACE_TEXT_ALWAYS_CHAR ("]")
+            << std::endl;
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-e          : debug parser [")
+            << false
+            << ACE_TEXT_ALWAYS_CHAR ("]")
+            << std::endl;
   std::string source_file_path = path_root;
   source_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   source_file_path += ACE_TEXT_ALWAYS_CHAR ("test.txt");
@@ -62,6 +70,8 @@ do_print_usage (const std::string& programName_in)
 bool
 do_process_arguments (int argc_in,
                       ACE_TCHAR** argv_in, // cannot be const...
+                      bool& debugScanner_out,
+                      bool& debugParser_out,
                       std::string& sourceFilePath_out,
                       bool& logToFile_out,
                       bool& traceInformation_out)
@@ -70,6 +80,8 @@ do_process_arguments (int argc_in,
     Common_File_Tools::getWorkingDirectory ();
 
   // initialize results
+  debugScanner_out = false;
+  debugParser_out = false;
   sourceFilePath_out = path_root;
   sourceFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   sourceFilePath_out += ACE_TEXT_ALWAYS_CHAR ("test.txt");
@@ -78,7 +90,7 @@ do_process_arguments (int argc_in,
 
   ACE_Get_Opt argument_parser (argc_in,
                                argv_in,
-                               ACE_TEXT ("f:lt"),
+                               ACE_TEXT ("def:lt"),
                                1,                         // skip command name
                                1,                         // report parsing errors
                                ACE_Get_Opt::PERMUTE_ARGS, // ordering
@@ -90,6 +102,16 @@ do_process_arguments (int argc_in,
   {
     switch (option)
     {
+      case 'd':
+      {
+        debugScanner_out = true;
+        break;
+      }
+      case 'e':
+      {
+        debugParser_out = true;
+        break;
+      }
       case 'f':
       {
         sourceFilePath_out =
@@ -143,6 +165,8 @@ do_process_arguments (int argc_in,
 void
 do_work (int argc_in,
          ACE_TCHAR* argv_in[],
+         bool debugScanner_in,
+         bool debugParser_in,
          const std::string& sourceFilePath_in)
 {
   // step1: load data into a message block
@@ -171,9 +195,15 @@ do_work (int argc_in,
   message_block.base (reinterpret_cast<char*> (data_p),
                       file_size_i,
                       ACE_Message_Block::DONT_DELETE);
+  message_block.wr_ptr (file_size_i);
 
   // step2: initialize parser
   struct Common_ParserConfiguration configuration;
+  configuration.block = false;
+  configuration.debugParser = debugParser_in;
+  configuration.debugScanner = debugScanner_in;
+  configuration.messageQueue = NULL;
+  configuration.useYYScanBuffer = COMMON_PARSER_DEFAULT_FLEX_USE_YY_SCAN_BUFFER;
 
   Bencoding_ParserDriver parser_driver;
   if (!parser_driver.initialize (configuration))
@@ -224,6 +254,8 @@ ACE_TMAIN (int argc_in,
   ACE_Time_Value user_time, system_time;
 
   // step1a set defaults
+  bool debug_scanner = false;
+  bool debug_parser = false;
   std::string path_root = Common_File_Tools::getWorkingDirectory ();
   std::string source_file_path = path_root;
   source_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
@@ -235,6 +267,8 @@ ACE_TMAIN (int argc_in,
   // step1b: parse/process/validate configuration
   if (!do_process_arguments (argc_in,
                              argv_in,
+                             debug_scanner,
+                             debug_parser,
                              source_file_path,
                              log_to_file,
                              trace_information))
@@ -272,6 +306,8 @@ ACE_TMAIN (int argc_in,
   // step2: do actual work
   do_work (argc_in,
            argv_in,
+           debug_scanner,
+           debug_parser,
            source_file_path);
   timer.stop ();
 

@@ -256,7 +256,7 @@ Common_ParserBase_T<ConfigurationType,
     { // *NOTE*: most probable reason: connection
       //         has been closed --> session end
       ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("failed to parse PDU (result was: %d), aborting\n"),
+                  ACE_TEXT ("failed to Common_IParser_T::parse (result was: %d), aborting\n"),
                   result));
       goto error;
     }
