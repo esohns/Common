@@ -89,9 +89,10 @@ Common_ParserBase_T<ConfigurationType,
 {
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::initialize"));
 
+  configuration_ = &const_cast<ConfigurationType&> (configuration_in);
+
   if (isInitialized_)
   {
-    configuration_ = &const_cast<ConfigurationType&> (configuration_in);
     fragment_ = NULL;
 
     if (buffer_)
@@ -122,6 +123,7 @@ Common_ParserBase_T<ConfigurationType,
     isInitialized_ = false;
   } // end IF
 
+  ACE_ASSERT (!scannerState_.lexState);
   bool result = false;
   try {
     result = this->initialize (scannerState_.lexState, NULL);

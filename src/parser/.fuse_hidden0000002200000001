@@ -31,13 +31,7 @@ class Common_Parser_Bencoding_Tools
   // debug info
   static std::string DictionaryToString (const Bencoding_Dictionary_t&);
   static std::string ListToString (const Bencoding_List_t&);
-
-  // *NOTE*: fire-and-forget API
-  static void free (Bencoding_Dictionary_t*&);
-  static void free (Bencoding_List_t*&);
-
-  static std::string bencode (const Bencoding_Dictionary_t&);
-  static std::string bencode (const Bencoding_List_t&);
+  inline static std::string MetaInfoToString (const Bencoding_Dictionary_t& metaInfo_in) { return Common_Parser_Bencoding_Tools::DictionaryToString (metaInfo_in); }
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Parser_Bencoding_Tools ())

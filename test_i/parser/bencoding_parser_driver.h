@@ -74,27 +74,26 @@ class Bencoding_ParserDriver
   virtual void error (const yy::location&, // location
                       const std::string&); // message
 //  virtual void error (const std::string&); // message
-  inline virtual Bencoding_Dictionary_t& current () { ACE_ASSERT (record_); return *record_; }
+  inline virtual Bencoding_Dictionary_t& current () { ACE_ASSERT (!dictionaries_.empty ()); return *dictionaries_.top (); }
+  inline virtual Bencoding_List_t& current_2 () { ACE_ASSERT (!lists_.empty ()); return *lists_.top (); }
   inline virtual bool hasFinished () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
 
   ////////////////////////////////////////
   // callbacks
   // *IMPORTANT NOTE*: fire-and-forget API
   virtual void record (Bencoding_Dictionary_t*&); // data record
-  inline virtual Bencoding_Dictionary_t& getDictionary () { return *dictionaries_.top (); }
-  inline virtual std::string& getKey () { return *keys_.top (); }
-  inline virtual Bencoding_List_t& getList () { return *lists_.top (); }
+  virtual void record_2 (Bencoding_List_t*&); // data record
+  virtual void record_3 (std::string*&); // data record
+  virtual void record_4 (unsigned int); // data record
+
+  inline virtual std::string& getKey () { ACE_ASSERT (key_); return *key_; }
   inline virtual void popDictionary () { dictionaries_.pop (); }
-  inline virtual void popKey () { keys_.pop (); }
   inline virtual void popList () { lists_.pop (); }
-  // *IMPORTANT NOTE*: this also sets metaInfo_ (on first invocation)
-  virtual void pushDictionary (Bencoding_Dictionary_t*); // dictionary
-  inline virtual void pushKey (std::string* key_in) { keys_.push (key_in); }
+  inline virtual void pushDictionary (Bencoding_Dictionary_t* dictionary_in) { dictionaries_.push (dictionary_in); }
+  inline virtual void pushKey (std::string* key_in) { key_ = key_in; }
   inline virtual void pushList (Bencoding_List_t* list_in) { lists_.push (list_in); }
 
   inline virtual void dump_state () const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
-
-  Bencoding_Dictionary_t* record_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Bencoding_ParserDriver (const Bencoding_ParserDriver&))
@@ -113,7 +112,7 @@ class Bencoding_ParserDriver
 //  inline virtual bool lex (yyscan_t state_in, yy::location* location_in) { ACE_ASSERT (false); return Bencoding_lex (NULL, location_in, this, state_in); }
 
   std::stack<Bencoding_Dictionary_t*> dictionaries_;
-  std::stack<std::string*>            keys_;
+  std::string*                        key_;
   std::stack<Bencoding_List_t*>       lists_;
 };
 

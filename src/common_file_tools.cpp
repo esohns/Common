@@ -1317,7 +1317,8 @@ Common_File_Tools::deleteFile (const std::string& path_in)
 bool
 Common_File_Tools::load (const std::string& path_in,
                          uint8_t*& file_out,
-                         unsigned int& fileSize_out)
+                         unsigned int& fileSize_out,
+                         const unsigned int& padding_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::load"));
 
@@ -1376,7 +1377,7 @@ Common_File_Tools::load (const std::string& path_in,
                 ACE_TEXT (path_in.c_str ())));
     goto error;
   } // end IF
-  if (unlikely (!file_size_i))
+  if (unlikely (!file_size_i && !padding_in))
   {
     result = true;
     goto continue_;
@@ -1384,15 +1385,15 @@ Common_File_Tools::load (const std::string& path_in,
 
   // *PORTABILITY* allocate array
   ACE_NEW_NORETURN (file_out,
-                    unsigned char[static_cast<size_t> (file_size_i)]);
+                    unsigned char[static_cast<size_t> (file_size_i + padding_in)]);
   if (unlikely (!file_out))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory(%d): \"%m\", aborting\n"),
-                file_size_i));
+                file_size_i + padding_in));
     goto error;
   } // end IF
-  ACE_OS::memset (file_out, 0, file_size_i);
+  ACE_OS::memset (file_out, 0, file_size_i + padding_in);
 
   // read data
   result_3 =

@@ -171,7 +171,7 @@ do_work (int argc_in,
 {
   // step1: load data into a message block
   unsigned int file_size_i = Common_File_Tools::size (sourceFilePath_in);
-  ACE_Message_Block message_block (file_size_i,
+  ACE_Message_Block message_block (file_size_i + COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE,
                                    ACE_Message_Block::MB_DATA,
                                    NULL,
                                    NULL,
@@ -185,16 +185,19 @@ do_work (int argc_in,
   uint8_t* data_p = NULL;
   if (!Common_File_Tools::load (sourceFilePath_in,
                                 data_p,
-                                file_size_i))
+                                file_size_i,
+                                COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to slurp file (was: \"\"), returning\n"),
                 ACE_TEXT (sourceFilePath_in.c_str ())));
     return;
   } // end IF
+  ACE_ASSERT (data_p);
   message_block.base (reinterpret_cast<char*> (data_p),
-                      file_size_i,
+                      file_size_i + COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE,
                       ACE_Message_Block::DONT_DELETE);
+  message_block.size (file_size_i);
   message_block.wr_ptr (file_size_i);
 
   // step2: initialize parser

@@ -49,42 +49,20 @@ class Bencoding_IParser
   using IPARSER_T::error;
 //  using Common_IScanner::error;
 
-  virtual Bencoding_Dictionary_t& getDictionary () = 0;
   virtual std::string& getKey () = 0;
-  virtual Bencoding_List_t& getList () = 0;
   virtual void popDictionary () = 0;
-  virtual void popKey () = 0;
   virtual void popList () = 0;
   virtual void pushDictionary (Bencoding_Dictionary_t*) = 0; // dictionary handle
   virtual void pushKey (std::string*) = 0; // key handle
   virtual void pushList (Bencoding_List_t*) = 0; // list handle
+
+  virtual void record_2 (Bencoding_List_t*&) = 0; // data record
+  virtual Bencoding_List_t& current_2 () = 0; // data record
+  virtual void record_3 (std::string*&) = 0;   // data record
+  virtual void record_4 (unsigned int) = 0;   // data record
 };
 
-//////////////////////////////////////////
-
-//template <typename RecordType>
-//class Bencoding_IParser_T
-// : public Common_IYaccStreamParser_T<struct Common_ParserConfiguration,
-//                                     RecordType>
-// , virtual public Common_ILexScanner_T<struct Common_ScannerState,
-//                                       Bencoding_IParser_T<RecordType> >
-//{
-// public:
-//  // convenient types
-//  typedef Common_IYaccStreamParser_T<struct Common_ParserConfiguration,
-//                                     RecordType> IPARSER_T;
-//  typedef Common_ILexScanner_T<struct Common_ScannerState,
-//                               Bencoding_IParser_T<RecordType> > ISCANNER_T;
-
-//  using IPARSER_T::error;
-////  using ISCANNER_T::error;
-//};
-
 ////////////////////////////////////////////
-
-//typedef Bencoding_IParser_T<Bencoding_Dictionary_t> Bencoding_IParser_t;
-//typedef Common_ILexScanner_T<struct Common_ScannerState,
-//                             Bencoding_IParser_t> Bencoding_IScanner_t;
 
 typedef Bencoding_IParser Bencoding_IParser_t;
 typedef Common_ILexScanner_T<struct Common_ScannerState,

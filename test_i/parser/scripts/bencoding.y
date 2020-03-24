@@ -171,8 +171,6 @@ typedef union YYSTYPE
 
 // terminals
 %token
- END_OF_DICTIONARY "dictionary_end"
- END_OF_LIST       "list_end"
  END_OF_FRAGMENT   "end_of_fragment"
  END 0             "end"
 ;
@@ -181,9 +179,9 @@ typedef union YYSTYPE
 %token <lval> LIST       "list"
 %token <dval> DICTIONARY "dictionary"
 // non-terminals
-%type  <dval> bencoding dictionary_items
+%type  <dval> dictionary_items
 %type  <lval> list_items
-%type  <eval> dictionary_item dictionary_value list_item
+%type  <eval> bencoding dictionary_item dictionary_value list_item
 
 /*%precedence "integer" "string"
 %precedence "list" "dictionary"*/
@@ -210,26 +208,52 @@ void BitTorrent_Export yyprint (FILE*, yytokentype, YYSTYPE);*/
 %printer    { debug_stream () << *$$; } <sval>
 /*%printer    { yyoutput << BitTorrent_Tools::ListToString (*$$); } <eval>*/
 %printer    { debug_stream () << Common_Parser_Bencoding_Tools::ListToString (*$$); } <lval>
-%printer    { debug_stream () << Common_Parser_Bencoding_Tools::DictionaryToString (*$$); } <dval>
+%printer    { if ($$) debug_stream () << Common_Parser_Bencoding_Tools::DictionaryToString (*$$); } <dval>
 
 %%
 %start            bencoding;
 bencoding:        "dictionary" {
                     iparser->pushDictionary ($1); }
-                  dictionary_items "dictionary_end" {
+                  dictionary_items {
                     Bencoding_Dictionary_t& dictionary_r = iparser->current ();
                     Bencoding_Dictionary_t* dictionary_p = &dictionary_r;
                     try {
                       iparser->record (dictionary_p);
                     } catch (...) {
                       ACE_DEBUG ((LM_ERROR,
-                                  ACE_TEXT ("caught exception in BitTorrent_Bencoding_IParser::record(), continuing\n")));
+                                  ACE_TEXT ("caught exception in Bencoding_IParser::record(), continuing\n")));
                     } }
-list_items:       list_items list_item { }
+                  | "list" {
+                    iparser->pushList ($1); }
+                  list_items {
+                    Bencoding_List_t& list_r = iparser->current_2 ();
+                    Bencoding_List_t* list_p = &list_r;
+                    try {
+                      iparser->record_2 (list_p);
+                    } catch (...) {
+                      ACE_DEBUG ((LM_ERROR,
+                                  ACE_TEXT ("caught exception in Bencoding_IParser::record_2(), continuing\n")));
+                    } }
+                  | "string" {
+                    try {
+                      iparser->record_3 ($1);
+                    } catch (...) {
+                      ACE_DEBUG ((LM_ERROR,
+                                  ACE_TEXT ("caught exception in Bencoding_IParser::record_3(), continuing\n")));
+                    } }
+                  | "integer" {
+                    try {
+                      iparser->record_4 ($1);
+                    } catch (...) {
+                      ACE_DEBUG ((LM_ERROR,
+                                  ACE_TEXT ("caught exception in Bencoding_IParser::record_4(), continuing\n")));
+                    } }
+                  | %empty             { }
+list_items:       list_item list_items { }
 /*                  |                    { }*/
                   | %empty             { }
 list_item:        "string" {
-                    Bencoding_List_t& list_r = iparser->getList ();
+                    Bencoding_List_t& list_r = iparser->current_2 ();
                     Bencoding_Element* element_p = NULL;
                     ACE_NEW_NORETURN (element_p,
                                       Bencoding_Element ());
@@ -238,7 +262,7 @@ list_item:        "string" {
                     element_p->string = $1;
                     list_r.push_back (element_p); }
                   | "integer" {
-                    Bencoding_List_t& list_r = iparser->getList ();
+                    Bencoding_List_t& list_r = iparser->current_2 ();
                     Bencoding_Element* element_p = NULL;
                     ACE_NEW_NORETURN (element_p,
                                       Bencoding_Element ());
@@ -248,19 +272,19 @@ list_item:        "string" {
                     list_r.push_back (element_p); }
                   | "list" {
                     iparser->pushList ($1); }
-                  list_items "list_end" {
+                  list_items {
                     Bencoding_Element* element_p = NULL;
                     ACE_NEW_NORETURN (element_p,
                                       Bencoding_Element ());
                     ACE_ASSERT (element_p);
                     element_p->type = Bencoding_Element::BENCODING_TYPE_LIST;
                     element_p->list = $3;
-                    iparser->popList ();
-                    Bencoding_List_t& list_r = iparser->getList ();
+//                    iparser->popList ();
+                    Bencoding_List_t& list_r = iparser->current_2 ();
                     list_r.push_back (element_p); }
                   | "dictionary"  {
                     iparser->pushDictionary ($1); }
-                  dictionary_items "dictionary_end" {
+                  dictionary_items {
                     Bencoding_Element* element_p = NULL;
                     ACE_NEW_NORETURN (element_p,
                                       Bencoding_Element ());
@@ -268,18 +292,19 @@ list_item:        "string" {
                     element_p->type =
                       Bencoding_Element::BENCODING_TYPE_DICTIONARY;
                     element_p->dictionary = $3;
-                    iparser->popDictionary ();
-                    Bencoding_List_t& list_r = iparser->getList ();
+//                    iparser->popDictionary ();
+                    Bencoding_List_t& list_r = iparser->current_2 ();
                     list_r.push_back (element_p); }
-dictionary_items: dictionary_items dictionary_item { }
+                  | %empty             { }
+dictionary_items: dictionary_item dictionary_items { }
 /*                  |                                { }*/
                   | %empty { }
 dictionary_item:  "string" {
                     iparser->pushKey ($1); }
                   dictionary_value { }
+                  | %empty { }
 dictionary_value: "string" {
                     std::string* key_string_p = &iparser->getKey ();
-                    iparser->popKey ();
                     Bencoding_Element* element_p = NULL;
                     ACE_NEW_NORETURN (element_p,
                                       Bencoding_Element ());
@@ -287,7 +312,7 @@ dictionary_value: "string" {
                     element_p->type = Bencoding_Element::BENCODING_TYPE_STRING;
                     element_p->string = $1;
                     Bencoding_Dictionary_t& dictionary_r =
-                      iparser->getDictionary ();
+                      iparser->current ();
 /*                    dictionary_r.insert (std::make_pair (key_string_p,
                                                          element_p)); }*/
                     dictionary_r.push_back (std::make_pair (key_string_p,
@@ -299,7 +324,6 @@ dictionary_value: "string" {
                                 ACE_TEXT ($1->c_str ()))); }*/
                   | "integer" {
                     std::string* key_string_p = &iparser->getKey ();
-                    iparser->popKey ();
                     Bencoding_Element* element_p = NULL;
                     ACE_NEW_NORETURN (element_p,
                                       Bencoding_Element ());
@@ -307,7 +331,7 @@ dictionary_value: "string" {
                     element_p->type = Bencoding_Element::BENCODING_TYPE_INTEGER;
                     element_p->integer = $1;
                     Bencoding_Dictionary_t& dictionary_r =
-                      iparser->getDictionary ();
+                      iparser->current ();
 /*                    dictionary_r.insert (std::make_pair (key_string_p,
                                                          element_p)); }*/
                     dictionary_r.push_back (std::make_pair (key_string_p,
@@ -319,9 +343,8 @@ dictionary_value: "string" {
                                 $1)); }*/
                   | "list" {
                     iparser->pushList ($1); }
-                  list_items "list_end" {
+                  list_items {
                     std::string* key_string_p = &iparser->getKey ();
-                    iparser->popKey ();
                     Bencoding_Element* element_p = NULL;
                     ACE_NEW_NORETURN (element_p,
                                       Bencoding_Element ());
@@ -330,7 +353,7 @@ dictionary_value: "string" {
                     element_p->list = $3;
                     iparser->popList ();
                     Bencoding_Dictionary_t& dictionary_r =
-                      iparser->getDictionary ();
+                      iparser->current ();
 /*                    dictionary_r.insert (std::make_pair (key_string_p,
                                                          element_p)); }*/
                     dictionary_r.push_back (std::make_pair (key_string_p,
@@ -342,9 +365,8 @@ dictionary_value: "string" {
                                 ACE_TEXT (BitTorrent_Tools::ListToString (*$3).c_str ()))); }*/
                   | "dictionary"  {
                     iparser->pushDictionary ($1); }
-                  dictionary_items "dictionary_end" {
+                  dictionary_items {
                     std::string* key_string_p = &iparser->getKey ();
-                    iparser->popKey ();
                     Bencoding_Element* element_p = NULL;
                     ACE_NEW_NORETURN (element_p,
                                       Bencoding_Element ());
@@ -354,7 +376,7 @@ dictionary_value: "string" {
                     element_p->dictionary = $3;
                     iparser->popDictionary ();
                     Bencoding_Dictionary_t& dictionary_r =
-                      iparser->getDictionary ();
+                      iparser->current ();
 /*                    dictionary_r.insert (std::make_pair (key_string_p,
                                                          element_p)); }*/
                     dictionary_r.push_back (std::make_pair (key_string_p,

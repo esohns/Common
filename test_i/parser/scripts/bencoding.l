@@ -69,6 +69,7 @@ extern YY_DECL;
 /* *TODO*: find out why 'read' does not compile (on Linux, flex 2.5.39) */
 %option read
 %option full
+%option ecs
 %option reentrant
 
 %option debug
@@ -89,36 +90,13 @@ extern YY_DECL;
            - https://wiki.theory.org/BitTorrentSpecification */
 
 OCTET                             [\x00-\xFF]
-DIGIT                             [-[:digit:]]
-/* big-endian */
-BEGIN                             {OCTET}{4}
-INDEX                             {OCTET}{4}
-LENGTH                            {OCTET}{4}
-
-URL                               {OCTET}*
-HASH                              {OCTET}{20}
+DIGIT                             [[:digit:]]
 
 /* this is called 'bencoding' in BitTorrent lingo */
 STRING                            ({DIGIT}+:{OCTET}*)
 INTEGER                           (i{DIGIT}+e)
 LIST                              (l({INTEGER}|{STRING})*e)
 DICTIONARY                        (d({STRING}({INTEGER}|{STRING}|{LIST}|{DICTIONARY}))*e)
-
-/* METAINFO_KEY                      (announce|info) */
-METAINFO_KEY                      (announce|announce-list|comment|created by|creation date|encoding|info)
-METAINFO_ANNOUNCE_VALUE           {URL}
-/* METAINFO_INFO_KEY                 (name|piece length|pieces|length|files) */
-METAINFO_INFO_KEY                 (files|name|length|piece length|md5sum|pieces|private)
-METAINFO_NAME_VALUE               {OCTET}*
-METAINFO_PIECE_LENGTH_VALUE       {LENGTH}
-METAINFO_PIECES_VALUE             {HASH}+
-METAINFO_KEY_LENGTH_VALUE         {LENGTH}
-/* METAINFO_KEY_FILES_DICTIONARY_KEY (length|path) */
-METAINFO_KEY_FILES_DICTIONARY_KEY (length|md5sum|path)
-METAINFO_KEY_FILES_VALUE          (ld({METAINFO_KEY_FILES_DICTIONARY_KEY}({INTEGER}|{STRING}))*e)
-
-/* aka '.torrent' files */
-METAINFO_FILE                     {DICTIONARY}
 
 %s state_string
 %s state_integer
@@ -142,12 +120,10 @@ METAINFO_FILE                     {DICTIONARY}
   // reset location
   location->step ();
 
-  unsigned int string_length = 0;
-
+  unsigned int      string_length = 0;
+  bool              in_structure = false;
+  bool              string_is_key = false;
   std::stringstream converter;
-//  std::string regex_string;
-//  std::regex regex;
-//  std::smatch match_results;
 
   // sanity check(s)
   ACE_ASSERT (parser);
@@ -159,6 +135,17 @@ METAINFO_FILE                     {DICTIONARY}
 %}
 
 <INITIAL>{
+{DIGIT}{1}             { yyless (0);
+                         BEGIN(state_string); }
+"i"                    { yyless (0);
+                         BEGIN(state_integer); }
+"l"                    { ACE_ASSERT (yyleng == 1);
+                         parser->offset (1);
+                         BEGIN(state_list);
+                         ACE_NEW_NORETURN (yylval->lval,
+                                           Bencoding_List_t);
+                         ACE_ASSERT (yylval->lval);
+                         return yy::parser::token::LIST; }
 "d"                    { ACE_ASSERT (yyleng == 1);
                          parser->offset (1);
                          BEGIN(state_dictionary_key);
@@ -182,50 +169,67 @@ METAINFO_FILE                     {DICTIONARY}
                          if (!string_length)
                          { // --> found an empty string
                            ACE_ASSERT (yylval->sval);
-                           yy_pop_state (yyscanner);
+                           if (string_is_key)
+                           {
+                             string_is_key = false;
+                             BEGIN(state_dictionary_value);
+                           } // end IF
+                           else if (in_structure)
+                             yy_pop_state (yyscanner); // return to structure
                            return yy::parser::token::STRING;
-                         } }
+                         } // END IF
+                       }
 {OCTET}{1}             { ACE_ASSERT (string_length != 0);
                          ACE_ASSERT (yylval->sval && yylval->sval->empty ());
                          parser->offset (string_length);
                          yylval->sval->push_back (yytext[0]);
                          for (unsigned int i = 0; i < (string_length - 1); ++i)
                            yylval->sval->push_back (static_cast<char> (yyinput (yyscanner)));
-                         yy_pop_state (yyscanner);
+                         if (string_is_key)
+                         {
+                           string_is_key = false;
+                           BEGIN(state_dictionary_value);
+                         } // end IF
+                         else if (in_structure)
+                           yy_pop_state (yyscanner); // return to structure
+                         string_length = 0;
                          return yy::parser::token::STRING; }
 } // end <state_string>
 <state_integer>{
 "e"                    { ACE_ASSERT (yyleng == 1);
                          parser->offset (1);
-                         yy_pop_state (yyscanner); }
+                         if (in_structure)
+                           yy_pop_state (yyscanner); // return to structure
+                         return yy::parser::token::INTEGER; }
 {DIGIT}+               {
                          parser->offset (yyleng);
                          converter.str (ACE_TEXT_ALWAYS_CHAR (""));
                          converter.clear ();
                          converter << yytext;
-                         converter >> yylval->ival;
-                         return yy::parser::token::INTEGER; }
+                         converter >> yylval->ival; }
 "i"                    { ACE_ASSERT (yyleng == 1);
                          parser->offset (1); }
 } // end <state_integer>
 <state_list>{
 "e"                    { ACE_ASSERT (yyleng == 1);
                          parser->offset (1);
-                         yy_pop_state (yyscanner); }
+                         if (in_structure)
+                           yy_pop_state (yyscanner); } // return to structure
 {DIGIT}{1}             { yyless (0);
+                         in_structure = true;
                          yy_push_state (state_string, yyscanner); }
 "i"                    { yyless (0);
-                         ACE_ASSERT (yyleng == 1);
+                         in_structure = true;
                          yy_push_state (state_integer, yyscanner); }
 "l"                    { yyless (0);
-                         ACE_ASSERT (yyleng == 1);
+                         in_structure = true;
                          yy_push_state (state_list, yyscanner);
                          ACE_NEW_NORETURN (yylval->lval,
                                            Bencoding_List_t);
                          ACE_ASSERT (yylval->lval);
                          return yy::parser::token::LIST; }
 "d"                    { yyless (0);
-                         ACE_ASSERT (yyleng == 1);
+                         in_structure = true;
                          yy_push_state (state_dictionary_key, yyscanner);
                          ACE_NEW_NORETURN (yylval->dval,
                                            Bencoding_Dictionary_t);
@@ -235,30 +239,28 @@ METAINFO_FILE                     {DICTIONARY}
 <state_dictionary_key>{
 "e"                    { ACE_ASSERT (yyleng == 1);
                          parser->offset (1);
-                         yy_pop_state (yyscanner); }
+                         if (in_structure)
+                           yy_pop_state (yyscanner); } // return to structure
 {DIGIT}{1}             { yyless (0);
-                         BEGIN(state_dictionary_value);
-                         yy_push_state (state_string, yyscanner); }
+                         string_is_key = true;
+                         BEGIN(state_string); }
 } // end <state_dictionary_key>
 <state_dictionary_value>{
 {DIGIT}{1}             { yyless (0);
-                         BEGIN(state_dictionary_key);
+                         in_structure = true;
                          yy_push_state (state_string, yyscanner); }
 "i"                    { yyless (0);
-                         ACE_ASSERT (yyleng == 1);
-                         BEGIN(state_dictionary_key);
+                         in_structure = true;
                          yy_push_state (state_integer, yyscanner); }
 "l"                    { yyless (0);
-                         ACE_ASSERT (yyleng == 1);
-                         BEGIN(state_dictionary_key);
+                         in_structure = true;
                          yy_push_state (state_list, yyscanner);
                          ACE_NEW_NORETURN (yylval->lval,
                                            Bencoding_List_t);
                          ACE_ASSERT (yylval->lval);
                          return yy::parser::token::LIST; }
 "d"                    { yyless (0);
-                         ACE_ASSERT (yyleng == 1);
-                         BEGIN(state_dictionary_key);
+                         in_structure = true;
                          yy_push_state (state_dictionary_key, yyscanner);
                          ACE_NEW_NORETURN (yylval->dval,
                                            Bencoding_Dictionary_t);
@@ -269,7 +271,6 @@ METAINFO_FILE                     {DICTIONARY}
 <*>{OCTET}             { /* *TODO*: use (?s:.) ? */
                          if (!parser->isBlocking ())
                            return yy::parser::token::END_OF_FRAGMENT;
-
                          // wait for more data fragment(s)
                          if (!parser->switchBuffer ())
                          { // *NOTE*: most probable reason: connection

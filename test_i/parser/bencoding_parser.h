@@ -254,13 +254,11 @@ namespace yy {
       enum yytokentype
       {
         END = 0,
-        END_OF_DICTIONARY = 258,
-        END_OF_LIST = 259,
-        END_OF_FRAGMENT = 260,
-        INTEGER = 261,
-        STRING = 262,
-        LIST = 263,
-        DICTIONARY = 264
+        END_OF_FRAGMENT = 258,
+        INTEGER = 259,
+        STRING = 260,
+        LIST = 261,
+        DICTIONARY = 262
       };
     };
 
@@ -724,12 +722,12 @@ namespace yy {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 26,     ///< Last index in yytable_.
-      yynnts_ = 13,  ///< Number of nonterminal symbols.
-      yyfinal_ = 4, ///< Termination state number.
+      yylast_ = 20,     ///< Last index in yytable_.
+      yynnts_ = 14,  ///< Number of nonterminal symbols.
+      yyfinal_ = 8, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
-      yyntokens_ = 10  ///< Number of tokens.
+      yyntokens_ = 8  ///< Number of tokens.
     };
 
 

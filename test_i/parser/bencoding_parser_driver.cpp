@@ -27,11 +27,15 @@
 
 #include "common_macros.h"
 
+#include "common_parser_bencoding_tools.h"
+
 #include "bencoding_scanner.h"
 
 Bencoding_ParserDriver::Bencoding_ParserDriver ()
  : inherited ()
- , record_ (NULL)
+ , dictionaries_ ()
+ , key_ (NULL)
+ , lists_ ()
 {
   COMMON_TRACE (ACE_TEXT ("Bencoding_ParserDriver::Bencoding_ParserDriver_T"));
 
@@ -104,20 +108,50 @@ Bencoding_ParserDriver::record (Bencoding_Dictionary_t*& record_inout)
   // sanity check(s)
   ACE_ASSERT (record_inout);
 
+  ACE_DEBUG((LM_ERROR,
+             ACE_TEXT("%s\n"),
+             ACE_TEXT (Common_Parser_Bencoding_Tools::DictionaryToString (*record_inout).c_str ())));
+
+  record_inout = NULL;
+}
+
+void
+Bencoding_ParserDriver::record_2 (Bencoding_List_t*& record_inout)
+{
+  COMMON_TRACE (ACE_TEXT ("Bencoding_ParserDriver_T::record_2"));
+
+  // sanity check(s)
+  ACE_ASSERT (record_inout);
+
   ACE_ASSERT (false);
 
   record_inout = NULL;
 }
 
 void
-Bencoding_ParserDriver::pushDictionary (Bencoding_Dictionary_t* dictionary_in)
+Bencoding_ParserDriver::record_3 (std::string*& record_inout)
 {
-  COMMON_TRACE (ACE_TEXT ("Bencoding_ParserDriver::pushDictionary"));
+  COMMON_TRACE (ACE_TEXT ("Bencoding_ParserDriver_T::record_3"));
 
-  dictionaries_.push (dictionary_in);
+  // sanity check(s)
+  ACE_ASSERT (record_inout);
 
-  if (!record_)
-    record_ = dictionary_in;
+  ACE_ASSERT (false);
+
+  record_inout = NULL;
+}
+
+void
+Bencoding_ParserDriver::record_4 (unsigned int record_inout)
+{
+  COMMON_TRACE (ACE_TEXT ("Bencoding_ParserDriver_T::record_4"));
+
+  // sanity check(s)
+  ACE_ASSERT (record_inout);
+
+  ACE_ASSERT (false);
+
+  record_inout = NULL;
 }
 
 yy_buffer_state*
