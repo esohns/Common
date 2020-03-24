@@ -427,27 +427,27 @@ namespace yy {
         << yysym.location << ": ";
     switch (yytype)
     {
-      case 4: // "integer"
+      case 3: // "integer"
         { debug_stream () << (yysym.value.ival); }
         break;
 
-      case 5: // "string"
+      case 4: // "string"
         { debug_stream () << *(yysym.value.sval); }
         break;
 
-      case 6: // "list"
+      case 5: // "list"
         { debug_stream () << Common_Parser_Bencoding_Tools::ListToString (*(yysym.value.lval)); }
         break;
 
-      case 7: // "dictionary"
+      case 6: // "dictionary"
         { if ((yysym.value.dval)) debug_stream () << Common_Parser_Bencoding_Tools::DictionaryToString (*(yysym.value.dval)); }
         break;
 
-      case 12: // list_items
+      case 11: // list_items
         { debug_stream () << Common_Parser_Bencoding_Tools::ListToString (*(yysym.value.lval)); }
         break;
 
-      case 16: // dictionary_items
+      case 15: // dictionary_items
         { if ((yysym.value.dval)) debug_stream () << Common_Parser_Bencoding_Tools::DictionaryToString (*(yysym.value.dval)); }
         break;
 
@@ -611,7 +611,7 @@ namespace yy {
         try
 #endif // YY_EXCEPTIONS
           {
-            yyla.type = yytranslate_ (yylex (&yyla.value, &yyla.location, iparser, iparser->getR().lexState));
+            yyla.type = yytranslate_ (yylex (&yyla.value, &yyla.location, iparser, iscanner->getR ().lexState));
           }
 #if YY_EXCEPTIONS
         catch (const syntax_error& yyexc)
@@ -707,7 +707,8 @@ namespace yy {
                     } catch (...) {
                       ACE_DEBUG ((LM_ERROR,
                                   ACE_TEXT ("caught exception in Bencoding_IParser::record(), continuing\n")));
-                    } }
+                    }
+                    YYACCEPT; }
     break;
 
   case 4:
@@ -724,7 +725,8 @@ namespace yy {
                     } catch (...) {
                       ACE_DEBUG ((LM_ERROR,
                                   ACE_TEXT ("caught exception in Bencoding_IParser::record_2(), continuing\n")));
-                    } }
+                    }
+                    YYACCEPT; }
     break;
 
   case 6:
@@ -734,7 +736,8 @@ namespace yy {
                     } catch (...) {
                       ACE_DEBUG ((LM_ERROR,
                                   ACE_TEXT ("caught exception in Bencoding_IParser::record_3(), continuing\n")));
-                    } }
+                    }
+                    YYACCEPT; }
     break;
 
   case 7:
@@ -744,7 +747,8 @@ namespace yy {
                     } catch (...) {
                       ACE_DEBUG ((LM_ERROR,
                                   ACE_TEXT ("caught exception in Bencoding_IParser::record_4(), continuing\n")));
-                    } }
+                    }
+                    YYACCEPT; }
     break;
 
   case 8:
@@ -1204,10 +1208,10 @@ namespace yy {
   const signed char
   parser::yypact_[] =
   {
-       1,   -17,   -17,   -17,   -17,     2,     5,     8,   -17,   -17,
-     -17,   -17,   -17,   -17,     5,   -17,   -17,     8,     5,     8,
-     -17,    13,   -17,   -17,   -17,   -17,   -17,   -17,   -17,   -17,
-       5,     8,   -17,   -17
+       2,   -17,   -17,   -17,   -17,    13,     6,    -2,   -17,   -17,
+     -17,   -17,   -17,   -17,     6,   -17,   -17,    -2,     6,    -2,
+     -17,    14,   -17,   -17,   -17,   -17,   -17,   -17,   -17,   -17,
+       6,    -2,   -17,   -17
   };
 
   const unsigned char
@@ -1236,34 +1240,34 @@ namespace yy {
   const unsigned char
   parser::yytable_[] =
   {
-      20,    22,     8,    24,    23,     1,     2,     3,     4,     9,
-      10,    11,    12,    15,     0,    33,    32,    25,    26,    27,
+      20,    22,    15,    24,    23,     1,     2,     3,     4,     9,
+      10,    11,    12,     8,     0,    33,    32,    25,    26,    27,
       28
   };
 
   const signed char
   parser::yycheck_[] =
   {
-      14,    17,     0,    19,    18,     4,     5,     6,     7,     4,
-       5,     6,     7,     5,    -1,    31,    30,     4,     5,     6,
-       7
+      14,    17,     4,    19,    18,     3,     4,     5,     6,     3,
+       4,     5,     6,     0,    -1,    31,    30,     3,     4,     5,
+       6
   };
 
   const unsigned char
   parser::yystos_[] =
   {
-       0,     4,     5,     6,     7,     9,    11,    10,     0,     4,
-       5,     6,     7,    12,    13,     5,    16,    17,    14,    15,
-      12,    18,    16,    12,    16,     4,     5,     6,     7,    19,
-      20,    21,    12,    16
+       0,     3,     4,     5,     6,     8,    10,     9,     0,     3,
+       4,     5,     6,    11,    12,     4,    15,    16,    13,    14,
+      11,    17,    15,    11,    15,     3,     4,     5,     6,    18,
+      19,    20,    11,    15
   };
 
   const unsigned char
   parser::yyr1_[] =
   {
-       0,     8,    10,     9,    11,     9,     9,     9,     9,    12,
-      12,    13,    13,    14,    13,    15,    13,    13,    16,    16,
-      18,    17,    17,    19,    19,    20,    19,    21,    19
+       0,     7,     9,     8,    10,     8,     8,     8,     8,    11,
+      11,    12,    12,    13,    12,    14,    12,    12,    15,    15,
+      17,    16,    16,    18,    18,    19,    18,    20,    18
   };
 
   const unsigned char
@@ -1281,20 +1285,19 @@ namespace yy {
   const char*
   const parser::yytname_[] =
   {
-  "\"end\"", "error", "$undefined", "\"end_of_fragment\"", "\"integer\"",
-  "\"string\"", "\"list\"", "\"dictionary\"", "$accept", "bencoding",
-  "$@1", "$@2", "list_items", "list_item", "$@3", "$@4",
-  "dictionary_items", "dictionary_item", "$@5", "dictionary_value", "$@6",
-  "$@7", YY_NULLPTR
+  "\"end\"", "error", "$undefined", "\"integer\"", "\"string\"",
+  "\"list\"", "\"dictionary\"", "$accept", "bencoding", "$@1", "$@2",
+  "list_items", "list_item", "$@3", "$@4", "dictionary_items",
+  "dictionary_item", "$@5", "dictionary_value", "$@6", "$@7", YY_NULLPTR
   };
 
 #if YYDEBUG
   const unsigned short
   parser::yyrline_[] =
   {
-       0,   215,   215,   215,   226,   226,   237,   244,   251,   252,
-     254,   255,   264,   273,   273,   285,   285,   298,   299,   301,
-     302,   302,   305,   306,   325,   344,   344,   366,   366
+       0,   215,   215,   215,   227,   227,   239,   247,   255,   256,
+     258,   259,   268,   277,   277,   289,   289,   302,   303,   305,
+     306,   306,   309,   310,   329,   348,   348,   370,   370
   };
 
   // Print the state stack on the debug stream.
@@ -1361,9 +1364,9 @@ namespace yy {
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7
+       5,     6
     };
-    const unsigned user_token_number_max_ = 262;
+    const unsigned user_token_number_max_ = 261;
     const token_number_type undef_token_ = 2;
 
     if (static_cast<int> (t) <= yyeof_)

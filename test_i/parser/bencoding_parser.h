@@ -254,11 +254,10 @@ namespace yy {
       enum yytokentype
       {
         END = 0,
-        END_OF_FRAGMENT = 258,
-        INTEGER = 259,
-        STRING = 260,
-        LIST = 261,
-        DICTIONARY = 262
+        INTEGER = 258,
+        STRING = 259,
+        LIST = 260,
+        DICTIONARY = 261
       };
     };
 
@@ -727,7 +726,7 @@ namespace yy {
       yyfinal_ = 8, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
-      yyntokens_ = 8  ///< Number of tokens.
+      yyntokens_ = 7  ///< Number of tokens.
     };
 
 

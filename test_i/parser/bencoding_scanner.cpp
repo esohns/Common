@@ -1,4 +1,4 @@
-
+#line 2 "./../scripts/bencoding.l"
 //  #include "ace/Synch.h"
   #include "common_iparser.h"
 
@@ -1008,8 +1008,8 @@ static const flex_int32_t yy_rule_can_match_eol[24] =
 static const flex_int32_t yy_rule_linenum[23] =
     {   0,
       139,  141,  143,  150,  159,  168,  183,  200,  205,  211,
-      215,  219,  222,  225,  232,  241,  245,  250,  253,  256,
-      263,  272
+      215,  219,  222,  225,  233,  243,  247,  252,  255,  258,
+      261,  271
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -1698,9 +1698,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-{ yyless (0);
+{ ACE_ASSERT (yyleng == 1);
+                         parser->offset (1);
                          in_structure = true;
-                         yy_push_state (state_list, yyscanner);
+//                         yy_push_state (state_list, yyscanner);
                          ACE_NEW_NORETURN (yylval->lval,
                                            Bencoding_List_t);
                          ACE_ASSERT (yylval->lval);
@@ -1708,7 +1709,8 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-{ yyless (0);
+{ ACE_ASSERT (yyleng == 1);
+                         parser->offset (1);
                          in_structure = true;
                          yy_push_state (state_dictionary_key, yyscanner);
                          ACE_NEW_NORETURN (yylval->dval,
@@ -1749,15 +1751,12 @@ case 20:
 YY_RULE_SETUP
 { yyless (0);
                          in_structure = true;
-                         yy_push_state (state_list, yyscanner);
-                         ACE_NEW_NORETURN (yylval->lval,
-                                           Bencoding_List_t);
-                         ACE_ASSERT (yylval->lval);
-                         return yy::parser::token::LIST; }
+                         yy_push_state (state_list, yyscanner); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-{ yyless (0);
+{ ACE_ASSERT (yyleng == 1);
+                         parser->offset (1);
                          in_structure = true;
                          yy_push_state (state_dictionary_key, yyscanner);
                          ACE_NEW_NORETURN (yylval->dval,
@@ -1779,7 +1778,7 @@ case 22:
 YY_RULE_SETUP
 { /* *TODO*: use (?s:.) ? */
                          if (!parser->isBlocking ())
-                           return yy::parser::token::END_OF_FRAGMENT;
+                           return yy::parser::token::END;
                          // wait for more data fragment(s)
                          if (!parser->switchBuffer ())
                          { // *NOTE*: most probable reason: connection

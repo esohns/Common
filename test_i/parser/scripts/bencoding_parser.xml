@@ -195,27 +195,26 @@
     <terminals>
       <terminal symbol-number="0" token-number="0" name="&quot;end&quot;" usefulness="useful"/>
       <terminal symbol-number="1" token-number="256" name="error" usefulness="useful"/>
-      <terminal symbol-number="3" token-number="258" name="&quot;end_of_fragment&quot;" usefulness="unused-in-grammar"/>
-      <terminal symbol-number="4" token-number="259" name="&quot;integer&quot;" usefulness="useful"/>
-      <terminal symbol-number="5" token-number="260" name="&quot;string&quot;" usefulness="useful"/>
-      <terminal symbol-number="6" token-number="261" name="&quot;list&quot;" usefulness="useful"/>
-      <terminal symbol-number="7" token-number="262" name="&quot;dictionary&quot;" usefulness="useful"/>
+      <terminal symbol-number="3" token-number="258" name="&quot;integer&quot;" usefulness="useful"/>
+      <terminal symbol-number="4" token-number="259" name="&quot;string&quot;" usefulness="useful"/>
+      <terminal symbol-number="5" token-number="260" name="&quot;list&quot;" usefulness="useful"/>
+      <terminal symbol-number="6" token-number="261" name="&quot;dictionary&quot;" usefulness="useful"/>
     </terminals>
     <nonterminals>
-      <nonterminal symbol-number="8" name="$accept" usefulness="useful"/>
-      <nonterminal symbol-number="9" name="bencoding" usefulness="useful"/>
-      <nonterminal symbol-number="10" name="$@1" usefulness="useful"/>
-      <nonterminal symbol-number="11" name="$@2" usefulness="useful"/>
-      <nonterminal symbol-number="12" name="list_items" usefulness="useful"/>
-      <nonterminal symbol-number="13" name="list_item" usefulness="useful"/>
-      <nonterminal symbol-number="14" name="$@3" usefulness="useful"/>
-      <nonterminal symbol-number="15" name="$@4" usefulness="useful"/>
-      <nonterminal symbol-number="16" name="dictionary_items" usefulness="useful"/>
-      <nonterminal symbol-number="17" name="dictionary_item" usefulness="useful"/>
-      <nonterminal symbol-number="18" name="$@5" usefulness="useful"/>
-      <nonterminal symbol-number="19" name="dictionary_value" usefulness="useful"/>
-      <nonterminal symbol-number="20" name="$@6" usefulness="useful"/>
-      <nonterminal symbol-number="21" name="$@7" usefulness="useful"/>
+      <nonterminal symbol-number="7" name="$accept" usefulness="useful"/>
+      <nonterminal symbol-number="8" name="bencoding" usefulness="useful"/>
+      <nonterminal symbol-number="9" name="$@1" usefulness="useful"/>
+      <nonterminal symbol-number="10" name="$@2" usefulness="useful"/>
+      <nonterminal symbol-number="11" name="list_items" usefulness="useful"/>
+      <nonterminal symbol-number="12" name="list_item" usefulness="useful"/>
+      <nonterminal symbol-number="13" name="$@3" usefulness="useful"/>
+      <nonterminal symbol-number="14" name="$@4" usefulness="useful"/>
+      <nonterminal symbol-number="15" name="dictionary_items" usefulness="useful"/>
+      <nonterminal symbol-number="16" name="dictionary_item" usefulness="useful"/>
+      <nonterminal symbol-number="17" name="$@5" usefulness="useful"/>
+      <nonterminal symbol-number="18" name="dictionary_value" usefulness="useful"/>
+      <nonterminal symbol-number="19" name="$@6" usefulness="useful"/>
+      <nonterminal symbol-number="20" name="$@7" usefulness="useful"/>
     </nonterminals>
   </grammar>
 

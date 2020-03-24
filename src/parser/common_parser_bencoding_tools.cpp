@@ -39,6 +39,7 @@ Common_Parser_Bencoding_Tools::DictionaryToString (const Bencoding_Dictionary_t&
        ++iterator)
   {
     result += ACE_TEXT_ALWAYS_CHAR ("\"");
+    ACE_ASSERT ((*iterator).first);
     result += *(*iterator).first;
     result += ACE_TEXT_ALWAYS_CHAR ("\": ");
 

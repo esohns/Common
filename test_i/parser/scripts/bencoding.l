@@ -221,14 +221,16 @@ DICTIONARY                        (d({STRING}({INTEGER}|{STRING}|{LIST}|{DICTION
 "i"                    { yyless (0);
                          in_structure = true;
                          yy_push_state (state_integer, yyscanner); }
-"l"                    { yyless (0);
+"l"                    { ACE_ASSERT (yyleng == 1);
+                         parser->offset (1);
                          in_structure = true;
-                         yy_push_state (state_list, yyscanner);
+//                         yy_push_state (state_list, yyscanner);
                          ACE_NEW_NORETURN (yylval->lval,
                                            Bencoding_List_t);
                          ACE_ASSERT (yylval->lval);
                          return yy::parser::token::LIST; }
-"d"                    { yyless (0);
+"d"                    { ACE_ASSERT (yyleng == 1);
+                         parser->offset (1);
                          in_structure = true;
                          yy_push_state (state_dictionary_key, yyscanner);
                          ACE_NEW_NORETURN (yylval->dval,
@@ -254,12 +256,9 @@ DICTIONARY                        (d({STRING}({INTEGER}|{STRING}|{LIST}|{DICTION
                          yy_push_state (state_integer, yyscanner); }
 "l"                    { yyless (0);
                          in_structure = true;
-                         yy_push_state (state_list, yyscanner);
-                         ACE_NEW_NORETURN (yylval->lval,
-                                           Bencoding_List_t);
-                         ACE_ASSERT (yylval->lval);
-                         return yy::parser::token::LIST; }
-"d"                    { yyless (0);
+                         yy_push_state (state_list, yyscanner); }
+"d"                    { ACE_ASSERT (yyleng == 1);
+                         parser->offset (1);
                          in_structure = true;
                          yy_push_state (state_dictionary_key, yyscanner);
                          ACE_NEW_NORETURN (yylval->dval,
@@ -270,7 +269,7 @@ DICTIONARY                        (d({STRING}({INTEGER}|{STRING}|{LIST}|{DICTION
 <<EOF>>                { return yy::parser::token::END; }
 <*>{OCTET}             { /* *TODO*: use (?s:.) ? */
                          if (!parser->isBlocking ())
-                           return yy::parser::token::END_OF_FRAGMENT;
+                           return yy::parser::token::END;
                          // wait for more data fragment(s)
                          if (!parser->switchBuffer ())
                          { // *NOTE*: most probable reason: connection

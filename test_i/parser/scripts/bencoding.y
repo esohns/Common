@@ -171,7 +171,7 @@ typedef union YYSTYPE
 
 // terminals
 %token
- END_OF_FRAGMENT   "end_of_fragment"
+// END_OF_FRAGMENT   "end_of_fragment"
  END 0             "end"
 ;
 %token <ival> INTEGER    "integer"
@@ -222,7 +222,8 @@ bencoding:        "dictionary" {
                     } catch (...) {
                       ACE_DEBUG ((LM_ERROR,
                                   ACE_TEXT ("caught exception in Bencoding_IParser::record(), continuing\n")));
-                    } }
+                    }
+                    YYACCEPT; }
                   | "list" {
                     iparser->pushList ($1); }
                   list_items {
@@ -233,21 +234,24 @@ bencoding:        "dictionary" {
                     } catch (...) {
                       ACE_DEBUG ((LM_ERROR,
                                   ACE_TEXT ("caught exception in Bencoding_IParser::record_2(), continuing\n")));
-                    } }
+                    }
+                    YYACCEPT; }
                   | "string" {
                     try {
                       iparser->record_3 ($1);
                     } catch (...) {
                       ACE_DEBUG ((LM_ERROR,
                                   ACE_TEXT ("caught exception in Bencoding_IParser::record_3(), continuing\n")));
-                    } }
+                    }
+                    YYACCEPT; }
                   | "integer" {
                     try {
                       iparser->record_4 ($1);
                     } catch (...) {
                       ACE_DEBUG ((LM_ERROR,
                                   ACE_TEXT ("caught exception in Bencoding_IParser::record_4(), continuing\n")));
-                    } }
+                    }
+                    YYACCEPT; }
                   | %empty             { }
 list_items:       list_item list_items { }
 /*                  |                    { }*/
