@@ -20,8 +20,9 @@
 
 #include "ace/Log_Msg.h"
 
-#include "common_configuration.h"
 #include "common_macros.h"
+
+#include "common_parser_defines.h"
 
 template <typename ConfigurationType,
           typename ScannerType,

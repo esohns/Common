@@ -63,8 +63,8 @@ class Common_CppParserBase_T
   inline virtual void error (const yy::location&, const std::string&) { ACE_ASSERT (false); ACE_NOTSUP; }
 
   // implement (part of) Common_ILexScanner_T
-  inline virtual const ScannerStateType& getR_3 () const { return scannerState_; }
-  inline virtual const ParserInterfaceType* const getP_2 () const { return this; }
+  inline virtual const ScannerStateType& getR () const { return scannerState_; }
+  inline virtual const ParserInterfaceType* const getP () const { return this; }
   inline virtual void setP (ParserInterfaceType* interfaceHandle_in) { scanner_.setP (interfaceHandle_in); }
   inline virtual ACE_Message_Block* buffer () { return fragment_; }
 //  inline virtual bool debug () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
