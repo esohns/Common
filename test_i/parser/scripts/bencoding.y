@@ -253,7 +253,7 @@ bencoding:        "dictionary" {
                     }
                     YYACCEPT; }
                   | %empty             { }
-list_items:       list_item list_items { }
+list_items:       list_items list_item { }
 /*                  |                    { }*/
                   | %empty             { }
 list_item:        "string" {
@@ -283,7 +283,7 @@ list_item:        "string" {
                     ACE_ASSERT (element_p);
                     element_p->type = Bencoding_Element::BENCODING_TYPE_LIST;
                     element_p->list = $3;
-//                    iparser->popList ();
+                    iparser->popList ();
                     Bencoding_List_t& list_r = iparser->current_2 ();
                     list_r.push_back (element_p); }
                   | "dictionary"  {
@@ -296,11 +296,11 @@ list_item:        "string" {
                     element_p->type =
                       Bencoding_Element::BENCODING_TYPE_DICTIONARY;
                     element_p->dictionary = $3;
-//                    iparser->popDictionary ();
+                    iparser->popDictionary ();
                     Bencoding_List_t& list_r = iparser->current_2 ();
                     list_r.push_back (element_p); }
                   | %empty             { }
-dictionary_items: dictionary_item dictionary_items { }
+dictionary_items: dictionary_items dictionary_item { }
 /*                  |                                { }*/
                   | %empty { }
 dictionary_item:  "string" {
@@ -408,14 +408,6 @@ yy::parser::error (const location_type& location_in,
                 ACE_TEXT ("caught exception in Bencoding_IParser_t::error(), continuing\n")));
   }
 }
-
-//void
-//yy::parser::set (yyscan_t context_in)
-//{
-//  COMMON_TRACE (ACE_TEXT ("yy::parser::set"));
-
-//  yyscanner = context_in;
-//}
 
 void
 yyerror (yy::location* location_in,

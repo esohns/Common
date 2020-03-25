@@ -224,7 +224,6 @@ DICTIONARY                        (d({STRING}({INTEGER}|{STRING}|{LIST}|{DICTION
 "l"                    { ACE_ASSERT (yyleng == 1);
                          parser->offset (1);
                          in_structure = true;
-//                         yy_push_state (state_list, yyscanner);
                          ACE_NEW_NORETURN (yylval->lval,
                                            Bencoding_List_t);
                          ACE_ASSERT (yylval->lval);

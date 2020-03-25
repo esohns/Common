@@ -800,7 +800,7 @@ namespace yy {
                     ACE_ASSERT (element_p);
                     element_p->type = Bencoding_Element::BENCODING_TYPE_LIST;
                     element_p->list = (yystack_[0].value.lval);
-//                    iparser->popList ();
+                    iparser->popList ();
                     Bencoding_List_t& list_r = iparser->current_2 ();
                     list_r.push_back (element_p); }
     break;
@@ -819,7 +819,7 @@ namespace yy {
                     element_p->type =
                       Bencoding_Element::BENCODING_TYPE_DICTIONARY;
                     element_p->dictionary = (yystack_[0].value.dval);
-//                    iparser->popDictionary ();
+                    iparser->popDictionary ();
                     Bencoding_List_t& list_r = iparser->current_2 ();
                     list_r.push_back (element_p); }
     break;
@@ -1201,65 +1201,65 @@ namespace yy {
   }
 
 
-  const signed char parser::yypact_ninf_ = -17;
+  const signed char parser::yypact_ninf_ = -19;
 
   const signed char parser::yytable_ninf_ = -1;
 
   const signed char
   parser::yypact_[] =
   {
-       2,   -17,   -17,   -17,   -17,    13,     6,    -2,   -17,   -17,
-     -17,   -17,   -17,   -17,     6,   -17,   -17,    -2,     6,    -2,
-     -17,    14,   -17,   -17,   -17,   -17,   -17,   -17,   -17,   -17,
-       6,    -2,   -17,   -17
+       0,   -19,   -19,   -19,   -19,     1,   -19,   -19,   -19,    10,
+       3,   -19,   -19,   -19,   -19,   -19,   -19,   -19,   -19,   -19,
+      14,    10,     3,   -19,   -19,   -19,   -19,   -19,   -19,   -19,
+      10,     3
   };
 
   const unsigned char
   parser::yydefact_[] =
   {
-       8,     7,     6,     4,     2,     0,    10,    19,     1,    12,
-      11,    13,    15,     5,    10,    20,     3,    19,    10,    19,
-       9,     0,    18,    14,    16,    24,    23,    25,    27,    21,
-      10,    19,    26,    28
+       8,     7,     6,     4,     2,     0,    10,    19,     1,     5,
+       3,    12,    11,    13,    15,     9,    20,    18,    10,    19,
+       0,    14,    16,    24,    23,    25,    27,    21,    10,    19,
+      17,    22
   };
 
   const signed char
   parser::yypgoto_[] =
   {
-     -17,   -17,   -17,   -17,   -14,   -17,   -17,   -17,   -16,   -17,
-     -17,   -17,   -17,   -17
+     -19,   -19,   -19,   -19,   -18,   -19,   -19,   -19,   -17,   -19,
+     -19,   -19,   -19,   -19
   };
 
   const signed char
   parser::yydefgoto_[] =
   {
-      -1,     5,     7,     6,    13,    14,    18,    19,    16,    17,
-      21,    29,    30,    31
+      -1,     5,     7,     6,     9,    15,    18,    19,    10,    17,
+      20,    27,    28,    29
   };
 
   const unsigned char
   parser::yytable_[] =
   {
-      20,    22,    15,    24,    23,     1,     2,     3,     4,     9,
-      10,    11,    12,     8,     0,    33,    32,    25,    26,    27,
-      28
+      21,     8,    22,     1,     2,     3,     4,    16,     0,     0,
+      30,     0,    31,    11,    12,    13,    14,    23,    24,    25,
+      26
   };
 
   const signed char
   parser::yycheck_[] =
   {
-      14,    17,     4,    19,    18,     3,     4,     5,     6,     3,
-       4,     5,     6,     0,    -1,    31,    30,     3,     4,     5,
+      18,     0,    19,     3,     4,     5,     6,     4,    -1,    -1,
+      28,    -1,    29,     3,     4,     5,     6,     3,     4,     5,
        6
   };
 
   const unsigned char
   parser::yystos_[] =
   {
-       0,     3,     4,     5,     6,     8,    10,     9,     0,     3,
-       4,     5,     6,    11,    12,     4,    15,    16,    13,    14,
-      11,    17,    15,    11,    15,     3,     4,     5,     6,    18,
-      19,    20,    11,    15
+       0,     3,     4,     5,     6,     8,    10,     9,     0,    11,
+      15,     3,     4,     5,     6,    12,     4,    16,    13,    14,
+      17,    11,    15,     3,     4,     5,     6,    18,    19,    20,
+      11,    15
   };
 
   const unsigned char
@@ -1397,14 +1397,6 @@ yy::parser::error (const location_type& location_in,
                 ACE_TEXT ("caught exception in Bencoding_IParser_t::error(), continuing\n")));
   }
 }
-
-//void
-//yy::parser::set (yyscan_t context_in)
-//{
-//  COMMON_TRACE (ACE_TEXT ("yy::parser::set"));
-
-//  yyscanner = context_in;
-//}
 
 void
 yyerror (yy::location* location_in,

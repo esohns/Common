@@ -1008,8 +1008,8 @@ static const flex_int32_t yy_rule_can_match_eol[24] =
 static const flex_int32_t yy_rule_linenum[23] =
     {   0,
       139,  141,  143,  150,  159,  168,  183,  200,  205,  211,
-      215,  219,  222,  225,  233,  243,  247,  252,  255,  258,
-      261,  271
+      215,  219,  222,  225,  232,  242,  246,  251,  254,  257,
+      260,  270
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -1701,7 +1701,6 @@ YY_RULE_SETUP
 { ACE_ASSERT (yyleng == 1);
                          parser->offset (1);
                          in_structure = true;
-//                         yy_push_state (state_list, yyscanner);
                          ACE_NEW_NORETURN (yylval->lval,
                                            Bencoding_List_t);
                          ACE_ASSERT (yylval->lval);
