@@ -1,4 +1,4 @@
-#line 2 "./../scripts/bencoding.l"
+
 //  #include "ace/Synch.h"
   #include "common_iparser.h"
 

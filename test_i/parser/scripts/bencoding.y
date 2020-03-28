@@ -1,5 +1,5 @@
-%require                          "3.4.1"
-/*%require                          "3.0"*/
+/*%require                          "3.4.1"*/
+%require                          "3.0"
 /* %file-prefix                      "" */
 /*%language                         "c++"*/
 %language                         "C"

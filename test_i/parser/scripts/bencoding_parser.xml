@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<bison-xml-report version="3.4.1" bug-report="bug-bison@gnu.org" url="http://www.gnu.org/software/bison/">
+<bison-xml-report version="3.0.4" bug-report="bug-bison@gnu.org" url="http://www.gnu.org/software/bison/">
 
   <filename>./../scripts/bencoding.y</filename>
 

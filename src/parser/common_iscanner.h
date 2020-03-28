@@ -61,8 +61,7 @@ class Common_ILexScanner_T
  : public Common_IScannerBase
  , public Common_IGetR_T<StateType>
 // , public Common_IGetSetP_T<ParserInterfaceType>
- , public Common_IGetP_T<ParserInterfaceType>
- , public Common_ISetP_T<ParserInterfaceType>
+ , public Common_IGetP_2_T<ParserInterfaceType>
 {
  public:
   virtual void debug (yyscan_t,  // state handle

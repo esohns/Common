@@ -71,9 +71,6 @@ class Bencoding_ParserDriver
   using PARSER_BASE_T::waitBuffer;
 
   // implement (part of) Bencoding_IParser_t
-  virtual void error (const yy::location&, // location
-                      const std::string&); // message
-//  virtual void error (const std::string&); // message
   inline virtual Bencoding_Dictionary_t& current () { ACE_ASSERT (!dictionaries_.empty ()); return *dictionaries_.top (); }
   inline virtual Bencoding_List_t& current_2 () { ACE_ASSERT (!lists_.empty ()); return *lists_.top (); }
   inline virtual bool hasFinished () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
@@ -100,8 +97,8 @@ class Bencoding_ParserDriver
   ACE_UNIMPLEMENTED_FUNC (Bencoding_ParserDriver& operator= (const Bencoding_ParserDriver&))
 
   // implement Common_ILexScanner_T
-  inline virtual const Bencoding_IParser_t* const getP () const { return this; }
-  inline virtual void setP (Bencoding_IParser_t*) { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
+  inline virtual const Bencoding_IParser_t* const getP_2 () const { return this; }
+  //inline virtual void setP (Bencoding_IParser_t*) { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
   inline virtual void debug (yyscan_t state_in, bool toggle_in) { Bencoding_set_debug ((toggle_in ? 1 : 0), state_in); }
   inline virtual bool initialize (yyscan_t& state_inout, struct Common_ScannerState* scannerState_in) { ACE_UNUSED_ARG (scannerState_in); return (Bencoding_lex_init_extra (this, &state_inout) == 0); }
   inline virtual void finalize (yyscan_t& state_inout) { int result = Bencoding_lex_destroy (state_inout); ACE_UNUSED_ARG (result); state_inout = NULL; }

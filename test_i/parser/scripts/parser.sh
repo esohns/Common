@@ -95,11 +95,10 @@ FILES="location.hh position.hh stack.hh"
 # move the files into the 3rd_party include directory
 for FILE in $FILES
 do
- rm -f $FILE
- if [ $? -ne 0 ]; then
-  echo "ERROR: failed to rm \"$FILE\", aborting"
-  exit 1
- fi
- echo "removed \"$FILE\"..."
+# rm -f $FILE
+# if [ $? -ne 0 ]; then
+#  echo "ERROR: failed to rm \"$FILE\", aborting"
+#  exit 1
+# fi
+# echo "removed \"$FILE\"..."
 done
-

@@ -31,12 +31,14 @@ Common_ParserBase_T<ConfigurationType,
                     ParserType,
                     ParserInterfaceType,
                     ArgumentType>::Common_ParserBase_T ()
- : fragment_ (NULL)
+ : configuration_ (NULL)
+ , finished_ (false)
+ , headFragment_ (NULL)
+ , fragment_ (NULL)
  , parser_ (this, // parser
             this) // scanner
-// , argument_ ()
  , scannerState_ ()
- , isFirst_ (true)
+ //, isFirst_ (true)
  , buffer_ (NULL)
  , isInitialized_ (false)
 {
@@ -53,6 +55,9 @@ Common_ParserBase_T<ConfigurationType,
                     ArgumentType>::~Common_ParserBase_T ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::~Common_ParserBase_T"));
+
+  if (headFragment_)
+    headFragment_->release ();
 
   // finalize lex scanner
   if (buffer_)
@@ -93,6 +98,10 @@ Common_ParserBase_T<ConfigurationType,
 
   if (isInitialized_)
   {
+    if (headFragment_)
+    {
+      headFragment_->release (); headFragment_ = NULL;
+    } // end IF
     fragment_ = NULL;
 
     if (buffer_)
@@ -118,7 +127,7 @@ Common_ParserBase_T<ConfigurationType,
     } // end IF
     scannerState_.offset = 0;
 
-    isFirst_ = true;
+    //isFirst_ = true;
 
     isInitialized_ = false;
   } // end IF
@@ -218,9 +227,15 @@ Common_ParserBase_T<ConfigurationType,
   ACE_ASSERT (isInitialized_);
   ACE_ASSERT (data_in);
 
-  // retain a handle to the 'current' fragment
+  headFragment_ = data_in;
   fragment_ = data_in;
   scannerState_.offset = 0;
+
+  // append the "\0\0"-sequence, as required by flex
+  ACE_ASSERT ((fragment_->capacity () - fragment_->length ()) >= COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE);
+  *(fragment_->wr_ptr ()) = YY_END_OF_BUFFER_CHAR;
+  *(fragment_->wr_ptr () + 1) = YY_END_OF_BUFFER_CHAR;
+  // *NOTE*: DO NOT adjust the write pointer --> length() must stay as it was
 
   int result = -1;
   bool do_scan_end = false;
@@ -233,13 +248,13 @@ Common_ParserBase_T<ConfigurationType,
   do_scan_end = true;
 
   // initialize scanner ?
-  if (isFirst_)
-  {
-    isFirst_ = false;
-
-//    bittorrent_set_column (1, state_);
-//    bittorrent_set_lineno (1, state_);
-  } // end IF
+//  if (isFirst_)
+//  {
+//    isFirst_ = false;
+//
+////    bittorrent_set_column (1, state_);
+////    bittorrent_set_lineno (1, state_);
+//  } // end IF
 
   // parse data fragment
   try {
@@ -273,6 +288,7 @@ Common_ParserBase_T<ConfigurationType,
 error:
   if (do_scan_end)
     end ();
+  headFragment_ = NULL;
   fragment_ = NULL;
 
 continue_:
@@ -355,6 +371,7 @@ Common_ParserBase_T<ConfigurationType,
 
   int result = -1;
   ACE_Message_Block* message_block_p = NULL;
+  int error = 0;
   bool done = false;
 
   // *IMPORTANT NOTE*: 'this' is the parser thread currently blocked in yylex()
@@ -366,7 +383,7 @@ Common_ParserBase_T<ConfigurationType,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("message queue not set - cannot wait, returning\n")));
-      return;
+    return;
   } // end IF
 
   // 1. wait for data
@@ -374,7 +391,7 @@ Common_ParserBase_T<ConfigurationType,
                                                        NULL);
   if (result == -1)
   {
-    int error = ACE_OS::last_error ();
+    error = ACE_OS::last_error ();
     if (error != ESHUTDOWN)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Message_Queue::dequeue_head(): \"%m\", returning\n")));
@@ -384,9 +401,20 @@ Common_ParserBase_T<ConfigurationType,
   switch (message_block_p->msg_type ())
   {
     case ACE_Message_Block::MB_STOP:
-      message_block_p->release (); message_block_p = NULL;
+    {
+      result = configuration_->messageQueue->enqueue (message_block_p);
+      if (result == -1)
+      {
+        error = ACE_OS::last_error ();
+        if (error != ESHUTDOWN)
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to ACE_Message_Queue::enqueue(): \"%m\", returning\n")));
+        message_block_p->release (); message_block_p = NULL;
+        return;
+      } // end IF
       done = true;
       break;
+    }
     default:
       break;
   } // end SWITCH
@@ -414,7 +442,7 @@ Common_ParserBase_T<ConfigurationType,
                     ArgumentType>::begin (const char* buffer_in,
                                           unsigned int bufferSize_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::scan_begin"));
+  COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::begin"));
 
 //  static int counter = 1;
 
@@ -474,4 +502,50 @@ Common_ParserBase_T<ConfigurationType,
                 ACE_TEXT ("caught exception in Common_ILexScanner_T::destroy(): \"%m\", continuing\n")));
   }
   buffer_ = NULL;
+}
+
+template <typename ConfigurationType,
+          typename ParserType,
+          typename ParserInterfaceType,
+          typename ArgumentType>
+void
+Common_ParserBase_T<ConfigurationType,
+                    ParserType,
+                    ParserInterfaceType,
+                    ArgumentType>::error (const yy::location& location_in,
+                                          const std::string& message_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::error"));
+
+  std::ostringstream converter;
+  converter << location_in;
+
+  // *NOTE*: the output format has been "adjusted" to fit in with bison error-reporting
+  ACE_DEBUG ((LM_ERROR,
+              ACE_TEXT ("(@%d.%d-%d.%d): \"%s\"\n"),
+              location_in.begin.line, location_in.begin.column,
+              location_in.end.line, location_in.end.column,
+              ACE_TEXT (message_in.c_str ())));
+//  ACE_DEBUG ((LM_ERROR,
+////              ACE_TEXT ("failed to parse \"%s\" (@%s): \"%s\"\n"),
+//              ACE_TEXT ("failed to BitTorrent_Parser::parse(): \"%s\"\n"),
+////              std::string (fragment_->rd_ptr (), fragment_->length ()).c_str (),
+////              converter.str ().c_str (),
+//              message_in.c_str ()));
+
+  // dump message
+  ACE_Message_Block* message_block_p = fragment_;
+  while (message_block_p->prev ()) message_block_p = message_block_p->prev ();
+  ACE_ASSERT (message_block_p);
+  Common_IDumpState* idump_state_p =
+    dynamic_cast<Common_IDumpState*> (message_block_p);
+  if (idump_state_p)
+    try {
+      idump_state_p->dump_state ();
+    } catch (...) {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("caught exception in Common_IDumpState::dump_state(), continuing\n")));
+    }
+
+  //std::clog << location_in << ": " << message_in << std::endl;
 }

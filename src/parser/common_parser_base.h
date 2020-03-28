@@ -23,6 +23,8 @@
 
 #include <string>
 
+#include "location.hh"
+
 #include "ace/Global_Macros.h"
 #include "ace/Message_Block.h"
 #include "ace/Message_Queue.h"
@@ -60,22 +62,29 @@ class Common_ParserBase_T
   inline virtual ACE_Message_Block* buffer () { return fragment_; }
 //  inline virtual bool debug () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
   inline virtual bool isBlocking () const { ACE_ASSERT (configuration_); return configuration_->block; }
-  inline virtual void offset (unsigned int offset_in) { scannerState_.offset += offset_in; } // offset (increment)
   inline virtual unsigned int offset () const { return scannerState_.offset; }
   virtual bool begin (const char*,   // buffer
                       unsigned int); // size
   virtual void end ();
   virtual bool switchBuffer (bool = false); // unlink current fragment ?
   virtual void waitBuffer ();
+  inline virtual void offset (unsigned int offset_in) { scannerState_.offset += offset_in; } // offset (increment)
   virtual void error (const std::string&); // message
 
+  // implement (part of) Common_ILexScanner_T
   inline virtual const Common_ScannerState& getR () const { return scannerState_; }
+  inline virtual const IPARSER_T* const getP_2 () const { return this; }
   inline virtual bool initialize (yyscan_t&, struct Common_ScannerState*) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
   inline virtual void finalize (yyscan_t&) { /*ACE_ASSERT (false);*/ ACE_NOTSUP; ACE_NOTREACHED (return;) }
-//  inline virtual struct yy_buffer_state* create (yyscan_t, char*, size_t) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (NULL); ACE_NOTREACHED (return NULL;) }
   inline virtual void destroy (yyscan_t, struct yy_buffer_state*&) { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
 
+  // implement (part of) Common_IYaccParser_T
+  virtual void error (const yy::location&,
+                      const std::string&);
+
   ConfigurationType*         configuration_;
+  bool                       finished_;
+  ACE_Message_Block*         headFragment_;
   ACE_Message_Block*         fragment_;
 
   // parser
@@ -89,7 +98,7 @@ class Common_ParserBase_T
   ACE_UNIMPLEMENTED_FUNC (Common_ParserBase_T (const Common_ParserBase_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_ParserBase_T& operator= (const Common_ParserBase_T&))
 
-  bool                       isFirst_;
+  //bool                       isFirst_;
 
   struct yy_buffer_state*    buffer_;
 
