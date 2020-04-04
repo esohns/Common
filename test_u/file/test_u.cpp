@@ -19,12 +19,19 @@
 ***************************************************************************/
 #include "stdafx.h"
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+ACE_ASSERT (false); // *TODO*
+#else
+#include  <sys/inotify.h>
+#endif // ACE_WIN32 || ACE_WIN64
+
 #include <iostream>
 #include <string>
 
 #include "ace/Get_Opt.h"
 #include "ace/High_Res_Timer.h"
 #include "ace/Log_Msg.h"
+#include "ace/Reactor.h"
 #include "ace/Time_Value.h"
 
 #include "common_defines.h"
@@ -35,9 +42,62 @@
 
 #include "common_timer_tools.h"
 
+//////////////////////////////////////////
+
+class INotify_Event_Handler
+ : public ACE_Event_Handler
+{
+ typedef ACE_Event_Handler inherited;
+
+ public:
+  inline INotify_Event_Handler (ACE_Reactor* reactor_in) : inherited (reactor_in, ACE_Event_Handler::LO_PRIORITY) {}
+  inline virtual ~INotify_Event_Handler () {}
+  virtual int handle_input (ACE_HANDLE fd_in = ACE_INVALID_HANDLE)
+  { // sanity check(s)
+    ACE_ASSERT (fd_in != ACE_INVALID_HANDLE);
+
+    uint8_t buffer_a[16 * sizeof (struct inotify_event)];
+    ssize_t bytes_read_i = 0;
+    unsigned int offset_i = 0;
+
+    bytes_read_i = ACE_OS::read (fd_in,
+                                 static_cast<void*> (&buffer_a),
+                                 sizeof (buffer_a));
+    switch (bytes_read_i)
+    {
+      case -1:
+        return -1;
+      case 0:
+        return 0;
+      default:
+      {
+        struct inotify_event* event_p = NULL;
+        do
+        {
+          event_p = reinterpret_cast<struct inotify_event*> (&(buffer_a[0]) + offset_i);
+          if (event_p->mask & IN_MODIFY)
+            ACE_DEBUG ((LM_DEBUG,
+                        ACE_TEXT ("directory \"%s\" modified, continuing\n"),
+                        ACE_TEXT (event_p->name)));
+          offset_i += sizeof (struct inotify_event) + event_p->len;
+        } while (offset_i < bytes_read_i);
+
+        break;
+      }
+    } // end SWITCH
+  }
+
+ private:
+  ACE_UNIMPLEMENTED_FUNC (INotify_Event_Handler (const INotify_Event_Handler&))
+  ACE_UNIMPLEMENTED_FUNC (INotify_Event_Handler& operator= (const INotify_Event_Handler&))
+};
+
+//////////////////////////////////////////
+
 enum Test_U_Common_File_ModeType
 {
   TEST_U_COMMON_FILE_MODE_SIZE,    // <-- determine file size using f[open|seek|tell|close] vs fstat
+  TEST_U_COMMON_FILE_MODE_WATCH,   // <-- watch directory (inotify)
   ////////////////////////////////////////
   TEST_U_COMMON_FILE_MODE_MAX,
   TEST_U_COMMON_FILE_MODE_INVALID
@@ -57,6 +117,8 @@ do_printUsage (const std::string& programName_in)
             << std::endl
             << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("currently available options:")
+            << std::endl;
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-d [PATH]   : watch directory")
             << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-s [PATH]   : determine file size")
             << std::endl;
@@ -82,7 +144,7 @@ do_processArguments (int argc_in,
 
   ACE_Get_Opt argument_parser (argc_in,
                                argv_in,
-                               ACE_TEXT ("s:t"),
+                               ACE_TEXT ("d:s:t"),
                                1,                         // skip command name
                                1,                         // report parsing errors
                                ACE_Get_Opt::PERMUTE_ARGS, // ordering
@@ -93,6 +155,12 @@ do_processArguments (int argc_in,
   {
     switch (option_i)
     {
+      case 'd':
+      {
+        mode_out = TEST_U_COMMON_FILE_MODE_WATCH;
+        filePath_out = ACE_TEXT_ALWAYS_CHAR (argument_parser.opt_arg ());
+        break;
+      }
       case 's':
       {
         mode_out = TEST_U_COMMON_FILE_MODE_SIZE;
@@ -171,6 +239,82 @@ do_work (enum Test_U_Common_File_ModeType mode_in,
 
       break;
     }
+    case TEST_U_COMMON_FILE_MODE_WATCH:
+    {
+      int flags_i = 0;
+//      IN_CLOEXEC | IN_NONBLOCK;
+      int result = inotify_init1 (flags_i);
+      if (result == -1)
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to inotify_init1(%x): \"%m\", returning\n"),
+                    flags_i));
+        return;
+      } // end IF
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("initialized inotify...\n")));
+      uint32_t mask_i = /*IN_ACCESS |
+                        IN_ATTRIB |
+                        IN_CLOSE_WRITE |
+                        IN_CLOSE_NOWRITE |
+                        IN_CREATE |
+                        IN_DELETE |
+                        IN_DELETE_SELF |
+                        IN_MODIFY |
+                        IN_MOVE_SELF |
+                        IN_MOVED_FROM |
+                        IN_MOVED_TO |
+                        IN_OPEN;*/
+                        IN_ALL_EVENTS;
+      int result_2 = inotify_add_watch (result,
+                                        filePath_in.c_str (),
+                                        mask_i);
+      if (result_2 == -1)
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to inotify_add_watch(%d,%s,%d): \"%m\", returning\n"),
+                    result,
+                    ACE_TEXT (filePath_in.c_str ()),
+                    mask_i));
+        ACE_OS::close (result);
+        return;
+      } // end IF
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("watching \"%s\"...\n"),
+                  ACE_TEXT (filePath_in.c_str ())));
+
+      ACE_Reactor* reactor_p = ACE_Reactor::instance ();
+      INotify_Event_Handler event_handler (reactor_p);
+//      event_handler.set_handle (result);
+      result_2 = reactor_p->register_handler (result,
+                                              &event_handler,
+                                              ACE_Event_Handler::READ_MASK);
+      if (result_2 == -1)
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_Reactor::register_handler(%d,%d): \"%m\", returning\n"),
+                    result,
+                    ACE_Event_Handler::READ_MASK));
+        ACE_OS::close (result);
+        return;
+      } // end IF
+
+//      fd_set rfds;
+//      FD_ZERO (&rfds);
+//      FD_SET (result, &rfds);
+//      int res=select (FD_SETSIZE,&rfds,NULL,NULL,NULL);
+
+      result_2 = reactor_p->run_event_loop ();
+      if (result_2 == -1)
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_Reactor::run_event_loop(): \"%m\", returning\n")));
+        ACE_OS::close (result);
+        return;
+      } // end IF
+
+      break;
+    }
     default:
     {
       ACE_DEBUG ((LM_ERROR,
@@ -187,6 +331,22 @@ ACE_TMAIN (int argc_in,
 {
   COMMON_TRACE (ACE_TEXT ("::main"));
 
+  // step0: initialize
+  // *PORTABILITY*: on Windows, initialize ACE
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  result_2 = ACE::init ();
+  if (result_2 == -1)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE::init(): \"%m\", aborting\n")));
+    return EXIT_FAILURE;
+  } // end IF
+#endif // ACE_WIN32 || ACE_WIN64
+//  ACE_Profile_Timer process_profile;
+//  process_profile.start ();
+
+  Common_Tools::initialize ();
+
   enum Test_U_Common_File_ModeType mode_type_e =
     TEST_U_COMMON_FILE_MODE_INVALID;
   std::string file_path_string;
@@ -197,6 +357,11 @@ ACE_TMAIN (int argc_in,
                             mode_type_e,
                             file_path_string,
                             trace_information_b))
+  {
+    do_printUsage (ACE::basename (argv_in[0]));
+    return EXIT_FAILURE;
+  } // end IF
+  if (file_path_string.empty ())
   {
     do_printUsage (ACE::basename (argv_in[0]));
     return EXIT_FAILURE;
@@ -216,7 +381,8 @@ ACE_TMAIN (int argc_in,
     return EXIT_FAILURE;
   } // end IF
 
-  if ((mode_type_e == TEST_U_COMMON_FILE_MODE_SIZE) &&
+  if (((mode_type_e == TEST_U_COMMON_FILE_MODE_SIZE) ||
+       (mode_type_e == TEST_U_COMMON_FILE_MODE_WATCH)) &&
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
       !Common_File_Tools::canRead (file_path_string, ACE_TEXT_ALWAYS_CHAR ("")))
 #else
@@ -226,9 +392,7 @@ ACE_TMAIN (int argc_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("invalid arguments (was: \"%s\"), aborting\n"),
                 ACE_TEXT (Common_Tools::commandLineToString (argc_in, argv_in).c_str ())));
-
     do_printUsage (ACE::basename (argv_in[0]));
-
     return EXIT_FAILURE;
   } // end IF
 
