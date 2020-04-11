@@ -44,6 +44,9 @@ build/
 
 # Kdevelop
 .kdev4/
+
+#Linux
+clang/
 cmake/
 
 # QtCreator
