@@ -724,8 +724,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #else
 #if defined (GTKGLAREA_SUPPORT)
 #else
-  if (unlikely (!gdk_gl_init_check (&argc_,
-                                    &argv_)))
+  if (unlikely (!gdk_gl_init_check (&configuration_->argc,
+                                    &configuration_->argv)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to gdk_gl_init_check(), aborting\n")));
