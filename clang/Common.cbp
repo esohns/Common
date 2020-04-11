@@ -5,7 +5,7 @@
 		<Option title="Common"/>
 		<Option makefile_is_custom="1"/>
 		<Option compiler="clang"/>
-		<Option virtualFolders="CMake Files\;CMake Files\scripts\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\media\;CMake Files\..\..\..\..\media\erik\;CMake Files\..\..\..\..\media\erik\USB_BLACK\;CMake Files\..\..\..\..\media\erik\USB_BLACK\lib\;CMake Files\..\..\..\..\media\erik\USB_BLACK\lib\cotire\;CMake Files\..\..\..\..\media\erik\USB_BLACK\lib\cotire\CMake\;CMake Files\..\..\..\..\media\erik\USB_BLACK\lib\cmake-modules\;CMake Files\..\..\..\..\media\erik\USB_BLACK\lib\cmake-modules\launcher-templates\;CMake Files\..\..\..\..\usr\;CMake Files\..\..\..\..\usr\lib\;CMake Files\..\..\..\..\usr\lib\x86_64-linux-gnu\;CMake Files\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\;CMake Files\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\DBus1\;CMake Files\src\;CMake Files\src\dbus\;CMake Files\src\error\;CMake Files\src\gl\;CMake Files\src\image\;CMake Files\src\log\;CMake Files\src\math\;CMake Files\src\signal\;CMake Files\src\timer\;CMake Files\src\ui\;CMake Files\src\ui\scripts\;CMake Files\src\ui\gtk\;CMake Files\src\xml\;CMake Files\src\xml\scripts\;CMake Files\clang\;CMake Files\clang\src\;CMake Files\clang\src\dbus\;CMake Files\clang\src\error\;CMake Files\clang\src\gl\;CMake Files\clang\src\image\;CMake Files\clang\src\log\;CMake Files\clang\src\math\;CMake Files\clang\src\signal\;CMake Files\clang\src\timer\;CMake Files\clang\src\ui\;CMake Files\clang\src\ui\gtk\;CMake Files\clang\src\xml\;CMake Files\clang\test_u\;CMake Files\clang\test_u\capabilities\;CMake Files\clang\test_u\debug\;CMake Files\clang\test_u\file\;CMake Files\clang\test_u\regex\;CMake Files\test_u\;CMake Files\test_u\capabilities\;CMake Files\test_u\debug\;CMake Files\test_u\features\;CMake Files\test_u\file\;CMake Files\test_u\regex\;CMake Files\cmake\;CMake Files\test_i\;CMake Files\test_i\capabilities\;CMake Files\test_i\ffmpeg\;CMake Files\test_i\imagemagick\;CMake Files\test_i\ui\;CMake Files\test_i\ui\gtk\;"/>
+		<Option virtualFolders="CMake Files\;CMake Files\scripts\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\media\;CMake Files\..\..\..\..\media\erik\;CMake Files\..\..\..\..\media\erik\USB_BLACK\;CMake Files\..\..\..\..\media\erik\USB_BLACK\lib\;CMake Files\..\..\..\..\media\erik\USB_BLACK\lib\cotire\;CMake Files\..\..\..\..\media\erik\USB_BLACK\lib\cotire\CMake\;CMake Files\..\..\..\..\media\erik\USB_BLACK\lib\cmake-modules\;CMake Files\..\..\..\..\media\erik\USB_BLACK\lib\cmake-modules\launcher-templates\;CMake Files\..\..\..\..\usr\;CMake Files\..\..\..\..\usr\lib\;CMake Files\..\..\..\..\usr\lib\x86_64-linux-gnu\;CMake Files\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\;CMake Files\..\..\..\..\usr\lib\x86_64-linux-gnu\cmake\DBus1\;CMake Files\src\;CMake Files\src\dbus\;CMake Files\src\error\;CMake Files\src\gl\;CMake Files\src\image\;CMake Files\src\log\;CMake Files\src\math\;CMake Files\src\parser\;CMake Files\src\signal\;CMake Files\src\timer\;CMake Files\src\ui\;CMake Files\src\ui\scripts\;CMake Files\src\ui\gtk\;CMake Files\src\xml\;CMake Files\src\xml\scripts\;CMake Files\clang\;CMake Files\clang\src\;CMake Files\clang\src\dbus\;CMake Files\clang\src\error\;CMake Files\clang\src\gl\;CMake Files\clang\src\image\;CMake Files\clang\src\log\;CMake Files\clang\src\math\;CMake Files\clang\src\parser\;CMake Files\clang\src\signal\;CMake Files\clang\src\timer\;CMake Files\clang\src\ui\;CMake Files\clang\src\ui\gtk\;CMake Files\clang\src\xml\;CMake Files\clang\test_u\;CMake Files\clang\test_u\capabilities\;CMake Files\clang\test_u\debug\;CMake Files\clang\test_u\file\;CMake Files\clang\test_u\regex\;CMake Files\clang\test_i\;CMake Files\clang\test_i\print\;CMake Files\test_u\;CMake Files\test_u\capabilities\;CMake Files\test_u\debug\;CMake Files\test_u\features\;CMake Files\test_u\file\;CMake Files\test_u\regex\;CMake Files\cmake\;CMake Files\test_i\;CMake Files\test_i\capabilities\;CMake Files\test_i\ffmpeg\;CMake Files\test_i\imagemagick\;CMake Files\test_i\parser\;CMake Files\test_i\print\;CMake Files\test_i\ui\;CMake Files\test_i\ui\gtk\;"/>
 		<Build>
 			<Target title="all">
 				<Option working_dir="/mnt/win_d/projects/Common/clang"/>
@@ -127,10 +127,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/src"/>
@@ -173,10 +173,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/src"/>
@@ -239,10 +239,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DDBUS_SUPPORT"/>
 					<Add option="-DSD_BUS_SUPPORT"/>
@@ -277,10 +277,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DDBUS_SUPPORT"/>
 					<Add option="-DSD_BUS_SUPPORT"/>
@@ -325,10 +325,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/clang/src/error/../.."/>
@@ -359,10 +359,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/clang/src/error/../.."/>
@@ -403,10 +403,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DIMAGEMAGICK_SUPPORT"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/ImageMagick-6"/>
@@ -443,10 +443,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DIMAGEMAGICK_SUPPORT"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/ImageMagick-6"/>
@@ -483,10 +483,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DIMAGEMAGICK_SUPPORT"/>
 					<Add directory="/usr/include/x86_64-linux-gnu"/>
@@ -520,10 +520,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DIMAGEMAGICK_SUPPORT"/>
 					<Add directory="/usr/include/x86_64-linux-gnu"/>
@@ -567,10 +567,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/src/log/.."/>
@@ -600,10 +600,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/src/log/.."/>
@@ -653,10 +653,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/src/math/.."/>
@@ -687,10 +687,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/src/math/.."/>
@@ -711,6 +711,84 @@
 					<DistClean command="/usr/bin/ninja -v clean"/>
 				</MakeCommands>
 			</Target>
+			<Target title="CommonParser_pch">
+				<Option working_dir="/mnt/win_d/projects/Common/clang/src/parser"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/ninja -v CommonParser_pch"/>
+					<CompileFile command="/usr/bin/ninja -v &quot;$file&quot;"/>
+					<Clean command="/usr/bin/ninja -v clean"/>
+					<DistClean command="/usr/bin/ninja -v clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="CommonParser">
+				<Option output="/mnt/win_d/projects/Common/clang/src/parser/libCommonParser.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/mnt/win_d/projects/Common/clang/src/parser"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-D_DEBUG"/>
+					<Add option="-DDEBUG_DEBUGGER"/>
+					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-DACE_HAS_DLL"/>
+					<Add option="-DEXCEPTION_CPP_USE"/>
+					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
+					<Add option="-DHAVE_CONFIG_H"/>
+					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
+					<Add directory="/mnt/win_d/projects/Common/src/parser/../../3rd_party/bison"/>
+					<Add directory="/mnt/win_d/projects/Common/src/parser/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/parser/../.."/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9"/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/llvm-9/lib/clang/9.0.0/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/ninja -v CommonParser"/>
+					<CompileFile command="/usr/bin/ninja -v &quot;$file&quot;"/>
+					<Clean command="/usr/bin/ninja -v clean"/>
+					<DistClean command="/usr/bin/ninja -v clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="CommonParser/fast">
+				<Option output="/mnt/win_d/projects/Common/clang/src/parser/libCommonParser.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/mnt/win_d/projects/Common/clang/src/parser"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-D_DEBUG"/>
+					<Add option="-DDEBUG_DEBUGGER"/>
+					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-DACE_HAS_DLL"/>
+					<Add option="-DEXCEPTION_CPP_USE"/>
+					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
+					<Add option="-DHAVE_CONFIG_H"/>
+					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
+					<Add directory="/mnt/win_d/projects/Common/src/parser/../../3rd_party/bison"/>
+					<Add directory="/mnt/win_d/projects/Common/src/parser/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/parser/../.."/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9"/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/llvm-9/lib/clang/9.0.0/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/ninja -v CommonParser/fast"/>
+					<CompileFile command="/usr/bin/ninja -v &quot;$file&quot;"/>
+					<Clean command="/usr/bin/ninja -v clean"/>
+					<DistClean command="/usr/bin/ninja -v clean"/>
+				</MakeCommands>
+			</Target>
 			<Target title="CommonSignal">
 				<Option output="/mnt/win_d/projects/Common/clang/src/signal/libCommonSignal.a" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/mnt/win_d/projects/Common/clang/src/signal"/>
@@ -721,10 +799,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/clang/src/signal/../.."/>
@@ -754,10 +832,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/clang/src/signal/../.."/>
@@ -807,10 +885,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/src/timer/.."/>
@@ -840,10 +918,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/src/timer/.."/>
@@ -883,12 +961,13 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DOPENGL_SUPPORT"/>
+					<Add option="-DGTK3_SUPPORT"/>
 					<Add option="-DGTK2_SUPPORT"/>
 					<Add option="-DGTK_SUPPORT"/>
 					<Add option="-DGTKGLAREA_SUPPORT"/>
@@ -945,12 +1024,13 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DOPENGL_SUPPORT"/>
+					<Add option="-DGTK3_SUPPORT"/>
 					<Add option="-DGTK2_SUPPORT"/>
 					<Add option="-DGTK_SUPPORT"/>
 					<Add option="-DGTKGLAREA_SUPPORT"/>
@@ -1017,12 +1097,13 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DOPENGL_SUPPORT"/>
+					<Add option="-DGTK3_SUPPORT"/>
 					<Add option="-DGTK2_SUPPORT"/>
 					<Add option="-DGTK_SUPPORT"/>
 					<Add option="-DGTKGLAREA_SUPPORT"/>
@@ -1081,12 +1162,13 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DOPENGL_SUPPORT"/>
+					<Add option="-DGTK3_SUPPORT"/>
 					<Add option="-DGTK2_SUPPORT"/>
 					<Add option="-DGTK_SUPPORT"/>
 					<Add option="-DGTKGLAREA_SUPPORT"/>
@@ -1155,10 +1237,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DLIBXML2_SUPPORT"/>
 					<Add option="-DLIBXML2_USE"/>
@@ -1191,10 +1273,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DEXCEPTION_CPP_USE"/>
 					<Add option="-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DLIBXML2_SUPPORT"/>
 					<Add option="-DLIBXML2_USE"/>
@@ -1237,6 +1319,7 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
@@ -1267,6 +1350,7 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
@@ -1307,10 +1391,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DCOMMON_HAS_DLL"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/test_u/capabilities/../../src"/>
 					<Add directory="/mnt/win_d/projects/Common/test_u/capabilities/../../src/timer"/>
@@ -1360,10 +1444,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DCOMMON_HAS_DLL"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/test_u/capabilities/../../src"/>
 					<Add directory="/mnt/win_d/projects/Common/test_u/capabilities/../../src/timer"/>
@@ -1413,10 +1497,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DCOMMON_HAS_DLL"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/test_u/capabilities/../../src"/>
 					<Add directory="/mnt/win_d/projects/Common/test_u/capabilities/../../src/timer"/>
@@ -1447,10 +1531,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DCOMMON_HAS_DLL"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/test_u/capabilities/../../src"/>
 					<Add directory="/mnt/win_d/projects/Common/test_u/capabilities/../../src/timer"/>
@@ -1491,6 +1575,7 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add directory="/mnt/win_d/projects/Common/test_u/debug/../../modules/ACE"/>
@@ -1541,6 +1626,7 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add directory="/mnt/win_d/projects/Common/test_u/debug/../../modules/ACE"/>
@@ -1601,6 +1687,7 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
@@ -1630,6 +1717,7 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
@@ -1669,6 +1757,7 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add directory="/mnt/win_d/projects/Common/test_u/file/../../modules/ACE"/>
@@ -1720,6 +1809,7 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add directory="/mnt/win_d/projects/Common/test_u/file/../../modules/ACE"/>
@@ -1781,6 +1871,7 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add directory="/mnt/win_d/projects/Common/clang/test_u/regex/../.."/>
@@ -1813,6 +1904,7 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add directory="/mnt/win_d/projects/Common/clang/test_u/regex/../.."/>
@@ -1865,6 +1957,7 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add directory="/mnt/win_d/projects/Common/test_i/../modules/ACE"/>
@@ -1899,6 +1992,7 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add directory="/mnt/win_d/projects/Common/test_i/../modules/ACE"/>
@@ -1933,10 +2027,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DCOMMON_HAS_DLL"/>
-					<Add option="-DCOMMON_TIMER_HAS_DLL"/>
 					<Add directory="/mnt/win_d/projects/Common/test_i/../modules/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/test_i/../src"/>
 					<Add directory="/usr/include/x86_64-linux-gnu"/>
@@ -1995,10 +2089,10 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DCOMMON_HAS_DLL"/>
-					<Add option="-DCOMMON_TIMER_HAS_DLL"/>
 					<Add directory="/mnt/win_d/projects/Common/test_i/../modules/ACE"/>
 					<Add directory="/mnt/win_d/projects/Common/test_i/../src"/>
 					<Add directory="/usr/include/x86_64-linux-gnu"/>
@@ -2057,6 +2151,7 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DCOMMON_HAS_DLL"/>
@@ -2119,6 +2214,7 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DCOMMON_HAS_DLL"/>
@@ -2171,6 +2267,390 @@
 					<DistClean command="/usr/bin/ninja -v clean"/>
 				</MakeCommands>
 			</Target>
+			<Target title="parser">
+				<Option output="/mnt/win_d/projects/Common/clang/test_i/parser/parser" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/mnt/win_d/projects/Common/clang/test_i/parser"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-D_DEBUG"/>
+					<Add option="-DDEBUG_DEBUGGER"/>
+					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-DHAVE_CONFIG_H"/>
+					<Add option="-DACE_HAS_DLL"/>
+					<Add option="-DCOMMON_HAS_DLL"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/../modules/ACE"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/../src"/>
+					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/../../src"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/../../src/log"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/../../src/parser"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/../../src/timer"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/test_i/parser/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src"/>
+					<Add directory="/mnt/win_d/projects/Common/src/error"/>
+					<Add directory="/mnt/win_d/projects/Common/src/signal"/>
+					<Add directory="/mnt/win_d/projects/Common/src/timer"/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/.."/>
+					<Add directory="/usr/include/dbus-1.0"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/dbus-1.0/include"/>
+					<Add directory="/usr/include/systemd"/>
+					<Add directory="/mnt/win_d/projects/Common/src/dbus/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/dbus/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/signal/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/signal/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/error/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/error/.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/error/../log"/>
+					<Add directory="/mnt/win_d/projects/Common/src/log/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/log/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/parser/../../3rd_party/bison"/>
+					<Add directory="/mnt/win_d/projects/Common/src/parser/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/parser/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/timer/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/timer/../.."/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9"/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/llvm-9/lib/clang/9.0.0/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/ninja -v parser"/>
+					<CompileFile command="/usr/bin/ninja -v &quot;$file&quot;"/>
+					<Clean command="/usr/bin/ninja -v clean"/>
+					<DistClean command="/usr/bin/ninja -v clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="parser/fast">
+				<Option output="/mnt/win_d/projects/Common/clang/test_i/parser/parser" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/mnt/win_d/projects/Common/clang/test_i/parser"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-D_DEBUG"/>
+					<Add option="-DDEBUG_DEBUGGER"/>
+					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-DHAVE_CONFIG_H"/>
+					<Add option="-DACE_HAS_DLL"/>
+					<Add option="-DCOMMON_HAS_DLL"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/../modules/ACE"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/../src"/>
+					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/../../src"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/../../src/log"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/../../src/parser"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/../../src/timer"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/test_i/parser/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src"/>
+					<Add directory="/mnt/win_d/projects/Common/src/error"/>
+					<Add directory="/mnt/win_d/projects/Common/src/signal"/>
+					<Add directory="/mnt/win_d/projects/Common/src/timer"/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/.."/>
+					<Add directory="/usr/include/dbus-1.0"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/dbus-1.0/include"/>
+					<Add directory="/usr/include/systemd"/>
+					<Add directory="/mnt/win_d/projects/Common/src/dbus/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/dbus/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/signal/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/signal/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/error/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/error/.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/error/../log"/>
+					<Add directory="/mnt/win_d/projects/Common/src/log/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/log/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/parser/../../3rd_party/bison"/>
+					<Add directory="/mnt/win_d/projects/Common/src/parser/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/parser/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/timer/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/timer/../.."/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9"/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/llvm-9/lib/clang/9.0.0/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/ninja -v parser/fast"/>
+					<CompileFile command="/usr/bin/ninja -v &quot;$file&quot;"/>
+					<Clean command="/usr/bin/ninja -v clean"/>
+					<DistClean command="/usr/bin/ninja -v clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="parser_2">
+				<Option output="/mnt/win_d/projects/Common/clang/test_i/parser/parser_2" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/mnt/win_d/projects/Common/clang/test_i/parser"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-D_DEBUG"/>
+					<Add option="-DDEBUG_DEBUGGER"/>
+					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-DHAVE_CONFIG_H"/>
+					<Add option="-DACE_HAS_DLL"/>
+					<Add option="-DCOMMON_HAS_DLL"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/../modules/ACE"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/../src"/>
+					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/../../src"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/../../src/log"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/../../src/parser"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/../../src/timer"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/test_i/parser/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src"/>
+					<Add directory="/mnt/win_d/projects/Common/src/error"/>
+					<Add directory="/mnt/win_d/projects/Common/src/signal"/>
+					<Add directory="/mnt/win_d/projects/Common/src/timer"/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/.."/>
+					<Add directory="/usr/include/dbus-1.0"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/dbus-1.0/include"/>
+					<Add directory="/usr/include/systemd"/>
+					<Add directory="/mnt/win_d/projects/Common/src/dbus/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/dbus/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/signal/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/signal/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/error/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/error/.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/error/../log"/>
+					<Add directory="/mnt/win_d/projects/Common/src/log/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/log/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/parser/../../3rd_party/bison"/>
+					<Add directory="/mnt/win_d/projects/Common/src/parser/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/parser/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/timer/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/timer/../.."/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9"/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/llvm-9/lib/clang/9.0.0/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/ninja -v parser_2"/>
+					<CompileFile command="/usr/bin/ninja -v &quot;$file&quot;"/>
+					<Clean command="/usr/bin/ninja -v clean"/>
+					<DistClean command="/usr/bin/ninja -v clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="parser_2/fast">
+				<Option output="/mnt/win_d/projects/Common/clang/test_i/parser/parser_2" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/mnt/win_d/projects/Common/clang/test_i/parser"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-D_DEBUG"/>
+					<Add option="-DDEBUG_DEBUGGER"/>
+					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-DHAVE_CONFIG_H"/>
+					<Add option="-DACE_HAS_DLL"/>
+					<Add option="-DCOMMON_HAS_DLL"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/../modules/ACE"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/../src"/>
+					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/../../src"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/../../src/log"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/../../src/parser"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/../../src/timer"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/parser/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/test_i/parser/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src"/>
+					<Add directory="/mnt/win_d/projects/Common/src/error"/>
+					<Add directory="/mnt/win_d/projects/Common/src/signal"/>
+					<Add directory="/mnt/win_d/projects/Common/src/timer"/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/.."/>
+					<Add directory="/usr/include/dbus-1.0"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/dbus-1.0/include"/>
+					<Add directory="/usr/include/systemd"/>
+					<Add directory="/mnt/win_d/projects/Common/src/dbus/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/dbus/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/signal/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/signal/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/error/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/error/.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/error/../log"/>
+					<Add directory="/mnt/win_d/projects/Common/src/log/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/log/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/parser/../../3rd_party/bison"/>
+					<Add directory="/mnt/win_d/projects/Common/src/parser/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/parser/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/timer/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/timer/../.."/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9"/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/llvm-9/lib/clang/9.0.0/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/ninja -v parser_2/fast"/>
+					<CompileFile command="/usr/bin/ninja -v &quot;$file&quot;"/>
+					<Clean command="/usr/bin/ninja -v clean"/>
+					<DistClean command="/usr/bin/ninja -v clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="print_pch">
+				<Option working_dir="/mnt/win_d/projects/Common/clang/test_i/print"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/ninja -v print_pch"/>
+					<CompileFile command="/usr/bin/ninja -v &quot;$file&quot;"/>
+					<Clean command="/usr/bin/ninja -v clean"/>
+					<DistClean command="/usr/bin/ninja -v clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="print">
+				<Option output="/mnt/win_d/projects/Common/clang/test_i/print/print" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/mnt/win_d/projects/Common/clang/test_i/print"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-D_DEBUG"/>
+					<Add option="-DDEBUG_DEBUGGER"/>
+					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-DHAVE_CONFIG_H"/>
+					<Add option="-DACE_HAS_DLL"/>
+					<Add option="-DCOMMON_HAS_DLL"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/../modules/ACE"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/../src"/>
+					<Add directory="/usr/include/cairo"/>
+					<Add directory="/usr/include/glib-2.0"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/glib-2.0/include"/>
+					<Add directory="/usr/include/pixman-1"/>
+					<Add directory="/usr/include/uuid"/>
+					<Add directory="/usr/include/freetype2"/>
+					<Add directory="/usr/include/libpng16"/>
+					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/print/../../src"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/print/../../src/log"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/print/../../src/parser"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/print/../../src/timer"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/print/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/test_i/print/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src"/>
+					<Add directory="/mnt/win_d/projects/Common/src/error"/>
+					<Add directory="/mnt/win_d/projects/Common/src/signal"/>
+					<Add directory="/mnt/win_d/projects/Common/src/timer"/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/.."/>
+					<Add directory="/usr/include/dbus-1.0"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/dbus-1.0/include"/>
+					<Add directory="/usr/include/systemd"/>
+					<Add directory="/mnt/win_d/projects/Common/src/dbus/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/dbus/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/signal/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/signal/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/error/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/error/.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/error/../log"/>
+					<Add directory="/mnt/win_d/projects/Common/src/log/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/log/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/parser/../../3rd_party/bison"/>
+					<Add directory="/mnt/win_d/projects/Common/src/parser/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/parser/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/timer/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/timer/../.."/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9"/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/llvm-9/lib/clang/9.0.0/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/ninja -v print"/>
+					<CompileFile command="/usr/bin/ninja -v &quot;$file&quot;"/>
+					<Clean command="/usr/bin/ninja -v clean"/>
+					<DistClean command="/usr/bin/ninja -v clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="print/fast">
+				<Option output="/mnt/win_d/projects/Common/clang/test_i/print/print" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/mnt/win_d/projects/Common/clang/test_i/print"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-D_DEBUG"/>
+					<Add option="-DDEBUG_DEBUGGER"/>
+					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-DHAVE_CONFIG_H"/>
+					<Add option="-DACE_HAS_DLL"/>
+					<Add option="-DCOMMON_HAS_DLL"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/../modules/ACE"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/../src"/>
+					<Add directory="/usr/include/cairo"/>
+					<Add directory="/usr/include/glib-2.0"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/glib-2.0/include"/>
+					<Add directory="/usr/include/pixman-1"/>
+					<Add directory="/usr/include/uuid"/>
+					<Add directory="/usr/include/freetype2"/>
+					<Add directory="/usr/include/libpng16"/>
+					<Add directory="/media/erik/USB_BLACK/lib/ACE_TAO/ACE"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/print/../../src"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/print/../../src/log"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/print/../../src/parser"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/print/../../src/timer"/>
+					<Add directory="/mnt/win_d/projects/Common/test_i/print/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/test_i/print/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src"/>
+					<Add directory="/mnt/win_d/projects/Common/src/error"/>
+					<Add directory="/mnt/win_d/projects/Common/src/signal"/>
+					<Add directory="/mnt/win_d/projects/Common/src/timer"/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/.."/>
+					<Add directory="/usr/include/dbus-1.0"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/dbus-1.0/include"/>
+					<Add directory="/usr/include/systemd"/>
+					<Add directory="/mnt/win_d/projects/Common/src/dbus/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/dbus/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/signal/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/signal/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/error/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/error/.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/error/../log"/>
+					<Add directory="/mnt/win_d/projects/Common/src/log/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/log/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/parser/../../3rd_party/bison"/>
+					<Add directory="/mnt/win_d/projects/Common/src/parser/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/parser/../.."/>
+					<Add directory="/mnt/win_d/projects/Common/src/timer/.."/>
+					<Add directory="/mnt/win_d/projects/Common/clang/src/timer/../.."/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9"/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/bin/../lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/llvm-9/lib/clang/9.0.0/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/ninja -v print/fast"/>
+					<CompileFile command="/usr/bin/ninja -v &quot;$file&quot;"/>
+					<Clean command="/usr/bin/ninja -v clean"/>
+					<DistClean command="/usr/bin/ninja -v clean"/>
+				</MakeCommands>
+			</Target>
 			<Target title="gtk_ui_2">
 				<Option output="/mnt/win_d/projects/Common/clang/test_i/ui/gtk/gtk_ui_2" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/mnt/win_d/projects/Common/clang/test_i/ui/gtk"/>
@@ -2181,9 +2661,11 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DOPENGL_SUPPORT"/>
+					<Add option="-DGTK3_SUPPORT"/>
 					<Add option="-DGTK2_SUPPORT"/>
 					<Add option="-DGTK_SUPPORT"/>
 					<Add option="-DGTKGLAREA_SUPPORT"/>
@@ -2287,9 +2769,11 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DOPENGL_SUPPORT"/>
+					<Add option="-DGTK3_SUPPORT"/>
 					<Add option="-DGTK2_SUPPORT"/>
 					<Add option="-DGTK_SUPPORT"/>
 					<Add option="-DGTKGLAREA_SUPPORT"/>
@@ -2393,9 +2877,11 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DOPENGL_SUPPORT"/>
+					<Add option="-DGTK3_SUPPORT"/>
 					<Add option="-DGTK2_SUPPORT"/>
 					<Add option="-DGTK_SUPPORT"/>
 					<Add option="-DGTKGLAREA_SUPPORT"/>
@@ -2499,9 +2985,11 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DOPENGL_SUPPORT"/>
+					<Add option="-DGTK3_SUPPORT"/>
 					<Add option="-DGTK2_SUPPORT"/>
 					<Add option="-DGTK_SUPPORT"/>
 					<Add option="-DGTKGLAREA_SUPPORT"/>
@@ -2605,9 +3093,11 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DOPENGL_SUPPORT"/>
+					<Add option="-DGTK3_SUPPORT"/>
 					<Add option="-DGTK2_SUPPORT"/>
 					<Add option="-DGTK_SUPPORT"/>
 					<Add option="-DGTKGLAREA_SUPPORT"/>
@@ -2703,9 +3193,11 @@
 					<Add option="-D_DEBUG"/>
 					<Add option="-DDEBUG_DEBUGGER"/>
 					<Add option="-DCOMMON_NTRACE=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DHAVE_CONFIG_H"/>
 					<Add option="-DACE_HAS_DLL"/>
 					<Add option="-DOPENGL_SUPPORT"/>
+					<Add option="-DGTK3_SUPPORT"/>
 					<Add option="-DGTK2_SUPPORT"/>
 					<Add option="-DGTK_SUPPORT"/>
 					<Add option="-DGTKGLAREA_SUPPORT"/>
@@ -2855,6 +3347,15 @@
 		<Unit filename="/mnt/win_d/projects/Common/clang/src/math/cotire/CommonMath_CXX_prefix.hxx.rule">
 			<Option target="CommonMath"/>
 		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/clang/src/parser/cotire/CommonParser_CXX_prefix.cxx.rule">
+			<Option target="CommonParser"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/clang/src/parser/cotire/CommonParser_CXX_prefix.hxx.pch.rule">
+			<Option target="CommonParser"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/clang/src/parser/cotire/CommonParser_CXX_prefix.hxx.rule">
+			<Option target="CommonParser"/>
+		</Unit>
 		<Unit filename="/mnt/win_d/projects/Common/clang/src/signal/cotire/CommonSignal_CXX_prefix.cxx.rule">
 			<Option target="CommonSignal"/>
 		</Unit>
@@ -2908,6 +3409,15 @@
 		</Unit>
 		<Unit filename="/mnt/win_d/projects/Common/clang/test_i/capabilities/cotire/capability_wrapper_CXX_prefix.hxx.rule">
 			<Option target="capability_wrapper"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/clang/test_i/print/cotire/print_CXX_prefix.cxx.rule">
+			<Option target="print"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/clang/test_i/print/cotire/print_CXX_prefix.hxx.pch.rule">
+			<Option target="print"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/clang/test_i/print/cotire/print_CXX_prefix.hxx.rule">
+			<Option target="print"/>
 		</Unit>
 		<Unit filename="/mnt/win_d/projects/Common/clang/test_u/capabilities/cotire/capabilities_2_CXX_prefix.cxx.rule">
 			<Option target="capabilities_2"/>
@@ -3011,9 +3521,6 @@
 			<Option target="Common"/>
 		</Unit>
 		<Unit filename="/mnt/win_d/projects/Common/src/common_ireferencecount.h">
-			<Option target="Common"/>
-		</Unit>
-		<Unit filename="/mnt/win_d/projects/Common/src/common_iscanner.h">
 			<Option target="Common"/>
 		</Unit>
 		<Unit filename="/mnt/win_d/projects/Common/src/common_istatemachine.h">
@@ -3274,7 +3781,55 @@
 		<Unit filename="/mnt/win_d/projects/Common/src/math/stdafx.h">
 			<Option target="CommonMath"/>
 		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/src/parser/common_iparser.h">
+			<Option target="CommonParser"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/src/parser/common_iscanner.h">
+			<Option target="CommonParser"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/src/parser/common_parser_base.cpp">
+			<Option target="CommonParser"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/src/parser/common_parser_base.h">
+			<Option target="CommonParser"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/src/parser/common_parser_base.inl">
+			<Option target="CommonParser"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/src/parser/common_parser_bencoding_common.h">
+			<Option target="CommonParser"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/src/parser/common_parser_bencoding_tools.cpp">
+			<Option target="CommonParser"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/src/parser/common_parser_bencoding_tools.h">
+			<Option target="CommonParser"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/src/parser/common_parser_common.h">
+			<Option target="CommonParser"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/src/parser/common_parser_cpp_base.cpp">
+			<Option target="CommonParser"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/src/parser/common_parser_cpp_base.h">
+			<Option target="CommonParser"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/src/parser/common_parser_cpp_base.inl">
+			<Option target="CommonParser"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/src/parser/common_parser_defines.h">
+			<Option target="CommonParser"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/src/parser/stdafx.cpp">
+			<Option target="CommonParser"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/src/parser/stdafx.h">
+			<Option target="CommonParser"/>
+		</Unit>
 		<Unit filename="/mnt/win_d/projects/Common/src/signal/common_isignal.h">
+			<Option target="CommonSignal"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/src/signal/common_signal_common.h">
 			<Option target="CommonSignal"/>
 		</Unit>
 		<Unit filename="/mnt/win_d/projects/Common/src/signal/common_signal_handler.cpp">
@@ -3523,6 +4078,57 @@
 		<Unit filename="/mnt/win_d/projects/Common/test_i/imagemagick/test_i.cpp">
 			<Option target="imagemagick"/>
 		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/test_i/parser/bencoding_iparser.h">
+			<Option target="parser"/>
+			<Option target="parser_2"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/test_i/parser/bencoding_parser.cpp">
+			<Option target="parser"/>
+			<Option target="parser_2"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/test_i/parser/bencoding_parser.h">
+			<Option target="parser"/>
+			<Option target="parser_2"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/test_i/parser/bencoding_parser_driver.cpp">
+			<Option target="parser"/>
+			<Option target="parser_2"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/test_i/parser/bencoding_parser_driver.h">
+			<Option target="parser"/>
+			<Option target="parser_2"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/test_i/parser/bencoding_scanner.cpp">
+			<Option target="parser"/>
+			<Option target="parser_2"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/test_i/parser/bencoding_scanner.h">
+			<Option target="parser"/>
+			<Option target="parser_2"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/test_i/parser/stdafx.cpp">
+			<Option target="parser"/>
+			<Option target="parser_2"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/test_i/parser/stdafx.h">
+			<Option target="parser"/>
+			<Option target="parser_2"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/test_i/parser/test_i.cpp">
+			<Option target="parser"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/test_i/parser/test_i_2.cpp">
+			<Option target="parser_2"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/test_i/print/stdafx.cpp">
+			<Option target="print"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/test_i/print/stdafx.h">
+			<Option target="print"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/test_i/print/test_i.cpp">
+			<Option target="print"/>
+		</Unit>
 		<Unit filename="/mnt/win_d/projects/Common/test_i/ui/gtk/stdafx.cpp">
 			<Option target="gtk_ui_2"/>
 			<Option target="gtk_ui_3"/>
@@ -3710,6 +4316,9 @@
 		<Unit filename="/mnt/win_d/projects/Common/src/math/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\src\math\"/>
 		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/src/parser/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\src\parser\"/>
+		</Unit>
 		<Unit filename="/mnt/win_d/projects/Common/src/signal/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\src\signal\"/>
 		</Unit>
@@ -3761,6 +4370,9 @@
 		<Unit filename="/mnt/win_d/projects/Common/clang/src/math/CommonMath_CXX_cotire.cmake">
 			<Option virtualFolder="CMake Files\clang\src\math\"/>
 		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/clang/src/parser/CommonParser_CXX_cotire.cmake">
+			<Option virtualFolder="CMake Files\clang\src\parser\"/>
+		</Unit>
 		<Unit filename="/mnt/win_d/projects/Common/clang/src/signal/CommonSignal_CXX_cotire.cmake">
 			<Option virtualFolder="CMake Files\clang\src\signal\"/>
 		</Unit>
@@ -3787,6 +4399,9 @@
 		</Unit>
 		<Unit filename="/mnt/win_d/projects/Common/clang/test_u/regex/regex_CXX_cotire.cmake">
 			<Option virtualFolder="CMake Files\clang\test_u\regex\"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/clang/test_i/print/print_CXX_cotire.cmake">
+			<Option virtualFolder="CMake Files\clang\test_i\print\"/>
 		</Unit>
 		<Unit filename="/mnt/win_d/projects/Common/test_u/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\test_u\"/>
@@ -3823,6 +4438,12 @@
 		</Unit>
 		<Unit filename="/mnt/win_d/projects/Common/test_i/imagemagick/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\test_i\imagemagick\"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/test_i/parser/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\test_i\parser\"/>
+		</Unit>
+		<Unit filename="/mnt/win_d/projects/Common/test_i/print/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\test_i\print\"/>
 		</Unit>
 		<Unit filename="/mnt/win_d/projects/Common/test_i/ui/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\test_i\ui\"/>

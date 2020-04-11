@@ -97,7 +97,6 @@ set (source_files
      common_defines.h
      common_event_handler.cpp
      common_event_handler.h
-#     common_exports.h
      common_file_common.h
      common_file_tools.cpp
      common_file_tools.h
@@ -230,7 +229,6 @@ install (FILES
          common_configuration.h
          common_defines.h
          common_event_handler.h
-#         common_exports.h
          common_file_common.h
          common_file_tools.h
          common_iclone.h
@@ -290,4 +288,3 @@ add_subdirectory (signal)
 add_subdirectory (timer)
 add_subdirectory (ui)
 add_subdirectory (xml)
-

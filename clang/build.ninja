@@ -123,7 +123,7 @@ build src/package: phony src/CMakeFiles/package.util
 #############################################
 # Utility command for all_pch
 
-build src/all_pch: phony src/Common_pch src/dbus/CommonDBus_pch src/error/CommonError_pch src/gl/CommonOpenGL_pch src/image/CommonImage_pch src/log/CommonLog_pch src/math/CommonMath_pch src/signal/CommonSignal_pch src/timer/CommonTimer_pch src/ui/CommonUI_pch src/ui/gtk/CommonUI_GTK_pch src/xml/CommonXML_pch test_i/capabilities/capability_wrapper_pch test_u/capabilities/capabilities_pch test_u/debug/debug_wrapper_pch test_u/features/features_pch test_u/file/file_pch test_u/regex/regex_pch
+build src/all_pch: phony src/Common_pch src/dbus/CommonDBus_pch src/error/CommonError_pch src/gl/CommonOpenGL_pch src/image/CommonImage_pch src/log/CommonLog_pch src/math/CommonMath_pch src/parser/CommonParser_pch src/signal/CommonSignal_pch src/timer/CommonTimer_pch src/ui/CommonUI_pch src/ui/gtk/CommonUI_GTK_pch src/xml/CommonXML_pch test_i/capabilities/capability_wrapper_pch test_i/print/print_pch test_u/capabilities/capabilities_pch test_u/debug/debug_wrapper_pch test_u/features/features_pch test_u/file/file_pch test_u/regex/regex_pch
 
 #############################################
 # Utility command for clean_cotire
@@ -140,84 +140,84 @@ build cmake_object_order_depends_target_Common: phony || cmake_object_order_depe
 build src/CMakeFiles/Common.dir/stdafx.cpp.o: CXX_COMPILER__Common ../src/stdafx.cpp | src/cotire/Common_CXX_prefix.hxx.pch || cmake_object_order_depends_target_Common
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/CMakeFiles/Common.dir/stdafx.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log
   OBJECT_DIR = src/CMakeFiles/Common.dir
   OBJECT_FILE_DIR = src/CMakeFiles/Common.dir
 build src/CMakeFiles/Common.dir/common_event_handler.cpp.o: CXX_COMPILER__Common ../src/common_event_handler.cpp | src/cotire/Common_CXX_prefix.hxx.pch || cmake_object_order_depends_target_Common
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/CMakeFiles/Common.dir/common_event_handler.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log
   OBJECT_DIR = src/CMakeFiles/Common.dir
   OBJECT_FILE_DIR = src/CMakeFiles/Common.dir
 build src/CMakeFiles/Common.dir/common_file_tools.cpp.o: CXX_COMPILER__Common ../src/common_file_tools.cpp | src/cotire/Common_CXX_prefix.hxx.pch || cmake_object_order_depends_target_Common
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/CMakeFiles/Common.dir/common_file_tools.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log
   OBJECT_DIR = src/CMakeFiles/Common.dir
   OBJECT_FILE_DIR = src/CMakeFiles/Common.dir
 build src/CMakeFiles/Common.dir/common_message_queue_iterator.cpp.o: CXX_COMPILER__Common ../src/common_message_queue_iterator.cpp | src/cotire/Common_CXX_prefix.hxx.pch || cmake_object_order_depends_target_Common
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/CMakeFiles/Common.dir/common_message_queue_iterator.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log
   OBJECT_DIR = src/CMakeFiles/Common.dir
   OBJECT_FILE_DIR = src/CMakeFiles/Common.dir
 build src/CMakeFiles/Common.dir/common_referencecounter_base.cpp.o: CXX_COMPILER__Common ../src/common_referencecounter_base.cpp | src/cotire/Common_CXX_prefix.hxx.pch || cmake_object_order_depends_target_Common
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/CMakeFiles/Common.dir/common_referencecounter_base.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log
   OBJECT_DIR = src/CMakeFiles/Common.dir
   OBJECT_FILE_DIR = src/CMakeFiles/Common.dir
 build src/CMakeFiles/Common.dir/common_statemachine.cpp.o: CXX_COMPILER__Common ../src/common_statemachine.cpp | src/cotire/Common_CXX_prefix.hxx.pch || cmake_object_order_depends_target_Common
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/CMakeFiles/Common.dir/common_statemachine.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log
   OBJECT_DIR = src/CMakeFiles/Common.dir
   OBJECT_FILE_DIR = src/CMakeFiles/Common.dir
 build src/CMakeFiles/Common.dir/common_statemachine_base.cpp.o: CXX_COMPILER__Common ../src/common_statemachine_base.cpp | src/cotire/Common_CXX_prefix.hxx.pch || cmake_object_order_depends_target_Common
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/CMakeFiles/Common.dir/common_statemachine_base.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log
   OBJECT_DIR = src/CMakeFiles/Common.dir
   OBJECT_FILE_DIR = src/CMakeFiles/Common.dir
 build src/CMakeFiles/Common.dir/common_statistic_handler.cpp.o: CXX_COMPILER__Common ../src/common_statistic_handler.cpp | src/cotire/Common_CXX_prefix.hxx.pch || cmake_object_order_depends_target_Common
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/CMakeFiles/Common.dir/common_statistic_handler.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log
   OBJECT_DIR = src/CMakeFiles/Common.dir
   OBJECT_FILE_DIR = src/CMakeFiles/Common.dir
 build src/CMakeFiles/Common.dir/common_string_tools.cpp.o: CXX_COMPILER__Common ../src/common_string_tools.cpp | src/cotire/Common_CXX_prefix.hxx.pch || cmake_object_order_depends_target_Common
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/CMakeFiles/Common.dir/common_string_tools.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log
   OBJECT_DIR = src/CMakeFiles/Common.dir
   OBJECT_FILE_DIR = src/CMakeFiles/Common.dir
 build src/CMakeFiles/Common.dir/common_task.cpp.o: CXX_COMPILER__Common ../src/common_task.cpp | src/cotire/Common_CXX_prefix.hxx.pch || cmake_object_order_depends_target_Common
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/CMakeFiles/Common.dir/common_task.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log
   OBJECT_DIR = src/CMakeFiles/Common.dir
   OBJECT_FILE_DIR = src/CMakeFiles/Common.dir
 build src/CMakeFiles/Common.dir/common_task_base.cpp.o: CXX_COMPILER__Common ../src/common_task_base.cpp | src/cotire/Common_CXX_prefix.hxx.pch || cmake_object_order_depends_target_Common
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/CMakeFiles/Common.dir/common_task_base.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log
   OBJECT_DIR = src/CMakeFiles/Common.dir
   OBJECT_FILE_DIR = src/CMakeFiles/Common.dir
 build src/CMakeFiles/Common.dir/common_tools.cpp.o: CXX_COMPILER__Common ../src/common_tools.cpp | src/cotire/Common_CXX_prefix.hxx.pch || cmake_object_order_depends_target_Common
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/CMakeFiles/Common.dir/common_tools.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/cotire/Common_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log
   OBJECT_DIR = src/CMakeFiles/Common.dir
   OBJECT_FILE_DIR = src/CMakeFiles/Common.dir
@@ -418,14 +418,14 @@ build cmake_object_order_depends_target_CommonDBus: phony || src/dbus/cotire/Com
 build src/dbus/CMakeFiles/CommonDBus.dir/stdafx.cpp.o: CXX_COMPILER__CommonDBus ../src/dbus/stdafx.cpp | src/dbus/cotire/CommonDBus_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonDBus
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDBUS_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -DSD_BUS_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/dbus/CMakeFiles/CommonDBus.dir/stdafx.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/dbus/cotire/CommonDBus_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/dbus/cotire/CommonDBus_CXX_prefix.hxx
   INCLUDES = -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/dbus/.. -Isrc/dbus/../..
   OBJECT_DIR = src/dbus/CMakeFiles/CommonDBus.dir
   OBJECT_FILE_DIR = src/dbus/CMakeFiles/CommonDBus.dir
 build src/dbus/CMakeFiles/CommonDBus.dir/common_dbus_tools.cpp.o: CXX_COMPILER__CommonDBus ../src/dbus/common_dbus_tools.cpp | src/dbus/cotire/CommonDBus_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonDBus
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDBUS_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -DSD_BUS_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/dbus/CMakeFiles/CommonDBus.dir/common_dbus_tools.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/dbus/cotire/CommonDBus_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/dbus/cotire/CommonDBus_CXX_prefix.hxx
   INCLUDES = -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/dbus/.. -Isrc/dbus/../..
   OBJECT_DIR = src/dbus/CMakeFiles/CommonDBus.dir
   OBJECT_FILE_DIR = src/dbus/CMakeFiles/CommonDBus.dir
@@ -569,14 +569,14 @@ build cmake_object_order_depends_target_CommonError: phony || src/error/cotire/C
 build src/error/CMakeFiles/CommonError.dir/stdafx.cpp.o: CXX_COMPILER__CommonError ../src/error/stdafx.cpp | src/error/cotire/CommonError_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonError
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/error/CMakeFiles/CommonError.dir/stdafx.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/error/cotire/CommonError_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/error/cotire/CommonError_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -Isrc/error/../.. -I../src/error/.. -I../src/error/../log
   OBJECT_DIR = src/error/CMakeFiles/CommonError.dir
   OBJECT_FILE_DIR = src/error/CMakeFiles/CommonError.dir
 build src/error/CMakeFiles/CommonError.dir/common_error_tools.cpp.o: CXX_COMPILER__CommonError ../src/error/common_error_tools.cpp | src/error/cotire/CommonError_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonError
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/error/CMakeFiles/CommonError.dir/common_error_tools.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/error/cotire/CommonError_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/error/cotire/CommonError_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -Isrc/error/../.. -I../src/error/.. -I../src/error/../log
   OBJECT_DIR = src/error/CMakeFiles/CommonError.dir
   OBJECT_FILE_DIR = src/error/CMakeFiles/CommonError.dir
@@ -710,35 +710,35 @@ build cmake_object_order_depends_target_CommonOpenGL: phony || cmake_object_orde
 build src/gl/CMakeFiles/CommonOpenGL.dir/stdafx.cpp.o: CXX_COMPILER__CommonOpenGL ../src/gl/stdafx.cpp | src/gl/cotire/CommonOpenGL_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonOpenGL
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -DIMAGEMAGICK_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/gl/CMakeFiles/CommonOpenGL.dir/stdafx.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/gl/cotire/CommonOpenGL_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/gl/cotire/CommonOpenGL_CXX_prefix.hxx
   INCLUDES = -I/usr/include/x86_64-linux-gnu/ImageMagick-6 -I/usr/include/ImageMagick-6 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/gl/.. -I../src/gl/../image -Isrc/gl/../.. -I/usr/include/x86_64-linux-gnu -Isrc/image/../.. -I../src/image/.. -I../src/image/../error
   OBJECT_DIR = src/gl/CMakeFiles/CommonOpenGL.dir
   OBJECT_FILE_DIR = src/gl/CMakeFiles/CommonOpenGL.dir
 build src/gl/CMakeFiles/CommonOpenGL.dir/common_gl_tools.cpp.o: CXX_COMPILER__CommonOpenGL ../src/gl/common_gl_tools.cpp | src/gl/cotire/CommonOpenGL_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonOpenGL
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -DIMAGEMAGICK_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/gl/CMakeFiles/CommonOpenGL.dir/common_gl_tools.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/gl/cotire/CommonOpenGL_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/gl/cotire/CommonOpenGL_CXX_prefix.hxx
   INCLUDES = -I/usr/include/x86_64-linux-gnu/ImageMagick-6 -I/usr/include/ImageMagick-6 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/gl/.. -I../src/gl/../image -Isrc/gl/../.. -I/usr/include/x86_64-linux-gnu -Isrc/image/../.. -I../src/image/.. -I../src/image/../error
   OBJECT_DIR = src/gl/CMakeFiles/CommonOpenGL.dir
   OBJECT_FILE_DIR = src/gl/CMakeFiles/CommonOpenGL.dir
 build src/gl/CMakeFiles/CommonOpenGL.dir/common_gl_assimp_tools.cpp.o: CXX_COMPILER__CommonOpenGL ../src/gl/common_gl_assimp_tools.cpp | src/gl/cotire/CommonOpenGL_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonOpenGL
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -DIMAGEMAGICK_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/gl/CMakeFiles/CommonOpenGL.dir/common_gl_assimp_tools.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/gl/cotire/CommonOpenGL_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/gl/cotire/CommonOpenGL_CXX_prefix.hxx
   INCLUDES = -I/usr/include/x86_64-linux-gnu/ImageMagick-6 -I/usr/include/ImageMagick-6 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/gl/.. -I../src/gl/../image -Isrc/gl/../.. -I/usr/include/x86_64-linux-gnu -Isrc/image/../.. -I../src/image/.. -I../src/image/../error
   OBJECT_DIR = src/gl/CMakeFiles/CommonOpenGL.dir
   OBJECT_FILE_DIR = src/gl/CMakeFiles/CommonOpenGL.dir
 build src/gl/CMakeFiles/CommonOpenGL.dir/common_gl_image_tools.cpp.o: CXX_COMPILER__CommonOpenGL ../src/gl/common_gl_image_tools.cpp | src/gl/cotire/CommonOpenGL_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonOpenGL
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -DIMAGEMAGICK_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/gl/CMakeFiles/CommonOpenGL.dir/common_gl_image_tools.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/gl/cotire/CommonOpenGL_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/gl/cotire/CommonOpenGL_CXX_prefix.hxx
   INCLUDES = -I/usr/include/x86_64-linux-gnu/ImageMagick-6 -I/usr/include/ImageMagick-6 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/gl/.. -I../src/gl/../image -Isrc/gl/../.. -I/usr/include/x86_64-linux-gnu -Isrc/image/../.. -I../src/image/.. -I../src/image/../error
   OBJECT_DIR = src/gl/CMakeFiles/CommonOpenGL.dir
   OBJECT_FILE_DIR = src/gl/CMakeFiles/CommonOpenGL.dir
 build src/gl/CMakeFiles/CommonOpenGL.dir/common_gl_texture.cpp.o: CXX_COMPILER__CommonOpenGL ../src/gl/common_gl_texture.cpp | src/gl/cotire/CommonOpenGL_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonOpenGL
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -DIMAGEMAGICK_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/gl/CMakeFiles/CommonOpenGL.dir/common_gl_texture.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/gl/cotire/CommonOpenGL_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/gl/cotire/CommonOpenGL_CXX_prefix.hxx
   INCLUDES = -I/usr/include/x86_64-linux-gnu/ImageMagick-6 -I/usr/include/ImageMagick-6 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/gl/.. -I../src/gl/../image -Isrc/gl/../.. -I/usr/include/x86_64-linux-gnu -Isrc/image/../.. -I../src/image/.. -I../src/image/../error
   OBJECT_DIR = src/gl/CMakeFiles/CommonOpenGL.dir
   OBJECT_FILE_DIR = src/gl/CMakeFiles/CommonOpenGL.dir
@@ -877,14 +877,14 @@ build cmake_object_order_depends_target_CommonImage: phony || src/image/cotire/C
 build src/image/CMakeFiles/CommonImage.dir/stdafx.cpp.o: CXX_COMPILER__CommonImage ../src/image/stdafx.cpp | src/image/cotire/CommonImage_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonImage
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -DIMAGEMAGICK_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/image/CMakeFiles/CommonImage.dir/stdafx.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/image/cotire/CommonImage_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/image/cotire/CommonImage_CXX_prefix.hxx
   INCLUDES = -I/usr/include/x86_64-linux-gnu -I/usr/include/ImageMagick-6 -I/usr/include/x86_64-linux-gnu/ImageMagick-6 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -Isrc/image/../.. -I../src/image/.. -I../src/image/../error
   OBJECT_DIR = src/image/CMakeFiles/CommonImage.dir
   OBJECT_FILE_DIR = src/image/CMakeFiles/CommonImage.dir
 build src/image/CMakeFiles/CommonImage.dir/common_image_tools.cpp.o: CXX_COMPILER__CommonImage ../src/image/common_image_tools.cpp | src/image/cotire/CommonImage_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonImage
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -DIMAGEMAGICK_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/image/CMakeFiles/CommonImage.dir/common_image_tools.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/image/cotire/CommonImage_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/image/cotire/CommonImage_CXX_prefix.hxx
   INCLUDES = -I/usr/include/x86_64-linux-gnu -I/usr/include/ImageMagick-6 -I/usr/include/x86_64-linux-gnu/ImageMagick-6 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -Isrc/image/../.. -I../src/image/.. -I../src/image/../error
   OBJECT_DIR = src/image/CMakeFiles/CommonImage.dir
   OBJECT_FILE_DIR = src/image/CMakeFiles/CommonImage.dir
@@ -1028,21 +1028,21 @@ build cmake_object_order_depends_target_CommonLog: phony || src/log/cotire/Commo
 build src/log/CMakeFiles/CommonLog.dir/stdafx.cpp.o: CXX_COMPILER__CommonLog ../src/log/stdafx.cpp | src/log/cotire/CommonLog_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonLog
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/log/CMakeFiles/CommonLog.dir/stdafx.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/log/cotire/CommonLog_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/log/cotire/CommonLog_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/log/.. -Isrc/log/../..
   OBJECT_DIR = src/log/CMakeFiles/CommonLog.dir
   OBJECT_FILE_DIR = src/log/CMakeFiles/CommonLog.dir
 build src/log/CMakeFiles/CommonLog.dir/common_log_tools.cpp.o: CXX_COMPILER__CommonLog ../src/log/common_log_tools.cpp | src/log/cotire/CommonLog_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonLog
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/log/CMakeFiles/CommonLog.dir/common_log_tools.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/log/cotire/CommonLog_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/log/cotire/CommonLog_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/log/.. -Isrc/log/../..
   OBJECT_DIR = src/log/CMakeFiles/CommonLog.dir
   OBJECT_FILE_DIR = src/log/CMakeFiles/CommonLog.dir
 build src/log/CMakeFiles/CommonLog.dir/common_logger.cpp.o: CXX_COMPILER__CommonLog ../src/log/common_logger.cpp | src/log/cotire/CommonLog_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonLog
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/log/CMakeFiles/CommonLog.dir/common_logger.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/log/cotire/CommonLog_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/log/cotire/CommonLog_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/log/.. -Isrc/log/../..
   OBJECT_DIR = src/log/CMakeFiles/CommonLog.dir
   OBJECT_FILE_DIR = src/log/CMakeFiles/CommonLog.dir
@@ -1211,49 +1211,49 @@ build cmake_object_order_depends_target_CommonMath: phony || src/math/cotire/Com
 build src/math/CMakeFiles/CommonMath.dir/stdafx.cpp.o: CXX_COMPILER__CommonMath ../src/math/stdafx.cpp | src/math/cotire/CommonMath_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonMath
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/math/CMakeFiles/CommonMath.dir/stdafx.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/math/cotire/CommonMath_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/math/cotire/CommonMath_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/math/.. -I../src/math/../timer -Isrc/math/../..
   OBJECT_DIR = src/math/CMakeFiles/CommonMath.dir
   OBJECT_FILE_DIR = src/math/CMakeFiles/CommonMath.dir
 build src/math/CMakeFiles/CommonMath.dir/common_math_fft.cpp.o: CXX_COMPILER__CommonMath ../src/math/common_math_fft.cpp | src/math/cotire/CommonMath_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonMath
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/math/CMakeFiles/CommonMath.dir/common_math_fft.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/math/cotire/CommonMath_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/math/cotire/CommonMath_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/math/.. -I../src/math/../timer -Isrc/math/../..
   OBJECT_DIR = src/math/CMakeFiles/CommonMath.dir
   OBJECT_FILE_DIR = src/math/CMakeFiles/CommonMath.dir
 build src/math/CMakeFiles/CommonMath.dir/common_math_pidcontrol.cpp.o: CXX_COMPILER__CommonMath ../src/math/common_math_pidcontrol.cpp | src/math/cotire/CommonMath_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonMath
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/math/CMakeFiles/CommonMath.dir/common_math_pidcontrol.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/math/cotire/CommonMath_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/math/cotire/CommonMath_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/math/.. -I../src/math/../timer -Isrc/math/../..
   OBJECT_DIR = src/math/CMakeFiles/CommonMath.dir
   OBJECT_FILE_DIR = src/math/CMakeFiles/CommonMath.dir
 build src/math/CMakeFiles/CommonMath.dir/common_math_pidcontrol_zieglernichols.cpp.o: CXX_COMPILER__CommonMath ../src/math/common_math_pidcontrol_zieglernichols.cpp | src/math/cotire/CommonMath_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonMath
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/math/CMakeFiles/CommonMath.dir/common_math_pidcontrol_zieglernichols.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/math/cotire/CommonMath_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/math/cotire/CommonMath_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/math/.. -I../src/math/../timer -Isrc/math/../..
   OBJECT_DIR = src/math/CMakeFiles/CommonMath.dir
   OBJECT_FILE_DIR = src/math/CMakeFiles/CommonMath.dir
 build src/math/CMakeFiles/CommonMath.dir/common_math_pt1_tracker.cpp.o: CXX_COMPILER__CommonMath ../src/math/common_math_pt1_tracker.cpp | src/math/cotire/CommonMath_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonMath
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/math/CMakeFiles/CommonMath.dir/common_math_pt1_tracker.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/math/cotire/CommonMath_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/math/cotire/CommonMath_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/math/.. -I../src/math/../timer -Isrc/math/../..
   OBJECT_DIR = src/math/CMakeFiles/CommonMath.dir
   OBJECT_FILE_DIR = src/math/CMakeFiles/CommonMath.dir
 build src/math/CMakeFiles/CommonMath.dir/common_math_sample.cpp.o: CXX_COMPILER__CommonMath ../src/math/common_math_sample.cpp | src/math/cotire/CommonMath_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonMath
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/math/CMakeFiles/CommonMath.dir/common_math_sample.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/math/cotire/CommonMath_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/math/cotire/CommonMath_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/math/.. -I../src/math/../timer -Isrc/math/../..
   OBJECT_DIR = src/math/CMakeFiles/CommonMath.dir
   OBJECT_FILE_DIR = src/math/CMakeFiles/CommonMath.dir
 build src/math/CMakeFiles/CommonMath.dir/common_math_tools.cpp.o: CXX_COMPILER__CommonMath ../src/math/common_math_tools.cpp | src/math/cotire/CommonMath_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonMath
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/math/CMakeFiles/CommonMath.dir/common_math_tools.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/math/cotire/CommonMath_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/math/cotire/CommonMath_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/math/.. -I../src/math/../timer -Isrc/math/../..
   OBJECT_DIR = src/math/CMakeFiles/CommonMath.dir
   OBJECT_FILE_DIR = src/math/CMakeFiles/CommonMath.dir
@@ -1320,6 +1320,171 @@ build src/math/cotire/CommonMath_CXX_prefix.cxx: CUSTOM_COMMAND ../src/math/stda
 #############################################
 # Utility command for install/strip
 
+build src/parser/CMakeFiles/install/strip.util: CUSTOM_COMMAND src/parser/all
+  COMMAND = cd /mnt/win_d/projects/Common/clang/src/parser && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+  DESC = Installing the project stripped...
+  pool = console
+  restat = 1
+build src/parser/install/strip: phony src/parser/CMakeFiles/install/strip.util
+
+#############################################
+# Utility command for install/local
+
+build src/parser/CMakeFiles/install/local.util: CUSTOM_COMMAND src/parser/all
+  COMMAND = cd /mnt/win_d/projects/Common/clang/src/parser && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+  DESC = Installing only the local directory...
+  pool = console
+  restat = 1
+build src/parser/install/local: phony src/parser/CMakeFiles/install/local.util
+
+#############################################
+# Utility command for rebuild_cache
+
+build src/parser/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /mnt/win_d/projects/Common/clang/src/parser && /usr/bin/cmake -S/mnt/win_d/projects/Common -B/mnt/win_d/projects/Common/clang
+  DESC = Running CMake to regenerate build system...
+  pool = console
+  restat = 1
+build src/parser/rebuild_cache: phony src/parser/CMakeFiles/rebuild_cache.util
+
+#############################################
+# Utility command for CommonParser_pch
+
+build src/parser/CommonParser_pch: phony src/parser/CMakeFiles/CommonParser_pch src/parser/cotire/CommonParser_CXX_prefix.hxx.pch src/parser/cotire/CommonParser_CXX_prefix.hxx src/parser/cotire/CommonParser_CXX_prefix.cxx
+
+#############################################
+# Utility command for install
+
+build src/parser/CMakeFiles/install.util: CUSTOM_COMMAND src/parser/all
+  COMMAND = cd /mnt/win_d/projects/Common/clang/src/parser && /usr/bin/cmake -P cmake_install.cmake
+  DESC = Install the project...
+  pool = console
+  restat = 1
+build src/parser/install: phony src/parser/CMakeFiles/install.util
+
+#############################################
+# Utility command for list_install_components
+
+build src/parser/list_install_components: phony
+# =============================================================================
+# Object build statements for STATIC_LIBRARY target CommonParser
+
+
+#############################################
+# Order-only phony target for CommonParser
+
+build cmake_object_order_depends_target_CommonParser: phony || src/parser/cotire/CommonParser_CXX_prefix.cxx src/parser/cotire/CommonParser_CXX_prefix.hxx src/parser/cotire/CommonParser_CXX_prefix.hxx.pch
+build src/parser/CMakeFiles/CommonParser.dir/stdafx.cpp.o: CXX_COMPILER__CommonParser ../src/parser/stdafx.cpp | src/parser/cotire/CommonParser_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonParser
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
+  DEP_FILE = src/parser/CMakeFiles/CommonParser.dir/stdafx.cpp.o.d
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/parser/cotire/CommonParser_CXX_prefix.hxx
+  INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/parser/../../3rd_party/bison -I../src/parser/.. -Isrc/parser/../..
+  OBJECT_DIR = src/parser/CMakeFiles/CommonParser.dir
+  OBJECT_FILE_DIR = src/parser/CMakeFiles/CommonParser.dir
+build src/parser/CMakeFiles/CommonParser.dir/common_parser_base.cpp.o: CXX_COMPILER__CommonParser ../src/parser/common_parser_base.cpp | src/parser/cotire/CommonParser_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonParser
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
+  DEP_FILE = src/parser/CMakeFiles/CommonParser.dir/common_parser_base.cpp.o.d
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/parser/cotire/CommonParser_CXX_prefix.hxx
+  INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/parser/../../3rd_party/bison -I../src/parser/.. -Isrc/parser/../..
+  OBJECT_DIR = src/parser/CMakeFiles/CommonParser.dir
+  OBJECT_FILE_DIR = src/parser/CMakeFiles/CommonParser.dir
+build src/parser/CMakeFiles/CommonParser.dir/common_parser_bencoding_tools.cpp.o: CXX_COMPILER__CommonParser ../src/parser/common_parser_bencoding_tools.cpp | src/parser/cotire/CommonParser_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonParser
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
+  DEP_FILE = src/parser/CMakeFiles/CommonParser.dir/common_parser_bencoding_tools.cpp.o.d
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/parser/cotire/CommonParser_CXX_prefix.hxx
+  INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/parser/../../3rd_party/bison -I../src/parser/.. -Isrc/parser/../..
+  OBJECT_DIR = src/parser/CMakeFiles/CommonParser.dir
+  OBJECT_FILE_DIR = src/parser/CMakeFiles/CommonParser.dir
+build src/parser/CMakeFiles/CommonParser.dir/common_parser_cpp_base.cpp.o: CXX_COMPILER__CommonParser ../src/parser/common_parser_cpp_base.cpp | src/parser/cotire/CommonParser_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonParser
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
+  DEP_FILE = src/parser/CMakeFiles/CommonParser.dir/common_parser_cpp_base.cpp.o.d
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/parser/cotire/CommonParser_CXX_prefix.hxx
+  INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/parser/../../3rd_party/bison -I../src/parser/.. -Isrc/parser/../..
+  OBJECT_DIR = src/parser/CMakeFiles/CommonParser.dir
+  OBJECT_FILE_DIR = src/parser/CMakeFiles/CommonParser.dir
+
+# =============================================================================
+# Link build statements for STATIC_LIBRARY target CommonParser
+
+
+#############################################
+# Link the static library src/parser/libCommonParser.a
+
+build src/parser/libCommonParser.a: CXX_STATIC_LIBRARY_LINKER__CommonParser src/parser/CMakeFiles/CommonParser.dir/stdafx.cpp.o src/parser/CMakeFiles/CommonParser.dir/common_parser_base.cpp.o src/parser/CMakeFiles/CommonParser.dir/common_parser_bencoding_tools.cpp.o src/parser/CMakeFiles/CommonParser.dir/common_parser_cpp_base.cpp.o
+  LANGUAGE_COMPILE_FLAGS = -g
+  OBJECT_DIR = src/parser/CMakeFiles/CommonParser.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = src/parser/libCommonParser.a
+  TARGET_PDB = CommonParser.a.dbg
+
+#############################################
+# Utility command for package
+
+build src/parser/CMakeFiles/package.util: CUSTOM_COMMAND src/parser/all
+  COMMAND = cd /mnt/win_d/projects/Common/clang && /usr/bin/cpack --config ./CPackConfig.cmake
+  DESC = Run CPack packaging tool...
+  pool = console
+  restat = 1
+build src/parser/package: phony src/parser/CMakeFiles/package.util
+
+#############################################
+# Utility command for package_source
+
+build src/parser/CMakeFiles/package_source.util: CUSTOM_COMMAND
+  COMMAND = cd /mnt/win_d/projects/Common/clang && /usr/bin/cpack --config ./CPackSourceConfig.cmake /mnt/win_d/projects/Common/clang/CPackSourceConfig.cmake
+  DESC = Run CPack packaging tool for source...
+  pool = console
+  restat = 1
+build src/parser/package_source: phony src/parser/CMakeFiles/package_source.util
+
+#############################################
+# Utility command for edit_cache
+
+build src/parser/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /mnt/win_d/projects/Common/clang/src/parser && /usr/bin/cmake-gui -S/mnt/win_d/projects/Common -B/mnt/win_d/projects/Common/clang
+  DESC = Running CMake cache editor...
+  pool = console
+  restat = 1
+build src/parser/edit_cache: phony src/parser/CMakeFiles/edit_cache.util
+
+#############################################
+# Phony custom command for src/parser/CMakeFiles/CommonParser_pch
+
+build src/parser/CMakeFiles/CommonParser_pch: phony src/parser/cotire/CommonParser_CXX_prefix.hxx.pch
+
+#############################################
+# Custom command for src/parser/cotire/CommonParser_CXX_prefix.hxx.pch
+
+build src/parser/cotire/CommonParser_CXX_prefix.hxx.pch: CUSTOM_COMMAND src/parser/cotire/CommonParser_CXX_prefix.hxx /usr/bin/clang++ src/parser/cotire/CommonParser_CXX_prefix.hxx
+  COMMAND = cd /mnt/win_d/projects/Common/src/parser && /usr/bin/cmake -DCOTIRE_BUILD_TYPE:STRING=Debug -P /media/erik/USB_BLACK/lib/cotire/CMake/cotire.cmake precompile /mnt/win_d/projects/Common/clang/src/parser/CommonParser_CXX_Debug_cotire.cmake /mnt/win_d/projects/Common/clang/src/parser/cotire/CommonParser_CXX_prefix.hxx /mnt/win_d/projects/Common/clang/src/parser/cotire/CommonParser_CXX_prefix.hxx.pch stdafx.cpp
+  DESC = Building CXX precompiled header src/parser/cotire/CommonParser_CXX_prefix.hxx.pch
+  restat = 1
+
+#############################################
+# Custom command for src/parser/cotire/CommonParser_CXX_prefix.hxx
+
+build src/parser/cotire/CommonParser_CXX_prefix.hxx: CUSTOM_COMMAND src/parser/cotire/CommonParser_CXX_prefix.cxx
+  COMMAND = cd /mnt/win_d/projects/Common/clang && /usr/bin/cmake -DCOTIRE_BUILD_TYPE:STRING=Debug -P /media/erik/USB_BLACK/lib/cotire/CMake/cotire.cmake combine /mnt/win_d/projects/Common/clang/src/parser/CommonParser_CXX_Debug_cotire.cmake /mnt/win_d/projects/Common/clang/src/parser/cotire/CommonParser_CXX_prefix.hxx /mnt/win_d/projects/Common/clang/src/parser/cotire/CommonParser_CXX_prefix.cxx
+  DESC = Generating CXX prefix header src/parser/cotire/CommonParser_CXX_prefix.hxx
+  restat = 1
+
+#############################################
+# Custom command for src/parser/cotire/CommonParser_CXX_prefix.cxx
+
+build src/parser/cotire/CommonParser_CXX_prefix.cxx: CUSTOM_COMMAND ../src/parser/stdafx.h
+  COMMAND = cd /mnt/win_d/projects/Common/clang && /usr/bin/cmake -DCOTIRE_BUILD_TYPE:STRING=Debug -P /media/erik/USB_BLACK/lib/cotire/CMake/cotire.cmake combine /mnt/win_d/projects/Common/clang/src/parser/CommonParser_CXX_Debug_cotire.cmake /mnt/win_d/projects/Common/clang/src/parser/cotire/CommonParser_CXX_prefix.cxx /mnt/win_d/projects/Common/src/parser/stdafx.h
+  DESC = Generating CXX prefix source src/parser/cotire/CommonParser_CXX_prefix.cxx
+  restat = 1
+# =============================================================================
+# Write statements declared in CMakeLists.txt:
+# /mnt/win_d/projects/Common/src/CMakeLists.txt
+# =============================================================================
+
+
+#############################################
+# Utility command for install/strip
+
 build src/signal/CMakeFiles/install/strip.util: CUSTOM_COMMAND src/signal/all
   COMMAND = cd /mnt/win_d/projects/Common/clang/src/signal && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
   DESC = Installing the project stripped...
@@ -1372,21 +1537,21 @@ build cmake_object_order_depends_target_CommonSignal: phony || src/signal/cotire
 build src/signal/CMakeFiles/CommonSignal.dir/stdafx.cpp.o: CXX_COMPILER__CommonSignal ../src/signal/stdafx.cpp | src/signal/cotire/CommonSignal_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonSignal
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/signal/CMakeFiles/CommonSignal.dir/stdafx.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/signal/cotire/CommonSignal_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/signal/cotire/CommonSignal_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -Isrc/signal/../.. -I../src/signal/..
   OBJECT_DIR = src/signal/CMakeFiles/CommonSignal.dir
   OBJECT_FILE_DIR = src/signal/CMakeFiles/CommonSignal.dir
 build src/signal/CMakeFiles/CommonSignal.dir/common_signal_handler.cpp.o: CXX_COMPILER__CommonSignal ../src/signal/common_signal_handler.cpp | src/signal/cotire/CommonSignal_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonSignal
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/signal/CMakeFiles/CommonSignal.dir/common_signal_handler.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/signal/cotire/CommonSignal_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/signal/cotire/CommonSignal_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -Isrc/signal/../.. -I../src/signal/..
   OBJECT_DIR = src/signal/CMakeFiles/CommonSignal.dir
   OBJECT_FILE_DIR = src/signal/CMakeFiles/CommonSignal.dir
 build src/signal/CMakeFiles/CommonSignal.dir/common_signal_tools.cpp.o: CXX_COMPILER__CommonSignal ../src/signal/common_signal_tools.cpp | src/signal/cotire/CommonSignal_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonSignal
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/signal/CMakeFiles/CommonSignal.dir/common_signal_tools.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/signal/cotire/CommonSignal_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/signal/cotire/CommonSignal_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -Isrc/signal/../.. -I../src/signal/..
   OBJECT_DIR = src/signal/CMakeFiles/CommonSignal.dir
   OBJECT_FILE_DIR = src/signal/CMakeFiles/CommonSignal.dir
@@ -1535,49 +1700,49 @@ build cmake_object_order_depends_target_CommonTimer: phony || src/timer/cotire/C
 build src/timer/CMakeFiles/CommonTimer.dir/stdafx.cpp.o: CXX_COMPILER__CommonTimer ../src/timer/stdafx.cpp | src/timer/cotire/CommonTimer_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonTimer
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/timer/CMakeFiles/CommonTimer.dir/stdafx.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/timer/cotire/CommonTimer_CXX_prefix.hxx -std=gnu++11
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/timer/cotire/CommonTimer_CXX_prefix.hxx -std=gnu++11
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/timer/.. -Isrc/timer/../..
   OBJECT_DIR = src/timer/CMakeFiles/CommonTimer.dir
   OBJECT_FILE_DIR = src/timer/CMakeFiles/CommonTimer.dir
 build src/timer/CMakeFiles/CommonTimer.dir/common_timer.cpp.o: CXX_COMPILER__CommonTimer ../src/timer/common_timer.cpp | src/timer/cotire/CommonTimer_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonTimer
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/timer/CMakeFiles/CommonTimer.dir/common_timer.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/timer/cotire/CommonTimer_CXX_prefix.hxx -std=gnu++11
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/timer/cotire/CommonTimer_CXX_prefix.hxx -std=gnu++11
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/timer/.. -Isrc/timer/../..
   OBJECT_DIR = src/timer/CMakeFiles/CommonTimer.dir
   OBJECT_FILE_DIR = src/timer/CMakeFiles/CommonTimer.dir
 build src/timer/CMakeFiles/CommonTimer.dir/common_timer_handler.cpp.o: CXX_COMPILER__CommonTimer ../src/timer/common_timer_handler.cpp | src/timer/cotire/CommonTimer_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonTimer
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/timer/CMakeFiles/CommonTimer.dir/common_timer_handler.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/timer/cotire/CommonTimer_CXX_prefix.hxx -std=gnu++11
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/timer/cotire/CommonTimer_CXX_prefix.hxx -std=gnu++11
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/timer/.. -Isrc/timer/../..
   OBJECT_DIR = src/timer/CMakeFiles/CommonTimer.dir
   OBJECT_FILE_DIR = src/timer/CMakeFiles/CommonTimer.dir
 build src/timer/CMakeFiles/CommonTimer.dir/common_timer_manager.cpp.o: CXX_COMPILER__CommonTimer ../src/timer/common_timer_manager.cpp | src/timer/cotire/CommonTimer_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonTimer
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/timer/CMakeFiles/CommonTimer.dir/common_timer_manager.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/timer/cotire/CommonTimer_CXX_prefix.hxx -std=gnu++11
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/timer/cotire/CommonTimer_CXX_prefix.hxx -std=gnu++11
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/timer/.. -Isrc/timer/../..
   OBJECT_DIR = src/timer/CMakeFiles/CommonTimer.dir
   OBJECT_FILE_DIR = src/timer/CMakeFiles/CommonTimer.dir
 build src/timer/CMakeFiles/CommonTimer.dir/common_timer_resetcounterhandler.cpp.o: CXX_COMPILER__CommonTimer ../src/timer/common_timer_resetcounterhandler.cpp | src/timer/cotire/CommonTimer_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonTimer
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/timer/CMakeFiles/CommonTimer.dir/common_timer_resetcounterhandler.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/timer/cotire/CommonTimer_CXX_prefix.hxx -std=gnu++11
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/timer/cotire/CommonTimer_CXX_prefix.hxx -std=gnu++11
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/timer/.. -Isrc/timer/../..
   OBJECT_DIR = src/timer/CMakeFiles/CommonTimer.dir
   OBJECT_FILE_DIR = src/timer/CMakeFiles/CommonTimer.dir
 build src/timer/CMakeFiles/CommonTimer.dir/common_timer_second_publisher.cpp.o: CXX_COMPILER__CommonTimer ../src/timer/common_timer_second_publisher.cpp | src/timer/cotire/CommonTimer_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonTimer
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/timer/CMakeFiles/CommonTimer.dir/common_timer_second_publisher.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/timer/cotire/CommonTimer_CXX_prefix.hxx -std=gnu++11
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/timer/cotire/CommonTimer_CXX_prefix.hxx -std=gnu++11
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/timer/.. -Isrc/timer/../..
   OBJECT_DIR = src/timer/CMakeFiles/CommonTimer.dir
   OBJECT_FILE_DIR = src/timer/CMakeFiles/CommonTimer.dir
 build src/timer/CMakeFiles/CommonTimer.dir/common_timer_tools.cpp.o: CXX_COMPILER__CommonTimer ../src/timer/common_timer_tools.cpp | src/timer/cotire/CommonTimer_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonTimer
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/timer/CMakeFiles/CommonTimer.dir/common_timer_tools.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/timer/cotire/CommonTimer_CXX_prefix.hxx -std=gnu++11
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/timer/cotire/CommonTimer_CXX_prefix.hxx -std=gnu++11
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/timer/.. -Isrc/timer/../..
   OBJECT_DIR = src/timer/CMakeFiles/CommonTimer.dir
   OBJECT_FILE_DIR = src/timer/CMakeFiles/CommonTimer.dir
@@ -1719,30 +1884,30 @@ build src/ui/rebuild_cache: phony src/ui/CMakeFiles/rebuild_cache.util
 
 build cmake_object_order_depends_target_CommonUI: phony || cmake_object_order_depends_target_Common src/ui/cotire/CommonUI_CXX_prefix.cxx src/ui/cotire/CommonUI_CXX_prefix.hxx src/ui/cotire/CommonUI_CXX_prefix.hxx.pch
 build src/ui/CMakeFiles/CommonUI.dir/stdafx.cpp.o: CXX_COMPILER__CommonUI ../src/ui/stdafx.cpp | src/ui/cotire/CommonUI_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonUI
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTK3_SUPPORT -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
   DEP_FILE = src/ui/CMakeFiles/CommonUI.dir/stdafx.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/cotire/CommonUI_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/cotire/CommonUI_CXX_prefix.hxx
   INCLUDES = -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/ui/.. -I../src/ui/../error -I../src/ui/../image -I../src/ui/../log -I../src/ui/../xml -Isrc/ui/../..
   OBJECT_DIR = src/ui/CMakeFiles/CommonUI.dir
   OBJECT_FILE_DIR = src/ui/CMakeFiles/CommonUI.dir
 build src/ui/CMakeFiles/CommonUI.dir/common_ui_tools.cpp.o: CXX_COMPILER__CommonUI ../src/ui/common_ui_tools.cpp | src/ui/cotire/CommonUI_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonUI
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTK3_SUPPORT -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
   DEP_FILE = src/ui/CMakeFiles/CommonUI.dir/common_ui_tools.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/cotire/CommonUI_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/cotire/CommonUI_CXX_prefix.hxx
   INCLUDES = -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/ui/.. -I../src/ui/../error -I../src/ui/../image -I../src/ui/../log -I../src/ui/../xml -Isrc/ui/../..
   OBJECT_DIR = src/ui/CMakeFiles/CommonUI.dir
   OBJECT_FILE_DIR = src/ui/CMakeFiles/CommonUI.dir
 build src/ui/CMakeFiles/CommonUI.dir/common_ui_windowtype_converter.cpp.o: CXX_COMPILER__CommonUI ../src/ui/common_ui_windowtype_converter.cpp | src/ui/cotire/CommonUI_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonUI
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTK3_SUPPORT -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
   DEP_FILE = src/ui/CMakeFiles/CommonUI.dir/common_ui_windowtype_converter.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/cotire/CommonUI_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/cotire/CommonUI_CXX_prefix.hxx
   INCLUDES = -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/ui/.. -I../src/ui/../error -I../src/ui/../image -I../src/ui/../log -I../src/ui/../xml -Isrc/ui/../..
   OBJECT_DIR = src/ui/CMakeFiles/CommonUI.dir
   OBJECT_FILE_DIR = src/ui/CMakeFiles/CommonUI.dir
 build src/ui/CMakeFiles/CommonUI.dir/common_ui_monitor_setup_xml_handler.cpp.o: CXX_COMPILER__CommonUI ../src/ui/common_ui_monitor_setup_xml_handler.cpp | src/ui/cotire/CommonUI_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonUI
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTK3_SUPPORT -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
   DEP_FILE = src/ui/CMakeFiles/CommonUI.dir/common_ui_monitor_setup_xml_handler.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/cotire/CommonUI_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/cotire/CommonUI_CXX_prefix.hxx
   INCLUDES = -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/ui/.. -I../src/ui/../error -I../src/ui/../image -I../src/ui/../log -I../src/ui/../xml -Isrc/ui/../..
   OBJECT_DIR = src/ui/CMakeFiles/CommonUI.dir
   OBJECT_FILE_DIR = src/ui/CMakeFiles/CommonUI.dir
@@ -1894,37 +2059,37 @@ build src/ui/gtk/list_install_components: phony
 
 build cmake_object_order_depends_target_CommonUI_GTK: phony || cmake_object_order_depends_target_Common src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.cxx src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.hxx src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.hxx.pch
 build src/ui/gtk/CMakeFiles/CommonUI_GTK.dir/stdafx.cpp.o: CXX_COMPILER__CommonUI_GTK ../src/ui/gtk/stdafx.cpp | src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonUI_GTK
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DG_ERRORCHECK_MUTEXES -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTK3_SUPPORT -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DG_ERRORCHECK_MUTEXES -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
   DEP_FILE = src/ui/gtk/CMakeFiles/CommonUI_GTK.dir/stdafx.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.hxx
   INCLUDES = -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/gtkglarea -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -Isrc/ui/gtk/../../.. -I../src/ui/gtk/.. -I../src/ui/gtk/../.. -I../src/ui/gtk/../../image -I../src/ui/gtk/../../log -I../src/ui/gtk/../../timer
   OBJECT_DIR = src/ui/gtk/CMakeFiles/CommonUI_GTK.dir
   OBJECT_FILE_DIR = src/ui/gtk/CMakeFiles/CommonUI_GTK.dir
 build src/ui/gtk/CMakeFiles/CommonUI_GTK.dir/common_ui_gtk_builder_definition.cpp.o: CXX_COMPILER__CommonUI_GTK ../src/ui/gtk/common_ui_gtk_builder_definition.cpp | src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonUI_GTK
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DG_ERRORCHECK_MUTEXES -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTK3_SUPPORT -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DG_ERRORCHECK_MUTEXES -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
   DEP_FILE = src/ui/gtk/CMakeFiles/CommonUI_GTK.dir/common_ui_gtk_builder_definition.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.hxx
   INCLUDES = -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/gtkglarea -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -Isrc/ui/gtk/../../.. -I../src/ui/gtk/.. -I../src/ui/gtk/../.. -I../src/ui/gtk/../../image -I../src/ui/gtk/../../log -I../src/ui/gtk/../../timer
   OBJECT_DIR = src/ui/gtk/CMakeFiles/CommonUI_GTK.dir
   OBJECT_FILE_DIR = src/ui/gtk/CMakeFiles/CommonUI_GTK.dir
 build src/ui/gtk/CMakeFiles/CommonUI_GTK.dir/common_ui_gtk_eventhandler.cpp.o: CXX_COMPILER__CommonUI_GTK ../src/ui/gtk/common_ui_gtk_eventhandler.cpp | src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonUI_GTK
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DG_ERRORCHECK_MUTEXES -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTK3_SUPPORT -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DG_ERRORCHECK_MUTEXES -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
   DEP_FILE = src/ui/gtk/CMakeFiles/CommonUI_GTK.dir/common_ui_gtk_eventhandler.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.hxx
   INCLUDES = -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/gtkglarea -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -Isrc/ui/gtk/../../.. -I../src/ui/gtk/.. -I../src/ui/gtk/../.. -I../src/ui/gtk/../../image -I../src/ui/gtk/../../log -I../src/ui/gtk/../../timer
   OBJECT_DIR = src/ui/gtk/CMakeFiles/CommonUI_GTK.dir
   OBJECT_FILE_DIR = src/ui/gtk/CMakeFiles/CommonUI_GTK.dir
 build src/ui/gtk/CMakeFiles/CommonUI_GTK.dir/common_ui_gtk_manager.cpp.o: CXX_COMPILER__CommonUI_GTK ../src/ui/gtk/common_ui_gtk_manager.cpp | src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonUI_GTK
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DG_ERRORCHECK_MUTEXES -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTK3_SUPPORT -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DG_ERRORCHECK_MUTEXES -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
   DEP_FILE = src/ui/gtk/CMakeFiles/CommonUI_GTK.dir/common_ui_gtk_manager.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.hxx
   INCLUDES = -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/gtkglarea -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -Isrc/ui/gtk/../../.. -I../src/ui/gtk/.. -I../src/ui/gtk/../.. -I../src/ui/gtk/../../image -I../src/ui/gtk/../../log -I../src/ui/gtk/../../timer
   OBJECT_DIR = src/ui/gtk/CMakeFiles/CommonUI_GTK.dir
   OBJECT_FILE_DIR = src/ui/gtk/CMakeFiles/CommonUI_GTK.dir
 build src/ui/gtk/CMakeFiles/CommonUI_GTK.dir/common_ui_gtk_tools.cpp.o: CXX_COMPILER__CommonUI_GTK ../src/ui/gtk/common_ui_gtk_tools.cpp | src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonUI_GTK
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DG_ERRORCHECK_MUTEXES -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DGTK2_SUPPORT -DGTK2_USE -DGTK3_SUPPORT -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DG_ERRORCHECK_MUTEXES -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
   DEP_FILE = src/ui/gtk/CMakeFiles/CommonUI_GTK.dir/common_ui_gtk_tools.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/ui/gtk/cotire/CommonUI_GTK_CXX_prefix.hxx
   INCLUDES = -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/gtkglarea -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -Isrc/ui/gtk/../../.. -I../src/ui/gtk/.. -I../src/ui/gtk/../.. -I../src/ui/gtk/../../image -I../src/ui/gtk/../../log -I../src/ui/gtk/../../timer
   OBJECT_DIR = src/ui/gtk/CMakeFiles/CommonUI_GTK.dir
   OBJECT_FILE_DIR = src/ui/gtk/CMakeFiles/CommonUI_GTK.dir
@@ -2058,35 +2223,35 @@ build cmake_object_order_depends_target_CommonXML: phony || src/xml/cotire/Commo
 build src/xml/CMakeFiles/CommonXML.dir/stdafx.cpp.o: CXX_COMPILER__CommonXML ../src/xml/stdafx.cpp | src/xml/cotire/CommonXML_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonXML
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -DLIBXML2_SUPPORT -DLIBXML2_USE -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/xml/CMakeFiles/CommonXML.dir/stdafx.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/xml/cotire/CommonXML_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/xml/cotire/CommonXML_CXX_prefix.hxx
   INCLUDES = -I/usr/include/libxml2 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/xml/.. -Isrc/xml/../..
   OBJECT_DIR = src/xml/CMakeFiles/CommonXML.dir
   OBJECT_FILE_DIR = src/xml/CMakeFiles/CommonXML.dir
 build src/xml/CMakeFiles/CommonXML.dir/common_xml_handler.cpp.o: CXX_COMPILER__CommonXML ../src/xml/common_xml_handler.cpp | src/xml/cotire/CommonXML_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonXML
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -DLIBXML2_SUPPORT -DLIBXML2_USE -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/xml/CMakeFiles/CommonXML.dir/common_xml_handler.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/xml/cotire/CommonXML_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/xml/cotire/CommonXML_CXX_prefix.hxx
   INCLUDES = -I/usr/include/libxml2 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/xml/.. -Isrc/xml/../..
   OBJECT_DIR = src/xml/CMakeFiles/CommonXML.dir
   OBJECT_FILE_DIR = src/xml/CMakeFiles/CommonXML.dir
 build src/xml/CMakeFiles/CommonXML.dir/common_xml_handler_base.cpp.o: CXX_COMPILER__CommonXML ../src/xml/common_xml_handler_base.cpp | src/xml/cotire/CommonXML_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonXML
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -DLIBXML2_SUPPORT -DLIBXML2_USE -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/xml/CMakeFiles/CommonXML.dir/common_xml_handler_base.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/xml/cotire/CommonXML_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/xml/cotire/CommonXML_CXX_prefix.hxx
   INCLUDES = -I/usr/include/libxml2 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/xml/.. -Isrc/xml/../..
   OBJECT_DIR = src/xml/CMakeFiles/CommonXML.dir
   OBJECT_FILE_DIR = src/xml/CMakeFiles/CommonXML.dir
 build src/xml/CMakeFiles/CommonXML.dir/common_xml_parser.cpp.o: CXX_COMPILER__CommonXML ../src/xml/common_xml_parser.cpp | src/xml/cotire/CommonXML_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonXML
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -DLIBXML2_SUPPORT -DLIBXML2_USE -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/xml/CMakeFiles/CommonXML.dir/common_xml_parser.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/xml/cotire/CommonXML_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/xml/cotire/CommonXML_CXX_prefix.hxx
   INCLUDES = -I/usr/include/libxml2 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/xml/.. -Isrc/xml/../..
   OBJECT_DIR = src/xml/CMakeFiles/CommonXML.dir
   OBJECT_FILE_DIR = src/xml/CMakeFiles/CommonXML.dir
 build src/xml/CMakeFiles/CommonXML.dir/common_xml_tools.cpp.o: CXX_COMPILER__CommonXML ../src/xml/common_xml_tools.cpp | src/xml/cotire/CommonXML_CXX_prefix.hxx.pch || cmake_object_order_depends_target_CommonXML
   DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DEXCEPTION_CPP_USE -DHAVE_CONFIG_H -DLIBXML2_SUPPORT -DLIBXML2_USE -D_DEBUG -D_GLIBCXX_INCLUDE_NEXT_C_HEADERS -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = src/xml/CMakeFiles/CommonXML.dir/common_xml_tools.cpp.o.d
-  FLAGS = -g   -std=c++11 -include /mnt/win_d/projects/Common/clang/src/xml/cotire/CommonXML_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -std=c++11 -include /mnt/win_d/projects/Common/clang/src/xml/cotire/CommonXML_CXX_prefix.hxx
   INCLUDES = -I/usr/include/libxml2 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src/xml/.. -Isrc/xml/../..
   OBJECT_DIR = src/xml/CMakeFiles/CommonXML.dir
   OBJECT_FILE_DIR = src/xml/CMakeFiles/CommonXML.dir
@@ -2228,16 +2393,16 @@ build test_u/test_u: phony test_u/capabilities/capabilities test_u/capabilities/
 
 build cmake_object_order_depends_target_Common_Test_U: phony || test_u/CMakeFiles/Common_Test_U.dir
 build test_u/CMakeFiles/Common_Test_U.dir/common_test_u_tools.cpp.o: CXX_COMPILER__Common_Test_U ../test_u/common_test_u_tools.cpp || cmake_object_order_depends_target_Common_Test_U
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_u/CMakeFiles/Common_Test_U.dir/common_test_u_tools.cpp.o.d
-  FLAGS = -g
+  FLAGS = -g   -fPIC
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_u/../src -Itest_u/..
   OBJECT_DIR = test_u/CMakeFiles/Common_Test_U.dir
   OBJECT_FILE_DIR = test_u/CMakeFiles/Common_Test_U.dir
 build test_u/CMakeFiles/Common_Test_U.dir/stdafx.cpp.o: CXX_COMPILER__Common_Test_U ../test_u/stdafx.cpp || cmake_object_order_depends_target_Common_Test_U
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_u/CMakeFiles/Common_Test_U.dir/stdafx.cpp.o.d
-  FLAGS = -g
+  FLAGS = -g   -fPIC
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_u/../src -Itest_u/..
   OBJECT_DIR = test_u/CMakeFiles/Common_Test_U.dir
   OBJECT_FILE_DIR = test_u/CMakeFiles/Common_Test_U.dir
@@ -2362,14 +2527,14 @@ build cmake_object_order_depends_target_capabilities_2: phony || cmake_object_or
 build test_u/capabilities/CMakeFiles/capabilities_2.dir/stdafx.cpp.o: CXX_COMPILER__capabilities_2 ../test_u/capabilities/stdafx.cpp | test_u/capabilities/cotire/capabilities_CXX_prefix.hxx.pch test_u/capabilities/cotire/capabilities_2_CXX_prefix.hxx || cmake_object_order_depends_target_capabilities_2
   DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_u/capabilities/CMakeFiles/capabilities_2.dir/stdafx.cpp.o.d
-  FLAGS = -g    -include "/mnt/win_d/projects/Common/clang/test_u/capabilities/cotire/capabilities_2_CXX_prefix.hxx"
+  FLAGS = -g   -fPIC  -include "/mnt/win_d/projects/Common/clang/test_u/capabilities/cotire/capabilities_2_CXX_prefix.hxx"
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_u/capabilities/../../src -I../test_u/capabilities/../../src/timer -I../test_u/capabilities/.. -Itest_u/capabilities/../.. -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/timer/.. -Isrc/timer/../..
   OBJECT_DIR = test_u/capabilities/CMakeFiles/capabilities_2.dir
   OBJECT_FILE_DIR = test_u/capabilities/CMakeFiles/capabilities_2.dir
 build test_u/capabilities/CMakeFiles/capabilities_2.dir/test_u_2.cpp.o: CXX_COMPILER__capabilities_2 ../test_u/capabilities/test_u_2.cpp | test_u/capabilities/cotire/capabilities_2_CXX_prefix.hxx || cmake_object_order_depends_target_capabilities_2
   DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_u/capabilities/CMakeFiles/capabilities_2.dir/test_u_2.cpp.o.d
-  FLAGS = -g    -include "/mnt/win_d/projects/Common/clang/test_u/capabilities/cotire/capabilities_2_CXX_prefix.hxx"
+  FLAGS = -g   -fPIC  -include "/mnt/win_d/projects/Common/clang/test_u/capabilities/cotire/capabilities_2_CXX_prefix.hxx"
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_u/capabilities/../../src -I../test_u/capabilities/../../src/timer -I../test_u/capabilities/.. -Itest_u/capabilities/../.. -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/timer/.. -Isrc/timer/../..
   OBJECT_DIR = test_u/capabilities/CMakeFiles/capabilities_2.dir
   OBJECT_FILE_DIR = test_u/capabilities/CMakeFiles/capabilities_2.dir
@@ -2401,14 +2566,14 @@ build cmake_object_order_depends_target_capabilities: phony || test_u/capabiliti
 build test_u/capabilities/CMakeFiles/capabilities.dir/stdafx.cpp.o: CXX_COMPILER__capabilities ../test_u/capabilities/stdafx.cpp | test_u/capabilities/cotire/capabilities_CXX_prefix.hxx.pch test_u/capabilities/cotire/capabilities_2_CXX_prefix.hxx || cmake_object_order_depends_target_capabilities
   DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_u/capabilities/CMakeFiles/capabilities.dir/stdafx.cpp.o.d
-  FLAGS = -g   -include /mnt/win_d/projects/Common/clang/test_u/capabilities/cotire/capabilities_CXX_prefix.hxx  -include "/mnt/win_d/projects/Common/clang/test_u/capabilities/cotire/capabilities_2_CXX_prefix.hxx"
+  FLAGS = -g   -fPIC -include /mnt/win_d/projects/Common/clang/test_u/capabilities/cotire/capabilities_CXX_prefix.hxx  -include "/mnt/win_d/projects/Common/clang/test_u/capabilities/cotire/capabilities_2_CXX_prefix.hxx"
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_u/capabilities/../../src -I../test_u/capabilities/../../src/timer -I../test_u/capabilities/.. -Itest_u/capabilities/../..
   OBJECT_DIR = test_u/capabilities/CMakeFiles/capabilities.dir
   OBJECT_FILE_DIR = test_u/capabilities/CMakeFiles/capabilities.dir
 build test_u/capabilities/CMakeFiles/capabilities.dir/test_u.cpp.o: CXX_COMPILER__capabilities ../test_u/capabilities/test_u.cpp | test_u/capabilities/cotire/capabilities_CXX_prefix.hxx.pch || cmake_object_order_depends_target_capabilities
   DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_u/capabilities/CMakeFiles/capabilities.dir/test_u.cpp.o.d
-  FLAGS = -g   -include /mnt/win_d/projects/Common/clang/test_u/capabilities/cotire/capabilities_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -include /mnt/win_d/projects/Common/clang/test_u/capabilities/cotire/capabilities_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_u/capabilities/../../src -I../test_u/capabilities/../../src/timer -I../test_u/capabilities/.. -Itest_u/capabilities/../..
   OBJECT_DIR = test_u/capabilities/CMakeFiles/capabilities.dir
   OBJECT_FILE_DIR = test_u/capabilities/CMakeFiles/capabilities.dir
@@ -2557,16 +2722,16 @@ build test_u/debug/debug_wrapper_pch: phony test_u/debug/CMakeFiles/debug_wrappe
 
 build cmake_object_order_depends_target_debug_wrapper: phony || cmake_object_order_depends_target_Common cmake_object_order_depends_target_CommonDBus cmake_object_order_depends_target_CommonError cmake_object_order_depends_target_CommonLog cmake_object_order_depends_target_CommonSignal cmake_object_order_depends_target_CommonTimer test_u/debug/cotire/debug_wrapper_CXX_prefix.cxx test_u/debug/cotire/debug_wrapper_CXX_prefix.hxx test_u/debug/cotire/debug_wrapper_CXX_prefix.hxx.pch
 build test_u/debug/CMakeFiles/debug_wrapper.dir/stdafx.cpp.o: CXX_COMPILER__debug_wrapper ../test_u/debug/stdafx.cpp | test_u/debug/cotire/debug_wrapper_CXX_prefix.hxx.pch || cmake_object_order_depends_target_debug_wrapper
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_u/debug/CMakeFiles/debug_wrapper.dir/stdafx.cpp.o.d
-  FLAGS = -g   -include /mnt/win_d/projects/Common/clang/test_u/debug/cotire/debug_wrapper_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -include /mnt/win_d/projects/Common/clang/test_u/debug/cotire/debug_wrapper_CXX_prefix.hxx
   INCLUDES = -I../test_u/debug/../../modules/ACE -I../test_u/debug/../../src -I../test_u/debug/../../src/log -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/timer/.. -Isrc/timer/../..
   OBJECT_DIR = test_u/debug/CMakeFiles/debug_wrapper.dir
   OBJECT_FILE_DIR = test_u/debug/CMakeFiles/debug_wrapper.dir
 build test_u/debug/CMakeFiles/debug_wrapper.dir/test_u.cpp.o: CXX_COMPILER__debug_wrapper ../test_u/debug/test_u.cpp | test_u/debug/cotire/debug_wrapper_CXX_prefix.hxx.pch || cmake_object_order_depends_target_debug_wrapper
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_u/debug/CMakeFiles/debug_wrapper.dir/test_u.cpp.o.d
-  FLAGS = -g   -include /mnt/win_d/projects/Common/clang/test_u/debug/cotire/debug_wrapper_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -include /mnt/win_d/projects/Common/clang/test_u/debug/cotire/debug_wrapper_CXX_prefix.hxx
   INCLUDES = -I../test_u/debug/../../modules/ACE -I../test_u/debug/../../src -I../test_u/debug/../../src/log -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/timer/.. -Isrc/timer/../..
   OBJECT_DIR = test_u/debug/CMakeFiles/debug_wrapper.dir
   OBJECT_FILE_DIR = test_u/debug/CMakeFiles/debug_wrapper.dir
@@ -2710,16 +2875,16 @@ build test_u/features/features_pch: phony test_u/features/CMakeFiles/features_pc
 
 build cmake_object_order_depends_target_features: phony || test_u/features/cotire/features_CXX_prefix.cxx test_u/features/cotire/features_CXX_prefix.hxx test_u/features/cotire/features_CXX_prefix.hxx.pch
 build test_u/features/CMakeFiles/features.dir/stdafx.cpp.o: CXX_COMPILER__features ../test_u/features/stdafx.cpp | test_u/features/cotire/features_CXX_prefix.hxx.pch || cmake_object_order_depends_target_features
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_u/features/CMakeFiles/features.dir/stdafx.cpp.o.d
-  FLAGS = -g   -include /mnt/win_d/projects/Common/clang/test_u/features/cotire/features_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -include /mnt/win_d/projects/Common/clang/test_u/features/cotire/features_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_u/features/../../src
   OBJECT_DIR = test_u/features/CMakeFiles/features.dir
   OBJECT_FILE_DIR = test_u/features/CMakeFiles/features.dir
 build test_u/features/CMakeFiles/features.dir/test_u.cpp.o: CXX_COMPILER__features ../test_u/features/test_u.cpp | test_u/features/cotire/features_CXX_prefix.hxx.pch || cmake_object_order_depends_target_features
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_u/features/CMakeFiles/features.dir/test_u.cpp.o.d
-  FLAGS = -g   -include /mnt/win_d/projects/Common/clang/test_u/features/cotire/features_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -include /mnt/win_d/projects/Common/clang/test_u/features/cotire/features_CXX_prefix.hxx
   INCLUDES = -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_u/features/../../src
   OBJECT_DIR = test_u/features/CMakeFiles/features.dir
   OBJECT_FILE_DIR = test_u/features/CMakeFiles/features.dir
@@ -2862,16 +3027,16 @@ build test_u/file/file_pch: phony test_u/file/CMakeFiles/file_pch test_u/file/co
 
 build cmake_object_order_depends_target_file: phony || cmake_object_order_depends_target_Common cmake_object_order_depends_target_CommonDBus cmake_object_order_depends_target_CommonError cmake_object_order_depends_target_CommonLog cmake_object_order_depends_target_CommonSignal cmake_object_order_depends_target_CommonTimer test_u/file/cotire/file_CXX_prefix.cxx test_u/file/cotire/file_CXX_prefix.hxx test_u/file/cotire/file_CXX_prefix.hxx.pch
 build test_u/file/CMakeFiles/file.dir/stdafx.cpp.o: CXX_COMPILER__file ../test_u/file/stdafx.cpp | test_u/file/cotire/file_CXX_prefix.hxx.pch || cmake_object_order_depends_target_file
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_u/file/CMakeFiles/file.dir/stdafx.cpp.o.d
-  FLAGS = -g   -include /mnt/win_d/projects/Common/clang/test_u/file/cotire/file_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -include /mnt/win_d/projects/Common/clang/test_u/file/cotire/file_CXX_prefix.hxx
   INCLUDES = -I../test_u/file/../../modules/ACE -I../test_u/file/../../src -I../test_u/file/../../src/log -I../test_u/file/../../src/timer -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/timer/.. -Isrc/timer/../..
   OBJECT_DIR = test_u/file/CMakeFiles/file.dir
   OBJECT_FILE_DIR = test_u/file/CMakeFiles/file.dir
 build test_u/file/CMakeFiles/file.dir/test_u.cpp.o: CXX_COMPILER__file ../test_u/file/test_u.cpp | test_u/file/cotire/file_CXX_prefix.hxx.pch || cmake_object_order_depends_target_file
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_u/file/CMakeFiles/file.dir/test_u.cpp.o.d
-  FLAGS = -g   -include /mnt/win_d/projects/Common/clang/test_u/file/cotire/file_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -include /mnt/win_d/projects/Common/clang/test_u/file/cotire/file_CXX_prefix.hxx
   INCLUDES = -I../test_u/file/../../modules/ACE -I../test_u/file/../../src -I../test_u/file/../../src/log -I../test_u/file/../../src/timer -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/timer/.. -Isrc/timer/../..
   OBJECT_DIR = test_u/file/CMakeFiles/file.dir
   OBJECT_FILE_DIR = test_u/file/CMakeFiles/file.dir
@@ -3035,16 +3200,16 @@ build test_u/regex/edit_cache: phony test_u/regex/CMakeFiles/edit_cache.util
 
 build cmake_object_order_depends_target_regex: phony || cmake_object_order_depends_target_Common_Test_U test_u/regex/cotire/regex_CXX_prefix.cxx test_u/regex/cotire/regex_CXX_prefix.hxx test_u/regex/cotire/regex_CXX_prefix.hxx.pch
 build test_u/regex/CMakeFiles/regex.dir/stdafx.cpp.o: CXX_COMPILER__regex ../test_u/regex/stdafx.cpp | test_u/regex/cotire/regex_CXX_prefix.hxx.pch || cmake_object_order_depends_target_regex
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_u/regex/CMakeFiles/regex.dir/stdafx.cpp.o.d
-  FLAGS = -g   -include /mnt/win_d/projects/Common/clang/test_u/regex/cotire/regex_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -include /mnt/win_d/projects/Common/clang/test_u/regex/cotire/regex_CXX_prefix.hxx
   INCLUDES = -Itest_u/regex/../.. -I../test_u/regex/.. -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_u/../src -Itest_u/..
   OBJECT_DIR = test_u/regex/CMakeFiles/regex.dir
   OBJECT_FILE_DIR = test_u/regex/CMakeFiles/regex.dir
 build test_u/regex/CMakeFiles/regex.dir/test_u.cpp.o: CXX_COMPILER__regex ../test_u/regex/test_u.cpp | test_u/regex/cotire/regex_CXX_prefix.hxx.pch || cmake_object_order_depends_target_regex
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_u/regex/CMakeFiles/regex.dir/test_u.cpp.o.d
-  FLAGS = -g   -include /mnt/win_d/projects/Common/clang/test_u/regex/cotire/regex_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -include /mnt/win_d/projects/Common/clang/test_u/regex/cotire/regex_CXX_prefix.hxx
   INCLUDES = -Itest_u/regex/../.. -I../test_u/regex/.. -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_u/../src -Itest_u/..
   OBJECT_DIR = test_u/regex/CMakeFiles/regex.dir
   OBJECT_FILE_DIR = test_u/regex/CMakeFiles/regex.dir
@@ -3168,7 +3333,7 @@ build test_i/package: phony test_i/CMakeFiles/package.util
 #############################################
 # Utility command for test_i
 
-build test_i/test_i: phony test_i/capabilities/capability_wrapper test_i/ffmpeg/ffmpeg test_i/imagemagick/imagemagick test_i/ui/gtk/gtk_ui test_i/ui/gtk/gtk_ui_2 test_i/ui/gtk/gtk_ui_3
+build test_i/test_i: phony test_i/capabilities/capability_wrapper test_i/ffmpeg/ffmpeg test_i/imagemagick/imagemagick test_i/parser/parser test_i/print/print test_i/ui/gtk/gtk_ui test_i/ui/gtk/gtk_ui_2 test_i/ui/gtk/gtk_ui_3
 
 #############################################
 # Utility command for package_source
@@ -3263,16 +3428,16 @@ build test_i/capabilities/install/local: phony test_i/capabilities/CMakeFiles/in
 
 build cmake_object_order_depends_target_capability_wrapper: phony || test_i/capabilities/cotire/capability_wrapper_CXX_prefix.cxx test_i/capabilities/cotire/capability_wrapper_CXX_prefix.hxx test_i/capabilities/cotire/capability_wrapper_CXX_prefix.hxx.pch
 build test_i/capabilities/CMakeFiles/capability_wrapper.dir/stdafx.cpp.o: CXX_COMPILER__capability_wrapper ../test_i/capabilities/stdafx.cpp | test_i/capabilities/cotire/capability_wrapper_CXX_prefix.hxx.pch || cmake_object_order_depends_target_capability_wrapper
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_i/capabilities/CMakeFiles/capability_wrapper.dir/stdafx.cpp.o.d
-  FLAGS = -g   -include /mnt/win_d/projects/Common/clang/test_i/capabilities/cotire/capability_wrapper_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -include /mnt/win_d/projects/Common/clang/test_i/capabilities/cotire/capability_wrapper_CXX_prefix.hxx
   INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_i/capabilities/../../src -I../test_i/capabilities/../../src/timer -I../test_i/capabilities/.. -Itest_i/capabilities/../..
   OBJECT_DIR = test_i/capabilities/CMakeFiles/capability_wrapper.dir
   OBJECT_FILE_DIR = test_i/capabilities/CMakeFiles/capability_wrapper.dir
 build test_i/capabilities/CMakeFiles/capability_wrapper.dir/test_i.cpp.o: CXX_COMPILER__capability_wrapper ../test_i/capabilities/test_i.cpp | test_i/capabilities/cotire/capability_wrapper_CXX_prefix.hxx.pch || cmake_object_order_depends_target_capability_wrapper
-  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_i/capabilities/CMakeFiles/capability_wrapper.dir/test_i.cpp.o.d
-  FLAGS = -g   -include /mnt/win_d/projects/Common/clang/test_i/capabilities/cotire/capability_wrapper_CXX_prefix.hxx
+  FLAGS = -g   -fPIC -include /mnt/win_d/projects/Common/clang/test_i/capabilities/cotire/capability_wrapper_CXX_prefix.hxx
   INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_i/capabilities/../../src -I../test_i/capabilities/../../src/timer -I../test_i/capabilities/.. -Itest_i/capabilities/../..
   OBJECT_DIR = test_i/capabilities/CMakeFiles/capability_wrapper.dir
   OBJECT_FILE_DIR = test_i/capabilities/CMakeFiles/capability_wrapper.dir
@@ -3411,9 +3576,9 @@ build test_i/ffmpeg/rebuild_cache: phony test_i/ffmpeg/CMakeFiles/rebuild_cache.
 
 build cmake_object_order_depends_target_ffmpeg: phony || cmake_object_order_depends_target_Common cmake_object_order_depends_target_CommonDBus cmake_object_order_depends_target_CommonError cmake_object_order_depends_target_CommonImage cmake_object_order_depends_target_CommonLog cmake_object_order_depends_target_CommonSignal cmake_object_order_depends_target_CommonTimer
 build test_i/ffmpeg/CMakeFiles/ffmpeg.dir/test_i.cpp.o: CXX_COMPILER__ffmpeg ../test_i/ffmpeg/test_i.cpp || cmake_object_order_depends_target_ffmpeg
-  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_i/ffmpeg/CMakeFiles/ffmpeg.dir/test_i.cpp.o.d
-  FLAGS = -g
+  FLAGS = -g   -fPIC
   INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/usr/include/x86_64-linux-gnu -I../test_i/ffmpeg/../../modules/ACE -I../test_i/ffmpeg/../../src -I../test_i/ffmpeg/../../src/image -I../test_i/ffmpeg/../../src/log -I../test_i/ffmpeg/.. -Itest_i/ffmpeg/.. -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I/usr/include/ImageMagick-6 -I/usr/include/x86_64-linux-gnu/ImageMagick-6 -Isrc/image/../.. -I../src/image/.. -I../src/image/../error -I../src/log/.. -Isrc/log/../.. -I../src/timer/.. -Isrc/timer/../..
   OBJECT_DIR = test_i/ffmpeg/CMakeFiles/ffmpeg.dir
   OBJECT_FILE_DIR = test_i/ffmpeg/CMakeFiles/ffmpeg.dir
@@ -3523,9 +3688,9 @@ build test_i/imagemagick/rebuild_cache: phony test_i/imagemagick/CMakeFiles/rebu
 
 build cmake_object_order_depends_target_imagemagick: phony || cmake_object_order_depends_target_Common cmake_object_order_depends_target_CommonDBus cmake_object_order_depends_target_CommonError cmake_object_order_depends_target_CommonImage cmake_object_order_depends_target_CommonLog cmake_object_order_depends_target_CommonSignal cmake_object_order_depends_target_CommonTimer
 build test_i/imagemagick/CMakeFiles/imagemagick.dir/test_i.cpp.o: CXX_COMPILER__imagemagick ../test_i/imagemagick/test_i.cpp || cmake_object_order_depends_target_imagemagick
-  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
   DEP_FILE = test_i/imagemagick/CMakeFiles/imagemagick.dir/test_i.cpp.o.d
-  FLAGS = -g
+  FLAGS = -g   -fPIC
   INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/usr/include/ImageMagick-6 -I../test_i/imagemagick/../../modules/ACE -I../test_i/imagemagick/../../src -I../test_i/imagemagick/../../src/image -I../test_i/imagemagick/../../src/log -I../test_i/imagemagick/.. -Itest_i/imagemagick/.. -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I/usr/include/x86_64-linux-gnu -I/usr/include/x86_64-linux-gnu/ImageMagick-6 -Isrc/image/../.. -I../src/image/.. -I../src/image/../error -I../src/log/.. -Isrc/log/../.. -I../src/timer/.. -Isrc/timer/../..
   OBJECT_DIR = test_i/imagemagick/CMakeFiles/imagemagick.dir
   OBJECT_FILE_DIR = test_i/imagemagick/CMakeFiles/imagemagick.dir
@@ -3566,6 +3731,359 @@ build test_i/imagemagick/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
   pool = console
   restat = 1
 build test_i/imagemagick/edit_cache: phony test_i/imagemagick/CMakeFiles/edit_cache.util
+# =============================================================================
+# Write statements declared in CMakeLists.txt:
+# /mnt/win_d/projects/Common/test_i/CMakeLists.txt
+# =============================================================================
+
+
+#############################################
+# Utility command for install/strip
+
+build test_i/parser/CMakeFiles/install/strip.util: CUSTOM_COMMAND test_i/parser/all
+  COMMAND = cd /mnt/win_d/projects/Common/clang/test_i/parser && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+  DESC = Installing the project stripped...
+  pool = console
+  restat = 1
+build test_i/parser/install/strip: phony test_i/parser/CMakeFiles/install/strip.util
+
+#############################################
+# Utility command for install/local
+
+build test_i/parser/CMakeFiles/install/local.util: CUSTOM_COMMAND test_i/parser/all
+  COMMAND = cd /mnt/win_d/projects/Common/clang/test_i/parser && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+  DESC = Installing only the local directory...
+  pool = console
+  restat = 1
+build test_i/parser/install/local: phony test_i/parser/CMakeFiles/install/local.util
+
+#############################################
+# Utility command for install
+
+build test_i/parser/CMakeFiles/install.util: CUSTOM_COMMAND test_i/parser/all
+  COMMAND = cd /mnt/win_d/projects/Common/clang/test_i/parser && /usr/bin/cmake -P cmake_install.cmake
+  DESC = Install the project...
+  pool = console
+  restat = 1
+build test_i/parser/install: phony test_i/parser/CMakeFiles/install.util
+
+#############################################
+# Utility command for list_install_components
+
+build test_i/parser/list_install_components: phony
+
+#############################################
+# Utility command for rebuild_cache
+
+build test_i/parser/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /mnt/win_d/projects/Common/clang/test_i/parser && /usr/bin/cmake -S/mnt/win_d/projects/Common -B/mnt/win_d/projects/Common/clang
+  DESC = Running CMake to regenerate build system...
+  pool = console
+  restat = 1
+build test_i/parser/rebuild_cache: phony test_i/parser/CMakeFiles/rebuild_cache.util
+
+#############################################
+# Utility command for edit_cache
+
+build test_i/parser/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /mnt/win_d/projects/Common/clang/test_i/parser && /usr/bin/cmake-gui -S/mnt/win_d/projects/Common -B/mnt/win_d/projects/Common/clang
+  DESC = Running CMake cache editor...
+  pool = console
+  restat = 1
+build test_i/parser/edit_cache: phony test_i/parser/CMakeFiles/edit_cache.util
+
+#############################################
+# Utility command for package_source
+
+build test_i/parser/CMakeFiles/package_source.util: CUSTOM_COMMAND
+  COMMAND = cd /mnt/win_d/projects/Common/clang && /usr/bin/cpack --config ./CPackSourceConfig.cmake /mnt/win_d/projects/Common/clang/CPackSourceConfig.cmake
+  DESC = Run CPack packaging tool for source...
+  pool = console
+  restat = 1
+build test_i/parser/package_source: phony test_i/parser/CMakeFiles/package_source.util
+# =============================================================================
+# Object build statements for EXECUTABLE target parser
+
+
+#############################################
+# Order-only phony target for parser
+
+build cmake_object_order_depends_target_parser: phony || cmake_object_order_depends_target_Common cmake_object_order_depends_target_CommonDBus cmake_object_order_depends_target_CommonError cmake_object_order_depends_target_CommonLog cmake_object_order_depends_target_CommonParser cmake_object_order_depends_target_CommonSignal cmake_object_order_depends_target_CommonTimer
+build test_i/parser/CMakeFiles/parser.dir/bencoding_parser.cpp.o: CXX_COMPILER__parser ../test_i/parser/bencoding_parser.cpp || cmake_object_order_depends_target_parser
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
+  DEP_FILE = test_i/parser/CMakeFiles/parser.dir/bencoding_parser.cpp.o.d
+  FLAGS = -g   -fPIC
+  INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_i/parser/../../src -I../test_i/parser/../../src/log -I../test_i/parser/../../src/parser -I../test_i/parser/../../src/timer -I../test_i/parser/.. -Itest_i/parser/../.. -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/parser/../../3rd_party/bison -I../src/parser/.. -Isrc/parser/../.. -I../src/timer/.. -Isrc/timer/../..
+  OBJECT_DIR = test_i/parser/CMakeFiles/parser.dir
+  OBJECT_FILE_DIR = test_i/parser/CMakeFiles/parser.dir
+build test_i/parser/CMakeFiles/parser.dir/bencoding_parser_driver.cpp.o: CXX_COMPILER__parser ../test_i/parser/bencoding_parser_driver.cpp || cmake_object_order_depends_target_parser
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
+  DEP_FILE = test_i/parser/CMakeFiles/parser.dir/bencoding_parser_driver.cpp.o.d
+  FLAGS = -g   -fPIC
+  INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_i/parser/../../src -I../test_i/parser/../../src/log -I../test_i/parser/../../src/parser -I../test_i/parser/../../src/timer -I../test_i/parser/.. -Itest_i/parser/../.. -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/parser/../../3rd_party/bison -I../src/parser/.. -Isrc/parser/../.. -I../src/timer/.. -Isrc/timer/../..
+  OBJECT_DIR = test_i/parser/CMakeFiles/parser.dir
+  OBJECT_FILE_DIR = test_i/parser/CMakeFiles/parser.dir
+build test_i/parser/CMakeFiles/parser.dir/bencoding_scanner.cpp.o: CXX_COMPILER__parser ../test_i/parser/bencoding_scanner.cpp || cmake_object_order_depends_target_parser
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
+  DEP_FILE = test_i/parser/CMakeFiles/parser.dir/bencoding_scanner.cpp.o.d
+  FLAGS = -g   -fPIC
+  INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_i/parser/../../src -I../test_i/parser/../../src/log -I../test_i/parser/../../src/parser -I../test_i/parser/../../src/timer -I../test_i/parser/.. -Itest_i/parser/../.. -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/parser/../../3rd_party/bison -I../src/parser/.. -Isrc/parser/../.. -I../src/timer/.. -Isrc/timer/../..
+  OBJECT_DIR = test_i/parser/CMakeFiles/parser.dir
+  OBJECT_FILE_DIR = test_i/parser/CMakeFiles/parser.dir
+build test_i/parser/CMakeFiles/parser.dir/stdafx.cpp.o: CXX_COMPILER__parser ../test_i/parser/stdafx.cpp || cmake_object_order_depends_target_parser
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
+  DEP_FILE = test_i/parser/CMakeFiles/parser.dir/stdafx.cpp.o.d
+  FLAGS = -g   -fPIC
+  INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_i/parser/../../src -I../test_i/parser/../../src/log -I../test_i/parser/../../src/parser -I../test_i/parser/../../src/timer -I../test_i/parser/.. -Itest_i/parser/../.. -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/parser/../../3rd_party/bison -I../src/parser/.. -Isrc/parser/../.. -I../src/timer/.. -Isrc/timer/../..
+  OBJECT_DIR = test_i/parser/CMakeFiles/parser.dir
+  OBJECT_FILE_DIR = test_i/parser/CMakeFiles/parser.dir
+build test_i/parser/CMakeFiles/parser.dir/test_i.cpp.o: CXX_COMPILER__parser ../test_i/parser/test_i.cpp || cmake_object_order_depends_target_parser
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
+  DEP_FILE = test_i/parser/CMakeFiles/parser.dir/test_i.cpp.o.d
+  FLAGS = -g   -fPIC
+  INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_i/parser/../../src -I../test_i/parser/../../src/log -I../test_i/parser/../../src/parser -I../test_i/parser/../../src/timer -I../test_i/parser/.. -Itest_i/parser/../.. -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/parser/../../3rd_party/bison -I../src/parser/.. -Isrc/parser/../.. -I../src/timer/.. -Isrc/timer/../..
+  OBJECT_DIR = test_i/parser/CMakeFiles/parser.dir
+  OBJECT_FILE_DIR = test_i/parser/CMakeFiles/parser.dir
+
+# =============================================================================
+# Link build statements for EXECUTABLE target parser
+
+
+#############################################
+# Link the executable test_i/parser/parser
+
+build test_i/parser/parser: CXX_EXECUTABLE_LINKER__parser test_i/parser/CMakeFiles/parser.dir/bencoding_parser.cpp.o test_i/parser/CMakeFiles/parser.dir/bencoding_parser_driver.cpp.o test_i/parser/CMakeFiles/parser.dir/bencoding_scanner.cpp.o test_i/parser/CMakeFiles/parser.dir/stdafx.cpp.o test_i/parser/CMakeFiles/parser.dir/test_i.cpp.o | /media/erik/USB_BLACK/lib/ACE_TAO/ACE/lib/libACE.so src/libCommon.a src/log/libCommonLog.a src/parser/libCommonParser.a src/timer/libCommonTimer.a src/dbus/libCommonDBus.a src/signal/libCommonSignal.a src/error/libCommonError.a || src/dbus/libCommonDBus.a src/error/libCommonError.a src/libCommon.a src/log/libCommonLog.a src/parser/libCommonParser.a src/signal/libCommonSignal.a src/timer/libCommonTimer.a
+  FLAGS = -g
+  LINK_FLAGS = -rdynamic
+  LINK_LIBRARIES = -Wl,-rpath,/media/erik/USB_BLACK/lib/ACE_TAO/ACE/lib: /media/erik/USB_BLACK/lib/ACE_TAO/ACE/lib/libACE.so src/libCommon.a src/log/libCommonLog.a src/parser/libCommonParser.a src/timer/libCommonTimer.a -lpthread -lrt -lcap src/dbus/libCommonDBus.a -lsystemd src/signal/libCommonSignal.a src/error/libCommonError.a
+  OBJECT_DIR = test_i/parser/CMakeFiles/parser.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = test_i/parser/parser
+  TARGET_PDB = parser.dbg
+# =============================================================================
+# Object build statements for EXECUTABLE target parser_2
+
+
+#############################################
+# Order-only phony target for parser_2
+
+build cmake_object_order_depends_target_parser_2: phony || cmake_object_order_depends_target_Common cmake_object_order_depends_target_CommonDBus cmake_object_order_depends_target_CommonError cmake_object_order_depends_target_CommonLog cmake_object_order_depends_target_CommonParser cmake_object_order_depends_target_CommonSignal cmake_object_order_depends_target_CommonTimer
+build test_i/parser/CMakeFiles/parser_2.dir/bencoding_parser.cpp.o: CXX_COMPILER__parser_2 ../test_i/parser/bencoding_parser.cpp || cmake_object_order_depends_target_parser_2
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
+  DEP_FILE = test_i/parser/CMakeFiles/parser_2.dir/bencoding_parser.cpp.o.d
+  FLAGS = -g   -fPIC
+  INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_i/parser/../../src -I../test_i/parser/../../src/log -I../test_i/parser/../../src/parser -I../test_i/parser/../../src/timer -I../test_i/parser/.. -Itest_i/parser/../.. -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/parser/../../3rd_party/bison -I../src/parser/.. -Isrc/parser/../.. -I../src/timer/.. -Isrc/timer/../..
+  OBJECT_DIR = test_i/parser/CMakeFiles/parser_2.dir
+  OBJECT_FILE_DIR = test_i/parser/CMakeFiles/parser_2.dir
+build test_i/parser/CMakeFiles/parser_2.dir/bencoding_parser_driver.cpp.o: CXX_COMPILER__parser_2 ../test_i/parser/bencoding_parser_driver.cpp || cmake_object_order_depends_target_parser_2
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
+  DEP_FILE = test_i/parser/CMakeFiles/parser_2.dir/bencoding_parser_driver.cpp.o.d
+  FLAGS = -g   -fPIC
+  INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_i/parser/../../src -I../test_i/parser/../../src/log -I../test_i/parser/../../src/parser -I../test_i/parser/../../src/timer -I../test_i/parser/.. -Itest_i/parser/../.. -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/parser/../../3rd_party/bison -I../src/parser/.. -Isrc/parser/../.. -I../src/timer/.. -Isrc/timer/../..
+  OBJECT_DIR = test_i/parser/CMakeFiles/parser_2.dir
+  OBJECT_FILE_DIR = test_i/parser/CMakeFiles/parser_2.dir
+build test_i/parser/CMakeFiles/parser_2.dir/bencoding_scanner.cpp.o: CXX_COMPILER__parser_2 ../test_i/parser/bencoding_scanner.cpp || cmake_object_order_depends_target_parser_2
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
+  DEP_FILE = test_i/parser/CMakeFiles/parser_2.dir/bencoding_scanner.cpp.o.d
+  FLAGS = -g   -fPIC
+  INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_i/parser/../../src -I../test_i/parser/../../src/log -I../test_i/parser/../../src/parser -I../test_i/parser/../../src/timer -I../test_i/parser/.. -Itest_i/parser/../.. -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/parser/../../3rd_party/bison -I../src/parser/.. -Isrc/parser/../.. -I../src/timer/.. -Isrc/timer/../..
+  OBJECT_DIR = test_i/parser/CMakeFiles/parser_2.dir
+  OBJECT_FILE_DIR = test_i/parser/CMakeFiles/parser_2.dir
+build test_i/parser/CMakeFiles/parser_2.dir/stdafx.cpp.o: CXX_COMPILER__parser_2 ../test_i/parser/stdafx.cpp || cmake_object_order_depends_target_parser_2
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
+  DEP_FILE = test_i/parser/CMakeFiles/parser_2.dir/stdafx.cpp.o.d
+  FLAGS = -g   -fPIC
+  INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_i/parser/../../src -I../test_i/parser/../../src/log -I../test_i/parser/../../src/parser -I../test_i/parser/../../src/timer -I../test_i/parser/.. -Itest_i/parser/../.. -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/parser/../../3rd_party/bison -I../src/parser/.. -Isrc/parser/../.. -I../src/timer/.. -Isrc/timer/../..
+  OBJECT_DIR = test_i/parser/CMakeFiles/parser_2.dir
+  OBJECT_FILE_DIR = test_i/parser/CMakeFiles/parser_2.dir
+build test_i/parser/CMakeFiles/parser_2.dir/test_i_2.cpp.o: CXX_COMPILER__parser_2 ../test_i/parser/test_i_2.cpp || cmake_object_order_depends_target_parser_2
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
+  DEP_FILE = test_i/parser/CMakeFiles/parser_2.dir/test_i_2.cpp.o.d
+  FLAGS = -g   -fPIC
+  INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_i/parser/../../src -I../test_i/parser/../../src/log -I../test_i/parser/../../src/parser -I../test_i/parser/../../src/timer -I../test_i/parser/.. -Itest_i/parser/../.. -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/parser/../../3rd_party/bison -I../src/parser/.. -Isrc/parser/../.. -I../src/timer/.. -Isrc/timer/../..
+  OBJECT_DIR = test_i/parser/CMakeFiles/parser_2.dir
+  OBJECT_FILE_DIR = test_i/parser/CMakeFiles/parser_2.dir
+
+# =============================================================================
+# Link build statements for EXECUTABLE target parser_2
+
+
+#############################################
+# Link the executable test_i/parser/parser_2
+
+build test_i/parser/parser_2: CXX_EXECUTABLE_LINKER__parser_2 test_i/parser/CMakeFiles/parser_2.dir/bencoding_parser.cpp.o test_i/parser/CMakeFiles/parser_2.dir/bencoding_parser_driver.cpp.o test_i/parser/CMakeFiles/parser_2.dir/bencoding_scanner.cpp.o test_i/parser/CMakeFiles/parser_2.dir/stdafx.cpp.o test_i/parser/CMakeFiles/parser_2.dir/test_i_2.cpp.o | /media/erik/USB_BLACK/lib/ACE_TAO/ACE/lib/libACE.so src/libCommon.a src/log/libCommonLog.a src/parser/libCommonParser.a src/timer/libCommonTimer.a src/dbus/libCommonDBus.a src/signal/libCommonSignal.a src/error/libCommonError.a || src/dbus/libCommonDBus.a src/error/libCommonError.a src/libCommon.a src/log/libCommonLog.a src/parser/libCommonParser.a src/signal/libCommonSignal.a src/timer/libCommonTimer.a
+  FLAGS = -g
+  LINK_FLAGS = -rdynamic
+  LINK_LIBRARIES = -Wl,-rpath,/media/erik/USB_BLACK/lib/ACE_TAO/ACE/lib: /media/erik/USB_BLACK/lib/ACE_TAO/ACE/lib/libACE.so src/libCommon.a src/log/libCommonLog.a src/parser/libCommonParser.a src/timer/libCommonTimer.a -lpthread -lrt -lcap src/dbus/libCommonDBus.a -lsystemd src/signal/libCommonSignal.a src/error/libCommonError.a
+  OBJECT_DIR = test_i/parser/CMakeFiles/parser_2.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = test_i/parser/parser_2
+  TARGET_PDB = parser_2.dbg
+
+#############################################
+# Utility command for package
+
+build test_i/parser/CMakeFiles/package.util: CUSTOM_COMMAND test_i/parser/all
+  COMMAND = cd /mnt/win_d/projects/Common/clang && /usr/bin/cpack --config ./CPackConfig.cmake
+  DESC = Run CPack packaging tool...
+  pool = console
+  restat = 1
+build test_i/parser/package: phony test_i/parser/CMakeFiles/package.util
+# =============================================================================
+# Write statements declared in CMakeLists.txt:
+# /mnt/win_d/projects/Common/test_i/CMakeLists.txt
+# =============================================================================
+
+
+#############################################
+# Utility command for install/strip
+
+build test_i/print/CMakeFiles/install/strip.util: CUSTOM_COMMAND test_i/print/all
+  COMMAND = cd /mnt/win_d/projects/Common/clang/test_i/print && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+  DESC = Installing the project stripped...
+  pool = console
+  restat = 1
+build test_i/print/install/strip: phony test_i/print/CMakeFiles/install/strip.util
+
+#############################################
+# Utility command for install/local
+
+build test_i/print/CMakeFiles/install/local.util: CUSTOM_COMMAND test_i/print/all
+  COMMAND = cd /mnt/win_d/projects/Common/clang/test_i/print && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+  DESC = Installing only the local directory...
+  pool = console
+  restat = 1
+build test_i/print/install/local: phony test_i/print/CMakeFiles/install/local.util
+
+#############################################
+# Utility command for rebuild_cache
+
+build test_i/print/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /mnt/win_d/projects/Common/clang/test_i/print && /usr/bin/cmake -S/mnt/win_d/projects/Common -B/mnt/win_d/projects/Common/clang
+  DESC = Running CMake to regenerate build system...
+  pool = console
+  restat = 1
+build test_i/print/rebuild_cache: phony test_i/print/CMakeFiles/rebuild_cache.util
+
+#############################################
+# Utility command for install
+
+build test_i/print/CMakeFiles/install.util: CUSTOM_COMMAND test_i/print/all
+  COMMAND = cd /mnt/win_d/projects/Common/clang/test_i/print && /usr/bin/cmake -P cmake_install.cmake
+  DESC = Install the project...
+  pool = console
+  restat = 1
+build test_i/print/install: phony test_i/print/CMakeFiles/install.util
+
+#############################################
+# Utility command for list_install_components
+
+build test_i/print/list_install_components: phony
+
+#############################################
+# Utility command for print_pch
+
+build test_i/print/print_pch: phony test_i/print/CMakeFiles/print_pch test_i/print/cotire/print_CXX_prefix.hxx.pch test_i/print/cotire/print_CXX_prefix.hxx test_i/print/cotire/print_CXX_prefix.cxx
+# =============================================================================
+# Object build statements for EXECUTABLE target print
+
+
+#############################################
+# Order-only phony target for print
+
+build cmake_object_order_depends_target_print: phony || cmake_object_order_depends_target_Common cmake_object_order_depends_target_CommonDBus cmake_object_order_depends_target_CommonError cmake_object_order_depends_target_CommonLog cmake_object_order_depends_target_CommonParser cmake_object_order_depends_target_CommonSignal cmake_object_order_depends_target_CommonTimer test_i/print/cotire/print_CXX_prefix.cxx test_i/print/cotire/print_CXX_prefix.hxx test_i/print/cotire/print_CXX_prefix.hxx.pch
+build test_i/print/CMakeFiles/print.dir/stdafx.cpp.o: CXX_COMPILER__print ../test_i/print/stdafx.cpp | test_i/print/cotire/print_CXX_prefix.hxx.pch || cmake_object_order_depends_target_print
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
+  DEP_FILE = test_i/print/CMakeFiles/print.dir/stdafx.cpp.o.d
+  FLAGS = -g   -fPIC -include /mnt/win_d/projects/Common/clang/test_i/print/cotire/print_CXX_prefix.hxx
+  INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_i/print/../../src -I../test_i/print/../../src/log -I../test_i/print/../../src/parser -I../test_i/print/../../src/timer -I../test_i/print/.. -Itest_i/print/../.. -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/parser/../../3rd_party/bison -I../src/parser/.. -Isrc/parser/../.. -I../src/timer/.. -Isrc/timer/../..
+  OBJECT_DIR = test_i/print/CMakeFiles/print.dir
+  OBJECT_FILE_DIR = test_i/print/CMakeFiles/print.dir
+build test_i/print/CMakeFiles/print.dir/test_i.cpp.o: CXX_COMPILER__print ../test_i/print/test_i.cpp | test_i/print/cotire/print_CXX_prefix.hxx.pch || cmake_object_order_depends_target_print
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DDEBUG_DEBUGGER -DHAVE_CONFIG_H -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0
+  DEP_FILE = test_i/print/CMakeFiles/print.dir/test_i.cpp.o.d
+  FLAGS = -g   -fPIC -include /mnt/win_d/projects/Common/clang/test_i/print/cotire/print_CXX_prefix.hxx
+  INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../test_i/print/../../src -I../test_i/print/../../src/log -I../test_i/print/../../src/parser -I../test_i/print/../../src/timer -I../test_i/print/.. -Itest_i/print/../.. -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/parser/../../3rd_party/bison -I../src/parser/.. -Isrc/parser/../.. -I../src/timer/.. -Isrc/timer/../..
+  OBJECT_DIR = test_i/print/CMakeFiles/print.dir
+  OBJECT_FILE_DIR = test_i/print/CMakeFiles/print.dir
+
+# =============================================================================
+# Link build statements for EXECUTABLE target print
+
+
+#############################################
+# Link the executable test_i/print/print
+
+build test_i/print/print: CXX_EXECUTABLE_LINKER__print test_i/print/CMakeFiles/print.dir/stdafx.cpp.o test_i/print/CMakeFiles/print.dir/test_i.cpp.o | /usr/lib/x86_64-linux-gnu/libcups.so /media/erik/USB_BLACK/lib/ACE_TAO/ACE/lib/libACE.so src/libCommon.a src/log/libCommonLog.a src/parser/libCommonParser.a src/timer/libCommonTimer.a src/dbus/libCommonDBus.a src/signal/libCommonSignal.a src/error/libCommonError.a || src/dbus/libCommonDBus.a src/error/libCommonError.a src/libCommon.a src/log/libCommonLog.a src/parser/libCommonParser.a src/signal/libCommonSignal.a src/timer/libCommonTimer.a
+  FLAGS = -g
+  LINK_FLAGS = -rdynamic
+  LINK_LIBRARIES = -Wl,-rpath,/media/erik/USB_BLACK/lib/ACE_TAO/ACE/lib: -lcairo -lcups /media/erik/USB_BLACK/lib/ACE_TAO/ACE/lib/libACE.so src/libCommon.a src/log/libCommonLog.a src/parser/libCommonParser.a src/timer/libCommonTimer.a -lpthread -lrt -lcap src/dbus/libCommonDBus.a -lsystemd src/signal/libCommonSignal.a src/error/libCommonError.a
+  OBJECT_DIR = test_i/print/CMakeFiles/print.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = test_i/print/print
+  TARGET_PDB = print.dbg
+
+#############################################
+# Utility command for package
+
+build test_i/print/CMakeFiles/package.util: CUSTOM_COMMAND test_i/print/all
+  COMMAND = cd /mnt/win_d/projects/Common/clang && /usr/bin/cpack --config ./CPackConfig.cmake
+  DESC = Run CPack packaging tool...
+  pool = console
+  restat = 1
+build test_i/print/package: phony test_i/print/CMakeFiles/package.util
+
+#############################################
+# Utility command for package_source
+
+build test_i/print/CMakeFiles/package_source.util: CUSTOM_COMMAND
+  COMMAND = cd /mnt/win_d/projects/Common/clang && /usr/bin/cpack --config ./CPackSourceConfig.cmake /mnt/win_d/projects/Common/clang/CPackSourceConfig.cmake
+  DESC = Run CPack packaging tool for source...
+  pool = console
+  restat = 1
+build test_i/print/package_source: phony test_i/print/CMakeFiles/package_source.util
+
+#############################################
+# Utility command for edit_cache
+
+build test_i/print/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /mnt/win_d/projects/Common/clang/test_i/print && /usr/bin/cmake-gui -S/mnt/win_d/projects/Common -B/mnt/win_d/projects/Common/clang
+  DESC = Running CMake cache editor...
+  pool = console
+  restat = 1
+build test_i/print/edit_cache: phony test_i/print/CMakeFiles/edit_cache.util
+
+#############################################
+# Phony custom command for test_i/print/CMakeFiles/print_pch
+
+build test_i/print/CMakeFiles/print_pch: phony test_i/print/cotire/print_CXX_prefix.hxx.pch
+
+#############################################
+# Custom command for test_i/print/cotire/print_CXX_prefix.hxx.pch
+
+build test_i/print/cotire/print_CXX_prefix.hxx.pch: CUSTOM_COMMAND test_i/print/cotire/print_CXX_prefix.hxx /usr/bin/clang++ test_i/print/cotire/print_CXX_prefix.hxx
+  COMMAND = cd /mnt/win_d/projects/Common/test_i/print && /usr/bin/cmake -DCOTIRE_BUILD_TYPE:STRING=Debug -P /media/erik/USB_BLACK/lib/cotire/CMake/cotire.cmake precompile /mnt/win_d/projects/Common/clang/test_i/print/print_CXX_Debug_cotire.cmake /mnt/win_d/projects/Common/clang/test_i/print/cotire/print_CXX_prefix.hxx /mnt/win_d/projects/Common/clang/test_i/print/cotire/print_CXX_prefix.hxx.pch stdafx.cpp
+  DESC = Building CXX precompiled header test_i/print/cotire/print_CXX_prefix.hxx.pch
+  restat = 1
+
+#############################################
+# Custom command for test_i/print/cotire/print_CXX_prefix.hxx
+
+build test_i/print/cotire/print_CXX_prefix.hxx: CUSTOM_COMMAND test_i/print/cotire/print_CXX_prefix.cxx
+  COMMAND = cd /mnt/win_d/projects/Common/clang && /usr/bin/cmake -DCOTIRE_BUILD_TYPE:STRING=Debug -P /media/erik/USB_BLACK/lib/cotire/CMake/cotire.cmake combine /mnt/win_d/projects/Common/clang/test_i/print/print_CXX_Debug_cotire.cmake /mnt/win_d/projects/Common/clang/test_i/print/cotire/print_CXX_prefix.hxx /mnt/win_d/projects/Common/clang/test_i/print/cotire/print_CXX_prefix.cxx
+  DESC = Generating CXX prefix header test_i/print/cotire/print_CXX_prefix.hxx
+  restat = 1
+
+#############################################
+# Custom command for test_i/print/cotire/print_CXX_prefix.cxx
+
+build test_i/print/cotire/print_CXX_prefix.cxx: CUSTOM_COMMAND ../test_i/print/stdafx.h
+  COMMAND = cd /mnt/win_d/projects/Common/clang && /usr/bin/cmake -DCOTIRE_BUILD_TYPE:STRING=Debug -P /media/erik/USB_BLACK/lib/cotire/CMake/cotire.cmake combine /mnt/win_d/projects/Common/clang/test_i/print/print_CXX_Debug_cotire.cmake /mnt/win_d/projects/Common/clang/test_i/print/cotire/print_CXX_prefix.cxx /mnt/win_d/projects/Common/test_i/print/stdafx.h
+  DESC = Generating CXX prefix source test_i/print/cotire/print_CXX_prefix.cxx
+  restat = 1
 # =============================================================================
 # Write statements declared in CMakeLists.txt:
 # /mnt/win_d/projects/Common/test_i/CMakeLists.txt
@@ -3705,23 +4223,23 @@ build test_i/ui/gtk/rebuild_cache: phony test_i/ui/gtk/CMakeFiles/rebuild_cache.
 
 build cmake_object_order_depends_target_gtk_ui_2: phony || cmake_object_order_depends_target_Common cmake_object_order_depends_target_CommonDBus cmake_object_order_depends_target_CommonError cmake_object_order_depends_target_CommonImage cmake_object_order_depends_target_CommonLog cmake_object_order_depends_target_CommonOpenGL cmake_object_order_depends_target_CommonSignal cmake_object_order_depends_target_CommonTimer cmake_object_order_depends_target_CommonUI cmake_object_order_depends_target_CommonUI_GTK
 build test_i/ui/gtk/CMakeFiles/gtk_ui_2.dir/stdafx.cpp.o: CXX_COMPILER__gtk_ui_2 ../test_i/ui/gtk/stdafx.cpp || cmake_object_order_depends_target_gtk_ui_2
-  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DGTK2_SUPPORT -DGTK2_USE -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -DwxUSE_LOG_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DGTK2_SUPPORT -DGTK2_USE -DGTK3_SUPPORT -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
   DEP_FILE = test_i/ui/gtk/CMakeFiles/gtk_ui_2.dir/stdafx.cpp.o.d
-  FLAGS = -g
+  FLAGS = -g   -fPIC
   INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/gtkglarea -I../test_i/ui/gtk/../../../src -I../test_i/ui/gtk/../../../src/gl -I../test_i/ui/gtk/../../../src/image -I../test_i/ui/gtk/../../../src/log -I../test_i/ui/gtk/../../../src/timer -I../test_i/ui/gtk/../../../src/ui -I../test_i/ui/gtk/../../../src/ui/gtk -I../test_i/ui/gtk/../.. -Itest_i/ui/gtk/../../.. -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I/usr/include/x86_64-linux-gnu/ImageMagick-6 -I/usr/include/ImageMagick-6 -I../src/gl/.. -I../src/gl/../image -Isrc/gl/../.. -I/usr/include/x86_64-linux-gnu -Isrc/image/../.. -I../src/image/.. -I../src/image/../error -I../src/log/.. -Isrc/log/../.. -I../src/timer/.. -Isrc/timer/../.. -I../src/ui/.. -I../src/ui/../error -I../src/ui/../image -I../src/ui/../log -I../src/ui/../xml -Isrc/ui/../.. -Isrc/ui/gtk/../../.. -I../src/ui/gtk/.. -I../src/ui/gtk/../.. -I../src/ui/gtk/../../image -I../src/ui/gtk/../../log -I../src/ui/gtk/../../timer
   OBJECT_DIR = test_i/ui/gtk/CMakeFiles/gtk_ui_2.dir
   OBJECT_FILE_DIR = test_i/ui/gtk/CMakeFiles/gtk_ui_2.dir
 build test_i/ui/gtk/CMakeFiles/gtk_ui_2.dir/test_i_2.cpp.o: CXX_COMPILER__gtk_ui_2 ../test_i/ui/gtk/test_i_2.cpp || cmake_object_order_depends_target_gtk_ui_2
-  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DGTK2_SUPPORT -DGTK2_USE -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -DwxUSE_LOG_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DGTK2_SUPPORT -DGTK2_USE -DGTK3_SUPPORT -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
   DEP_FILE = test_i/ui/gtk/CMakeFiles/gtk_ui_2.dir/test_i_2.cpp.o.d
-  FLAGS = -g
+  FLAGS = -g   -fPIC
   INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/gtkglarea -I../test_i/ui/gtk/../../../src -I../test_i/ui/gtk/../../../src/gl -I../test_i/ui/gtk/../../../src/image -I../test_i/ui/gtk/../../../src/log -I../test_i/ui/gtk/../../../src/timer -I../test_i/ui/gtk/../../../src/ui -I../test_i/ui/gtk/../../../src/ui/gtk -I../test_i/ui/gtk/../.. -Itest_i/ui/gtk/../../.. -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I/usr/include/x86_64-linux-gnu/ImageMagick-6 -I/usr/include/ImageMagick-6 -I../src/gl/.. -I../src/gl/../image -Isrc/gl/../.. -I/usr/include/x86_64-linux-gnu -Isrc/image/../.. -I../src/image/.. -I../src/image/../error -I../src/log/.. -Isrc/log/../.. -I../src/timer/.. -Isrc/timer/../.. -I../src/ui/.. -I../src/ui/../error -I../src/ui/../image -I../src/ui/../log -I../src/ui/../xml -Isrc/ui/../.. -Isrc/ui/gtk/../../.. -I../src/ui/gtk/.. -I../src/ui/gtk/../.. -I../src/ui/gtk/../../image -I../src/ui/gtk/../../log -I../src/ui/gtk/../../timer
   OBJECT_DIR = test_i/ui/gtk/CMakeFiles/gtk_ui_2.dir
   OBJECT_FILE_DIR = test_i/ui/gtk/CMakeFiles/gtk_ui_2.dir
 build test_i/ui/gtk/CMakeFiles/gtk_ui_2.dir/test_i_gtk_callbacks.cpp.o: CXX_COMPILER__gtk_ui_2 ../test_i/ui/gtk/test_i_gtk_callbacks.cpp || cmake_object_order_depends_target_gtk_ui_2
-  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DGTK2_SUPPORT -DGTK2_USE -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -DwxUSE_LOG_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DGTK2_SUPPORT -DGTK2_USE -DGTK3_SUPPORT -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
   DEP_FILE = test_i/ui/gtk/CMakeFiles/gtk_ui_2.dir/test_i_gtk_callbacks.cpp.o.d
-  FLAGS = -g
+  FLAGS = -g   -fPIC
   INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/gtkglarea -I../test_i/ui/gtk/../../../src -I../test_i/ui/gtk/../../../src/gl -I../test_i/ui/gtk/../../../src/image -I../test_i/ui/gtk/../../../src/log -I../test_i/ui/gtk/../../../src/timer -I../test_i/ui/gtk/../../../src/ui -I../test_i/ui/gtk/../../../src/ui/gtk -I../test_i/ui/gtk/../.. -Itest_i/ui/gtk/../../.. -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I/usr/include/x86_64-linux-gnu/ImageMagick-6 -I/usr/include/ImageMagick-6 -I../src/gl/.. -I../src/gl/../image -Isrc/gl/../.. -I/usr/include/x86_64-linux-gnu -Isrc/image/../.. -I../src/image/.. -I../src/image/../error -I../src/log/.. -Isrc/log/../.. -I../src/timer/.. -Isrc/timer/../.. -I../src/ui/.. -I../src/ui/../error -I../src/ui/../image -I../src/ui/../log -I../src/ui/../xml -Isrc/ui/../.. -Isrc/ui/gtk/../../.. -I../src/ui/gtk/.. -I../src/ui/gtk/../.. -I../src/ui/gtk/../../image -I../src/ui/gtk/../../log -I../src/ui/gtk/../../timer
   OBJECT_DIR = test_i/ui/gtk/CMakeFiles/gtk_ui_2.dir
   OBJECT_FILE_DIR = test_i/ui/gtk/CMakeFiles/gtk_ui_2.dir
@@ -3761,23 +4279,23 @@ build test_i/ui/gtk/edit_cache: phony test_i/ui/gtk/CMakeFiles/edit_cache.util
 
 build cmake_object_order_depends_target_gtk_ui_3: phony || cmake_object_order_depends_target_Common cmake_object_order_depends_target_CommonDBus cmake_object_order_depends_target_CommonError cmake_object_order_depends_target_CommonImage cmake_object_order_depends_target_CommonLog cmake_object_order_depends_target_CommonOpenGL cmake_object_order_depends_target_CommonSignal cmake_object_order_depends_target_CommonTimer cmake_object_order_depends_target_CommonUI cmake_object_order_depends_target_CommonUI_GTK
 build test_i/ui/gtk/CMakeFiles/gtk_ui_3.dir/stdafx.cpp.o: CXX_COMPILER__gtk_ui_3 ../test_i/ui/gtk/stdafx.cpp || cmake_object_order_depends_target_gtk_ui_3
-  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DGTK2_SUPPORT -DGTK2_USE -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -DwxUSE_LOG_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DGTK2_SUPPORT -DGTK2_USE -DGTK3_SUPPORT -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
   DEP_FILE = test_i/ui/gtk/CMakeFiles/gtk_ui_3.dir/stdafx.cpp.o.d
-  FLAGS = -g
+  FLAGS = -g   -fPIC
   INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/gtkglarea -I../test_i/ui/gtk/../../../src -I../test_i/ui/gtk/../../../src/gl -I../test_i/ui/gtk/../../../src/image -I../test_i/ui/gtk/../../../src/log -I../test_i/ui/gtk/../../../src/timer -I../test_i/ui/gtk/../../../src/ui -I../test_i/ui/gtk/../../../src/ui/gtk -I../test_i/ui/gtk/../.. -Itest_i/ui/gtk/../../.. -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I/usr/include/x86_64-linux-gnu/ImageMagick-6 -I/usr/include/ImageMagick-6 -I../src/gl/.. -I../src/gl/../image -Isrc/gl/../.. -I/usr/include/x86_64-linux-gnu -Isrc/image/../.. -I../src/image/.. -I../src/image/../error -I../src/timer/.. -Isrc/timer/../.. -I../src/ui/.. -I../src/ui/../error -I../src/ui/../image -I../src/ui/../log -I../src/ui/../xml -Isrc/ui/../.. -Isrc/ui/gtk/../../.. -I../src/ui/gtk/.. -I../src/ui/gtk/../.. -I../src/ui/gtk/../../image -I../src/ui/gtk/../../log -I../src/ui/gtk/../../timer
   OBJECT_DIR = test_i/ui/gtk/CMakeFiles/gtk_ui_3.dir
   OBJECT_FILE_DIR = test_i/ui/gtk/CMakeFiles/gtk_ui_3.dir
 build test_i/ui/gtk/CMakeFiles/gtk_ui_3.dir/test_i_3.cpp.o: CXX_COMPILER__gtk_ui_3 ../test_i/ui/gtk/test_i_3.cpp || cmake_object_order_depends_target_gtk_ui_3
-  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DGTK2_SUPPORT -DGTK2_USE -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -DwxUSE_LOG_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DGTK2_SUPPORT -DGTK2_USE -DGTK3_SUPPORT -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
   DEP_FILE = test_i/ui/gtk/CMakeFiles/gtk_ui_3.dir/test_i_3.cpp.o.d
-  FLAGS = -g
+  FLAGS = -g   -fPIC
   INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/gtkglarea -I../test_i/ui/gtk/../../../src -I../test_i/ui/gtk/../../../src/gl -I../test_i/ui/gtk/../../../src/image -I../test_i/ui/gtk/../../../src/log -I../test_i/ui/gtk/../../../src/timer -I../test_i/ui/gtk/../../../src/ui -I../test_i/ui/gtk/../../../src/ui/gtk -I../test_i/ui/gtk/../.. -Itest_i/ui/gtk/../../.. -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I/usr/include/x86_64-linux-gnu/ImageMagick-6 -I/usr/include/ImageMagick-6 -I../src/gl/.. -I../src/gl/../image -Isrc/gl/../.. -I/usr/include/x86_64-linux-gnu -Isrc/image/../.. -I../src/image/.. -I../src/image/../error -I../src/timer/.. -Isrc/timer/../.. -I../src/ui/.. -I../src/ui/../error -I../src/ui/../image -I../src/ui/../log -I../src/ui/../xml -Isrc/ui/../.. -Isrc/ui/gtk/../../.. -I../src/ui/gtk/.. -I../src/ui/gtk/../.. -I../src/ui/gtk/../../image -I../src/ui/gtk/../../log -I../src/ui/gtk/../../timer
   OBJECT_DIR = test_i/ui/gtk/CMakeFiles/gtk_ui_3.dir
   OBJECT_FILE_DIR = test_i/ui/gtk/CMakeFiles/gtk_ui_3.dir
 build test_i/ui/gtk/CMakeFiles/gtk_ui_3.dir/test_i_gtk_callbacks.cpp.o: CXX_COMPILER__gtk_ui_3 ../test_i/ui/gtk/test_i_gtk_callbacks.cpp || cmake_object_order_depends_target_gtk_ui_3
-  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DGTK2_SUPPORT -DGTK2_USE -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -DwxUSE_LOG_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DGTK2_SUPPORT -DGTK2_USE -DGTK3_SUPPORT -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
   DEP_FILE = test_i/ui/gtk/CMakeFiles/gtk_ui_3.dir/test_i_gtk_callbacks.cpp.o.d
-  FLAGS = -g
+  FLAGS = -g   -fPIC
   INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/gtkglarea -I../test_i/ui/gtk/../../../src -I../test_i/ui/gtk/../../../src/gl -I../test_i/ui/gtk/../../../src/image -I../test_i/ui/gtk/../../../src/log -I../test_i/ui/gtk/../../../src/timer -I../test_i/ui/gtk/../../../src/ui -I../test_i/ui/gtk/../../../src/ui/gtk -I../test_i/ui/gtk/../.. -Itest_i/ui/gtk/../../.. -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I/usr/include/x86_64-linux-gnu/ImageMagick-6 -I/usr/include/ImageMagick-6 -I../src/gl/.. -I../src/gl/../image -Isrc/gl/../.. -I/usr/include/x86_64-linux-gnu -Isrc/image/../.. -I../src/image/.. -I../src/image/../error -I../src/timer/.. -Isrc/timer/../.. -I../src/ui/.. -I../src/ui/../error -I../src/ui/../image -I../src/ui/../log -I../src/ui/../xml -Isrc/ui/../.. -Isrc/ui/gtk/../../.. -I../src/ui/gtk/.. -I../src/ui/gtk/../.. -I../src/ui/gtk/../../image -I../src/ui/gtk/../../log -I../src/ui/gtk/../../timer
   OBJECT_DIR = test_i/ui/gtk/CMakeFiles/gtk_ui_3.dir
   OBJECT_FILE_DIR = test_i/ui/gtk/CMakeFiles/gtk_ui_3.dir
@@ -3807,16 +4325,16 @@ build test_i/ui/gtk/gtk_ui_3: CXX_EXECUTABLE_LINKER__gtk_ui_3 test_i/ui/gtk/CMak
 
 build cmake_object_order_depends_target_gtk_ui: phony || cmake_object_order_depends_target_Common cmake_object_order_depends_target_CommonDBus cmake_object_order_depends_target_CommonError cmake_object_order_depends_target_CommonLog cmake_object_order_depends_target_CommonSignal cmake_object_order_depends_target_CommonTimer cmake_object_order_depends_target_CommonUI cmake_object_order_depends_target_CommonUI_GTK
 build test_i/ui/gtk/CMakeFiles/gtk_ui.dir/stdafx.cpp.o: CXX_COMPILER__gtk_ui ../test_i/ui/gtk/stdafx.cpp || cmake_object_order_depends_target_gtk_ui
-  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DGTK2_SUPPORT -DGTK2_USE -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -DwxUSE_LOG_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DGTK2_SUPPORT -DGTK2_USE -DGTK3_SUPPORT -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
   DEP_FILE = test_i/ui/gtk/CMakeFiles/gtk_ui.dir/stdafx.cpp.o.d
-  FLAGS = -g
+  FLAGS = -g   -fPIC
   INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/gtkglarea -I../test_i/ui/gtk/../../../src -I../test_i/ui/gtk/../../../src/gl -I../test_i/ui/gtk/../../../src/image -I../test_i/ui/gtk/../../../src/log -I../test_i/ui/gtk/../../../src/timer -I../test_i/ui/gtk/../../../src/ui -I../test_i/ui/gtk/../../../src/ui/gtk -I../test_i/ui/gtk/../.. -Itest_i/ui/gtk/../../.. -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/timer/.. -Isrc/timer/../.. -I../src/ui/.. -I../src/ui/../error -I../src/ui/../image -I../src/ui/../log -I../src/ui/../xml -Isrc/ui/../.. -Isrc/ui/gtk/../../.. -I../src/ui/gtk/.. -I../src/ui/gtk/../.. -I../src/ui/gtk/../../image -I../src/ui/gtk/../../log -I../src/ui/gtk/../../timer
   OBJECT_DIR = test_i/ui/gtk/CMakeFiles/gtk_ui.dir
   OBJECT_FILE_DIR = test_i/ui/gtk/CMakeFiles/gtk_ui.dir
 build test_i/ui/gtk/CMakeFiles/gtk_ui.dir/test_i.cpp.o: CXX_COMPILER__gtk_ui ../test_i/ui/gtk/test_i.cpp || cmake_object_order_depends_target_gtk_ui
-  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DGTK2_SUPPORT -DGTK2_USE -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -DwxUSE_LOG_DEBUG
+  DEFINES = -DACE_HAS_DLL -DCOMMON_HAS_DLL -DCOMMON_NTRACE=1 -DCOMMON_TIMER_HAS_DLL -DCURSES_SUPPORT -DDEBUG_DEBUGGER -DGTK2_SUPPORT -DGTK2_USE -DGTK3_SUPPORT -DGTKGLAREA_SUPPORT -DGTKGL_SUPPORT -DGTK_SUPPORT -DGTK_USE -DHAVE_CONFIG_H -DOPENGL_SUPPORT -D_DEBUG -D_GLIBCXX_USE_CXX11_ABI=0 -DwxUSE_LOG_DEBUG
   DEP_FILE = test_i/ui/gtk/CMakeFiles/gtk_ui.dir/test_i.cpp.o.d
-  FLAGS = -g
+  FLAGS = -g   -fPIC
   INCLUDES = -I../test_i/../modules/ACE -I../test_i/../src -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/media/erik/USB_BLACK/lib/gtkglarea -I../test_i/ui/gtk/../../../src -I../test_i/ui/gtk/../../../src/gl -I../test_i/ui/gtk/../../../src/image -I../test_i/ui/gtk/../../../src/log -I../test_i/ui/gtk/../../../src/timer -I../test_i/ui/gtk/../../../src/ui -I../test_i/ui/gtk/../../../src/ui/gtk -I../test_i/ui/gtk/../.. -Itest_i/ui/gtk/../../.. -I/media/erik/USB_BLACK/lib/ACE_TAO/ACE -I../src -I../src/error -I../src/signal -I../src/timer -Isrc/.. -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/systemd -I../src/dbus/.. -Isrc/dbus/../.. -Isrc/signal/../.. -I../src/signal/.. -Isrc/error/../.. -I../src/error/.. -I../src/error/../log -I../src/log/.. -Isrc/log/../.. -I../src/timer/.. -Isrc/timer/../.. -I../src/ui/.. -I../src/ui/../error -I../src/ui/../image -I../src/ui/../log -I../src/ui/../xml -Isrc/ui/../.. -Isrc/ui/gtk/../../.. -I../src/ui/gtk/.. -I../src/ui/gtk/../.. -I../src/ui/gtk/../../image -I../src/ui/gtk/../../log -I../src/ui/gtk/../../timer
   OBJECT_DIR = test_i/ui/gtk/CMakeFiles/gtk_ui.dir
   OBJECT_FILE_DIR = test_i/ui/gtk/CMakeFiles/gtk_ui.dir
@@ -3873,6 +4391,8 @@ build CommonMath: phony src/math/libCommonMath.a
 build CommonMath_pch: phony src/math/CommonMath_pch
 build CommonOpenGL: phony src/gl/libCommonOpenGL.a
 build CommonOpenGL_pch: phony src/gl/CommonOpenGL_pch
+build CommonParser: phony src/parser/libCommonParser.a
+build CommonParser_pch: phony src/parser/CommonParser_pch
 build CommonSignal: phony src/signal/libCommonSignal.a
 build CommonSignal_pch: phony src/signal/CommonSignal_pch
 build CommonTimer: phony src/timer/libCommonTimer.a
@@ -3910,12 +4430,17 @@ build libCommonImage.a: phony src/image/libCommonImage.a
 build libCommonLog.a: phony src/log/libCommonLog.a
 build libCommonMath.a: phony src/math/libCommonMath.a
 build libCommonOpenGL.a: phony src/gl/libCommonOpenGL.a
+build libCommonParser.a: phony src/parser/libCommonParser.a
 build libCommonSignal.a: phony src/signal/libCommonSignal.a
 build libCommonTimer.a: phony src/timer/libCommonTimer.a
 build libCommonUI.a: phony src/ui/libCommonUI.a
 build libCommonUI_GTK.a: phony src/ui/gtk/libCommonUI_GTK.a
 build libCommonXML.a: phony src/xml/libCommonXML.a
 build libCommon_Test_U.a: phony test_u/libCommon_Test_U.a
+build parser: phony test_i/parser/parser
+build parser_2: phony test_i/parser/parser_2
+build print: phony test_i/print/print
+build print_pch: phony test_i/print/print_pch
 build regex: phony test_u/regex/regex
 build regex_pch: phony test_u/regex/regex_pch
 build test_i: phony test_i/test_i
@@ -3929,7 +4454,7 @@ build test_u: phony test_u/test_u
 #############################################
 # Folder: /mnt/win_d/projects/Common/clang/src
 
-build  src/all: phony Common src/dbus/all src/error/all src/gl/all src/image/all src/log/all src/math/all src/signal/all src/timer/all src/ui/all src/xml/all
+build  src/all: phony Common src/dbus/all src/error/all src/gl/all src/image/all src/log/all src/math/all src/parser/all src/signal/all src/timer/all src/ui/all src/xml/all
 # =============================================================================
 
 #############################################
@@ -3969,6 +4494,12 @@ build  src/math/all: phony CommonMath
 # =============================================================================
 
 #############################################
+# Folder: /mnt/win_d/projects/Common/clang/src/parser
+
+build  src/parser/all: phony CommonParser
+# =============================================================================
+
+#############################################
 # Folder: /mnt/win_d/projects/Common/clang/src/signal
 
 build  src/signal/all: phony CommonSignal
@@ -4001,7 +4532,7 @@ build  src/xml/all: phony CommonXML
 #############################################
 # Folder: /mnt/win_d/projects/Common/clang/test_i
 
-build  test_i/all: phony test_i test_i/capabilities/all test_i/ffmpeg/all test_i/imagemagick/all test_i/ui/all
+build  test_i/all: phony test_i test_i/capabilities/all test_i/ffmpeg/all test_i/imagemagick/all test_i/parser/all test_i/print/all test_i/ui/all
 # =============================================================================
 
 #############################################
@@ -4020,6 +4551,18 @@ build  test_i/ffmpeg/all: phony
 # Folder: /mnt/win_d/projects/Common/clang/test_i/imagemagick
 
 build  test_i/imagemagick/all: phony
+# =============================================================================
+
+#############################################
+# Folder: /mnt/win_d/projects/Common/clang/test_i/parser
+
+build  test_i/parser/all: phony
+# =============================================================================
+
+#############################################
+# Folder: /mnt/win_d/projects/Common/clang/test_i/print
+
+build  test_i/print/all: phony
 # =============================================================================
 
 #############################################
@@ -4080,7 +4623,7 @@ build  test_u/regex/all: phony
 #############################################
 # The main all target.
 
-build all: phony src/libCommon.a src/dbus/libCommonDBus.a src/error/libCommonError.a src/gl/libCommonOpenGL.a src/image/libCommonImage.a src/log/libCommonLog.a src/math/libCommonMath.a src/signal/libCommonSignal.a src/timer/libCommonTimer.a src/ui/libCommonUI.a src/ui/gtk/libCommonUI_GTK.a src/xml/libCommonXML.a test_u/test_u test_u/libCommon_Test_U.a test_i/test_i
+build all: phony src/libCommon.a src/dbus/libCommonDBus.a src/error/libCommonError.a src/gl/libCommonOpenGL.a src/image/libCommonImage.a src/log/libCommonLog.a src/math/libCommonMath.a src/parser/libCommonParser.a src/signal/libCommonSignal.a src/timer/libCommonTimer.a src/ui/libCommonUI.a src/ui/gtk/libCommonUI_GTK.a src/xml/libCommonXML.a test_u/test_u test_u/libCommon_Test_U.a test_i/test_i
 
 #############################################
 # Make the all target the default.
@@ -4090,13 +4633,13 @@ default all
 #############################################
 # Re-run CMake if any of its inputs changed.
 
-build build.ninja: RERUN_CMAKE | ../CMakeLists.txt ../CommonConfig.cmake.in ../CommonConfigVersion.cmake.in ../cmake/CommonConfig.cmake ../cmake/CommonConfigVersion.cmake ../config.h.cmake.in ../scripts/ACE.cmake ../scripts/Configuration.cmake ../scripts/Macros.cmake ../scripts/PreToolChain.cmake ../scripts/SetCppExceptions.cmake ../scripts/SetTargetPlatform.cmake ../scripts/SetToolChain.cmake ../scripts/TargetPlatform.cmake ../scripts/Threads.cmake ../scripts/ToolChain.cmake ../scripts/VersionConfig.cmake ../src/CMakeLists.txt ../src/dbus/CMakeLists.txt ../src/error/CMakeLists.txt ../src/gl/CMakeLists.txt ../src/image/CMakeLists.txt ../src/log/CMakeLists.txt ../src/math/CMakeLists.txt ../src/signal/CMakeLists.txt ../src/timer/CMakeLists.txt ../src/ui/CMakeLists.txt ../src/ui/gtk/CMakeLists.txt ../src/ui/scripts/PreUIFramework.cmake ../src/ui/scripts/SetGTKVersion.cmake ../src/ui/scripts/SetUIFramework.cmake ../src/xml/CMakeLists.txt ../src/xml/scripts/PreXMLImplementation.cmake ../src/xml/scripts/SetXMLImplementation.cmake ../test_i/CMakeLists.txt ../test_i/capabilities/CMakeLists.txt ../test_i/ffmpeg/CMakeLists.txt ../test_i/imagemagick/CMakeLists.txt ../test_i/ui/CMakeLists.txt ../test_i/ui/gtk/CMakeLists.txt ../test_u/CMakeLists.txt ../test_u/capabilities/CMakeLists.txt ../test_u/debug/CMakeLists.txt ../test_u/features/CMakeLists.txt ../test_u/file/CMakeLists.txt ../test_u/regex/CMakeLists.txt /media/erik/USB_BLACK/lib/cmake-modules/CleanDirectoryList.cmake /media/erik/USB_BLACK/lib/cmake-modules/CreateLaunchers.cmake /media/erik/USB_BLACK/lib/cmake-modules/FindGDB.cmake /media/erik/USB_BLACK/lib/cmake-modules/launcher-templates/targetlauncher.sh.in /media/erik/USB_BLACK/lib/cotire/CMake/cotire.cmake /usr/lib/x86_64-linux-gnu/cmake/DBus1/DBus1Config.cmake /usr/lib/x86_64-linux-gnu/cmake/DBus1/DBus1ConfigVersion.cmake /usr/share/cmake-3.13/Modules/CMakeCInformation.cmake /usr/share/cmake-3.13/Modules/CMakeCXXInformation.cmake /usr/share/cmake-3.13/Modules/CMakeCommonLanguageInclude.cmake /usr/share/cmake-3.13/Modules/CMakeDependentOption.cmake /usr/share/cmake-3.13/Modules/CMakeExtraGeneratorDetermineCompilerMacrosAndIncludeDirs.cmake /usr/share/cmake-3.13/Modules/CMakeFindCodeBlocks.cmake /usr/share/cmake-3.13/Modules/CMakeGenericSystem.cmake /usr/share/cmake-3.13/Modules/CMakeInitializeConfigs.cmake /usr/share/cmake-3.13/Modules/CMakeLanguageInformation.cmake /usr/share/cmake-3.13/Modules/CMakeParseArguments.cmake /usr/share/cmake-3.13/Modules/CMakeSystemSpecificInformation.cmake /usr/share/cmake-3.13/Modules/CMakeSystemSpecificInitialize.cmake /usr/share/cmake-3.13/Modules/CPack.cmake /usr/share/cmake-3.13/Modules/CPackComponent.cmake /usr/share/cmake-3.13/Modules/CheckIPOSupported.cmake /usr/share/cmake-3.13/Modules/CheckIncludeFile.cmake /usr/share/cmake-3.13/Modules/CheckLibraryExists.cmake /usr/share/cmake-3.13/Modules/CheckSymbolExists.cmake /usr/share/cmake-3.13/Modules/Compiler/CMakeCommonCompilerMacros.cmake /usr/share/cmake-3.13/Modules/Compiler/Clang-C.cmake /usr/share/cmake-3.13/Modules/Compiler/Clang-CXX.cmake /usr/share/cmake-3.13/Modules/Compiler/Clang.cmake /usr/share/cmake-3.13/Modules/Compiler/GNU.cmake /usr/share/cmake-3.13/Modules/FindCurses.cmake /usr/share/cmake-3.13/Modules/FindGTK.cmake /usr/share/cmake-3.13/Modules/FindImageMagick.cmake /usr/share/cmake-3.13/Modules/FindLibXml2.cmake /usr/share/cmake-3.13/Modules/FindOpenGL.cmake /usr/share/cmake-3.13/Modules/FindPackageHandleStandardArgs.cmake /usr/share/cmake-3.13/Modules/FindPackageMessage.cmake /usr/share/cmake-3.13/Modules/FindPkgConfig.cmake /usr/share/cmake-3.13/Modules/FindThreads.cmake /usr/share/cmake-3.13/Modules/FindwxWidgets.cmake /usr/share/cmake-3.13/Modules/GNUInstallDirs.cmake /usr/share/cmake-3.13/Modules/InstallRequiredSystemLibraries.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-Clang-C.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-Clang-CXX.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-GNU-C.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-GNU-CXX.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-GNU.cmake /usr/share/cmake-3.13/Modules/Platform/Linux.cmake /usr/share/cmake-3.13/Modules/Platform/UnixPaths.cmake /usr/share/cmake-3.13/Modules/ProcessorCount.cmake /usr/share/cmake-3.13/Templates/CPackConfig.cmake.in CMakeCache.txt CMakeFiles/3.13.4/CMakeCCompiler.cmake CMakeFiles/3.13.4/CMakeCXXCompiler.cmake CMakeFiles/3.13.4/CMakeSystem.cmake src/Common_CXX_cotire.cmake src/dbus/CommonDBus_CXX_cotire.cmake src/error/CommonError_CXX_cotire.cmake src/gl/CommonOpenGL_CXX_cotire.cmake src/image/CommonImage_CXX_cotire.cmake src/log/CommonLog_CXX_cotire.cmake src/math/CommonMath_CXX_cotire.cmake src/signal/CommonSignal_CXX_cotire.cmake src/timer/CommonTimer_CXX_cotire.cmake src/ui/CommonUI_CXX_cotire.cmake src/ui/gtk/CommonUI_GTK_CXX_cotire.cmake src/xml/CommonXML_CXX_cotire.cmake test_u/capabilities/capabilities_2_CXX_cotire.cmake test_u/debug/debug_wrapper_CXX_cotire.cmake test_u/file/file_CXX_cotire.cmake test_u/regex/regex_CXX_cotire.cmake
+build build.ninja: RERUN_CMAKE | ../CMakeLists.txt ../CommonConfig.cmake.in ../CommonConfigVersion.cmake.in ../cmake/CommonConfig.cmake ../cmake/CommonConfigVersion.cmake ../config.h.cmake.in ../scripts/ACE.cmake ../scripts/Configuration.cmake ../scripts/Macros.cmake ../scripts/PreToolChain.cmake ../scripts/SetCppExceptions.cmake ../scripts/SetTargetPlatform.cmake ../scripts/SetToolChain.cmake ../scripts/TargetPlatform.cmake ../scripts/Threads.cmake ../scripts/ToolChain.cmake ../scripts/VersionConfig.cmake ../src/CMakeLists.txt ../src/dbus/CMakeLists.txt ../src/error/CMakeLists.txt ../src/gl/CMakeLists.txt ../src/image/CMakeLists.txt ../src/log/CMakeLists.txt ../src/math/CMakeLists.txt ../src/parser/CMakeLists.txt ../src/signal/CMakeLists.txt ../src/timer/CMakeLists.txt ../src/ui/CMakeLists.txt ../src/ui/gtk/CMakeLists.txt ../src/ui/scripts/PreUIFramework.cmake ../src/ui/scripts/SetGTKVersion.cmake ../src/ui/scripts/SetUIFramework.cmake ../src/xml/CMakeLists.txt ../src/xml/scripts/PreXMLImplementation.cmake ../src/xml/scripts/SetXMLImplementation.cmake ../test_i/CMakeLists.txt ../test_i/capabilities/CMakeLists.txt ../test_i/ffmpeg/CMakeLists.txt ../test_i/imagemagick/CMakeLists.txt ../test_i/parser/CMakeLists.txt ../test_i/print/CMakeLists.txt ../test_i/ui/CMakeLists.txt ../test_i/ui/gtk/CMakeLists.txt ../test_u/CMakeLists.txt ../test_u/capabilities/CMakeLists.txt ../test_u/debug/CMakeLists.txt ../test_u/features/CMakeLists.txt ../test_u/file/CMakeLists.txt ../test_u/regex/CMakeLists.txt /media/erik/USB_BLACK/lib/cmake-modules/CleanDirectoryList.cmake /media/erik/USB_BLACK/lib/cmake-modules/CreateLaunchers.cmake /media/erik/USB_BLACK/lib/cmake-modules/FindGDB.cmake /media/erik/USB_BLACK/lib/cmake-modules/launcher-templates/targetlauncher.sh.in /media/erik/USB_BLACK/lib/cotire/CMake/cotire.cmake /usr/lib/x86_64-linux-gnu/cmake/DBus1/DBus1Config.cmake /usr/lib/x86_64-linux-gnu/cmake/DBus1/DBus1ConfigVersion.cmake /usr/share/cmake-3.13/Modules/CMakeCInformation.cmake /usr/share/cmake-3.13/Modules/CMakeCXXInformation.cmake /usr/share/cmake-3.13/Modules/CMakeCommonLanguageInclude.cmake /usr/share/cmake-3.13/Modules/CMakeDependentOption.cmake /usr/share/cmake-3.13/Modules/CMakeExtraGeneratorDetermineCompilerMacrosAndIncludeDirs.cmake /usr/share/cmake-3.13/Modules/CMakeFindCodeBlocks.cmake /usr/share/cmake-3.13/Modules/CMakeGenericSystem.cmake /usr/share/cmake-3.13/Modules/CMakeInitializeConfigs.cmake /usr/share/cmake-3.13/Modules/CMakeLanguageInformation.cmake /usr/share/cmake-3.13/Modules/CMakeParseArguments.cmake /usr/share/cmake-3.13/Modules/CMakeSystemSpecificInformation.cmake /usr/share/cmake-3.13/Modules/CMakeSystemSpecificInitialize.cmake /usr/share/cmake-3.13/Modules/CPack.cmake /usr/share/cmake-3.13/Modules/CPackComponent.cmake /usr/share/cmake-3.13/Modules/CheckIPOSupported.cmake /usr/share/cmake-3.13/Modules/CheckIncludeFile.cmake /usr/share/cmake-3.13/Modules/CheckLibraryExists.cmake /usr/share/cmake-3.13/Modules/CheckSymbolExists.cmake /usr/share/cmake-3.13/Modules/Compiler/CMakeCommonCompilerMacros.cmake /usr/share/cmake-3.13/Modules/Compiler/Clang-C.cmake /usr/share/cmake-3.13/Modules/Compiler/Clang-CXX.cmake /usr/share/cmake-3.13/Modules/Compiler/Clang.cmake /usr/share/cmake-3.13/Modules/Compiler/GNU.cmake /usr/share/cmake-3.13/Modules/FindCurses.cmake /usr/share/cmake-3.13/Modules/FindGTK.cmake /usr/share/cmake-3.13/Modules/FindImageMagick.cmake /usr/share/cmake-3.13/Modules/FindLibXml2.cmake /usr/share/cmake-3.13/Modules/FindOpenGL.cmake /usr/share/cmake-3.13/Modules/FindPackageHandleStandardArgs.cmake /usr/share/cmake-3.13/Modules/FindPackageMessage.cmake /usr/share/cmake-3.13/Modules/FindPkgConfig.cmake /usr/share/cmake-3.13/Modules/FindThreads.cmake /usr/share/cmake-3.13/Modules/FindwxWidgets.cmake /usr/share/cmake-3.13/Modules/GNUInstallDirs.cmake /usr/share/cmake-3.13/Modules/InstallRequiredSystemLibraries.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-Clang-C.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-Clang-CXX.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-GNU-C.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-GNU-CXX.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-GNU.cmake /usr/share/cmake-3.13/Modules/Platform/Linux.cmake /usr/share/cmake-3.13/Modules/Platform/UnixPaths.cmake /usr/share/cmake-3.13/Modules/ProcessorCount.cmake /usr/share/cmake-3.13/Templates/CPackConfig.cmake.in CMakeCache.txt CMakeFiles/3.13.4/CMakeCCompiler.cmake CMakeFiles/3.13.4/CMakeCXXCompiler.cmake CMakeFiles/3.13.4/CMakeSystem.cmake src/Common_CXX_cotire.cmake src/dbus/CommonDBus_CXX_cotire.cmake src/error/CommonError_CXX_cotire.cmake src/gl/CommonOpenGL_CXX_cotire.cmake src/image/CommonImage_CXX_cotire.cmake src/log/CommonLog_CXX_cotire.cmake src/math/CommonMath_CXX_cotire.cmake src/parser/CommonParser_CXX_cotire.cmake src/signal/CommonSignal_CXX_cotire.cmake src/timer/CommonTimer_CXX_cotire.cmake src/ui/CommonUI_CXX_cotire.cmake src/ui/gtk/CommonUI_GTK_CXX_cotire.cmake src/xml/CommonXML_CXX_cotire.cmake test_i/print/print_CXX_cotire.cmake test_u/capabilities/capabilities_2_CXX_cotire.cmake test_u/debug/debug_wrapper_CXX_cotire.cmake test_u/file/file_CXX_cotire.cmake test_u/regex/regex_CXX_cotire.cmake
   pool = console
 
 #############################################
 # A missing CMake input file is not an error.
 
-build ../CMakeLists.txt ../CommonConfig.cmake.in ../CommonConfigVersion.cmake.in ../cmake/CommonConfig.cmake ../cmake/CommonConfigVersion.cmake ../config.h.cmake.in ../scripts/ACE.cmake ../scripts/Configuration.cmake ../scripts/Macros.cmake ../scripts/PreToolChain.cmake ../scripts/SetCppExceptions.cmake ../scripts/SetTargetPlatform.cmake ../scripts/SetToolChain.cmake ../scripts/TargetPlatform.cmake ../scripts/Threads.cmake ../scripts/ToolChain.cmake ../scripts/VersionConfig.cmake ../src/CMakeLists.txt ../src/dbus/CMakeLists.txt ../src/error/CMakeLists.txt ../src/gl/CMakeLists.txt ../src/image/CMakeLists.txt ../src/log/CMakeLists.txt ../src/math/CMakeLists.txt ../src/signal/CMakeLists.txt ../src/timer/CMakeLists.txt ../src/ui/CMakeLists.txt ../src/ui/gtk/CMakeLists.txt ../src/ui/scripts/PreUIFramework.cmake ../src/ui/scripts/SetGTKVersion.cmake ../src/ui/scripts/SetUIFramework.cmake ../src/xml/CMakeLists.txt ../src/xml/scripts/PreXMLImplementation.cmake ../src/xml/scripts/SetXMLImplementation.cmake ../test_i/CMakeLists.txt ../test_i/capabilities/CMakeLists.txt ../test_i/ffmpeg/CMakeLists.txt ../test_i/imagemagick/CMakeLists.txt ../test_i/ui/CMakeLists.txt ../test_i/ui/gtk/CMakeLists.txt ../test_u/CMakeLists.txt ../test_u/capabilities/CMakeLists.txt ../test_u/debug/CMakeLists.txt ../test_u/features/CMakeLists.txt ../test_u/file/CMakeLists.txt ../test_u/regex/CMakeLists.txt /media/erik/USB_BLACK/lib/cmake-modules/CleanDirectoryList.cmake /media/erik/USB_BLACK/lib/cmake-modules/CreateLaunchers.cmake /media/erik/USB_BLACK/lib/cmake-modules/FindGDB.cmake /media/erik/USB_BLACK/lib/cmake-modules/launcher-templates/targetlauncher.sh.in /media/erik/USB_BLACK/lib/cotire/CMake/cotire.cmake /usr/lib/x86_64-linux-gnu/cmake/DBus1/DBus1Config.cmake /usr/lib/x86_64-linux-gnu/cmake/DBus1/DBus1ConfigVersion.cmake /usr/share/cmake-3.13/Modules/CMakeCInformation.cmake /usr/share/cmake-3.13/Modules/CMakeCXXInformation.cmake /usr/share/cmake-3.13/Modules/CMakeCommonLanguageInclude.cmake /usr/share/cmake-3.13/Modules/CMakeDependentOption.cmake /usr/share/cmake-3.13/Modules/CMakeExtraGeneratorDetermineCompilerMacrosAndIncludeDirs.cmake /usr/share/cmake-3.13/Modules/CMakeFindCodeBlocks.cmake /usr/share/cmake-3.13/Modules/CMakeGenericSystem.cmake /usr/share/cmake-3.13/Modules/CMakeInitializeConfigs.cmake /usr/share/cmake-3.13/Modules/CMakeLanguageInformation.cmake /usr/share/cmake-3.13/Modules/CMakeParseArguments.cmake /usr/share/cmake-3.13/Modules/CMakeSystemSpecificInformation.cmake /usr/share/cmake-3.13/Modules/CMakeSystemSpecificInitialize.cmake /usr/share/cmake-3.13/Modules/CPack.cmake /usr/share/cmake-3.13/Modules/CPackComponent.cmake /usr/share/cmake-3.13/Modules/CheckIPOSupported.cmake /usr/share/cmake-3.13/Modules/CheckIncludeFile.cmake /usr/share/cmake-3.13/Modules/CheckLibraryExists.cmake /usr/share/cmake-3.13/Modules/CheckSymbolExists.cmake /usr/share/cmake-3.13/Modules/Compiler/CMakeCommonCompilerMacros.cmake /usr/share/cmake-3.13/Modules/Compiler/Clang-C.cmake /usr/share/cmake-3.13/Modules/Compiler/Clang-CXX.cmake /usr/share/cmake-3.13/Modules/Compiler/Clang.cmake /usr/share/cmake-3.13/Modules/Compiler/GNU.cmake /usr/share/cmake-3.13/Modules/FindCurses.cmake /usr/share/cmake-3.13/Modules/FindGTK.cmake /usr/share/cmake-3.13/Modules/FindImageMagick.cmake /usr/share/cmake-3.13/Modules/FindLibXml2.cmake /usr/share/cmake-3.13/Modules/FindOpenGL.cmake /usr/share/cmake-3.13/Modules/FindPackageHandleStandardArgs.cmake /usr/share/cmake-3.13/Modules/FindPackageMessage.cmake /usr/share/cmake-3.13/Modules/FindPkgConfig.cmake /usr/share/cmake-3.13/Modules/FindThreads.cmake /usr/share/cmake-3.13/Modules/FindwxWidgets.cmake /usr/share/cmake-3.13/Modules/GNUInstallDirs.cmake /usr/share/cmake-3.13/Modules/InstallRequiredSystemLibraries.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-Clang-C.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-Clang-CXX.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-GNU-C.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-GNU-CXX.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-GNU.cmake /usr/share/cmake-3.13/Modules/Platform/Linux.cmake /usr/share/cmake-3.13/Modules/Platform/UnixPaths.cmake /usr/share/cmake-3.13/Modules/ProcessorCount.cmake /usr/share/cmake-3.13/Templates/CPackConfig.cmake.in CMakeCache.txt CMakeFiles/3.13.4/CMakeCCompiler.cmake CMakeFiles/3.13.4/CMakeCXXCompiler.cmake CMakeFiles/3.13.4/CMakeSystem.cmake src/Common_CXX_cotire.cmake src/dbus/CommonDBus_CXX_cotire.cmake src/error/CommonError_CXX_cotire.cmake src/gl/CommonOpenGL_CXX_cotire.cmake src/image/CommonImage_CXX_cotire.cmake src/log/CommonLog_CXX_cotire.cmake src/math/CommonMath_CXX_cotire.cmake src/signal/CommonSignal_CXX_cotire.cmake src/timer/CommonTimer_CXX_cotire.cmake src/ui/CommonUI_CXX_cotire.cmake src/ui/gtk/CommonUI_GTK_CXX_cotire.cmake src/xml/CommonXML_CXX_cotire.cmake test_u/capabilities/capabilities_2_CXX_cotire.cmake test_u/debug/debug_wrapper_CXX_cotire.cmake test_u/file/file_CXX_cotire.cmake test_u/regex/regex_CXX_cotire.cmake: phony
+build ../CMakeLists.txt ../CommonConfig.cmake.in ../CommonConfigVersion.cmake.in ../cmake/CommonConfig.cmake ../cmake/CommonConfigVersion.cmake ../config.h.cmake.in ../scripts/ACE.cmake ../scripts/Configuration.cmake ../scripts/Macros.cmake ../scripts/PreToolChain.cmake ../scripts/SetCppExceptions.cmake ../scripts/SetTargetPlatform.cmake ../scripts/SetToolChain.cmake ../scripts/TargetPlatform.cmake ../scripts/Threads.cmake ../scripts/ToolChain.cmake ../scripts/VersionConfig.cmake ../src/CMakeLists.txt ../src/dbus/CMakeLists.txt ../src/error/CMakeLists.txt ../src/gl/CMakeLists.txt ../src/image/CMakeLists.txt ../src/log/CMakeLists.txt ../src/math/CMakeLists.txt ../src/parser/CMakeLists.txt ../src/signal/CMakeLists.txt ../src/timer/CMakeLists.txt ../src/ui/CMakeLists.txt ../src/ui/gtk/CMakeLists.txt ../src/ui/scripts/PreUIFramework.cmake ../src/ui/scripts/SetGTKVersion.cmake ../src/ui/scripts/SetUIFramework.cmake ../src/xml/CMakeLists.txt ../src/xml/scripts/PreXMLImplementation.cmake ../src/xml/scripts/SetXMLImplementation.cmake ../test_i/CMakeLists.txt ../test_i/capabilities/CMakeLists.txt ../test_i/ffmpeg/CMakeLists.txt ../test_i/imagemagick/CMakeLists.txt ../test_i/parser/CMakeLists.txt ../test_i/print/CMakeLists.txt ../test_i/ui/CMakeLists.txt ../test_i/ui/gtk/CMakeLists.txt ../test_u/CMakeLists.txt ../test_u/capabilities/CMakeLists.txt ../test_u/debug/CMakeLists.txt ../test_u/features/CMakeLists.txt ../test_u/file/CMakeLists.txt ../test_u/regex/CMakeLists.txt /media/erik/USB_BLACK/lib/cmake-modules/CleanDirectoryList.cmake /media/erik/USB_BLACK/lib/cmake-modules/CreateLaunchers.cmake /media/erik/USB_BLACK/lib/cmake-modules/FindGDB.cmake /media/erik/USB_BLACK/lib/cmake-modules/launcher-templates/targetlauncher.sh.in /media/erik/USB_BLACK/lib/cotire/CMake/cotire.cmake /usr/lib/x86_64-linux-gnu/cmake/DBus1/DBus1Config.cmake /usr/lib/x86_64-linux-gnu/cmake/DBus1/DBus1ConfigVersion.cmake /usr/share/cmake-3.13/Modules/CMakeCInformation.cmake /usr/share/cmake-3.13/Modules/CMakeCXXInformation.cmake /usr/share/cmake-3.13/Modules/CMakeCommonLanguageInclude.cmake /usr/share/cmake-3.13/Modules/CMakeDependentOption.cmake /usr/share/cmake-3.13/Modules/CMakeExtraGeneratorDetermineCompilerMacrosAndIncludeDirs.cmake /usr/share/cmake-3.13/Modules/CMakeFindCodeBlocks.cmake /usr/share/cmake-3.13/Modules/CMakeGenericSystem.cmake /usr/share/cmake-3.13/Modules/CMakeInitializeConfigs.cmake /usr/share/cmake-3.13/Modules/CMakeLanguageInformation.cmake /usr/share/cmake-3.13/Modules/CMakeParseArguments.cmake /usr/share/cmake-3.13/Modules/CMakeSystemSpecificInformation.cmake /usr/share/cmake-3.13/Modules/CMakeSystemSpecificInitialize.cmake /usr/share/cmake-3.13/Modules/CPack.cmake /usr/share/cmake-3.13/Modules/CPackComponent.cmake /usr/share/cmake-3.13/Modules/CheckIPOSupported.cmake /usr/share/cmake-3.13/Modules/CheckIncludeFile.cmake /usr/share/cmake-3.13/Modules/CheckLibraryExists.cmake /usr/share/cmake-3.13/Modules/CheckSymbolExists.cmake /usr/share/cmake-3.13/Modules/Compiler/CMakeCommonCompilerMacros.cmake /usr/share/cmake-3.13/Modules/Compiler/Clang-C.cmake /usr/share/cmake-3.13/Modules/Compiler/Clang-CXX.cmake /usr/share/cmake-3.13/Modules/Compiler/Clang.cmake /usr/share/cmake-3.13/Modules/Compiler/GNU.cmake /usr/share/cmake-3.13/Modules/FindCurses.cmake /usr/share/cmake-3.13/Modules/FindGTK.cmake /usr/share/cmake-3.13/Modules/FindImageMagick.cmake /usr/share/cmake-3.13/Modules/FindLibXml2.cmake /usr/share/cmake-3.13/Modules/FindOpenGL.cmake /usr/share/cmake-3.13/Modules/FindPackageHandleStandardArgs.cmake /usr/share/cmake-3.13/Modules/FindPackageMessage.cmake /usr/share/cmake-3.13/Modules/FindPkgConfig.cmake /usr/share/cmake-3.13/Modules/FindThreads.cmake /usr/share/cmake-3.13/Modules/FindwxWidgets.cmake /usr/share/cmake-3.13/Modules/GNUInstallDirs.cmake /usr/share/cmake-3.13/Modules/InstallRequiredSystemLibraries.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-Clang-C.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-Clang-CXX.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-GNU-C.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-GNU-CXX.cmake /usr/share/cmake-3.13/Modules/Platform/Linux-GNU.cmake /usr/share/cmake-3.13/Modules/Platform/Linux.cmake /usr/share/cmake-3.13/Modules/Platform/UnixPaths.cmake /usr/share/cmake-3.13/Modules/ProcessorCount.cmake /usr/share/cmake-3.13/Templates/CPackConfig.cmake.in CMakeCache.txt CMakeFiles/3.13.4/CMakeCCompiler.cmake CMakeFiles/3.13.4/CMakeCXXCompiler.cmake CMakeFiles/3.13.4/CMakeSystem.cmake src/Common_CXX_cotire.cmake src/dbus/CommonDBus_CXX_cotire.cmake src/error/CommonError_CXX_cotire.cmake src/gl/CommonOpenGL_CXX_cotire.cmake src/image/CommonImage_CXX_cotire.cmake src/log/CommonLog_CXX_cotire.cmake src/math/CommonMath_CXX_cotire.cmake src/parser/CommonParser_CXX_cotire.cmake src/signal/CommonSignal_CXX_cotire.cmake src/timer/CommonTimer_CXX_cotire.cmake src/ui/CommonUI_CXX_cotire.cmake src/ui/gtk/CommonUI_GTK_CXX_cotire.cmake src/xml/CommonXML_CXX_cotire.cmake test_i/print/print_CXX_cotire.cmake test_u/capabilities/capabilities_2_CXX_cotire.cmake test_u/debug/debug_wrapper_CXX_cotire.cmake test_u/file/file_CXX_cotire.cmake test_u/regex/regex_CXX_cotire.cmake: phony
 
 #############################################
 # Clean all the built files.

@@ -39,7 +39,7 @@ endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/usr/local/include/common_isignal.h;/usr/local/include/common_signal_handler.h;/usr/local/include/common_signal_handler.inl;/usr/local/include/common_signal_tools.h")
+   "/usr/local/include/common_isignal.h;/usr/local/include/common_signal_common.h;/usr/local/include/common_signal_handler.h;/usr/local/include/common_signal_handler.inl;/usr/local/include/common_signal_tools.h")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
@@ -48,6 +48,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   endif()
 file(INSTALL DESTINATION "/usr/local/include" TYPE FILE FILES
     "/mnt/win_d/projects/Common/src/signal/common_isignal.h"
+    "/mnt/win_d/projects/Common/src/signal/common_signal_common.h"
     "/mnt/win_d/projects/Common/src/signal/common_signal_handler.h"
     "/mnt/win_d/projects/Common/src/signal/common_signal_handler.inl"
     "/mnt/win_d/projects/Common/src/signal/common_signal_tools.h"

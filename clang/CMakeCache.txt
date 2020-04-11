@@ -371,6 +371,9 @@ CPACK_SOURCE_TZ:BOOL=ON
 //Enable to build ZIP source packages
 CPACK_SOURCE_ZIP:BOOL=OFF
 
+//searching for libcups.so (system paths)
+CUPS_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libcups.so
+
 //Path to a library.
 CURSES_CURSES_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libcurses.so
 
@@ -470,6 +473,9 @@ GTK2_SUPPORT:BOOL=ON
 //use GTK2
 GTK2_USE:STRING=ON
 
+//GTK3 support
+GTK3_SUPPORT:BOOL=ON
+
 //enable GTK GL support
 GTKGLAREA_SUPPORT:BOOL=ON
 
@@ -482,11 +488,11 @@ GTK_SUPPORT:BOOL=ON
 //use GTK
 GTK_USE:STRING=ON
 
-//use GTK3 (default)
-GTK_VERSION:STRING=gtk3
+//No help, variable specified on the command line.
+GTK_VERSION:STRING=gtk2
 
 //Updating GTK Version Option
-GTK_VERSION_LAST:STRING=gtk3
+GTK_VERSION_LAST:STRING=gtk2
 
 //Path to a library.
 GTK_Xi_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libXi.so
@@ -603,7 +609,7 @@ LLVM_BIN:FILEPATH=/usr/bin/clang++
 NETWORKMANAGER_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libnm.so.0.1.0
 
 //Path to a file.
-OPENGL_EGL_INCLUDE_DIR:PATH=OPENGL_EGL_INCLUDE_DIR-NOTFOUND
+OPENGL_EGL_INCLUDE_DIR:PATH=/usr/include
 
 //Path to a file.
 OPENGL_GLX_INCLUDE_DIR:PATH=/usr/include
@@ -696,6 +702,9 @@ pkgcfg_lib_PC_MagickWand_MagickWand-6.Q16:FILEPATH=/usr/lib/x86_64-linux-gnu/lib
 pkgcfg_lib_PKG_ASSIMP_assimp:FILEPATH=/usr/lib/x86_64-linux-gnu/libassimp.so
 
 //Path to a library.
+pkgcfg_lib_PKG_CAIRO_cairo:FILEPATH=/usr/lib/x86_64-linux-gnu/libcairo.so
+
+//Path to a library.
 pkgcfg_lib_PKG_CAP_cap:FILEPATH=/usr/lib/x86_64-linux-gnu/libcap.so
 
 //Path to a library.
@@ -754,6 +763,39 @@ pkgcfg_lib_PKG_GTK_2_pangocairo-1.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libpangoc
 
 //Path to a library.
 pkgcfg_lib_PKG_GTK_2_pangoft2-1.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libpangoft2-1.0.so
+
+//Path to a library.
+pkgcfg_lib_PKG_GTK_3_atk-1.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libatk-1.0.so
+
+//Path to a library.
+pkgcfg_lib_PKG_GTK_3_cairo:FILEPATH=/usr/lib/x86_64-linux-gnu/libcairo.so
+
+//Path to a library.
+pkgcfg_lib_PKG_GTK_3_cairo-gobject:FILEPATH=/usr/lib/x86_64-linux-gnu/libcairo-gobject.so
+
+//Path to a library.
+pkgcfg_lib_PKG_GTK_3_gdk-3:FILEPATH=/usr/lib/x86_64-linux-gnu/libgdk-3.so
+
+//Path to a library.
+pkgcfg_lib_PKG_GTK_3_gdk_pixbuf-2.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so
+
+//Path to a library.
+pkgcfg_lib_PKG_GTK_3_gio-2.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libgio-2.0.so
+
+//Path to a library.
+pkgcfg_lib_PKG_GTK_3_glib-2.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libglib-2.0.so
+
+//Path to a library.
+pkgcfg_lib_PKG_GTK_3_gobject-2.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libgobject-2.0.so
+
+//Path to a library.
+pkgcfg_lib_PKG_GTK_3_gtk-3:FILEPATH=/usr/lib/x86_64-linux-gnu/libgtk-3.so
+
+//Path to a library.
+pkgcfg_lib_PKG_GTK_3_pango-1.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libpango-1.0.so
+
+//Path to a library.
+pkgcfg_lib_PKG_GTK_3_pangocairo-1.0:FILEPATH=/usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so
 
 //Path to a library.
 pkgcfg_lib_PKG_IMAGEMAGICK_MagickCore-6.Q16:FILEPATH=/usr/lib/x86_64-linux-gnu/libMagickCore-6.Q16.so
@@ -917,7 +959,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=25
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=28
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -972,6 +1014,8 @@ COTIREMSG_CommonLog:INTERNAL=CXX target CommonLog cotired without unity build.
 COTIREMSG_CommonMath:INTERNAL=CXX target CommonMath cotired without unity build.
 //CommonOpenGL cotire message.
 COTIREMSG_CommonOpenGL:INTERNAL=CXX target CommonOpenGL cotired without unity build.
+//CommonParser cotire message.
+COTIREMSG_CommonParser:INTERNAL=CXX target CommonParser cotired without unity build.
 //CommonSignal cotire message.
 COTIREMSG_CommonSignal:INTERNAL=CXX target CommonSignal cotired without unity build.
 //CommonTimer cotire message.
@@ -996,6 +1040,8 @@ COTIREMSG_debug_wrapper:INTERNAL=CXX target debug_wrapper cotired without unity 
 COTIREMSG_features:INTERNAL=CXX target features cotired without unity build.
 //file cotire message.
 COTIREMSG_file:INTERNAL=CXX target file cotired without unity build.
+//print cotire message.
+COTIREMSG_print:INTERNAL=CXX target print cotired without unity build.
 //regex cotire message.
 COTIREMSG_regex:INTERNAL=CXX target regex cotired without unity build.
 //ADVANCED property for variable: CPACK_BINARY_DEB
@@ -1308,6 +1354,40 @@ PKG_ASSIMP_assimp_INCLUDEDIR:INTERNAL=
 PKG_ASSIMP_assimp_LIBDIR:INTERNAL=
 PKG_ASSIMP_assimp_PREFIX:INTERNAL=
 PKG_ASSIMP_assimp_VERSION:INTERNAL=
+PKG_CAIRO_CFLAGS:INTERNAL=-I/usr/include/cairo;-I/usr/include/glib-2.0;-I/usr/lib/x86_64-linux-gnu/glib-2.0/include;-I/usr/include/pixman-1;-I/usr/include/uuid;-I/usr/include/freetype2;-I/usr/include/libpng16
+PKG_CAIRO_CFLAGS_I:INTERNAL=
+PKG_CAIRO_CFLAGS_OTHER:INTERNAL=
+PKG_CAIRO_FOUND:INTERNAL=1
+PKG_CAIRO_INCLUDEDIR:INTERNAL=/usr/include
+PKG_CAIRO_INCLUDE_DIRS:INTERNAL=/usr/include/cairo;/usr/include/glib-2.0;/usr/lib/x86_64-linux-gnu/glib-2.0/include;/usr/include/pixman-1;/usr/include/uuid;/usr/include/freetype2;/usr/include/libpng16
+PKG_CAIRO_LDFLAGS:INTERNAL=-lcairo
+PKG_CAIRO_LDFLAGS_OTHER:INTERNAL=
+PKG_CAIRO_LIBDIR:INTERNAL=/usr/lib/x86_64-linux-gnu
+PKG_CAIRO_LIBRARIES:INTERNAL=cairo
+PKG_CAIRO_LIBRARY_DIRS:INTERNAL=
+PKG_CAIRO_LIBS:INTERNAL=
+PKG_CAIRO_LIBS_L:INTERNAL=
+PKG_CAIRO_LIBS_OTHER:INTERNAL=
+PKG_CAIRO_LIBS_PATHS:INTERNAL=
+PKG_CAIRO_PREFIX:INTERNAL=/usr
+PKG_CAIRO_STATIC_CFLAGS:INTERNAL=-I/usr/include/cairo;-I/usr/include/glib-2.0;-I/usr/lib/x86_64-linux-gnu/glib-2.0/include;-I/usr/include/pixman-1;-I/usr/include/uuid;-I/usr/include/freetype2;-I/usr/include/libpng16
+PKG_CAIRO_STATIC_CFLAGS_I:INTERNAL=
+PKG_CAIRO_STATIC_CFLAGS_OTHER:INTERNAL=
+PKG_CAIRO_STATIC_INCLUDE_DIRS:INTERNAL=/usr/include/cairo;/usr/include/glib-2.0;/usr/lib/x86_64-linux-gnu/glib-2.0/include;/usr/include/pixman-1;/usr/include/uuid;/usr/include/freetype2;/usr/include/libpng16
+PKG_CAIRO_STATIC_LDFLAGS:INTERNAL=-lcairo;-lz;-lgobject-2.0;-pthread;-lffi;-lglib-2.0;-pthread;-lpcre;-pthread;-lpixman-1;-lfontconfig;-luuid;-lexpat;-lfreetype;-lpng16;-lm;-lz;-lm;-lz;-lxcb-shm;-lxcb-render;-lXrender;-lXext;-lX11;-lpthread;-lxcb;-lXau;-lXdmcp
+PKG_CAIRO_STATIC_LDFLAGS_OTHER:INTERNAL=-pthread
+PKG_CAIRO_STATIC_LIBDIR:INTERNAL=
+PKG_CAIRO_STATIC_LIBRARIES:INTERNAL=cairo;z;gobject-2.0;ffi;glib-2.0;pcre;pixman-1;fontconfig;uuid;expat;freetype;png16;m;z;m;z;xcb-shm;xcb-render;Xrender;Xext;X11;pthread;xcb;Xau;Xdmcp
+PKG_CAIRO_STATIC_LIBRARY_DIRS:INTERNAL=
+PKG_CAIRO_STATIC_LIBS:INTERNAL=
+PKG_CAIRO_STATIC_LIBS_L:INTERNAL=
+PKG_CAIRO_STATIC_LIBS_OTHER:INTERNAL=
+PKG_CAIRO_STATIC_LIBS_PATHS:INTERNAL=
+PKG_CAIRO_VERSION:INTERNAL=1.16.0
+PKG_CAIRO_cairo_INCLUDEDIR:INTERNAL=
+PKG_CAIRO_cairo_LIBDIR:INTERNAL=
+PKG_CAIRO_cairo_PREFIX:INTERNAL=
+PKG_CAIRO_cairo_VERSION:INTERNAL=
 PKG_CAP_CFLAGS:INTERNAL=
 PKG_CAP_CFLAGS_I:INTERNAL=
 PKG_CAP_CFLAGS_OTHER:INTERNAL=
@@ -1480,26 +1560,36 @@ PKG_GTK_2_gtk+-2.0_INCLUDEDIR:INTERNAL=/usr/include
 PKG_GTK_2_gtk+-2.0_LIBDIR:INTERNAL=/usr/lib/x86_64-linux-gnu
 PKG_GTK_2_gtk+-2.0_PREFIX:INTERNAL=/usr
 PKG_GTK_2_gtk+-2.0_VERSION:INTERNAL=2.24.32
-PKG_GTK_3_CFLAGS:INTERNAL=
+PKG_GTK_3_CFLAGS:INTERNAL=-pthread;-I/usr/include/gtk-3.0;-I/usr/include/at-spi2-atk/2.0;-I/usr/include/at-spi-2.0;-I/usr/include/dbus-1.0;-I/usr/lib/x86_64-linux-gnu/dbus-1.0/include;-I/usr/include/gtk-3.0;-I/usr/include/gio-unix-2.0;-I/usr/include/cairo;-I/usr/include/libdrm;-I/usr/include/pango-1.0;-I/usr/include/harfbuzz;-I/usr/include/pango-1.0;-I/usr/include/fribidi;-I/usr/include/atk-1.0;-I/usr/include/cairo;-I/usr/include/pixman-1;-I/usr/include/uuid;-I/usr/include/freetype2;-I/usr/include/libpng16;-I/usr/include/gdk-pixbuf-2.0;-I/usr/include/libmount;-I/usr/include/blkid;-I/usr/include/glib-2.0;-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 PKG_GTK_3_CFLAGS_I:INTERNAL=
-PKG_GTK_3_CFLAGS_OTHER:INTERNAL=
-PKG_GTK_3_FOUND:INTERNAL=
-PKG_GTK_3_INCLUDEDIR:INTERNAL=
-PKG_GTK_3_LIBDIR:INTERNAL=
+PKG_GTK_3_CFLAGS_OTHER:INTERNAL=-pthread
+PKG_GTK_3_FOUND:INTERNAL=1
+PKG_GTK_3_INCLUDEDIR:INTERNAL=/usr/include
+PKG_GTK_3_INCLUDE_DIRS:INTERNAL=/usr/include/gtk-3.0;/usr/include/at-spi2-atk/2.0;/usr/include/at-spi-2.0;/usr/include/dbus-1.0;/usr/lib/x86_64-linux-gnu/dbus-1.0/include;/usr/include/gtk-3.0;/usr/include/gio-unix-2.0;/usr/include/cairo;/usr/include/libdrm;/usr/include/pango-1.0;/usr/include/harfbuzz;/usr/include/pango-1.0;/usr/include/fribidi;/usr/include/atk-1.0;/usr/include/cairo;/usr/include/pixman-1;/usr/include/uuid;/usr/include/freetype2;/usr/include/libpng16;/usr/include/gdk-pixbuf-2.0;/usr/include/libmount;/usr/include/blkid;/usr/include/glib-2.0;/usr/lib/x86_64-linux-gnu/glib-2.0/include
+PKG_GTK_3_LDFLAGS:INTERNAL=-lgtk-3;-lgdk-3;-lpangocairo-1.0;-lpango-1.0;-latk-1.0;-lcairo-gobject;-lcairo;-lgdk_pixbuf-2.0;-lgio-2.0;-lgobject-2.0;-lglib-2.0
+PKG_GTK_3_LDFLAGS_OTHER:INTERNAL=
+PKG_GTK_3_LIBDIR:INTERNAL=/usr/lib/x86_64-linux-gnu
+PKG_GTK_3_LIBRARIES:INTERNAL=gtk-3;gdk-3;pangocairo-1.0;pango-1.0;atk-1.0;cairo-gobject;cairo;gdk_pixbuf-2.0;gio-2.0;gobject-2.0;glib-2.0
+PKG_GTK_3_LIBRARY_DIRS:INTERNAL=
 PKG_GTK_3_LIBS:INTERNAL=
 PKG_GTK_3_LIBS_L:INTERNAL=
 PKG_GTK_3_LIBS_OTHER:INTERNAL=
 PKG_GTK_3_LIBS_PATHS:INTERNAL=
-PKG_GTK_3_PREFIX:INTERNAL=
-PKG_GTK_3_STATIC_CFLAGS:INTERNAL=
+PKG_GTK_3_PREFIX:INTERNAL=/usr
+PKG_GTK_3_STATIC_CFLAGS:INTERNAL=-pthread;-I/usr/include/gtk-3.0;-I/usr/include/at-spi2-atk/2.0;-I/usr/include/at-spi-2.0;-I/usr/include/dbus-1.0;-I/usr/lib/x86_64-linux-gnu/dbus-1.0/include;-I/usr/include/gtk-3.0;-I/usr/include/gio-unix-2.0;-I/usr/include/cairo;-I/usr/include/libdrm;-I/usr/include/pango-1.0;-I/usr/include/harfbuzz;-I/usr/include/pango-1.0;-I/usr/include/fribidi;-I/usr/include/atk-1.0;-I/usr/include/cairo;-I/usr/include/pixman-1;-I/usr/include/uuid;-I/usr/include/freetype2;-I/usr/include/libpng16;-I/usr/include/gdk-pixbuf-2.0;-I/usr/include/libmount;-I/usr/include/blkid;-I/usr/include/glib-2.0;-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 PKG_GTK_3_STATIC_CFLAGS_I:INTERNAL=
-PKG_GTK_3_STATIC_CFLAGS_OTHER:INTERNAL=
+PKG_GTK_3_STATIC_CFLAGS_OTHER:INTERNAL=-pthread
+PKG_GTK_3_STATIC_INCLUDE_DIRS:INTERNAL=/usr/include/gtk-3.0;/usr/include/at-spi2-atk/2.0;/usr/include/at-spi-2.0;/usr/include/dbus-1.0;/usr/lib/x86_64-linux-gnu/dbus-1.0/include;/usr/include/gtk-3.0;/usr/include/gio-unix-2.0;/usr/include/cairo;/usr/include/libdrm;/usr/include/pango-1.0;/usr/include/harfbuzz;/usr/include/pango-1.0;/usr/include/fribidi;/usr/include/atk-1.0;/usr/include/cairo;/usr/include/pixman-1;/usr/include/uuid;/usr/include/freetype2;/usr/include/libpng16;/usr/include/gdk-pixbuf-2.0;/usr/include/libmount;/usr/include/blkid;/usr/include/glib-2.0;/usr/lib/x86_64-linux-gnu/glib-2.0/include
+PKG_GTK_3_STATIC_LDFLAGS:INTERNAL=-lgtk-3;-latk-bridge-2.0;-latspi;-lXtst;-ldbus-1;-lpthread;-lsystemd;-lgdk-3;-lXinerama;-lXi;-lXrandr;-lXcursor;-lXcomposite;-lxkbcommon;-lwayland-cursor;-lwayland-egl;-lwayland-client;-lepoxy;-ldl;-lGL;-lpthread;-pthread;-lm;-ldl;-lEGL;-lpthread;-pthread;-lm;-ldl;-lXdamage;-lXfixes;-lX11-xcb;-lxcb-glx;-lxcb-dri2;-lXxf86vm;-ldrm;-lpangocairo-1.0;-lpangoft2-1.0;-lharfbuzz;-lm;-lgraphite2;-lpango-1.0;-lm;-lfribidi;-latk-1.0;-lcairo-gobject;-lcairo;-lz;-lpixman-1;-lfontconfig;-luuid;-lexpat;-lfreetype;-lpng16;-lm;-lz;-lm;-lxcb-shm;-lxcb-render;-lXrender;-lXext;-lX11;-lpthread;-lxcb;-lXau;-lXdmcp;-lgdk_pixbuf-2.0;-lm;-lgio-2.0;-ldl;-pthread;-lresolv;-pthread;-lgmodule-2.0;-ldl;-lz;-lmount;-lblkid;-lselinux;-lsepol;-lpcre2-8;-pthread;-lgobject-2.0;-pthread;-lffi;-lglib-2.0;-pthread;-lpcre;-pthread
+PKG_GTK_3_STATIC_LDFLAGS_OTHER:INTERNAL=-pthread
 PKG_GTK_3_STATIC_LIBDIR:INTERNAL=
+PKG_GTK_3_STATIC_LIBRARIES:INTERNAL=gtk-3;atk-bridge-2.0;atspi;Xtst;dbus-1;pthread;systemd;gdk-3;Xinerama;Xi;Xrandr;Xcursor;Xcomposite;xkbcommon;wayland-cursor;wayland-egl;wayland-client;epoxy;dl;GL;pthread;m;dl;EGL;pthread;m;dl;Xdamage;Xfixes;X11-xcb;xcb-glx;xcb-dri2;Xxf86vm;drm;pangocairo-1.0;pangoft2-1.0;harfbuzz;m;graphite2;pango-1.0;m;fribidi;atk-1.0;cairo-gobject;cairo;z;pixman-1;fontconfig;uuid;expat;freetype;png16;m;z;m;xcb-shm;xcb-render;Xrender;Xext;X11;pthread;xcb;Xau;Xdmcp;gdk_pixbuf-2.0;m;gio-2.0;dl;resolv;gmodule-2.0;dl;z;mount;blkid;selinux;sepol;pcre2-8;gobject-2.0;ffi;glib-2.0;pcre
+PKG_GTK_3_STATIC_LIBRARY_DIRS:INTERNAL=
 PKG_GTK_3_STATIC_LIBS:INTERNAL=
 PKG_GTK_3_STATIC_LIBS_L:INTERNAL=
 PKG_GTK_3_STATIC_LIBS_OTHER:INTERNAL=
 PKG_GTK_3_STATIC_LIBS_PATHS:INTERNAL=
-PKG_GTK_3_VERSION:INTERNAL=
+PKG_GTK_3_VERSION:INTERNAL=3.24.12
 PKG_GTK_3_gmodule-2.0_INCLUDEDIR:INTERNAL=
 PKG_GTK_3_gmodule-2.0_LIBDIR:INTERNAL=
 PKG_GTK_3_gmodule-2.0_PREFIX:INTERNAL=
@@ -1639,9 +1729,11 @@ __pkg_config_arguments_PC_LIBXML:INTERNAL=QUIET;libxml-2.0
 __pkg_config_arguments_PC_MagickCore:INTERNAL=QUIET;MagickCore
 __pkg_config_arguments_PC_MagickWand:INTERNAL=QUIET;MagickWand
 __pkg_config_arguments_PKG_ASSIMP:INTERNAL=REQUIRED;assimp
+__pkg_config_arguments_PKG_CAIRO:INTERNAL=REQUIRED;cairo
 __pkg_config_arguments_PKG_CAP:INTERNAL=REQUIRED;libcap
 __pkg_config_arguments_PKG_FFMPEG:INTERNAL=REQUIRED;libavcodec;libavformat;libavutil
 __pkg_config_arguments_PKG_GTK_2:INTERNAL=gmodule-2.0;gthread-2.0;gtk+-2.0
+__pkg_config_arguments_PKG_GTK_3:INTERNAL=gtk+-3.0
 __pkg_config_arguments_PKG_IMAGEMAGICK:INTERNAL=REQUIRED;ImageMagick
 __pkg_config_arguments_PKG_LIBCAP:INTERNAL=REQUIRED;libcap
 __pkg_config_arguments_PKG_SYSTEMD:INTERNAL=REQUIRED;libsystemd
@@ -1650,6 +1742,7 @@ __pkg_config_checked_PC_LIBXML:INTERNAL=1
 __pkg_config_checked_PC_MagickCore:INTERNAL=1
 __pkg_config_checked_PC_MagickWand:INTERNAL=1
 __pkg_config_checked_PKG_ASSIMP:INTERNAL=1
+__pkg_config_checked_PKG_CAIRO:INTERNAL=1
 __pkg_config_checked_PKG_CAP:INTERNAL=1
 __pkg_config_checked_PKG_FFMPEG:INTERNAL=1
 __pkg_config_checked_PKG_GLADE:INTERNAL=1

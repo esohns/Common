@@ -7,4 +7,6 @@
 subdirs("capabilities")
 subdirs("ffmpeg")
 subdirs("imagemagick")
+subdirs("parser")
+subdirs("print")
 subdirs("ui")

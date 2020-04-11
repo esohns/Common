@@ -16,7 +16,7 @@ set(CMAKE_IMPORT_FILE_VERSION 1)
 set(_targetsDefined)
 set(_targetsNotDefined)
 set(_expectedTargets)
-foreach(_expectedTarget Common CommonDBus CommonError CommonOpenGL CommonImage CommonLog CommonMath CommonSignal CommonTimer CommonUI CommonUI_GTK CommonXML Common_Test_U)
+foreach(_expectedTarget Common CommonDBus CommonError CommonOpenGL CommonImage CommonLog CommonMath CommonParser CommonSignal CommonTimer CommonUI CommonUI_GTK CommonXML Common_Test_U)
   list(APPEND _expectedTargets ${_expectedTarget})
   if(NOT TARGET ${_expectedTarget})
     list(APPEND _targetsNotDefined ${_expectedTarget})
@@ -88,6 +88,13 @@ add_library(CommonMath STATIC IMPORTED)
 
 set_target_properties(CommonMath PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "/media/erik/USB_BLACK/lib/ACE_TAO/ACE;/mnt/win_d/projects/Common/src/math/..;/mnt/win_d/projects/Common/src/math/../timer;/mnt/win_d/projects/Common/clang/src/math/../.."
+)
+
+# Create imported target CommonParser
+add_library(CommonParser STATIC IMPORTED)
+
+set_target_properties(CommonParser PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES "/media/erik/USB_BLACK/lib/ACE_TAO/ACE;/mnt/win_d/projects/Common/src/parser/../../3rd_party/bison;/mnt/win_d/projects/Common/src/parser/..;/mnt/win_d/projects/Common/clang/src/parser/../.."
 )
 
 # Create imported target CommonSignal
@@ -183,6 +190,13 @@ set_property(TARGET CommonMath APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(CommonMath PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
   IMPORTED_LOCATION_DEBUG "/mnt/win_d/projects/Common/clang/src/math/libCommonMath.a"
+  )
+
+# Import target "CommonParser" for configuration "Debug"
+set_property(TARGET CommonParser APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
+set_target_properties(CommonParser PROPERTIES
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+  IMPORTED_LOCATION_DEBUG "/mnt/win_d/projects/Common/clang/src/parser/libCommonParser.a"
   )
 
 # Import target "CommonSignal" for configuration "Debug"

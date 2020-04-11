@@ -42,6 +42,8 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("/mnt/win_d/projects/Common/clang/test_i/capabilities/cmake_install.cmake")
   include("/mnt/win_d/projects/Common/clang/test_i/ffmpeg/cmake_install.cmake")
   include("/mnt/win_d/projects/Common/clang/test_i/imagemagick/cmake_install.cmake")
+  include("/mnt/win_d/projects/Common/clang/test_i/parser/cmake_install.cmake")
+  include("/mnt/win_d/projects/Common/clang/test_i/print/cmake_install.cmake")
   include("/mnt/win_d/projects/Common/clang/test_i/ui/cmake_install.cmake")
 
 endif()

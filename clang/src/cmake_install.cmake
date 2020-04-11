@@ -39,7 +39,7 @@ endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/usr/local/include/common.h;/usr/local/include/common_configuration.h;/usr/local/include/common_defines.h;/usr/local/include/common_event_handler.h;/usr/local/include/common_file_common.h;/usr/local/include/common_file_tools.h;/usr/local/include/common_iclone.h;/usr/local/include/common_icontrol.h;/usr/local/include/common_icounter.h;/usr/local/include/common_idumpstate.h;/usr/local/include/common_iget.h;/usr/local/include/common_iinitialize.h;/usr/local/include/common_ilock.h;/usr/local/include/common_inotify.h;/usr/local/include/common_ireferencecount.h;/usr/local/include/common_iscanner.h;/usr/local/include/common_istatemachine.h;/usr/local/include/common_istatistic.h;/usr/local/include/common_isubscribe.h;/usr/local/include/common_itask.h;/usr/local/include/common_itaskcontrol.h;/usr/local/include/common_macros.h;/usr/local/include/common_message_queue_iterator.h;/usr/local/include/common_message_queue_iterator.inl;/usr/local/include/common_pragmas.h;/usr/local/include/common_referencecounter_base.h;/usr/local/include/common_statemachine.h;/usr/local/include/common_statemachine.inl;/usr/local/include/common_statemachine_base.h;/usr/local/include/common_statemachine_base.inl;/usr/local/include/common_statistic_handler.h;/usr/local/include/common_statistic_handler.inl;/usr/local/include/common_string_tools.h;/usr/local/include/common_task.h;/usr/local/include/common_task.inl;/usr/local/include/common_task_base.h;/usr/local/include/common_task_base.inl;/usr/local/include/common_tools.h")
+   "/usr/local/include/common.h;/usr/local/include/common_configuration.h;/usr/local/include/common_defines.h;/usr/local/include/common_event_handler.h;/usr/local/include/common_file_common.h;/usr/local/include/common_file_tools.h;/usr/local/include/common_iclone.h;/usr/local/include/common_icontrol.h;/usr/local/include/common_icounter.h;/usr/local/include/common_idumpstate.h;/usr/local/include/common_iget.h;/usr/local/include/common_iinitialize.h;/usr/local/include/common_ilock.h;/usr/local/include/common_inotify.h;/usr/local/include/common_ireferencecount.h;/usr/local/include/common_istatemachine.h;/usr/local/include/common_istatistic.h;/usr/local/include/common_isubscribe.h;/usr/local/include/common_itask.h;/usr/local/include/common_itaskcontrol.h;/usr/local/include/common_macros.h;/usr/local/include/common_message_queue_iterator.h;/usr/local/include/common_message_queue_iterator.inl;/usr/local/include/common_pragmas.h;/usr/local/include/common_referencecounter_base.h;/usr/local/include/common_statemachine.h;/usr/local/include/common_statemachine.inl;/usr/local/include/common_statemachine_base.h;/usr/local/include/common_statemachine_base.inl;/usr/local/include/common_statistic_handler.h;/usr/local/include/common_statistic_handler.inl;/usr/local/include/common_string_tools.h;/usr/local/include/common_task.h;/usr/local/include/common_task.inl;/usr/local/include/common_task_base.h;/usr/local/include/common_task_base.inl;/usr/local/include/common_tools.h")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
@@ -62,7 +62,6 @@ file(INSTALL DESTINATION "/usr/local/include" TYPE FILE FILES
     "/mnt/win_d/projects/Common/src/common_ilock.h"
     "/mnt/win_d/projects/Common/src/common_inotify.h"
     "/mnt/win_d/projects/Common/src/common_ireferencecount.h"
-    "/mnt/win_d/projects/Common/src/common_iscanner.h"
     "/mnt/win_d/projects/Common/src/common_istatemachine.h"
     "/mnt/win_d/projects/Common/src/common_istatistic.h"
     "/mnt/win_d/projects/Common/src/common_isubscribe.h"
@@ -108,6 +107,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("/mnt/win_d/projects/Common/clang/src/image/cmake_install.cmake")
   include("/mnt/win_d/projects/Common/clang/src/log/cmake_install.cmake")
   include("/mnt/win_d/projects/Common/clang/src/math/cmake_install.cmake")
+  include("/mnt/win_d/projects/Common/clang/src/parser/cmake_install.cmake")
   include("/mnt/win_d/projects/Common/clang/src/signal/cmake_install.cmake")
   include("/mnt/win_d/projects/Common/clang/src/timer/cmake_install.cmake")
   include("/mnt/win_d/projects/Common/clang/src/ui/cmake_install.cmake")

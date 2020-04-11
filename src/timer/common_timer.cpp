@@ -25,11 +25,11 @@
 
 #include "common_macros.h"
 
-#if defined (__GNUC__) && defined (__GNUC_MINOR__) && (((__GNUC__) * 100) + (__GNUC_MINOR__)) < 407
-  typedef std::chrono::monotonic_clock Common_Clock_t;
-#else
+//#if defined (__GNUC__) && defined (__GNUC_MINOR__) && (((__GNUC__) * 100) + (__GNUC_MINOR__)) < 407
+//  typedef std::chrono::monotonic_clock Common_Clock_t;
+//#else
   typedef std::chrono::steady_clock    Common_Clock_t;
-#endif // __GNUC__
+//#endif // __GNUC__
 
 const double
 Common_Timer::toMilliSecondsFactor =

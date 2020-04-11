@@ -24,6 +24,7 @@
 #include <cstdint>
 #include <string>
 
+#include "ace/Basic_Types.h"
 #include "ace/Global_Macros.h"
 #include "ace/FILE_Addr.h"
 #include "ace/FILE_IO.h"
