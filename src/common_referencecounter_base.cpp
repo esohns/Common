@@ -21,24 +21,27 @@
 
 #include "common_referencecounter_base.h"
 
+#include "ace/Assert.h"
 #include "ace/Guard_T.h"
 #include "ace/Log_Msg.h"
-//#include "ace/Synch.h"
+#include "ace/Synch.h"
 
 #include "common_macros.h"
 
-Common_ReferenceCounterBase::Common_ReferenceCounterBase (long initialCount_in)
- : inherited (initialCount_in)
+Common_ReferenceCounterBase::Common_ReferenceCounterBase (unsigned int initialCount_in)
+ : inherited (static_cast<long> (initialCount_in))
  , lock_ (NULL, // name
           NULL) // attributes
  , condition_ (lock_,
                USYNC_THREAD,
                NULL,
                NULL)
- , deleteOnZero_ (false)
+ , deleteOnZero_ (true)
 {
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
 
+  // sanity check(s)
+  ACE_ASSERT (initialCount_in);
 }
 
 Common_ReferenceCounterBase::Common_ReferenceCounterBase (const Common_ReferenceCounterBase& counter_in)
@@ -69,9 +72,9 @@ Common_ReferenceCounterBase::Common_ReferenceCounterBase ()
 
 }
 
-Common_ReferenceCounterBase::Common_ReferenceCounterBase (long initialCount_in,
+Common_ReferenceCounterBase::Common_ReferenceCounterBase (unsigned int initialCount_in,
                                                           bool deleteOnZero_in)
- : inherited (initialCount_in)
+ : inherited (static_cast<long> (initialCount_in))
  , lock_ (NULL, // name
           NULL) // attributes
  , condition_ (lock_,
@@ -110,7 +113,7 @@ Common_ReferenceCounterBase::decrease ()
   long result = inherited::decrement ();
   int result_2 = -1;
 
-  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, lock_, 0);
+  { ACE_GUARD_RETURN (ACE_Thread_Mutex, aGuard, lock_, 0);
     // awaken any waiter(s)
     result_2 = condition_.broadcast ();
     if (unlikely (result_2 == -1))
@@ -131,7 +134,7 @@ Common_ReferenceCounterBase::wait (unsigned int count_in) const
 
   int result = -1;
 
-  { ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, lock_);
+  { ACE_GUARD (ACE_Thread_Mutex, aGuard, lock_);
     while (inherited::refcount_.value () != static_cast<long> (count_in))
     {
       ACE_DEBUG ((LM_DEBUG,

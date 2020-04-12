@@ -21,20 +21,22 @@
 #ifndef COMMON_REFERENCECOUNTER_BASE_H
 #define COMMON_REFERENCECOUNTER_BASE_H
 
+#include "ace/Condition_Thread_Mutex.h"
 #include "ace/Condition_T.h"
 #include "ace/Refcountable_T.h"
-#include "ace/Synch_Traits.h"
+//#include "ace/Synch_Traits.h"
+#include "ace/Thread_Mutex.h"
 
 #include "common_ireferencecount.h"
 
 class Common_ReferenceCounterBase
- : public ACE_Refcountable_T<ACE_SYNCH_MUTEX>
+ : public ACE_Refcountable_T<ACE_Thread_Mutex>
  , virtual public Common_IReferenceCount
 {
-  typedef ACE_Refcountable_T<ACE_SYNCH_MUTEX> inherited;
+  typedef ACE_Refcountable_T<ACE_Thread_Mutex> inherited;
 
  public:
-  Common_ReferenceCounterBase (long); // initial count (no delete on 0)
+  Common_ReferenceCounterBase (unsigned int = 1); // initial count (delete 'this' on 0)
   Common_ReferenceCounterBase (const Common_ReferenceCounterBase&);
   inline virtual ~Common_ReferenceCounterBase () {}
 
@@ -49,14 +51,14 @@ class Common_ReferenceCounterBase
  protected:
   Common_ReferenceCounterBase ();
   // *TODO*: "delete on 0" may not work in a multi-threaded context
-  Common_ReferenceCounterBase (long,  // initial reference count
-                               bool); // delete on 0 ?
+  Common_ReferenceCounterBase (unsigned int = 1, // initial reference count
+                               bool = true);     // delete 'this' on 0 ?
 
-  mutable ACE_SYNCH_MUTEX     lock_;
+  mutable ACE_Thread_Mutex           lock_;
 
  private:
-  mutable ACE_SYNCH_CONDITION condition_;
-  bool                        deleteOnZero_;
+  mutable ACE_Condition_Thread_Mutex condition_;
+  bool                               deleteOnZero_;
 };
 
 #endif

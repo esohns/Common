@@ -94,6 +94,8 @@ target_include_directories (${PROJECT_NAME} PUBLIC
 set (source_files
      common.h
      common_configuration.h
+     common_counter.cpp
+     common_counter.h
      common_defines.h
      common_event_handler.cpp
      common_event_handler.h
@@ -227,6 +229,7 @@ export (TARGETS ${PROJECT_NAME}
 install (FILES
          common.h
          common_configuration.h
+         common_counter.h
          common_defines.h
          common_event_handler.h
          common_file_common.h

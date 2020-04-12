@@ -116,6 +116,7 @@ elseif (WIN32)
  endif (LIBPNG_SUPPORT)
 
 # ffmpeg
+ target_link_options (${LIBRARY} PUBLIC "$<$<CXX_COMPILER_ID:MSVC>:-SAFESEH:NO>")
  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/lib/avcodec.lib)
  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/lib/avutil.lib)
  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/lib/swscale.lib)

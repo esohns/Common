@@ -19,8 +19,8 @@
 ***************************************************************************/
 #include "stdafx.h"
 
+#include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-ACE_ASSERT (false); // *TODO*
 #else
 #include  <sys/inotify.h>
 #endif // ACE_WIN32 || ACE_WIN64
@@ -30,6 +30,9 @@ ACE_ASSERT (false); // *TODO*
 
 #include "ace/Get_Opt.h"
 #include "ace/High_Res_Timer.h"
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "ace/Init_ACE.h"
+#endif // ACE_WIN32 || ACE_WIN64
 #include "ace/Log_Msg.h"
 #include "ace/Reactor.h"
 #include "ace/Time_Value.h"
@@ -44,6 +47,8 @@ ACE_ASSERT (false); // *TODO*
 
 //////////////////////////////////////////
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
 class INotify_Event_Handler
  : public ACE_Event_Handler
 {
@@ -91,6 +96,7 @@ class INotify_Event_Handler
   ACE_UNIMPLEMENTED_FUNC (INotify_Event_Handler (const INotify_Event_Handler&))
   ACE_UNIMPLEMENTED_FUNC (INotify_Event_Handler& operator= (const INotify_Event_Handler&))
 };
+#endif // ACE_WIN32 || ACE_WIN64
 
 //////////////////////////////////////////
 
@@ -241,6 +247,9 @@ do_work (enum Test_U_Common_File_ModeType mode_in,
     }
     case TEST_U_COMMON_FILE_MODE_WATCH:
     {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      ACE_ASSERT (false); // *TODO*
+#else
       int flags_i = 0;
 //      IN_CLOEXEC | IN_NONBLOCK;
       int result = inotify_init1 (flags_i);
@@ -312,6 +321,7 @@ do_work (enum Test_U_Common_File_ModeType mode_in,
         ACE_OS::close (result);
         return;
       } // end IF
+#endif // ACE_WIN32 || ACE_WIN64
 
       break;
     }
@@ -334,7 +344,7 @@ ACE_TMAIN (int argc_in,
   // step0: initialize
   // *PORTABILITY*: on Windows, initialize ACE
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  result_2 = ACE::init ();
+  int result_2 = ACE::init ();
   if (result_2 == -1)
   {
     ACE_DEBUG ((LM_ERROR,
