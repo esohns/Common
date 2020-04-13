@@ -53,7 +53,7 @@ endif (WIN32)
 if (UNIX)
  add_executable (${EXECUTABLE}
                  EXCLUDE_FROM_ALL
-                 ${file_EXE_SRCS})
+                 ${count_EXE_SRCS})
 elseif (WIN32)
  add_executable (${EXECUTABLE}
                  EXCLUDE_FROM_ALL
