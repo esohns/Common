@@ -19,7 +19,7 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include "ace/Synch.h"
+//#include "ace/Synch.h"
 #include "common_ui_tools.h"
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

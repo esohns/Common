@@ -19,10 +19,10 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include <sstream>
-
-#include "ace/Synch.h"
+//#include "ace/Synch.h"
 #include "common_timer_tools.h"
+
+#include <sstream>
 
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"

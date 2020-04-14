@@ -19,7 +19,7 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include "ace/Synch.h"
+//#include "ace/Synch.h"
 #include "common_tools.h"
 
 #include <fstream>
@@ -2915,7 +2915,6 @@ Common_Tools::dispatchEvents (bool useReactor_in,
                     ACE_TEXT ("failed to ACE_Proactor::proactor_run_event_loop(): \"%m\", continuing\n")));
     } // end ELSE
   } // end ELSE
-
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("event dispatch complete\n")));

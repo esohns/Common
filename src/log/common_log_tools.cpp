@@ -19,9 +19,9 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include <fstream>
-
 #include "common_log_tools.h"
+
+#include <fstream>
 
 #include "ace/ACE.h"
 #include "ace/Log_Msg.h"
