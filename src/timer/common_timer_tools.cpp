@@ -384,10 +384,10 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
     }
     case COMMON_TIMER_DISPATCH_SIGNAL:
     {
-      ACE_ASSERT (false);
-      ACE_NOTSUP_RETURN (false);
+//      ACE_ASSERT (false);
+//      ACE_NOTSUP_RETURN (false);
       
-      ACE_NOTREACHED (return false;)
+//      ACE_NOTREACHED (return false;)
       //if (!timer_manager_2->initialize (configuration_in))
       //{
       //  ACE_DEBUG ((LM_ERROR,
@@ -447,10 +447,10 @@ Common_Timer_Tools::finalizeTimers (enum Common_TimerDispatchType dispatchType_i
     }
     case COMMON_TIMER_DISPATCH_SIGNAL:
     {
-      ACE_ASSERT (false);
-      ACE_NOTSUP;
+//      ACE_ASSERT (false);
+//      ACE_NOTSUP;
 
-      ACE_NOTREACHED (return;)
+//      ACE_NOTREACHED (return;)
       //timer_manager_2->stop (waitForCompletion_in,
       //                       true);
       //break;
