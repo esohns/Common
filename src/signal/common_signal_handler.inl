@@ -219,31 +219,35 @@ Common_SignalHandler_T<ConfigurationType>::handle_exception (ACE_HANDLE handle_i
 {
   COMMON_TRACE (ACE_TEXT ("Common_SignalHandler_T::handle_exception"));
 
+  ACE_UNUSED_ARG (handle_in);
+
   Common_ISignal* callback_p = (callback_ ? callback_ : this);
+
+  struct Common_Signal signal_s;
 
   // sanity check(s)
   ACE_ASSERT (lock_);
+
   { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, *lock_, -1);
     ACE_ASSERT (!signals_.empty ());
-    const struct Common_Signal& signal_r = signals_.front ();
-#if defined (_DEBUG)
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("%D: received [%u/\"%S\"]: %s\n"),
-                signal_r.signal, signal_r.signal,
-                ACE_TEXT (Common_Signal_Tools::signalToString (signal_r).c_str ())));
-#endif // _DEBUG
-
-    try {
-      callback_p->handle (signal_r);
-    } catch (...) {
-      // *PORTABILITY*: tracing in a signal handler context is not portable
-      // *TODO*
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("caught exception in Common_ISignal::handle(), continuing\n")));
-    }
-
+    signal_s = signals_.front ();
     signals_.erase (signals_.begin ());
   } // end lock scope
+#if defined (_DEBUG)
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("%D: received [%u/\"%S\"]: %s\n"),
+              signal_s.signal, signal_s.signal,
+              ACE_TEXT (Common_Signal_Tools::signalToString (signal_s).c_str ())));
+#endif // _DEBUG
+
+  try {
+    callback_p->handle (signal_s);
+  } catch (...) {
+    // *PORTABILITY*: tracing in a signal handler context is not portable
+    // *TODO*
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("caught exception in Common_ISignal::handle(), continuing\n")));
+  }
 
   return 0;
 }
