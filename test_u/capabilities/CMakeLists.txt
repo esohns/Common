@@ -129,8 +129,6 @@ cotire (${EXECUTABLE_2})
 install (TARGETS ${EXECUTABLE} ${EXECUTABLE_2}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_u)
-# install (FILES etc/${EXECUTABLE}.glade
-#          DESTINATION "${INSTALL_SHARE_DIR}/${PROJECT_NAME}/${EXECUTABLE}" COMPONENT config)
 
 ################ launchers ###############
 create_target_launcher (${EXECUTABLE}

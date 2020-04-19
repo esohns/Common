@@ -131,14 +131,6 @@ cotire (${EXECUTABLE})
 install (TARGETS ${EXECUTABLE}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_u)
-if (UNIX)
-# install (FILES etc/${EXECUTABLE}.glade
-#          DESTINATION "${INSTALL_SHARE_DIR}/${PROJECT_NAME}/${EXECUTABLE}" COMPONENT config)
-elseif (WIN32)
-# install (FILES etc/${EXECUTABLE}.glade
-#          DESTINATION "data/${PROJECT_NAME}/${EXECUTABLE}" COMPONENT config)
-#          DESTINATION "$ENV{APPDATA}/${PROJECT_NAME}/${EXECUTABLE}" COMPONENT config)
-endif ()
 
 if (UNIX)
  create_target_launcher (${EXECUTABLE}

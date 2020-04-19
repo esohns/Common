@@ -189,8 +189,8 @@ target_link_libraries (${EXECUTABLE_3} CommonUI_GTK)
 install (TARGETS ${EXECUTABLE} ${EXECUTABLE_2} ${EXECUTABLE_3}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
-# install (FILES etc/${EXECUTABLE}.glade
-#          DESTINATION "${INSTALL_SHARE_DIR}/${PROJECT_NAME}/${EXECUTABLE}" COMPONENT config)
+install (FILES etc/${EXECUTABLE}.glade etc/${EXECUTABLE}.gtk2 etc/${EXECUTABLE}.gtk3
+         DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}" COMPONENT config)
 
 ################ launchers ###############
 

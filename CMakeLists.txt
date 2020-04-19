@@ -80,6 +80,7 @@ project (${PROJECT_NAME}
 #set (CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION OFF)
 if (UNIX)
  include (GNUInstallDirs)
+# set (INSTALL_SHARE_DIR "share" CACHE PATH "Installation directory for shared files")
 endif (UNIX)
 set (INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
 set (INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
@@ -87,7 +88,7 @@ set (INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header f
 if (WIN32 AND NOT CYGWIN)
  set (DEF_INSTALL_CMAKE_DIR CMake)
 else ()
- set (DEF_INSTALL_CMAKE_DIR lib/CMake/lib${PROJECT_NAME})
+ set (DEF_INSTALL_CMAKE_DIR lib/${PROJECT_NAME})
 endif ()
 set (INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH "Installation directory for CMake files")
 
@@ -257,7 +258,7 @@ install (FILES
 install (EXPORT ${PROJECT_NAME}Targets
          DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
-install (FILES "${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_config.h"
+install (FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_config.h"
          DESTINATION "${INSTALL_INCLUDE_DIR}/${PROJECT_NAME}"
          COMPONENT dev)
 
