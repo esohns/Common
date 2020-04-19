@@ -24,7 +24,6 @@ if (UNIX)
 
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
-#                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
 elseif (WIN32)
  if (LIBGLADE_SUPPORT)
 # libglade
