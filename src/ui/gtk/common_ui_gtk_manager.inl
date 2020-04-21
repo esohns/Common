@@ -671,7 +671,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 
 #if GTK_CHECK_VERSION(2,32,0)
 #else
-  if (likely (g_thread_supported ())) // *NOTE*: sad but true...
+  if (likely (g_thread_supported ()))
   {
 #if defined (_DEBUG)
     g_thread_init_with_errorcheck_mutexes (NULL);

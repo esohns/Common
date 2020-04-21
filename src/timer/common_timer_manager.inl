@@ -1008,13 +1008,11 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     {
       ACE_ASSERT (false);
       ACE_NOTSUP_RETURN (ACE_SYNCH_RECURSIVE_MUTEX ());
-
       ACE_NOTREACHED (return ACE_SYNCH_RECURSIVE_MUTEX ();)
     }
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
       OWN_TYPE_T* this_p = const_cast<OWN_TYPE_T*> (this);
-
       return this_p->inherited::mutex ();
     }
     default:
@@ -1028,7 +1026,6 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 
   ACE_ASSERT (false);
   ACE_NOTSUP_RETURN (ACE_SYNCH_RECURSIVE_MUTEX ());
-
   ACE_NOTREACHED (return ACE_SYNCH_RECURSIVE_MUTEX ();)
 }
 //template <ACE_SYNCH_DECL,
@@ -1086,7 +1083,6 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     {
       ACE_ASSERT (false);
       ACE_NOTSUP_RETURN (ACE_Task_Base ());
-
       ACE_NOTREACHED (return ACE_Task_Base ();)
     }
     case COMMON_TIMER_DISPATCH_QUEUE:
@@ -1102,6 +1098,5 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 
   ACE_ASSERT (false);
   ACE_NOTSUP_RETURN (ACE_Task_Base ());
-
   ACE_NOTREACHED (return ACE_Task_Base ();)
 }

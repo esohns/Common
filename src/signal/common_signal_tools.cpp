@@ -121,7 +121,7 @@ Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
       goto _continue;
     } // end IF
     proactor_type = proactor_impl_p->get_impl_type ();
-//    if (proactor_type != ACE_POSIX_Proactor::PROACTOR_SIG)
+    if (proactor_type != ACE_POSIX_Proactor::PROACTOR_SIG)
       goto _continue;
 
     sigset_t rt_signal_set;
