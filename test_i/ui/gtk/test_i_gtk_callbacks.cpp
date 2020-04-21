@@ -741,6 +741,7 @@ togglebutton_record_toggled_cb (GtkToggleButton* toggleButton_in,
 
   Common_UI_GTK_BuildersIterator_t iterator =
     ui_cb_data_p->UIState->builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
+  ACE_UNUSED_ARG (iterator);
 
   // sanity check(s)
   ACE_ASSERT (ui_cb_data_p);

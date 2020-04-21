@@ -90,6 +90,8 @@ class INotify_Event_Handler
         break;
       }
     } // end SWITCH
+
+    return 0;
   }
 
  private:
