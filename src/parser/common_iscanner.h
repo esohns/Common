@@ -84,6 +84,15 @@ class Common_ILexScanner_T
 
 //////////////////////////////////////////
 
+// forward declarations
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+
 template <typename ConfigurationType>
 class Common_IParser_T
  : public Common_IInitialize_T<ConfigurationType>
@@ -99,6 +108,8 @@ class Common_IYaccParser_T
 {
  public:
   ////////////////////////////////////////
+  virtual void error (const struct YYLTYPE&, // location
+                      const std::string&) = 0;
   virtual void error (const yy::location&,
                       const std::string&) = 0;
 };

@@ -193,13 +193,11 @@
 
 // "reactor"-based
 #define COMMON_EVENT_REACTOR_TYPE                              COMMON_REACTOR_ACE_DEFAULT
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-// *CHECK*: the default reactor would be COMMON_REACTOR_SELECT on these systems
-#else // --> currently: UNIX-based
-// *CHECK*: the default reactor would be COMMON_REACTOR_SELECT on these systems
-#undef COMMON_EVENT_REACTOR_TYPE
-#define COMMON_EVENT_REACTOR_TYPE                              COMMON_REACTOR_DEV_POLL
-#endif // ACE_WIN32 || ACE_WIN64
+//#if defined (ACE_WIN32) || defined (ACE_WIN64)
+//// *CHECK*: the default reactor would be COMMON_REACTOR_SELECT on these systems
+//#else // --> currently: UNIX-based
+//// *CHECK*: the default reactor would be COMMON_REACTOR_SELECT on these systems
+//#endif // ACE_WIN32 || ACE_WIN64
 #define COMMON_EVENT_REACTOR_THREAD_GROUP_ID                   102
 
 // reactor options

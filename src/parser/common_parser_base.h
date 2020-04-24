@@ -79,6 +79,8 @@ class Common_ParserBase_T
   inline virtual void destroy (yyscan_t, struct yy_buffer_state*&) { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
 
   // implement (part of) Common_IYaccParser_T
+  virtual void error (const struct YYLTYPE&,
+                      const std::string&);
   virtual void error (const yy::location&,
                       const std::string&);
 
