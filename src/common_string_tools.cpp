@@ -340,3 +340,19 @@ Common_String_Tools::toupper (const std::string& string_in)
 
   return return_value;
 }
+std::string
+Common_String_Tools::tolower (const std::string& string_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_String_Tools::tolower"));
+
+  // initialize return value
+  std::string return_value;
+
+  std::locale locale;
+  for (std::string::size_type i = 0;
+       i < string_in.length ();
+       ++i)
+    return_value += std::tolower (string_in[i], locale);
+
+  return return_value;
+}

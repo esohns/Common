@@ -50,6 +50,7 @@ class Common_String_Tools
   static bool isspace (const std::string&);
 
   static std::string toupper (const std::string&);
+  static std::string tolower (const std::string&);
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_String_Tools ())
