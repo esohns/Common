@@ -24,6 +24,8 @@
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <OleAuto.h>
+#include <stringapiset.h>
+#include <WinNls.h>
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "common_string_tools.h"
@@ -108,11 +110,11 @@ Common_String_Tools::to_2 (const std::string& string_in)
        (code_page_i == 42))
     dwFlags = 0;
   if ((code_page_i == 65001)
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
-      || (code_page_i == GB18030))
-#else
+//#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
+//      || (code_page_i == GB18030))
+//#else
       || (code_page_i == 54936))
-#endif // _WIN32_WINNT_VISTA
+//#endif // _WIN32_WINNT_VISTA
     dwFlags = MB_ERR_INVALID_CHARS;
   int result = MultiByteToWideChar (CP_ACP,
                                     dwFlags,
@@ -178,11 +180,11 @@ Common_String_Tools::to (const std::string& string_in)
        (code_page_i == 42))
     dwFlags = 0;
   if ((code_page_i == 65001)
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
-      || (code_page_i == GB18030))
-#else
+//#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
+//      || (code_page_i == GB18030))
+//#else
       || (code_page_i == 54936))
-#endif // _WIN32_WINNT_VISTA
+//#endif // _WIN32_WINNT_VISTA
     dwFlags = MB_ERR_INVALID_CHARS;
   int result = MultiByteToWideChar (CP_ACP,
                                     dwFlags,

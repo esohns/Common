@@ -12,7 +12,7 @@ elseif (WIN32)
   if (${TARGET_PLATFORM} MATCHES "Host System")
 # *BUG*: CMAKE_HOST_SYSTEM_VERSION not set on Win32
    if (NOT CMAKE_HOST_SYSTEM_VERSION)
-    message (STATUS "CMAKE_HOST_SYSTEM_VERSION not set, falling back")
+    message (WARNING "CMAKE_HOST_SYSTEM_VERSION not set, falling back")
     set (SYSTEM_VERSION 5.1)
    else ()
     set (SYSTEM_VERSION ${CMAKE_HOST_SYSTEM_VERSION})
@@ -63,6 +63,6 @@ elseif (WIN32)
 
  include (${CMAKE_CURRENT_SOURCE_DIR}/../Common/scripts/Macros.cmake)
  get_WIN32_WINNT (version)
- add_definitions("/DWINVER=${version}" "/D_WIN32_WINNT=${version}")
+ message (STATUS "found WINVER|_WIN32_WINNT: ${version}")
+# add_definitions("-DWINVER=${version}" "-D_WIN32_WINNT=${version}")
 endif ()
-

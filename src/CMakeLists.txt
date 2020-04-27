@@ -80,7 +80,7 @@ elseif (WIN32)
  endif (DEFINED ENV{ACE_ROOT})
 endif ()
 target_include_directories (${PROJECT_NAME} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
 target_include_directories (${PROJECT_NAME} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/error>)
 target_include_directories (${PROJECT_NAME} PUBLIC
@@ -144,6 +144,7 @@ set (source_files
 if (WIN32)
  set (source_files
       ../include/${PROJECT_NAME}_config.h
+      ../include/targetver.h
       ${source_files}
       common_event.cpp
       common_event.h)

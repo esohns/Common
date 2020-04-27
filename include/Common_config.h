@@ -17,7 +17,7 @@
 #define Common_PACKAGE_TARNAME "Common-0.0.1-devel.tar.gz"
 
 /* Define to the home page for this package. */
-#define Common_PACKAGE_URL "https://github.com/esohns/libCommon"
+#define Common_PACKAGE_URL "https://github.com/esohns/Common"
 
 /* Define to the version of this package. */
 #define Common_PACKAGE_VERSION "0.0.1"

@@ -19,7 +19,6 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-//#include "ace/Synch.h"
 #include "common_error_tools.h"
 
 #include <exception>
@@ -219,7 +218,7 @@ Common_Error_Tools::finalize ()
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   if (Common_Error_Tools::debugHelpModule)
     Common_Error_Tools::enableCoreDump (false);
-  ACE_ASSERT (Common_Error_Tools::debugHelpModule == ACE_INVALID_HANDLE);
+  ACE_ASSERT (!Common_Error_Tools::debugHelpModule);
 #endif /* ACE_WIN32 || ACE_WIN64 */
 
   std::set_terminate (NULL);
@@ -320,7 +319,7 @@ Common_Error_Tools::setThreadName (const std::string& name_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to SetThreadDescription(%@): \"%s\", returning\n"),
                 handle_h,
-                ACE_TEXT (Common_Error_Tools::errorToString (result, false).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (result, false, false).c_str ())));
 #else
 #if defined (DEBUG_DEBUGGER)
   // *NOTE*: code based on MSDN article (see:

@@ -7,8 +7,12 @@
 #if defined (_MSC_VER)
 // Exclude rarely-used stuff from Windows headers
 #define WIN32_LEAN_AND_MEAN
+
 // <limits> does not work correctly with these macros
 #define NOMINMAX
+
+#include "targetver.h"
+
 // *NOTE*: nmake complains (see also:
 //         C:\Program Files (x86)\Windows Kits\8.1\include\shared\sspi.h(64))
 #define SECURITY_WIN32
@@ -16,13 +20,14 @@
 #if defined (_DEBUG)
 // *TODO*: currently, these do not work well with ACE
 //#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <crtdbg.h>
 #endif // _DEBUG
 
 // Windows Header Files
 // *NOTE*: <windows.h> #includes <sdkddkver.h>
 #include <windows.h>
+
 #if defined (_DEBUG)
 #include "common_macros.h"
 #include "common_pragmas.h"
