@@ -88,7 +88,7 @@ set (INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header f
 if (WIN32 AND NOT CYGWIN)
  set (DEF_INSTALL_CMAKE_DIR CMake)
 else ()
- set (DEF_INSTALL_CMAKE_DIR lib/${PROJECT_NAME})
+ set (DEF_INSTALL_CMAKE_DIR lib/CMake/${PROJECT_NAME})
 endif ()
 set (INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH "Installation directory for CMake files")
 
