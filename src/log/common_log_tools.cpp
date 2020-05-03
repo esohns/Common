@@ -198,7 +198,10 @@ fallback:
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_File_Tools::deleteFile(\"%s\"), aborting\n"),
                 ACE_TEXT (result.c_str ())));
-    return std::string ();
+
+    ++fallback_level;
+
+    goto fallback;
   } // end IF
 
   return result;
