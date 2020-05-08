@@ -2067,9 +2067,10 @@ Common_Tools::getKeyValue (HKEY parentKey_in,
   } // end IF
   ACE_Configuration_Win32Registry registry (key_p);
   ACE_TString value_string;
-  int result = registry.get_string_value (registry.root_section (),
-                                          ACE_TEXT_CHAR_TO_TCHAR (value_in.c_str ()),
-                                          value_string);
+  int result =
+      registry.get_string_value (registry.root_section (),
+                                 ACE_TEXT_CHAR_TO_TCHAR (value_in.c_str ()),
+                                 value_string);
   if (result == -1)
   {
     ACE_DEBUG ((LM_ERROR,
@@ -2157,7 +2158,7 @@ Common_Tools::deleteKeyValue (HKEY parentKey_in,
 
   return true;
 }
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
 bool
 Common_Tools::defaultPlatformReactorIsSelectBased ()

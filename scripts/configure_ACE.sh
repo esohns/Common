@@ -81,7 +81,7 @@ PROJECT_DIRECTORY=${DEFAULT_PROJECT_DIRECTORY}
 [ ! -d ${PROJECT_DIRECTORY} ] && echo "ERROR: invalid directory (was: \"${PROJECT_DIRECTORY}\"), aborting" && exit 1
 #echo "DEBUG: project directory: \"${PROJECT_DIRECTORY}\""
 
-DEFAULT_MPC_DIRECTORY=/media/erik/USB_BLACK/lib/MPC # <-- UNIX
+DEFAULT_MPC_DIRECTORY=${LIB_ROOT}/MPC # <-- UNIX
 if [ ! -d ${DEFAULT_MPC_DIRECTORY} ]
 then
  if [ ! -z ${MPC_ROOT} ]
@@ -101,7 +101,7 @@ then
 fi
 #echo "INFO: \$MPC_ROOT is: \"${MPC_ROOT}\")"
 
-DEFAULT_ACE_DIRECTORY=/mnt/win_d/projects/ACE_TAO/ACE # <-- UNIX
+DEFAULT_ACE_DIRECTORY=${LIB_ROOT}/ACE_TAO/ACE # <-- UNIX
 if [ ! -d ${DEFAULT_ACE_DIRECTORY} ]
 then
  if [ ! -z ${ACE_ROOT} ]
@@ -121,7 +121,7 @@ then
 fi
 #echo "INFO: \$ACE_ROOT is: \"${ACE_ROOT}\")"
 
-DEFAULT_OPENSSL_DIRECTORY=/media/erik/USB_BLACK/lib/openssl
+DEFAULT_OPENSSL_DIRECTORY=${LIB_ROOT}/openssl
 if [ ! -d ${DEFAULT_OPENSSL_DIRECTORY} ]
 then
  if [ ! -z ${SSL_ROOT} ]
