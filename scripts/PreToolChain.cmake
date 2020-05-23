@@ -63,7 +63,8 @@ elseif (WIN32)
 #   set (MSVC_BIN_PATH "${MSVC_PATH_ROOT}/2019/Community/VC/Tools/MSVC/14.21.27702/bin/Hostx64/x86")
 #   set (MSVC_BIN_PATH "${MSVC_PATH_ROOT}/2019/Community/VC/Tools/MSVC/14.22.27905/bin/Hostx64/x86")
 #   set (MSVC_BIN_PATH "${MSVC_PATH_ROOT}/2019/Community/VC/Tools/MSVC/14.23.28105/bin/Hostx64/x86")
-   set (MSVC_BIN_PATH "${MSVC_PATH_ROOT}/2019/Community/VC/Tools/MSVC/14.25.28610/bin/Hostx64/x86")
+#   set (MSVC_BIN_PATH "${MSVC_PATH_ROOT}/2019/Community/VC/Tools/MSVC/14.25.28610/bin/Hostx64/x86")
+   set (MSVC_BIN_PATH "${MSVC_PATH_ROOT}/2019/Community/VC/Tools/MSVC/14.26.28801/bin/Hostx64/x86")
 #  elseif (MSVC_VERSION EQUAL 1600) # MSVC 10
   elseif (MSVC_RELEASE EQUAL 10) # MSVC 10
 #   message (STATUS "MSVC_VERSION: ${MSVC_VERSION}")
