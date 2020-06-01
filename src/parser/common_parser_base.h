@@ -84,6 +84,9 @@ class Common_ParserBase_T
   virtual void error (const yy::location&,
                       const std::string&);
 
+  // convenient types
+  typedef ACE_Message_Queue_Base MESSAGE_QUEUE_T;
+
   ConfigurationType*         configuration_;
   bool                       finished_;
   ACE_Message_Block*         headFragment_;
@@ -100,9 +103,9 @@ class Common_ParserBase_T
   ACE_UNIMPLEMENTED_FUNC (Common_ParserBase_T (const Common_ParserBase_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_ParserBase_T& operator= (const Common_ParserBase_T&))
 
-  //bool                       isFirst_;
-
+  bool                       block_;
   struct yy_buffer_state*    buffer_;
+  MESSAGE_QUEUE_T*           queue_;
 
   bool                       isInitialized_;
 };

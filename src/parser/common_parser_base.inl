@@ -40,8 +40,9 @@ Common_ParserBase_T<ConfigurationType,
  , parser_ (this, // parser
             this) // scanner
  , scannerState_ ()
- //, isFirst_ (true)
+ , block_ (true)
  , buffer_ (NULL)
+ , queue_ (NULL)
  , isInitialized_ (false)
 {
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::Common_ParserBase_T"));
@@ -117,6 +118,7 @@ Common_ParserBase_T<ConfigurationType,
       }
       buffer_ = NULL;
     } // end IF
+    queue_ = NULL;
     if (scannerState_.lexState)
     {
       try {
@@ -133,6 +135,9 @@ Common_ParserBase_T<ConfigurationType,
 
     isInitialized_ = false;
   } // end IF
+
+  block_ = configuration_in.block;
+  queue_ = configuration_in.messageQueue;
 
   ACE_ASSERT (!scannerState_.lexState);
   bool result = false;
@@ -317,7 +322,7 @@ Common_ParserBase_T<ConfigurationType,
   if (!fragment_->cont ())
   {
     // sanity check(s)
-    if (!configuration_->block)
+    if (!block_)
       return false; // not enough data, cannot proceed
 
     waitBuffer (); // <-- wait for data
@@ -381,7 +386,7 @@ Common_ParserBase_T<ConfigurationType,
   // sanity check(s)
   ACE_ASSERT (configuration_);
   ACE_ASSERT (configuration_->block);
-  if (!configuration_->messageQueue)
+  if (!queue_)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("message queue not set - cannot wait, returning\n")));
@@ -389,8 +394,8 @@ Common_ParserBase_T<ConfigurationType,
   } // end IF
 
   // 1. wait for data
-  result = configuration_->messageQueue->dequeue_head (message_block_p,
-                                                       NULL);
+  result = queue_->dequeue_head (message_block_p,
+                                 NULL);
   if (result == -1)
   {
     error = ACE_OS::last_error ();
@@ -404,7 +409,7 @@ Common_ParserBase_T<ConfigurationType,
   {
     case ACE_Message_Block::MB_STOP:
     {
-      result = configuration_->messageQueue->enqueue (message_block_p);
+      result = queue_->enqueue (message_block_p);
       if (result == -1)
       {
         error = ACE_OS::last_error ();
