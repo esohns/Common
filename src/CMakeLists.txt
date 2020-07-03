@@ -86,6 +86,8 @@ target_include_directories (${PROJECT_NAME} PUBLIC
 target_include_directories (${PROJECT_NAME} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/signal>)
 target_include_directories (${PROJECT_NAME} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/task>)
+target_include_directories (${PROJECT_NAME} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/timer>)
 target_include_directories (${PROJECT_NAME} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/..>)
@@ -113,8 +115,6 @@ set (source_files
      common_istatemachine.h
      common_istatistic.h
      common_isubscribe.h
-     common_itask.h
-     common_itaskcontrol.h
      common_macros.h
      common_message_queue_iterator.cpp
      common_message_queue_iterator.h
@@ -133,12 +133,6 @@ set (source_files
      common_statistic_handler.inl
      common_string_tools.cpp
      common_string_tools.h
-     common_task.cpp
-     common_task.h
-     common_task.inl
-     common_task_base.cpp
-     common_task_base.h
-     common_task_base.inl
      common_tools.cpp
      common_tools.h)
 if (WIN32)
@@ -247,8 +241,6 @@ install (FILES
          common_istatemachine.h
          common_istatistic.h
          common_isubscribe.h
-         common_itask.h
-         common_itaskcontrol.h
          common_macros.h
          common_message_queue_iterator.h
          common_message_queue_iterator.inl
@@ -261,10 +253,6 @@ install (FILES
          common_statistic_handler.h
          common_statistic_handler.inl
          common_string_tools.h
-         common_task.h
-         common_task.inl
-         common_task_base.h
-         common_task_base.inl
          common_tools.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
 if (WIN32)
@@ -289,6 +277,7 @@ add_subdirectory (log)
 add_subdirectory (math)
 add_subdirectory (parser)
 add_subdirectory (signal)
+add_subdirectory (task)
 add_subdirectory (timer)
 add_subdirectory (ui)
 add_subdirectory (xml)
