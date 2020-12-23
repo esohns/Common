@@ -286,10 +286,10 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #if defined (GTKGL_SUPPORT) && defined (GTKGL_USE)
   Common_UI_GTK_BuildersIterator_t iterator;
   GtkWidget* widget_p = NULL;
-  GError* error_p = NULL;
 #if GTK_CHECK_VERSION(3,0,0)
 #if GTK_CHECK_VERSION(3,16,0)
   GdkGLContext* context_p = NULL;
+  GError* error_p = NULL;
 #else /* GTK_CHECK_VERSION(3,16,0) */
 #if defined (GTKGLAREA_SUPPORT)
   GglaContext* context_p = NULL;
@@ -587,11 +587,17 @@ continue_:
 
 #if GTK_CHECK_VERSION(3,6,0)
 #else
+#if GTK_CHECK_VERSION(2,24,32)
+#else
   if (likely (g_thread_get_initialized ()))
   {
+#endif // GTK_CHECK_VERSION (2,24,32)
     gdk_threads_enter ();
     leave_gdk_threads = true;
+#if GTK_CHECK_VERSION(2,24,32)
+#else
   } // end IF
+#endif // GTK_CHECK_VERSION (2,24,32)
 #endif // GTK_CHECK_VERSION (3,6,0)
   gtk_main ();
 #if GTK_CHECK_VERSION(3,6,0)
@@ -654,7 +660,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #endif // ACE_WIN32 || ACE_WIN64
 
   // step1: initialize GLib
-#if GTK_CHECK_VERSION(2,36,0)
+#if GTK_CHECK_VERSION(2,24,32)
 #else
 #if defined (_DEBUG)
   GTypeDebugFlags debug_flags =
@@ -667,9 +673,9 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #else
   g_type_init ();
 #endif // _DEBUG
-#endif // GTK_CHECK_VERSION(2,36,0)
+#endif // GTK_CHECK_VERSION(2,24,32)
 
-#if GTK_CHECK_VERSION(2,32,0)
+#if GTK_CHECK_VERSION(2,24,32)
 #else
   if (likely (g_thread_supported ()))
   {
@@ -679,7 +685,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     g_thread_init (NULL);
 #endif // _DEBUG
   } // end IF
-#endif // GTK_CHECK_VERSION(2,32,0)
+#endif // GTK_CHECK_VERSION(2,24,32)
 #if GTK_CHECK_VERSION(3,6,0)
 #else
   gdk_threads_init ();
