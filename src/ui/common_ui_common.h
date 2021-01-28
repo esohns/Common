@@ -32,7 +32,13 @@
 #include <windef.h>
 #include <WinUser.h>
 #else
-#include "X11/Xlib.h"
+//#include "X11/Xlib.h"
+// forward declarations
+typedef struct {
+    short x, y;
+    unsigned short width, height;
+} Common_UI_Rectangle;
+struct _XDisplay;
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/Containers_T.h"
@@ -91,7 +97,7 @@ struct Common_UI_DisplayAdapter
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   struct tagRECT                  clippingArea;
 #else
-  XRectangle                      clippingArea;
+  Common_UI_Rectangle             clippingArea;
 #endif // ACE_WIN32 || ACE_WIN64
   std::string                     description;
   std::string                     device;
@@ -130,7 +136,7 @@ struct Common_UI_DisplayDevice
     BOOL result = SetRectEmpty (&clippingArea);
     ACE_ASSERT (result);
 #else
-    ACE_OS::memset (&clippingArea, 0, sizeof (XRectangle));
+    ACE_OS::memset (&clippingArea, 0, sizeof (Common_UI_Rectangle));
 #endif // ACE_WIN32 || ACE_WIN64
   }
 
@@ -140,11 +146,11 @@ struct Common_UI_DisplayDevice
   std::string    id;
   std::string    key;
 #else
-  XRectangle     clippingArea;
+  Common_UI_Rectangle clippingArea;
 #endif // ACE_WIN32 || ACE_WIN64
-  std::string    description;
-  std::string    device;
-  bool           primary;
+  std::string         description;
+  std::string         device;
+  bool                primary;
 };
 typedef std::list<struct Common_UI_DisplayDevice> Common_UI_DisplayDevices_t;
 typedef Common_UI_DisplayDevices_t::iterator Common_UI_DisplayDevicesIterator_t;

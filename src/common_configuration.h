@@ -42,6 +42,7 @@ struct Common_EventDispatchConfiguration
 {
   Common_EventDispatchConfiguration ()
    : callbacksRequireSynchronization (false)
+   , dispatch (COMMON_EVENT_DEFAULT_DISPATCH)
    , numberOfProactorThreads (0)
    , proactorType (COMMON_EVENT_PROACTOR_TYPE)
    , numberOfReactorThreads (0)
@@ -59,19 +60,20 @@ struct Common_EventDispatchConfiguration
   // *NOTE*: iff the implementation dispatches multiple (i/o) event handlers for
   //         the same (!) handle (i.e. socket file descriptor) in parallel,
   //         shared resources may (!) need to be protected by mutexes
-  bool                     callbacksRequireSynchronization; // reactor-only
+  bool                          callbacksRequireSynchronization; // reactor-only
+  enum Common_EventDispatchType dispatch;
 
-  unsigned int             numberOfProactorThreads;
-  enum Common_ProactorType proactorType;
+  unsigned int                  numberOfProactorThreads;
+  enum Common_ProactorType      proactorType;
 
-  unsigned int             numberOfReactorThreads; // read: dedicated-
+  unsigned int                  numberOfReactorThreads; // read: dedicated-
   // *IMPORTANT NOTE*: the default implementation uses the 'select' reactor
   //                   'in-line' (i.e. the 'main' thread runs the event dispatch
   //                   for numberOfReactorThreads == 0), and spawns one thread
   //                   for numberOfReactorThreads == 1, accordingly.
   //                   Iff numberOfReactorThreads > 1, the 'threadpool' reactor
   //                   is used instead (see above)
-  enum Common_ReactorType  reactorType;
+  enum Common_ReactorType       reactorType;
 };
 
 #endif

@@ -108,6 +108,7 @@
 #define COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY             "etc"
 #define COMMON_LOCATION_DATA_SUBDIRECTORY                      "data"
 #define COMMON_LOCATION_PARENT_SUBDIRECTORY                    ".."
+#define COMMON_LOCATION_SCRIPTS_SUBDIRECTORY                   "scripts"
 #define COMMON_LOCATION_SOURCE_SUBDIRECTORY                    "src"
 
 // // software
@@ -220,16 +221,22 @@
 
 // *** (locally installed-) (UNIX) commands / programs ***
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#define COMMON_COMMAND_TASKKILL                                "taskkill.exe"
+#define COMMON_COMMAND_TASKLIST                                "tasklist.exe"
+#else
 //#define COMMON_COMMAND_ADDUSER_STRING                          "adduser"
-#define COMMON_COMMAND_GPASSWD_STRING                          "gpasswd"
-#define COMMON_COMMAND_LOCATE_STRING                           "locate"
-#define COMMON_COMMAND_LSB_RELEASE_STRING                      "lsb_release"
-#define COMMON_COMMAND_SWITCH_LSB_RELEASE_DISTRIBUTOR_STRING   "i"
-#define COMMON_COMMAND_SWITCH_LSB_RELEASE_RELEASE_STRING       "r"
-#define COMMON_COMMAND_PIDOF_STRING                            "pidof"
-#define COMMON_COMMAND_PIDOFPROC_STRING                        "pidofproc"
-#define COMMON_COMMAND_USERMOD_STRING                          "usermod"
-#define COMMON_COMMAND_WHICH_STRING                            "which"
+#define COMMON_COMMAND_GPASSWD                                 "gpasswd"
+#define COMMON_COMMAND_LOCATE                                  "locate"
+#define COMMON_COMMAND_LSB_RELEASE                             "lsb_release"
+#define COMMON_COMMAND_SWITCH_LSB_RELEASE_DISTRIBUTOR          "i"
+#define COMMON_COMMAND_SWITCH_LSB_RELEASE_RELEASE              "r"
+#define COMMON_COMMAND_PIDOF                                   "pidof"
+#define COMMON_COMMAND_PIDOFPROC                               "pidofproc"
+#define COMMON_COMMAND_USERMOD                                 "usermod"
+#define COMMON_COMMAND_WHICH                                   "which"
+#endif // ACE_WIN32 || ACE_WIN64
+
 #define COMMON_STRING_APPEND(string,string_2) \
   string += ACE_TEXT_ALWAYS_CHAR (#string_2);
 #define COMMON_COMMAND_ADD_SWITCH(command,switch_) \

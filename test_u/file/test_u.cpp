@@ -39,6 +39,7 @@
 
 #include "common_defines.h"
 #include "common_file_tools.h"
+#include "common_process_tools.h"
 #include "common_tools.h"
 
 #include "common_log_tools.h"
@@ -403,7 +404,7 @@ ACE_TMAIN (int argc_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("invalid arguments (was: \"%s\"), aborting\n"),
-                ACE_TEXT (Common_Tools::commandLineToString (argc_in, argv_in).c_str ())));
+                ACE_TEXT (Common_Process_Tools::toString (argc_in, argv_in).c_str ())));
     do_printUsage (ACE::basename (argv_in[0]));
     return EXIT_FAILURE;
   } // end IF

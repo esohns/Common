@@ -51,7 +51,7 @@ struct Common_Image_Resolution
   unsigned int width;
   unsigned int height;
 };
-typedef Common_Image_Resolution Common_Image_Resolution_t;
+typedef struct Common_Image_Resolution Common_Image_Resolution_t;
 struct common_image_resolution_less
 {
   inline bool operator() (const Common_Image_Resolution_t& lhs_in, const Common_Image_Resolution_t& rhs_in) const { return ((lhs_in.width == rhs_in.width) ? (lhs_in.height < rhs_in.height) : (lhs_in.width < rhs_in.width)); }

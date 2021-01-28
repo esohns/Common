@@ -321,6 +321,9 @@ Common_ParserBase_T<ConfigurationType,
   ACE_Message_Block* message_block_p = fragment_;
   if (!fragment_->cont ())
   {
+    if (finished_)
+      return false; // already finished
+
     // sanity check(s)
     if (!block_)
       return false; // not enough data, cannot proceed

@@ -21,7 +21,7 @@
 #include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-#include "X11/Xlib.h"
+//#include "X11/Xlib.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (GTKGL_SUPPORT)
@@ -646,18 +646,6 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                 ACE_TEXT ("set locale to \"%s\"\n"),
                 ACE_TEXT (locale_p)));
 #endif // _DEBUG
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-  // step0: initialize X
-  Status result = XInitThreads ();
-  if (unlikely (!result))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to XInitThreads(): \"%m\", aborting\n")));
-    return false;
-  } // end IF
-#endif // ACE_WIN32 || ACE_WIN64
 
   // step1: initialize GLib
 #if GTK_CHECK_VERSION(2,24,32)

@@ -89,30 +89,6 @@ class Common_Tools
   static void printCapabilities ();
 #endif // ACE_WIN32 || ACE_WIN64
 
-  // --- process ---
-  static std::string commandLineToString (int,           // argc
-                                          ACE_TCHAR*[]); // argv
-
-  // *NOTE*: this uses system(3), piping stdout into a temporary file
-  //         --> the command line must not have piped stdout already
-  // *TODO*: while this should work on most platforms, there are more efficient
-  //         alternatives (e.g. see also: man popen() for Linux)
-  // *TODO*: enhance the API to return the exit status
-  static bool command (const std::string&, // command line
-                       int&,               // return value: exit status
-                       std::string&);      // return value: stdout
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-  // *NOTE*: the Linux implementation relies on the 'pidofproc' command, which
-  //         may not be available on all versions of all distributions
-  // *TODO*: parse /proc manually, or find a better alternative (e.g. 'libproc',
-  //         testing for 'PID-files' in /var/run, ...)
-  static pid_t getProcessId (const std::string&); // executable (base-)name
-
-  // *NOTE*: as used by polkit (i.e. queries /proc/self/stat)
-  static uint64_t getStartTime ();
-#endif // ACE_WIN32 || ACE_WIN64
-
   // --- resource usage ---
   static bool setResourceLimits (bool = false,  // #file descriptors (i.e. open handles)
 #if defined (_DEBUG)

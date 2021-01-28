@@ -120,6 +120,8 @@ set (source_files
      common_message_queue_iterator.h
      common_message_queue_iterator.inl
      common_pragmas.h
+     common_process_tools.cpp
+     common_process_tools.h
      common_referencecounter_base.cpp
      common_referencecounter_base.h
      common_statemachine.cpp
@@ -245,6 +247,7 @@ install (FILES
          common_message_queue_iterator.h
          common_message_queue_iterator.inl
          common_pragmas.h
+         common_process_tools.h
          common_referencecounter_base.h
          common_statemachine.h
          common_statemachine.inl

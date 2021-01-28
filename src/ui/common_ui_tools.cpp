@@ -1116,7 +1116,7 @@ Common_UI_Tools::getDisplay (const std::string& deviceIdentifier_in)
       if ((*iterator).handle == result.handle)
         return *iterator;
 #else
-      if ((*iterator).primary)
+      if ((*iterator).primary || (display_devices_a.size () == 1))
         return *iterator;
 #endif // ACE_WIN32 || ACE_WIN64
     } // end IF
