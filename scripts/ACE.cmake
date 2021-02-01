@@ -8,7 +8,7 @@ if (UNIX)
 elseif (WIN32)
 # *TODO*: this does not work
  set (LIB_FILE_SUFFIX "")
- message (STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+# message (STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
  if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
      CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
   set (LIB_FILE_SUFFIX "d")
