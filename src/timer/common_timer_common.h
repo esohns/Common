@@ -24,9 +24,10 @@
 #include "ace/Abstract_Timer_Queue.h"
 #include "ace/Event_Handler.h"
 #include "ace/Version.h"
-#if (ACE_MAJOR_VERSION  >= 6) && \
-    ((ACE_MINOR_VERSION >  0) || \
-     (ACE_BETA_VERSION  >  3))
+#if (ACE_MAJOR_VERSION  > 6) || \
+     ((ACE_MAJOR_VERSION  == 6) && \
+      ((ACE_MINOR_VERSION >  0) || \
+       (ACE_BETA_VERSION  >  3)))
 #include "ace/Event_Handler_Handle_Timeout_Upcall.h"
 #else
 #include "ace/Timer_Queuefwd.h"
