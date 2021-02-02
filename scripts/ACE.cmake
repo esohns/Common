@@ -15,7 +15,8 @@ elseif (WIN32)
  endif ()
  set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-               PATHS $ENV{ACE_ROOT} $ENV{LIB_ROOT}/ACE_TAO/ACE
+#               PATHS $ENV{ACE_ROOT} $ENV{LIB_ROOT}/ACE_TAO/ACE
+               PATHS G:/lib/ACE_wrappers
                PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
                DOC "searching for ${ACE_LIB_FILE}")
 endif ()
@@ -23,7 +24,17 @@ endif ()
 if (NOT ACE_LIBRARY)
  message (FATAL_ERROR "could not find ${ACE_LIB_FILE}, aborting")
 else ()
- #message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
+ message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
 endif ()
 add_definitions (-DACE_HAS_DLL)
 
+if (UNIX)
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE)
+elseif (WIN32)
+ if (DEFINED ENV{ACE_ROOT})
+  file (TO_CMAKE_PATH $ENV{ACE_ROOT} ACE_ROOT_CMAKE)
+  include_directories (G:/lib/ACE_wrappers)
+ else ()
+  include_directories ($ENV{LIB_ROOT}/ACE_TAO/ACE)
+ endif (DEFINED ENV{ACE_ROOT})
+endif ()

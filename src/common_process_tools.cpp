@@ -68,7 +68,7 @@ Common_Process_Tools::command (const std::string& commandLine_in,
   ACE_ASSERT (!commandLine_in.empty ());
 
   std::string filename_string =
-      Common_File_Tools::getTempFilename (ACE_TEXT_ALWAYS_CHAR (""));
+      Common_File_Tools::getTempFilename (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME));
   std::string command_line_string = commandLine_in;
   command_line_string += ACE_TEXT_ALWAYS_CHAR (" >> ");
   command_line_string += filename_string;
