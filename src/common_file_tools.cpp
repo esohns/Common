@@ -2175,29 +2175,24 @@ Common_File_Tools::getTempFilename (const std::string& prefix_in)
 
   // *NOTE*: see also: man 3 mkstemp
   ACE_TCHAR buffer[BUFSIZ];
+  unsigned int offset_i = prefix_in.size ();
+  char* result_p = NULL;
   if (unlikely (!prefix_in.empty ()))
+  {
     ACE_OS::strcpy (buffer, prefix_in.c_str ());
-  ACE_OS::strcpy (buffer + prefix_in.size (), ACE_TEXT ("XXXXXX"));
-  // *TODO*: consider using mktemp() instead (less hassle)
-  ACE_HANDLE file_handle = ACE_OS::mkstemp (buffer);
-  if (unlikely (file_handle == ACE_INVALID_HANDLE))
+    ACE_OS::strcpy (buffer + prefix_in.size (), ACE_TEXT_ALWAYS_CHAR ("_"));
+    ++offset_i;
+  } // end IF
+  ACE_OS::strcpy (buffer + offset_i, ACE_TEXT ("XXXXXX"));
+  result_p = ACE_OS::mktemp (buffer);
+  if (unlikely (!result_p))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::mkstemp(): \"%m\", aborting\n")));
+                ACE_TEXT ("failed to ACE_OS::mktemp(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (buffer)));
     return std::string ();
   } // end IF
   result += buffer;
-
-  // clean up
-  int result_2 = ACE_OS::close (file_handle);
-  if (unlikely (result_2 == -1))
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::close(): \"%m\", continuing\n")));
-  result_2 = ACE_OS::unlink (buffer);
-  if (unlikely (result_2 == -1))
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::unlink(\"%s\"): \"%m\", continuing\n"),
-                buffer));
 
   return result;
 }

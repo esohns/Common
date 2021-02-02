@@ -26,10 +26,10 @@
 
 #include "common_defines.h"
 
-#if ((ACE_MAJOR_VERSION >= 6) && \
-     ((ACE_MINOR_VERSION > 1) || \
-      ((ACE_MINOR_VERSION == 1) && (ACE_BETA_VERSION > 6))))
-//#include "ace/OS.h"
+#if ((ACE_MAJOR_VERSION > 6) ||   \
+     ((ACE_MAJOR_VERSION == 6) && \
+      ((ACE_MINOR_VERSION > 1) || \
+       ((ACE_MINOR_VERSION == 1) && (ACE_BETA_VERSION > 6)))))
 #include "ace/Time_Policy.h"
 // *NOTE*: (where possible) use high-resolution timestamps for accuracy and low
 //         latency timers
@@ -55,9 +55,10 @@ typedef ACE_HR_Time_Policy Common_TimePolicy_t;
 typedef ACE_System_Time_Policy Common_TimePolicy_t;
 #endif // ACE_VERSION (> 6.1.6)
 
-#if ((ACE_MAJOR_VERSION >= 6) && \
-     ((ACE_MINOR_VERSION > 1) || \
-      ((ACE_MINOR_VERSION == 1) && (ACE_BETA_VERSION > 6))))
+#if ((ACE_MAJOR_VERSION > 6) ||   \
+     ((ACE_MAJOR_VERSION == 6) && \
+      ((ACE_MINOR_VERSION > 1) || \
+       ((ACE_MINOR_VERSION == 1) && (ACE_BETA_VERSION > 6)))))
 // *NOTE*: global time policy (supplies gettimeofday())
 #if defined (__GNUG__)
 //#pragma GCC diagnostic ignored "-Wunused-variable"
