@@ -1,4 +1,4 @@
-; libACEStream.nsi
+; libCommon.nsi
 ;--------------------------------
 
 ; Includes
@@ -78,7 +78,7 @@ UninstPage instfiles
 Section "${PROGRAM} (required)"
 
 SectionIn RO
-  
+
 ; set output path to the installation directory
 SetOutPath $INSTDIR
 
