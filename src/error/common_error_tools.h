@@ -64,7 +64,7 @@ class Common_Error_Tools
 #if defined (_DEBUG)
   // debug heap
   static ACE_HANDLE              debugHeapLogFileHandle;
-
+  static HMODULE                 debugHelpModule;
   typedef int (WINAPI *MiniDumpWriteDumpFunc_t)(HANDLE,
                                                 DWORD,
                                                 HANDLE,
@@ -73,7 +73,6 @@ class Common_Error_Tools
                                                 struct _MINIDUMP_USER_STREAM_INFORMATION*,
                                                 struct _MINIDUMP_CALLBACK_INFORMATION*
                                                );
-  static HMODULE                 debugHelpModule;
   static MiniDumpWriteDumpFunc_t miniDumpWriteDumpFunc;
 #endif // _DEBUG
 #endif // ACE_WIN32 || ACE_WIN64

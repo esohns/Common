@@ -2535,6 +2535,8 @@ continue_:
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("stopped event dispatch\n")));
+#else
+  ;
 #endif // _DEBUG
 }
 

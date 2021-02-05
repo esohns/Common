@@ -19,9 +19,6 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-//#include <filesystem>
-
-//#include "ace/Synch.h"
 #include "common_file_tools.h"
 
 #include "ace/config-lite.h"
@@ -49,6 +46,22 @@
 #if defined (HAVE_CONFIG_H)
 #include "Common_config.h"
 #endif // HAVE_CONFIG_H
+
+// initialize statics
+std::string Common_File_Tools::executableBase = ACE_TEXT_ALWAYS_CHAR("");
+
+void
+Common_File_Tools::initialize (const std::string& argv0_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::initialize"));
+
+  // sanity check(s)
+  ACE_ASSERT (Common_File_Tools::isValidFilename (argv0_in));
+
+  Common_File_Tools::executableBase =
+      ACE_TEXT_ALWAYS_CHAR (ACE::dirname (argv0_in.c_str(), ACE_DIRECTORY_SEPARATOR_CHAR));
+  ACE_ASSERT (Common_File_Tools::isDirectory (Common_File_Tools::executableBase));
+}
 
 std::string
 Common_File_Tools::addressToString (const ACE_FILE_Addr& address_in)
@@ -1803,8 +1816,8 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
   return_value += packageName_in;
   return_value += ACE_DIRECTORY_SEPARATOR_STR;
   return_value +=
-      (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_DIRECTORY)
-                          : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_DIRECTORY));
+      (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
+                          : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
 #else
   return_value =
     ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_APPLICATION_STORAGE_ROOT_DIRECTORY);

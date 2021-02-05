@@ -54,7 +54,8 @@ Common_Process_Tools::toString (int argc_in,
 bool
 Common_Process_Tools::command (const std::string& commandLine_in,
                                int& exitStatus_out,
-                               std::string& stdOut_out)
+                               std::string& stdOut_out,
+                               bool returnStdOut_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Process_Tools::command"));
 
@@ -67,12 +68,15 @@ Common_Process_Tools::command (const std::string& commandLine_in,
   // sanity check(s)
   ACE_ASSERT (!commandLine_in.empty ());
 
-  std::string filename_string =
-      Common_File_Tools::getTempFilename (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME));
+  std::string filename_string;
   std::string command_line_string = commandLine_in;
-  command_line_string += ACE_TEXT_ALWAYS_CHAR (" >> ");
-  command_line_string += filename_string;
-
+  if (likely (returnStdOut_in))
+  {
+    filename_string =
+      Common_File_Tools::getTempFilename (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME));
+    command_line_string += ACE_TEXT_ALWAYS_CHAR (" >> ");
+    command_line_string += filename_string;
+  } // end IF
   result = ACE_OS::system (ACE_TEXT (command_line_string.c_str ()));
 //  result = execl ("/bin/sh", "sh", "-c", command, (char *) 0);
   if (unlikely ((result == -1)      ||
@@ -89,31 +93,34 @@ Common_Process_Tools::command (const std::string& commandLine_in,
   exitStatus_out = WEXITSTATUS (result);
 
   // sanity check(s)
+  if (likely (returnStdOut_in))
+  {
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  ACE_ASSERT (Common_File_Tools::canRead (filename_string, ACE_TEXT_ALWAYS_CHAR ("")));
+    ACE_ASSERT (Common_File_Tools::canRead (filename_string, ACE_TEXT_ALWAYS_CHAR ("")));
 #else
-  ACE_ASSERT (Common_File_Tools::canRead (filename_string, static_cast<uid_t> (-1)));
+    ACE_ASSERT (Common_File_Tools::canRead (filename_string, static_cast<uid_t> (-1)));
 #endif // ACE_WIN32 || ACE_WIN64
 
-  unsigned char* data_p = NULL;
-  unsigned int file_size_i = 0;
-  if (unlikely (!Common_File_Tools::load (filename_string,
-                                          data_p,
-                                          file_size_i)))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), aborting\n"),
-                ACE_TEXT (filename_string.c_str ())));
-    return false;
-  } // end IF
-  if (unlikely (!Common_File_Tools::deleteFile (filename_string)))
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_File_Tools::deleteFile(\"%s\"), continuing\n"),
-                ACE_TEXT (filename_string.c_str ())));
-  stdOut_out.assign (reinterpret_cast<char* >(data_p), file_size_i);
+    unsigned char* data_p = NULL;
+    unsigned int file_size_i = 0;
+    if (unlikely (!Common_File_Tools::load (filename_string,
+                                            data_p,
+                                            file_size_i)))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), aborting\n"),
+                  ACE_TEXT (filename_string.c_str ())));
+      return false;
+    } // end IF
+    if (unlikely (!Common_File_Tools::deleteFile (filename_string)))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_File_Tools::deleteFile(\"%s\"): \"%m\", continuing\n"),
+                  ACE_TEXT (filename_string.c_str ())));
+    stdOut_out.assign (reinterpret_cast<char* >(data_p), file_size_i);
 
-  // clean up
-  delete [] data_p;
+    // clean up
+    delete [] data_p;
+  } // end IF
 
   return true;
 }
@@ -247,7 +254,8 @@ clean:
   std::string stdout_string;
   if (!Common_Process_Tools::command (command_line_string,
                                       exit_status,
-                                      stdout_string))
+                                      stdout_string,
+                                      true))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Process_Tools::command(\"%s\"), aborting\n")));
@@ -307,7 +315,8 @@ Common_Process_Tools::kill (pid_t processId_in)
   std::string stdout_string;
   if (!Common_Process_Tools::command (command_line_string,
                                       exit_status,
-                                      stdout_string))
+                                      stdout_string,
+                                      false))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Process_Tools::command(\"%s\"), aborting\n")));

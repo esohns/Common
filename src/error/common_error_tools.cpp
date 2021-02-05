@@ -216,7 +216,9 @@ Common_Error_Tools::finalize ()
   COMMON_TRACE (ACE_TEXT ("Common_Error_Tools::finalize"));
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if defined (_DEBUG)
   if (Common_Error_Tools::debugHelpModule)
+#endif // _DEBUG
     Common_Error_Tools::enableCoreDump (false);
   ACE_ASSERT (!Common_Error_Tools::debugHelpModule);
 #endif /* ACE_WIN32 || ACE_WIN64 */
@@ -371,7 +373,6 @@ Common_Error_Tools::enableCoreDump (bool enable_in)
 #if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("SetUnhandledExceptionFilter(NULL)\n")));
-#endif // _DEBUG
 
     if (Common_Error_Tools::debugHelpModule)
     {
@@ -382,16 +383,20 @@ Common_Error_Tools::enableCoreDump (bool enable_in)
                     ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
       Common_Error_Tools::debugHelpModule = NULL;
     } // end IF
+#endif // _DEBUG
 
     goto continue_;
   } // end IF
 
   // sanity check(s)
+#if defined (_DEBUG)
   if (Common_Error_Tools::debugHelpModule)
     goto continue_;
+#endif // _DEBUG
 
   // *NOTE*: initialize the member so the dll is not loaded after the exception
   //         has occured which might be not possible anymore
+#if defined (_DEBUG)
   Common_Error_Tools::debugHelpModule = LoadLibrary (ACE_TEXT ("dbghelp.dll"));
   if (!Common_Error_Tools::debugHelpModule)
   {
@@ -412,6 +417,7 @@ Common_Error_Tools::enableCoreDump (bool enable_in)
                 ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
     return false;
   } // end IF
+#endif // _DEBUG
 
   // Register Unhandled Exception-Filter
   previous_handler_p =
@@ -464,12 +470,16 @@ Common_Error_Tools::generateCoreDump (const std::string& programName_in,
   COMMON_TRACE (ACE_TEXT ("Common_Error_Tools::generateCoreDump"));
 
   // sanity check(s)
+#if defined (_DEBUG)
   ACE_ASSERT (Common_Error_Tools::miniDumpWriteDumpFunc);
+#endif // _DEBUG
 
   bool result = false;
   DWORD result_2 = 0;
   HRESULT result_3 = E_FAIL;
+#if defined (_DEBUG)
   BOOL bMiniDumpSuccessful;
+#endif // _DEBUG
   ACE_TCHAR szPath[MAX_PATH];
   ACE_TCHAR szFileName[MAX_PATH];
   std::ostringstream converter (ACE_TEXT_ALWAYS_CHAR ("v"));
@@ -560,6 +570,7 @@ Common_Error_Tools::generateCoreDump (const std::string& programName_in,
     return false;
   } // end IF
 
+#if defined (_DEBUG)
   bMiniDumpSuccessful =
     Common_Error_Tools::miniDumpWriteDumpFunc (GetCurrentProcess (),
                                                GetCurrentProcessId (), 
@@ -575,10 +586,12 @@ Common_Error_Tools::generateCoreDump (const std::string& programName_in,
                 ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()))));
     goto clean;
   } // end IF
-
+#endif // _DEBUG
   result = true;
 
+#if defined (_DEBUG)
 clean:
+#endif // _DEBUG
   if (hFile != ACE_INVALID_HANDLE)
     if (!CloseHandle (hFile))
       ACE_DEBUG ((LM_ERROR,

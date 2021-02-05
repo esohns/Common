@@ -39,7 +39,8 @@ class Common_Process_Tools
   // *TODO*: enhance the API to return the exit status
   static bool command (const std::string&, // command line
                        int&,               // return value: exit status
-                       std::string&);      // return value: stdout
+                       std::string&,       // return value: stdout
+                       bool = true);       // return stdout
 
   // *NOTE*: the Windows implementation relies on the 'tasklist.exe' command
   // *NOTE*: the Linux implementation relies on the 'pidofproc' command, which

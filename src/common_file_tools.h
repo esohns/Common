@@ -32,6 +32,8 @@
 class Common_File_Tools
 {
  public:
+  static void initialize (const std::string&); // *NOTE*: pass argv[0] here
+
   static std::string addressToString (const ACE_FILE_Addr&); // file name
   static std::string basename (const std::string&, // (FQ) paths
                                bool = false);      // strip trailing '.'-suffix ?
@@ -142,6 +144,7 @@ class Common_File_Tools
   static std::string getConfigurationDataDirectory (const std::string&, // package name
                                                     const std::string&, // module name
                                                     bool);              // configuration ? : data
+  inline static std::string getExecutableDirectory() { return Common_File_Tools::executableBase; };
   static std::string getHomeDirectory (const std::string&); // user name
   // *NOTE*: (try to) create the directory if it doesn't exist
   static std::string getUserConfigurationDirectory ();
@@ -149,6 +152,8 @@ class Common_File_Tools
 
   static std::string getTempDirectory ();
   static std::string getTempFilename (const std::string&); // prefix
+
+  static std::string executableBase;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_File_Tools ())
