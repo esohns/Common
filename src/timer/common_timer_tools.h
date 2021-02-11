@@ -56,6 +56,8 @@ class Common_Timer_Tools
   static std::string timestampToString (const ACE_Time_Value&, // timestamp
                                         bool,                  // UTC ? : localtime
                                         bool = false);         // append timezone ?
+  // *NOTE*: uses ::snprintf(3): "YYYY-MM-DD HH.MM.SS"
+  static std::string timestampToString2 (const ACE_Time_Value&); // timestamp
 
   static struct Common_TimerConfiguration configuration_;
 

@@ -322,6 +322,46 @@ clean:
   return return_value;
 }
 
+std::string
+Common_Timer_Tools::timestampToString2 (const ACE_Time_Value& timeStamp_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Timer_Tools::timestampToString2"));
+
+  // initialize return value(s)
+  std::string return_value;
+
+  time_t timestamp = timeStamp_in.sec ();
+  struct tm tm_s;
+  ACE_OS::memset (&tm_s, 0, sizeof (struct tm));
+  if (unlikely (!ACE_OS::localtime_r (&timestamp, &tm_s)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::localtime_r(): \"%m\", aborting\n")));
+    return return_value;
+  } // end IF
+
+  char time_string[BUFSIZ];
+  ACE_OS::memset (time_string, 0, sizeof (char[BUFSIZ]));
+  // *TODO*: rewrite this in C++...
+  if (unlikely (ACE_OS::snprintf (time_string,
+                                  sizeof (time_string),
+                                  ACE_TEXT_ALWAYS_CHAR ("%u-%u-%u %u.%u.%u"),
+                                  tm_s.tm_mday,
+                                  tm_s.tm_mon + 1,
+                                  tm_s.tm_year + 1900,
+                                  tm_s.tm_hour,
+                                  tm_s.tm_min,
+                                  tm_s.tm_sec) < 0))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::snprintf(): \"%m\", aborting\n")));
+    return return_value;
+  } // end IF
+  return_value = time_string;
+
+  return return_value;
+}
+
 bool
 Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& configuration_in)
 {
