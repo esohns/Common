@@ -47,7 +47,7 @@
 
 #include "common_file_tools.h"
 #include "common_macros.h"
-#include "common_tools.h"
+#include "common_process_tools.h"
 
 #include "common_error_tools.h"
 
@@ -522,12 +522,12 @@ continue_:
     // retrieve adapter description
     // *NOTE*: (qtcreator) gdb fails to debug this (hangs) unless the
     //         "Debug all children" option is disabled
-    if (unlikely (!Common_Tools::command (command_line_string.c_str (),
-                                          exit_status_i,
-                                          pci_devices_string)))
+    if (unlikely (!Common_Process_Tools::command (command_line_string.c_str (),
+                                                  exit_status_i,
+                                                  pci_devices_string)))
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
+                  ACE_TEXT ("failed to Common_Process_Tools::command(\"%s\"), aborting\n"),
                   ACE_TEXT (command_line_string.c_str ())));
       return result;
     } // end IF
@@ -941,12 +941,12 @@ Common_UI_Tools::getDisplays ()
   // *NOTE*: (qtcreator) gdb fails to debug this (hangs) unless you disable the
   //         "Debug all children" option
   int exit_status_i = 0;
-  if (unlikely (!Common_Tools::command (command_line_string.c_str (),
-                                        exit_status_i,
-                                        display_records_string)))
+  if (unlikely (!Common_Process_Tools::command (command_line_string.c_str (),
+                                                exit_status_i,
+                                                display_records_string)))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
+                ACE_TEXT ("failed to Common_Process_Tools::command(\"%s\"), aborting\n"),
                 ACE_TEXT (command_line_string.c_str ())));
     return result;
   } // end IF
@@ -1251,12 +1251,12 @@ Common_UI_Tools::getDesktopDisplays ()
   // *NOTE*: (qtcreator) gdb fails to debug this (hangs) unless you disable the
   //         "Debug all children" option
   int exit_status_i = 0;
-  if (unlikely (!Common_Tools::command (command_line_string.c_str (),
-                                        exit_status_i,
-                                        display_records_string)))
+  if (unlikely (!Common_Process_Tools::command (command_line_string.c_str (),
+                                                exit_status_i,
+                                                display_records_string)))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
+                ACE_TEXT ("failed to Common_Process_Tools::command(\"%s\"), aborting\n"),
                 ACE_TEXT (command_line_string.c_str ())));
     return result;
   } // end IF

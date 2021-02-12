@@ -97,6 +97,7 @@ using namespace std;
 #include "common_file_tools.h"
 #include "common_macros.h"
 #if defined (ACE_LINUX)
+#include "common_process_tools.h"
 #include "common_string_tools.h"
 #endif // ACE_LINUX
 
@@ -563,9 +564,9 @@ Common_Tools::getDistribution (unsigned int& majorVersion_out,
   char buffer_a [BUFSIZ];
   std::regex regex (ACE_TEXT_ALWAYS_CHAR ("^(Distributor ID:\t)(.+)$"));
   std::smatch match_results;
-  if (unlikely (!Common_Tools::command (command_line_string,
-                                        exit_status_i,
-                                        command_output_string)))
+  if (unlikely (!Common_Process_Tools::command (command_line_string,
+                                                exit_status_i,
+                                                command_output_string)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
@@ -620,9 +621,9 @@ Common_Tools::getDistribution (unsigned int& majorVersion_out,
   COMMON_COMMAND_ADD_SWITCH (command_line_string,COMMON_COMMAND_SWITCH_LSB_RELEASE_RELEASE_STRING)
   std::string regex_string_2 = ACE_TEXT_ALWAYS_CHAR ("^(Release:\t)(.+)$");
   std::regex regex_2 (regex_string_2);
-  if (unlikely (!Common_Tools::command (command_line_string,
-                                        exit_status_i,
-                                        command_output_string)))
+  if (unlikely (!Common_Process_Tools::command (command_line_string,
+                                                exit_status_i,
+                                                command_output_string)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
@@ -1113,9 +1114,9 @@ Common_Tools::addGroupMember (uid_t userId_in,
 //    command_line_string += ACE_TEXT_ALWAYS_CHAR (" ");
 //    command_line_string += username_string;
     int exit_status_i = 0;
-    if (unlikely(!Common_Tools::command (command_line_string,
-                                         exit_status_i,
-                                         command_output_string)))
+    if (unlikely(!Common_Process_Tools::command (command_line_string,
+                                                 exit_status_i,
+                                                 command_output_string)))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
@@ -2632,9 +2633,9 @@ Common_Tools::isInstalled (const std::string& executableName_in,
       command_line_string +=
           ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LOCATE_STRING);
       int exit_status_i = 0;
-      if (unlikely(!Common_Tools::command (command_line_string,
-                                           exit_status_i,
-                                           command_output_string)))
+      if (unlikely(!Common_Process_Tools::command (command_line_string,
+                                                   exit_status_i,
+                                                   command_output_string)))
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
@@ -2667,9 +2668,9 @@ Common_Tools::isInstalled (const std::string& executableName_in,
                                            ACE_DIRECTORY_SEPARATOR_CHAR));
   command_line_string += ACE_TEXT_ALWAYS_CHAR ("' -e -l 1");
   int exit_status_i = 0;
-  if (unlikely (!Common_Tools::command (command_line_string,
-                                        exit_status_i,
-                                        command_output_string)))
+  if (unlikely (!Common_Process_Tools::command (command_line_string,
+                                                exit_status_i,
+                                                command_output_string)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),

@@ -31,7 +31,7 @@
 #include "ace/Synch.h"
 
 #include "common_macros.h"
-#include "common_tools.h"
+#include "common_process_tools.h"
 
 #include "common_dbus_defines.h"
 #include "common_dbus_common.h"
@@ -620,7 +620,7 @@ Common_DBus_Tools::policyKitAuthorize (struct sd_bus* bus_in,
                                  ACE_TEXT_ALWAYS_CHAR ("unix-process"),
                                  3,
                                  ACE_TEXT_ALWAYS_CHAR ("pid"), ACE_TEXT_ALWAYS_CHAR ("u"), ACE_OS::getpid (),
-                                 ACE_TEXT_ALWAYS_CHAR ("start-time"), ACE_TEXT_ALWAYS_CHAR ("t"), Common_Tools::getStartTime (),
+                                 ACE_TEXT_ALWAYS_CHAR ("start-time"), ACE_TEXT_ALWAYS_CHAR ("t"), Common_Process_Tools::getStartTime (),
                                  ACE_TEXT_ALWAYS_CHAR ("uid"), ACE_TEXT_ALWAYS_CHAR ("i"), ACE_OS::getuid ());
       break;
     }

@@ -28,6 +28,9 @@
 #include "ace/OS.h"
 
 #include "common_defines.h"
+#if defined (ACE_LINUX)
+#include "common_tools.h"
+#endif // ACE_LINUX
 #include "common_file_tools.h"
 
 std::string
