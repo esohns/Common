@@ -80,8 +80,8 @@ if (UNIX)
  target_include_directories (${LIBRARY} PUBLIC
                              ${PKG_IMAGEMAGICK_INCLUDE_DIRS})
 
- target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
+# target_include_directories (${LIBRARY} PUBLIC
+#                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
 #                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
 elseif (WIN32)
  if (LIBPNG_SUPPORT)
@@ -104,13 +104,13 @@ elseif (WIN32)
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/assimp/include>)
 
- if (DEFINED ENV{ACE_ROOT})
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
- else ()
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
- endif (DEFINED ENV{ACE_ROOT})
+# if (DEFINED ENV{ACE_ROOT})
+#  target_include_directories (${LIBRARY} PUBLIC
+#                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
+# else ()
+#  target_include_directories (${LIBRARY} PUBLIC
+#                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
+# endif (DEFINED ENV{ACE_ROOT})
 endif ()
 
 target_include_directories (${LIBRARY} PUBLIC
@@ -119,13 +119,12 @@ target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../image>)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
-message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: ${INTERFACE_INCLUDE_DIRECTORIES}")
+#message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: ${INTERFACE_INCLUDE_DIRECTORIES}")
 
 ############## next target ################
 set (source_files
      common_gl_common.h
      common_gl_defines.h
-#     common_gl_exports.h
      common_gl_tools.cpp
      common_gl_tools.h
      common_gl_assimp_tools.cpp
@@ -136,7 +135,7 @@ set (source_files
      common_gl_texture.h)
 
 # Include dir for installed targets
-set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
+#set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 
 #set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -210,7 +209,6 @@ export (TARGETS ${LIBRARY}
 install (FILES
          common_gl_common.h
          common_gl_defines.h
-#         common_gl_exports.h
          common_gl_tools.h
          common_gl_assimp_tools.h
          common_gl_texture.h

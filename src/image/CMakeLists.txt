@@ -1,14 +1,23 @@
-﻿option (IMAGEMAGICK_SUPPORT "compile ImageMagick support" ON)
-if (IMAGEMAGICK_SUPPORT)
- add_definitions (-DIMAGEMAGICK_SUPPORT)
-endif (IMAGEMAGICK_SUPPORT)
-option (LIBPNG_SUPPORT "compile libpng support" OFF)
+﻿option (LIBPNG_SUPPORT "compile libpng support" OFF)
 if (LIBPNG_SUPPORT)
  add_definitions (-DLIBPNG_SUPPORT)
 endif (LIBPNG_SUPPORT)
 
+option (FFMPEG_SUPPORT "compile ffmpeg support" ON)
+if (FFMPEG_SUPPORT)
+ add_definitions (-DFFMPEG_SUPPORT)
+endif (FFMPEG_SUPPORT)
+
+option (IMAGEMAGICK_SUPPORT "compile ImageMagick support" ON)
+if (IMAGEMAGICK_SUPPORT)
+ add_definitions (-DIMAGEMAGICK_SUPPORT)
+endif (IMAGEMAGICK_SUPPORT)
+
 if (UNIX)
- pkg_check_modules (PKG_FFMPEG REQUIRED libavcodec libavformat libswscale libavutil)
+ if (FFMPEG_SUPPORT)
+  pkg_check_modules (PKG_FFMPEG REQUIRED libavcodec libavformat libswscale libavutil)
+ endif (FFMPEG_SUPPORT)
+
  if (IMAGEMAGICK_SUPPORT)
   find_package (ImageMagick COMPONENTS MagickCore MagickWand)
  endif (IMAGEMAGICK_SUPPORT)
@@ -18,14 +27,15 @@ set (LIBRARY ${PROJECT_NAME}Image)
 add_library (${LIBRARY} STATIC "")
 
 if (UNIX)
- target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:${PKG_FFMPEG_INCLUDE_DIRS}>)
- target_include_directories (${LIBRARY} PUBLIC
-                             ${ImageMagick_INCLUDE_DIRS})
+ if (FFMPEG_SUPPORT)
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:${PKG_FFMPEG_INCLUDE_DIRS}>)
+ endif (FFMPEG_SUPPORT)
 
- target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
-#                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
+ if (IMAGEMAGICK_SUPPORT)
+  target_include_directories (${LIBRARY} PUBLIC
+                              ${ImageMagick_INCLUDE_DIRS})
+ endif (IMAGEMAGICK_SUPPORT)
 elseif (WIN32)
  if (DEFINED ENV{DXSDK_DIR})
   target_include_directories (${LIBRARY} PUBLIC
@@ -45,21 +55,16 @@ elseif (WIN32)
                               $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libpng>)
  endif (LIBPNG_SUPPORT)
 
- target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ffmpeg/include>)
+ if (FFMPEG_SUPPORT)
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ffmpeg/include>)
 #                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ffmpeg>)
+ endif (FFMPEG_SUPPORT)
+
  if (IMAGEMAGICK_SUPPORT)
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ImageMagick/include>)
  endif (IMAGEMAGICK_SUPPORT)
-
- if (DEFINED ENV{ACE_ROOT})
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
- else ()
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
- endif (DEFINED ENV{ACE_ROOT})
 endif ()
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
@@ -72,12 +77,11 @@ target_include_directories (${LIBRARY} PUBLIC
 set (source_files
      common_image_common.h
      common_image_defines.h
-#     common_image_exports.h
      common_image_tools.cpp
      common_image_tools.h)
 
 # Include dir for installed targets
-set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
+#set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 
 #set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -100,12 +104,16 @@ if (WIN32)
  if (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)
   add_compile_options (-Wno-c++11-narrowing)
  endif ()
-endif ()
+endif (WIN32)
 
 if (UNIX)
- target_link_libraries (${LIBRARY} ${PKG_FFMPEG_LIBRARIES})
-
- target_link_libraries (${LIBRARY} ${ImageMagick_LIBRARIES})
+ if (FFMPEG_SUPPORT)
+  target_link_libraries (${LIBRARY} ${PKG_FFMPEG_LIBRARIES})
+ endif (FFMPEG_SUPPORT)
+   
+ if (IMAGEMAGICK_SUPPORT)
+  target_link_libraries (${LIBRARY} ${ImageMagick_LIBRARIES})
+ endif (IMAGEMAGICK_SUPPORT)
 elseif (WIN32)
  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/DXSDK/Lib/x86/d3dx9.lib)
 
@@ -116,20 +124,19 @@ elseif (WIN32)
  endif (LIBPNG_SUPPORT)
 
 # ffmpeg
- target_link_options (${LIBRARY} PUBLIC "$<$<CXX_COMPILER_ID:MSVC>:-SAFESEH:NO>")
- target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/lib/avcodec.lib)
- target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/lib/avutil.lib)
- target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/lib/swscale.lib)
-# target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/libavcodec/avcodec.lib)
-# target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/libavutil/avutil.lib)
+ if (FFMPEG_SUPPORT)
+  target_link_options (${LIBRARY} PUBLIC "$<$<CXX_COMPILER_ID:MSVC>:-SAFESEH:NO>")
+  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/lib/avcodec.lib)
+  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/lib/avutil.lib)
+  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/lib/swscale.lib)
+ # target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/libavcodec/avcodec.lib)
+ # target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/libavutil/avutil.lib)
+ endif (FFMPEG_SUPPORT)
 
  if (IMAGEMAGICK_SUPPORT)
   target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickCore_.lib)
   target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickWand_.lib)
  endif (IMAGEMAGICK_SUPPORT)
-
- target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
-# target_link_libraries (${LIBRARY} ${COMMON_TARGET_NAME})
 endif ()
 #set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_IMAGE_BUILD_DLL)
 set_target_properties (${LIBRARY} PROPERTIES
@@ -149,7 +156,6 @@ export (TARGETS ${LIBRARY}
 install (FILES
          common_image_common.h
          common_image_defines.h
-#         common_image_exports.h
          common_image_tools.h
          stdafx.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
