@@ -7,6 +7,7 @@
 extern "C"
 {
 #include "libavformat/avformat.h"
+#include "libavutil/error.h"
 #include "libavutil/frame.h"
 #include "libavutil/imgutils.h"
 #include "libswscale/swscale.h"
@@ -115,7 +116,7 @@ do_process_arguments (int argc_in,
   // initialize results
   sourceFilePath_out = path_root;
   sourceFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  sourceFilePath_out += ACE_TEXT_ALWAYS_CHAR ("test.png");
+  sourceFilePath_out += ACE_TEXT_ALWAYS_CHAR ("oak-tree.png");
   traceInformation_out = false;
 
   ACE_Get_Opt argument_parser (argc_in,
@@ -266,7 +267,8 @@ do_work (int argc_in,
     if (result < 0)
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to avcodec_send_packet(), aborting\n")));
+                  ACE_TEXT ("failed to avcodec_send_packet(): \"%s\", aborting\n"),
+                  ACE_TEXT (Common_Image_Tools::errorToString (result).c_str ())));
       goto error;
     }
     while (result >= 0)
@@ -335,8 +337,9 @@ ACE_TMAIN (int argc_in,
   std::string path_root = Common_File_Tools::getWorkingDirectory ();
   std::string source_file_path = path_root;
   source_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  source_file_path += ACE_TEXT_ALWAYS_CHAR ("test.png");
+  source_file_path += ACE_TEXT_ALWAYS_CHAR ("oak-tree.png");
   bool trace_information = false;
+  std::string log_file_name;
 
   // step1b: parse/process/validate configuration
   if (!do_process_arguments (argc_in,
@@ -357,12 +360,15 @@ ACE_TMAIN (int argc_in,
   } // end IF
 
   // step1c: initialize logging and/or tracing
-  if (!Common_Log_Tools::initializeLogging (ACE::basename (argv_in[0]),           // program name
-                                            ACE_TEXT_ALWAYS_CHAR (""),            // log file name
-                                            false,                                // log to syslog ?
-                                            false,                                // trace messages ?
-                                            trace_information,                    // debug messages ?
-                                            NULL))                                // logger ?
+  log_file_name =
+    Common_Log_Tools::getLogFilename (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                      ACE::basename (argv_in[0]));
+  if (!Common_Log_Tools::initializeLogging (ACE::basename (argv_in[0]), // program name
+                                            log_file_name,              // log file name
+                                            false,                      // log to syslog ?
+                                            false,                      // trace messages ?
+                                            trace_information,          // debug messages ?
+                                            NULL))                      // logger ?
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Log_Tools::initializeLogging(), aborting\n")));

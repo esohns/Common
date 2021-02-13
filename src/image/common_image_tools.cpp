@@ -1261,16 +1261,15 @@ Common_Image_Tools::errorToString (int errorCode_in)
   std::string return_value;
 
   char buffer_a[AV_ERROR_MAX_STRING_SIZE];
+  ACE_OS::memset (buffer_a, 0, sizeof (char[AV_ERROR_MAX_STRING_SIZE]));
   int result = av_strerror (errorCode_in,
                             buffer_a,
                             sizeof (char[AV_ERROR_MAX_STRING_SIZE]));
-  if (result < 0)
-  {
+  if (unlikely (result))
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to av_strerror(%d): \"%m\", aborting\n"),
+                ((result < 0) ? ACE_TEXT ("failed to av_strerror(%d), cannot find error description: \"%m\", continuing\n")
+                              : ACE_TEXT ("failed to av_strerror(%d): \"%m\", continuing\n")),
                 errorCode_in));
-    return return_value;
-  } // end IF
   return_value = buffer_a;
 
   return return_value;

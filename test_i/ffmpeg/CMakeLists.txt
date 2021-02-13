@@ -109,12 +109,16 @@ install (TARGETS ${EXECUTABLE}
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 
 ################ launchers ###############
+file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
+file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ffmpeg/bin FFMPEG_LIB_PATH)
+file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ImageMagick IMAGEMAGICK_LIB_PATH)
 create_target_launcher (${EXECUTABLE}
-                        ARGS "12 /bin/bash"
+                        ARGS "-f oak-tree.png -t"
 #                         FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
-                                             ${PROJECT_SOURCE_DIR}/cmake/src/Debug
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/capabilities
+                        RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
+                                             ${FFMPEG_LIB_PATH}
+                                             ${IMAGEMAGICK_LIB_PATH}
+                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ffmpeg
                         ENVIRONMENT foo=bar)
 
 ################ tests ###################
