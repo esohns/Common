@@ -51,13 +51,13 @@ add_definitions (-DHAVE_CONFIG_H)
 
 if (UNIX)
 elseif (WIN32)
- add_definitions (-DWIN32)
- set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc") # C++ exception handling
- if (CMAKE_BUILD_TYPE STREQUAL Debug)
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MDd") # multithreaded debug dll
- else ()
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")  # multithreaded dll
- endif ()
+# add_definitions (-DWIN32)
+# set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc") # C++ exception handling
+# if (CMAKE_BUILD_TYPE STREQUAL Debug)
+#  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MDd") # multithreaded debug dll
+# else ()
+#  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")  # multithreaded dll
+# endif ()
  add_definitions (-DSTRSAFE_NO_DEPRECATE)
 endif ()
 
@@ -148,7 +148,7 @@ if (WIN32)
 endif (WIN32)
 
 # Include dir for installed targets
-set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
+#set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 
 #set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 

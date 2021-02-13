@@ -1,10 +1,11 @@
 # *NOTE*: the first entry is the default option
-set (UI_FRAMEWORK "gtk" CACHE STRING "use GTK (default)")
+set (UI_FRAMEWORK "none" CACHE STRING "none (default)")
+set (UI_FRAMEWORK "gtk" CACHE STRING "use GTK")
 set (UI_FRAMEWORK "qt" CACHE STRING "use Qt")
 set (UI_FRAMEWORK "wxwidgets" CACHE STRING "use wxWidgets")
 set (UI_FRAMEWORK "curses" CACHE STRING "use curses")
 
-set_property (CACHE UI_FRAMEWORK PROPERTY STRINGS "gtk" "qt" "wxWidgets" "curses")
+set_property (CACHE UI_FRAMEWORK PROPERTY STRINGS "none" "gtk" "qt" "wxWidgets" "curses")
 
 if (NOT (DEFINED UI_FRAMEWORK_LAST))
  set (UI_FRAMEWORK_LAST "NotAnImplementation" CACHE STRING "last user interface implementation used")
@@ -49,4 +50,3 @@ elseif (${UI_FRAMEWORK} MATCHES "curses")
  mark_as_advanced (FORCE CURSES_USE)
  add_definitions (-DCURSES_USE)
 endif ()
-

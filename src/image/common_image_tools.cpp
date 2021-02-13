@@ -54,6 +54,7 @@ extern "C"
 
 #include "common_error_tools.h"
 
+#if defined (FFMPEG_SUPPORT)
 enum AVPixelFormat
 common_image_tools_get_format_cb (struct AVCodecContext* context_in,
                                   const enum AVPixelFormat* formats_in)
@@ -78,6 +79,7 @@ common_image_tools_get_format_cb (struct AVCodecContext* context_in,
 
   return (iterator != cb_data_p->formats.end () ? *iterator : AV_PIX_FMT_NONE);
 }
+#endif // FFMPEG_SUPPORT
 
 enum Common_Image_FileType
 Common_Image_Tools::fileExtensionToType (const std::string& path_in)
@@ -145,6 +147,7 @@ Common_Image_Tools::save (const std::string& path_in,
 }
 #endif // ACE_WIN32 || ACE_WIN64
 
+#if defined (FFMPEG_SUPPORT)
 bool
 Common_Image_Tools::save (const Common_Image_Resolution_t& resolution_in,
                           enum AVPixelFormat format_in,
@@ -879,6 +882,7 @@ Common_Image_Tools::convert (const Common_Image_Resolution_t& sourceResolution_i
 
   return true;
 }
+
 bool
 Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
                            enum AVPixelFormat sourcePixelFormat_in,
@@ -1274,6 +1278,8 @@ Common_Image_Tools::errorToString (int errorCode_in)
 
   return return_value;
 }
+#endif // FFMPEG_SUPPORT
+
 
 #if defined (IMAGEMAGICK_SUPPORT)
 enum AVCodecID
@@ -1306,7 +1312,7 @@ Common_Image_Tools::errorToString (struct _MagickWand* context_in)
   // initialize return value(s)
   std::string return_value;
 
-  ExceptionType severity;
+  ExceptionType severity = UndefinedException;
   char* description_p = MagickGetException (context_in, &severity);
   ACE_ASSERT (description_p);
   return_value = description_p;

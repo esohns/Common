@@ -35,11 +35,8 @@
 #endif // IMAGEMAGICK_SUPPORT
 
 #include "ace/Log_Msg.h"
+#include "ace/OS.h"
 
-#include "common_file_tools.h"
-#include "common_macros.h"
-
-#include "common_image_defines.h"
 #include "common_image_tools.h"
 
 #if defined (LIBPNG_SUPPORT)

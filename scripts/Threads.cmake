@@ -5,4 +5,3 @@ if (UNIX)
  set (CMAKE_THREAD_PREFER_PTHREAD ON)
  find_package (Threads)
 endif (UNIX)
-

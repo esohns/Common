@@ -303,6 +303,10 @@ endif (wxWidgets_FOUND)
 
 ##########################################
 
+if (WIN32)
+# unset (CURSES_INCLUDE_PATH)
+ set (CURSES_INCLUDE_PATH "$ENV{LIB_ROOT}\\PDCurses" CACHE STRING "curses include path")
+endif (WIN32)
 find_package (Curses MODULE)
 if (CURSES_FOUND)
  set (CURSES_SUPPORT ON CACHE BOOL "curses support")
@@ -316,23 +320,18 @@ else ()
   endif (PKG_CURSES_FOUND)
  elseif (WIN32)
   find_library (CURSES_LIBRARY pdcurses.lib
-                PATHS ${PROJECT_SOURCE_DIR}/../pdcurses
-                PATH_SUFFIXES win32
+                PATHS $ENV{LIB_ROOT}/PDCurses
+                PATH_SUFFIXES wincon
                 DOC "searching for pdcurses.lib")
   if (NOT CURSES_LIBRARY)
    message (WARNING "could not find pdcurses.lib, continuing")
+  else ()
+# *NOTE*: pdcurses.lib incorporates panel.lib
+   set (PANEL_LIBRARY ${CURSES_LIBRARY})
   endif (NOT CURSES_LIBRARY)
-  find_library (PANEL_LIBRARY panel.lib
-                PATHS ${PROJECT_SOURCE_DIR}/../pdcurses
-                PATH_SUFFIXES win32
-                DOC "searching for panel.lib")
-  if (NOT PANEL_LIBRARY)
-   message (WARNING "could not find panel.lib, continuing")
-  endif (NOT PANEL_LIBRARY)
   if (CURSES_LIBRARY AND PANEL_LIBRARY)
    set (CURSES_SUPPORT ON CACHE BOOL "curses support")
    add_definitions (-DCURSES_SUPPORT)
   endif (CURSES_LIBRARY AND PANEL_LIBRARY)
  endif ()
 endif (CURSES_FOUND)
-

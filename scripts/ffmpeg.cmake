@@ -1,0 +1,11 @@
+option (FFMPEG_SUPPORT "compile ffmpeg support" ON)
+if (FFMPEG_SUPPORT)
+ if (UNIX)
+  pkg_check_modules (PKG_FFMPEG REQUIRED libavcodec libavformat libswscale libavutil)
+
+  include_directories (${PKG_FFMPEG_INCLUDE_DIRS})
+ elseif (WIN32)
+  include_directories ($ENV{LIB_ROOT}/ffmpeg/include)
+ endif ()
+ add_definitions (-DFFMPEG_SUPPORT)
+endif (FFMPEG_SUPPORT)

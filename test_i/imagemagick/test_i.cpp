@@ -3,12 +3,20 @@
 #include <iostream>
 #include <string>
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#define ssize_t ssize_t
+#include "MagickWand/MagickWand.h"
+#else
 #include "wand/magick_wand.h"
+#endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/config-lite.h"
 #include "ace/ACE.h"
 #include "ace/Get_Opt.h"
 #include "ace/High_Res_Timer.h"
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "ace/Init_ACE.h"
+#endif // ACE_WIN32 || ACE_WIN64
 #include "ace/OS.h"
 #include "ace/Profile_Timer.h"
 #include "ace/Synch.h"
@@ -142,7 +150,6 @@ do_work (int argc_in,
   unsigned char buffer_a[BUFSIZ * 1024];
   ACE_OS::memset (&buffer_a, 0, sizeof (unsigned char[BUFSIZ * 1024]));
 
-
   MagickWand* wand_p = NewMagickWand ();
   ACE_ASSERT (wand_p);
 
@@ -159,7 +166,7 @@ do_work (int argc_in,
 
   MagickSetImageType (wand_p, TrueColorType);
   MagickSetImageColorspace (wand_p, sRGBColorspace);
-  MagickSetImageFormat(wand_p, "PNG");
+  MagickSetImageFormat (wand_p, "PNG");
 
   MagickBooleanType result = MagickReadImageBlob (wand_p,
                                                   buffer_a,
@@ -168,7 +175,7 @@ do_work (int argc_in,
 //                                              sourceFilePath_in.c_str ());
   ACE_ASSERT (result == MagickTrue);
 
-  MagickSetImageFormat(wand_p, "RGB");
+  MagickSetImageFormat (wand_p, "RGB");
 
 //  result = MagickWriteImage (wand_p, "logo.rgb");
 //  ACE_ASSERT (result == MagickTrue);
@@ -186,10 +193,12 @@ do_work (int argc_in,
                            file_p);
   ACE_ASSERT (1 == size_2);
 
-error:
+//error:
   ACE_OS::fclose (file_p);
   if (wand_p)
-    DestroyMagickWand (wand_p);
+  {
+    DestroyMagickWand (wand_p); wand_p = NULL;
+  } // end IF
   MagickWandTerminus ();
 }
 

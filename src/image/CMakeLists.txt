@@ -3,10 +3,7 @@ if (LIBPNG_SUPPORT)
  add_definitions (-DLIBPNG_SUPPORT)
 endif (LIBPNG_SUPPORT)
 
-option (FFMPEG_SUPPORT "compile ffmpeg support" ON)
-if (FFMPEG_SUPPORT)
- add_definitions (-DFFMPEG_SUPPORT)
-endif (FFMPEG_SUPPORT)
+include (${CMAKE_CURRENT_SOURCE_DIR}/../../scripts/ffmpeg.cmake)
 
 option (IMAGEMAGICK_SUPPORT "compile ImageMagick support" ON)
 if (IMAGEMAGICK_SUPPORT)
@@ -14,10 +11,6 @@ if (IMAGEMAGICK_SUPPORT)
 endif (IMAGEMAGICK_SUPPORT)
 
 if (UNIX)
- if (FFMPEG_SUPPORT)
-  pkg_check_modules (PKG_FFMPEG REQUIRED libavcodec libavformat libswscale libavutil)
- endif (FFMPEG_SUPPORT)
-
  if (IMAGEMAGICK_SUPPORT)
   find_package (ImageMagick COMPONENTS MagickCore MagickWand)
  endif (IMAGEMAGICK_SUPPORT)

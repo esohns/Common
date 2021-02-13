@@ -30,6 +30,7 @@
 #include <d3d9.h>
 #endif // ACE_WIN32 || ACE_WIN64
 
+#if defined (FFMPEG_SUPPORT)
 #ifdef __cplusplus
 extern "C"
 {
@@ -37,6 +38,7 @@ extern "C"
 #include "libavutil/imgutils.h"
 }
 #endif /* __cplusplus */
+#endif // FFMPEG_SUPPORT
 
 #include "ace/Global_Macros.h"
 
@@ -46,13 +48,14 @@ extern "C"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 enum _D3DXIMAGE_FILEFORMAT;
 #endif // ACE_WIN32 || ACE_WIN64
-//enum AVPixelFormat;
-//enum AVCodecID;
+#if defined (FFMPEG_SUPPORT)
 struct SwsContext;
+#endif // FFMPEG_SUPPORT
 #if defined (IMAGEMAGICK_SUPPORT)
 struct _MagickWand;
 #endif // IMAGEMAGICK_SUPPORT
 
+#if defined (FFMPEG_SUPPORT)
 typedef std::list<enum AVPixelFormat> Common_Image_FFMPEGPixelFormats_t;
 typedef Common_Image_FFMPEGPixelFormats_t::const_iterator Common_Image_FFMPEGPixelFormatsIterator_t;
 struct Common_Image_Tools_GetFormatCBData
@@ -63,6 +66,7 @@ struct Common_Image_Tools_GetFormatCBData
 enum AVPixelFormat
 common_image_tools_get_format_cb (struct AVCodecContext*,
                                   const enum AVPixelFormat*);
+#endif // FFMPEG_SUPPORT
 
 class Common_Image_Tools
 {
@@ -77,6 +81,7 @@ class Common_Image_Tools
 #endif // ACE_WIN32 || ACE_WIN64
 
   // --- libav/ffmpeg ---
+#if defined (FFMPEG_SUPPORT)
   // *TODO*: currently supports AV_PIX_FMT_YUV420P only
   static bool save (const Common_Image_Resolution_t&, // source resolution
                     enum AVPixelFormat,               // source pixel format
@@ -128,6 +133,7 @@ class Common_Image_Tools
   static std::string pixelFormatToString (enum AVPixelFormat);
 
   static std::string errorToString (int); // error code
+#endif // FFMPEG_SUPPORT
 
   // --- ImageMagick ---
 #if defined (IMAGEMAGICK_SUPPORT)
@@ -137,7 +143,8 @@ class Common_Image_Tools
 #endif // IMAGEMAGICK_SUPPORT
 
  private:
-  // *NOTE*: callers need to delete[] the returned memory buffer(s) (iff any)
+#if defined (FFMPEG_SUPPORT)
+   // *NOTE*: callers need to delete[] the returned memory buffer(s) (iff any)
   static bool convert (struct SwsContext*,               // context ? : use sws_getCachedContext()
                        const Common_Image_Resolution_t&, // source resolution
                        enum AVPixelFormat,               // source pixel format
@@ -151,6 +158,7 @@ class Common_Image_Tools
                      uint8_t*[],                       // source buffer(s)
                      const Common_Image_Resolution_t&, // target resolution
                      uint8_t*&);                       // return value: target buffer(s)
+#endif // FFMPEG_SUPPORT
 
   ACE_UNIMPLEMENTED_FUNC (Common_Image_Tools ())
   ACE_UNIMPLEMENTED_FUNC (~Common_Image_Tools ())
