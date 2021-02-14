@@ -158,12 +158,12 @@ Common_Process_Tools::id (const std::string& executableName_in)
     case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_SUSE:
     {
       // sanity check(s)
-      if (unlikely (!Common_Tools::isInstalled (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_PIDOFPROC_STRING),
+      if (unlikely (!Common_Tools::isInstalled (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_PIDOFPROC),
                                                 command_line_string)))
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("command (was: \"%s\") is not installed: cannot proceed, aborting\n"),
-                    ACE_TEXT (COMMON_COMMAND_PIDOFPROC_STRING)));
+                    ACE_TEXT (COMMON_COMMAND_PIDOFPROC)));
         return result;
       } // end IF
 //      ACE_ASSERT (Common_File_Tools::isExecutable (command_line_string));
@@ -172,12 +172,12 @@ Common_Process_Tools::id (const std::string& executableName_in)
     case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_UBUNTU:
     {
       // sanity check(s)
-      if (unlikely (!Common_Tools::isInstalled (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_PIDOF_STRING),
+      if (unlikely (!Common_Tools::isInstalled (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_PIDOF),
                                                 command_line_string)))
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("command (was: \"%s\") is not installed: cannot proceed, aborting\n"),
-                    ACE_TEXT (COMMON_COMMAND_PIDOF_STRING)));
+                    ACE_TEXT (COMMON_COMMAND_PIDOF)));
         return result;
       } // end IF
 //      ACE_ASSERT (Common_File_Tools::isExecutable (command_line_string));

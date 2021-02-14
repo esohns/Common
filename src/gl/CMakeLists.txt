@@ -3,6 +3,8 @@ if (LIBPNG_SUPPORT)
  add_definitions (-DLIBPNG_SUPPORT)
 endif (LIBPNG_SUPPORT)
 
+add_definitions (-DFFMPEG_SUPPORT)
+
 option (IMAGEMAGICK_SUPPORT "compile ImageMagick support" ON)
 if (IMAGEMAGICK_SUPPORT)
  add_definitions (-DIMAGEMAGICK_SUPPORT)

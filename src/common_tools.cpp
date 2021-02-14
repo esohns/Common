@@ -298,6 +298,7 @@ Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
 #endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0601)
   } // end ELSE
 #else
+  ACE_UNUSED_ARG (logicalProcessors_in);
   long result_2 = ACE_OS::sysconf (_SC_NPROCESSORS_ONLN);
   if (unlikely (result_2 == -1))
   {
@@ -555,8 +556,8 @@ Common_Tools::getDistribution (unsigned int& majorVersion_out,
 
   // step1: retrieve distributor id
   std::string command_line_string =
-      ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LSB_RELEASE_STRING);
-  COMMON_COMMAND_ADD_SWITCH (command_line_string,COMMON_COMMAND_SWITCH_LSB_RELEASE_DISTRIBUTOR_STRING)
+      ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LSB_RELEASE);
+  COMMON_COMMAND_ADD_SWITCH (command_line_string,COMMON_COMMAND_SWITCH_LSB_RELEASE_DISTRIBUTOR)
   int exit_status_i = 0;
   std::string command_output_string, distribution_id_string, release_string;
   std::string buffer_string;
@@ -617,8 +618,8 @@ Common_Tools::getDistribution (unsigned int& majorVersion_out,
 
   // step2: retrieve release version
   command_line_string =
-      ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LSB_RELEASE_STRING);
-  COMMON_COMMAND_ADD_SWITCH (command_line_string,COMMON_COMMAND_SWITCH_LSB_RELEASE_RELEASE_STRING)
+      ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LSB_RELEASE);
+  COMMON_COMMAND_ADD_SWITCH (command_line_string,COMMON_COMMAND_SWITCH_LSB_RELEASE_RELEASE)
   std::string regex_string_2 = ACE_TEXT_ALWAYS_CHAR ("^(Release:\t)(.+)$");
   std::regex regex_2 (regex_string_2);
   if (unlikely (!Common_Process_Tools::command (command_line_string,
@@ -1104,7 +1105,7 @@ Common_Tools::addGroupMember (uid_t userId_in,
     // *TODO*: use putgrent(3)
     std::string command_output_string;
     std::string command_line_string =
-        ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_GPASSWD_STRING);
+        ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_GPASSWD);
 //        ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_USERMOD_STRING);
     command_line_string += ACE_TEXT_ALWAYS_CHAR (" -a ");
     command_line_string += username_string;
@@ -2628,10 +2629,10 @@ Common_Tools::isInstalled (const std::string& executableName_in,
     case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_UBUNTU:
     {
       // sanity check(s)
-      command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_WHICH_STRING);
+      command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_WHICH);
       command_line_string += ACE_TEXT_ALWAYS_CHAR (" ");
       command_line_string +=
-          ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LOCATE_STRING);
+          ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LOCATE);
       int exit_status_i = 0;
       if (unlikely(!Common_Process_Tools::command (command_line_string,
                                                    exit_status_i,
@@ -2646,7 +2647,7 @@ Common_Tools::isInstalled (const std::string& executableName_in,
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to 'which' \"%s\", aborting\n"),
-                    ACE_TEXT (COMMON_COMMAND_LOCATE_STRING)));
+                    ACE_TEXT (COMMON_COMMAND_LOCATE)));
         return result; // *TODO*: avoid false negatives
       } // end IF
       command_line_string = Common_String_Tools::strip (command_output_string);

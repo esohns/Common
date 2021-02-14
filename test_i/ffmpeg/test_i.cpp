@@ -178,6 +178,47 @@ do_process_arguments (int argc_in,
   return true;
 }
 
+static void
+save (const std::string filename_in,
+      AVFrame* frame_in)
+{
+  FILE* file_p = ACE_OS::fopen (filename_in.c_str (),
+                                ACE_TEXT_ALWAYS_CHAR ("w"));
+  ACE_ASSERT (file_p);
+  ACE_OS::fwrite (frame_in->data[0],
+                  frame_in->linesize[0] * frame_in->height,
+                  1,
+                  file_p);
+  ACE_OS::fclose (file_p);
+}
+
+static void
+decode (AVCodecContext* context_in,
+        AVFrame* frame_in,
+        AVPacket* packet_in,
+        const std::string& filename_in)
+{
+  int result = avcodec_send_packet (context_in,
+                                    packet_in);
+  if (result < 0) {
+    fprintf(stderr, "Error sending a packet for decoding\n");
+    exit(1);
+  }
+
+  while (result >= 0) {
+    result = avcodec_receive_frame (context_in,
+                                    frame_in);
+    if (result == AVERROR(EAGAIN) || result == AVERROR_EOF)
+      return;
+    else if (result < 0) {
+      fprintf(stderr, "Error during decoding\n");
+      exit(1);
+    }
+    save (filename_in,
+          frame_in);
+  }
+}
+
 void
 do_work (int argc_in,
          ACE_TCHAR* argv_in[],
@@ -186,12 +227,14 @@ do_work (int argc_in,
   std::string out_filename = ACE_TEXT_ALWAYS_CHAR ("outfile.rgb");
   const AVCodec* codec_p = NULL;
   AVCodecContext* context_p = NULL;
-  FILE* file_p = NULL, *file_2 = NULL;
+  AVCodecParserContext* parser_p = NULL;
+  FILE* file_p = NULL;
   AVFrame* frame_p = NULL;
   uint8_t buffer_a[4096 + AV_INPUT_BUFFER_PADDING_SIZE];
   /* set end of buffer to 0 (this ensures that no overreading happens for damaged MPEG streams) */
   ACE_OS::memset (buffer_a + 4096, 0, AV_INPUT_BUFFER_PADDING_SIZE);
-  size_t   data_size = 0;
+  uint8_t* data_p = NULL;
+  size_t data_size = 0;
   int result = -1;
   AVPacket packet_s;
   av_init_packet (&packet_s);
@@ -204,6 +247,13 @@ do_work (int argc_in,
                 ACE_TEXT ("failed to avcodec_find_decoder(AV_CODEC_ID_PNG), aborting\n")));
     return;
   } // end IF
+  parser_p = av_parser_init (codec_p->id);
+  if (!parser_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to av_parser_init(AV_CODEC_ID_PNG), aborting\n")));
+    goto error;
+  } // end IF
   context_p = avcodec_alloc_context3 (codec_p);
   if (!context_p)
   {
@@ -211,7 +261,6 @@ do_work (int argc_in,
                 ACE_TEXT ("failed to avcodec_alloc_context3(), aborting\n")));
     goto error;
   }
-
   context_p->codec_type = AVMEDIA_TYPE_VIDEO;
 //  context_p->flags = 0;
 //  context_p->flags2 = 0;
@@ -220,6 +269,7 @@ do_work (int argc_in,
 //  context_p->request_sample_fmt = AV_PIX_FMT_RGB24;
 //  context_p->refcounted_frames = 1; // *NOTE*: caller 'owns' the frame buffer
   context_p->workaround_bugs = 0xFFFFFFFF;
+  context_p->skip_frame = AVDISCARD_ALL;
   context_p->strict_std_compliance = FF_COMPLIANCE_UNOFFICIAL;
   context_p->error_concealment = 0xFFFFFFFF;
 #if defined (_DEBUG)
@@ -229,7 +279,7 @@ do_work (int argc_in,
 //  hwaccel_context
 //  idct_algo
 //  bits_per_coded_sample
-//  thread_count
+  context_p->thread_count = 1;
 //  thread_type
 //  pkt_timebase
 //  hw_frames_ctx
@@ -260,48 +310,42 @@ do_work (int argc_in,
     data_size = ACE_OS::fread (buffer_a, 1, 4096, file_p);
     if (!data_size)
       break;
-    packet_s.data = buffer_a;
-    packet_s.size = static_cast<int> (data_size);
-
-    result = avcodec_send_packet (context_p, &packet_s);
-    if (result < 0)
+    data_p = buffer_a;
+    while (data_size > 0)
     {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to avcodec_send_packet(): \"%s\", aborting\n"),
-                  ACE_TEXT (Common_Image_Tools::errorToString (result).c_str ())));
-      goto error;
-    }
-    while (result >= 0)
-    {
-      result = avcodec_receive_frame (context_p, frame_p);
-        if (result == AVERROR (EAGAIN) ||
-            result == AVERROR_EOF)
-          continue;
-        else if (result < 0)
-        {
-          ACE_DEBUG ((LM_ERROR,
-                      ACE_TEXT ("failed to avcodec_receive_frame(), aborting\n")));
-          goto error;
-        } // end ELSE IF
-        ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("decoded image\n")));
-//        pgm_save(frame->data[0], frame->linesize[0],
-//                 frame->width, frame->height, buf);
-    } // end WHILEs
+      result = av_parser_parse2 (parser_p,
+                                 context_p,
+                                 &packet_s.data,
+                                 &packet_s.size,
+                                 data_p,
+                                 data_size,
+                                 AV_NOPTS_VALUE,
+                                 AV_NOPTS_VALUE,
+                                 0);
+      if (result < 0)
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to av_parser_parse2(), aborting\n")));
+        goto error;
+      } // end IF
+      data_p += result;
+      data_size -= result;
+      if (packet_s.size)
+        decode (context_p,
+                frame_p,
+                &packet_s,
+                out_filename);
+    } // end WHILE
   } // end WHILE
-
-  file_2 = ACE_OS::fopen (out_filename.c_str (),
-                          ACE_TEXT_ALWAYS_CHAR ("w"));
-  ACE_ASSERT (file_2);
-  ACE_OS::fwrite (frame_p->data[0],
-                  frame_p->linesize[0] * frame_p->height,
-                  1,
-                  file_2);
-  ACE_OS::fclose (file_2);
+  decode (context_p,
+          frame_p,
+          NULL,
+          out_filename);
 
 error:
   ACE_OS::fclose (file_p);
   av_frame_free (&frame_p);
+  av_parser_close (parser_p);
   avcodec_free_context (&context_p);
 }
 
