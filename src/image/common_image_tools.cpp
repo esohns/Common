@@ -390,7 +390,7 @@ Common_Image_Tools::load (const uint8_t* sourceBuffers_in,
                           Common_Image_Resolution_t& resolution_out,
                           uint8_t*& targetBuffers_out)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::savePNG"));
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::load"));
 
   // sanity check(s)
   ACE_ASSERT (codecId_in != AV_CODEC_ID_NONE); // *TODO*
@@ -720,7 +720,7 @@ Common_Image_Tools::decode (const uint8_t* sourceBuffers_in,
   struct AVCodec* codec_p = NULL;
   struct AVCodecContext* codec_context_p = NULL;
   Common_Image_Tools_GetFormatCBData cb_data_s;
-  cb_data_s.formats.push_back (format_in);
+  cb_data_s.formats.push_back (((codecId_in == AV_CODEC_ID_MJPEG) ? AV_PIX_FMT_YUVJ420P : format_in));
   struct AVFrame* frame_p = NULL;
   int got_picture = 0;
   struct AVPacket packet_s;
@@ -736,11 +736,11 @@ Common_Image_Tools::decode (const uint8_t* sourceBuffers_in,
     goto error;
   } // end IF
 
-  codec_p = avcodec_find_encoder (codecId_in);
+  codec_p = avcodec_find_decoder (codecId_in);
   if (!codec_p)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to avcodec_find_encoder(%d): \"%m\", aborting\n"),
+                ACE_TEXT ("failed to avcodec_find_decoder(%d): \"%m\", aborting\n"),
                 codecId_in));
     goto error;
   } // end IF
@@ -753,18 +753,19 @@ Common_Image_Tools::decode (const uint8_t* sourceBuffers_in,
     goto error;
   } // end IF
 
-  codec_context_p->codec_type = AVMEDIA_TYPE_VIDEO;
+//  codec_context_p->codec_type = AVMEDIA_TYPE_VIDEO;
 //  codec_context_p->flags = 0;
 //  codec_context_p->flags2 = 0;
-  codec_context_p->time_base.den = 1;
+//  codec_context_p->time_base.den = 1;
   codec_context_p->time_base.num = 1;
-  codec_context_p->width = 1;
-  codec_context_p->height = 1;
-  codec_context_p->pix_fmt = AV_PIX_FMT_RGB24;
+//  codec_context_p->width = 1;
+//  codec_context_p->height = 1;
+  codec_context_p->pix_fmt =
+    ((codecId_in == AV_CODEC_ID_MJPEG) ? AV_PIX_FMT_YUVJ420P : AV_PIX_FMT_RGB24);
   codec_context_p->opaque = &cb_data_s;
   codec_context_p->get_format = common_image_tools_get_format_cb;
 //  codec_context_p->request_sample_fmt = AV_PIX_FMT_RGB24;
-  codec_context_p->thread_count = 1;
+//  codec_context_p->thread_count = 1;
   codec_context_p->refcounted_frames = 1; // *NOTE*: caller 'owns' the frame buffer
   codec_context_p->workaround_bugs = 0xFFFFFFFF;
   codec_context_p->strict_std_compliance = FF_COMPLIANCE_UNOFFICIAL;
@@ -772,6 +773,8 @@ Common_Image_Tools::decode (const uint8_t* sourceBuffers_in,
 #if defined (_DEBUG)
   codec_context_p->debug = 0xFFFFFFFF;
 #endif // _DEBUG
+  codec_context_p->sw_pix_fmt =
+      ((codecId_in == AV_CODEC_ID_MJPEG) ? AV_PIX_FMT_YUVJ420P : AV_PIX_FMT_RGB24);
 //  codec_context_p->err_recognition = 0xFFFFFFFF;
 //  hwaccel_context
 //  idct_algo
@@ -805,8 +808,7 @@ Common_Image_Tools::decode (const uint8_t* sourceBuffers_in,
                 ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
     goto error;
   } // end IF
-  ACE_ASSERT (format_in == static_cast<enum AVPixelFormat> (frame_p->format));
-
+  ACE_ASSERT (got_picture);
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   resolution_out.cx = frame_p->width;
   resolution_out.cy = frame_p->height;
@@ -814,8 +816,25 @@ Common_Image_Tools::decode (const uint8_t* sourceBuffers_in,
   resolution_out.width = frame_p->width;
   resolution_out.height = frame_p->height;
 #endif // ACE_WIN32 || ACE_WIN64
-  // *NOTE*: do not av_frame_unref the frame, keep the data
-  targetBuffers_out = reinterpret_cast<uint8_t*> (frame_p->data);
+  if (format_in != static_cast<enum AVPixelFormat> (frame_p->format))
+  {
+    if (!Common_Image_Tools::convert (resolution_out,
+                                      static_cast<enum AVPixelFormat> (frame_p->format),
+                                      reinterpret_cast<uint8_t*> (frame_p->data),
+                                      resolution_out,
+                                      format_in,
+                                      targetBuffers_out))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_Image_Tools::convert(), aborting\n")));
+      goto error;
+    } // end IF
+  } // end IF
+  else
+  {
+    // *NOTE*: do not av_frame_unref the frame, keep the data
+    targetBuffers_out = reinterpret_cast<uint8_t*> (frame_p->data);
+  } // end ELSE
 
   result = true;
 
@@ -974,6 +993,9 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
   int in_linesize[AV_NUM_DATA_POINTERS];
   int out_linesize[AV_NUM_DATA_POINTERS];
   uint8_t* out_data[AV_NUM_DATA_POINTERS];
+  ACE_OS::memset (&in_linesize, 0, sizeof (int[AV_NUM_DATA_POINTERS]));
+  ACE_OS::memset (&out_linesize, 0, sizeof (int[AV_NUM_DATA_POINTERS]));
+  ACE_OS::memset (&out_data, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
   int size_i =
       av_image_get_buffer_size (targetPixelFormat_in,
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
