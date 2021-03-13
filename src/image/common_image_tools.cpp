@@ -471,11 +471,11 @@ Common_Image_Tools::load (const std::string& path_in,
     goto error;
   } // end IF
 
-  codec_p = avcodec_find_encoder (codecId_in);
+  codec_p = avcodec_find_decoder (codecId_in);
   if (!codec_p)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to avcodec_find_encoder(%d): \"%m\", aborting\n"),
+                ACE_TEXT ("failed to avcodec_find_decoder(%d): \"%m\", aborting\n"),
                 codecId_in));
     goto error;
   } // end IF
@@ -864,10 +864,10 @@ Common_Image_Tools::convert (const Common_Image_Resolution_t& sourceResolution_i
   // initialize return value(s)
   ACE_ASSERT (!targetBuffers_out);
 
-  int line_sizes_a[AV_NUM_DATA_POINTERS];
-  uint8_t* data_pointers_a[AV_NUM_DATA_POINTERS];
-  ACE_OS::memset (&line_sizes_a, 0, sizeof (int[AV_NUM_DATA_POINTERS]));
-  ACE_OS::memset (&data_pointers_a, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
+  int line_sizes_a[4];
+  uint8_t* data_pointers_a[4];
+  ACE_OS::memset (&line_sizes_a, 0, sizeof (int[4]));
+  ACE_OS::memset (&data_pointers_a, 0, sizeof (uint8_t*[4]));
 
   int result = av_image_fill_linesizes (line_sizes_a,
                                         sourcePixelFormat_in,
@@ -990,12 +990,12 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
                SWS_BICUBIC);
   struct SwsContext* context_p = NULL;
   int result_2 = -1;
-  int in_linesize[AV_NUM_DATA_POINTERS];
-  int out_linesize[AV_NUM_DATA_POINTERS];
-  uint8_t* out_data[AV_NUM_DATA_POINTERS];
-  ACE_OS::memset (&in_linesize, 0, sizeof (int[AV_NUM_DATA_POINTERS]));
-  ACE_OS::memset (&out_linesize, 0, sizeof (int[AV_NUM_DATA_POINTERS]));
-  ACE_OS::memset (&out_data, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
+  int in_linesize[4];
+  int out_linesize[4];
+  uint8_t* out_data[4];
+  ACE_OS::memset (&in_linesize, 0, sizeof (int[4]));
+  ACE_OS::memset (&out_linesize, 0, sizeof (int[4]));
+  ACE_OS::memset (&out_data, 0, sizeof (uint8_t*[4]));
   int size_i =
       av_image_get_buffer_size (targetPixelFormat_in,
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -1300,10 +1300,7 @@ Common_Image_Tools::errorToString (int errorCode_in)
 
   return return_value;
 }
-#endif // FFMPEG_SUPPORT
 
-
-#if defined (IMAGEMAGICK_SUPPORT)
 enum AVCodecID
 Common_Image_Tools::stringToCodecId (const std::string& format_in)
 {
@@ -1318,6 +1315,8 @@ Common_Image_Tools::stringToCodecId (const std::string& format_in)
     return_value = AV_CODEC_ID_NONE;
   else if (format_in == ACE_TEXT_ALWAYS_CHAR ("PNG"))
     return_value = AV_CODEC_ID_PNG;
+  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("JPG"))
+    return_value = AV_CODEC_ID_MJPEG;
   else
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("invalid/unknown format (was: \"%s\"), aborting\n"),
@@ -1325,7 +1324,9 @@ Common_Image_Tools::stringToCodecId (const std::string& format_in)
 
   return return_value;
 }
+#endif // FFMPEG_SUPPORT
 
+#if defined (IMAGEMAGICK_SUPPORT)
 std::string
 Common_Image_Tools::errorToString (struct _MagickWand* context_in)
 {

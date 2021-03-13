@@ -132,14 +132,13 @@ class Common_Image_Tools
                      uint8_t*&);                       // return value: target buffer(s)
 
   static std::string pixelFormatToString (enum AVPixelFormat);
+  static enum AVCodecID stringToCodecId (const std::string&);
 
   static std::string errorToString (int); // error code
 #endif // FFMPEG_SUPPORT
 
   // --- ImageMagick ---
 #if defined (IMAGEMAGICK_SUPPORT)
-  static enum AVCodecID stringToCodecId (const std::string&);
-
   static std::string errorToString (struct _MagickWand*); // context
 #endif // IMAGEMAGICK_SUPPORT
 

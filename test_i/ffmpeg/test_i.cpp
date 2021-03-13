@@ -1,6 +1,8 @@
 #include "stdafx.h"
 
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 #ifdef __cplusplus
@@ -29,51 +31,13 @@ extern "C"
 #endif // HAVE_CONFIG_H
 
 #include "common_file_tools.h"
-#include "common_tools.h"
+#include "common_string_tools.h"
 
 #include "common_image_tools.h"
 
 #include "common_timer_tools.h"
 
 #include "common_log_tools.h"
-
-enum AVPixelFormat
-common_ffmpeg_get_format_cb (struct AVCodecContext* context_in,
-                             const enum AVPixelFormat* formats_in)
-{
-  // sanity check(s)
-  ACE_ASSERT (context_in);
-  ACE_ASSERT (formats_in);
-  ACE_ASSERT (context_in->opaque);
-
-  enum AVPixelFormat* preferred_format_p =
-    reinterpret_cast<enum AVPixelFormat*> (context_in->opaque);
-
-  // try to find the preferred format first
-  for (const enum AVPixelFormat* iterator = formats_in;
-       *iterator != -1;
-       ++iterator)
-    if (*iterator == *preferred_format_p)
-      return *iterator;
-  ACE_DEBUG ((LM_WARNING,
-              ACE_TEXT ("%s: preferred format (was: %s) not supported, falling back\n"),
-              ACE_TEXT (avcodec_get_name (context_in->codec_id)),
-              ACE_TEXT (Common_Image_Tools::pixelFormatToString (*preferred_format_p).c_str ())));
-
-  // *TODO*: set context_in->hw_frames_ctx here as well
-
-  // accept first format (if any) as a fallback
-  for (const enum AVPixelFormat* iterator = formats_in;
-       *iterator != -1;
-       ++iterator)
-    return *iterator;
-
-  ACE_DEBUG ((LM_ERROR,
-              ACE_TEXT ("%s: does not support any format, aborting\n"),
-              ACE_TEXT (avcodec_get_name (context_in->codec_id))));
-
-  return AV_PIX_FMT_NONE;
-}
 
 void
 do_print_usage (const std::string& programName_in)
@@ -178,175 +142,76 @@ do_process_arguments (int argc_in,
   return true;
 }
 
-static void
-save (const std::string filename_in,
-      AVFrame* frame_in)
-{
-  FILE* file_p = ACE_OS::fopen (filename_in.c_str (),
-                                ACE_TEXT_ALWAYS_CHAR ("w"));
-  ACE_ASSERT (file_p);
-  ACE_OS::fwrite (frame_in->data[0],
-                  frame_in->linesize[0] * frame_in->height,
-                  1,
-                  file_p);
-  ACE_OS::fclose (file_p);
-}
-
-static void
-decode (AVCodecContext* context_in,
-        AVFrame* frame_in,
-        AVPacket* packet_in,
-        const std::string& filename_in)
-{
-  int result = avcodec_send_packet (context_in,
-                                    packet_in);
-  if (result < 0) {
-    fprintf(stderr, "Error sending a packet for decoding\n");
-    exit(1);
-  }
-
-  while (result >= 0) {
-    result = avcodec_receive_frame (context_in,
-                                    frame_in);
-    if (result == AVERROR(EAGAIN) || result == AVERROR_EOF)
-      return;
-    else if (result < 0) {
-      fprintf(stderr, "Error during decoding\n");
-      exit(1);
-    }
-    save (filename_in,
-          frame_in);
-  }
-}
-
 void
 do_work (int argc_in,
          ACE_TCHAR* argv_in[],
          const std::string& sourceFilePath_in)
 {
+  Common_Image_Resolution_t resolution_s;
+  enum AVPixelFormat pixel_format_e = AV_PIX_FMT_NONE;
+  uint8_t* data_p = NULL, *data_2 = NULL;
   std::string out_filename = ACE_TEXT_ALWAYS_CHAR ("outfile.rgb");
-  const AVCodec* codec_p = NULL;
-  AVCodecContext* context_p = NULL;
-  AVCodecParserContext* parser_p = NULL;
-  FILE* file_p = NULL;
-  AVFrame* frame_p = NULL;
-  uint8_t buffer_a[4096 + AV_INPUT_BUFFER_PADDING_SIZE];
-  /* set end of buffer to 0 (this ensures that no overreading happens for damaged MPEG streams) */
-  ACE_OS::memset (buffer_a + 4096, 0, AV_INPUT_BUFFER_PADDING_SIZE);
-  uint8_t* data_p = NULL;
-  size_t data_size = 0;
-  int result = -1;
-  AVPacket packet_s;
-  av_init_packet (&packet_s);
-  enum AVPixelFormat pixel_format_e = AV_PIX_FMT_RGB24;
+  std::ofstream file_stream;
+  std::string file_extension_string =
+      Common_File_Tools::fileExtension(sourceFilePath_in, false);
 
-  codec_p = avcodec_find_decoder (AV_CODEC_ID_PNG);
-  if  (!codec_p)
+  if (!Common_Image_Tools::load (sourceFilePath_in,
+                                 Common_Image_Tools::stringToCodecId (Common_String_Tools::toupper (file_extension_string)),
+                                 resolution_s,
+                                 pixel_format_e,
+                                 data_p))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to avcodec_find_decoder(AV_CODEC_ID_PNG), aborting\n")));
+                ACE_TEXT ("failed to Common_Image_Tools::load(\"%s\"), returning\n"),
+                ACE_TEXT (sourceFilePath_in.c_str ())));
     return;
   } // end IF
-  parser_p = av_parser_init (codec_p->id);
-  if (!parser_p)
+  ACE_ASSERT (data_p);
+  if (pixel_format_e != AV_PIX_FMT_RGB24)
   {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to av_parser_init(AV_CODEC_ID_PNG), aborting\n")));
-    goto error;
-  } // end IF
-  context_p = avcodec_alloc_context3 (codec_p);
-  if (!context_p)
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to avcodec_alloc_context3(), aborting\n")));
-    goto error;
-  }
-  context_p->codec_type = AVMEDIA_TYPE_VIDEO;
-//  context_p->flags = 0;
-//  context_p->flags2 = 0;
-  context_p->opaque = &pixel_format_e;
-  context_p->get_format = common_ffmpeg_get_format_cb;
-//  context_p->request_sample_fmt = AV_PIX_FMT_RGB24;
-//  context_p->refcounted_frames = 1; // *NOTE*: caller 'owns' the frame buffer
-  context_p->workaround_bugs = 0xFFFFFFFF;
-  context_p->skip_frame = AVDISCARD_ALL;
-  context_p->strict_std_compliance = FF_COMPLIANCE_UNOFFICIAL;
-  context_p->error_concealment = 0xFFFFFFFF;
-#if defined (_DEBUG)
-  context_p->debug = 0xFFFFFFFF;
-#endif // _DEBUG
-//  context_p->err_recognition = 0xFFFFFFFF;
-//  hwaccel_context
-//  idct_algo
-//  bits_per_coded_sample
-  context_p->thread_count = 1;
-//  thread_type
-//  pkt_timebase
-//  hw_frames_ctx
-//  hw_device_ctx
-//  hwaccel_flags
-  if (avcodec_open2 (context_p, codec_p, NULL) < 0)
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to avcodec_open2(), aborting\n")));
-    goto error;
-  }
-
-  frame_p = av_frame_alloc ();
-  if (!frame_p)
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to av_frame_alloc(), aborting\n")));
-    goto error;
-  }
-
-  file_p = ACE_OS::fopen (sourceFilePath_in.c_str (),
-                          ACE_TEXT_ALWAYS_CHAR ("rb"));
-  ACE_ASSERT (file_p);
-
-  while (!feof (file_p))
-  {
-    /* read raw data from the input file */
-    data_size = ACE_OS::fread (buffer_a, 1, 4096, file_p);
-    if (!data_size)
-      break;
-    data_p = buffer_a;
-    while (data_size > 0)
-    {
-      result = av_parser_parse2 (parser_p,
-                                 context_p,
-                                 &packet_s.data,
-                                 &packet_s.size,
+    Common_Image_Tools::convert (resolution_s,
+                                 pixel_format_e,
                                  data_p,
-                                 data_size,
-                                 AV_NOPTS_VALUE,
-                                 AV_NOPTS_VALUE,
-                                 0);
-      if (result < 0)
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to av_parser_parse2(), aborting\n")));
-        goto error;
-      } // end IF
-      data_p += result;
-      data_size -= result;
-      if (packet_s.size)
-        decode (context_p,
-                frame_p,
-                &packet_s,
-                out_filename);
-    } // end WHILE
-  } // end WHILE
-  decode (context_p,
-          frame_p,
-          NULL,
-          out_filename);
-
-error:
-  ACE_OS::fclose (file_p);
-  av_frame_free (&frame_p);
-  av_parser_close (parser_p);
-  avcodec_free_context (&context_p);
+                                 resolution_s,
+                                 AV_PIX_FMT_RGB24,
+                                 data_2);
+    ACE_ASSERT (data_2);
+//    delete [] data_p; data_p = NULL;
+    data_p = data_2;
+  } // end IF
+  ACE_ASSERT (data_p);
+  file_stream.open (out_filename,
+                    std::ios::out | std::ios::binary);
+  if (unlikely (file_stream.fail ()))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to open file (was: \"%s\"): \"%m\", returning\n"),
+                ACE_TEXT (out_filename.c_str ())));
+    return;
+  } // end IF
+  int size_i =
+      av_image_get_buffer_size (AV_PIX_FMT_RGB24,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                resolution_s.cx, resolution_s.cy,
+#else
+                                resolution_s.width, resolution_s.height,
+#endif // ACE_WIN32 || ACE_WIN64
+                                1); // *TODO*: linesize alignment
+  ACE_ASSERT (file_stream.is_open ());
+  file_stream.write (reinterpret_cast<char*> (data_p),
+                     size_i);
+  if (unlikely (file_stream.fail ()))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to write file (%d byte(s)): \"%m\", returning\n"),
+                size_i));
+    return;
+  } // end IF
+  file_stream.close ();
+  if (unlikely (file_stream.fail ()))
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to close file (\"%s\"): \"%m\", continuing\n"),
+                ACE_TEXT (out_filename.c_str ())));
 }
 
 int
@@ -369,7 +234,7 @@ ACE_TMAIN (int argc_in,
   ACE_Profile_Timer process_profile;
   process_profile.start ();
 
-  Common_Tools::initialize ();
+//  Common_Tools::initialize ();
 
   ACE_High_Res_Timer timer;
   ACE_Time_Value working_time;

@@ -40,11 +40,8 @@
 struct Common_TimerConfiguration Common_Timer_Tools::configuration_;
 
 void
-Common_Timer_Tools::initialize (bool initializeSecondPublisher_in)
+Common_Timer_Tools::initialize ()
 {
-  Common_Timer_Tools::configuration_.publishSeconds =
-    initializeSecondPublisher_in;
-
   if (!Common_Timer_Tools::initializeTimers (Common_Timer_Tools::configuration_))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Timer_Tools::initializeTimers(), continuing\n")));

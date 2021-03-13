@@ -34,7 +34,7 @@ class Common_Timer_Tools
  : public Common_SInitializeFinalize_T<Common_Timer_Tools>
 {
  public:
-  static void initialize (bool = false); // initialize 'second'-publisher ?
+  static void initialize ();
   static void finalize ();
    
   //// --- singleton ---
