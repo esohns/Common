@@ -6,7 +6,8 @@ function (is_UI_graphical UI_FRAMEWORK)
 
  if (${UI_FRAMEWORK} MATCHES "gtk" OR
      ${UI_FRAMEWORK} MATCHES "wxWidgets")
- elseif (${UI_FRAMEWORK} MATCHES "curses")
+ elseif (${UI_FRAMEWORK} MATCHES "none" OR
+         ${UI_FRAMEWORK} MATCHES "curses")
   set (UI_FRAMEWORK "" PARENT_SCOPE)
  else ()
   message (FATAL_ERROR "invalid/unknown UI (was: \"${UI_FRAMEWORK}\"), aborting")
