@@ -30,6 +30,7 @@
 #include "ace/Message_Queue.h"
 
 #include "common_parser_common.h"
+#include "common_iscanner.h"
 
 // forward declaration(s)
 struct yy_buffer_state;

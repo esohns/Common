@@ -32,13 +32,14 @@
 #include "gtkgl/gdkgl.h"
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION(3,16,0)
+#elif GTK_CHECK_VERSION(2,0,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gdkgl.h"
 #else
-//#include "gtk/gtkgl.h" // gtkglext
+#include "gtk/gtkgl.h" // gtkglext
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION(3,0,0)
+#endif // GTK_CHECK_VERSION(2/3,0,0)
 #endif // GTKGL_SUPPORT
 
 #if defined (LIBGLADE_SUPPORT)
@@ -715,6 +716,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION(3,0,0)
+#elif GTK_CHECK_VERSION(2,0,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
 #else
@@ -726,7 +728,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     goto error;
   } // end IF
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION (3,0,0)
+#endif // GTK_CHECK_VERSION (2/3,0,0)
 #endif // GTKGL_SUPPORT
 
 //  GdkDisplay* display_p =

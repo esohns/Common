@@ -924,6 +924,15 @@ Common_Tools::setCapability (unsigned long capability_in,
                 set_in));
     goto clean;
   } // end IF
+
+  result_2 = ::cap_set_proc (capabilities_p);
+  if (unlikely (result_2 == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::cap_set_proc(%s)): \"%m\", aborting\n"),
+                ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ())));
+    goto clean;
+  } // end IF
   if (likely (Common_Tools::hasCapability (capability_in, set_in)))
     result = true;
 

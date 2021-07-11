@@ -41,7 +41,7 @@ set (LIBRARY ${PROJECT_NAME}UI)
 add_library (${LIBRARY} STATIC "")
 
 if (GTK_SUPPORT)
-# message (STATUS "GTK_INCLUDE_DIRS: ${GTK_INCLUDE_DIRS}")
+ message (STATUS "GTK_INCLUDE_DIRS: ${GTK_INCLUDE_DIRS}")
  target_include_directories (${LIBRARY} PUBLIC
                              "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
 endif (GTK_SUPPORT)

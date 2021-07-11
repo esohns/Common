@@ -68,7 +68,7 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
 #else
   if (siginfo_in)
     signal_s.siginfo = *siginfo_in;
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
   if (ucontext_in)
     signal_s.ucontext = *ucontext_in;
 
@@ -135,7 +135,7 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
 //                  ACE_TEXT ("%D: received [%u/\"%S\"]: %s\n"),
 //                  signal_in, signal_in,
 //                  ACE_TEXT (Common_Tools::signalToString (signal_s).c_str ())));
-#endif
+#endif // _DEBUG
 
       ACE_ASSERT (callback_);
       try {

@@ -1,4 +1,4 @@
-find_package (Threads REQUIRED)
+#find_package (Threads REQUIRED)
 find_package (ImageMagick COMPONENTS MagickCore MagickWand)
 
 if (UNIX)

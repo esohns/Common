@@ -218,6 +218,8 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                           result));
           } // end IF
 #endif // _DEBUG
+
+          inherited::msg_queue_->deactivate ();
         } // end IF
 
         break;
@@ -232,8 +234,8 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
       // *NOTE*: make sure there is a message queue
       if (likely (inherited::msg_queue_))
-        stop (false, // wait for completion ?
-              true); // N/A
+        OWN_TYPE_T::stop (false, // wait for completion ?
+                          true); // N/A
       else
       {
         if (inherited::mod_)
@@ -304,6 +306,9 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                   inherited::thr_count_));
   } // end IF
 #endif // _DEBUG
+
+  if (likely (inherited::msg_queue_))
+    inherited::msg_queue_->activate ();
 
   // spawn one worker thread
   ACE_thread_t* thread_ids_p = NULL;
@@ -483,7 +488,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   do
   {
     count = inherited::msg_queue_->message_count ();
-    if (!count)
+    if (!count || inherited::msg_queue_->deactivated ())
       break;
 #if defined (_DEBUG)
     has_waited = true;
@@ -660,8 +665,11 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   ACE_UNUSED_ARG (args_in);
 
   // sanity check(s)
-  if (unlikely (inherited::thr_count_ > 0))
+  if (unlikely ((inherited::thr_count_ > 0) || !threadCount_))
     return 0; // nothing to do
+
+  if (likely (inherited::msg_queue_))
+    inherited::msg_queue_->activate ();
 
   ACE_thread_t* thread_ids_p = NULL;
   ACE_hthread_t* thread_handles_p = NULL;

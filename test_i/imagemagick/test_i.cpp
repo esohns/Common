@@ -139,9 +139,7 @@ do_process_arguments (int argc_in,
 }
 
 void
-do_work (int argc_in,
-         ACE_TCHAR* argv_in[],
-         const std::string& sourceFilePath_in)
+do_work (const std::string& sourceFilePath_in)
 {
   std::string out_filename = ACE_TEXT_ALWAYS_CHAR ("outfile.rgb");
   unsigned char* data_p = NULL;
@@ -256,7 +254,7 @@ ACE_TMAIN (int argc_in,
   } // end IF
 
   // step1c: initialize logging and/or tracing
-  if (!Common_Log_Tools::initializeLogging (ACE::basename (argv_in[0]),           // program name
+  if (!Common_Log_Tools::initializeLogging (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])),           // program name
                                             ACE_TEXT_ALWAYS_CHAR (""),            // log file name
                                             false,                                // log to syslog ?
                                             false,                                // trace messages ?
@@ -270,9 +268,7 @@ ACE_TMAIN (int argc_in,
 
   timer.start ();
   // step2: do actual work
-  do_work (argc_in,
-           argv_in,
-           source_file_path);
+  do_work (source_file_path);
   timer.stop ();
 
   // debug info

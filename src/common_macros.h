@@ -91,7 +91,7 @@
 #  if !defined (COMMON_HAS_TRACE)
 #    define COMMON_HAS_TRACE
 #  endif /* COMMON_HAS_TRACE */
-#  define COMMON_TRACE (X) COMMON_TRACE_IMPL(X)
+#  define COMMON_TRACE(X) COMMON_TRACE_IMPL(X)
 #  include "ace/Trace.h"
 #endif /* COMMON_NTRACE */
 
