@@ -154,7 +154,6 @@ Common_ParserBase_T<ConfigurationType,
     return false;
   } // end IF
   ACE_ASSERT (scannerState_.lexState);
-//  parser_.set (scannerState_.lexState);
 
   // trace ?
   try {

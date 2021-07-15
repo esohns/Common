@@ -215,6 +215,12 @@ Common_CppParserBase_T<ConfigurationType,
   fragment_ = data_in;
   offset_ = 0;
 
+  // append the "\0\0"-sequence, as required by flex
+  ACE_ASSERT ((fragment_->capacity () - fragment_->length ()) >= COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE);
+  *(fragment_->wr_ptr ()) = YY_END_OF_BUFFER_CHAR;
+  *(fragment_->wr_ptr () + 1) = YY_END_OF_BUFFER_CHAR;
+  // *NOTE*: DO NOT adjust the write pointer --> length() must stay as it was
+
   int result = -1;
   bool do_scan_end = false;
   if (!begin (NULL, 0))
