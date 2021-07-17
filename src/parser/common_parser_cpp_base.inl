@@ -410,6 +410,7 @@ Common_CppParserBase_T<ConfigurationType,
 
   int result = -1;
   ACE_Message_Block* message_block_p = NULL;
+  int error = 0;
   bool done = false;
 
   // *IMPORTANT NOTE*: 'this' is the parser thread currently blocked in yylex()
@@ -430,7 +431,7 @@ Common_CppParserBase_T<ConfigurationType,
                                           NULL);
     if (result == -1)
     {
-      int error = ACE_OS::last_error ();
+      error = ACE_OS::last_error ();
       if (error != ESHUTDOWN)
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Message_Queue::dequeue_head(): \"%m\", returning\n")));
@@ -441,16 +442,47 @@ Common_CppParserBase_T<ConfigurationType,
     switch (message_block_p->msg_type ())
     {
       case ACE_Message_Block::MB_STOP:
+      {
+        result = messageQueue_->enqueue (message_block_p);
+        if (result == -1)
+        {
+          error = ACE_OS::last_error ();
+          if (error != ESHUTDOWN)
+            ACE_DEBUG ((LM_ERROR,
+                        ACE_TEXT ("failed to ACE_Message_Queue::enqueue(): \"%m\", returning\n")));
+          message_block_p->release (); message_block_p = NULL;
+          return;
+        } // end IF
+        message_block_p = NULL;
         done = true;
         break;
+      }
+      case ACE_Message_Block::MB_USER:
+      {
+        result = messageQueue_->enqueue_tail (message_block_p);
+        if (result == -1)
+        {
+          error = ACE_OS::last_error ();
+          if (error != ESHUTDOWN)
+            ACE_DEBUG ((LM_ERROR,
+                        ACE_TEXT ("failed to ACE_Message_Queue::enqueue_tail(): \"%m\", returning\n")));
+          message_block_p->release (); message_block_p = NULL;
+          return;
+        } // end IF
+        message_block_p = NULL;
+        break;
+      }
       default:
         break;
     } // end SWITCH
+    if (message_block_p)
+      break;
   } while (!done);
 
   // 2. append data ?
-  if (message_block_p)
+  if (!done)
   { ACE_ASSERT (fragment_);
+    ACE_ASSERT (message_block_p);
     ACE_Message_Block* message_block_2 = fragment_;
     for (;
          message_block_2->cont ();

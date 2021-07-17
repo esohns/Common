@@ -396,6 +396,7 @@ Common_ParserBase_T<ConfigurationType,
   } // end IF
 
   // 1. wait for data
+retry:
   result = queue_->dequeue_head (message_block_p,
                                  NULL);
   if (result == -1)
@@ -423,6 +424,20 @@ Common_ParserBase_T<ConfigurationType,
       } // end IF
       done = true;
       break;
+    }
+    case ACE_Message_Block::MB_USER:
+    {
+      result = queue_->enqueue_tail (message_block_p);
+      if (result == -1)
+      {
+        error = ACE_OS::last_error ();
+        if (error != ESHUTDOWN)
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to ACE_Message_Queue::enqueue_tail(): \"%m\", returning\n")));
+        message_block_p->release (); message_block_p = NULL;
+        return;
+      } // end IF
+      goto retry;
     }
     default:
       break;
