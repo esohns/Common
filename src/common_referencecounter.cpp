@@ -19,4 +19,4 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include "common_counter.h"
+#include "common_referencecounter.h"

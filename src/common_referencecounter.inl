@@ -19,16 +19,13 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include "common_referencecounter_base.h"
-
 #include "ace/Assert.h"
-#include "ace/Guard_T.h"
 #include "ace/Log_Msg.h"
-//#include "ace/Synch.h"
 
 #include "common_macros.h"
 
-Common_ReferenceCounterBase::Common_ReferenceCounterBase (unsigned int initialCount_in)
+template <ACE_SYNCH_DECL>
+Common_ReferenceCounter_T<ACE_SYNCH_USE>::Common_ReferenceCounter_T (unsigned int initialCount_in)
  : inherited (static_cast<long> (initialCount_in))
  , lock_ (NULL, // name
           NULL) // attributes
@@ -38,13 +35,14 @@ Common_ReferenceCounterBase::Common_ReferenceCounterBase (unsigned int initialCo
                NULL)
  , deleteOnZero_ (true)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
+  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounter_T::Common_ReferenceCounter_T"));
 
   // sanity check(s)
   ACE_ASSERT (initialCount_in);
 }
 
-Common_ReferenceCounterBase::Common_ReferenceCounterBase (const Common_ReferenceCounterBase& counter_in)
+template <ACE_SYNCH_DECL>
+Common_ReferenceCounter_T<ACE_SYNCH_USE>::Common_ReferenceCounter_T (const Common_ReferenceCounter_T& counter_in)
  : inherited (counter_in)
  , lock_ (NULL, // name
           NULL) // attributes
@@ -54,11 +52,12 @@ Common_ReferenceCounterBase::Common_ReferenceCounterBase (const Common_Reference
                NULL)
  , deleteOnZero_ (counter_in.deleteOnZero_)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
+  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounter_T::Common_ReferenceCounter_T"));
 
 }
 
-Common_ReferenceCounterBase::Common_ReferenceCounterBase ()
+template <ACE_SYNCH_DECL>
+Common_ReferenceCounter_T<ACE_SYNCH_USE>::Common_ReferenceCounter_T ()
  : inherited (1)
  , lock_ (NULL, // name
           NULL) // attributes
@@ -68,12 +67,13 @@ Common_ReferenceCounterBase::Common_ReferenceCounterBase ()
                NULL)
  , deleteOnZero_ (true)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
+  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounter_T::Common_ReferenceCounter_T"));
 
 }
 
-Common_ReferenceCounterBase::Common_ReferenceCounterBase (unsigned int initialCount_in,
-                                                          bool deleteOnZero_in)
+template <ACE_SYNCH_DECL>
+Common_ReferenceCounter_T<ACE_SYNCH_USE>::Common_ReferenceCounter_T (unsigned int initialCount_in,
+                                                                     bool deleteOnZero_in)
  : inherited (static_cast<long> (initialCount_in))
  , lock_ (NULL, // name
           NULL) // attributes
@@ -83,14 +83,15 @@ Common_ReferenceCounterBase::Common_ReferenceCounterBase (unsigned int initialCo
                NULL)
  , deleteOnZero_ (deleteOnZero_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::Common_ReferenceCounterBase"));
+  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounter_T::Common_ReferenceCounter_T"));
 
 }
 
-Common_ReferenceCounterBase&
-Common_ReferenceCounterBase::operator= (const Common_ReferenceCounterBase& rhs_in)
+template <ACE_SYNCH_DECL>
+Common_ReferenceCounter_T<ACE_SYNCH_USE>&
+Common_ReferenceCounter_T<ACE_SYNCH_USE>::operator= (const Common_ReferenceCounter_T& rhs_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::operator="));
+  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounter_T::operator="));
 
   inherited::operator= (rhs_in);
 
@@ -102,10 +103,11 @@ Common_ReferenceCounterBase::operator= (const Common_ReferenceCounterBase& rhs_i
   return *this;
 }
 
+template <ACE_SYNCH_DECL>
 unsigned int
-Common_ReferenceCounterBase::decrease ()
+Common_ReferenceCounter_T<ACE_SYNCH_USE>::decrease ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::decrease"));
+  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounter_T::decrease"));
 
   // sanity check(s)
   ACE_ASSERT (inherited::refcount_.value () > 0);
@@ -113,7 +115,7 @@ Common_ReferenceCounterBase::decrease ()
   long result = inherited::decrement ();
   int result_2 = -1;
 
-  { ACE_GUARD_RETURN (ACE_Thread_Mutex, aGuard, lock_, 0);
+  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, lock_, 0);
     // awaken any waiter(s)
     result_2 = condition_.broadcast ();
     if (unlikely (result_2 == -1))
@@ -127,14 +129,15 @@ Common_ReferenceCounterBase::decrease ()
   return static_cast<unsigned int> (result);
 }
 
+template <ACE_SYNCH_DECL>
 void
-Common_ReferenceCounterBase::wait (unsigned int count_in) const
+Common_ReferenceCounter_T<ACE_SYNCH_USE>::wait (unsigned int count_in) const
 {
-  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounterBase::wait"));
+  COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounter_T::wait"));
 
   int result = -1;
 
-  { ACE_GUARD (ACE_Thread_Mutex, aGuard, lock_);
+  { ACE_GUARD (ACE_SYNCH_MUTEX_T, aGuard, lock_);
     while (inherited::refcount_.value () != static_cast<long> (count_in))
     {
       ACE_DEBUG ((LM_DEBUG,

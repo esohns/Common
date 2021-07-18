@@ -91,7 +91,7 @@ class Common_ITimerCB_T
 // , public Common_IProactorTimer
  : public Common_ITimerCBBase
  , public Common_IInitialize_T<ConfigurationType>
- , public Common_IGetR_2_T<ConfigurationType>
+ , public Common_IGetR_T<ConfigurationType>
 {};
 
 #endif // COMMON_ITIMER_H

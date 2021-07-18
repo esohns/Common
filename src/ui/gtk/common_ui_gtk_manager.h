@@ -54,7 +54,7 @@ class Common_UI_GTK_Manager_T
                             Common_TimePolicy_t,
                             Common_ILock_T<ACE_SYNCH_USE> >
  , public Common_IInitialize_T<ConfigurationType>
- , public Common_IGetR_2_T<StateType>
+ , public Common_IGetR_T<StateType>
 {
   typedef Common_TaskBase_T<ACE_SYNCH_USE,
                             Common_TimePolicy_t,
@@ -86,7 +86,7 @@ class Common_UI_GTK_Manager_T
   // implement Common_IInitialize
   virtual bool initialize (const ConfigurationType&);
 
-  inline virtual const StateType& getR_2 () const { return state_; }
+  inline virtual const StateType& getR () const { return state_; }
 
  private:
   Common_UI_GTK_Manager_T ();
@@ -101,7 +101,7 @@ class Common_UI_GTK_Manager_T
   // hide some Common_TaskBase_T member(s)
   using inherited::lock;
   using inherited::unlock;
-  using inherited::getR;
+  using inherited::getR_2;
   using inherited::finished;
 
   // helper methods

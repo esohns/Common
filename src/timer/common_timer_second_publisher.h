@@ -86,7 +86,7 @@ class Common_Timer_SecondPublisher_T
   // hide (part of) Common_ITaskControl_T
   inline virtual bool lock (bool = true) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
   inline virtual int unlock (bool = false) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (-1); ACE_NOTREACHED (return -1;) }
-  inline virtual const typename ITASKCONTROL_T::MUTEX_T& getR () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (typename ITASKCONTROL_T::MUTEX_T ()); ACE_NOTREACHED (return typename ITASKCONTROL_T::MUTEX_T ();) }
+  inline virtual const typename ITASKCONTROL_T::MUTEX_T& getR_2 () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (typename ITASKCONTROL_T::MUTEX_T ()); ACE_NOTREACHED (return typename ITASKCONTROL_T::MUTEX_T ();) }
   inline virtual void idle () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
   inline virtual void finished () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
 

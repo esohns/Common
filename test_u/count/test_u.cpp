@@ -39,6 +39,9 @@
 
 //////////////////////////////////////////
 
+typedef Common_Counter_T<ACE_MT_SYNCH> Common_SynchCounter_t;
+typedef Common_Counter_T<ACE_NULL_SYNCH> Common_NoSynchCounter_t;
+
 enum Test_U_Common_Count_ModeType
 {
   TEST_U_COMMON_COUNT_MODE_COUNTDOWN, // <-- countdown and delete on 0
@@ -141,7 +144,7 @@ do_work (enum Test_U_Common_Count_ModeType mode_in)
   {
     case TEST_U_COMMON_COUNT_MODE_COUNTDOWN:
     {
-      Common_Counter counter (10);
+      Common_SynchCounter_t counter (10);
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("initialized counter with %u\n"),
                   counter.count ()));
@@ -163,9 +166,9 @@ do_work (enum Test_U_Common_Count_ModeType mode_in)
                   ACE_TEXT ("counter at %u\n"),
                   counter.count ()));
 
-      Common_Counter* counter_p = NULL;
+      Common_SynchCounter_t* counter_p = NULL;
       ACE_NEW_NORETURN (counter_p,
-                        Common_Counter (10));
+                        Common_SynchCounter_t (10));
       ACE_ASSERT (counter_p);
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("initialized counter with %u\n"),

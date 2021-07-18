@@ -39,7 +39,7 @@ class Common_ILock
 template <ACE_SYNCH_DECL>
 class Common_ILock_T
  : public Common_ILock
- , public Common_IGetR_T<ACE_SYNCH_MUTEX_T>
+ , public Common_IGetR_2_T<ACE_SYNCH_MUTEX_T>
 {
  public:
   // convenient types
@@ -49,7 +49,7 @@ class Common_ILock_T
 template <ACE_SYNCH_DECL>
 class Common_IRecursiveLock_T
  : public Common_ILock
- , public Common_IGetR_T<typename ACE_SYNCH_USE::RECURSIVE_MUTEX>
+ , public Common_IGetR_2_T<typename ACE_SYNCH_USE::RECURSIVE_MUTEX>
 {
  public:
   // convenient types
@@ -61,7 +61,6 @@ class Common_IRecursiveLock_T
 #define COMMON_ILOCK_ACQUIRE_N(ilock, count) \
   do { \
     ACE_ASSERT (ilock); \
-    ACE_ASSERT (count > 0); \
     for (int i = 0; i < count; ++i) \
       ilock->lock (true); \
   } while (0)

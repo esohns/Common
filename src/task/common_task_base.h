@@ -68,7 +68,7 @@ class Common_TaskBase_T
   // implement Common_ITaskControl_T
   virtual bool lock (bool = true); // block ?
   inline virtual int unlock (bool = false) { return lock_.release (); }
-  inline virtual const typename LockType::MUTEX_T& getR () const { return lock_; }
+  inline virtual const typename LockType::MUTEX_T& getR_2 () const { return lock_; }
   // *NOTE*: wraps ACE_Task_Base::activate() to spawn one additional (worker-)
   //         thread (up to threadCount_)
   // *TODO*: derivates may want to implement a dynamic thread pool

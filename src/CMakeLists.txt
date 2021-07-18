@@ -99,6 +99,7 @@ set (source_files
      common_configuration.h
      common_counter.cpp
      common_counter.h
+     common_counter.inl
      common_defines.h
      common_event_handler.cpp
      common_event_handler.h
@@ -123,8 +124,9 @@ set (source_files
      common_pragmas.h
      common_process_tools.cpp
      common_process_tools.h
-     common_referencecounter_base.cpp
-     common_referencecounter_base.h
+     common_referencecounter.cpp
+     common_referencecounter.h
+     common_referencecounter.inl
      common_statemachine.cpp
      common_statemachine.h
      common_statemachine.inl
@@ -228,6 +230,7 @@ install (FILES
          common.h
          common_configuration.h
          common_counter.h
+         common_counter.inl
          common_defines.h
          common_event_handler.h
          common_file_common.h
@@ -249,7 +252,8 @@ install (FILES
          common_message_queue_iterator.inl
          common_pragmas.h
          common_process_tools.h
-         common_referencecounter_base.h
+         common_referencecounter.h
+         common_referencecounter.inl
          common_statemachine.h
          common_statemachine.inl
          common_statemachine_base.h
