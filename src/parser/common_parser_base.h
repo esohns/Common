@@ -90,7 +90,7 @@ class Common_ParserBase_T
 
   ConfigurationType*         configuration_;
   bool                       finished_;
-  ACE_Message_Block*         headFragment_;
+//  ACE_Message_Block*         headFragment_;
   ACE_Message_Block*         fragment_;
 
   // parser

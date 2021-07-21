@@ -35,7 +35,7 @@ Common_ParserBase_T<ConfigurationType,
                     ArgumentType>::Common_ParserBase_T ()
  : configuration_ (NULL)
  , finished_ (false)
- , headFragment_ (NULL)
+// , headFragment_ (NULL)
  , fragment_ (NULL)
  , parser_ (this, // parser
             this) // scanner
@@ -59,8 +59,8 @@ Common_ParserBase_T<ConfigurationType,
 {
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::~Common_ParserBase_T"));
 
-  if (headFragment_)
-    headFragment_->release ();
+//  if (headFragment_)
+//    headFragment_->release ();
 
   // finalize lex scanner
   if (buffer_)
@@ -101,10 +101,10 @@ Common_ParserBase_T<ConfigurationType,
 
   if (isInitialized_)
   {
-    if (headFragment_)
-    {
-      headFragment_->release (); headFragment_ = NULL;
-    } // end IF
+//    if (headFragment_)
+//    {
+//      headFragment_->release (); headFragment_ = NULL;
+//    } // end IF
     fragment_ = NULL;
 
     if (buffer_)
@@ -233,7 +233,7 @@ Common_ParserBase_T<ConfigurationType,
   ACE_ASSERT (isInitialized_);
   ACE_ASSERT (data_in);
 
-  headFragment_ = data_in;
+//  headFragment_ = data_in;
   fragment_ = data_in;
   scannerState_.offset = 0;
 
@@ -294,7 +294,7 @@ Common_ParserBase_T<ConfigurationType,
 error:
   if (do_scan_end)
     end ();
-  headFragment_ = NULL;
+//  headFragment_ = NULL;
   fragment_ = NULL;
 
 continue_:
