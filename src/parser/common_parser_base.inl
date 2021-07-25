@@ -412,13 +412,13 @@ retry:
   {
     case ACE_Message_Block::MB_STOP:
     {
-      result = queue_->enqueue (message_block_p);
+      result = queue_->enqueue_tail (message_block_p);
       if (result == -1)
       {
         error = ACE_OS::last_error ();
         if (error != ESHUTDOWN)
           ACE_DEBUG ((LM_ERROR,
-                      ACE_TEXT ("failed to ACE_Message_Queue::enqueue(): \"%m\", returning\n")));
+                      ACE_TEXT ("failed to ACE_Message_Queue::enqueue_tail(): \"%m\", returning\n")));
         message_block_p->release (); message_block_p = NULL;
         return;
       } // end IF

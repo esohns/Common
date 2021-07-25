@@ -151,7 +151,7 @@ Common_Image_Tools::save (const std::string& path_in,
 bool
 Common_Image_Tools::save (const Common_Image_Resolution_t& resolution_in,
                           enum AVPixelFormat format_in,
-                          const uint8_t* sourceBuffers_in[],
+                          uint8_t* sourceBuffers_in[],
                           const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::save"));
@@ -329,7 +329,7 @@ clean:
 bool
 Common_Image_Tools::savePNG (const Common_Image_Resolution_t& resolution_in,
                              enum AVPixelFormat format_in,
-                             const uint8_t* sourceBuffers_in,
+                             uint8_t* sourceBuffers_in[],
                              const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::savePNG"));
@@ -337,12 +337,12 @@ Common_Image_Tools::savePNG (const Common_Image_Resolution_t& resolution_in,
   bool result = false;
   enum AVPixelFormat format_e = format_in;
   bool delete_buffer_b = false;
-  const uint8_t* buffer_p = sourceBuffers_in;
+  uint8_t** buffer_p = sourceBuffers_in;
 
   if (unlikely (format_in != AV_PIX_FMT_RGB24))// &&
 //               (format_in != AV_PIX_FMT_RGB32))
   {
-    uint8_t* data_p = NULL;
+    uint8_t** data_p = NULL;
     if (!Common_Image_Tools::convert (resolution_in,
                                       format_in,
                                       sourceBuffers_in,
@@ -383,17 +383,19 @@ error:
 }
 
 bool
-Common_Image_Tools::load (const uint8_t* sourceBuffers_in,
+Common_Image_Tools::load (uint8_t* sourceBuffers_in[],
                           unsigned int sourceBuffersSize_in,
                           enum AVCodecID codecId_in,
                           enum AVPixelFormat format_in,
                           Common_Image_Resolution_t& resolution_out,
-                          uint8_t*& targetBuffers_out)
+                          uint8_t* targetBuffers_out[])
 {
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::load"));
 
   // sanity check(s)
   ACE_ASSERT (codecId_in != AV_CODEC_ID_NONE); // *TODO*
+  ACE_ASSERT (targetBuffers_out);
+  ACE_ASSERT (!targetBuffers_out[0]);
 
 //  enum AVPixelFormat pixel_format_e;
   if (!Common_Image_Tools::decode (sourceBuffers_in,
@@ -408,7 +410,7 @@ Common_Image_Tools::load (const uint8_t* sourceBuffers_in,
                 codecId_in));
     return false;
   } // end IF
-  ACE_ASSERT (targetBuffers_out);
+  ACE_ASSERT (targetBuffers_out[0]);
 
 //  if (pixel_format_e != format_in)
 //  {
@@ -436,7 +438,7 @@ Common_Image_Tools::load (const std::string& path_in,
                           enum AVCodecID codecId_in,
                           Common_Image_Resolution_t& resolution_out,
                           enum AVPixelFormat& format_out,
-                          uint8_t*& targetBuffers_out)
+                          uint8_t* targetBuffers_out[])
 {
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::load"));
 
@@ -452,6 +454,8 @@ Common_Image_Tools::load (const std::string& path_in,
   struct AVPacket packet_s;
   av_init_packet (&packet_s);
   unsigned int file_size_i = 0;
+  Common_Image_Tools_GetFormatCBData cb_data_s;
+  cb_data_s.formats.push_back (AV_PIX_FMT_RGB24);
   if (!Common_File_Tools::load (path_in,
                                 packet_s.data,
                                 file_size_i))
@@ -491,8 +495,8 @@ Common_Image_Tools::load (const std::string& path_in,
   codec_context_p->codec_type = AVMEDIA_TYPE_VIDEO;
 //  codec_context_p->flags = 0;
 //  codec_context_p->flags2 = 0;
-//  codec_context_p->get_format = common_image_tools_get_format_cb;
-//  codec_context_p->request_sample_fmt = AV_PIX_FMT_RGB24;
+  codec_context_p->opaque = &cb_data_s;
+  codec_context_p->get_format = common_image_tools_get_format_cb;
   codec_context_p->refcounted_frames = 1; // *NOTE*: caller 'owns' the frame buffer
   codec_context_p->workaround_bugs = 0xFFFFFFFF;
   codec_context_p->strict_std_compliance = FF_COMPLIANCE_UNOFFICIAL;
@@ -550,14 +554,15 @@ Common_Image_Tools::load (const std::string& path_in,
 #endif // ACE_WIN32 || ACE_WIN64
   format_out = static_cast<enum AVPixelFormat> (frame_p->format);
   // *NOTE*: do not av_frame_unref the frame, keep the data
-  targetBuffers_out = reinterpret_cast<uint8_t*> (frame_p->data);
+  ACE_OS::memcpy (targetBuffers_out, frame_p->data, sizeof (uint8_t*[4]));
+  //ACE_OS::memset (frame_p->data, 0, sizeof (uint8_t*[8]));
 
   result = true;
 
 error:
   av_packet_unref (&packet_s);
-  if (frame_p)
-    av_frame_free (&frame_p);
+  //if (frame_p)
+  //  av_frame_free (&frame_p);
   if (codec_context_p)
   {
     avcodec_close (codec_context_p); codec_context_p = NULL;
@@ -570,7 +575,7 @@ error:
 bool
 Common_Image_Tools::save (const Common_Image_Resolution_t& sourceResolution_in,
                           enum AVPixelFormat sourcePixelFormat_in,
-                          const uint8_t* sourceBuffers_in,
+                          uint8_t* sourceBuffers_in[],
                           enum AVCodecID codecId_in,
                           const std::string& targetPath_in)
 {
@@ -615,9 +620,13 @@ Common_Image_Tools::save (const Common_Image_Resolution_t& sourceResolution_in,
 #else
                               static_cast<int> (sourceResolution_in.height),
 #endif // ACE_WIN32 || ACE_WIN64
-                              const_cast<uint8_t*> (sourceBuffers_in),
+                              sourceBuffers_in[0], // *TODO*: this is probably wrong !!!
                               frame_p->linesize);
   ACE_ASSERT (result_2 >= 0);
+  ACE_ASSERT (frame_p->data[0] == sourceBuffers_in[0]);
+  ACE_ASSERT (frame_p->data[1] == sourceBuffers_in[1]);
+  ACE_ASSERT (frame_p->data[2] == sourceBuffers_in[2]);
+  ACE_ASSERT (frame_p->data[3] == sourceBuffers_in[3]);
 
   codec_p = avcodec_find_encoder (codecId_in);
   if (!codec_p)
@@ -703,12 +712,12 @@ error:
 }
 
 bool
-Common_Image_Tools::decode (const uint8_t* sourceBuffers_in,
+Common_Image_Tools::decode (uint8_t* sourceBuffers_in[],
                             unsigned int sourceBuffersSize_in,
                             enum AVCodecID codecId_in,
                             enum AVPixelFormat format_in,
                             Common_Image_Resolution_t& resolution_out,
-                            uint8_t*& targetBuffers_out)
+                            uint8_t* targetBuffers_out[])
 {
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::decode"));
 
@@ -725,7 +734,10 @@ Common_Image_Tools::decode (const uint8_t* sourceBuffers_in,
   int got_picture = 0;
   struct AVPacket packet_s;
   av_init_packet (&packet_s);
-  packet_s.data = const_cast<uint8_t*> (sourceBuffers_in);
+  packet_s.data = sourceBuffers_in[0]; // *TODO*: this is probably wrong !!!
+  ACE_ASSERT (!sourceBuffers_in[1]);
+  ACE_ASSERT (!sourceBuffers_in[2]);
+  ACE_ASSERT (!sourceBuffers_in[3]);
   packet_s.size = sourceBuffersSize_in;
 
   frame_p = av_frame_alloc ();
@@ -818,9 +830,14 @@ Common_Image_Tools::decode (const uint8_t* sourceBuffers_in,
 #endif // ACE_WIN32 || ACE_WIN64
   if (format_in != static_cast<enum AVPixelFormat> (frame_p->format))
   {
+    uint8_t* data_pointers_a[4];
+    data_pointers_a[0] = frame_p->data[0];
+    data_pointers_a[1] = frame_p->data[1];
+    data_pointers_a[2] = frame_p->data[2];
+    data_pointers_a[3] = frame_p->data[3];
     if (!Common_Image_Tools::convert (resolution_out,
                                       static_cast<enum AVPixelFormat> (frame_p->format),
-                                      reinterpret_cast<uint8_t*> (frame_p->data),
+                                      data_pointers_a,
                                       resolution_out,
                                       format_in,
                                       targetBuffers_out))
@@ -833,7 +850,7 @@ Common_Image_Tools::decode (const uint8_t* sourceBuffers_in,
   else
   {
     // *NOTE*: do not av_frame_unref the frame, keep the data
-    targetBuffers_out = reinterpret_cast<uint8_t*> (frame_p->data);
+    targetBuffers_out = frame_p->data;
   } // end ELSE
 
   result = true;
@@ -854,43 +871,47 @@ error:
 bool
 Common_Image_Tools::convert (const Common_Image_Resolution_t& sourceResolution_in,
                              enum AVPixelFormat sourcePixelFormat_in,
-                             const uint8_t* sourceBuffers_in,
+                             uint8_t* sourceBuffers_in[],
                              const Common_Image_Resolution_t& targetResolution_in,
                              enum AVPixelFormat targetPixelFormat_in,
-                             uint8_t*& targetBuffers_out)
+                             uint8_t* targetBuffers_out[])
 {
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::convert"));
 
   // initialize return value(s)
-  ACE_ASSERT (!targetBuffers_out);
+  ACE_ASSERT (!targetBuffers_out[0]);
 
-  int line_sizes_a[4];
-  uint8_t* data_pointers_a[4];
-  ACE_OS::memset (&line_sizes_a, 0, sizeof (int[4]));
-  ACE_OS::memset (&data_pointers_a, 0, sizeof (uint8_t*[4]));
-
-  int result = av_image_fill_linesizes (line_sizes_a,
-                                        sourcePixelFormat_in,
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-                                        static_cast<int> (sourceResolution_in.cx));
-#else
-                                        static_cast<int> (sourceResolution_in.width));
-#endif // ACE_WIN32 || ACE_WIN64
-  ACE_ASSERT (result >= 0);
-  result =
-      av_image_fill_pointers (data_pointers_a,
-                              sourcePixelFormat_in,
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-                              static_cast<int> (sourceResolution_in.cy),
-#else
-                              static_cast<int> (sourceResolution_in.height),
-#endif // ACE_WIN32 || ACE_WIN64
-                              const_cast<uint8_t*> (sourceBuffers_in),
-                              line_sizes_a);
-  ACE_ASSERT (result >= 0);
+//  int line_sizes_a[4];
+//  uint8_t* data_pointers_a[4];
+//  ACE_OS::memset (line_sizes_a, 0, sizeof (int[4]));
+//  ACE_OS::memset (data_pointers_a, 0, sizeof (uint8_t*[4]));
+//
+//  int result = av_image_fill_linesizes (line_sizes_a,
+//                                        sourcePixelFormat_in,
+//#if defined (ACE_WIN32) || defined (ACE_WIN64)
+//                                        static_cast<int> (sourceResolution_in.cx));
+//#else
+//                                        static_cast<int> (sourceResolution_in.width));
+//#endif // ACE_WIN32 || ACE_WIN64
+//  ACE_ASSERT (result >= 0);
+//  result =
+//      av_image_fill_pointers (data_pointers_a,
+//                              sourcePixelFormat_in,
+//#if defined (ACE_WIN32) || defined (ACE_WIN64)
+//                              static_cast<int> (sourceResolution_in.cy),
+//#else
+//                              static_cast<int> (sourceResolution_in.height),
+//#endif // ACE_WIN32 || ACE_WIN64
+//                              sourceBuffers_in[0], // *TODO*: this is probably wrong !!!
+//                              line_sizes_a);
+//  ACE_ASSERT (result >= 0);
+//  ACE_ASSERT (data_pointers_a[0] == sourceBuffers_in[0]);
+//  ACE_ASSERT (data_pointers_a[1] == sourceBuffers_in[1]);
+//  ACE_ASSERT (data_pointers_a[2] == sourceBuffers_in[2]);
+//  ACE_ASSERT (data_pointers_a[3] == sourceBuffers_in[3]);
   if (unlikely (!Common_Image_Tools::convert (NULL,
                                               sourceResolution_in, sourcePixelFormat_in,
-                                              data_pointers_a,
+                                              sourceBuffers_in,
                                               targetResolution_in, targetPixelFormat_in,
                                               targetBuffers_out)))
   {
@@ -905,9 +926,9 @@ Common_Image_Tools::convert (const Common_Image_Resolution_t& sourceResolution_i
 bool
 Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
                            enum AVPixelFormat sourcePixelFormat_in,
-                           const uint8_t* sourceBuffers_in,
+                           uint8_t* sourceBuffers_in[],
                            const Common_Image_Resolution_t& targetResolution_in,
-                           uint8_t*& targetBuffers_out)
+                           uint8_t* targetBuffers_out[])
 {
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::scale"));
 
@@ -916,8 +937,8 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
 
   int line_sizes_a[AV_NUM_DATA_POINTERS];
   uint8_t* data_pointers_a[AV_NUM_DATA_POINTERS];
-  ACE_OS::memset (&line_sizes_a, 0, sizeof (int[AV_NUM_DATA_POINTERS]));
-  ACE_OS::memset (&data_pointers_a, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
+  ACE_OS::memset (line_sizes_a, 0, sizeof (int[AV_NUM_DATA_POINTERS]));
+  ACE_OS::memset (data_pointers_a, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
 
   int result = av_image_fill_linesizes (line_sizes_a,
                                         sourcePixelFormat_in,
@@ -935,9 +956,13 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
 #else
                               static_cast<int> (sourceResolution_in.height),
 #endif // ACE_WIN32 || ACE_WIN64
-                              const_cast<uint8_t*> (sourceBuffers_in),
+                              sourceBuffers_in[0], // *TODO*: this is probably wrong !!!
                               line_sizes_a);
   ACE_ASSERT (result >= 0);
+  ACE_ASSERT (data_pointers_a[0] == sourceBuffers_in[0]);
+  ACE_ASSERT (data_pointers_a[1] == sourceBuffers_in[1]);
+  ACE_ASSERT (data_pointers_a[2] == sourceBuffers_in[2]);
+  ACE_ASSERT (data_pointers_a[3] == sourceBuffers_in[3]);
   if (unlikely (!Common_Image_Tools::scale (NULL,
                                             sourceResolution_in, sourcePixelFormat_in,
                                             data_pointers_a,
@@ -959,12 +984,12 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
                              uint8_t* sourceBuffers_in[],
                              const Common_Image_Resolution_t& targetResolution_in,
                              enum AVPixelFormat targetPixelFormat_in,
-                             uint8_t*& targetBuffers_out)
+                             uint8_t* targetBuffers_out[])
 {
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::convert"));
 
   // initialize return value(s)
-  ACE_ASSERT (!targetBuffers_out);
+  ACE_ASSERT (!targetBuffers_out[0]);
 
   // sanity check(s)
   if (unlikely (!sws_isSupportedInput (sourcePixelFormat_in) ||
@@ -993,9 +1018,9 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
   int in_linesize[4];
   int out_linesize[4];
   uint8_t* out_data[4];
-  ACE_OS::memset (&in_linesize, 0, sizeof (int[4]));
-  ACE_OS::memset (&out_linesize, 0, sizeof (int[4]));
-  ACE_OS::memset (&out_data, 0, sizeof (uint8_t*[4]));
+  ACE_OS::memset (in_linesize, 0, sizeof (int[4]));
+  ACE_OS::memset (out_linesize, 0, sizeof (int[4]));
+  ACE_OS::memset (out_data, 0, sizeof (uint8_t*[4]));
   int size_i =
       av_image_get_buffer_size (targetPixelFormat_in,
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -1005,7 +1030,7 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
 #endif // ACE_WIN32 || ACE_WIN64
                                 1); // *TODO*: linesize alignment
 
-  ACE_NEW_NORETURN (targetBuffers_out,
+  ACE_NEW_NORETURN (targetBuffers_out[0],
                     uint8_t[size_i]);
   if (unlikely (!targetBuffers_out))
   {
@@ -1058,7 +1083,7 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
 #else
                               targetResolution_in.height,
 #endif // ACE_WIN32 || ACE_WIN64
-                              targetBuffers_out,
+                              targetBuffers_out[0],
                               out_linesize);
   ACE_ASSERT (result_2 == size_i);
 
@@ -1104,7 +1129,7 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
 error:
   if (targetBuffers_out)
   {
-    delete [] targetBuffers_out; targetBuffers_out = NULL;
+    delete [] targetBuffers_out;   ACE_OS::memset (targetBuffers_out, 0, sizeof (uint8_t * [4]));
   } // end IF
   if (unlikely (!context_in))
   {
@@ -1120,7 +1145,7 @@ Common_Image_Tools::scale (struct SwsContext* context_in,
                            enum AVPixelFormat pixelFormat_in,
                            uint8_t* sourceBuffers_in[],
                            const Common_Image_Resolution_t& targetResolution_in,
-                           uint8_t*& targetBuffers_out)
+                           uint8_t* targetBuffers_out[])
 {
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::scale"));
 
@@ -1155,7 +1180,7 @@ Common_Image_Tools::scale (struct SwsContext* context_in,
 #endif // ACE_WIN32 || ACE_WIN64
                                          1); // *TODO*: linesize alignment
 
-  ACE_NEW_NORETURN (targetBuffers_out,
+  ACE_NEW_NORETURN (targetBuffers_out[0],
                     uint8_t[size_i]);
   if (unlikely (!targetBuffers_out))
   {
@@ -1208,7 +1233,7 @@ Common_Image_Tools::scale (struct SwsContext* context_in,
 #else
                               targetResolution_in.height,
 #endif // ACE_WIN32 || ACE_WIN64
-                              targetBuffers_out,
+                              targetBuffers_out[0],
                               out_linesize);
   ACE_ASSERT (result_2 == size_i);
 

@@ -68,9 +68,9 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
 #else
   if (siginfo_in)
     signal_s.siginfo = *siginfo_in;
-#endif // ACE_WIN32 || ACE_WIN64
   if (ucontext_in)
     signal_s.ucontext = *ucontext_in;
+#endif // ACE_WIN32 || ACE_WIN64
 
   // *IMPORTANT NOTE*: in signal context, many actions are forbidden (e.g.
   //                   tracing). Backup the context information and notify the
