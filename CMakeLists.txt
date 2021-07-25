@@ -33,7 +33,7 @@ check_ipo_supported (RESULT IPO_SUPPORTED
 
 # global options
 if (IPO_SUPPORTED)
- message(STATUS "-- IPO is supported: \"${IPO_REASON}\"")
+ message (STATUS "-- IPO is supported: \"${IPO_REASON}\"")
  set (CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif (IPO_SUPPORTED)
 #set (CMAKE_VERBOSE_MAKEFILE ON)
@@ -194,7 +194,11 @@ if (CXX_COMPILER_ID_STRING_LOWER STREQUAL LLVM_COMPILER_ID_STRING_LOWER)
 endif ()
 
 ################################################################################
-file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/cotire/CMake" COTIRE_PATH)
+if (DEFINED ENV{LIB_ROOT})
+ file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/cotire/CMake" COTIRE_PATH)
+else ()
+  set (COTIRE_PATH "modules/cotire")
+endif (DEFINED ENV{LIB_ROOT})
 list (APPEND CMAKE_MODULE_PATH "${COTIRE_PATH}")
 #message (STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 include (cotire)
