@@ -22,12 +22,13 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Fetch Submodule(s)
-      uses: nicledomaS/cmake_build_action@v1.4
-      with:
-        submodule_update: ON
-#        run_tests: ON
-#        unit_test_build: -Dtest=ON
+    - name: Checkout submodules
+      run: git submodule update --init --recursive
+#      uses: nicledomaS/cmake_build_action@v1.4
+#      with:
+#       submodule_update: ON
+#       run_tests: ON
+#       unit_test_build: -Dtest=ON
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
