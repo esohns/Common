@@ -5,7 +5,7 @@ set (ACE_XML_LIB_FILE libACEXML.so)
 if (UNIX)
 # message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
  find_library (ACE_XML_LIBRARY ${ACE_XML_LIB_FILE}
-               HINTS $ENV{ACE_ROOT}/ACEXML /usr/local/src/ACE_wrappers/ACEXML
+               PATHS $ENV{ACE_ROOT}/ACEXML /usr/local/src/ACE_wrappers/ACEXML
                PATH_SUFFIXES common
                DOC "searching for ${ACE_XML_LIB_FILE} (system paths)")
 # else ()
@@ -33,11 +33,9 @@ set (ACE_XML_PARSER_LIB_FILE libACEXML_Parser.so)
 if (UNIX)
 # message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
  find_library (ACE_XML_PARSER_LIBRARY ${ACE_XML_PARSER_LIB_FILE}
-               HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../../ACE_TAO/ACE /usr/local/src/ACE_wrappers/ACEXML/parser
-               PATHS ENV ACE_ROOT
+               PATHS $ENV{ACE_ROOT}/ACEXML /usr/local/src/ACE_wrappers/ACEXML/parser
                PATH_SUFFIXES lib parser
-               DOC "searching for ${ACE_XML_PARSER_LIB_FILE}"
-               NO_DEFAULT_PATH)
+               DOC "searching for ${ACE_XML_PARSER_LIB_FILE}")
 # else ()
 #  find_library (ACE_XML_PARSER_LIBRARY ${ACE_XML_PARSER_LIB_FILE}
 #                DOC "searching for ${ACE_XML_PARSER_LIB_FILE} (system paths)")
