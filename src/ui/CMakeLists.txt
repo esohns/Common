@@ -8,11 +8,10 @@ set (ACEXML_LIB_FILE libACEXML.so)
 if (UNIX)
 # message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
  find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
-               HINTS $ENV{LIB_ROOT}/ACE_TAO/ACE/ACEXML /usr/local/src/ACE_wrappers/ACEXML
+               PATHS $ENV{ACE_ROOT}/ACEXML /usr/local/src/ACE_wrappers/ACEXML
 #               PATHS ENV ACE_ROOT
                PATH_SUFFIXES common
-               DOC "searching for ${ACEXML_LIB_FILE}"
-               NO_DEFAULT_PATH)
+               DOC "searching for ${ACEXML_LIB_FILE} (system paths)")
 # else ()
 #  find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
 #                DOC "searching for ${ACEXML_LIB_FILE} (system paths)")
@@ -136,14 +135,18 @@ export (TARGETS ${LIBRARY}
 set (${LIBRARY}_LIB_HDRS
      common_ui_common.h
      common_ui_defines.h
-     common_ui_exports.h
+#     common_ui_exports.h
      common_ui_idefinition.h
      common_ui_ifullscreen.h
      common_ui_tools.h
      common_ui_types.h
      common_ui_windowtype_converter.h
      common_ui_windowtype_converter.inl)
-
+if (UNIX)
+ set (${LIBRARY}_LIB_HDRS
+      ${${LIBRARY}_LIB_HDRS}
+      common_ui_monitor_setup_xml_handler.h)
+endif (UNIX)
 install (FILES
          ${CommonUI_LIB_HDRS}
          DESTINATION include)
