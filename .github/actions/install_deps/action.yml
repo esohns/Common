@@ -9,7 +9,7 @@ runs:
  steps:
   - run: sudo apt-get update
     shell: bash
-  - run: sudo apt-get install -y libaio-dev libcap-dev libdbus-1-dev libsystemd-dev libmagick++-dev libmagickwand-6.q16-dev libglu1-mesa-dev libglm-dev libassimp-dev libavcodec-dev libswscale-dev libgtk2.0-dev
+  - run: sudo apt-get install -y libaio-dev libcap-dev libdbus-1-dev libsystemd-dev libmagick++-dev libmagickwand-6.q16-dev libglu1-mesa-dev libglm-dev libassimp-dev libavcodec-dev libavformat-dev libswscale-dev libavutil-dev libgtk2.0-dev
     shell: bash
 #    if: inputs.os == 'ubuntu-latest'
 #  - run:
