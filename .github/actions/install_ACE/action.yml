@@ -2,9 +2,8 @@ name: 'install_ACE'
 description: 'install ACE on the runner'
 inputs:
  os:  # id of input
- description: 'runner OS'
- required: true
-outputs:
+  description: 'runner OS'
+  required: true
 runs:
  using: "composite"
  steps:
