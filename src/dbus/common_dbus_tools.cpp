@@ -28,7 +28,6 @@
 #endif // SD_BUS_SUPPORT
 
 #include "ace/Log_Msg.h"
-#include "ace/Synch.h"
 
 #include "common_macros.h"
 #include "common_process_tools.h"

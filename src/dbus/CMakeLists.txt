@@ -32,12 +32,12 @@ if (UNIX)
   add_definitions (-DSD_BUS_SUPPORT)
  endif (SD_BUS_SUPPORT)
 
- find_library (NETWORKMANAGER_LIBRARY libnm.so.0.1.0
-               PATHS /usr/lib64
-               DOC "searching for libnm")
- if (NOT NETWORKMANAGER_LIBRARY)
-  message (FATAL_ERROR "could not find libnm, aborting")
- endif (NOT NETWORKMANAGER_LIBRARY)
+# find_library (NETWORKMANAGER_LIBRARY libnm.so.0.1.0
+#               PATHS /usr/lib64
+#               DOC "searching for libnm")
+# if (NOT NETWORKMANAGER_LIBRARY)
+#  message (FATAL_ERROR "could not find libnm, aborting")
+# endif (NOT NETWORKMANAGER_LIBRARY)
 #  pkg_check_modules (PKG_NETWORKMANAGER REQUIRED NetworkManager)
 # pkg_check_modules (PKG_NETWORKMANAGER REQUIRED libnm)
 endif (UNIX)
@@ -54,8 +54,8 @@ if (UNIX)
  message (STATUS "PKG_DBUS_INCLUDE_DIRS: ${PKG_DBUS_INCLUDE_DIRS}")
  target_include_directories (${PROJECT_NAME}DBus PUBLIC
                              "$<BUILD_INTERFACE:${PKG_DBUS_INCLUDE_DIRS}>")
- target_include_directories (${PROJECT_NAME}DBus PUBLIC
-                             "$<BUILD_INTERFACE:${PKG_NETWORKMANAGER_INCLUDE_DIRS}>")
+# target_include_directories (${PROJECT_NAME}DBus PUBLIC
+#                             "$<BUILD_INTERFACE:${PKG_NETWORKMANAGER_INCLUDE_DIRS}>")
 
  if (SD_BUS_SUPPORT)
   target_include_directories (${PROJECT_NAME}DBus PUBLIC

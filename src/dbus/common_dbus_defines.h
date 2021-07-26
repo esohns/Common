@@ -21,8 +21,6 @@
 #ifndef COMMON_DBUS_DEFINES_H
 #define COMMON_DBUS_DEFINES_H
 
-//#include "ace/config-lite.h"
-
 #define COMMON_DBUS_INTERFACE_PROPERTIES_STRING                            "org.freedesktop.DBus.Properties"
 
 #define COMMON_DBUS_METHOD_PROPERTIES_GET_STRING                           "Get"
