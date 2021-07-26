@@ -12,8 +12,8 @@ get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 find_package (Common ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
               REQUIRED COMPONENTS lib
               CONFIG
-              PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../modules ${CMAKE_CURRENT_SOURCE_DIR}/../..
-              PATH_SUFFIXES libCommon/${BUILD_PATH_SUFFIX}
+              PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../..
+              PATH_SUFFIXES ${BUILD_PATH_SUFFIX}
               NO_DEFAULT_PATH)
 if (NOT EXISTS ${Common_DIR})
  message (FATAL_ERROR "could not find package \"Common\", aborting")
@@ -40,7 +40,7 @@ add_definitions (-DCOMMON_HAS_DLL)
 include_directories (${PKG_CAP_INCLUDE_DIRS})
 
 #include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
-include_directories ($ENV{LIB_ROOT}/ACE_TAO/ACE)
+#include_directories ($ENV{LIB_ROOT}/ACE_TAO/ACE)
 #include_directories (/usr/local/src/ACE_wrappers)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
