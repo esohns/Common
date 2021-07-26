@@ -37,6 +37,9 @@ jobs:
      run: git submodule update --init --recursive
 
    - name: Install dependencies
+     uses: ./.github/actions/install_deps
+     with:
+      os: ${{matrix.os}}
      uses: ./.github/actions/install_ACE
      with:
       os: ${{matrix.os}}
