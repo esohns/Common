@@ -9,10 +9,10 @@ runs:
  steps:
   - run: sudo apt-get install libace-dev libace-ssl-dev libacexml-dev libace-xml-utils-dev
     shell: bash
-    if: ${{ inputs.os == 'ubuntu-latest' }}
-  - run:
-    shell: bash
-    if: ${{ inputs.os == 'windows-latest' }}
-  - run:
-    shell: bash
-    if: ${{ inputs.os == 'macos-latest' }}
+#    if: inputs.os == 'ubuntu-latest'
+#  - run:
+#    shell: bash
+#    if: inputs.os == 'windows-latest'
+#  - run:
+#   shell: bash
+#   if: inputs.os == 'macos-latest'
