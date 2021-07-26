@@ -168,7 +168,7 @@ elseif (WIN32)
   message (STATUS "found Gtk version 2")
  else ()
   message (WARNING "could not find Gtk2 (was: \"gtk-win32-2.0.lib\"), continuing")
- endif ()
+ endif (GTK2_LIBRARY)
 
  find_library (GTK3_LIBRARY gtk-win32-3.0.lib
                HINTS $ENV{LIB_ROOT}/gtk3
@@ -185,7 +185,7 @@ elseif (WIN32)
   message (STATUS "found Gtk version 3")
  else ()
   message (WARNING "could not find Gtk3 (was: \"gtk-win32-3.0.lib\"), continuing")
- endif ()
+ endif (GTK3_LIBRARY)
 
  if (GTK2_SUPPORT OR GTK3_SUPPORT)
   set (GTK_SUPPORT ON CACHE BOOL "GTK support")
@@ -214,7 +214,7 @@ if (GTK_SUPPORT AND OPENGL_FOUND)
  if (NOT GTK_GL_FOUND)
   if (UNIX)
    if (GTK3_FOUND)
-# *TODO*: found out the distribution release versions that require this package
+# *TODO*: find out the distribution release versions that require this package
     pkg_check_modules (PKG_GTKGL3 gtkgl-3.0)
     if (PKG_GTKGL3_FOUND)
      set (GTKGL_SUPPORT ON CACHE BOOL "GTK GL support")
@@ -224,7 +224,7 @@ if (GTK_SUPPORT AND OPENGL_FOUND)
    endif (GTK3_FOUND)
     
    if (GTK2_FOUND)
-# *TODO*: found out the distribution release versions that require this package
+# *TODO*: find out the distribution release versions that require this package
     pkg_check_modules (PKG_GTKGL2 gtkgl-2.0)
     if (PKG_GTKGL2_FOUND)
      set (GTKGL_SUPPORT ON CACHE BOOL "GTK GL support")
