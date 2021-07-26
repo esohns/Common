@@ -9,7 +9,6 @@ if (UNIX)
 # message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
  find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
                PATHS $ENV{ACE_ROOT}/ACEXML /usr/local/src/ACE_wrappers/ACEXML
-#               PATHS ENV ACE_ROOT
                PATH_SUFFIXES common
                DOC "searching for ${ACEXML_LIB_FILE} (system paths)")
 # else ()
@@ -24,7 +23,6 @@ elseif (WIN32)
  set (ACEXML_LIB_FILE ACEXML${LIB_FILE_SUFFIX}.lib)
  find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
                PATHS $ENV{LIB_ROOT}/ACE_TAO/ACE
-               PATHS ${CMAKE_CURRENT_BINARY_DIR}/../../../../ACE_TAO/ACE
                PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
                DOC "searching for ${ACEXML_LIB_FILE}")
 endif ()
