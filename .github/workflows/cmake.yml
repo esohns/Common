@@ -37,7 +37,7 @@ jobs:
      run: git submodule update --init --recursive
 
    - name: Install dependencies
-     uses: ${{github.workspace}}/.github/actions/install_ACE
+     uses: ./.github/actions/install_ACE
      with:
       os: ${{matrix.os}}
 
