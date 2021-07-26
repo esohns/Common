@@ -1,8 +1,4 @@
-﻿#include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/PreUIFramework.cmake)
-include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/SetUIFramework.cmake)
-include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/SetGTKVersion.cmake)
-
-set (LIBRARY ${PROJECT_NAME}UI_GTK)
+﻿set (LIBRARY ${PROJECT_NAME}UI_GTK)
 add_library (${LIBRARY} STATIC "")
 
 # *NOTE*: a bug in cmake (3.12.1) requires the additional comment
@@ -50,6 +46,8 @@ target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../image>)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../log>)
+target_include_directories (${LIBRARY} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../task>)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../timer>)
 
