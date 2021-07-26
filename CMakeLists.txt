@@ -267,16 +267,21 @@ install (FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_config.h"
          COMPONENT dev)
 
 ################################################################################
-file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/cmake-modules" CMAKE_MODULES_PATH)
-file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/CMakeHelpers" CMAKE_HELPERS_PATH)
+if (DEFINED ENV{LIB_ROOT})
+ file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/cmake-modules" CMAKE_MODULES_PATH)
+else ()
+  set (CMAKE_MODULES_PATH "modules/cmake-modules")
+endif (DEFINED ENV{LIB_ROOT})
 list (APPEND CMAKE_MODULE_PATH
-      "${CMAKE_MODULES_PATH}"
-      "${CMAKE_HELPERS_PATH}")
+      "${CMAKE_MODULES_PATH}")
 #include (UseBackportedModules)
 cmake_policy (SET CMP0026 OLD)
 cmake_policy (SET CMP0053 OLD)
 include (CreateLaunchers)
 if (WIN32)
+ file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/CMakeHelpers" CMAKE_HELPERS_PATH)
+ list (APPEND CMAKE_MODULE_PATH
+       "${CMAKE_HELPERS_PATH}")
  include (generate_product_version)
 endif (WIN32)
 
