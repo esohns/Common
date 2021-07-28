@@ -154,14 +154,6 @@ target_sources (${LIBRARY}
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-#set (LLVM_COMPILER_ID_STRING "Clang")
-#string (TOLOWER "${LLVM_COMPILER_ID_STRING}" LLVM_COMPILER_ID_STRING_LOWER)
-#string (TOLOWER "${CMAKE_CXX_COMPILER_ID}" CXX_COMPILER_ID_STRING_LOWER)
-#if (CXX_COMPILER_ID_STRING_LOWER STREQUAL LLVM_COMPILER_ID_STRING_LOWER)
-# add_compile_options (-fPIC)
-# add_definitions (-D_GLIBCXX_USE_CXX11_ABI=0)
-#endif ()
-
 #add_definitions (-DHAVE_CONFIG_H)
 #set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
 

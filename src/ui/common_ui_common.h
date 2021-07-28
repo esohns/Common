@@ -246,6 +246,15 @@ struct Common_UI_State
 
 //////////////////////////////////////////
 
+struct Common_UI_ProgressData
+{
+  Common_UI_ProgressData ()
+   : state (NULL)
+  {}
+
+  Common_UI_State* state;
+};
+
 struct Common_UI_CBData
 {
   Common_UI_CBData ()

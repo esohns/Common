@@ -31,6 +31,7 @@
 
 #include "common.h"
 #include "common_iinitialize.h"
+
 #include "common_isignal.h"
 
 template <typename ConfigurationType> // derives off Common_SignalHandlerConfiguration

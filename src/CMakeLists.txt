@@ -36,16 +36,6 @@ if (UNIX)
  add_definitions (-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS)
 endif (UNIX)
 
-set (LLVM_COMPILER_ID_STRING "Clang")
-string (TOLOWER "${LLVM_COMPILER_ID_STRING}" LLVM_COMPILER_ID_STRING_LOWER)
-string (TOLOWER "${CMAKE_CXX_COMPILER_ID}" CXX_COMPILER_ID_STRING_LOWER)
-if (CXX_COMPILER_ID_STRING_LOWER STREQUAL LLVM_COMPILER_ID_STRING_LOWER)
-# message (STATUS "using ${CMAKE_CXX_COMPILER_ID} compiler options")
- add_compile_options (-std=c++11)
-# add_compile_options (-fPIC)
- add_definitions (-D_GLIBCXX_USE_CXX11_ABI=0)
-endif ()
-
 add_definitions (-DHAVE_CONFIG_H)
 #set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
 
@@ -127,6 +117,7 @@ set (source_files
      common_referencecounter.cpp
      common_referencecounter.h
      common_referencecounter.inl
+     common_signal.h
      common_statemachine.cpp
      common_statemachine.h
      common_statemachine.inl
@@ -254,6 +245,7 @@ install (FILES
          common_process_tools.h
          common_referencecounter.h
          common_referencecounter.inl
+         common_signal.h
          common_statemachine.h
          common_statemachine.inl
          common_statemachine_base.h

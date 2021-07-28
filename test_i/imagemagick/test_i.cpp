@@ -88,7 +88,7 @@ do_process_arguments (int argc_in,
                                0);                        // for now, don't use long options
 
   int option = 0;
-  std::stringstream converter;
+//  std::stringstream converter;
   while ((option = argument_parser ()) != EOF)
   {
     switch (option)
@@ -331,8 +331,8 @@ ACE_TMAIN (int argc_in,
 clean:
   // *PORTABILITY*: on Windows, finalize ACE
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  result = ACE::fini ();
-  if (result == -1)
+  result_2 = ACE::fini ();
+  if (result_2 == -1)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE::fini(): \"%m\", continuing\n")));
 #endif // ACE_WIN32 || ACE_WIN64

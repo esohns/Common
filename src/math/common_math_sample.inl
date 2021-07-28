@@ -85,7 +85,7 @@ SampleIterator_T<ValueType,
 
   sampleSize_ = sampleSize_in;
   subSampleSize_ = subSampleSize_in;
-  isSignedSampleFormat_ = isSignedSampleFormat_;
+  isSignedSampleFormat_ = isSignedSampleFormat_in;
   subSampleByteOrder_ = subSampleByteOrder_in;
 
   reverseByteOrder_ =
