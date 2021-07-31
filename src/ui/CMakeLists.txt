@@ -7,12 +7,12 @@ endif (GTK_SUPPORT)
 set (ACEXML_LIB_FILE libACEXML.so)
 if (UNIX)
 # message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
- find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
+ find_library (ACE_XML_LIBRARY ${ACEXML_LIB_FILE}
                PATHS $ENV{ACE_ROOT}/ACEXML /usr/local/src/ACE_wrappers/ACEXML
                PATH_SUFFIXES common
                DOC "searching for ${ACEXML_LIB_FILE} (system paths)")
 # else ()
-#  find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
+#  find_library (ACE_XML_LIBRARY ${ACEXML_LIB_FILE}
 #                DOC "searching for ${ACEXML_LIB_FILE} (system paths)")
 # endif ()
 elseif (WIN32)
@@ -21,16 +21,16 @@ elseif (WIN32)
  endif ()
  unset (ACEXML_LIB_FILE)
  set (ACEXML_LIB_FILE ACEXML${LIB_FILE_SUFFIX}.lib)
- find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
+ find_library (ACE_XML_LIBRARY ${ACEXML_LIB_FILE}
                PATHS $ENV{LIB_ROOT}/ACE_TAO/ACE
                PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
                DOC "searching for ${ACEXML_LIB_FILE}")
 endif ()
-#if (NOT EXISTS ACEXML_LIBRARY)
-if (NOT ACEXML_LIBRARY)
- message (FATAL_ERROR "Could not find ${ACEXML_LIB_FILE} (was: \"${ACEXML_LIBRARY}\"), aborting")
+#if (NOT EXISTS ACE_XML_LIBRARY)
+if (NOT ACE_XML_LIBRARY)
+ message (FATAL_ERROR "Could not find ${ACEXML_LIB_FILE} (was: \"${ACE_XML_LIBRARY}\"), aborting")
 else ()
- #message (STATUS "Found ACEXML library \"${ACEXML_LIBRARY}\"")
+ #message (STATUS "Found ACEXML library \"${ACE_XML_LIBRARY}\"")
 endif ()
 #add_definitions (-DACEXML_HAS_DLL)
 

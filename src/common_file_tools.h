@@ -151,7 +151,8 @@ class Common_File_Tools
   static std::string getWorkingDirectory ();
 
   static std::string getTempDirectory ();
-  static std::string getTempFilename (const std::string&); // prefix
+  static std::string getTempFilename (const std::string&, // prefix
+                                      bool = true);       // return full path ?
 
   static std::string executableBase;
 

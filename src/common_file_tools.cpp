@@ -2170,18 +2170,24 @@ fallback:
 }
 
 std::string
-Common_File_Tools::getTempFilename (const std::string& prefix_in)
+Common_File_Tools::getTempFilename (const std::string& prefix_in,
+                                    bool fullPath_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getTempFilename"));
 
-  std::string result = Common_File_Tools::getTempDirectory ();
-  if (unlikely (result.empty ()))
+  std::string result;
+
+  if (likely (fullPath_in))
   {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_File_Tools::getTempDirectory(), aborting\n")));
-    return result;
+    result = Common_File_Tools::getTempDirectory ();
+    if (unlikely (result.empty ()))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_File_Tools::getTempDirectory(), aborting\n")));
+      return result;
+    } // end IF
+    result += ACE_DIRECTORY_SEPARATOR_STR;
   } // end IF
-  result += ACE_DIRECTORY_SEPARATOR_STR;
 
   // sanity check(s)
   ACE_ASSERT (prefix_in.size () <= (BUFSIZ - 6 + 1));
