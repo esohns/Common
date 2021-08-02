@@ -95,8 +95,9 @@ Common_File_Tools::fileExtension (const std::string& path_in,
   std::string::size_type position =
       path_in.find_last_of ('.', std::string::npos);
   if (position != std::string::npos)
-    return_value = path_in.substr ((returnLeadingDot_in ? position : position + 1),
-                                   std::string::npos);
+    return_value =
+        path_in.substr ((returnLeadingDot_in ? position : position + 1),
+                        std::string::npos);
 
   return return_value;
 }
@@ -812,38 +813,6 @@ Common_File_Tools::isLink (const std::string& path_in)
 #endif // ACE_WIN32 || ACE_WIN64
 }
 
-//int
-//Common_File_Tools::selector(const dirent* dirEntry_in)
-//{
-//COMMON_TRACE (ACE_TEXT ("Common_File_Tools::selector"));
-
-//  // *IMPORTANT NOTE*: select all files
-
-//  // sanity check --> ignore dot/double-dot
-//  if (ACE_OS::strncmp (dirEntry_in->d_name,
-//                       ACE_TEXT_ALWAYS_CHAR (Net_SERVER_LOG_FILENAME_PREFIX),
-//                       ACE_OS::strlen (ACE_TEXT_ALWAYS_CHAR (Net_SERVER_LOG_FILENAME_PREFIX))) != 0)
-//  {
-////     ACE_DEBUG ((LM_DEBUG,
-////                 ACE_TEXT ("ignoring \"%s\"...\n"),
-////                 ACE_TEXT (dirEntry_in->d_name)));
-
-//    return 0;
-//  } // end IF
-
-//  return 1;
-//}
-
-//int
-//Common_File_Tools::comparator(const dirent** d1,
-//                              const dirent** d2)
-//{
-//COMMON_TRACE (ACE_TEXT ("Common_File_Tools::comparator"));
-
-//  return ACE_OS::strcmp ((*d1)->d_name,
-//                         (*d2)->d_name);
-//}
-
 bool
 Common_File_Tools::isEmptyDirectory (const std::string& directory_in)
 {
@@ -855,8 +824,6 @@ Common_File_Tools::isEmptyDirectory (const std::string& directory_in)
   int result = -1;
   ACE_Dirent_Selector entries;
   result = entries.open (ACE_TEXT (directory_in.c_str ()),
-//                    &Common_File_Tools::dirent_selector,
-//                    &Common_File_Tools::dirent_comparator) == -1)
                          NULL,
                          NULL);
   if (unlikely (result == -1))
@@ -1328,10 +1295,25 @@ Common_File_Tools::deleteFile (const std::string& path_in)
 }
 
 bool
+Common_File_Tools::deleteFiles (const Common_File_IdentifierList_t& identifiers_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::deleteFiles"));
+
+  bool result = true;
+
+  for (Common_File_IdentifierListIterator_t iterator = identifiers_in.begin ();
+       iterator != identifiers_in.end ();
+       ++iterator)
+    result = result && Common_File_Tools::deleteFile ((*iterator).identifier);
+
+  return result;
+}
+
+bool
 Common_File_Tools::load (const std::string& path_in,
                          uint8_t*& file_out,
                          unsigned int& fileSize_out,
-                         const unsigned int& padding_in)
+                         unsigned int padding_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::load"));
 
@@ -1487,24 +1469,30 @@ Common_File_Tools::open (const std::string& path_in,
 bool
 Common_File_Tools::store (const std::string& path_in,
                           const uint8_t* buffer_in,
-                          unsigned int size_in)
+                          unsigned int size_in,
+                          bool appendIfExists_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::store"));
 
   // initialize return value(s)
   bool result = false;
 
+  bool file_exists = Common_File_Tools::exists (path_in);
+  const char* mode_p =
+      (file_exists && appendIfExists_in ? ACE_TEXT_ALWAYS_CHAR ("ab")   // append
+                                        : ACE_TEXT_ALWAYS_CHAR ("wb")); // create/overwrite
   size_t result_2 = 0;
   int result_3 = -1;
   FILE* file_p = NULL;
 
-  file_p = ACE_OS::fopen (ACE_TEXT (path_in.c_str ()),
-                          ACE_TEXT_ALWAYS_CHAR ("wb"));
+  file_p = ACE_OS::fopen (path_in.c_str (),
+                          mode_p);
   if (unlikely (!file_p))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (path_in.c_str ())));
+                ACE_TEXT ("failed to ACE_OS::fopen(\"%s\",\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (path_in.c_str ()),
+                ACE_TEXT (mode_p)));
     return false;
   } // end IF
 
@@ -1537,8 +1525,10 @@ clean:
 #if defined (_DEBUG)
   if (likely (result))
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("wrote file \"%s\"\n"),
-                ACE_TEXT (path_in.c_str ())));
+                ACE_TEXT ("%s file \"%s\" (%u byte(s)\n"),
+                ((file_exists && appendIfExists_in) ? ACE_TEXT ("wrote") : ACE_TEXT ("appended")),
+                ACE_TEXT (path_in.c_str ()),
+                size_in));
 #endif // _DEBUG
 
   return result;
@@ -1624,6 +1614,61 @@ Common_File_Tools::size (const std::string& path_in)
   } // end IF
 
   return static_cast<unsigned int> (stat_s.st_size);
+}
+
+Common_File_IdentifierList_t
+Common_File_Tools::files (const std::string& directory_in,
+                          ACE_SCANDIR_SELECTOR selector_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::files"));
+
+  Common_File_IdentifierList_t return_value;
+
+  int result = -1;
+  ACE_Dirent_Selector entries;
+  result = entries.open (ACE_TEXT (directory_in.c_str ()),
+                         selector_in,
+                         NULL);
+  if (unlikely (result == -1))
+  {
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("failed to ACE_Dirent_Selector::open(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (directory_in.c_str ())));
+    return return_value;
+  } // end IF
+
+  struct Common_File_Identifier file_identifier_s;
+  for (int i = 0;
+       i < entries.length ();
+       ++i)
+  {
+    file_identifier_s.identifier = ACE_TEXT_ALWAYS_CHAR (entries[i]->d_name);
+    return_value.push_back (file_identifier_s);
+  } // end FOR
+
+  // clean up
+  result = entries.close ();
+  if (unlikely (result == -1))
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Dirent_Selector::close(\"%s\"): \"%m\", continuing\n"),
+                ACE_TEXT (directory_in.c_str ())));
+
+  return return_value;
+}
+
+unsigned int
+Common_File_Tools::size (const Common_File_IdentifierList_t& identifiers_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::size"));
+
+  unsigned int result = 0;
+
+  for (Common_File_IdentifierListIterator_t iterator = identifiers_in.begin ();
+       iterator != identifiers_in.end ();
+       ++iterator)
+    result += Common_File_Tools::size ((*iterator).identifier);
+
+  return result;
 }
 
 std::string
@@ -1866,19 +1911,16 @@ Common_File_Tools::getHomeDirectory (const std::string& userName_in)
   ACE_OS::memset (buffer_a, 0, sizeof (char[BUFSIZ]));
 #endif // ACE_WIN32 || ACE_WIN64
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   std::string username_string = userName_in;
   if (unlikely (username_string.empty ()))
   {
     // fallback --> use current user
     std::string real_username_string;
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-    Common_Tools::getUserName (username_string,
-                               real_username_string);
-#else
     Common_Tools::getUserName (static_cast<uid_t> (-1),
                                username_string,
                                real_username_string);
-#endif // ACE_WIN32 || ACE_WIN64
     if (username_string.empty ())
     {
       ACE_DEBUG ((LM_WARNING,
@@ -1886,6 +1928,7 @@ Common_File_Tools::getHomeDirectory (const std::string& userName_in)
       goto fallback;
     } // end IF
   } // end IF
+#endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   if (unlikely (!OpenProcessToken (::GetCurrentProcess (),
@@ -1982,7 +2025,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
     SHGetFolderPathW (NULL,                                   // hwndOwner
 #else
     SHGetFolderPathA (NULL,                                   // hwndOwner
-#endif
+#endif // ACE_USES_WCHAR
                       CSIDL_APPDATA | CSIDL_FLAG_DONT_VERIFY, // nFolder
                       NULL,                                   // hToken
                       SHGFP_TYPE_CURRENT,                     // dwFlags
@@ -2021,7 +2064,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
 
   result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   result += '.';
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
   result += ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME);
 
   if (unlikely (!Common_File_Tools::isDirectory (result)))
@@ -2054,6 +2097,75 @@ fallback:
 }
 
 std::string
+Common_File_Tools::getUserDownloadDirectory (const std::string& userName_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getUserDownloadDirectory"));
+
+  std::string result;
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
+  PWSTR* buffer_p = NULL;
+  HRESULT result_2 =
+    SHGetKnownFolderPath (FOLDERID_Downloads, // rfid
+                          KF_FLAG_DEFAULT,    // dwFlags
+                          NULL,               // hToken
+                          buffer_p);          // ppszPath
+  if (unlikely (FAILED (result_2)))
+  {
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("failed to SHGetKnownFolderPath(FOLDERID_Downloads): \"%s\", falling back\n"),
+                ACE_TEXT (Common_Error_Tools::errorToString (static_cast<DWORD> (result_2), false).c_str ())));
+     CoTaskMemFree (buffer_p); buffer_p = NULL;
+    goto fallback;
+  } // end IF
+  result = ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (buffer_p));
+  CoTaskMemFree (buffer_p); buffer_p = NULL;
+  result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
+#else
+  ACE_ASSERT (false); // *TODO*
+  ACE_NOTSUP_RETURN (result);
+  ACE_NOTREACHED (return result;)
+#endif // _WIN32_WINNT_VISTA
+#else
+  std::string username_string = userName_in;
+  if (unlikely (username_string.empty ()))
+  {
+    // fallback --> use current user
+    std::string real_username_string;
+    Common_Tools::getUserName (static_cast<uid_t> (-1),
+                               username_string,
+                               real_username_string);
+    if (username_string.empty ())
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_Tools::getUserName(), aborting\n")));
+      return result;
+    } // end IF
+  } // end IF
+
+  result = Common_File_Tools::getHomeDirectory (username_string);
+  result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
+  result += ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DOWNLOAD_STORAGE_SUBDIRECTORY);
+#endif // ACE_WIN32 || ACE_WIN64
+  // sanity check(s): directory exists ?
+  // No ? --> (try to) create it then
+  if (unlikely (!Common_File_Tools::isDirectory (result)))
+  {
+    if (!Common_File_Tools::createDirectory (result))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_File_Tools::createDirectory(\"%s\"), continuing\n"),
+                  ACE_TEXT (result.c_str ())));
+    else
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("created directory: \"%s\"\n"),
+                  ACE_TEXT (result.c_str ())));
+  } // end IF
+
+  return result;
+}
+
+std::string
 Common_File_Tools::getTempDirectory ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getTempDirectory"));
@@ -2069,7 +2181,7 @@ Common_File_Tools::getTempDirectory ()
   DWORD result_2 = 0;
   std::string::size_type position = std::string::npos;
 use_environment:
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
   ACE_TCHAR* string_p =
       ACE_OS::getenv (ACE_TEXT (environment_variable.c_str ()));
   if (unlikely (!string_p))
@@ -2116,7 +2228,7 @@ use_environment:
     result = result.substr (0, position);
 #else
 use_path:
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
   // sanity check(s): directory exists ?
   // No ? --> (try to) create it then
   if (unlikely (!Common_File_Tools::isDirectory (result)))
@@ -2164,7 +2276,7 @@ fallback:
   ACE_ASSERT (false);
   // *TODO*: implement fallback levels dependent on host platform/version
   //         see e.g. https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
   return result;
 }

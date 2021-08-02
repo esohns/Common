@@ -28,6 +28,9 @@
 #include "ace/Global_Macros.h"
 #include "ace/FILE_Addr.h"
 #include "ace/FILE_IO.h"
+#include "ace/OS_NS_dirent.h"
+
+#include "common_file_common.h"
 
 class Common_File_Tools
 {
@@ -43,6 +46,7 @@ class Common_File_Tools
   static bool copyFile (const std::string&,  // (FQ) path
                         const std::string&); // directory {"": make a backup in the same directory}
   static bool deleteFile (const std::string&); // (FQ) path
+  static bool deleteFiles (const Common_File_IdentifierList_t&); // file(s)
   // *NOTE*: this doesn't do any sanity checking --> use with care
   static std::string fileExtension (const std::string&, // (FQ) path
                                     bool = false);      // return leading '.' (if any) ?
@@ -111,18 +115,23 @@ class Common_File_Tools
   static bool isValidPath (const std::string&); // (FQ) path
 
   // *NOTE*: users need to free (delete[]) the returned buffer
-  static bool load (const std::string&,       // (FQ) path
-                    uint8_t*&,                // return value: file data
-                    unsigned int&,            // return value: file size
-                    const unsigned int& = 0); // padding byte(s)
+  static bool load (const std::string&, // (FQ) path
+                    uint8_t*&,          // return value: file data
+                    unsigned int&,      // return value: file size
+                    unsigned int = 0);  // padding byte(s)
   static bool open (const std::string&, // (FQ) path
                     int,                // flags
                     ACE_FILE_IO&);      // return value: file stream
   static bool store (const std::string&, // (FQ) path
                      const uint8_t*,     // buffer handle
-                     unsigned int);      // buffer size
+                     unsigned int,       // buffer size
+                     bool = false);      // append if file exists ?
   static unsigned int size (const ACE_FILE_Addr&); // file name
   static unsigned int size (const std::string&); // (FQ) path
+
+  static Common_File_IdentifierList_t files (const std::string&,    // directory
+                                             ACE_SCANDIR_SELECTOR); // selector
+  static unsigned int size (const Common_File_IdentifierList_t&); // file(s)
 
   static std::string linkTarget (const std::string&); // path
   static std::string realPath (const std::string&); // path
@@ -145,9 +154,10 @@ class Common_File_Tools
                                                     const std::string&, // module name
                                                     bool);              // configuration ? : data
   inline static std::string getExecutableDirectory() { return Common_File_Tools::executableBase; };
-  static std::string getHomeDirectory (const std::string&); // user name
+  static std::string getHomeDirectory (const std::string&); // user name (empty ? current user)
   // *NOTE*: (try to) create the directory if it doesn't exist
   static std::string getUserConfigurationDirectory ();
+  static std::string getUserDownloadDirectory (const std::string&); // user name (empty ? current user)
   static std::string getWorkingDirectory ();
 
   static std::string getTempDirectory ();
@@ -161,11 +171,6 @@ class Common_File_Tools
   ACE_UNIMPLEMENTED_FUNC (virtual ~Common_File_Tools ())
   ACE_UNIMPLEMENTED_FUNC (Common_File_Tools (const Common_File_Tools&))
   ACE_UNIMPLEMENTED_FUNC (Common_File_Tools& operator= (const Common_File_Tools&))
-
-  //// helper methods
-//  static int dirent_selector (const dirent*);
-//  static int dirent_comparator (const dirent**,
-//                                const dirent**);
 };
 
 #endif

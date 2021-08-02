@@ -103,6 +103,7 @@
 #define COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY            "/var/tmp"
 #define COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY_2          "/tmp"
 #define COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE             "TEMP"
+#define COMMON_LOCATION_DOWNLOAD_STORAGE_SUBDIRECTORY          "Downloads" // *TODO*: Fedora-specific ?
 #endif // ACE_WIN32 || ACE_WIN64
 
 #define COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY             "etc"
@@ -213,6 +214,8 @@
 #else
 #define COMMON_ENVIRONMENT_USER_LOGIN_BASE                     "LOGNAME" // environment
 #endif // ACE_WIN32 || ACE_WIN64
+#define COMMON_ENVIRONMENT_DIRECTORY_ROOT_ACE                  "ACE_ROOT"
+#define COMMON_ENVIRONMENT_DIRECTORY_ROOT_LIB                  "LIB_ROOT"
 #define COMMON_ENVIRONMENT_DIRECTORY_ROOT_PROJECTS             "PROJECTS_ROOT"
 
 // *** state machine ***

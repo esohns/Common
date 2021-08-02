@@ -21,7 +21,7 @@
 #ifndef COMMON_FILE_COMMON_H
 #define COMMON_FILE_COMMON_H
 
-#include <list>
+#include <vector>
 #include <string>
 
 #include "ace/config-lite.h"
@@ -47,7 +47,11 @@ struct Common_File_Identifier
   enum discriminatorType identifierDiscriminator;
   ACE_SCANDIR_SELECTOR   selector;
 };
-typedef std::list<struct Common_File_Identifier> Common_File_IdentifierList_t;
+typedef std::vector<struct Common_File_Identifier> Common_File_IdentifierList_t;
 typedef Common_File_IdentifierList_t::const_iterator Common_File_IdentifierListIterator_t;
+struct common_file_identifier_less
+{
+  inline bool operator() (const struct Common_File_Identifier& lhs_in, const struct Common_File_Identifier& rhs_in) const { ACE_ASSERT (lhs_in.identifierDiscriminator == Common_File_Identifier::FILE); ACE_ASSERT (rhs_in.identifierDiscriminator == Common_File_Identifier::FILE); std::less<std::string> comparator; return comparator (lhs_in.identifier, rhs_in.identifier); }
+};
 
 #endif
