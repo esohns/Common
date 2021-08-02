@@ -2105,20 +2105,21 @@ Common_File_Tools::getUserDownloadDirectory (const std::string& userName_in)
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
-  PWSTR* buffer_p = NULL;
+  PWSTR buffer_p = NULL;
   HRESULT result_2 =
     SHGetKnownFolderPath (FOLDERID_Downloads, // rfid
                           KF_FLAG_DEFAULT,    // dwFlags
                           NULL,               // hToken
-                          buffer_p);          // ppszPath
+                          &buffer_p);         // ppszPath
   if (unlikely (FAILED (result_2)))
   {
     ACE_DEBUG ((LM_WARNING,
-                ACE_TEXT ("failed to SHGetKnownFolderPath(FOLDERID_Downloads): \"%s\", falling back\n"),
+                ACE_TEXT ("failed to SHGetKnownFolderPath(FOLDERID_Downloads): \"%s\", aborting\n"),
                 ACE_TEXT (Common_Error_Tools::errorToString (static_cast<DWORD> (result_2), false).c_str ())));
      CoTaskMemFree (buffer_p); buffer_p = NULL;
-    goto fallback;
+     return result;
   } // end IF
+  ACE_ASSERT (buffer_p);
   result = ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (buffer_p));
   CoTaskMemFree (buffer_p); buffer_p = NULL;
   result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
