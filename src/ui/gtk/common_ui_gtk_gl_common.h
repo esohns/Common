@@ -35,7 +35,6 @@
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,16,0) */
 #elif GTK_CHECK_VERSION(2,0,0)
-// *IMPORTANT NOTE*: check out the 'gtkglarea-2' branch of the project
 #if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gdkgl.h"
 #include "gtkgl/gtkglarea.h"
