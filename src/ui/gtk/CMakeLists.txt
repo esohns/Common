@@ -61,7 +61,7 @@ set (source_files
      common_ui_gtk_eventhandler.cpp
      common_ui_gtk_eventhandler.h
      common_ui_gtk_eventhandler.inl
-     common_ui_gtk_exports.h
+#     common_ui_gtk_exports.h
      common_ui_gtk_manager.cpp
      common_ui_gtk_manager.h
      common_ui_gtk_manager.inl
@@ -168,7 +168,7 @@ set (${LIBRARY}_LIB_HDRS
      common_ui_gtk_defines.h
      common_ui_gtk_eventhandler.h
      common_ui_gtk_eventhandler.inl
-     common_ui_gtk_exports.h
+#     common_ui_gtk_exports.h
      common_ui_gtk_manager.h
      common_ui_gtk_manager.inl
      common_ui_gtk_manager_common.h

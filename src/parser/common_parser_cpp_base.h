@@ -77,7 +77,8 @@ class Common_CppParserBase_T
   virtual bool switchBuffer (bool = false); // unlink current fragment ?
   virtual void waitBuffer ();
   virtual void error (const std::string&); // message
-  inline virtual void debug (yyscan_t state_in, bool toggle_in) { scanner_ .debug (state_in, toggle_in); }
+  inline virtual void debug (yyscan_t state_in, bool toggle_in) { scanner_.debug (state_in, toggle_in); }
+  inline virtual void reset () { scanner_.reset (); }
   inline virtual bool initialize (yyscan_t& state_in, ScannerStateType* state2_in) { return scanner_.initialize (state_in, state2_in); }
   virtual void finalize (yyscan_t& state_in) { scanner_.finalize (state_in); }
   inline virtual struct yy_buffer_state* create (yyscan_t state_in, char* buffer_in, size_t size_in) { return scanner_.create (state_in, buffer_in, size_in); }

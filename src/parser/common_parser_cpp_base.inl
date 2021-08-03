@@ -235,6 +235,7 @@ Common_CppParserBase_T<ConfigurationType,
   if (isFirst_)
   {
     isFirst_ = false;
+    offset_ = 0;
 
 //    bittorrent_set_column (1, state_);
 //    bittorrent_set_lineno (1, state_);

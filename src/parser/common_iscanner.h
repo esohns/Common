@@ -66,6 +66,7 @@ class Common_ILexScanner_T
  public:
   virtual void debug (yyscan_t,  // state handle
                       bool) = 0; // toggle
+  virtual void reset () = 0; // resets the offsets (line/column to 1,1)
 
   virtual bool initialize (yyscan_t&,       // return value: state handle
                            StateType*) = 0; // 'extra' data handle
@@ -84,15 +85,6 @@ class Common_ILexScanner_T
 
 //////////////////////////////////////////
 
-// forward declarations
-struct YYLTYPE
-{
-  int first_line;
-  int first_column;
-  int last_line;
-  int last_column;
-};
-
 template <typename ConfigurationType>
 class Common_IParser_T
  : public Common_IInitialize_T<ConfigurationType>
@@ -100,6 +92,17 @@ class Common_IParser_T
 {
  public:
   virtual bool parse (ACE_Message_Block*) = 0; // data buffer handle
+};
+
+//////////////////////////////////////////
+
+// forward declarations
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
 };
 
 template <typename ConfigurationType>
