@@ -24,35 +24,39 @@
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType>
-Common_Task_T<ACE_SYNCH_USE,
+          typename LockType,
+          typename MessageType>
+Common_Task_Ex_T<ACE_SYNCH_USE,
               TimePolicyType,
-              LockType>::Common_Task_T (const std::string& threadName_in,
-                                        int threadGroupId_in,
-                                        unsigned int threadCount_in,
-                                        bool autoStart_in,
-                                        typename inherited::MESSAGE_QUEUE_T* messageQueue_in)
+              LockType,
+              MessageType>::Common_Task_Ex_T (const std::string& threadName_in,
+                                              int threadGroupId_in,
+                                              unsigned int threadCount_in,
+                                              bool autoStart_in,
+                                              typename inherited::MESSAGE_QUEUE_T* messageQueue_in)
  : inherited (threadName_in,
               threadGroupId_in,
               threadCount_in,
               autoStart_in,
               messageQueue_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Task_T::Common_Task_T"));
+  COMMON_TRACE (ACE_TEXT ("Common_Task_Ex_T::Common_Task_Ex_T"));
 
 }
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType>
+          typename LockType,
+          typename MessageType>
 void
-Common_Task_T<ACE_SYNCH_USE,
-              TimePolicyType,
-              LockType>::stop (bool waitForCompletion_in,
-                               bool highPriority_in,
-                               bool lockedAccess_in)
+Common_Task_Ex_T<ACE_SYNCH_USE,
+                 TimePolicyType,
+                 LockType,
+                 MessageType>::stop (bool waitForCompletion_in,
+                                     bool highPriority_in,
+                                     bool lockedAccess_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Task_T::stop"));
+  COMMON_TRACE (ACE_TEXT ("Common_Task_Ex_T::stop"));
 
   ACE_UNUSED_ARG (lockedAccess_in);
 
@@ -66,34 +70,38 @@ Common_Task_T<ACE_SYNCH_USE,
 // *** BEGIN dummy stub methods ***
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType>
+          typename LockType,
+          typename MessageType>
 void
-Common_Task_T<ACE_SYNCH_USE,
-              TimePolicyType,
-              LockType>::handle (ACE_Message_Block*& message_inout)
+Common_Task_Ex_T<ACE_SYNCH_USE,
+                 TimePolicyType,
+                 LockType,
+                 MessageType>::handle (MessageType*& message_inout)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Task_T::handle"));
+  COMMON_TRACE (ACE_TEXT ("Common_Task_Ex_T::handle"));
 
   // sanity check(s)
   ACE_ASSERT (message_inout);
 
-  message_inout->release (); message_inout = NULL;
+  delete message_inout; message_inout = NULL;
 }
 // *** END dummy stub methods ***
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType>
+          typename LockType,
+          typename MessageType>
 void
-Common_Task_T<ACE_SYNCH_USE,
-              TimePolicyType,
-              LockType>::control (int messageType_in,
-                                  bool highPriority_in)
+Common_Task_Ex_T<ACE_SYNCH_USE,
+                 TimePolicyType,
+                 LockType,
+                 MessageType>::control (int messageType_in,
+                                        bool highPriority_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Task_T::control"));
+  COMMON_TRACE (ACE_TEXT ("Common_Task_Ex_T::control"));
 
   int result = -1;
-  ACE_Message_Block* message_block_p = NULL;
+  MessageType* message_p = NULL;
 
   // sanity check(s)
   if (unlikely (!inherited::msg_queue_))
@@ -109,97 +117,51 @@ Common_Task_T<ACE_SYNCH_USE,
   } // end IF
 
   // enqueue a control message
-  ACE_NEW_NORETURN (message_block_p,
-                    ACE_Message_Block (0,                                  // size
-                                       messageType_in,                     // type
-                                       NULL,                               // continuation
-                                       NULL,                               // data
-                                       NULL,                               // buffer allocator
-                                       NULL,                               // locking strategy
-                                       ACE_DEFAULT_MESSAGE_BLOCK_PRIORITY, // priority
-                                       ACE_Time_Value::zero,               // execution time
-                                       ACE_Time_Value::max_time,           // deadline time
-                                       NULL,                               // data block allocator
-                                       NULL));                             // message allocator
-  if (unlikely (!message_block_p))
+  ACE_NEW_NORETURN (message_p,
+                    MessageType ());
+  if (unlikely (!message_p))
   {
     if (inherited::mod_)
       ACE_DEBUG ((LM_CRITICAL,
-                  ACE_TEXT ("%s: failed to allocate ACE_Message_Block: \"%m\", returning\n"),
+                  ACE_TEXT ("%s: failed to allocate MessageType: \"%m\", returning\n"),
                   inherited::mod_->name ()));
     else
       ACE_DEBUG ((LM_CRITICAL,
-                  ACE_TEXT ("failed to allocate ACE_Message_Block: \"%m\", returning\n")));
+                  ACE_TEXT ("failed to allocate MessageType: \"%m\", returning\n")));
     return;
   } // end IF
+  message_p->type = messageType_in;
 
-  result = (highPriority_in ? inherited::ungetq (message_block_p, NULL)
-                            : inherited::putq (message_block_p, NULL));
+  result = (highPriority_in ? inherited::ungetq (message_p, NULL)
+                            : inherited::putq (message_p, NULL));
   if (unlikely (result == -1))
-  {
-    if (inherited::mod_)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("%s: failed to ACE_Task::putq(): \"%m\", continuing\n"),
-                  inherited::mod_->name ()));
-    else
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Task::putq(): \"%m\", continuing\n")));
-
-    message_block_p->release (); message_block_p = NULL;
+  { // queue has been deactivated ?
+    int error = ACE_OS::last_error ();
+    if (error != ESHUTDOWN)
+    {
+      if (inherited::mod_)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("%s: failed to ACE_Task_Ex_T::putq(): \"%m\", continuing\n"),
+                    inherited::mod_->name ()));
+      else
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_Task_Ex_T::putq(): \"%m\", continuing\n")));
+    } // end IF
+    delete message_p; message_p = NULL;
   } // end IF
 }
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType>
-bool
-Common_Task_T<ACE_SYNCH_USE,
-              TimePolicyType,
-              LockType>::hasShutDown ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Task_T::hasShutDown"));
-
-  // sanity check(s)
-  if (unlikely (!inherited::msg_queue_))
-  {
-    if (inherited::mod_)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("%s: task has no message queue, returning\n"),
-                  inherited::mod_->name ()));
-    else
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("task has no message queue, returning\n")));
-    return true;
-  } // end IF
-
-  bool result = false;
-  ACE_Message_Block* message_block_p = NULL;
-  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, inherited::msg_queue_->lock (), false);
-    for (MESSAGE_QUEUE_ITERATOR_T iterator (*inherited::msg_queue_);
-         iterator.next (message_block_p);
-         iterator.advance ())
-    { ACE_ASSERT (message_block_p);
-      if (unlikely (message_block_p->msg_type () == ACE_Message_Block::MB_STOP))
-      {
-        result = true;
-        break;
-      } // end IF
-      message_block_p = NULL;
-    } // end FOR
-  } // end lock scope
-
-  return result;
-}
-
-template <ACE_SYNCH_DECL,
-          typename TimePolicyType,
-          typename LockType>
+          typename LockType,
+          typename MessageType>
 int
-Common_Task_T<ACE_SYNCH_USE,
-              TimePolicyType,
-              LockType>::svc (void)
+Common_Task_Ex_T<ACE_SYNCH_USE,
+                 TimePolicyType,
+                 LockType,
+                 MessageType>::svc (void)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Task_T::svc"));
+  COMMON_TRACE (ACE_TEXT ("Common_Task_Ex_T::svc"));
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   Common_Tools::setThreadName (inherited::threadName_,
@@ -212,7 +174,7 @@ Common_Task_T<ACE_SYNCH_USE,
               inherited::grp_id_));
 #endif // _DEBUG
 
-  ACE_Message_Block* message_p = NULL;
+  MessageType* message_p = NULL;
   int result = -1;
   int error = -1;
   int result_2 = -1;
@@ -232,7 +194,7 @@ Common_Task_T<ACE_SYNCH_USE,
       break;
     } // end IF
     ACE_ASSERT (message_p);
-    if (unlikely (message_p->msg_type () == ACE_Message_Block::MB_STOP))
+    if (unlikely (message_p->type == ACE_Message_Block::MB_STOP))
     {
       result = 0;
       if (inherited::thr_count_ > 1)
@@ -250,7 +212,7 @@ Common_Task_T<ACE_SYNCH_USE,
       // clean up ?
       if (message_p)
       {
-        message_p->release (); message_p = NULL;
+        delete message_p; message_p = NULL;
       } // end IF
       break; // done
     } // end IF
@@ -266,7 +228,7 @@ Common_Task_T<ACE_SYNCH_USE,
     // clean up ?
     if (unlikely (message_p))
     {
-      message_p->release (); message_p = NULL;
+      delete message_p; message_p = NULL;
     } // end IF
   } while (true);
 

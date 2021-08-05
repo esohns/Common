@@ -67,7 +67,8 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   int result = -1;
 
   if (unlikely (isRunning ()))
-    stop (true,  // wait for completion ?
+    stop (true,  // wait ?
+          true,  // high priority ?
           true); // locked access ?
 
   // *IMPORTANT NOTE*: avoid close()ing the timer queue in the base class dtor
@@ -170,9 +171,12 @@ void
 Common_Timer_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
                        TimerQueueAdapterType>::stop (bool waitForCompletion_in,
+                                                     bool highPriority_in,
                                                      bool lockedAccess_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::stop"));
+
+  ACE_UNUSED_ARG (highPriority_in);
 
   // sanity check(s)
 //  if (unlikely (!isRunning ()))
@@ -218,10 +222,9 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       break;
     }
     case COMMON_TIMER_DISPATCH_SIGNAL:
-    {
+    { // *TODO*
       ACE_ASSERT (false);
       ACE_NOTSUP;
-
       ACE_NOTREACHED (return;)
     }
     case COMMON_TIMER_DISPATCH_QUEUE:
@@ -232,7 +235,6 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       if (likely (waitForCompletion_in))
       {
         ACE_Task_Base& task_base_r = const_cast<ACE_Task_Base&> (getR_5 ());
-
         result = task_base_r.wait ();
         if (unlikely (result == -1))
           ACE_DEBUG ((LM_ERROR,
@@ -246,7 +248,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown mode (was: %d), continuing\n"),
+                  ACE_TEXT ("invalid/unknown dispatch mode (was: %d), continuing\n"),
                   dispatch_));
       break;
     }
@@ -254,13 +256,11 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 
   // clean up
   unsigned int flushed_timers = flushTimers (lockedAccess_in);
-  if (flushed_timers)
 #if defined (_DEBUG)
+  if (unlikely (flushed_timers))
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("flushed %u timer(s)\n"),
                 flushed_timers));
-#else
-    ;
 #endif // _DEBUG
 }
 
@@ -536,7 +536,8 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   Common_ITimerQueue_t* timer_queue_p = NULL;
   bool was_running = isRunning ();
   if (unlikely (was_running))
-    stop (true,  // wait for completion ?
+    stop (true,  // wait ?
+          true,  // high priority ?
           true); // locked access ?
 
   if (unlikely (timerQueue_))
@@ -928,7 +929,9 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   // sanity check(s)
   bool was_running = isRunning ();
   if (unlikely (was_running))
-    stop (true);
+    stop (true,  // wait ?
+          true,  // high priority ?
+          true); // locked access ?
 
   if (unlikely (isInitialized_))
   {

@@ -18,46 +18,49 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_TASK_H
-#define COMMON_TASK_H
+#ifndef COMMON_TASK_EX_H
+#define COMMON_TASK_EX_H
 
 #include "ace/Global_Macros.h"
 #include "ace/Message_Block.h"
 #include "ace/Message_Queue_T.h"
-#include "ace/Task_T.h"
-
-#include "common_message_queue_iterator.h"
+#include "ace/Task_Ex_T.h"
 
 #include "common_task_base.h"
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType> // implements Common_ILock_T/Common_IRecursiveLock_T
-class Common_Task_T
+          typename LockType, // implements Common_ILock_T/Common_IRecursiveLock_T
+          typename MessageType>
+class Common_Task_Ex_T
  : public Common_TaskBase_T<ACE_SYNCH_USE,
                             TimePolicyType,
                             LockType,
-                            ACE_Message_Block,
-                            ACE_Message_Queue<ACE_SYNCH_USE,
-                                              TimePolicyType>,
-                            ACE_Task<ACE_SYNCH_USE,
-                                     TimePolicyType> >
- , public Common_ITaskHandler_T<ACE_Message_Block>
+                            MessageType,
+                            ACE_Message_Queue_Ex<MessageType,
+                                                 ACE_SYNCH_USE,
+                                                 TimePolicyType>,
+                            ACE_Task_Ex<ACE_SYNCH_USE,
+                                        MessageType,
+                                        TimePolicyType> >
+ , public Common_ITaskHandler_T<MessageType>
 {
   typedef Common_TaskBase_T<ACE_SYNCH_USE,
                             TimePolicyType,
                             LockType,
-                            ACE_Message_Block,
-                            ACE_Message_Queue<ACE_SYNCH_USE,
-                                              TimePolicyType>,
-                            ACE_Task<ACE_SYNCH_USE,
-                                     TimePolicyType> > inherited;
+                            MessageType,
+                            ACE_Message_Queue_Ex<MessageType,
+                                                 ACE_SYNCH_USE,
+                                                 TimePolicyType>,
+                            ACE_Task_Ex<ACE_SYNCH_USE,
+                                        MessageType,
+                                        TimePolicyType> > inherited;
 
  public:
   // convenient types
-  typedef Common_ITaskHandler_T<ACE_Message_Block> ITASKHANDLER_T;
+  typedef Common_ITaskHandler_T<MessageType> ITASKHANDLER_T;
 
-  inline virtual ~Common_Task_T () {}
+  inline virtual ~Common_Task_Ex_T () {}
 
   // implement Common_ITaskControl_T
   // enqueue MB_STOP --> stop worker thread(s)
@@ -67,21 +70,17 @@ class Common_Task_T
 
   // implement Common_ITaskHandler_T
   // *NOTE*: the default implementation does nothing; it frees all messages
-  virtual void handle (ACE_Message_Block*&); // message handle
+  virtual void handle (MessageType*&); // message handle
 
  protected:
-  // convenient types
-  typedef Common_MessageQueueIterator_T<ACE_SYNCH_USE,
-                                        TimePolicyType> MESSAGE_QUEUE_ITERATOR_T;
+  Common_Task_Ex_T (const std::string&,                           // thread name
+                    int,                                          // (thread) group id
+                    unsigned int = 1,                             // # thread(s)
+                    bool = true,                                  // auto-start ?
+                    typename inherited::MESSAGE_QUEUE_T* = NULL); // queue handle
 
-  Common_Task_T (const std::string&,                           // thread name
-                 int,                                          // (thread) group id
-                 unsigned int = 1,                             // # thread(s)
-                 bool = true,                                  // auto-start ?
-                 typename inherited::MESSAGE_QUEUE_T* = NULL); // queue handle
-
-  // override ACE_Task_Base members
-//  inline virtual int put (ACE_Message_Block* messageBlock_in, ACE_Time_Value* timeout_in) { ACE_ASSERT (inherited::thr_count_); return inherited::putq (messageBlock_in, timeout_in); }
+  // override ACE_Task_Base members (sort of)
+  inline virtual int put (MessageType* message_in, ACE_Time_Value* timeout_in) { return inherited::putq (message_in, timeout_in); }
 
   // helper methods
   // *NOTE*: 'high priority' effectively means that the message is enqueued at
@@ -89,23 +88,16 @@ class Common_Task_T
   //         be enqueued at the tail end otherwise
   void control (int,           // message type
                 bool = false); // high-priority ?
-  // *NOTE*: tests for MB_STOP anywhere in the queue. Note that this does not
-  //         block, or dequeue any message
-  // *NOTE*: ACE_Message_Queue_Iterator does its own locking, i.e. access
-  //         happens in lockstep, which is both inefficient and yields
-  //         unpredictable results
-  //         --> use Common_MessageQueueIterator_T and lock the queue manually
-  virtual bool hasShutDown ();
 
   virtual int svc (void);
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_Task_T ())
-  ACE_UNIMPLEMENTED_FUNC (Common_Task_T (const Common_Task_T&))
-  ACE_UNIMPLEMENTED_FUNC (Common_Task_T& operator= (const Common_Task_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Task_Ex_T ())
+  ACE_UNIMPLEMENTED_FUNC (Common_Task_Ex_T (const Common_Task_Ex_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Task_Ex_T& operator= (const Common_Task_Ex_T&))
 };
 
 // include template definition
-#include "common_task.inl"
+#include "common_task_ex.inl"
 
 #endif

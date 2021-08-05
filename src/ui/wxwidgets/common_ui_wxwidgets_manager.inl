@@ -122,10 +122,12 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::start ()
 template <typename ApplicationType>
 void
 Common_UI_WxWidgets_Manager_T<ApplicationType>::stop (bool waitForCompletion_in,
+                                                      bool highPriority_in,
                                                       bool lockedAccess_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgets_Manager_T::stop"));
 
+  ACE_UNUSED_ARG (highPriority_in);
   ACE_UNUSED_ARG (lockedAccess_in);
 
   wxThread::ExitCode exit_code = NULL;

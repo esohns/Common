@@ -61,12 +61,9 @@ Common_Timer_Tools::finalize ()
                                       true);
 
   if (Common_Timer_Tools::configuration_.publishSeconds)
-  {
-    Common_Timer_SecondPublisher_t* publisher_p =
-      COMMON_TIMER_SECONDPUBLISHER_SINGLETON::instance ();
-    publisher_p->stop (true,
-                       true);
-  } // end IF
+    COMMON_TIMER_SECONDPUBLISHER_SINGLETON::instance ()->stop (true,  // wait ?
+                                                               true,  // high priority ?
+                                                               true); // locked access ?
 }
 
 ACE_Time_Value
@@ -467,18 +464,21 @@ Common_Timer_Tools::finalizeTimers (enum Common_TimerDispatchType dispatchType_i
     case COMMON_TIMER_DISPATCH_PROACTOR:
     {
       timer_manager_p->stop (waitForCompletion_in,
+                             true,
                              true);
       break;
     }
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
       timer_manager_p->stop (waitForCompletion_in,
+                             true,
                              true);
       break;
     }
     case COMMON_TIMER_DISPATCH_REACTOR:
     {
       timer_manager_p->stop (waitForCompletion_in,
+                             true,
                              true);
       break;
     }
@@ -486,11 +486,11 @@ Common_Timer_Tools::finalizeTimers (enum Common_TimerDispatchType dispatchType_i
     {
 //      ACE_ASSERT (false);
 //      ACE_NOTSUP;
-
 //      ACE_NOTREACHED (return;)
       //timer_manager_2->stop (waitForCompletion_in,
+      //                       true,
       //                       true);
-      //break;
+      break;
     }
     default:
     {

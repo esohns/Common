@@ -36,6 +36,7 @@ class Common_ITask_T
  public:
   virtual void start (ACE_thread_t&) = 0; // return value: thread handle (if any)
   virtual void stop (bool = true,      // wait for completion ?
+                     bool = true,      // high priority ? (i.e. do not wait for queued messages)
                      bool = true) = 0; // locked access ?
   virtual bool isRunning () const = 0;
 
@@ -46,6 +47,7 @@ template <typename MessageType = ACE_Message_Block>
 class Common_ITaskHandler_T
 {
  public:
+  // *IMPORTANT NOTE*: fire-and-forget API
   virtual void handle (MessageType*&) = 0; // message handle
 };
 

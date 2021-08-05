@@ -61,9 +61,10 @@ class Common_Timer_SecondPublisher_T
   // implement (part of) Common_ITaskControl_T
   virtual void start (ACE_thread_t&); // return value: thread handle (if any)
   virtual void stop (bool = true,  // wait for completion ?
+                     bool = true,  // high priority ?
                      bool = true); // N/A
   inline virtual bool isRunning () const { return (timerId_ != -1); }
-  virtual void wait (bool = true) const; // N/A
+  inline virtual void wait (bool = true) const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return; ) }
 
   virtual void subscribe (Common_ICounter*);
   virtual void unsubscribe (Common_ICounter*);

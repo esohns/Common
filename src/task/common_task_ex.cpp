@@ -19,4 +19,4 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include "common_task.h"
+#include "common_task_ex.h"

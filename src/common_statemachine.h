@@ -72,8 +72,7 @@ template <const char* StateMachineName, // *TODO*: use a variadic character arra
 class Common_StateMachineAsynch_T
  : public Common_Task_T<ACE_SYNCH_USE,
                         TimePolicyType,
-                        LockType,
-                        ACE_Message_Block>
+                        LockType>
  , public Common_StateMachine_Base_T<StateMachineName,
                                      ACE_SYNCH_USE,
                                      StateType,
@@ -81,8 +80,7 @@ class Common_StateMachineAsynch_T
 {
   typedef Common_Task_T<ACE_SYNCH_USE,
                         TimePolicyType,
-                        LockType,
-                        ACE_Message_Block> inherited;
+                        LockType> inherited;
   typedef Common_StateMachine_Base_T<StateMachineName,
                                      ACE_SYNCH_USE,
                                      StateType,
@@ -92,8 +90,7 @@ class Common_StateMachineAsynch_T
   // convenient types
   typedef Common_Task_T<ACE_SYNCH_USE,
                         TimePolicyType,
-                        LockType,
-                        ACE_Message_Block> TASK_T;
+                        LockType> TASK_T;
   typedef Common_StateMachineAsynch_T<StateMachineName,
                                       ACE_SYNCH_USE,
                                       TimePolicyType,

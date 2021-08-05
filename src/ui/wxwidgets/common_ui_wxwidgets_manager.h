@@ -66,6 +66,7 @@ class Common_UI_WxWidgets_Manager_T
   // implement Common_ITaskControl_T
   virtual void start ();
   virtual void stop (bool = true,  // wait for completion ?
+                     bool = true,  // high priority ?
                      bool = true); // locked access ?
   inline virtual bool isRunning () const { return inherited::IsAlive (); }
   inline virtual void idle () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }

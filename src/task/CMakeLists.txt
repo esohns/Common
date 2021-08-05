@@ -36,7 +36,10 @@ set (source_files
      common_task.inl
      common_task_base.cpp
      common_task_base.h
-     common_task_base.inl)
+     common_task_base.inl
+     common_task_ex.cpp
+     common_task_ex.h
+     common_task_ex.inl)
 
 # Include dir for installed targets
 set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
@@ -97,6 +100,8 @@ install (FILES
          common_task_base.cpp
          common_task_base.h
          common_task_base.inl
+         common_task_ex.h
+         common_task_ex.inl
          DESTINATION ${INSTALL_INCLUDE_DIR})
 install (TARGETS ${PROJECT_NAME}Task
          EXPORT ${PROJECT_NAME}Targets

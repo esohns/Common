@@ -22,6 +22,9 @@
 #define COMMON_UI_GTK_MANAGER_T_H
 
 #include "ace/Global_Macros.h"
+#include "ace/Message_Block.h"
+#include "ace/Message_Queue_T.h"
+#include "ace/Task_T.h"
 #include "ace/Singleton.h"
 #include "ace/Synch_Traits.h"
 
@@ -52,13 +55,23 @@ template <ACE_SYNCH_DECL,
 class Common_UI_GTK_Manager_T
  : public Common_TaskBase_T<ACE_SYNCH_USE,
                             Common_TimePolicy_t,
-                            Common_ILock_T<ACE_SYNCH_USE> >
+                            Common_ILock_T<ACE_SYNCH_USE>,
+                            ACE_Message_Block,
+                            ACE_Message_Queue<ACE_SYNCH_USE,
+                                              Common_TimePolicy_t>,
+                            ACE_Task<ACE_SYNCH_USE,
+                                     Common_TimePolicy_t> >
  , public Common_IInitialize_T<ConfigurationType>
  , public Common_IGetR_T<StateType>
 {
   typedef Common_TaskBase_T<ACE_SYNCH_USE,
                             Common_TimePolicy_t,
-                            Common_ILock_T<ACE_SYNCH_USE> > inherited;
+                            Common_ILock_T<ACE_SYNCH_USE>,
+                            ACE_Message_Block,
+                            ACE_Message_Queue<ACE_SYNCH_USE,
+                                              Common_TimePolicy_t>,
+                            ACE_Task<ACE_SYNCH_USE,
+                                     Common_TimePolicy_t> > inherited;
 
   // singleton requires access to the ctor/dtor
   friend class ACE_Singleton<Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
@@ -69,9 +82,6 @@ class Common_UI_GTK_Manager_T
 
  public:
   // convenient types
-  typedef Common_TaskBase_T<ACE_SYNCH_USE,
-                            Common_TimePolicy_t,
-                            Common_ILock_T<ACE_SYNCH_USE> > TASK_T;
   typedef ACE_Singleton<Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                                                 ConfigurationType,
                                                 StateType,
@@ -81,6 +91,7 @@ class Common_UI_GTK_Manager_T
   // override (part of) Common_ITask
   virtual void start (ACE_thread_t&); // return value: thread handle (if any)
   virtual void stop (bool = true,  // wait for completion ?
+                     bool = true,  // high priority ?
                      bool = true); // locked access ?
 
   // implement Common_IInitialize
@@ -89,6 +100,16 @@ class Common_UI_GTK_Manager_T
   inline virtual const StateType& getR () const { return state_; }
 
  private:
+  // convenient types
+  typedef Common_TaskBase_T<ACE_SYNCH_USE,
+                            Common_TimePolicy_t,
+                            Common_ILock_T<ACE_SYNCH_USE>,
+                            ACE_Message_Block,
+                            ACE_Message_Queue<ACE_SYNCH_USE,
+                                              Common_TimePolicy_t>,
+                            ACE_Task<ACE_SYNCH_USE,
+                                     Common_TimePolicy_t> > TASK_T;
+
   Common_UI_GTK_Manager_T ();
   inline virtual ~Common_UI_GTK_Manager_T () {}
   ACE_UNIMPLEMENTED_FUNC (Common_UI_GTK_Manager_T (const Common_UI_GTK_Manager_T&))

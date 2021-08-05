@@ -40,8 +40,9 @@ Common_Timer_SecondPublisher_T<TimerManagerType>::~Common_Timer_SecondPublisher_
   COMMON_TRACE (ACE_TEXT ("Common_Timer_SecondPublisher_T::~Common_Timer_SecondPublisher_T"));
 
   if (unlikely (isRunning ()))
-    stop (true,
-          true);
+    stop (true,  // wait ?
+          true,  // high priority ?
+          true); // locked access ?
 }
 
 template <typename TimerManagerType>
@@ -62,8 +63,9 @@ Common_Timer_SecondPublisher_T<TimerManagerType>::start (ACE_thread_t&)
 
 template <typename TimerManagerType>
 void
-Common_Timer_SecondPublisher_T<TimerManagerType>::stop (bool waitForCompletion_in,
-                                                        bool lockedAccess_in)
+Common_Timer_SecondPublisher_T<TimerManagerType>::stop (bool,
+                                                        bool,
+                                                        bool)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_SecondPublisher_T::stop"));
 
@@ -73,17 +75,6 @@ Common_Timer_SecondPublisher_T<TimerManagerType>::stop (bool waitForCompletion_i
 
   timerId_ = toggleTimer ();
   ACE_ASSERT (timerId_ == -1);
-}
-
-template <typename TimerManagerType>
-void
-Common_Timer_SecondPublisher_T<TimerManagerType>::wait (bool) const
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Timer_SecondPublisher_T::wait"));
-
-  ACE_ASSERT (false);
-  ACE_NOTSUP;
-  ACE_NOTREACHED (return;)
 }
 
 template <typename TimerManagerType>

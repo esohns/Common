@@ -38,7 +38,12 @@
 //                          Common_ILock_T<ACE_NULL_SYNCH> > Common_UI_IGTK_Manager_t;
 typedef Common_TaskBase_T<ACE_MT_SYNCH,
                           Common_TimePolicy_t,
-                          Common_ILock_T<ACE_MT_SYNCH> > Common_UI_IGTK_Manager_t;
+                          Common_ILock_T<ACE_MT_SYNCH>,
+                          ACE_Message_Block,
+                          ACE_Message_Queue<ACE_MT_SYNCH,
+                                            Common_TimePolicy_t>,
+                          ACE_Task<ACE_MT_SYNCH,
+                                   Common_TimePolicy_t> > Common_UI_IGTK_Manager_t;
 
 //////////////////////////////////////////
 

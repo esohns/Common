@@ -135,8 +135,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   } // end IF
 
   { ACE_GUARD (typename inherited::ITASKCONTROL_T::MUTEX_T, aGuard, inherited::lock_);
-    ACE_ASSERT (inherited::threads_.size () == 1);
-    threadId_out = inherited::threads_[0].id ();
+    ACE_ASSERT (inherited::threadIds_.size () == 1);
+    threadId_out = inherited::threadIds_[0].id ();
   } // end lock scope
 }
 
@@ -149,10 +149,12 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                         ConfigurationType,
                         StateType,
                         CallBackDataType>::stop (bool waitForCompletion_in,
+                                                 bool highPriority_in,
                                                  bool lockedAccess_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::stop"));
 
+  ACE_UNUSED_ARG (highPriority_in);
   ACE_UNUSED_ARG (lockedAccess_in);
 
   int result = close (1);

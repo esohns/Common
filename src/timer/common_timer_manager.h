@@ -93,6 +93,7 @@ class Common_Timer_Manager_T
   // implement (part of) Common_ITaskControl_T
   virtual void start (ACE_thread_t&); // return value: thread handle (if any)
   virtual void stop (bool = true,  // wait for completion ?
+                     bool = true,  // high priority ?
                      bool = true); // locked access ?
   virtual bool isRunning () const;
   virtual void wait (bool = true) const; // wait for the message queue ? : worker thread(s) only
