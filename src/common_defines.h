@@ -61,9 +61,11 @@
 // *NOTE*: on UNIX, try 'locale -a', or 'localectl list-locales' to list
 //         supported values
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define COMMON_LOCALE_EN_US_STRING                             "en-US" // ASCII
+// *TODO*: this is probably wrong, but "en-US" isn't ASCII, and "en-US.037"
+//         throws...
+#define COMMON_LOCALE_EN_US_ASCII_STRING                       "C"
 #else
-#define COMMON_LOCALE_EN_US_STRING                             "en_US.utf8" // ASCII
+#define COMMON_LOCALE_EN_US_ASCII_STRING                       "en_US.US-ASCII" // ASCII
 #endif // ACE_WIN32 || ACE_WIN64
 
 // *** default (storage) 'locations' ***

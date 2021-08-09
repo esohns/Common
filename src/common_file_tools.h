@@ -42,7 +42,8 @@ class Common_File_Tools
                                bool = false);      // strip trailing '.'-suffix ?
   inline static bool backup (const std::string& path_in) { return Common_File_Tools::copyFile (path_in, ACE_TEXT_ALWAYS_CHAR ("")); }
   static bool create (const std::string&); // (FQ) path
-  static bool createDirectory (const std::string&); // directory
+  static bool createDirectory (const std::string&, // directory
+                               bool = true);       // create missing subdirectories ?
   static bool copyFile (const std::string&,  // (FQ) path
                         const std::string&); // directory {"": make a backup in the same directory}
   static bool deleteFile (const std::string&); // (FQ) path
@@ -108,6 +109,7 @@ class Common_File_Tools
                           uid_t = static_cast<uid_t> (-1)); // uid {-1: euid}
 
   static bool isEmpty (const std::string&); // (FQ) path
+  static bool isFile (const std::string&); // (FQ) path
   static bool isDirectory (const std::string&); // directory
   static bool isLink (const std::string&); // directory
   static bool isEmptyDirectory (const std::string&); // directory
@@ -122,6 +124,7 @@ class Common_File_Tools
   static bool open (const std::string&, // (FQ) path
                     int,                // flags
                     ACE_FILE_IO&);      // return value: file stream
+  // *IMPORTANT NOTE*: creates any sub-directories as necessary
   static bool store (const std::string&, // (FQ) path
                      const uint8_t*,     // buffer handle
                      unsigned int,       // buffer size

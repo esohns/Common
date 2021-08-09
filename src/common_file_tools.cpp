@@ -738,13 +738,37 @@ Common_File_Tools::isEmpty (const std::string& path_in)
                          &stat);
   if (unlikely (result == -1))
   {
-//    ACE_DEBUG ((LM_DEBUG,
-//                ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
-//                ACE_TEXT (path_in.c_str ())));
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
 
   return (stat.st_size == 0);
+}
+
+bool
+Common_File_Tools::isFile (const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isFile"));
+
+  int result = -1;
+  ACE_stat stat;
+  ACE_OS::memset (&stat, 0, sizeof (ACE_stat));
+  result = ACE_OS::stat (path_in.c_str (),
+                         &stat);
+  if (unlikely (result == -1))
+  {
+    int error = ACE_OS::last_error ();
+    if (error != ENOENT) // 2:
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
+                  ACE_TEXT (path_in.c_str ())));
+    // URI doesn't even exist --> NOT a file !
+    return false;
+  } // end IF
+
+  return ((stat.st_mode & S_IFMT) & S_IFREG);
 }
 
 bool
@@ -970,12 +994,36 @@ Common_File_Tools::create (const std::string& path_in)
   return true;
 }
 bool
-Common_File_Tools::createDirectory (const std::string& directory_in)
+Common_File_Tools::createDirectory (const std::string& directory_in,
+                                    bool createMissingSubdirectories_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::createDirectory"));
 
-  int result = -1;
+  // sanity check(s)
+  ACE_ASSERT (!directory_in.empty ());
 
+  int result = -1;
+  //std::vector<std::string> subdirectories_a;
+  //std::string subdirectory_string, base_directory_string;
+
+//  if (!createMissingSubdirectories_in)
+//    goto continue_;
+//
+//  // pre-processing
+//  base_directory_string = directory_in;
+//  while (!base_directory_string.empty ())
+//  {
+//    subdirectory_string =
+//      ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (directory_in.c_str ()),
+//                                           ACE_DIRECTORY_SEPARATOR_CHAR));
+//    subdirectories_a.push_back (subdirectory_string);
+//    base_directory_string = 
+//      ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (base_directory_string.c_str ()),
+//                                          ACE_DIRECTORY_SEPARATOR_CHAR));
+//  } // end WHILE
+//  std::reverse (subdirectories_a.begin (), subdirectories_a.end ());
+//
+//continue_:
   result = ACE_OS::mkdir (ACE_TEXT (directory_in.c_str ()),
                           ACE_DEFAULT_DIR_PERMS);
   if (unlikely (result == -1))
@@ -987,19 +1035,11 @@ Common_File_Tools::createDirectory (const std::string& directory_in)
       {
         // OK: some base sub-directory doesn't seem to exist...
         // --> try to recurse
-        const ACE_TCHAR* directory_p =
-          ACE::dirname (ACE_TEXT (directory_in.c_str ()),
-                        ACE_DIRECTORY_SEPARATOR_CHAR);
-        if (!directory_p)
-        {
-          ACE_DEBUG ((LM_ERROR,
-                      ACE_TEXT ("failed to ACE::dirname(\"%s\"): \"%m\", aborting\n"),
-                      ACE_TEXT (directory_in.c_str ())));
-          return false;
-        } // end IF
-        std::string base_directory = ACE_TEXT_ALWAYS_CHAR (directory_p);
+        std::string base_directory = ACE::dirname (ACE_TEXT (directory_in.c_str ()),
+                                                   ACE_DIRECTORY_SEPARATOR_CHAR);
         // sanity check: don't recurse for "." !
-        if (base_directory != ACE_TEXT_ALWAYS_CHAR ("."))
+        if ((base_directory != ACE_TEXT_ALWAYS_CHAR (".")) &&
+            createMissingSubdirectories_in)
         {
           if (createDirectory (base_directory))
             return createDirectory (directory_in);
@@ -1014,8 +1054,17 @@ Common_File_Tools::createDirectory (const std::string& directory_in)
       case EEXIST:
       {
         // entry already exists...
-        ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("\"%s\" already exists, leaving\n"),
+        // *IMPORTANT NOTE*: mkdir() returns EEXISTS if a file exists with the
+        //                   same name --> error in this case
+        if (Common_File_Tools::isFile (directory_in))
+        {
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("\"%s\" already exists as a regular file, aborting\n"),
+                      ACE_TEXT (directory_in.c_str ())));
+          return false;
+        } // end IF
+        ACE_DEBUG ((LM_WARNING,
+                    ACE_TEXT ("\"%s\" already exists, returning\n"),
                     ACE_TEXT (directory_in.c_str ())));
         return true;
       }
@@ -1477,6 +1526,7 @@ Common_File_Tools::store (const std::string& path_in,
   // initialize return value(s)
   bool result = false;
 
+  // append ?
   bool file_exists = Common_File_Tools::exists (path_in);
   const char* mode_p =
       (file_exists && appendIfExists_in ? ACE_TEXT_ALWAYS_CHAR ("ab")   // append
@@ -1484,6 +1534,19 @@ Common_File_Tools::store (const std::string& path_in,
   size_t result_2 = 0;
   int result_3 = -1;
   FILE* file_p = NULL;
+
+  // create sub-directories ?
+  std::string base_directory =
+    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (path_in.c_str ()),
+                                        ACE_DIRECTORY_SEPARATOR_CHAR));
+  if (!Common_File_Tools::isDirectory (base_directory))
+    if (!Common_File_Tools::createDirectory (base_directory))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_File_Tools::createDirectory(\"%s\"): \"%m\", aborting\n"),
+                  ACE_TEXT (base_directory.c_str ())));
+      return false;
+    } // end IF
 
   file_p = ACE_OS::fopen (path_in.c_str (),
                           mode_p);
@@ -1525,8 +1588,8 @@ clean:
 #if defined (_DEBUG)
   if (likely (result))
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("%s file \"%s\" (%u byte(s)\n"),
-                ((file_exists && appendIfExists_in) ? ACE_TEXT ("wrote") : ACE_TEXT ("appended")),
+                ACE_TEXT ("%s file \"%s\" (%u byte(s))\n"),
+                ((file_exists && appendIfExists_in) ? ACE_TEXT ("appended") : ACE_TEXT ("wrote")),
                 ACE_TEXT (path_in.c_str ()),
                 size_in));
 #endif // _DEBUG
@@ -2122,7 +2185,6 @@ Common_File_Tools::getUserDownloadDirectory (const std::string& userName_in)
   ACE_ASSERT (buffer_p);
   result = ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (buffer_p));
   CoTaskMemFree (buffer_p); buffer_p = NULL;
-  result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
 #else
   ACE_ASSERT (false); // *TODO*
   ACE_NOTSUP_RETURN (result);

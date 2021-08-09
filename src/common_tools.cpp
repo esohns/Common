@@ -24,6 +24,7 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+//#include <random>
 #include <regex>
 #include <sstream>
 #include <string>
@@ -2715,4 +2716,26 @@ Common_Tools::isInstalled (const std::string& executableName_in,
 #endif // ACE_LINUX
 
   return result;
+}
+
+unsigned int
+Common_Tools::getRandomNumber (unsigned int begin_in,
+                               unsigned int end_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::getRandomNumber"));
+
+  // *TODO*: use randomSeed to seed std::random_device...
+  //std::random_device device;
+  //std::default_random_engine engine (device ());
+  //std::uniform_int_distribution<unsigned int> distribution (begin_in, end_in);
+  ////std::function<unsigned int ()> generator =
+  ////    std::bind (distribution, engine);
+
+  //return generator ();
+  //return distribution (engine);
+
+  // sanity check(s)
+  ACE_ASSERT (begin_in <= end_in);
+
+  return (static_cast<unsigned int> (ACE_OS::rand () % (end_in - begin_in + 1)) + begin_in);
 }

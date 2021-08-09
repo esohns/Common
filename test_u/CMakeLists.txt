@@ -190,6 +190,7 @@ if (UNIX)
 endif (UNIX)
 add_subdirectory (count)
 add_subdirectory (file)
+add_subdirectory (locale)
 add_subdirectory (regex)
 
 # phonies

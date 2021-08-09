@@ -1,40 +1,6 @@
 #find_package (Threads REQUIRED)
 find_package (ImageMagick COMPONENTS MagickCore MagickWand)
 
-if (UNIX)
-# find_library (SWSCALE_LIBRARY libswscale.so.5
-#               DOC "searching for libswscale")
-# if (NOT SWSCALE_LIBRARY)
-#  message (FATAL_ERROR "could not find libswscale, aborting")
-# endif (NOT SWSCALE_LIBRARY)
-# find_library (AVFORMAT_LIBRARY libavformat.so.58
-#               DOC "searching for libavformat")
-# if (NOT AVFORMAT_LIBRARY)
-#  message (FATAL_ERROR "could not find libavformat, aborting")
-# endif (NOT AVFORMAT_LIBRARY)
-# find_library (AVCODEC_LIBRARY libavcodec.so.58
-#               DOC "searching for libavcodec")
-# if (NOT AVCODEC_LIBRARY)
-#  message (FATAL_ERROR "could not find libavcodec, aborting")
-# endif (NOT AVCODEC_LIBRARY)
-# pkg_check_modules (PKG_IMAGEMAGICK REQUIRED ImageMagick)
-endif (UNIX)
-
-set (ACE_LIB_FILE libACE.so)
-if (DEFINED ENV{ACE_ROOT})
- find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-               PATHS ENV ACE_ROOT
-               PATH_SUFFIXES ace build/linux/ace
-               DOC "searching for ${ACE_LIB_FILE}")
-else ()
- find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-               DOC "searching for ${ACE_LIB_FILE} (system paths)")
-endif ()
-#if (NOT EXISTS ACE_LIBRARY)
-if (NOT ACE_LIBRARY)
- message (FATAL_ERROR "could not find ${ACE_LIB_FILE} (was: \"${ACE_LIBRARY}\"), aborting")
-endif ()
-
 get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH DIRECTORY)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 find_package (Common ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
@@ -58,8 +24,8 @@ add_definitions (-DCOMMON_TIMER_HAS_DLL)
 
 if (UNIX)
 # include_directories (${PKG_IMAGEMAGICK_INCLUDE_DIRS})
-#include_directories (${ImageMagick_INCLUDE_DIRS})
- include_directories (/usr/include/ImageMagick-6/)
+ include_directories (${ImageMagick_INCLUDE_DIRS})
+# include_directories (/usr/include/ImageMagick-6/)
 
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
 endif (UNIX)
@@ -110,13 +76,18 @@ install (TARGETS ${EXECUTABLE}
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 
 ################ launchers ###############
+file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
+file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ImageMagick IMAGEMAGICK_LIB_PATH)
+if (WIN32)
+ set (ENVIRONMENT_MAGICK "MAGICK_CODER_MODULE_PATH=${IMAGEMAGICK_LIB_PATH}\\\\modules\\\\coders")
+endif (WIN32)
 create_target_launcher (${EXECUTABLE}
-                        ARGS "12 /bin/bash"
+                        ARGS "-f oak-tree.png -t"
 #                         FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
-                                             ${PROJECT_SOURCE_DIR}/cmake/src/Debug
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/capabilities
-                        ENVIRONMENT foo=bar)
+                        RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
+                                             ${IMAGEMAGICK_LIB_PATH}
+                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/imagemagick
+                        ENVIRONMENT ${ENVIRONMENT_MAGICK})
 
 ################ tests ###################
 add_test (NAME ${EXECUTABLE}_test
@@ -126,4 +97,3 @@ set_tests_properties (${EXECUTABLE}_test
                       PROPERTIES
                       ENVIRONMENT "PATH=D:\\projects\\ATCD\\ACE\\lib;D:\\projects\\gtk\\bin;D:\\projects\\libglade\\bin;D:\\projects\\libxml2-2.9.1\\.libs;G:\\software\\Development\\dll;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\ui\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\modules\\dev\\Debug;${PROJECT_SOURCE_DIR}\\..\\libACENetwork\\cmake\\src\\Debug;%PATH%")
 #PATH=%PATH%;$(ProjectDir)..\..\..\..\ATCD\ACE\lib;$(ProjectDir)..\..\..\..\gtk3\bin;$(ProjectDir)..\..\..\..\libav-11.7\libavcodec;$(ProjectDir)..\..\..\..\libav-11.7\libavresample;$(ProjectDir)..\..\..\..\libav-11.7\libavutil;$(ProjectDir)..\..\..\..\libCommon\cmake\src\Debug;$(ProjectDir)..\..\..\..\libCommon\cmake\src\err\Debug;$(ProjectDir)..\..\..\..\libCommon\cmake\src\ui\Debug;$(ProjectDir)..\..\src\Debug;$(ProjectDir)..\..\src\modules\dev\Debug;$(ProjectDir)..\..\src\modules\vis\Debug
-

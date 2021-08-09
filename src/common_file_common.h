@@ -23,6 +23,7 @@
 
 #include <vector>
 #include <string>
+#include <utility>
 
 #include "ace/config-lite.h"
 #include "ace/OS_NS_dirent.h"
@@ -53,5 +54,17 @@ struct common_file_identifier_less
 {
   inline bool operator() (const struct Common_File_Identifier& lhs_in, const struct Common_File_Identifier& rhs_in) const { ACE_ASSERT (lhs_in.identifierDiscriminator == Common_File_Identifier::FILE); ACE_ASSERT (rhs_in.identifierDiscriminator == Common_File_Identifier::FILE); std::less<std::string> comparator; return comparator (lhs_in.identifier, rhs_in.identifier); }
 };
+//struct common_file_identifier_lexi_less
+//{
+//  bool operator() (struct Common_File_Identifier& lhs_in, struct Common_File_Identifier& rhs_in)
+//  {
+//    ACE_ASSERT (lhs_in.identifierDiscriminator == Common_File_Identifier::FILE);
+//    ACE_ASSERT (rhs_in.identifierDiscriminator == Common_File_Identifier::FILE);
+//    return std::lexicographical_compare (lhs_in.identifier.begin (),
+//                                         lhs_in.identifier.end (),
+//                                         rhs_in.identifier.begin (),
+//                                         rhs_in.identifier.end ());
+//  };
+//};
 
 #endif

@@ -22,6 +22,10 @@
 
 #include "common_macros.h"
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "common_error_tools.h"
+#endif // ACE_WIN32 || ACE_WIN64
+
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
           typename LockType,
@@ -164,8 +168,8 @@ Common_Task_Ex_T<ACE_SYNCH_USE,
   COMMON_TRACE (ACE_TEXT ("Common_Task_Ex_T::svc"));
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  Common_Tools::setThreadName (inherited::threadName_,
-                               0);
+  Common_Error_Tools::setThreadName (inherited::threadName_,
+                                     0);
 #endif // ACE_WIN32 || ACE_WIN64
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,

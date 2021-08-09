@@ -155,10 +155,10 @@ do_work (const std::string& sourceFilePath_in)
   ACE_ASSERT (file_p);
 
   size_2 = ACE_OS::fread (buffer_a,
-                          sizeof (unsigned char[BUFSIZ * 1024]),
                           1,
+                          sizeof (unsigned char[BUFSIZ * 1024]),
                           file_p);
-  ACE_ASSERT (size_2 == 1);
+  ACE_ASSERT (size_2 > 0);
 
   ACE_OS::fclose (file_p); file_p = NULL;
 
@@ -171,7 +171,15 @@ do_work (const std::string& sourceFilePath_in)
                                                   size_2);
 //  MagickBooleanType result = MagickReadImage (wand_p,
 //                                              sourceFilePath_in.c_str ());
-  ACE_ASSERT (result == MagickTrue);
+  if (result != MagickTrue)
+  {
+    ExceptionType severity;
+    char* description_p = MagickGetException (wand_p, &severity);
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to MagickReadImageBlob(): \"%s\", aborting\n"),
+                ACE_TEXT (description_p)));
+    return;
+  } // end IF
 
   MagickSetImageFormat (wand_p, "RGB");
 

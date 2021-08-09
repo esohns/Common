@@ -175,6 +175,8 @@ class Common_Tools
 #else
   static char                    randomStateBuffer[BUFSIZ];
 #endif // ACE_WIN32 || ACE_WIN64
+  static unsigned int getRandomNumber (unsigned int,  // start (inclusive)
+                                       unsigned int); // end   (inclusive)
 
   // --- libraries ---
   inline static std::string compiledVersion_ACE () { std::ostringstream converter; converter << ACE_MAJOR_VERSION; converter << ACE_TEXT_ALWAYS_CHAR ("."); converter << ACE_MINOR_VERSION; converter << ACE_TEXT_ALWAYS_CHAR ("."); converter << ACE_MICRO_VERSION; return converter.str (); }
