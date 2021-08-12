@@ -233,12 +233,10 @@ Common_SignalHandler_T<ConfigurationType>::handle_exception (ACE_HANDLE handle_i
     signal_s = signals_.front ();
     signals_.erase (signals_.begin ());
   } // end lock scope
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("%D: received [%u/\"%S\"]: %s\n"),
               signal_s.signal, signal_s.signal,
               ACE_TEXT (Common_Signal_Tools::signalToString (signal_s).c_str ())));
-#endif // _DEBUG
 
   try {
     callback_p->handle (signal_s);
