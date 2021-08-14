@@ -32,10 +32,12 @@ struct Common_SignalHandlerConfiguration
   Common_SignalHandlerConfiguration ()
    : dispatchState (NULL)
    , lock ()
+   , stopEventDispatchOnShutdown (false)
   {}
 
   struct Common_EventDispatchState* dispatchState;
   ACE_SYNCH_RECURSIVE_MUTEX         lock;
+  bool                              stopEventDispatchOnShutdown;
 };
 
 #endif
