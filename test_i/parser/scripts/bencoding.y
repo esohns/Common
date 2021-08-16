@@ -89,8 +89,11 @@
 /* #define YYSTYPE
 typedef union YYSTYPE
 {
-  int          ival;
-  std::string* sval;
+  ACE_INT64               ival;
+  std::string*            sval;
+  Bencoding_Element*      eval;
+  Bencoding_List_t*       lval;
+  Bencoding_Dictionary_t* dval;
 } YYSTYPE; */
 /*#undef YYSTYPE*/
 //union YYSTYPE;

@@ -81,7 +81,7 @@ class Bencoding_ParserDriver
   virtual void record (Bencoding_Dictionary_t*&); // data record
   virtual void record_2 (Bencoding_List_t*&); // data record
   virtual void record_3 (std::string*&); // data record
-  virtual void record_4 (unsigned int); // data record
+  virtual void record_4 (ACE_INT64); // data record
 
   inline virtual std::string& getKey () { ACE_ASSERT (key_); return *key_; }
   inline virtual void popDictionary () { dictionaries_.pop (); }
@@ -113,8 +113,5 @@ class Bencoding_ParserDriver
   std::string*                        key_;
   std::stack<Bencoding_List_t*>       lists_;
 };
-
-// include template definition
-//#include "bittorrent_parser_driver.inl"
 
 #endif

@@ -8,6 +8,8 @@
 // <limits> does not work correctly with these macros
 #define NOMINMAX
 
+#include "targetver.h"
+
 // Windows Header Files
 #include <windows.h>
 
@@ -29,7 +31,6 @@
 // System Library Header Files
 #include "ace/config-lite.h"
 #include "ace/Global_Macros.h"
-#include "ace/Synch.h"
 #include "ace/Log_Msg.h"
 
 #if defined (VALGRIND_SUPPORT)

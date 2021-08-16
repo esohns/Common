@@ -67,9 +67,9 @@ Bencoding_ParserDriver::record (Bencoding_Dictionary_t*& record_inout)
   // sanity check(s)
   ACE_ASSERT (record_inout);
 
-  ACE_DEBUG((LM_DEBUG,
-             ACE_TEXT("%s\n"),
-             ACE_TEXT (Common_Parser_Bencoding_Tools::DictionaryToString (*record_inout).c_str ())));
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT("%s\n"),
+              ACE_TEXT (Common_Parser_Bencoding_Tools::DictionaryToString (*record_inout).c_str ())));
 
   Common_Parser_Bencoding_Tools::free (record_inout);
   ACE_ASSERT (!record_inout);
@@ -83,9 +83,9 @@ Bencoding_ParserDriver::record_2 (Bencoding_List_t*& record_inout)
   // sanity check(s)
   ACE_ASSERT (record_inout);
 
-  ACE_DEBUG((LM_DEBUG,
-             ACE_TEXT("%s\n"),
-             ACE_TEXT (Common_Parser_Bencoding_Tools::ListToString (*record_inout).c_str ())));
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT("%s\n"),
+              ACE_TEXT (Common_Parser_Bencoding_Tools::ListToString (*record_inout).c_str ())));
 
   Common_Parser_Bencoding_Tools::free (record_inout);
   ACE_ASSERT (!record_inout);
@@ -99,24 +99,24 @@ Bencoding_ParserDriver::record_3 (std::string*& record_inout)
   // sanity check(s)
   ACE_ASSERT (record_inout);
 
-  ACE_DEBUG((LM_DEBUG,
-             ACE_TEXT("\"%s\"\n"),
-             ACE_TEXT (record_inout->c_str ())));
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT("\"%s\"\n"),
+              ACE_TEXT (record_inout->c_str ())));
 
   delete record_inout; record_inout = NULL;
 }
 
 void
-Bencoding_ParserDriver::record_4 (unsigned int record_inout)
+Bencoding_ParserDriver::record_4 (ACE_INT64 record_inout)
 {
   COMMON_TRACE (ACE_TEXT ("Bencoding_ParserDriver_T::record_4"));
 
   // sanity check(s)
   ACE_ASSERT (record_inout);
 
-  ACE_DEBUG((LM_DEBUG,
-             ACE_TEXT("%d\n"),
-             record_inout));
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT("%q\n"),
+              record_inout));
 }
 
 yy_buffer_state*

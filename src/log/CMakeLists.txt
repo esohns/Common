@@ -1,12 +1,12 @@
 ﻿set (LIBRARY ${PROJECT_NAME}Log)
 add_library (${LIBRARY} STATIC "")
 
-if (UNIX)
+#if (UNIX)
 # include_directories (${PKG_GTK_GLADE_INCLUDE_DIRS})
 # target_include_directories (${LIBRARY} PUBLIC
 #                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
 ##                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
-elseif (WIN32)
+#elseif (WIN32)
 # if (DEFINED ENV{ACE_ROOT})
 #  target_include_directories (${LIBRARY} PUBLIC
 #                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
@@ -14,12 +14,14 @@ elseif (WIN32)
 #  target_include_directories (${LIBRARY} PUBLIC
 #                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
 # endif (DEFINED ENV{ACE_ROOT})
-endif ()
+#endif ()
 
 target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
-target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
+target_include_directories (${LIBRARY} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>)
+target_include_directories (${LIBRARY} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 
 ############## next target ################
 set (source_files

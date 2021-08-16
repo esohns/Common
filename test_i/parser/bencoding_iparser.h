@@ -58,8 +58,8 @@ class Bencoding_IParser
 
   virtual void record_2 (Bencoding_List_t*&) = 0; // data record
   virtual Bencoding_List_t& current_2 () = 0; // data record
-  virtual void record_3 (std::string*&) = 0;   // data record
-  virtual void record_4 (unsigned int) = 0;   // data record
+  virtual void record_3 (std::string*&) = 0; // data record
+  virtual void record_4 (ACE_INT64) = 0; // data record
 };
 
 ////////////////////////////////////////////

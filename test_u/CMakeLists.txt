@@ -17,8 +17,8 @@ if (UNIX)
   endif ()
  endif (GUI_SUPPORT)
 
- target_include_directories (${PROJECT_NAME}_Test_U PUBLIC
-                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
+# target_include_directories (${PROJECT_NAME}_Test_U PUBLIC
+#                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
 #                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
 
  target_include_directories (${PROJECT_NAME}_Test_U PUBLIC
@@ -54,15 +54,17 @@ elseif (WIN32)
   endif ()
  endif (GUI_SUPPORT)
 
- if (DEFINED ENV{ACE_ROOT})
-  file (TO_CMAKE_PATH $ENV{ACE_ROOT} ACE_ROOT_CMAKE)
-  target_include_directories (${PROJECT_NAME}_Test_U PUBLIC
-                              $<BUILD_INTERFACE:${ACE_ROOT_CMAKE}>)
- else ()
-  target_include_directories (${PROJECT_NAME}_Test_U PUBLIC
-                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
- endif (DEFINED ENV{ACE_ROOT})
+# if (DEFINED ENV{ACE_ROOT})
+#  file (TO_CMAKE_PATH $ENV{ACE_ROOT} ACE_ROOT_CMAKE)
+#  target_include_directories (${PROJECT_NAME}_Test_U PUBLIC
+#                              $<BUILD_INTERFACE:${ACE_ROOT_CMAKE}>)
+# else ()
+#  target_include_directories (${PROJECT_NAME}_Test_U PUBLIC
+#                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
+# endif (DEFINED ENV{ACE_ROOT})
 
+ target_include_directories (${PROJECT_NAME}_Test_U PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
  target_include_directories (${PROJECT_NAME}_Test_U PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src>)
  target_include_directories (${PROJECT_NAME}_Test_U PUBLIC
