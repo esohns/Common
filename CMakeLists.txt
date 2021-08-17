@@ -1,13 +1,15 @@
-﻿include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/PreToolChain.cmake)
-include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/SetToolChain.cmake)
-include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/ToolChain.cmake)
-# *NOTE*: or use the cmake.exe '-T' option instead
-include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/SetTargetPlatform.cmake)
-include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/TargetPlatform.cmake)
+﻿include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/VersionConfig.cmake)
 
-include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/Configuration.cmake)
-include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/Macros.cmake)
-include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/VersionConfig.cmake)
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts")
+include (Configuration)
+include (Macros)
+
+include (PreToolChain)
+include (SetToolChain)
+include (ToolChain)
+# *NOTE*: or use the cmake.exe '-T' option instead
+include (SetTargetPlatform)
+include (TargetPlatform)
 
 # detect version
 #include (MacrosAutotools)

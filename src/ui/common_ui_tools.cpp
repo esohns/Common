@@ -1421,12 +1421,12 @@ Common_UI_Tools::dump (const Display& display_in,
 
 // ---------------------------------------
 
-Common_Image_Resolutions_t
+Common_UI_Resolutions_t
 Common_UI_Tools::get (const std::string& deviceIdentifier_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::get"));
 
-  Common_Image_Resolutions_t result;
+  Common_UI_Resolutions_t result;
 
   std::string device_identifier_string = deviceIdentifier_in;
   struct Common_UI_DisplayDevice display_device_s;
@@ -1442,7 +1442,7 @@ Common_UI_Tools::get (const std::string& deviceIdentifier_in)
   //         handling any errors here
   ACE_ASSERT (Common_UI_Tools::is (device_identifier_string));
 
-  Common_Image_Resolution_t resolution_s;
+  Common_UI_Resolution_t resolution_s;
   std::string device_name_string;
   if (Common_UI_Tools::isAdapter (device_identifier_string))
   {
@@ -1585,15 +1585,15 @@ Common_UI_Tools::get (const std::string& deviceIdentifier_in)
 #endif // _DEBUG
   } while (!converter.fail ());
 #endif // ACE_WIN32 || ACE_WIN64
-  result.sort (common_image_resolution_less ());
-  result.unique (common_image_resolution_equal ());
+  result.sort (common_ui_resolution_less ());
+  result.unique (common_ui_resolution_equal ());
 
   return result;
 }
 
 bool
 Common_UI_Tools::has (const std::string& deviceIdentifier_in,
-                      const Common_Image_Resolution_t& resolution_in)
+                      const Common_UI_Resolution_t& resolution_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::has"));
 
@@ -1756,24 +1756,24 @@ Common_UI_Tools::mode (const std::string& deviceIdentifier_in)
   return result;
 }
 
-Common_Image_Resolution_t
-Common_UI_Tools::nearest (const Common_Image_Resolutions_t& resolutions_in,
-                          const Common_Image_Resolution_t& resolution_in)
+Common_UI_Resolution_t
+Common_UI_Tools::nearest (const Common_UI_Resolutions_t& resolutions_in,
+                          const Common_UI_Resolution_t& resolution_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::nearest"));
 
   // initialize return value(s)
-  Common_Image_Resolution_t return_value;
-  ACE_OS::memset (&return_value, 0, sizeof (Common_Image_Resolution_t));
+  Common_UI_Resolution_t return_value;
+  ACE_OS::memset (&return_value, 0, sizeof (Common_UI_Resolution_t));
 
   // sanity check(s)
   ACE_ASSERT (!resolutions_in.empty ());
 
-  Common_Image_Resolutions_t resolutions_a = resolutions_in;
-  resolutions_a.sort (common_image_resolution_less ());
-  resolutions_a.unique (common_image_resolution_equal ());
-  Common_Image_ResolutionsConstIterator_t iterator_2;
-  for (Common_Image_ResolutionsConstIterator_t iterator = resolutions_a.begin ();
+  Common_UI_Resolutions_t resolutions_a = resolutions_in;
+  resolutions_a.sort (common_ui_resolution_less ());
+  resolutions_a.unique (common_ui_resolution_equal ());
+  Common_UI_ResolutionsConstIterator_t iterator_2;
+  for (Common_UI_ResolutionsConstIterator_t iterator = resolutions_a.begin ();
        iterator != resolutions_a.end ();
        ++iterator)
   {
