@@ -77,15 +77,19 @@ class Common_UI_Tools
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-  static void dump (const Display&, // connection handle
-                    Drawable);      // drawable (window or pixmap)
-  static XWindowAttributes get (const Display&, // connection handle
-                                Window);        // window
+  static void dump (const struct _XDisplay&, // connection handle
+                    Drawable);               // drawable (window or pixmap)
+  static XWindowAttributes get (const struct _XDisplay&, // connection handle
+                                Window);                 // window
   // *NOTE*: queries the display name from the 'DISPLAY' environment to verify
   //         that the X11 session is using the screen connected to the given
   //         output
   static std::string getX11DisplayName (const std::string&); // output name
 
+  static Common_UI_Resolution_t toResolution (const struct _XDisplay&, // display
+                                              Window);                 // window
+  static std::string toString (const struct _XDisplay&, // display
+                               int);                    // error code
 #endif // ACE_WIN32 || ACE_WIN64
 
   // *NOTE*: the identifier may specify either a graphics adapter or a display

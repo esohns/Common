@@ -111,12 +111,21 @@
 
 #define COMMON_MAKESTRING(M,L) M(L)
 
+#define COMMON_STRING_APPEND(string,string_2) \
+  string += ACE_TEXT_ALWAYS_CHAR (string_2)
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #if defined (UNICODE)
 #define COMMON_TEXT(x) ACE_TEXT_WCHAR_TO_TCHAR (x)
 #else
 #define COMMON_TEXT(x) ACE_TEXT (x)
 #endif // UNICODE
+#else
+#define COMMON_COMMAND_ADD_SWITCH(command,switch_) \
+  COMMON_STRING_APPEND(command," -");              \
+  command += ACE_TEXT_ALWAYS_CHAR (switch_);
+#define COMMON_COMMAND_START_IN_BACKGROUND(command) \
+  command += COMMON_STRING_APPEND(command, &);
 #endif // ACE_WIN32 || ACE_WIN64
 
 // memory allocation

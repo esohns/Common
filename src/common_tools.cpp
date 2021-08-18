@@ -378,17 +378,17 @@ Common_Tools::getOperatingSystem ()
   std::string sysname_string (utsname_s.sysname);
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   if (sysname_string.find (ACE_TEXT_ALWAYS_CHAR (COMMON_OS_WIN32_UNAME_STRING),
-                           0))
+                           0) == 0)
     return COMMON_OPERATINGSYSTEM_WIN32;
 #elif defined (ACE_LINUX)
   if (sysname_string.find (ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LINUX_UNAME_STRING),
-                           0))
+                           0) == 0)
     return COMMON_OPERATINGSYSTEM_GNU_LINUX;
 #else
   ACE_ASSERT (false); // *TODO*
   ACE_NOTSUP_RETURN (COMMON_OPERATINGSYSTEM_INVALID);
   ACE_NOTREACHED (return COMMON_OPERATINGSYSTEM_INVALID;)
-#endif
+#endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
 
   return COMMON_OPERATINGSYSTEM_INVALID;
 }

@@ -242,14 +242,6 @@
 #define COMMON_COMMAND_WHICH                                   "which"
 #endif // ACE_WIN32 || ACE_WIN64
 
-#define COMMON_STRING_APPEND(string,string_2) \
-  string += ACE_TEXT_ALWAYS_CHAR (#string_2);
-#define COMMON_COMMAND_ADD_SWITCH(command,switch_) \
-  command += COMMON_STRING_APPEND (command,-);     \
-  command += ACE_TEXT_ALWAYS_CHAR (switch_);
-#define COMMON_COMMAND_START_IN_BACKGROUND(command) \
-  command += COMMON_STRING_APPEND (command, &);
-
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 // registry
 #define COMMON_WIN32_REGISTRY_RESOLVE_RETRIES                  3

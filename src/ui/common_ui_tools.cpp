@@ -1375,7 +1375,7 @@ Common_UI_Tools::getX11DisplayName (const std::string& outputName_in)
 }
 
 XWindowAttributes
-Common_UI_Tools::get (const Display& display_in,
+Common_UI_Tools::get (const struct _XDisplay& display_in,
                       Window id_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::get"));
@@ -1393,7 +1393,7 @@ Common_UI_Tools::get (const Display& display_in,
 }
 
 void
-Common_UI_Tools::dump (const Display& display_in,
+Common_UI_Tools::dump (const struct _XDisplay& display_in,
                        Drawable id_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::dump"));
@@ -1416,6 +1416,61 @@ Common_UI_Tools::dump (const Display& display_in,
               window_i,
               relative_position_x, relative_position_y, resolution_s.width, resolution_s.height,
               border_width_i, depth_i));
+}
+
+std::string
+Common_UI_Tools::toString (const struct _XDisplay& display_in,
+                           int errorCode_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::toString"));
+
+  // initialize return value(s)
+  std::string return_value;
+
+  char buffer_a[BUFSIZ];
+  ACE_OS::memset (&buffer_a, 0, sizeof (char[BUFSIZ]));
+
+  Status result = XGetErrorText (&const_cast<Display&> (display_in),
+                                 errorCode_in,
+                                 buffer_a, sizeof (char[BUFSIZ]));
+  if (unlikely (result))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to XGetErrorText(0x%@,%d): \"%m\", aborting\n"),
+                &display_in,
+                errorCode_in));
+    return return_value;
+  } // end IF
+  return_value = buffer_a;
+
+  return return_value;
+}
+
+Common_UI_Resolution_t
+Common_UI_Tools::toResolution (const struct _XDisplay& display_in,
+                               Window window_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::toResolution"));
+
+  Common_UI_Resolution_t return_value;
+
+  XWindowAttributes attributes_s;
+  ACE_OS::memset (&attributes_s, 0, sizeof (XWindowAttributes));
+  Status result = XGetWindowAttributes (&const_cast<Display&> (display_in),
+                                        window_in,
+                                        &attributes_s);
+  if (unlikely (!result))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to XGetWindowAttributes(0x%@,%u): \"%s\", aborting\n"),
+                &display_in, window_in,
+                ACE_TEXT (Common_UI_Tools::toString (display_in, result).c_str ())));
+    return return_value;
+  } // end IF
+  return_value.width = attributes_s.width;
+  return_value.height = attributes_s.height;
+
+  return return_value;
 }
 #endif // ACE_WIN32 || ACE_WIN64
 
