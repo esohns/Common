@@ -80,7 +80,8 @@ if (UNIX)
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
  target_include_directories (${LIBRARY} PUBLIC
-                             ${PKG_IMAGEMAGICK_INCLUDE_DIRS})
+                             $<BUILD_INTERFACE:${PKG_IMAGEMAGICK_INCLUDE_DIRS}>)
+message (STATUS "PKG_IMAGEMAGICK_INCLUDE_DIRS: ${PKG_IMAGEMAGICK_INCLUDE_DIRS}")
 elseif (WIN32)
  if (LIBPNG_SUPPORT)
   target_include_directories (${LIBRARY} PUBLIC
@@ -104,12 +105,11 @@ elseif (WIN32)
 endif ()
 
 target_include_directories (${LIBRARY} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../image>)
-target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
-#message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: ${INTERFACE_INCLUDE_DIRECTORIES}")
 
 ############## next target ################
 set (source_files
