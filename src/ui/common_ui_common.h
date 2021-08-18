@@ -71,7 +71,7 @@ struct common_ui_resolution_less
 {
   inline bool operator() (const Common_UI_Resolution_t& lhs_in, const Common_UI_Resolution_t& rhs_in) const { return ((lhs_in.width == rhs_in.width) ? (lhs_in.height < rhs_in.height) : (lhs_in.width < rhs_in.width)); }
 };
-struct common_image_resolution_equal
+struct common_ui_resolution_equal
 {
   inline bool operator() (const Common_UI_Resolution_t& lhs_in, const Common_UI_Resolution_t& rhs_in) const { return ((lhs_in.width == rhs_in.width) && (lhs_in.height == rhs_in.height)); }
 };

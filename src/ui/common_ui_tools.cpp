@@ -1400,7 +1400,7 @@ Common_UI_Tools::dump (const Display& display_in,
 
   Window window_i = 0;
   int relative_position_x = 0, relative_position_y = 0;
-  Common_Image_Resolution_t resolution_s;
+  Common_UI_Resolution_t resolution_s;
   unsigned int border_width_i = 0, depth_i = 0;
   Status result = XGetGeometry (&const_cast<Display&> (display_in),
                                 id_in,
