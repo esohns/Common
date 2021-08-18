@@ -81,6 +81,7 @@ if (UNIX)
 # *WORKAROUND*: there seems to be a problem on Ubuntu
  if (CMAKE_SYSTEM_NAME MATCHES "Linux")
    message (STATUS "on linux")
+   message (STATUS "LSB_RELEASE_ID_SHORT: ${LSB_RELEASE_ID_SHORT}")
   if (${LSB_RELEASE_ID_SHORT} MATCHES "Ubuntu")
    message (STATUS "on ubuntu")
    target_include_directories (${LIBRARY} PUBLIC
