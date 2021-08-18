@@ -1,18 +1,18 @@
-﻿include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/Threads.cmake)
+﻿# configure C/C++ exceptions
+include (SetCppExceptions)
 
-include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/ACE.cmake)
+include (Threads)
+
+include (ACE)
 
 # *TODO*: compile in support as available automatically
 if (UNIX)
  option (DBUS_SUPPORT "compile DBus support" ON)
 endif (UNIX)
 
-# configure C/C++ exceptions
-include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/SetCppExceptions.cmake)
-
 if (UNIX)
  include (CheckLibraryExists)
- #*TODO*: why isn't the function found ?
+# *TODO*: why isn't the function found ?
  check_library_exists (rt aio_init "" HAVE_LIB_AIO)
 
  set (AIO_LIB_FILE libaio.so.1)
@@ -24,16 +24,7 @@ if (UNIX)
   message (FATAL_ERROR "could not find libaio, aborting")
  endif (NOT AIO_LIBRARY)
 
-# find_library (CAP_LIBRARY libcap.so.2
-#               DOC "searching for libcap")
-# if (NOT CAP_LIBRARY)
-#  message (FATAL_ERROR "could not find libcap, aborting")
-# endif ()
  pkg_check_modules (PKG_LIBCAP REQUIRED libcap)
-endif (UNIX)
-
-if (UNIX)
- add_definitions (-D_GLIBCXX_INCLUDE_NEXT_C_HEADERS)
 endif (UNIX)
 
 add_definitions (-DHAVE_CONFIG_H)
@@ -42,13 +33,12 @@ add_definitions (-DHAVE_CONFIG_H)
 if (UNIX)
 elseif (WIN32)
 # add_definitions (-DWIN32)
-# set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc") # C++ exception handling
 # if (CMAKE_BUILD_TYPE STREQUAL Debug)
 #  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MDd") # multithreaded debug dll
 # else ()
 #  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")  # multithreaded dll
 # endif ()
- add_definitions (-DSTRSAFE_NO_DEPRECATE)
+# add_definitions (-DSTRSAFE_NO_DEPRECATE)
 endif ()
 
 add_library (${PROJECT_NAME} STATIC "")

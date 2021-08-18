@@ -1,20 +1,18 @@
-﻿include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/PreUIFramework.cmake)
-include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/SetUIFramework.cmake)
+﻿set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts")
+
+include (PreUIFramework)
+include (SetUIFramework)
 if (GTK_SUPPORT)
- include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/SetGTKVersion.cmake)
+ include (SetGTKVersion)
 endif (GTK_SUPPORT)
 
 set (ACEXML_LIB_FILE libACEXML.so)
 if (UNIX)
-# message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
  find_library (ACE_XML_LIBRARY ${ACEXML_LIB_FILE}
-               PATHS $ENV{ACE_ROOT}/ACEXML /usr/local/src/ACE_wrappers/ACEXML
+               PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE/ACEXML $ENV{ACE_ROOT}/ACEXML
                PATH_SUFFIXES common
-               DOC "searching for ${ACEXML_LIB_FILE} (system paths)")
-# else ()
-#  find_library (ACE_XML_LIBRARY ${ACEXML_LIB_FILE}
-#                DOC "searching for ${ACEXML_LIB_FILE} (system paths)")
-# endif ()
+               DOC "searching for ${ACEXML_LIB_FILE} (system paths)"
+               NO_DEFAULT_PATH)
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
   set (LIB_FILE_SUFFIX d)
@@ -24,9 +22,9 @@ elseif (WIN32)
  find_library (ACE_XML_LIBRARY ${ACEXML_LIB_FILE}
                PATHS $ENV{LIB_ROOT}/ACE_TAO/ACE
                PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
-               DOC "searching for ${ACEXML_LIB_FILE}")
+               DOC "searching for ${ACEXML_LIB_FILE}"
+               NO_DEFAULT_PATH)
 endif ()
-#if (NOT EXISTS ACE_XML_LIBRARY)
 if (NOT ACE_XML_LIBRARY)
  message (FATAL_ERROR "Could not find ${ACEXML_LIB_FILE} (was: \"${ACE_XML_LIBRARY}\"), aborting")
 else ()
@@ -42,20 +40,6 @@ if (GTK_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
                              "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
 endif (GTK_SUPPORT)
-
-#if (UNIX)
-# target_include_directories (${LIBRARY} PUBLIC
-#                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
-#                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
-#elseif (WIN32)
-# if (DEFINED ENV{ACE_ROOT})
-#  target_include_directories (${LIBRARY} PUBLIC
-#                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
-# else ()
-#  target_include_directories (${LIBRARY} PUBLIC
-#                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
-# endif (DEFINED ENV{ACE_ROOT})
-#endif ()
 
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
