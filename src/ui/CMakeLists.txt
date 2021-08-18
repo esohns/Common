@@ -11,8 +11,7 @@ if (UNIX)
  find_library (ACE_XML_LIBRARY ${ACEXML_LIB_FILE}
                PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE/ACEXML $ENV{ACE_ROOT}/ACEXML
                PATH_SUFFIXES common
-               DOC "searching for ${ACEXML_LIB_FILE} (system paths)"
-               NO_DEFAULT_PATH)
+               DOC "searching for ${ACEXML_LIB_FILE} (system paths)")
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
   set (LIB_FILE_SUFFIX d)
