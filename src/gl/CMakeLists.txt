@@ -40,7 +40,6 @@ if (UNIX)
 # pkg_check_modules (PKG_GLM REQUIRED glm)
  find_file (GLM_HPP_FILE
             NAMES "glm.hpp"
-            HINTS /usr/include
             PATHS /usr/include
             PATH_SUFFIXES glm
             DOC "searching for glm.h"
@@ -75,13 +74,16 @@ add_library (${LIBRARY} STATIC "")
 if (UNIX)
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${PKG_GLM_INCLUDE_DIRS}>)
- target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:${PKG_LIBPNG_INCLUDE_DIRS}>)
+ if (LIBPNG_SUPPORT)
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:${PKG_LIBPNG_INCLUDE_DIRS}>)
+ endif (LIBPNG_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
- target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:${PKG_IMAGEMAGICK_INCLUDE_DIRS}>)
-message (STATUS "PKG_IMAGEMAGICK_INCLUDE_DIRS: ${PKG_IMAGEMAGICK_INCLUDE_DIRS}")
+ if (IMAGEMAGICK_SUPPORT)
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:${PKG_IMAGEMAGICK_INCLUDE_DIRS}>)
+ endif (IMAGEMAGICK_SUPPORT)
 elseif (WIN32)
  if (LIBPNG_SUPPORT)
   target_include_directories (${LIBRARY} PUBLIC
@@ -110,6 +112,9 @@ target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../image>)
+
+get_target_property (debug ${LIBRARY} INTERFACE_INCLUDE_DIRECTORIES)
+message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
 
 ############## next target ################
 set (source_files
@@ -150,9 +155,9 @@ target_sources (${LIBRARY}
 #set_target_properties (${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
 #set_target_properties (${PROJECT_NAME} PROPERTIES
 #                       DEFINE_SYMBOL COMMON_BUILD_DLL)
-set_target_properties (${LIBRARY} PROPERTIES
-                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-                       SOVERSION 1)
+#set_target_properties (${LIBRARY} PROPERTIES
+#                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
+#                       SOVERSION 1)
 
 if (UNIX)
  if (LIBPNG_SUPPORT)
