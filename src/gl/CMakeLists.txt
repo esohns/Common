@@ -78,8 +78,19 @@ if (UNIX)
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:${PKG_LIBPNG_INCLUDE_DIRS}>)
  endif (LIBPNG_SUPPORT)
- target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
+# *WORKAROUND*: there seems to be a problem on Ubuntu
+ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+  if (${LSB_RELEASE_ID_SHORT} MATCHES "Ubuntu")
+   target_include_directories (${LIBRARY} PUBLIC
+                               $<BUILD_INTERFACE:/usr/include/assimp>)
+  else ()
+   target_include_directories (${LIBRARY} PUBLIC
+                               $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
+  endif (${LSB_RELEASE_ID_SHORT} MATCHES "Ubuntu")
+ else ()
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
+ endif (CMAKE_SYSTEM_NAME MATCHES "Linux")
  if (IMAGEMAGICK_SUPPORT)
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:${PKG_IMAGEMAGICK_INCLUDE_DIRS}>)
