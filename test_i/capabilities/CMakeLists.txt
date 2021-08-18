@@ -39,8 +39,11 @@ endif (UNIX)
 ############## includes ###############
 include_directories (${PKG_CAP_INCLUDE_DIRS})
 
-include_directories ($ENV{LIB_ROOT}/ACE_TAO/ACE)
-#include_directories (/usr/local/src/ACE_wrappers)
+if (UNIX)
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
+elseif (WIN32)
+ include_directories ($ENV{LIB_ROOT}/ACE_TAO/ACE)
+endif ()
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/timer)

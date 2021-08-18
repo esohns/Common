@@ -17,23 +17,12 @@ if (UNIX)
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:${PKG_GLADE_INCLUDE_DIRS}>)
  endif (LIBGLADE_SUPPORT)
-
- target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
 elseif (WIN32)
  if (LIBGLADE_SUPPORT)
 # libglade
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../libglade-2.6.4/include/libglade-2.0>)
  endif (LIBGLADE_SUPPORT)
-
- if (DEFINED ENV{ACE_ROOT})
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
- else ()
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
- endif (DEFINED ENV{ACE_ROOT})
 endif ()
 
 target_include_directories (${LIBRARY} PUBLIC

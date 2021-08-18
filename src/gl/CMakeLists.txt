@@ -81,10 +81,6 @@ if (UNIX)
                              $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
  target_include_directories (${LIBRARY} PUBLIC
                              ${PKG_IMAGEMAGICK_INCLUDE_DIRS})
-
-# target_include_directories (${LIBRARY} PUBLIC
-#                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
-#                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
 elseif (WIN32)
  if (LIBPNG_SUPPORT)
   target_include_directories (${LIBRARY} PUBLIC
@@ -105,14 +101,6 @@ elseif (WIN32)
                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/assimp/cmake/include>)
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/assimp/include>)
-
-# if (DEFINED ENV{ACE_ROOT})
-#  target_include_directories (${LIBRARY} PUBLIC
-#                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
-# else ()
-#  target_include_directories (${LIBRARY} PUBLIC
-#                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
-# endif (DEFINED ENV{ACE_ROOT})
 endif ()
 
 target_include_directories (${LIBRARY} PUBLIC

@@ -14,19 +14,6 @@ endif (UNIX)
 target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
                             "$<BUILD_INTERFACE:${Qt5Widgets_INCLUDE_DIRS}>")
 
-if (UNIX)
- target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
-                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
-elseif (WIN32)
-#*TODO*: use pkg-config instead
-# if (DEFINED ENV{ACE_ROOT})
-#  target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
-#                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
-# else ()
-#  target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
-#                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../ACE_TAO/ACE>)
-# endif (DEFINED ENV{ACE_ROOT})
-endif ()
 target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../../..>)
 target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC

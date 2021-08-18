@@ -1,11 +1,12 @@
-﻿include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/Threads.cmake)
+﻿include (Threads)
 
-include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/ffmpeg.cmake)
+include (ffmpeg)
 
-include (${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/scripts/PreUIFramework.cmake)
-include (${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/scripts/SetUIFramework.cmake)
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/scripts")
+include (PreUIFramework)
+include (SetUIFramework)
 
-include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/ACE.cmake)
+include (ACE)
 
 option (BUILD_TEST_I "build test_i" OFF)
 

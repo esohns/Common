@@ -1,17 +1,13 @@
-﻿include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/PreXMLImplementation.cmake)
-include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/SetXMLImplementation.cmake)
+﻿set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts")
+include (PreXMLImplementation)
+include (SetXMLImplementation)
 
 set (ACE_XML_LIB_FILE libACEXML.so)
 if (UNIX)
-# message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
  find_library (ACE_XML_LIBRARY ${ACE_XML_LIB_FILE}
-               PATHS $ENV{ACE_ROOT}/ACEXML /usr/local/src/ACE_wrappers/ACEXML
+               PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE/ACEXML $ENV{ACE_ROOT}/ACEXML
                PATH_SUFFIXES common
                DOC "searching for ${ACE_XML_LIB_FILE} (system paths)")
-# else ()
-#  find_library (ACE_XML_LIBRARY ${ACE_XML_LIB_FILE}
-#                DOC "searching for ${ACE_XML_LIB_FILE} (system paths)")
-# endif ()
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
   set (LIB_FILE_SUFFIX d)
@@ -72,20 +68,6 @@ if (LIBXML2_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${LIBXML2_INCLUDE_DIR}>)
 endif (LIBXML2_SUPPORT)
-
-#if (UNIX)
-# target_include_directories (${LIBRARY} PUBLIC
-#                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
-#                             $<BUILD_INTERFACE:/usr/local/src/ACE_wrappers>)
-#elseif (WIN32)
-# if (DEFINED ENV{ACE_ROOT})
-#  target_include_directories (${LIBRARY} PUBLIC
-#                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
-# else ()
-#  target_include_directories (${LIBRARY} PUBLIC
-#                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ACE_TAO/ACE>)
-# endif (DEFINED ENV{ACE_ROOT})
-#endif ()
 
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
