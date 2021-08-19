@@ -70,6 +70,7 @@ endif (GTK_SUPPORT AND GTK_USE)
 # *NOTE*: unify include dirs and libraries; includers use GTK_INCLUDE_DIRS and GTK_LIBRARIES
 # *NOTE*: if no ui has been selected, but gtk is supported, prefer gtk2 over gtk3
 if (GTK_SUPPORT AND NOT GTK3_USE AND NOT GTK2_USE)
+ message (STATUS "GTK version not selected, preferring GTK2 over GTK3")
  if (GTK2_FOUND)
   set (GTK_INCLUDE_DIRS ${GTK2_INCLUDE_DIRS})
   set (GTK_LIBRARIES ${GTK2_LIBRARIES})
