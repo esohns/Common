@@ -80,26 +80,26 @@ if (UNIX)
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:${PKG_LIBPNG_INCLUDE_DIRS}>)
  endif (LIBPNG_SUPPORT)
-# *WORKAROUND*: there seems to be a problem on Ubuntu
- if (CMAKE_SYSTEM_NAME MATCHES "Linux")
-   message (STATUS "on linux")
-   message (STATUS "LSB_RELEASE_ID_SHORT: ${LSB_RELEASE_ID_SHORT}")
-  if (${LSB_RELEASE_ID_SHORT} MATCHES "Ubuntu")
-   message (STATUS "on ubuntu")
-   target_include_directories (${LIBRARY} PUBLIC
-                               $<BUILD_INTERFACE:/usr/include/assimp>)
-  else ()
-   target_include_directories (${LIBRARY} PUBLIC
-                               $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
-  endif (${LSB_RELEASE_ID_SHORT} MATCHES "Ubuntu")
- else ()
+# if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+#   message (STATUS "on linux")
+#   message (STATUS "LSB_RELEASE_ID_SHORT: ${LSB_RELEASE_ID_SHORT}")
+#  if (${LSB_RELEASE_ID_SHORT} MATCHES "Ubuntu")
+#   message (STATUS "on ubuntu")
+#   target_include_directories (${LIBRARY} PUBLIC
+#                               $<BUILD_INTERFACE:/usr/include/assimp>)
+#  else ()
+#   target_include_directories (${LIBRARY} PUBLIC
+#                               $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
+#  endif (${LSB_RELEASE_ID_SHORT} MATCHES "Ubuntu")
+# else ()
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
- endif (CMAKE_SYSTEM_NAME MATCHES "Linux")
+# endif (CMAKE_SYSTEM_NAME MATCHES "Linux")
  if (IMAGEMAGICK_SUPPORT)
   if (CMAKE_SYSTEM_NAME MATCHES "Linux")
    message (STATUS "PKG_IMAGEMAGICK_INCLUDE_DIRS: ${PKG_IMAGEMAGICK_INCLUDE_DIRS}")
    if (${LSB_RELEASE_ID_SHORT} MATCHES "Ubuntu")
+# *WORKAROUND*: there seems to be a problem on Ubuntu
     target_include_directories (${LIBRARY} PUBLIC
                                 ${PKG_IMAGEMAGICK_INCLUDE_DIRS})
    else ()
