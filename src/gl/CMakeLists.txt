@@ -87,7 +87,7 @@ if (UNIX)
   if (${LSB_RELEASE_ID_SHORT} MATCHES "Ubuntu")
    message (STATUS "on ubuntu")
    target_include_directories (${LIBRARY} PUBLIC
-                               $<BUILD_INTERFACE:"/usr/include/assimp">)
+                               $<BUILD_INTERFACE:/usr/include/assimp>)
   else ()
    target_include_directories (${LIBRARY} PUBLIC
                                $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
@@ -97,9 +97,16 @@ if (UNIX)
                               $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
  endif (CMAKE_SYSTEM_NAME MATCHES "Linux")
  if (IMAGEMAGICK_SUPPORT)
-  message (STATUS "PKG_IMAGEMAGICK_INCLUDE_DIRS: ${PKG_IMAGEMAGICK_INCLUDE_DIRS}")
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:${PKG_IMAGEMAGICK_INCLUDE_DIRS}>)
+  if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+   message (STATUS "PKG_IMAGEMAGICK_INCLUDE_DIRS: ${PKG_IMAGEMAGICK_INCLUDE_DIRS}")
+   if (${LSB_RELEASE_ID_SHORT} MATCHES "Ubuntu")
+    target_include_directories (${LIBRARY} PUBLIC
+                                $<BUILD_INTERFACE:/usr/include/x86_64-linux-gnu/ImageMagick-6;/usr/include/ImageMagick-6>)
+   else ()
+    target_include_directories (${LIBRARY} PUBLIC
+                                $<BUILD_INTERFACE:${PKG_IMAGEMAGICK_INCLUDE_DIRS}>)
+   endif (${LSB_RELEASE_ID_SHORT} MATCHES "Ubuntu")
+  endif (CMAKE_SYSTEM_NAME MATCHES "Linux")
  endif (IMAGEMAGICK_SUPPORT)
 elseif (WIN32)
  if (LIBPNG_SUPPORT)
