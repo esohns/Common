@@ -23,5 +23,4 @@
 
 #include "stdafx.h"
 
-//#include "ace/Synch.h"
 #include "common_ui_qt_application.h"

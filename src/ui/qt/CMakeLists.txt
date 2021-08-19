@@ -1,4 +1,4 @@
-﻿include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/SetUIFramework.cmake)
+﻿include (SetUIFramework)
 
 find_package(Qt5Widgets CONFIG REQUIRED)
 #message (STATUS "Qt5Widgets_DEFINITIONS: ${Qt5Widgets_DEFINITIONS}")
@@ -61,19 +61,17 @@ elseif (WIN32)
   target_link_libraries (${PROJECT_NAME}UI_Qt Msvcrt.lib)
  endif ()
 
- target_link_libraries (${PROJECT_NAME}UI_Qt ${wxWidgets_LIBRARIES})
-
-# target_link_libraries (${PROJECT_NAME}UI_wxWidgets ${ACE_LIBRARY})
+ target_link_libraries (${PROJECT_NAME}UI_Qt ${QT_LIBRARIES})
 
  target_link_libraries (${PROJECT_NAME}UI_Qt Common)
 endif ()
 
-# *WARNING*: linking libglade-2.dll(.a) requires "/SAFESEH:NO""
-if (WIN32)
-# set_target_properties (${PROJECT_NAME}UI_wxWidgets PROPERTIES LINK_FLAGS /SAFESEH:NO)
-endif ()
-set_target_properties (${PROJECT_NAME}UI_Qt PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
-set_target_properties (${PROJECT_NAME}UI_Qt PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+#set_target_properties (${PROJECT_NAME}UI_Qt PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
+#set_target_properties (${PROJECT_NAME}UI_Qt PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+#if (UNIX)
+# set (CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> crs <TARGET> <LINK_FLAGS> <OBJECTS>")
+# set (CMAKE_CXX_ARCHIVE_FINISH "<CMAKE_RANLIB> <TARGET>")
+#endif (UNIX)
 
 # add PCH
 set_target_properties (${PROJECT_NAME}UI_Qt PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")

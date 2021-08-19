@@ -30,17 +30,6 @@ endif (UNIX)
 add_definitions (-DHAVE_CONFIG_H)
 #set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
 
-if (UNIX)
-elseif (WIN32)
-# add_definitions (-DWIN32)
-# if (CMAKE_BUILD_TYPE STREQUAL Debug)
-#  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MDd") # multithreaded debug dll
-# else ()
-#  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")  # multithreaded dll
-# endif ()
-# add_definitions (-DSTRSAFE_NO_DEPRECATE)
-endif ()
-
 add_library (${PROJECT_NAME} STATIC "")
 
 if (UNIX)
@@ -147,12 +136,15 @@ add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}Timer)
 #set_target_properties (${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
 #set_target_properties (${PROJECT_NAME} PROPERTIES
 #                       DEFINE_SYMBOL COMMON_BUILD_DLL)
-set_target_properties (${PROJECT_NAME} PROPERTIES
-                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-                       SOVERSION 1)
+#set_target_properties (${PROJECT_NAME} PROPERTIES
+#                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
+#                       SOVERSION 1)
 
 if (UNIX)
  if(CMAKE_COMPILER_IS_GNUCXX)
+#  set (GCC_SHOW_INCLUDES_COMPILE_FLAGS "-E -dI")
+#  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_SHOW_INCLUDES_COMPILE_FLAGS}")
+
   set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed")
 #  set (CMAKE_STATIC_LINKER_FLAGS "-Wl,--as-needed")
  endif (CMAKE_COMPILER_IS_GNUCXX)

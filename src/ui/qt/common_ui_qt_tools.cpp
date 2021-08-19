@@ -19,7 +19,6 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include "ace/Synch.h"
 #include "common_ui_qt_tools.h"
 
 #include "ace/Log_Msg.h"

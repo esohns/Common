@@ -53,9 +53,10 @@
 // Linux distributions
 // *NOTE*: as returned by ::lsb_release -i
 #define COMMON_OS_LSB_DEBIAN_STRING                            "Debian"
+#define COMMON_OS_LSB_FEDORA_STRING                            "Fedora"
 #define COMMON_OS_LSB_OPENSUSE_STRING                          "openSUSE"
 #define COMMON_OS_LSB_UBUNTU_STRING                            "Ubuntu"
-#endif
+#endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
 
 // *** C/C++ locale ***
 // *NOTE*: on UNIX, try 'locale -a', or 'localectl list-locales' to list

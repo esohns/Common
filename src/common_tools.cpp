@@ -131,12 +131,8 @@ Common_Tools::initialize (bool initializeRandomNumberGenerator_in)
 
 #if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
   if (RUNNING_ON_VALGRIND)
-#if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("running under valgrind\n")));
-#else
-    ;
-#endif // _DEBUG
 #endif /* LIBCOMMON_ENABLE_VALGRIND_SUPPORT */
 
   Common_Error_Tools::initialize ();
@@ -150,11 +146,9 @@ Common_Tools::initialize (bool initializeRandomNumberGenerator_in)
   if (unlikely (initializeRandomNumberGenerator_in))
   {
     // *TODO*: use STL functionality here
-#if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("initializing random seed (RAND_MAX: %d)\n"),
                 RAND_MAX));
-#endif // _DEBUG
     Common_Tools::randomSeed = COMMON_TIME_NOW.usec ();
     // *PORTABILITY*: outside glibc, this is not very portable
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -181,10 +175,8 @@ Common_Tools::initialize (bool initializeRandomNumberGenerator_in)
                   ACE_TEXT ("failed to initialize random seed: \"%s\", returning\n")));
       return;
     } // end IF
-#if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("initializing random seed...DONE\n")));
-#endif // _DEBUG
 #endif // ACE_WIN32 || ACE_WIN64
   } // end IF
 
@@ -606,6 +598,9 @@ Common_Tools::getDistribution (unsigned int& majorVersion_out,
   else if (!ACE_OS::strcmp (distribution_id_string.c_str (),
                             ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LSB_OPENSUSE_STRING)))
     result = COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_SUSE;
+  else if (!ACE_OS::strcmp (distribution_id_string.c_str (),
+                            ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LSB_FEDORA_STRING)))
+    result = COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_REDHAT;
   else if (!ACE_OS::strcmp (distribution_id_string.c_str (),
                             ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LSB_UBUNTU_STRING)))
     result = COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_UBUNTU;
