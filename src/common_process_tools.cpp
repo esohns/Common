@@ -202,7 +202,7 @@ Common_Process_Tools::id (const std::string& executableName_in)
   char* pid_p = NULL;
   int i = 0;
   pid_t process_ids_a[64];
-  ACE_OS::memset (&process_ids_a, 0, sizeof (process_ids_a));
+  ACE_OS::memset (&process_ids_a, 0, sizeof (pid_t[64]));
   FILE* stream_p = ::popen (command_line_string.c_str (),
                             ACE_TEXT_ALWAYS_CHAR ("r"));
   if (unlikely (!stream_p))
@@ -307,6 +307,7 @@ Common_Process_Tools::kill (pid_t processId_in)
 
 #if defined (ACE_LINUX)
   ACE_ASSERT (false);
+  ACE_NOTSUP_RETURN (false);
   ACE_NOTREACHED (return false;)
 #else
   std::string command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_TASKKILL);
