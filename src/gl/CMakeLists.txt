@@ -96,6 +96,8 @@ if (UNIX)
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
  endif (CMAKE_SYSTEM_NAME MATCHES "Linux")
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${PKG_GLM_INCLUDE_DIRS}>)
  if (IMAGEMAGICK_SUPPORT)
   if (CMAKE_SYSTEM_NAME MATCHES "Linux")
    message (STATUS "PKG_IMAGEMAGICK_INCLUDE_DIRS: ${PKG_IMAGEMAGICK_INCLUDE_DIRS}")
