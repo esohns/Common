@@ -9,7 +9,7 @@ endif (GTK_SUPPORT)
 set (ACEXML_LIB_FILE libACEXML.so)
 if (UNIX)
  find_library (ACE_XML_LIBRARY ${ACEXML_LIB_FILE}
-               PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE/ACEXML $ENV{ACE_ROOT}/ACEXML
+               PATHS $ENV{ACE_ROOT}/ACEXML ${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE/ACEXML
                PATH_SUFFIXES common
                DOC "searching for ${ACEXML_LIB_FILE} (system paths)")
 elseif (WIN32)
