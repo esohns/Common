@@ -169,6 +169,7 @@ Common_Process_Tools::id (const std::string& executableName_in)
 //      ACE_ASSERT (Common_File_Tools::isExecutable (command_line_string));
       break;
     }
+    case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_REDHAT:
     case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_UBUNTU:
     {
       // sanity check(s)

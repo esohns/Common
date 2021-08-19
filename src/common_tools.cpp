@@ -616,8 +616,7 @@ Common_Tools::getDistribution (unsigned int& majorVersion_out,
   command_line_string =
       ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LSB_RELEASE);
   COMMON_COMMAND_ADD_SWITCH (command_line_string,COMMON_COMMAND_SWITCH_LSB_RELEASE_RELEASE)
-  std::string regex_string_2 = ACE_TEXT_ALWAYS_CHAR ("^(Release:\t)(.+)$");
-  std::regex regex_2 (regex_string_2);
+  std::regex regex_2 (ACE_TEXT_ALWAYS_CHAR ("^(Release:\t)(.+)$"));
   if (unlikely (!Common_Process_Tools::command (command_line_string,
                                                 exit_status_i,
                                                 command_output_string)))
@@ -635,7 +634,7 @@ Common_Tools::getDistribution (unsigned int& majorVersion_out,
     buffer_string = buffer_a;
     if (!std::regex_match (buffer_string,
                            match_results,
-                           regex,
+                           regex_2,
                            std::regex_constants::match_default))
       continue;
     ACE_ASSERT (match_results.ready () && !match_results.empty ());
@@ -2630,6 +2629,7 @@ Common_Tools::isInstalled (const std::string& executableName_in,
   switch (linux_distribution_e)
   {
     case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_DEBIAN:
+    case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_REDHAT:
     case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_SUSE:
     case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_UBUNTU:
     {
