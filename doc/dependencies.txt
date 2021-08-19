@@ -13,5 +13,5 @@ src: redhat-lsb libcap-devel dbus-devel systemd-devel NetworkManager-libnm-devel
      assimp-devel ffmpeg-devel gtk2-devel libxml2-devel ImageMagick-devel cups-devel
 
 * Ubuntu 19.10 (sudo apt-get install')
-src: lsb-release libaio-dev libcap-dev libdbus-1-dev libsystemd-dev libmagick++-dev libmagickwand-6.q16-dev libglu1-mesa-dev
+src: lsb-release libaio-dev libcap-dev libdbus-1-dev libsystemd-dev libmagick++-6-headers libmagickwand-6.q16-dev libglu1-mesa-dev
      libglm-dev libassimp-dev libavcodec-dev libavformat-dev libswscale-dev libavutil-dev libgtk2.0-dev libcups2-dev
