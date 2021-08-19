@@ -101,7 +101,7 @@ if (UNIX)
    message (STATUS "PKG_IMAGEMAGICK_INCLUDE_DIRS: ${PKG_IMAGEMAGICK_INCLUDE_DIRS}")
    if (${LSB_RELEASE_ID_SHORT} MATCHES "Ubuntu")
     target_include_directories (${LIBRARY} PUBLIC
-                                $<BUILD_INTERFACE:/usr/include/x86_64-linux-gnu/ImageMagick-6;/usr/include/ImageMagick-6>)
+                                ;$<BUILD_INTERFACE:${PKG_IMAGEMAGICK_INCLUDE_DIRS}>)
    else ()
     target_include_directories (${LIBRARY} PUBLIC
                                 $<BUILD_INTERFACE:${PKG_IMAGEMAGICK_INCLUDE_DIRS}>)
