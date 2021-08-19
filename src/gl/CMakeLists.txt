@@ -87,7 +87,7 @@ if (UNIX)
   if (${LSB_RELEASE_ID_SHORT} MATCHES "Ubuntu")
    message (STATUS "on ubuntu")
    target_include_directories (${LIBRARY} PUBLIC
-                               "$<BUILD_INTERFACE:/usr/include/assimp>")
+                               $<BUILD_INTERFACE:"/usr/include/assimp">)
   else ()
    target_include_directories (${LIBRARY} PUBLIC
                                $<BUILD_INTERFACE:${PKG_ASSIMP_INCLUDE_DIRS}>)
