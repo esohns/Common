@@ -1008,11 +1008,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     case COMMON_TIMER_DISPATCH_PROACTOR:
     case COMMON_TIMER_DISPATCH_REACTOR:
     case COMMON_TIMER_DISPATCH_SIGNAL:
-    {
-      ACE_ASSERT (false);
-      ACE_NOTSUP_RETURN (ACE_SYNCH_RECURSIVE_MUTEX ());
-      ACE_NOTREACHED (return ACE_SYNCH_RECURSIVE_MUTEX ();)
-    }
+      break;
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
       OWN_TYPE_T* this_p = const_cast<OWN_TYPE_T*> (this);
@@ -1021,15 +1017,16 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown mode (was: %d), aborting\n"),
+                  ACE_TEXT ("invalid/unknown dispatch mode (was: %d), aborting\n"),
                   dispatch_));
       break;
     }
   } // end SWITCH
 
+  static ACE_SYNCH_RECURSIVE_MUTEX dummy;
   ACE_ASSERT (false);
-  ACE_NOTSUP_RETURN (ACE_SYNCH_RECURSIVE_MUTEX ());
-  ACE_NOTREACHED (return ACE_SYNCH_RECURSIVE_MUTEX ();)
+  ACE_NOTSUP_RETURN (dummy);
+  ACE_NOTREACHED (return dummy;)
 }
 //template <ACE_SYNCH_DECL,
 //          typename ConfigurationType,
@@ -1083,23 +1080,20 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     case COMMON_TIMER_DISPATCH_PROACTOR:
     case COMMON_TIMER_DISPATCH_REACTOR:
     case COMMON_TIMER_DISPATCH_SIGNAL:
-    {
-      ACE_ASSERT (false);
-      ACE_NOTSUP_RETURN (ACE_Task_Base ());
-      ACE_NOTREACHED (return ACE_Task_Base ();)
-    }
+      break;
     case COMMON_TIMER_DISPATCH_QUEUE:
       return *this;
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown mode (was: %d), aborting\n"),
+                  ACE_TEXT ("invalid/unknown dispatch mode (was: %d), aborting\n"),
                   dispatch_));
       break;
     }
   } // end SWITCH
 
+  static ACE_Task_Base dummy;
   ACE_ASSERT (false);
-  ACE_NOTSUP_RETURN (ACE_Task_Base ());
-  ACE_NOTREACHED (return ACE_Task_Base ();)
+  ACE_NOTSUP_RETURN (dummy);
+  ACE_NOTREACHED (return dummy;)
 }

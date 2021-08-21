@@ -2,47 +2,29 @@
 # pkg_check_modules (PKG_FLEX_BISON REQUIRED flex bison)
 endif (UNIX)
 
-set (ACE_LIB_FILE libACE.so)
-if (DEFINED ENV{ACE_ROOT})
- find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-               PATHS ENV ACE_ROOT
-               PATH_SUFFIXES ace build/linux/ace
-               DOC "searching for ${ACE_LIB_FILE}")
-else ()
- find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-               DOC "searching for ${ACE_LIB_FILE} (system paths)")
-endif ()
-#if (NOT EXISTS ACE_LIBRARY)
-if (NOT ACE_LIBRARY)
- message (FATAL_ERROR "could not find ${ACE_LIB_FILE} (was: \"${ACE_LIBRARY}\"), aborting")
-endif ()
-
 get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH DIRECTORY)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 find_package (Common ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
               REQUIRED COMPONENTS lib
               CONFIG
               PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../modules ${CMAKE_CURRENT_SOURCE_DIR}/../..
-              PATH_SUFFIXES libCommon/${BUILD_PATH_SUFFIX}
+              PATH_SUFFIXES Common/${BUILD_PATH_SUFFIX}
               NO_DEFAULT_PATH)
 if (NOT EXISTS ${Common_DIR})
  message (FATAL_ERROR "could not find package \"Common\", aborting")
 endif ()
 
 ############## definitions ###############
-add_definitions (-DACE_HAS_DLL)
-add_definitions (-DHAVE_CONFIG_H)
-set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
-add_definitions (-DCOMMON_HAS_DLL)
+#add_definitions (-DACE_HAS_DLL)
+#add_definitions (-DHAVE_CONFIG_H)
+#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
+#add_definitions (-DCOMMON_HAS_DLL)
 
 ############## includes ###############
 #include_directories (${PKG_FLEX_BISON_INCLUDE_DIRS})
 
-include_directories ($ENV{LIB_ROOT}/ACE_TAO/ACE)
-#include_directories (/usr/local/src/ACE_wrappers)
-
 if (WIN32)
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../3rd_party)
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../3rd_party/msvc)
 endif (WIN32)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/log)
@@ -111,8 +93,10 @@ target_link_libraries (${EXECUTABLE_2} CommonParser)
 target_link_libraries (${EXECUTABLE_2} CommonTimer)
 
 # add PCH
-#set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-#cotire (${EXECUTABLE})
+set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+if (UNIX)
+ cotire (${EXECUTABLE})
+endif (UNIX)
 #set_target_properties (${EXECUTABLE_2} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
 #cotire (${EXECUTABLE_2})
 
@@ -132,14 +116,14 @@ create_target_launcher (${EXECUTABLE}
                         ARGS "-d -e -f test.txt -l -t"
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
-                                             ${PROJECT_SOURCE_DIR}/cmake/src/Debug
+                                             ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/parser
                         ENVIRONMENT foo=bar)
 create_target_launcher (${EXECUTABLE_2}
                         ARGS "-d -e -f test.txt -l -t"
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
-                                             ${PROJECT_SOURCE_DIR}/cmake/src/Debug
+                                             ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/parser
                         ENVIRONMENT foo=bar)
 

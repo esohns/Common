@@ -2,7 +2,6 @@
 #define Bencoding_HEADER_H 1
 #define Bencoding_IN_HEADER 1
 
-#line 2 "./../scripts/bencoding.l"
 //  #include "ace/Synch.h"
   #include "common_iparser.h"
 
