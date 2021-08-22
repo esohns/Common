@@ -206,9 +206,9 @@ class Common_TaskBase_T<ACE_NULL_SYNCH,
                      bool = true,              // auto-start ?
                      MESSAGE_QUEUE_T* = NULL); // queue handle
 
-  ACE_Time_Value       deadline_;
-  bool                 stopped_;
-  ACE_Thread_ID        threadId_;
+  ACE_Time_Value                     deadline_;
+  bool                               stopped_;
+  ACE_Thread_ID                      threadId_;
 
  private:
   // convenient types
@@ -225,9 +225,8 @@ class Common_TaskBase_T<ACE_NULL_SYNCH,
   // override/hide ACE_Task_Base members
   inline virtual int module_closed (void) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (-1); ACE_NOTREACHED (return -1;) }
 
-  bool                 finished_;
-  ACE_Thread_Condition condition_;
-  //ACE_Thread_Mutex     lock_;
+  mutable ACE_Condition_Thread_Mutex condition_;
+  bool                               finished_;
 };
 
 //////////////////////////////////////////

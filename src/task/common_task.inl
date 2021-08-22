@@ -49,8 +49,6 @@ Common_Task_T<ACE_SYNCH_USE,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Task_T::stop"));
 
-  ACE_UNUSED_ARG (lockedAccess_in);
-
   control (ACE_Message_Block::MB_STOP,
            highPriority_in);
 

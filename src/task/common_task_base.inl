@@ -23,6 +23,7 @@
 #include "ace/Log_Msg.h"
 #include "ace/Message_Block.h"
 #include "ace/OS_Memory.h"
+#include "ace/Task.h"
 #include "ace/Thread_Manager.h"
 #include "ace/Time_Value.h"
 
@@ -242,8 +243,8 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     {
       if (unlikely (inherited::thr_count_ == 0))
         break; // nothing (more) to do
-      stop (false, // wait for completion ?
-            true); // high priority ?
+      this->stop (false, // wait for completion ?
+                  true); // high priority ?
       break;
     }
     default:
@@ -687,7 +688,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     thread_names_p[i] = thread_name_p;
   } // end FOR
   std::ostringstream string_stream;
-  { ACE_GUARD_RETURN (ACE_Thread_Mutex, aGuard, lock_, -1);
+  { ACE_GUARD_RETURN (ACE_Thread_Mutex, aGuard, inherited::lock_, -1);
     // *WARNING*: calling inherited::activate would start a race condition, as
     //            it releases the lock_ upon returning...
     result =
@@ -878,8 +879,8 @@ Common_TaskBase_T<ACE_NULL_SYNCH,
  , deadline_ (ACE_Time_Value::zero)
  , stopped_ (false)
  , threadId_ ()
- , finished_ (false)
  , condition_ (inherited::lock_, NULL, NULL)
+ , finished_ (false)
  //, lock_ ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::Common_TaskBase_T"));
@@ -932,8 +933,8 @@ Common_TaskBase_T<ACE_NULL_SYNCH,
 #endif // ACE_WIN32 || ACE_WIN64
   threadId_.handle (handle);
 
-  int result = svc ();
-  
+  int result = this->svc ();
+
   { ACE_GUARD_RETURN (ACE_Thread_Mutex, aGuard, inherited::lock_, false);
     finished_ = true;
     int result_2 = condition_.broadcast ();

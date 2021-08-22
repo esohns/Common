@@ -26,6 +26,7 @@
 #include "ace/Synch_Traits.h"
 #include "ace/Task.h"
 #include "ace/Time_Value.h"
+#include "ace/Timer_Queue_Adapters.h"
 
 #include "common.h"
 #include "common_idumpstate.h"
@@ -101,6 +102,8 @@ class Common_Timer_Manager_T
  private:
   // convenient types
   typedef typename TimerQueueAdapterType::TIMER_QUEUE TIMER_QUEUE_T;
+  typedef ACE_Async_Timer_Queue_Adapter<TIMER_QUEUE_T, ACE_Event_Handler*> ASYNCH_TIMER_QUEUE_T;
+  typedef ACE_Thread_Timer_Queue_Adapter<TIMER_QUEUE_T, ACE_Event_Handler*> THREAD_TIMER_QUEUE_T;
   typedef Common_Timer_Manager_T<ACE_SYNCH_USE,
                                  ConfigurationType,
                                  TimerQueueAdapterType> OWN_TYPE_T;

@@ -41,8 +41,9 @@ template <ACE_SYNCH_DECL,
 Common_Timer_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
                        TimerQueueAdapterType>::Common_Timer_Manager_T ()
- : inherited (ACE_Thread_Manager::instance (), // thread manager --> use default
-              NULL)                            // timer queue --> allocate (dummy) temporary first
+ : inherited (NULL) // *WARNING*: this ctor works for both (!) Asynch/Queue baseclasses
+// : inherited (ACE_Thread_Manager::instance (), // thread manager --> use default
+//              NULL)                            // timer queue --> allocate (dummy) temporary first
  , configuration_ (NULL)
  , dispatch_ (COMMON_TIMER_DEFAULT_DISPATCH)
  , isInitialized_ (false)
@@ -69,11 +70,32 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     stop (true,  // wait ?
           true); // N/A
 
-  // *IMPORTANT NOTE*: avoid close()ing the timer queue in the base class dtor
-  result = inherited::timer_queue (NULL);
-  if (unlikely (result == -1))
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::timer_queue(): \"%m\", continuing\n")));
+  switch (dispatch_)
+  {
+    case COMMON_TIMER_DISPATCH_PROACTOR:
+    case COMMON_TIMER_DISPATCH_REACTOR:
+    case COMMON_TIMER_DISPATCH_SIGNAL:
+      break;
+    case COMMON_TIMER_DISPATCH_QUEUE:
+    {
+      // *IMPORTANT NOTE*: avoid close()ing the timer queue in the base class dtor
+      THREAD_TIMER_QUEUE_T* timer_queue_p =
+          dynamic_cast<THREAD_TIMER_QUEUE_T*> (this);
+      result = timer_queue_p->timer_queue (NULL);
+      if (unlikely (result == -1))
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::timer_queue(): \"%m\", continuing\n")));
+      break;
+    }
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown dispatch mode (was: %d), continuing\n"),
+                  dispatch_));
+      break;
+    }
+  } // end SWITCH
+
   if (timerQueue_)
     delete timerQueue_;
 }
@@ -152,7 +174,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
                   ACE_TEXT ("(%s): spawned timer dispatch thread (id: %d, group id: %d)\n"),
                   ACE_TEXT (COMMON_TIMER_THREAD_NAME),
                   thread_ids_a[0],
-                  inherited::grp_id_));
+                  COMMON_TIMER_THREAD_GROUP_ID));
       break;
     }
     default:
@@ -220,9 +242,10 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_TIMER_DISPATCH_SIGNAL:
     {
-      Common_ITimerQueue_t* timer_queue_p = inherited::timer_queue ();
-      ACE_ASSERT (timer_queue_p);
-      result = timer_queue_p->close ();
+      ASYNCH_TIMER_QUEUE_T* timer_queue_p =
+          dynamic_cast<ASYNCH_TIMER_QUEUE_T*> (this);
+      Common_ITimerQueue_t* timer_queue_2 = &(timer_queue_p->timer_queue ());
+      result = timer_queue_2->close ();
       if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to Common_ITimerQueue_t::close(): \"%m\", continuing\n")));
@@ -231,7 +254,9 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
       // *NOTE*: deactivate the timer queue and wake up the worker thread
-      inherited::deactivate ();
+      THREAD_TIMER_QUEUE_T* timer_queue_p =
+          dynamic_cast<THREAD_TIMER_QUEUE_T*> (this);
+      timer_queue_p->deactivate ();
 
       if (likely (waitForCompletion_in))
       {
@@ -448,9 +473,10 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_TIMER_DISPATCH_SIGNAL:
     {
-      Common_ITimerQueue_t* timer_queue_p = inherited::timer_queue ();
-      ACE_ASSERT (timer_queue_p);
-      result = timer_queue_p->close ();
+      ASYNCH_TIMER_QUEUE_T* timer_queue_p =
+          dynamic_cast<ASYNCH_TIMER_QUEUE_T*> (this);
+      Common_ITimerQueue_t* timer_queue_2 = &(timer_queue_p->timer_queue ());
+      result = timer_queue_2->close ();
       if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to Common_ITimerQueue_t::close(): \"%m\", continuing\n")));
@@ -458,7 +484,9 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
-      ACE_SYNCH_RECURSIVE_MUTEX& mutex_r = inherited::mutex ();
+      THREAD_TIMER_QUEUE_T* timer_queue_p =
+          dynamic_cast<THREAD_TIMER_QUEUE_T*> (this);
+      ACE_SYNCH_RECURSIVE_MUTEX& mutex_r = timer_queue_p->mutex ();
       if (lockedAccess_in)
       {
         result = mutex_r.acquire ();
@@ -486,9 +514,9 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 //                      ACE_TEXT ("cancelled timer (id: %d)\n"),
 //                      timer_id));
 //      } // end FOR
-      Common_ITimerQueue_t* timer_queue_p = inherited::timer_queue ();
-      ACE_ASSERT (timer_queue_p);
-      result = timer_queue_p->close ();
+      Common_ITimerQueue_t* timer_queue_2 = timer_queue_p->timer_queue ();
+      ACE_ASSERT (timer_queue_2);
+      result = timer_queue_2->close ();
       if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to Common_ITimerQueue_t::close(): \"%m\", continuing\n")));
@@ -534,11 +562,13 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     stop (true,  // wait ?
           true); // N/A
 
+  THREAD_TIMER_QUEUE_T* timer_queue_2 =
+      dynamic_cast<THREAD_TIMER_QUEUE_T*> (this);
   if (unlikely (timerQueue_))
   {
     flushTimers ();
     // *IMPORTANT NOTE*: avoid close()ing the timer queue in the base class dtor
-    result = inherited::timer_queue (NULL);
+    result = timer_queue_2->timer_queue (NULL);
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::timer_queue(): \"%m\", continuing\n")));
@@ -598,15 +628,15 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
                 ACE_TEXT ("failed to allocate memory, aborting\n")));
     return false;
   } // end IF
-  timerQueue_ = dynamic_cast<TIMER_QUEUE_T*> (timer_queue_p);
-  if (unlikely (!timerQueue_))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to dynamic_cast<ACE_Abstract_Timer_Queue>, aborting\n")));
-    delete timer_queue_p; timer_queue_p = NULL;
-    return false;
-  } // end IF
-  result = inherited::timer_queue (timerQueue_);
+  timerQueue_ = static_cast<TIMER_QUEUE_T*> (timer_queue_p);
+//  if (unlikely (!timerQueue_))
+//  {
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to dynamic_cast<ACE_Abstract_Timer_Queue>, aborting\n")));
+//    delete timer_queue_p; timer_queue_p = NULL;
+//    return false;
+//  } // end IF
+  result = timer_queue_2->timer_queue (timerQueue_);
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -755,12 +785,14 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
+      THREAD_TIMER_QUEUE_T* timer_queue_p =
+          dynamic_cast<THREAD_TIMER_QUEUE_T*> (this);
       ACE_SYNCH_RECURSIVE_MUTEX& mutex_r =
         const_cast<ACE_SYNCH_RECURSIVE_MUTEX&> (getR_3 ());
       { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, mutex_r, -1);
-        Common_ITimerQueue_t* timer_queue_p = inherited::timer_queue ();
-        ACE_ASSERT (timer_queue_p);
-        result = timer_queue_p->reset_interval (timerId_in, interval_in);
+        Common_ITimerQueue_t* timer_queue_2 = timer_queue_p->timer_queue ();
+        ACE_ASSERT (timer_queue_2);
+        result = timer_queue_2->reset_interval (timerId_in, interval_in);
       } // end lock scope
       if (unlikely (result == -1))
       {
@@ -983,7 +1015,9 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
       OWN_TYPE_T* this_p = const_cast<OWN_TYPE_T*> (this);
-      return this_p->inherited::mutex ();
+      THREAD_TIMER_QUEUE_T* timer_queue_p =
+          dynamic_cast<THREAD_TIMER_QUEUE_T*> (this_p);
+      return timer_queue_p->mutex ();
     }
     default:
     {
@@ -999,6 +1033,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   ACE_NOTSUP_RETURN (dummy);
   ACE_NOTREACHED (return dummy;)
 }
+
 //template <ACE_SYNCH_DECL,
 //          typename ConfigurationType,
 //          typename TimerQueueAdapterType>
@@ -1035,6 +1070,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 //
 //  return typename TimerQueueAdapterType::TIMER_QUEUE ();
 //}
+
 template <ACE_SYNCH_DECL,
           typename ConfigurationType,
           typename TimerQueueAdapterType>
@@ -1053,7 +1089,12 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     case COMMON_TIMER_DISPATCH_SIGNAL:
       break;
     case COMMON_TIMER_DISPATCH_QUEUE:
-      return *this;
+    {
+      OWN_TYPE_T* this_p = const_cast<OWN_TYPE_T*> (this);
+      THREAD_TIMER_QUEUE_T* timer_queue_p =
+          dynamic_cast<THREAD_TIMER_QUEUE_T*> (this_p);
+      return *timer_queue_p;
+    }
     default:
     {
       ACE_DEBUG ((LM_ERROR,
