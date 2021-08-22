@@ -45,7 +45,7 @@ class Common_ITask
 //////////////////////////////////////////
 
 class Common_IAsynchTask
- : public Common_ITask
+ : virtual public Common_ITask
 {
  public:
   ////////////////////////////////////////
