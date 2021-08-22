@@ -26,6 +26,8 @@
 #include "ace/Message_Queue_T.h"
 #include "ace/Task_Ex_T.h"
 
+#include "common_message_queue_iterator.h"
+
 #include "common_task_base.h"
 
 template <ACE_SYNCH_DECL,
@@ -62,7 +64,17 @@ class Common_Task_Ex_T
 
   inline virtual ~Common_Task_Ex_T () {}
 
-  // implement Common_ITaskControl_T
+  // override ACE_Task_Base members (sort of)
+  inline virtual int put (MessageType* message_in, ACE_Time_Value* timeout_in) { return inherited::putq (message_in, timeout_in); }
+
+  // implement Common_IAsynchTask
+  // *NOTE*: tests for MB_STOP anywhere in the queue. Note that this does not
+  //         block, or dequeue any message
+  // *NOTE*: ACE_Message_Queue_Iterator does its own locking, i.e. access
+  //         happens in lockstep, which is both inefficient and yields
+  //         unpredictable results
+  //         --> use Common_MessageQueueIterator_T and lock the queue manually
+  virtual bool isShuttingDown ();
   // enqueue MB_STOP --> stop worker thread(s)
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true,  // high priority ? (i.e. do not wait for queued messages)
@@ -73,14 +85,16 @@ class Common_Task_Ex_T
   virtual void handle (MessageType*&); // message handle
 
  protected:
+  // convenient types
+  typedef Common_MessageQueueExIterator_T<MessageType,
+                                          ACE_SYNCH_USE,
+                                          TimePolicyType> MESSAGE_QUEUE_ITERATOR_T;
+
   Common_Task_Ex_T (const std::string&,                           // thread name
                     int,                                          // (thread) group id
                     unsigned int = 1,                             // # thread(s)
                     bool = true,                                  // auto-start ?
                     typename inherited::MESSAGE_QUEUE_T* = NULL); // queue handle
-
-  // override ACE_Task_Base members (sort of)
-  inline virtual int put (MessageType* message_in, ACE_Time_Value* timeout_in) { return inherited::putq (message_in, timeout_in); }
 
   // helper methods
   // *NOTE*: 'high priority' effectively means that the message is enqueued at
@@ -89,6 +103,7 @@ class Common_Task_Ex_T
   void control (int,           // message type
                 bool = false); // high-priority ?
 
+  // override ACE_Task_Base members
   virtual int svc (void);
 
  private:

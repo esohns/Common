@@ -155,22 +155,12 @@ template <ACE_SYNCH_DECL,
 bool
 Common_Task_T<ACE_SYNCH_USE,
               TimePolicyType,
-              LockType>::hasShutDown ()
+              LockType>::isShuttingDown ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Task_T::hasShutDown"));
+  COMMON_TRACE (ACE_TEXT ("Common_Task_T::isShuttingDown"));
 
   // sanity check(s)
-  if (unlikely (!inherited::msg_queue_))
-  {
-    if (inherited::mod_)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("%s: task has no message queue, returning\n"),
-                  inherited::mod_->name ()));
-    else
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("task has no message queue, returning\n")));
-    return true;
-  } // end IF
+  ACE_ASSERT (inherited::msg_queue_);
 
   bool result = false;
   ACE_Message_Block* message_block_p = NULL;
@@ -202,15 +192,18 @@ Common_Task_T<ACE_SYNCH_USE,
   COMMON_TRACE (ACE_TEXT ("Common_Task_T::svc"));
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  Common_Tools::setThreadName (inherited::threadName_,
-                               0);
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
+  Common_Error_Tools::setThreadName (inherited::threadName_,
+                                     NULL);
+#else
+  Common_Error_Tools::setThreadName (inherited::threadName_,
+                                     0);
+#endif // _WIN32_WINNT_WIN10
 #endif // ACE_WIN32 || ACE_WIN64
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t, group: %d) starting\n"),
               ACE_TEXT (inherited::threadName_.c_str ()),
               inherited::grp_id_));
-#endif // _DEBUG
 
   ACE_Message_Block* message_p = NULL;
   int result = -1;
@@ -269,12 +262,9 @@ Common_Task_T<ACE_SYNCH_USE,
       message_p->release (); message_p = NULL;
     } // end IF
   } while (true);
-
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t) leaving\n"),
               ACE_TEXT (inherited::threadName_.c_str ())));
-#endif // _DEBUG
 
   return result;
 }

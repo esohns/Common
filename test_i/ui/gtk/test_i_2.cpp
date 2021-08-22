@@ -172,9 +172,7 @@ do_work (int argc_in,
     return;
   } // end IF
 
-  ACE_thread_t thread_id = 0;
-  gtk_manager_p->start (thread_id);
-  ACE_UNUSED_ARG (thread_id);
+  gtk_manager_p->start ();
   ACE_Time_Value timeout (0,
                           COMMON_UI_GTK_TIMEOUT_DEFAULT_MANAGER_INITIALIZATION * 1000);
   result = ACE_OS::sleep (timeout);

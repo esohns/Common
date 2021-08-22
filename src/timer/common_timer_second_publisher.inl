@@ -24,8 +24,7 @@
 
 template <typename TimerManagerType>
 Common_Timer_SecondPublisher_T<TimerManagerType>::Common_Timer_SecondPublisher_T ()
- : condition_ (lock_)
- , handler_ (this)
+ : handler_ (this)
  , lock_ ()
  , subscribers_ ()
  , timerId_ (-1)
@@ -47,9 +46,11 @@ Common_Timer_SecondPublisher_T<TimerManagerType>::~Common_Timer_SecondPublisher_
 
 template <typename TimerManagerType>
 void
-Common_Timer_SecondPublisher_T<TimerManagerType>::start (ACE_thread_t&)
+Common_Timer_SecondPublisher_T<TimerManagerType>::start (ACE_Time_Value* timeout_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_SecondPublisher_T::start"));
+
+  ACE_UNUSED_ARG (timeout_in);
 
   // sanity check(s)
   if (unlikely (isRunning ()))
@@ -115,6 +116,7 @@ Common_Timer_SecondPublisher_T<TimerManagerType>::dump_state () const
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_SecondPublisher_T::dump_state"));
 
+  // *TODO*
   ACE_ASSERT (false);
   ACE_NOTSUP;
   ACE_NOTREACHED (return;)
@@ -163,12 +165,10 @@ Common_Timer_SecondPublisher_T<TimerManagerType>::toggleTimer ()
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_ITimer::schedule_timer(%#T): \"%m\", aborting\n"),
                   &one_second));
-#if defined (_DEBUG)
     else
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("scheduled second-interval timer (id: %d)\n"),
                   timerId_));
-#endif // _DEBUG
   } // end IF
   else
   {

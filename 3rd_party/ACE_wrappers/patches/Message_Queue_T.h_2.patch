@@ -1,0 +1,12 @@
+--- C:\Users\Erik\OneDrive\Desktop\Message_Queue_T.h
++++ H:\lib\ACE_TAO\ACE\ace\Message_Queue_T.h
+@@ -1398,7 +1398,7 @@
+   /// Declare the dynamic allocation hooks.
+   ACE_ALLOC_HOOK_DECLARE;
+ 
+-protected:
++public:
+   /// Implement this via an ACE_Message_Queue.
+   ACE_Message_Queue<ACE_SYNCH_USE, TIME_POLICY> queue_;
+ };
+

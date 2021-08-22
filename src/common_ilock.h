@@ -21,8 +21,8 @@
 #ifndef COMMON_ILOCK_H
 #define COMMON_ILOCK_H
 
+#include "ace/Assert.h"
 #include "ace/Global_Macros.h"
-//#include "ace/Synch_Traits.h"
 
 #include "common_iget.h"
 

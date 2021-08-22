@@ -21,26 +21,38 @@
 #ifndef COMMON_ITASK_H
 #define COMMON_ITASK_H
 
-#include "ace/Global_Macros.h"
 #include "ace/Message_Block.h"
-#include "ace/OS.h"
-#include "ace/Synch_Traits.h"
 
-#include "common_ilock.h"
+// forward declarations
+class ACE_Time_Value;
 
-template <ACE_SYNCH_DECL,
-          typename LockType> // implements Common_ILock_T/Common_IRecursiveLock_T
-class Common_ITask_T
- : virtual public LockType
+class Common_ITask
 {
  public:
-  virtual void start (ACE_thread_t&) = 0; // return value: thread handle (if any)
+  virtual bool isShuttingDown () = 0; // stop() has been called ?
+  virtual void start (ACE_Time_Value* = NULL) = 0; // duration ? relative timeout : run until finished
+  virtual void stop () = 0;
+};
+
+//////////////////////////////////////////
+
+class Common_IAsynchTask
+{
+ public:
+  virtual void idle () = 0;
+  virtual bool isRunning () const = 0;
+  virtual bool isShuttingDown () = 0; // stop() has been called ?
+
+  virtual void start (ACE_Time_Value* = NULL) = 0; // duration ? relative timeout : run until finished
   virtual void stop (bool = true,      // wait for completion ?
                      bool = true,      // high priority ? (i.e. do not wait for queued messages)
                      bool = true) = 0; // locked access ?
-  virtual bool isRunning () const = 0;
+  virtual void wait (bool = true) const = 0; // wait for the message queue ? : worker thread(s) only
 
-  virtual void idle () = 0;
+  ////////////////////////////////////////
+  // callbacks
+  // *NOTE*: signal asynchronous completion
+  virtual void finished () = 0;
 };
 
 template <typename MessageType = ACE_Message_Block>
@@ -50,12 +62,5 @@ class Common_ITaskHandler_T
   // *IMPORTANT NOTE*: fire-and-forget API
   virtual void handle (MessageType*&) = 0; // message handle
 };
-
-//////////////////////////////////////////
-
-typedef Common_ITask_T<ACE_MT_SYNCH,
-                       Common_ILock_T<ACE_MT_SYNCH> > Common_ITask_t;
-typedef Common_ITask_T<ACE_MT_SYNCH,
-                       Common_IRecursiveLock_T<ACE_MT_SYNCH> > Common_IRecursiveTask_t;
 
 #endif

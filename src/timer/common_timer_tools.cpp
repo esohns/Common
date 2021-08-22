@@ -50,8 +50,7 @@ Common_Timer_Tools::initialize ()
   {
     Common_Timer_SecondPublisher_t* publisher_p =
       COMMON_TIMER_SECONDPUBLISHER_SINGLETON::instance ();
-    ACE_thread_t thread_id = 0;
-    publisher_p->start (thread_id);
+    publisher_p->start (NULL);
   } // end IF
 }
 void
@@ -364,11 +363,13 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
   Common_Timer_Manager_t* timer_manager_p =
     COMMON_TIMERMANAGER_SINGLETON::instance ();
   ACE_ASSERT (timer_manager_p);
-  //Common_Timer_Manager_Asynch_t* timer_manager_2 =
-  //  COMMON_ASYNCHTIMERMANAGER_SINGLETON::instance ();
-  //ACE_ASSERT (timer_manager_2);
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  Common_Timer_Manager_Asynch_t* timer_manager_2 =
+    COMMON_ASYNCHTIMERMANAGER_SINGLETON::instance ();
+  ACE_ASSERT (timer_manager_2);
+#endif // ACE_WIN32 || ACE_WIN64
 
-  ACE_thread_t thread_id = 0;
   switch (configuration_in.dispatch)
   {
     case COMMON_TIMER_DISPATCH_PROACTOR:
@@ -379,8 +380,7 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
                     ACE_TEXT ("failed to initialize timer manager, aborting\n")));
         return false;
       } // end IF
-
-      timer_manager_p->start (thread_id);
+      timer_manager_p->start (NULL);
 
       return true;
     }
@@ -393,7 +393,7 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
         return false;
       } // end IF
 
-      timer_manager_p->start (thread_id);
+      timer_manager_p->start (NULL);
       if (unlikely (!timer_manager_p->isRunning ()))
       {
         ACE_DEBUG ((LM_ERROR,
@@ -411,37 +411,32 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
                     ACE_TEXT ("failed to initialize timer manager, aborting\n")));
         return false;
       } // end IF
-
-      timer_manager_p->start (thread_id);
+      timer_manager_p->start (NULL);
 
       return true;
     }
     case COMMON_TIMER_DISPATCH_SIGNAL:
     {
-//      ACE_ASSERT (false);
-//      ACE_NOTSUP_RETURN (false);
-      
-//      ACE_NOTREACHED (return false;)
-      //if (!timer_manager_2->initialize (configuration_in))
-      //{
-      //  ACE_DEBUG ((LM_ERROR,
-      //              ACE_TEXT ("failed to initialize timer manager, aborting\n")));
-      //  return false;
-      //} // end IF
-
-      //timer_manager_2->start (thread_id);
-
-      //return true;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+      if (!timer_manager_2->initialize (configuration_in))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to initialize timer manager, aborting\n")));
+        return false;
+      } // end IF
+      timer_manager_2->start (NULL);
+#endif // ACE_WIN32 || ACE_WIN64
+      return true;
     }
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown timer dispatch (was: %d), returning\n"),
+                  ACE_TEXT ("invalid/unknown timer dispatch (was: %d), aborting\n"),
                   configuration_in.dispatch));
       break;
     }
   } // end SWITCH
-  ACE_UNUSED_ARG (thread_id);
 
   return false;
 }

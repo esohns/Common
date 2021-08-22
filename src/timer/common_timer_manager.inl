@@ -26,7 +26,6 @@
 #include "ace/Thread_Manager.h"
 
 #include "common.h"
-//#include "common_defines.h"
 #include "common_macros.h"
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -68,7 +67,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 
   if (unlikely (isRunning ()))
     stop (true,  // wait ?
-          true,  // high priority ?
+          true,  // N/A
           true); // locked access ?
 
   // *IMPORTANT NOTE*: avoid close()ing the timer queue in the base class dtor
@@ -86,12 +85,11 @@ template <ACE_SYNCH_DECL,
 void
 Common_Timer_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
-                       TimerQueueAdapterType>::start (ACE_thread_t& threadId_out)
+                       TimerQueueAdapterType>::start (ACE_Time_Value* timeout_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::start"));
 
-  // initialize return value(s)
-  threadId_out = 0;
+  ACE_UNUSED_ARG (timeout_in);
 
   // sanity check(s)
   if (unlikely (isRunning ()))
@@ -142,22 +140,24 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
         return;
       } // end IF
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
+      Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_NAME),
+                                         thread_handles_a[0]);
+#else
       Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_NAME),
                                          thread_ids_a[0]);
+#endif // _WIN32_WINNT_WIN10
 #endif // ACE_WIN32 || ACE_WIN64
-#if defined (_DEBUG)
       ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("(%s): spawned dispatch thread (group id: %d)\n"),
+                  ACE_TEXT ("(%s): spawned timer dispatch thread (group id: %d)\n"),
                   ACE_TEXT (COMMON_TIMER_THREAD_NAME),
                   inherited::grp_id_));
-#endif // _DEBUG
-      threadId_out = thread_ids_a[0];
       break;
     }
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown mode (was: %d), returning\n"),
+                  ACE_TEXT ("invalid/unknown dispatch mode (was: %d), returning\n"),
                   dispatch_));
       break;
     }
@@ -177,10 +177,6 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::stop"));
 
   ACE_UNUSED_ARG (highPriority_in);
-
-  // sanity check(s)
-//  if (unlikely (!isRunning ()))
-//    return;
 
   int result = -1;
 
@@ -202,7 +198,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Abstract_Timer_Queue::close(): \"%m\", continuing\n")));
-      break;
+      return;
     }
     case COMMON_TIMER_DISPATCH_REACTOR:
     {
@@ -219,13 +215,17 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Abstract_Timer_Queue::close(): \"%m\", continuing\n")));
-      break;
+      return;
     }
     case COMMON_TIMER_DISPATCH_SIGNAL:
-    { // *TODO*
-      ACE_ASSERT (false);
-      ACE_NOTSUP;
-      ACE_NOTREACHED (return;)
+    {
+      Common_ITimerQueue_t* timer_queue_p = inherited::timer_queue ();
+      ACE_ASSERT (timer_queue_p);
+      result = timer_queue_p->close ();
+      if (unlikely (result == -1))
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to Common_ITimerQueue_t::close(): \"%m\", continuing\n")));
+      return;
     }
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
@@ -248,20 +248,18 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown dispatch mode (was: %d), continuing\n"),
+                  ACE_TEXT ("invalid/unknown dispatch mode (was: %d), returning\n"),
                   dispatch_));
-      break;
+      return;
     }
   } // end SWITCH
 
   // clean up
   unsigned int flushed_timers = flushTimers (lockedAccess_in);
-#if defined (_DEBUG)
   if (unlikely (flushed_timers))
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("flushed %u timer(s)\n"),
                 flushed_timers));
-#endif // _DEBUG
 }
 
 template <ACE_SYNCH_DECL,
@@ -301,7 +299,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown mode (was: %d), continuing\n"),
+                  ACE_TEXT ("invalid/unknown dispatch mode (was: %d), aborting\n"),
                   dispatch_));
       break;
     }
@@ -376,22 +374,19 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
       ACE_Task_Base& task_base_r = const_cast<ACE_Task_Base&> (getR_5 ());
-
       result = task_base_r.wait ();
       if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Task_Base::wait(): \"%m\", continuing\n")));
-#if defined (_DEBUG)
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("(%s) joined worker thread\n"),
                   ACE_TEXT (COMMON_TIMER_THREAD_NAME)));
-#endif // _DEBUG
       break;
     }
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown mode (was: %d), continuing\n"),
+                  ACE_TEXT ("invalid/unknown dispatch mode (was: %d), continuing\n"),
                   dispatch_));
       break;
     }
@@ -448,7 +443,6 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Abstract_Timer_Queue::close(): \"%m\", continuing\n")));
-
       break;
     }
     case COMMON_TIMER_DISPATCH_SIGNAL:
@@ -510,7 +504,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown mode (was: %d), continuing\n"),
+                  ACE_TEXT ("invalid/unknown dispatch mode (was: %d), continuing\n"),
                   dispatch_));
       break;
     }
@@ -555,10 +549,8 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   {
     case COMMON_TIMER_QUEUE_HEAP:
     {
-#if defined (_DEBUG)
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("using heap timer queue\n")));
-#endif // _DEBUG
       ACE_NEW_NORETURN (timer_queue_p,
                         Common_TimerQueueHeapImpl_t ((COMMON_TIMER_PREALLOCATE_TIMER_SLOTS ? COMMON_TIMER_DEFAULT_NUM_TIMER_SLOTS
                                                                                            : 0), // preallocated slots
@@ -570,10 +562,8 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_TIMER_QUEUE_LIST:
     {
-#if defined (_DEBUG)
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("using list timer queue\n")));
-#endif // _DEBUG
       ACE_NEW_NORETURN (timer_queue_p,
                         Common_TimerQueueListImpl_t (&timerHandler_,       // upcall functor
                                                      NULL,                 // freelist --> allocate
@@ -582,10 +572,8 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_TIMER_QUEUE_WHEEL:
     {
-#if defined (_DEBUG)
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("using wheel timer queue\n")));
-#endif // _DEBUG
       ACE_NEW_NORETURN (timer_queue_p,
                         Common_TimerQueueWheelImpl_t (ACE_DEFAULT_TIMER_WHEEL_SIZE,
                                                       ACE_DEFAULT_TIMER_WHEEL_RESOLUTION,
@@ -614,7 +602,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   if (unlikely (!timerQueue_))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("dynamic_cast<ACE_Abstract_Timer_Queue> failed, aborting\n")));
+                ACE_TEXT ("failed to dynamic_cast<ACE_Abstract_Timer_Queue>, aborting\n")));
     delete timer_queue_p; timer_queue_p = NULL;
     return false;
   } // end IF
@@ -628,11 +616,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   } // end IF
 
   if (unlikely (was_running))
-  {
-    ACE_thread_t thread_id = 0;
-    start (thread_id);
-    ACE_UNUSED_ARG (thread_id);
-  } // end IF
+    start (NULL);
 
   return true;
 }
@@ -738,11 +722,9 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
   } // end SWITCH
   handler_in->set (result);
-#if defined (_DEBUG)
    ACE_DEBUG ((LM_DEBUG,
                ACE_TEXT ("scheduled timer (id: %d)\n"),
                result));
-#endif // _DEBUG
 
   return result;
 }
@@ -769,7 +751,6 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     {
       ACE_ASSERT (false);
       ACE_NOTSUP_RETURN (-1);
-
       ACE_NOTREACHED (return -1;)
     }
     case COMMON_TIMER_DISPATCH_QUEUE:
@@ -793,16 +774,14 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown mode (was: %d), aborting\n"),
+                  ACE_TEXT ("invalid/unknown dispatch mode (was: %d), aborting\n"),
                   dispatch_));
       return -1;
     }
   } // end SWITCH
-#if defined (_DEBUG)
    ACE_DEBUG ((LM_DEBUG,
                ACE_TEXT ("reset timer interval (id was: %d)\n"),
                timerId_in));
-#endif // _DEBUG
   return result;
 }
 
@@ -883,16 +862,14 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown mode (was: %d), aborting\n"),
+                  ACE_TEXT ("invalid/unknown dispatch mode (was: %d), aborting\n"),
                   dispatch_));
       return -1;
     }
   } // end SWITCH
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("cancelled timer (id was: %d)\n"),
               timerId_in));
-#endif // _DEBUG
   return result;
 }
 
@@ -906,12 +883,12 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::dump_state"));
 
+  // *TODO*
   ACE_SYNCH_RECURSIVE_MUTEX& mutex_r =
     const_cast<ACE_SYNCH_RECURSIVE_MUTEX&> (getR_3 ());
   { ACE_GUARD (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, mutex_r);
     ACE_ASSERT (false);
     ACE_NOTSUP;
-
     ACE_NOTREACHED (return;)
   } // end lock scope
 }
@@ -965,7 +942,6 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
             return false;
           } // end IF
       } // end lock scope
-
       break;
     }
     case COMMON_TIMER_DISPATCH_REACTOR:
@@ -974,18 +950,14 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown mode (was: %d), aborting\n"),
+                  ACE_TEXT ("invalid/unknown dispatch mode (was: %d), aborting\n"),
                   dispatch_));
       return false;
     }
   } // end SWITCH
 
   if (unlikely (was_running))
-  {
-    ACE_thread_t thread_id = 0;
-    start (thread_id);
-    ACE_UNUSED_ARG (thread_id);
-  } // end IF
+    start (NULL);
 
   isInitialized_ = true;
 

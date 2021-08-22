@@ -88,10 +88,10 @@ class Common_UI_GTK_Manager_T
                                                 CallBackDataType>,
                         ACE_SYNCH_MUTEX_T> SINGLETON_T;
 
-  // override (part of) Common_ITask
-  virtual void start (ACE_thread_t&); // return value: thread handle (if any)
+  // override (part of) Common_IAsynchTask
+  virtual void start (ACE_Time_Value* = NULL); // N/A
   virtual void stop (bool = true,  // wait for completion ?
-                     bool = true,  // high priority ?
+                     bool = true,  // N/A
                      bool = true); // locked access ?
 
   // implement Common_IInitialize
@@ -119,11 +119,9 @@ class Common_UI_GTK_Manager_T
   virtual int close (u_long = 0);
   virtual int svc (void);
 
-  // hide some Common_TaskBase_T member(s)
-  using inherited::lock;
-  using inherited::unlock;
-  using inherited::getR_2;
-  using inherited::finished;
+  // hide some Common_IAsynchTask member(s)
+  inline virtual bool isShuttingDown () { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
+  //using inherited::finished;
 
   // helper methods
   bool initializeGTK ();

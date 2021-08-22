@@ -159,6 +159,40 @@ template <ACE_SYNCH_DECL,
           typename TimePolicyType,
           typename LockType,
           typename MessageType>
+bool
+Common_Task_Ex_T<ACE_SYNCH_USE,
+                 TimePolicyType,
+                 LockType,
+                 MessageType>::isShuttingDown ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Task_Ex_T::isShuttingDown"));
+
+  // sanity check(s)
+  ACE_ASSERT (inherited::msg_queue_);
+
+  bool result = false;
+  MessageType* message_p = NULL;
+  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, inherited::msg_queue_->lock (), false);
+    for (MESSAGE_QUEUE_ITERATOR_T iterator (*inherited::msg_queue_);
+         iterator.next (message_p);
+         iterator.advance ())
+    { ACE_ASSERT (message_p);
+      if (unlikely (message_p->type == ACE_Message_Block::MB_STOP))
+      {
+        result = true;
+        break;
+      } // end IF
+      message_p = NULL;
+    } // end FOR
+  } // end lock scope
+
+  return result;
+}
+
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType,
+          typename LockType,
+          typename MessageType>
 int
 Common_Task_Ex_T<ACE_SYNCH_USE,
                  TimePolicyType,
@@ -168,15 +202,18 @@ Common_Task_Ex_T<ACE_SYNCH_USE,
   COMMON_TRACE (ACE_TEXT ("Common_Task_Ex_T::svc"));
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
+  Common_Error_Tools::setThreadName (inherited::threadName_,
+                                     NULL);
+#else
   Common_Error_Tools::setThreadName (inherited::threadName_,
                                      0);
+#endif // _WIN32_WINNT_WIN10
 #endif // ACE_WIN32 || ACE_WIN64
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t, group: %d) starting\n"),
               ACE_TEXT (inherited::threadName_.c_str ()),
               inherited::grp_id_));
-#endif // _DEBUG
 
   MessageType* message_p = NULL;
   int result = -1;
@@ -235,12 +272,9 @@ Common_Task_Ex_T<ACE_SYNCH_USE,
       delete message_p; message_p = NULL;
     } // end IF
   } while (true);
-
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t) leaving\n"),
               ACE_TEXT (inherited::threadName_.c_str ())));
-#endif // _DEBUG
 
   return result;
 }

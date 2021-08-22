@@ -21,33 +21,12 @@
 #ifndef COMMON_ITASKCONTROL_H
 #define COMMON_ITASKCONTROL_H
 
-#include "ace/Global_Macros.h"
-#include "ace/Synch_Traits.h"
+#include "ace/Time_Value.h"
 
-#include "common_ilock.h"
-#include "common_itask.h"
-
-template <ACE_SYNCH_DECL,
-          typename LockType> // implements Common_ILock_T/Common_IRecursiveLock_T
-class Common_ITaskControl_T
- : virtual public Common_ITask_T<ACE_SYNCH_USE,
-                                 LockType>
+class Common_ITaskControl
 {
  public:
-  // convenient types
-  typedef Common_ITask_T<ACE_SYNCH_USE,
-                         LockType> ITASK_T;
-
-  // *NOTE*: signal asynchronous completion
-  virtual void finished () = 0;
-  virtual void wait (bool = true) const = 0; // wait for the message queue ? : worker thread(s) only
+  virtual void execute (ACE_Time_Value* = NULL) = 0; // duration ? relative timeout : run until finished
 };
-
-//////////////////////////////////////////
-
-typedef Common_ITaskControl_T<ACE_MT_SYNCH,
-                              Common_ILock_T<ACE_MT_SYNCH> > Common_ITaskControl_t;
-typedef Common_ITaskControl_T<ACE_MT_SYNCH,
-                              Common_IRecursiveLock_T<ACE_MT_SYNCH> > Common_IRecursiveTaskControl_t;
 
 #endif

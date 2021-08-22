@@ -301,6 +301,29 @@ clean:
 }
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
+void
+Common_Error_Tools::setThreadName (const std::string& name_in,
+                                   HANDLE threadHandle_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Error_Tools::setThreadName"));
+
+  // sanity check(s)
+  ACE_ASSERT (!name_in.empty ());
+
+  HANDLE handle_h =
+    (threadHandle_in ? threadHandle_in
+                     : ::GetCurrentThread ());
+  HRESULT result =
+    ::SetThreadDescription (handle_h,
+                            ACE_TEXT_ALWAYS_WCHAR (name_in.c_str ()));
+  if (unlikely (FAILED (result)))
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to SetThreadDescription(%@): \"%s\", continuing\n"),
+                handle_h,
+                ACE_TEXT (Common_Error_Tools::errorToString (result, false, false).c_str ())));
+}
+#else
 void
 Common_Error_Tools::setThreadName (const std::string& name_in,
                                    DWORD threadId_in)
@@ -310,20 +333,6 @@ Common_Error_Tools::setThreadName (const std::string& name_in,
   // sanity check(s)
   ACE_ASSERT (!name_in.empty ());
 
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
-  HANDLE handle_h =
-    (threadId_in ? reinterpret_cast<HANDLE> (threadId_in)
-                 : ::GetCurrentThread ());
-  HRESULT result =
-    ::SetThreadDescription (handle_h,
-                            ACE_TEXT_ALWAYS_WCHAR (name_in.c_str ()));
-  if (unlikely (FAILED (result)))
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to SetThreadDescription(%@): \"%s\", returning\n"),
-                handle_h,
-                ACE_TEXT (Common_Error_Tools::errorToString (result, false, false).c_str ())));
-#else
-#if defined (DEBUG_DEBUGGER)
   // *NOTE*: code based on MSDN article (see:
   //         https://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx)
   const DWORD MS_VC_EXCEPTION = 0x406D1388;
@@ -350,9 +359,8 @@ Common_Error_Tools::setThreadName (const std::string& name_in,
                       (ULONG_PTR*)&info_s);
   } __except (EXCEPTION_EXECUTE_HANDLER) {}
 #pragma warning (pop)
-#endif // DEBUG_DEBUGGER
-#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00)
 }
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00)
 #endif // ACE_WIN32 || ACE_WIN64
 
 bool

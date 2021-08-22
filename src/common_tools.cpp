@@ -2143,6 +2143,25 @@ common_event_dispatch_function (void* arg_in)
 {
   COMMON_TRACE (ACE_TEXT ("::common_event_dispatch_function"));
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
+  Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_EVENT_THREAD_NAME),
+                                     NULL);
+#else
+  Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_EVENT_THREAD_NAME),
+                                     0);
+#endif // _WIN32_WINNT_WIN10
+#else
+// *TODO*
+//  pid_t result_2 = syscall (SYS_gettid);
+//  if (result_2 == -1)
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to syscall(SYS_gettid): \"%m\", continuing\n")));
+#endif // ACE_WIN32 || ACE_WIN64
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("(%s): thread (id: %t) starting\n"),
+              ACE_TEXT (COMMON_EVENT_THREAD_NAME)));
+
   ACE_THR_FUNC_RETURN result;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   result = std::numeric_limits<unsigned long>::max (); // DWORD
@@ -2158,21 +2177,6 @@ common_event_dispatch_function (void* arg_in)
   ACE_ASSERT (state_p);
   ACE_ASSERT (state_p->configuration);
   ACE_ASSERT (thread_manager_p);
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_EVENT_THREAD_NAME),
-                                     0);
-#else
-//  pid_t result_2 = syscall (SYS_gettid);
-//  if (result_2 == -1)
-//    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("failed to syscall(SYS_gettid): \"%m\", continuing\n")));
-#endif // ACE_WIN32 || ACE_WIN64
-#if defined (_DEBUG)
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("(%s): thread (id: %t) starting\n"),
-              ACE_TEXT (COMMON_EVENT_THREAD_NAME)));
-#endif // _DEBUG
 
   int result_2 = -1;
   int group_id_i = -1;

@@ -59,7 +59,17 @@ class Common_Task_T
 
   inline virtual ~Common_Task_T () {}
 
-  // implement Common_ITaskControl_T
+  // override ACE_Task_Base members
+  inline virtual int put (ACE_Message_Block* messageBlock_in, ACE_Time_Value* timeout_in) { ACE_ASSERT (inherited::thr_count_); return inherited::putq (messageBlock_in, timeout_in); }
+
+  // implement Common_IAsynchTask
+  // *NOTE*: tests for MB_STOP anywhere in the queue. Note that this does not
+  //         block, or dequeue any message
+  // *NOTE*: ACE_Message_Queue_Iterator does its own locking, i.e. access
+  //         happens in lockstep, which is both inefficient and yields
+  //         unpredictable results
+  //         --> use Common_MessageQueueIterator_T and lock the queue manually
+  virtual bool isShuttingDown ();
   // enqueue MB_STOP --> stop worker thread(s)
   virtual void stop (bool = true,  // wait for completion ?
                      bool = true,  // high priority ? (i.e. do not wait for queued messages)
@@ -80,24 +90,62 @@ class Common_Task_T
                  bool = true,                                  // auto-start ?
                  typename inherited::MESSAGE_QUEUE_T* = NULL); // queue handle
 
-  // override ACE_Task_Base members
-//  inline virtual int put (ACE_Message_Block* messageBlock_in, ACE_Time_Value* timeout_in) { ACE_ASSERT (inherited::thr_count_); return inherited::putq (messageBlock_in, timeout_in); }
-
   // helper methods
   // *NOTE*: 'high priority' effectively means that the message is enqueued at
   //         the head end (i.e. will be the next to dequeue), whereas it would
   //         be enqueued at the tail end otherwise
   void control (int,           // message type
                 bool = false); // high-priority ?
-  // *NOTE*: tests for MB_STOP anywhere in the queue. Note that this does not
-  //         block, or dequeue any message
-  // *NOTE*: ACE_Message_Queue_Iterator does its own locking, i.e. access
-  //         happens in lockstep, which is both inefficient and yields
-  //         unpredictable results
-  //         --> use Common_MessageQueueIterator_T and lock the queue manually
-  virtual bool hasShutDown ();
 
+  // override ACE_Task_Base members
   virtual int svc (void);
+
+ private:
+  ACE_UNIMPLEMENTED_FUNC (Common_Task_T ())
+  ACE_UNIMPLEMENTED_FUNC (Common_Task_T (const Common_Task_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Task_T& operator= (const Common_Task_T&))
+};
+
+//////////////////////////////////////////
+
+// partial specialization (fully synchronous)
+template <typename TimePolicyType,
+          typename LockType> // implements Common_ILock_T/Common_IRecursiveLock_T
+class Common_Task_T<ACE_NULL_SYNCH,
+                    TimePolicyType,
+                    LockType>
+ : public Common_TaskBase_T<ACE_NULL_SYNCH,
+                            TimePolicyType,
+                            LockType,
+                            ACE_Message_Block,
+                            ACE_Message_Queue<ACE_NULL_SYNCH,
+                                              TimePolicyType>,
+                            ACE_Task<ACE_NULL_SYNCH,
+                                     TimePolicyType> >
+{
+  typedef Common_TaskBase_T<ACE_NULL_SYNCH,
+                            TimePolicyType,
+                            LockType,
+                            ACE_Message_Block,
+                            ACE_Message_Queue<ACE_NULL_SYNCH,
+                                              TimePolicyType>,
+                            ACE_Task<ACE_NULL_SYNCH,
+                                     TimePolicyType> > inherited;
+
+ public:
+  inline virtual ~Common_Task_T () {}
+
+ protected:
+  Common_Task_T (const std::string&,                           // thread name
+                 int,                                          // (thread) group id
+                 unsigned int = 1,                             // # thread(s)
+                 bool = true,                                  // auto-start ?
+                 typename inherited::MESSAGE_QUEUE_T* = NULL); // queue handle
+
+  // override ACE_Task_Base members
+  inline virtual int put (ACE_Message_Block*, ACE_Time_Value*) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (-1); ACE_NOTREACHED (return -1;) }
+
+  //virtual int svc (void);
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Task_T ())

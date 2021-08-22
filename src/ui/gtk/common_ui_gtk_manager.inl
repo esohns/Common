@@ -119,12 +119,11 @@ void
 Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                         ConfigurationType,
                         StateType,
-                        CallBackDataType>::start (ACE_thread_t& threadId_out)
+                        CallBackDataType>::start (ACE_Time_Value* timeout_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::start"));
 
-  // initialize return value(s)
-  threadId_out = 0;
+  ACE_UNUSED_ARG (timeout_in);
 
   int result = inherited::open (NULL);
   if (unlikely (result == -1))
@@ -133,11 +132,6 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                 ACE_TEXT ("failed to Common_TaskBase_T::open(NULL): \"%m\", returning\n")));
     return;
   } // end IF
-
-  { ACE_GUARD (typename inherited::ITASKCONTROL_T::MUTEX_T, aGuard, inherited::lock_);
-    ACE_ASSERT (inherited::threadIds_.size () == 1);
-    threadId_out = inherited::threadIds_[0].id ();
-  } // end lock scope
 }
 
 template <ACE_SYNCH_DECL,
@@ -186,12 +180,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   switch (arg_in)
   {
     case 0:
-    { // check specifically for the second case
-      if (likely (ACE_OS::thr_equal (ACE_Thread::self (),
-                                     inherited::last_thread ())))
-        break;
-
-      // *WARNING*: falls through !
+    { ACE_ASSERT (ACE_OS::thr_equal (ACE_Thread::self (), inherited::last_thread ()));
+      break;
     }
     case 1:
     {
@@ -267,15 +257,18 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::svc"));
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
+  Common_Error_Tools::setThreadName (inherited::threadName_,
+                                     NULL);
+#else
   Common_Error_Tools::setThreadName (inherited::threadName_,
                                      0);
+#endif // _WIN32_WINNT_WIN10
 #endif // ACE_WIN32 || ACE_WIN64
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t, group: %d) starting\n"),
               ACE_TEXT (inherited::threadName_.c_str ()),
               inherited::grp_id_));
-#endif // _DEBUG
 
   // sanity check(s)
   ACE_ASSERT (configuration_);

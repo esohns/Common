@@ -24,7 +24,6 @@
 #include <string>
 
 #include "common_iinitialize.h"
-//#include "common_itaskcontrol.h"
 
 // forward declarations
 class ACE_Time_Value;

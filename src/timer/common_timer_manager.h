@@ -29,9 +29,7 @@
 
 #include "common.h"
 #include "common_idumpstate.h"
-#include "common_ilock.h"
-
-#include "common_itaskcontrol.h"
+#include "common_itask.h"
 
 #include "common_itimer.h"
 #include "common_timer_common.h"
@@ -44,8 +42,7 @@ template <ACE_SYNCH_DECL,
           typename TimerQueueAdapterType>
 class Common_Timer_Manager_T
  : public TimerQueueAdapterType
- , public Common_ITaskControl_T<ACE_SYNCH_USE,
-                                Common_ILock_T<ACE_SYNCH_USE> >
+ , public Common_IAsynchTask
  , public Common_ITimerCB_T<ConfigurationType>
  , private Common_IGetR_3_T<ACE_SYNCH_RECURSIVE_MUTEX>
  //, private Common_IGetR_4_T<typename TimerQueueAdapterType::TIMER_QUEUE>
@@ -67,6 +64,14 @@ class Common_Timer_Manager_T
                                                ConfigurationType,
                                                TimerQueueAdapterType>,
                         ACE_SYNCH_MUTEX> SINGLETON_T;
+
+  // implement (part of) Common_IAsynchTask
+  virtual bool isRunning () const;
+  virtual void start (ACE_Time_Value* = NULL); // N/A
+  virtual void stop (bool = true,  // wait for completion ?
+                     bool = true,  // N/A
+                     bool = true); // locked access ?
+  virtual void wait (bool = true) const; // wait for the message queue ? : worker thread(s) only
 
   // implement Common_ITimerCB_T
   virtual int cancel_timer (long,             // timer id
@@ -90,22 +95,12 @@ class Common_Timer_Manager_T
   virtual bool initialize (const ConfigurationType&);
   inline virtual const ConfigurationType& getR () const { ACE_ASSERT (configuration_); return *configuration_; }
 
-  // implement (part of) Common_ITaskControl_T
-  virtual void start (ACE_thread_t&); // return value: thread handle (if any)
-  virtual void stop (bool = true,  // wait for completion ?
-                     bool = true,  // high priority ?
-                     bool = true); // locked access ?
-  virtual bool isRunning () const;
-  virtual void wait (bool = true) const; // wait for the message queue ? : worker thread(s) only
-
   // implement Common_IDumpState
   virtual void dump_state () const;
 
  private:
   // convenient types
   typedef typename TimerQueueAdapterType::TIMER_QUEUE TIMER_QUEUE_T;
-  typedef Common_ITaskControl_T<ACE_SYNCH_USE,
-                                Common_ILock_T<ACE_SYNCH_USE> > ITASKCONTROL_T;
   typedef Common_Timer_Manager_T<ACE_SYNCH_USE,
                                  ConfigurationType,
                                  TimerQueueAdapterType> OWN_TYPE_T;
@@ -115,11 +110,10 @@ class Common_Timer_Manager_T
   ACE_UNIMPLEMENTED_FUNC (Common_Timer_Manager_T& operator= (const Common_Timer_Manager_T&))
   virtual ~Common_Timer_Manager_T ();
 
-  // hide (part of) Common_ITaskControl_T
-  inline virtual bool lock (bool = true) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
-  inline virtual int unlock (bool = false) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (-1); ACE_NOTREACHED (return -1;) }
-  inline virtual const typename ITASKCONTROL_T::MUTEX_T& getR_2 () const { static typename ITASKCONTROL_T::MUTEX_T dummy;  ACE_ASSERT (false); ACE_NOTSUP_RETURN (dummy); ACE_NOTREACHED (return dummy;) }
+  // hide (part of) Common_IAsynchTask
+  // *TODO*: this could be implemented
   inline virtual void idle () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
+  inline virtual bool isShuttingDown () { return !isRunning (); }
   inline virtual void finished () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
 
   // helper methods

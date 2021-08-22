@@ -24,12 +24,15 @@
 #include <string>
 #include <vector>
 
-#include "ace/config-lite.h"
 #include "ace/Global_Macros.h"
 #include "ace/OS_NS_Thread.h"
 #include "ace/Synch_Traits.h"
+#include "ace/Time_Value.h"
+
+#include "common_time_common.h"
 
 #include "common_idumpstate.h"
+#include "common_itask.h"
 #include "common_itaskcontrol.h"
 
 // forward declaration(s)
@@ -46,8 +49,8 @@ template <ACE_SYNCH_DECL,
           typename TaskType> // i.e. ACE_Task<> or ACE_Task_Ex<>
 class Common_TaskBase_T
  : public TaskType
- , virtual public Common_ITaskControl_T<ACE_SYNCH_USE,
-                                        LockType>
+ , public Common_IAsynchTask
+ , public Common_ITaskControl
  , public Common_IDumpState
 {
   typedef TaskType inherited;
@@ -55,26 +58,22 @@ class Common_TaskBase_T
  public:
   // convenient types
   typedef ACE_SYNCH_USE SYNCH_T;
-  typedef Common_ITaskControl_T<ACE_SYNCH_USE,
-                                LockType> ITASKCONTROL_T;
-  typedef typename ITASKCONTROL_T::ITASK_T ITASK_T;
+  typedef typename LockType::MUTEX_T MUTEX_T;
 
   virtual ~Common_TaskBase_T ();
 
-  // implement Common_ITaskControl_T
-  virtual bool lock (bool = true); // block ?
-  inline virtual int unlock (bool = false) { return lock_.release (); }
-  inline virtual const typename LockType::MUTEX_T& getR_2 () const { return lock_; }
+  // implement Common_IAsynchTask
+  virtual void idle ();
+  inline virtual bool isRunning () const { return (threadCount_ ? (inherited::thr_count_ > 0) : false); }
   // *NOTE*: wraps ACE_Task_Base::activate() to spawn one additional (worker-)
   //         thread (up to threadCount_)
   // *TODO*: derivates may want to implement a dynamic thread pool
   //         --> call ACE_Task_Base::activate() directly in this case
-  virtual void start (ACE_thread_t&); // return value: thread handle (if any)
-  inline virtual bool isRunning () const { return (threadCount_ ? (inherited::thr_count_ > 0) : false); }
-  virtual void idle ();
-  // *NOTE*: calls close(1)
-  virtual void finished ();
+  virtual void start (ACE_Time_Value* = NULL); // duration ? relative timeout : run until finished
   virtual void wait (bool = true) const; // wait for the message queue ? : worker thread(s) only
+
+  // implement Common_ITaskControl
+  inline virtual void execute (ACE_Time_Value* timeout_in = NULL) { start (timeout_in); }
 
   // stub Common_IDumpState
   inline virtual void dump_state () const {}
@@ -98,15 +97,20 @@ class Common_TaskBase_T
   virtual int open (void* = NULL);
 //  inline virtual int put (ACE_Message_Block* messageBlock_in, ACE_Time_Value* timeout_in) { ACE_ASSERT (inherited::thr_count_); return inherited::putq (static_cast<MessageType*> (messageBlock_in), timeout_in); }
 
-  mutable typename LockType::MUTEX_T lock_;
+  // implement Common_IAsynchTask
+  // *NOTE*: calls close(1)
+  virtual void finished ();
 
+  ACE_Time_Value  deadline_;
   // *NOTE*: this is the 'configured' (not the 'current') thread count
   //         --> see ACE_Task::thr_count_
-  unsigned int                       threadCount_;
-  std::string                        threadName_;
+  unsigned int    threadCount_;
+  std::string     threadName_;
   typedef std::vector<ACE_Thread_ID> THREAD_IDS_T;
-  typedef THREAD_IDS_T::const_iterator THREAD_IDS_ITERATOR_T;
-  THREAD_IDS_T                       threadIds_;
+  typedef THREAD_IDS_T::iterator THREAD_IDS_ITERATOR_T;
+  typedef THREAD_IDS_T::const_iterator THREAD_IDS_CONSTITERATOR_T;
+  mutable MUTEX_T lock_;
+  THREAD_IDS_T    threadIds_;
 
  private:
   // convenient types
@@ -144,30 +148,25 @@ class Common_TaskBase_T<ACE_NULL_SYNCH,
                         QueueType,
                         TaskType>
  : public TaskType
- , virtual public Common_ITaskControl_T<ACE_NULL_SYNCH,
-                                        LockType>
+ , public Common_ITask
+ , public Common_ITaskControl
  , public Common_IDumpState
 {
   typedef TaskType inherited;
 
  public:
   // convenient types
-  typedef Common_ITaskControl_T<ACE_NULL_SYNCH,
-                                LockType> ITASKCONTROL_T;
-  typedef typename ITASKCONTROL_T::ITASK_T ITASK_T;
+  typedef ACE_NULL_SYNCH SYNCH_T;
 
   inline virtual ~Common_TaskBase_T () {}
 
-  // implement Common_ITaskControl_T
-  inline virtual bool lock (bool block_in = true) { return ((block_in ? lock_.acquire () : lock_.tryacquire ()) == 0); }
-  inline virtual int unlock (bool = false) { return lock_.release (); }
-  inline virtual const typename LockType::MUTEX_T& getR () const { return lock_; }
-  inline virtual void start (ACE_thread_t& threadId_out) { threadId_out = 0; }
-  inline virtual void stop (bool = true, bool = true, bool = true) {}
-  inline virtual bool isRunning () const { return true; }
-  inline virtual void idle () {}
-  inline virtual void finished () {}
-  inline virtual void wait (bool = true) const {} // wait for the message queue ? : worker thread(s) only
+  // implement Common_ITask
+  inline virtual void start (ACE_Time_Value* timeout_in = NULL) { deadline_ = (timeout_in ? COMMON_TIME_NOW + *timeout_in : ACE_Time_Value::zero); int result = svc (); ACE_UNUSED_ARG (result); }
+  inline virtual void stop () { stopped_ = true; }
+  inline virtual bool isShuttingDown () { return stopped_; }
+
+  // implement Common_ITaskControl
+  inline virtual void execute (ACE_Time_Value* timeout_in = NULL) { start (timeout_in); }
 
   // stub Common_IDumpState
   inline virtual void dump_state () const {}
@@ -186,10 +185,8 @@ class Common_TaskBase_T<ACE_NULL_SYNCH,
                      bool = true,              // auto-start ?
                      MESSAGE_QUEUE_T* = NULL); // queue handle
 
-  // helper methods
-  inline virtual bool hasShutDown () { return true; }
-
-  mutable typename LockType::MUTEX_T lock_;
+  ACE_Time_Value deadline_;
+  bool           stopped_;
 
  private:
   // convenient types
