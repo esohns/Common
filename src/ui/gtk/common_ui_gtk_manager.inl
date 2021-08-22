@@ -154,7 +154,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                 ACE_TEXT ("failed to Common_UI_GTK_Manager_T::close(1): \"%m\", continuing\n")));
 
   if (waitForCompletion_in)
-    inherited::wait ();
+    inherited::wait (false);
 }
 
 template <ACE_SYNCH_DECL,
