@@ -37,13 +37,11 @@
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType,
           typename MessageType,
           typename QueueType,
           typename TaskType>
 Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType,
-                  LockType,
                   MessageType,
                   QueueType,
                   TaskType>::Common_TaskBase_T (const std::string& threadName_in,
@@ -57,11 +55,15 @@ Common_TaskBase_T<ACE_SYNCH_USE,
  : inherited (ACE_Thread_Manager::instance (),           // thread manager instance
 #endif /* ACE_THREAD_MANAGER_LACKS_STATICS */
               messageQueue_in)                           // message queue handle
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+ , closeHandles_ (false)
+#endif // ACE_WIN32 || ACE_WIN64
  , deadline_ (ACE_Time_Value::zero)
  , threadCount_ (threadCount_in)
  , threadName_ (threadName_in)
- , lock_ ()
+ //, lock_ ()
  , threadIds_ ()
+ , condition_ (inherited::lock_)
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::Common_TaskBase_T"));
 
@@ -80,13 +82,11 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType,
           typename MessageType,
           typename QueueType,
           typename TaskType>
 Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType,
-                  LockType,
                   MessageType,
                   QueueType,
                   TaskType>::~Common_TaskBase_T ()
@@ -118,66 +118,30 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   ACE_hthread_t handle = ACE_INVALID_HANDLE;
-  for (THREAD_IDS_ITERATOR_T iterator = threadIds_.begin ();
-       iterator != threadIds_.end ();
-       ++iterator)
-  {
-    handle = (*iterator).handle ();
-    if (unlikely (handle != ACE_INVALID_HANDLE))
-      if (!::CloseHandle (handle))
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
-                    handle,
-                    ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError ()).c_str ())));
-  } // end FOR
+  if (unlikely (closeHandles_))
+    for (THREAD_IDS_ITERATOR_T iterator = threadIds_.begin ();
+         iterator != threadIds_.end ();
+         ++iterator)
+    {
+      handle = (*iterator).handle ();
+      if (unlikely (handle != ACE_INVALID_HANDLE))
+        if (!::CloseHandle (handle))
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
+                      handle,
+                      ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError ()).c_str ())));
+    } // end FOR
 #endif // ACE_WIN32 || ACE_WIN64
 }
 
-//template <ACE_SYNCH_DECL,
-//          typename TimePolicyType,
-//          typename LockType,
-//          typename MessageType,
-//          typename QueueType,
-//          typename TaskType>
-//bool
-//Common_TaskBase_T<ACE_SYNCH_USE,
-//                  TimePolicyType,
-//                  LockType,
-//                  MessageType,
-//                  QueueType,
-//                  TaskType>::lock (bool block_in)
-//{
-//  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::lock"));
-//
-//  int result = -1;
-//
-//  result = (block_in ? lock_.acquire () : lock_.tryacquire ());
-//  if (unlikely (result == -1))
-//  {
-//    if (block_in)
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("failed to ACE_SYNCH_MUTEX::acquire(): \"%m\", aborting\n")));
-//    else
-//    { int error = ACE_OS::last_error ();
-//      if (error != EBUSY)
-//        ACE_DEBUG ((LM_ERROR,
-//                    ACE_TEXT ("failed to ACE_SYNCH_MUTEX::tryacquire(): \"%m\", aborting\n")));
-//    } // end ELSE
-//  } // end IF
-//
-//  return (result == 0);
-//}
-
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType,
           typename MessageType,
           typename QueueType,
           typename TaskType>
 int
 Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType,
-                  LockType,
                   MessageType,
                   QueueType,
                   TaskType>::close (u_long arg_in)
@@ -196,21 +160,22 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       if (likely (ACE_OS::thr_equal (handle,
                                      inherited::last_thread ())))
       {
-        { ACE_GUARD_RETURN (MUTEX_T, aGuard, lock_, -1);
+        { ACE_GUARD_RETURN (ACE_Thread_Mutex, aGuard, inherited::lock_, -1);
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
           ACE_hthread_t handle_2 = ACE_INVALID_HANDLE;
-          for (THREAD_IDS_CONSTITERATOR_T iterator = threadIds_.begin ();
-               iterator != threadIds_.end ();
-               ++iterator)
-          {
-            handle_2 = (*iterator).handle ();
-            ACE_ASSERT (handle_2 != ACE_INVALID_HANDLE);
-            if (!::CloseHandle (handle_2))
-              ACE_DEBUG ((LM_ERROR,
-                          ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
-                          handle_2,
-                          ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError ()).c_str ())));
-          } // end FOR
+          if (unlikely (closeHandles_))
+            for (THREAD_IDS_CONSTITERATOR_T iterator = threadIds_.begin ();
+                 iterator != threadIds_.end ();
+                 ++iterator)
+            {
+              handle_2 = (*iterator).handle ();
+              ACE_ASSERT (handle_2 != ACE_INVALID_HANDLE);
+              if (!::CloseHandle (handle_2))
+                ACE_DEBUG ((LM_ERROR,
+                            ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
+                            handle_2,
+                            ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError ()).c_str ())));
+            } // end FOR
 #endif // ACE_WIN32 || ACE_WIN64
           threadIds_.clear ();
         } // end lock scope
@@ -249,7 +214,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       } // end IF
       else
       {
-        { ACE_GUARD_RETURN (MUTEX_T, aGuard, lock_, -1);
+        { ACE_GUARD_RETURN (ACE_Thread_Mutex, aGuard, inherited::lock_, -1);
           for (THREAD_IDS_ITERATOR_T iterator = threadIds_.begin ();
                iterator != threadIds_.end ();
                ++iterator)
@@ -259,18 +224,18 @@ Common_TaskBase_T<ACE_SYNCH_USE,
               ACE_hthread_t handle_2 = ACE_INVALID_HANDLE;
               handle_2 = (*iterator).handle ();
               ACE_ASSERT (handle_2 != ACE_INVALID_HANDLE);
-              if (!::CloseHandle (handle_2))
-                ACE_DEBUG ((LM_ERROR,
-                            ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
-                            handle_2,
-                            ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError ()).c_str ())));
+              if (unlikely (closeHandles_))
+                if (!::CloseHandle (handle_2))
+                  ACE_DEBUG ((LM_ERROR,
+                              ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
+                              handle_2,
+                              ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError ()).c_str ())));
 #endif // ACE_WIN32 || ACE_WIN64
               threadIds_.erase (iterator);
               break;
             } // end IF
         } // end lock scope
       } // end ELSE
-
       break;
     }
     case 1:
@@ -278,8 +243,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       if (unlikely (inherited::thr_count_ == 0))
         break; // nothing (more) to do
       stop (false, // wait for completion ?
-            true,  // high priority ?
-            true); // locked access ?
+            true); // high priority ?
       break;
     }
     default:
@@ -296,14 +260,12 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType,
           typename MessageType,
           typename QueueType,
           typename TaskType>
-void
+bool
 Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType,
-                  LockType,
                   MessageType,
                   QueueType,
                   TaskType>::start (ACE_Time_Value* timeout_in)
@@ -325,7 +287,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("object already active (thread pool size: %u), returning\n"),
                   inherited::thr_count_));
-    return;
+    return true;
   } // end IF
 
   deadline_ = (timeout_in ? COMMON_TIME_NOW + *timeout_in 
@@ -336,12 +298,12 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   {
     if (inherited::mod_)
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("%s: failed to ACE_Message_Queue::activate(): \"%m\", returning\n"),
+                  ACE_TEXT ("%s: failed to ACE_Message_Queue::activate(): \"%m\", aborting\n"),
                   inherited::mod_->name ()));
     else
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Message_Queue::activate(): \"%m\", returning\n")));
-    return;
+                  ACE_TEXT ("failed to ACE_Message_Queue::activate(): \"%m\", aborting\n")));
+    return false;
   } // end IF
 
   result = open (NULL);
@@ -349,11 +311,11 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   {
     if (inherited::mod_)
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("%s: failed to ACE_Task_Base::open(NULL): \"%m\", returning\n"),
+                  ACE_TEXT ("%s: failed to ACE_Task_Base::open(NULL): \"%m\", aborting\n"),
                   inherited::mod_->name ()));
     else
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Task_Base::open(NULL): \"%m\", returning\n")));
+                  ACE_TEXT ("failed to ACE_Task_Base::open(NULL): \"%m\", aborting\n")));
     result = inherited::msg_queue_->deactivate ();
     if (unlikely (result == -1))
     {
@@ -365,22 +327,22 @@ Common_TaskBase_T<ACE_SYNCH_USE,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Message_Queue::activate(): \"%m\", continuing\n")));
     } // end IF
+    return false;
   } // end IF
+  return true;
 }
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType,
           typename MessageType,
           typename QueueType,
           typename TaskType>
 void
 Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType,
-                  LockType,
                   MessageType,
                   QueueType,
-                  TaskType>::idle ()
+                  TaskType>::idle () const
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::idle"));
 
@@ -420,14 +382,12 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType,
           typename MessageType,
           typename QueueType,
           typename TaskType>
 void
 Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType,
-                  LockType,
                   MessageType,
                   QueueType,
                   TaskType>::finished ()
@@ -442,14 +402,12 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType,
           typename MessageType,
           typename QueueType,
           typename TaskType>
 void
 Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType,
-                  LockType,
                   MessageType,
                   QueueType,
                   TaskType>::wait (bool waitForMessageQueue_in) const
@@ -487,6 +445,50 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to TaskType::wait(): \"%m\", continuing\n")));
+}
+
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType,
+          typename MessageType,
+          typename QueueType,
+          typename TaskType>
+void
+Common_TaskBase_T<ACE_SYNCH_USE,
+                  TimePolicyType,
+                  MessageType,
+                  QueueType,
+                  TaskType>::pause () const
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::pause"));
+
+  OWN_TYPE_T* this_p = const_cast<OWN_TYPE_T*> (this);
+
+  int result = this_p->inherited::suspend ();
+  if (unlikely (result == -1))
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Task_Base::suspend(): \"%m\", continuing\n")));
+}
+
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType,
+          typename MessageType,
+          typename QueueType,
+          typename TaskType>
+void
+Common_TaskBase_T<ACE_SYNCH_USE,
+                  TimePolicyType,
+                  MessageType,
+                  QueueType,
+                  TaskType>::resume () const
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::resume"));
+
+  OWN_TYPE_T* this_p = const_cast<OWN_TYPE_T*> (this);
+
+  int result = this_p->inherited::resume ();
+  if (unlikely (result == -1))
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Task_Base::resume(): \"%m\", continuing\n")));
 }
 
 // *** BEGIN dummy stub methods ***
@@ -578,14 +580,12 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType,
           typename MessageType,
           typename QueueType,
           typename TaskType>
 int
 Common_TaskBase_T<ACE_SYNCH_USE,
                   TimePolicyType,
-                  LockType,
                   MessageType,
                   QueueType,
                   TaskType>::open (void* args_in)
@@ -687,25 +687,28 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     thread_names_p[i] = thread_name_p;
   } // end FOR
   std::ostringstream string_stream;
-  { ACE_GUARD_RETURN (MUTEX_T, aGuard, lock_, -1);
+  { ACE_GUARD_RETURN (ACE_Thread_Mutex, aGuard, lock_, -1);
+    // *WARNING*: calling inherited::activate would start a race condition, as
+    //            it releases the lock_ upon returning...
     result =
-      inherited::activate ((THR_NEW_LWP      |
-                            THR_JOINABLE     |
-                            THR_INHERIT_SCHED),             // flags
-                           static_cast<int> (threadCount_), // # threads
-                           0,                               // force active ?
-                           ACE_DEFAULT_THREAD_PRIORITY,     // priority
-                           inherited::grp_id (),            // group id (see above)
-                           NULL,                            // task base
-                           thread_handles_p,                // thread handle(s)
-                           NULL,                            // stack(s)
-                           NULL,                            // stack size(s)
-                           thread_ids_p,                    // thread id(s)
-                           thread_names_p);                 // thread name(s)
+      //inherited::activate ((THR_NEW_LWP      |
+      activate_i ((THR_NEW_LWP |
+                   THR_JOINABLE     |
+                   THR_INHERIT_SCHED),             // flags
+                   static_cast<int> (threadCount_), // # threads
+                   0,                               // force active ?
+                   ACE_DEFAULT_THREAD_PRIORITY,     // priority
+                   inherited::grp_id (),            // group id (see above)
+                   NULL,                            // task base
+                   thread_handles_p,                // thread handle(s)
+                   NULL,                            // stack(s)
+                   NULL,                            // stack size(s)
+                   thread_ids_p,                    // thread id(s)
+                   thread_names_p);                 // thread name(s)
     if (unlikely (result == -1))
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Task::activate(%u): \"%m\", aborting\n"),
+                  ACE_TEXT ("failed to Common_TaskBase_T::activate_i(%u): \"%m\", aborting\n"),
                   threadCount_));
       inherited::msg_queue_->deactivate ();
       delete [] thread_ids_p; thread_ids_p = NULL;
@@ -722,6 +725,8 @@ Common_TaskBase_T<ACE_SYNCH_USE,
       string_stream << ACE_TEXT_ALWAYS_CHAR ("#") << (i + 1)
                     << ACE_TEXT_ALWAYS_CHAR (" ")
                     << thread_ids_p[i]
+                    << ACE_TEXT_ALWAYS_CHAR ("\t")
+                    << thread_handles_p[i]
                     << ACE_TEXT_ALWAYS_CHAR ("\n");
 
       // clean up
@@ -747,16 +752,116 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   return result;
 }
 
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType,
+          typename MessageType,
+          typename QueueType,
+          typename TaskType>
+int
+Common_TaskBase_T<ACE_SYNCH_USE,
+                  TimePolicyType,
+                  MessageType,
+                  QueueType,
+                  TaskType>::activate_i (long flags,
+                                         int n_threads,
+                                         int force_active,
+                                         long priority,
+                                         int grp_id,
+                                         ACE_Task_Base* task,
+                                         ACE_hthread_t thread_handles[],
+                                         void* stack[],
+                                         size_t stack_size[],
+                                         ACE_thread_t thread_ids[],
+                                         const char* thr_name[])
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::activate_i"));
+
+  // If the task passed in is zero, we will use <this>
+  if (task == 0)
+    task = this;
+
+  if (inherited::thr_count_ > 0 && force_active == 0)
+    return 1; // Already active.
+  else
+    {
+      if ((inherited::thr_count_ > 0 || grp_id == -1) &&
+        inherited::grp_id_ != -1)
+        // If we're joining an existing group of threads then make
+        // sure to (re)use its group id.
+        grp_id = inherited::grp_id_;
+      else if (grp_id != -1)
+        // make sure to reset the cached grp_id
+        inherited::grp_id_ = -1;
+      inherited::thr_count_ += n_threads;
+    }
+
+  // Use the ACE_Thread_Manager singleton if we're running as an
+  // active object and the caller didn't supply us with a
+  // Thread_Manager.
+  if (inherited::thr_mgr_ == 0)
+# if defined (ACE_THREAD_MANAGER_LACKS_STATICS)
+    inherited::thr_mgr_ = ACE_THREAD_MANAGER_SINGLETON::instance ();
+# else /* ! ACE_THREAD_MANAGER_LACKS_STATICS */
+    inherited::thr_mgr_ = ACE_Thread_Manager::instance ();
+# endif /* ACE_THREAD_MANAGER_LACKS_STATICS */
+
+  int grp_spawned = -1;
+  if (thread_ids == 0)
+    // Thread Ids were not specified
+    grp_spawned =
+      inherited::thr_mgr_->spawn_n (n_threads,
+                                    &ACE_Task_Base::svc_run,
+                                    (void *) this,
+                                    flags,
+                                    priority,
+                                    grp_id,
+                                    task,
+                                    thread_handles,
+                                    stack,
+                                    stack_size,
+                                    thr_name);
+  else
+    // thread names were specified
+    grp_spawned =
+      inherited::thr_mgr_->spawn_n (thread_ids,
+                                    n_threads,
+                                    &ACE_Task_Base::svc_run,
+                                    (void *) this,
+                                    flags,
+                                    priority,
+                                    grp_id,
+                                    stack,
+                                    stack_size,
+                                    thread_handles,
+                                    task,
+                                    thr_name);
+  if (grp_spawned == -1)
+    {
+      // If spawn_n fails, restore original thread count.
+      inherited::thr_count_ -= n_threads;
+      return -1;
+    }
+
+  if (inherited::grp_id_ == -1)
+    inherited::grp_id_ = grp_spawned;
+
+#if defined (ACE_THREAD_T_IS_A_STRUCT)
+  ACE_OS::memcpy( &inherited::last_thread_id_, '\0', sizeof(inherited::last_thread_id_));
+#else
+  inherited::last_thread_id_ = 0;    // Reset to prevent inadvertant match on ID
+#endif /* ACE_THREAD_T_IS_A_STRUCT */
+
+  return 0;
+}
+
 //////////////////////////////////////////
 
 template <typename TimePolicyType,
-          typename LockType,
           typename MessageType,
           typename QueueType,
           typename TaskType>
 Common_TaskBase_T<ACE_NULL_SYNCH,
                   TimePolicyType,
-                  LockType,
                   MessageType,
                   QueueType,
                   TaskType>::Common_TaskBase_T (const std::string& threadName_in,
@@ -772,6 +877,10 @@ Common_TaskBase_T<ACE_NULL_SYNCH,
               messageQueue_in)                           // message queue handle
  , deadline_ (ACE_Time_Value::zero)
  , stopped_ (false)
+ , threadId_ ()
+ , finished_ (false)
+ , condition_ (inherited::lock_, NULL, NULL)
+ //, lock_ ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::Common_TaskBase_T"));
 
@@ -781,4 +890,166 @@ Common_TaskBase_T<ACE_NULL_SYNCH,
 
   // sanity check(s)
   ACE_ASSERT (!threadCount_in);
+
+  threadId_.handle (ACE_INVALID_HANDLE);
+}
+
+template <typename TimePolicyType,
+          typename MessageType,
+          typename QueueType,
+          typename TaskType>
+bool
+Common_TaskBase_T<ACE_NULL_SYNCH,
+                  TimePolicyType,
+                  MessageType,
+                  QueueType,
+                  TaskType>::start (ACE_Time_Value* timeout_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::start"));
+
+  deadline_ = (timeout_in ? COMMON_TIME_NOW + *timeout_in : ACE_Time_Value::zero);
+
+  threadId_.id (ACE_OS::thr_self ());
+  ACE_hthread_t handle = ACE_INVALID_HANDLE;
+  ACE_OS::thr_self (handle);
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  HANDLE process_handle = ::GetCurrentProcess ();
+  if (unlikely (!::DuplicateHandle (process_handle,
+                                    handle,
+                                    process_handle,
+                                    &handle,
+                                    0,
+                                    FALSE,
+                                    DUPLICATE_CLOSE_SOURCE | DUPLICATE_SAME_ACCESS)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to DuplicateHandle(0x%@): \"%s\", aborting\n"),
+                handle,
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
+    return false;
+  } // end IF
+  // *WARNING*: 'handle' needs CloseHandle()
+#endif // ACE_WIN32 || ACE_WIN64
+  threadId_.handle (handle);
+
+  int result = svc ();
+  
+  { ACE_GUARD_RETURN (ACE_Thread_Mutex, aGuard, inherited::lock_, false);
+    finished_ = true;
+    int result_2 = condition_.broadcast ();
+    if (unlikely (result_2 == -1))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Thread_Condition::broadcast(): \"%m\"), continuing\n")));
+  } // end lock scope
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  if (unlikely (!::CloseHandle (handle)))
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
+                handle,
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
+#endif // ACE_WIN32 || ACE_WIN64
+
+  return ((result < 0) ? false : true);
+}
+
+template <typename TimePolicyType,
+          typename MessageType,
+          typename QueueType,
+          typename TaskType>
+void
+Common_TaskBase_T<ACE_NULL_SYNCH,
+                  TimePolicyType,
+                  MessageType,
+                  QueueType,
+                  TaskType>::stop (bool waitForCompletion_in,
+                                   bool)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::stop"));
+
+  stopped_ = true;
+
+  if (likely (waitForCompletion_in))
+    wait (true);
+}
+
+template <typename TimePolicyType,
+          typename MessageType,
+          typename QueueType,
+          typename TaskType>
+void
+Common_TaskBase_T<ACE_NULL_SYNCH,
+                  TimePolicyType,
+                  MessageType,
+                  QueueType,
+                  TaskType>::wait (bool) const
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::wait"));
+
+  int result = -1;
+  { ACE_GUARD (ACE_Thread_Mutex, aGuard, inherited::lock_);
+    while (!finished_)
+    {
+      result = condition_.wait (NULL);
+      if (unlikely (result == -1))
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_Thread_Condition::wait(): \"%m\"), continuing\n")));
+    } // end WHILE
+  } // end lock scope
+}
+
+template <typename TimePolicyType,
+          typename MessageType,
+          typename QueueType,
+          typename TaskType>
+void
+Common_TaskBase_T<ACE_NULL_SYNCH,
+                  TimePolicyType,
+                  MessageType,
+                  QueueType,
+                  TaskType>::pause () const
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::pause"));
+
+  // sanity check(s)
+  if (!isRunning ())
+    return;
+
+  int result = ACE_Thread::suspend (threadId_.handle ());
+  if (unlikely (result == -1))
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Thread::suspend(0x%@): \"%m\"), continuing\n"),
+                threadId_.handle ()));
+#else
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Thread::suspend(%d): \"%m\"), continuing\n"),
+                threadId_.handle ()));
+#endif // ACE_WIN32 || ACE_WIN64
+}
+
+template <typename TimePolicyType,
+          typename MessageType,
+          typename QueueType,
+          typename TaskType>
+void
+Common_TaskBase_T<ACE_NULL_SYNCH,
+                  TimePolicyType,
+                  MessageType,
+                  QueueType,
+                  TaskType>::resume () const
+{
+  COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::resume"));
+
+  int result = ACE_Thread::resume (threadId_.handle ());
+  if (unlikely (result == -1))
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Thread::resume(0x%@): \"%m\"), continuing\n"),
+                threadId_.handle ()));
+#else
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Thread::resume(%d): \"%m\"), continuing\n"),
+                threadId_.handle ()));
+#endif // ACE_WIN32 || ACE_WIN64
 }

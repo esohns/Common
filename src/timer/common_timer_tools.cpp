@@ -60,9 +60,8 @@ Common_Timer_Tools::finalize ()
                                       true);
 
   if (Common_Timer_Tools::configuration_.publishSeconds)
-    COMMON_TIMER_SECONDPUBLISHER_SINGLETON::instance ()->stop (true,  // wait ?
-                                                               true,  // high priority ?
-                                                               true); // locked access ?
+    COMMON_TIMER_SECONDPUBLISHER_SINGLETON::instance ()->stop (true,  // N/A
+                                                               true); // N/A
 }
 
 ACE_Time_Value
@@ -381,7 +380,6 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
         return false;
       } // end IF
       timer_manager_p->start (NULL);
-
       return true;
     }
     case COMMON_TIMER_DISPATCH_QUEUE:
@@ -400,7 +398,6 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
                     ACE_TEXT ("failed to start timer manager, aborting\n")));
         return false;
       } // end IF
-
       return true;
     }
     case COMMON_TIMER_DISPATCH_REACTOR:
@@ -412,7 +409,6 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
         return false;
       } // end IF
       timer_manager_p->start (NULL);
-
       return true;
     }
     case COMMON_TIMER_DISPATCH_SIGNAL:
@@ -450,41 +446,40 @@ Common_Timer_Tools::finalizeTimers (enum Common_TimerDispatchType dispatchType_i
   Common_Timer_Manager_t* timer_manager_p =
     COMMON_TIMERMANAGER_SINGLETON::instance ();
   ACE_ASSERT (timer_manager_p);
-  //Common_Timer_Manager_Asynch_t* timer_manager_2 =
-  //  COMMON_ASYNCHTIMERMANAGER_SINGLETON::instance ();
-  //ACE_ASSERT (timer_manager_2);
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  Common_Timer_Manager_Asynch_t* timer_manager_2 =
+    COMMON_ASYNCHTIMERMANAGER_SINGLETON::instance ();
+  ACE_ASSERT (timer_manager_2);
+#endif // ACE_WIN32 || ACE_WIN64
 
   switch (dispatchType_in)
   {
     case COMMON_TIMER_DISPATCH_PROACTOR:
     {
       timer_manager_p->stop (waitForCompletion_in,
-                             true,
                              true);
       break;
     }
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
       timer_manager_p->stop (waitForCompletion_in,
-                             true,
                              true);
       break;
     }
     case COMMON_TIMER_DISPATCH_REACTOR:
     {
       timer_manager_p->stop (waitForCompletion_in,
-                             true,
                              true);
       break;
     }
     case COMMON_TIMER_DISPATCH_SIGNAL:
     {
-//      ACE_ASSERT (false);
-//      ACE_NOTSUP;
-//      ACE_NOTREACHED (return;)
-      //timer_manager_2->stop (waitForCompletion_in,
-      //                       true,
-      //                       true);
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+      timer_manager_2->stop (waitForCompletion_in,
+                             true);
+#endif // ACE_WIN32 || ACE_WIN64
       break;
     }
     default:

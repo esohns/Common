@@ -29,26 +29,25 @@ class ACE_Time_Value;
 class Common_ITask
 {
  public:
-  virtual bool isShuttingDown () = 0; // stop() has been called ?
-  virtual void start (ACE_Time_Value* = NULL) = 0; // duration ? relative timeout : run until finished
-  virtual void stop () = 0;
+  virtual void idle () const = 0;
+  virtual bool isRunning () const = 0;
+  virtual bool isShuttingDown () const = 0; // stop() has been called ?
+
+  virtual bool start (ACE_Time_Value* = NULL) = 0; // duration ? relative timeout : run until finished
+  virtual void stop (bool = true,      // wait for completion ?
+                     bool = true) = 0; // high priority ? (i.e. do not wait for other queued messages)
+  virtual void wait (bool = true) const = 0; // wait for the message queue ? : worker thread(s) only
+
+  virtual void pause () const = 0;
+  virtual void resume () const = 0;
 };
 
 //////////////////////////////////////////
 
 class Common_IAsynchTask
+ : public Common_ITask
 {
  public:
-  virtual void idle () = 0;
-  virtual bool isRunning () const = 0;
-  virtual bool isShuttingDown () = 0; // stop() has been called ?
-
-  virtual void start (ACE_Time_Value* = NULL) = 0; // duration ? relative timeout : run until finished
-  virtual void stop (bool = true,      // wait for completion ?
-                     bool = true,      // high priority ? (i.e. do not wait for queued messages)
-                     bool = true) = 0; // locked access ?
-  virtual void wait (bool = true) const = 0; // wait for the message queue ? : worker thread(s) only
-
   ////////////////////////////////////////
   // callbacks
   // *NOTE*: signal asynchronous completion

@@ -115,7 +115,7 @@ template <ACE_SYNCH_DECL,
           typename ConfigurationType,
           typename StateType,
           typename CallBackDataType>
-void
+bool
 Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                         ConfigurationType,
                         StateType,
@@ -129,9 +129,10 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_TaskBase_T::open(NULL): \"%m\", returning\n")));
-    return;
+                ACE_TEXT ("failed to Common_TaskBase_T::open(NULL): \"%m\", aborting\n")));
+    return false;
   } // end IF
+  return true;
 }
 
 template <ACE_SYNCH_DECL,
@@ -143,13 +144,9 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                         ConfigurationType,
                         StateType,
                         CallBackDataType>::stop (bool waitForCompletion_in,
-                                                 bool highPriority_in,
-                                                 bool lockedAccess_in)
+                                                 bool)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::stop"));
-
-  ACE_UNUSED_ARG (highPriority_in);
-  ACE_UNUSED_ARG (lockedAccess_in);
 
   int result = close (1);
   if (unlikely (result == -1))

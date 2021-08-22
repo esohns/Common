@@ -67,20 +67,17 @@ class Common_StateMachine_T
 template <const char* StateMachineName, // *TODO*: use a variadic character array
           ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType,       // implements Common_ILock_T/Common_IRecursiveLock_T
           typename StateType>      // implements enum
 class Common_StateMachineAsynch_T
  : public Common_Task_T<ACE_SYNCH_USE,
-                        TimePolicyType,
-                        LockType>
+                        TimePolicyType>
  , public Common_StateMachine_Base_T<StateMachineName,
                                      ACE_SYNCH_USE,
                                      StateType,
                                      Common_IStateMachine_2<StateType> >
 {
   typedef Common_Task_T<ACE_SYNCH_USE,
-                        TimePolicyType,
-                        LockType> inherited;
+                        TimePolicyType> inherited;
   typedef Common_StateMachine_Base_T<StateMachineName,
                                      ACE_SYNCH_USE,
                                      StateType,
@@ -89,12 +86,10 @@ class Common_StateMachineAsynch_T
  public:
   // convenient types
   typedef Common_Task_T<ACE_SYNCH_USE,
-                        TimePolicyType,
-                        LockType> TASK_T;
+                        TimePolicyType> TASK_T;
   typedef Common_StateMachineAsynch_T<StateMachineName,
                                       ACE_SYNCH_USE,
                                       TimePolicyType,
-                                      LockType,
                                       StateType> STATEMACHINE_T;
 
   inline virtual ~Common_StateMachineAsynch_T () {}
@@ -102,7 +97,7 @@ class Common_StateMachineAsynch_T
   // implement Common_ITaskHandler_T
   virtual void handle (ACE_Message_Block*&); // message handle
 
-//  // override (part of) Common_ITaskControl_T
+//  // override (part of) Common_ITask
 //  virtual void start () = 0;
 //  virtual void stop (bool = true,      // wait for completion ?
 //                     bool = true) = 0; // locked access ?

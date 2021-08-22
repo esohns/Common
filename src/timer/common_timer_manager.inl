@@ -67,8 +67,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 
   if (unlikely (isRunning ()))
     stop (true,  // wait ?
-          true,  // N/A
-          true); // locked access ?
+          true); // N/A
 
   // *IMPORTANT NOTE*: avoid close()ing the timer queue in the base class dtor
   result = inherited::timer_queue (NULL);
@@ -82,7 +81,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 template <ACE_SYNCH_DECL,
           typename ConfigurationType,
           typename TimerQueueAdapterType>
-void
+bool
 Common_Timer_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
                        TimerQueueAdapterType>::start (ACE_Time_Value* timeout_in)
@@ -93,7 +92,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 
   // sanity check(s)
   if (unlikely (isRunning ()))
-    return;
+    return true;
 
   // *TODO*: remove type inference
   switch (dispatch_)
@@ -136,8 +135,8 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       if (unlikely (result == -1))
       {
         ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::activate(): \"%m\", returning\n")));
-        return;
+                    ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::activate(): \"%m\", aborting\n")));
+        return false;
       } // end IF
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
@@ -147,21 +146,24 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_NAME),
                                          thread_ids_a[0]);
 #endif // _WIN32_WINNT_WIN10
+#else
 #endif // ACE_WIN32 || ACE_WIN64
       ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("(%s): spawned timer dispatch thread (group id: %d)\n"),
+                  ACE_TEXT ("(%s): spawned timer dispatch thread (id: %d, group id: %d)\n"),
                   ACE_TEXT (COMMON_TIMER_THREAD_NAME),
+                  thread_ids_a[0],
                   inherited::grp_id_));
       break;
     }
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown dispatch mode (was: %d), returning\n"),
+                  ACE_TEXT ("invalid/unknown dispatch mode (was: %d), aborting\n"),
                   dispatch_));
-      break;
+      return false;
     }
   } // end SWITCH
+  return true;
 }
 
 template <ACE_SYNCH_DECL,
@@ -171,8 +173,7 @@ void
 Common_Timer_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
                        TimerQueueAdapterType>::stop (bool waitForCompletion_in,
-                                                     bool highPriority_in,
-                                                     bool lockedAccess_in)
+                                                     bool highPriority_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::stop"));
 
@@ -255,7 +256,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   } // end SWITCH
 
   // clean up
-  unsigned int flushed_timers = flushTimers (lockedAccess_in);
+  unsigned int flushed_timers = flushTimers (true);
   if (unlikely (flushed_timers))
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("flushed %u timer(s)\n"),
@@ -531,8 +532,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   bool was_running = isRunning ();
   if (unlikely (was_running))
     stop (true,  // wait ?
-          true,  // high priority ?
-          true); // locked access ?
+          true); // N/A
 
   if (unlikely (timerQueue_))
   {
@@ -907,8 +907,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   bool was_running = isRunning ();
   if (unlikely (was_running))
     stop (true,  // wait ?
-          true,  // high priority ?
-          true); // locked access ?
+          true); // N/A
 
   if (unlikely (isInitialized_))
   {

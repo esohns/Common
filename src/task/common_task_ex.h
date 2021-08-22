@@ -32,12 +32,10 @@
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType, // implements Common_ILock_T/Common_IRecursiveLock_T
           typename MessageType>
 class Common_Task_Ex_T
  : public Common_TaskBase_T<ACE_SYNCH_USE,
                             TimePolicyType,
-                            LockType,
                             MessageType,
                             ACE_Message_Queue_Ex<MessageType,
                                                  ACE_SYNCH_USE,
@@ -49,7 +47,6 @@ class Common_Task_Ex_T
 {
   typedef Common_TaskBase_T<ACE_SYNCH_USE,
                             TimePolicyType,
-                            LockType,
                             MessageType,
                             ACE_Message_Queue_Ex<MessageType,
                                                  ACE_SYNCH_USE,
@@ -74,11 +71,10 @@ class Common_Task_Ex_T
   //         happens in lockstep, which is both inefficient and yields
   //         unpredictable results
   //         --> use Common_MessageQueueIterator_T and lock the queue manually
-  virtual bool isShuttingDown ();
+  virtual bool isShuttingDown () const;
   // enqueue MB_STOP --> stop worker thread(s)
   virtual void stop (bool = true,  // wait for completion ?
-                     bool = true,  // high priority ? (i.e. do not wait for queued messages)
-                     bool = true); // locked access ?
+                     bool = true); // high priority ? (i.e. do not wait for queued messages)
 
   // implement Common_ITaskHandler_T
   // *NOTE*: the default implementation does nothing; it frees all messages

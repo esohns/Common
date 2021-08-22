@@ -26,24 +26,12 @@
 #include "ace/Singleton.h"
 #include "ace/Synch_Traits.h"
 
-#include "common_ilock.h"
-#include "common_task_base.h"
-#include "common_time_common.h"
+#include "common_itask.h"
 
 #include "common_ui_gtk_common.h"
 #include "common_ui_gtk_manager.h"
 
-//typedef Common_TaskBase_T<ACE_MT_SYNCH,
-//                          Common_TimePolicy_t,
-//                          Common_ILock_T<ACE_NULL_SYNCH> > Common_UI_IGTK_Manager_t;
-typedef Common_TaskBase_T<ACE_MT_SYNCH,
-                          Common_TimePolicy_t,
-                          Common_ILock_T<ACE_MT_SYNCH>,
-                          ACE_Message_Block,
-                          ACE_Message_Queue<ACE_MT_SYNCH,
-                                            Common_TimePolicy_t>,
-                          ACE_Task<ACE_MT_SYNCH,
-                                   Common_TimePolicy_t> > Common_UI_IGTK_Manager_t;
+typedef Common_ITask Common_UI_IGTK_Manager_t;
 
 //////////////////////////////////////////
 

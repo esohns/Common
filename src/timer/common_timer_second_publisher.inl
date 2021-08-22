@@ -39,13 +39,12 @@ Common_Timer_SecondPublisher_T<TimerManagerType>::~Common_Timer_SecondPublisher_
   COMMON_TRACE (ACE_TEXT ("Common_Timer_SecondPublisher_T::~Common_Timer_SecondPublisher_T"));
 
   if (unlikely (isRunning ()))
-    stop (true,  // wait ?
-          true,  // high priority ?
-          true); // locked access ?
+    stop (true,  // N/A
+          true); // N/A
 }
 
 template <typename TimerManagerType>
-void
+bool
 Common_Timer_SecondPublisher_T<TimerManagerType>::start (ACE_Time_Value* timeout_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_SecondPublisher_T::start"));
@@ -54,18 +53,21 @@ Common_Timer_SecondPublisher_T<TimerManagerType>::start (ACE_Time_Value* timeout
 
   // sanity check(s)
   if (unlikely (isRunning ()))
-    return;
+    return true;
 
   timerId_ = toggleTimer ();
   if (unlikely (timerId_ == -1))
+  {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to schedule second-granularity timer, continuing\n")));
+                ACE_TEXT ("failed to schedule second-granularity timer: \"%m\" aborting\n")));
+    return false;
+  } // end IF
+  return true;
 }
 
 template <typename TimerManagerType>
 void
 Common_Timer_SecondPublisher_T<TimerManagerType>::stop (bool,
-                                                        bool,
                                                         bool)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_SecondPublisher_T::stop"));

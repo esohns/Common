@@ -67,11 +67,11 @@ class Common_Timer_Manager_T
 
   // implement (part of) Common_IAsynchTask
   virtual bool isRunning () const;
-  virtual void start (ACE_Time_Value* = NULL); // N/A
+  inline virtual bool isShuttingDown () const { return !isRunning (); }
+  virtual bool start (ACE_Time_Value* = NULL); // N/A
   virtual void stop (bool = true,  // wait for completion ?
-                     bool = true,  // N/A
-                     bool = true); // locked access ?
-  virtual void wait (bool = true) const; // wait for the message queue ? : worker thread(s) only
+                     bool = true); // N/A
+  virtual void wait (bool = true) const; // N/A
 
   // implement Common_ITimerCB_T
   virtual int cancel_timer (long,             // timer id
@@ -112,8 +112,9 @@ class Common_Timer_Manager_T
 
   // hide (part of) Common_IAsynchTask
   // *TODO*: this could be implemented
-  inline virtual void idle () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
-  inline virtual bool isShuttingDown () { return !isRunning (); }
+  inline virtual void idle () const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
+  inline virtual void pause () const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
+  inline virtual void resume () const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
   inline virtual void finished () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
 
   // helper methods

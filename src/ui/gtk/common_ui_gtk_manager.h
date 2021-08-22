@@ -32,9 +32,10 @@
 
 #include "common_iget.h"
 #include "common_iinitialize.h"
-#include "common_ilock.h"
-#include "common_task_base.h"
+
 #include "common_time_common.h"
+
+#include "common_task_base.h"
 
 #include "common_ui_idefinition.h"
 
@@ -55,7 +56,6 @@ template <ACE_SYNCH_DECL,
 class Common_UI_GTK_Manager_T
  : public Common_TaskBase_T<ACE_SYNCH_USE,
                             Common_TimePolicy_t,
-                            Common_ILock_T<ACE_SYNCH_USE>,
                             ACE_Message_Block,
                             ACE_Message_Queue<ACE_SYNCH_USE,
                                               Common_TimePolicy_t>,
@@ -66,7 +66,6 @@ class Common_UI_GTK_Manager_T
 {
   typedef Common_TaskBase_T<ACE_SYNCH_USE,
                             Common_TimePolicy_t,
-                            Common_ILock_T<ACE_SYNCH_USE>,
                             ACE_Message_Block,
                             ACE_Message_Queue<ACE_SYNCH_USE,
                                               Common_TimePolicy_t>,
@@ -89,10 +88,9 @@ class Common_UI_GTK_Manager_T
                         ACE_SYNCH_MUTEX_T> SINGLETON_T;
 
   // override (part of) Common_IAsynchTask
-  virtual void start (ACE_Time_Value* = NULL); // N/A
+  virtual bool start (ACE_Time_Value* = NULL); // N/A
   virtual void stop (bool = true,  // wait for completion ?
-                     bool = true,  // N/A
-                     bool = true); // locked access ?
+                     bool = true); // N/A
 
   // implement Common_IInitialize
   virtual bool initialize (const ConfigurationType&);
@@ -103,7 +101,6 @@ class Common_UI_GTK_Manager_T
   // convenient types
   typedef Common_TaskBase_T<ACE_SYNCH_USE,
                             Common_TimePolicy_t,
-                            Common_ILock_T<ACE_SYNCH_USE>,
                             ACE_Message_Block,
                             ACE_Message_Queue<ACE_SYNCH_USE,
                                               Common_TimePolicy_t>,
@@ -120,7 +117,8 @@ class Common_UI_GTK_Manager_T
   virtual int svc (void);
 
   // hide some Common_IAsynchTask member(s)
-  inline virtual bool isShuttingDown () { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
+  inline virtual void idle () const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
+  inline virtual bool isShuttingDown () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
   //using inherited::finished;
 
   // helper methods

@@ -31,12 +31,10 @@
 #include "common_task_base.h"
 
 template <ACE_SYNCH_DECL,
-          typename TimePolicyType,
-          typename LockType> // implements Common_ILock_T/Common_IRecursiveLock_T
+          typename TimePolicyType>
 class Common_Task_T
  : public Common_TaskBase_T<ACE_SYNCH_USE,
                             TimePolicyType,
-                            LockType,
                             ACE_Message_Block,
                             ACE_Message_Queue<ACE_SYNCH_USE,
                                               TimePolicyType>,
@@ -46,7 +44,6 @@ class Common_Task_T
 {
   typedef Common_TaskBase_T<ACE_SYNCH_USE,
                             TimePolicyType,
-                            LockType,
                             ACE_Message_Block,
                             ACE_Message_Queue<ACE_SYNCH_USE,
                                               TimePolicyType>,
@@ -72,8 +69,7 @@ class Common_Task_T
   virtual bool isShuttingDown ();
   // enqueue MB_STOP --> stop worker thread(s)
   virtual void stop (bool = true,  // wait for completion ?
-                     bool = true,  // high priority ? (i.e. do not wait for queued messages)
-                     bool = true); // locked access ?
+                     bool = true); // high priority ? (i.e. do not wait for queued messages)
 
   // implement Common_ITaskHandler_T
   // *NOTE*: the default implementation does nothing; it frees all messages
@@ -109,14 +105,11 @@ class Common_Task_T
 //////////////////////////////////////////
 
 // partial specialization (fully synchronous)
-template <typename TimePolicyType,
-          typename LockType> // implements Common_ILock_T/Common_IRecursiveLock_T
+template <typename TimePolicyType>
 class Common_Task_T<ACE_NULL_SYNCH,
-                    TimePolicyType,
-                    LockType>
+                    TimePolicyType>
  : public Common_TaskBase_T<ACE_NULL_SYNCH,
                             TimePolicyType,
-                            LockType,
                             ACE_Message_Block,
                             ACE_Message_Queue<ACE_NULL_SYNCH,
                                               TimePolicyType>,
@@ -125,7 +118,6 @@ class Common_Task_T<ACE_NULL_SYNCH,
 {
   typedef Common_TaskBase_T<ACE_NULL_SYNCH,
                             TimePolicyType,
-                            LockType,
                             ACE_Message_Block,
                             ACE_Message_Queue<ACE_NULL_SYNCH,
                                               TimePolicyType>,

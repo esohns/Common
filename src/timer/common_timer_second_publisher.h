@@ -58,9 +58,9 @@ class Common_Timer_SecondPublisher_T
 
   // implement (part of) Common_IAsynchTask
   inline virtual bool isRunning () const { return (timerId_ != -1); }
-  virtual void start (ACE_Time_Value* = NULL); // N/A
-  virtual void stop (bool = true,  // wait for completion ?
-                     bool = true,  // high priority ?
+  inline virtual bool isShuttingDown () const { return !isRunning (); }
+  virtual bool start (ACE_Time_Value* = NULL); // N/A
+  virtual void stop (bool = true,  // N/A
                      bool = true); // N/A
   inline virtual void wait (bool = true) const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return; ) }
 
@@ -81,8 +81,9 @@ class Common_Timer_SecondPublisher_T
   virtual ~Common_Timer_SecondPublisher_T ();
 
   // hide (part of) Common_IAsynchTask
-  inline virtual void idle () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
-  inline virtual bool isShuttingDown () { return !isRunning (); }
+  inline virtual void idle () const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
+  inline virtual void pause () const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
+  inline virtual void resume () const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
   inline virtual void finished () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
 
   // implement Common_ICounter

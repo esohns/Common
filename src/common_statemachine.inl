@@ -44,12 +44,10 @@ Common_StateMachine_T<StateMachineName,
 template <const char* StateMachineName,
           ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType,
           typename StateType>
 Common_StateMachineAsynch_T<StateMachineName,
                             ACE_SYNCH_USE,
                             TimePolicyType,
-                            LockType,
                             StateType>::Common_StateMachineAsynch_T (const std::string& threadName_in,
                                                                      int threadGroupId_in,
                                                                      ACE_SYNCH_MUTEX_T* lock_in,
@@ -69,13 +67,11 @@ Common_StateMachineAsynch_T<StateMachineName,
 template <const char* StateMachineName,
           ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename LockType,
           typename StateType>
 void
 Common_StateMachineAsynch_T<StateMachineName,
                             ACE_SYNCH_USE,
                             TimePolicyType,
-                            LockType,
                             StateType>::handle (ACE_Message_Block*& message_inout)
 {
   COMMON_TRACE (ACE_TEXT ("Common_StateMachineAsynch_T::handle"));
