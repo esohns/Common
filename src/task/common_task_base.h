@@ -90,10 +90,10 @@ class Common_TaskBase_T
                      bool = true,              // auto-start ?
                      MESSAGE_QUEUE_T* = NULL); // queue handle
 
-  // override ACE_Task_Base members
+  // override/hide ACE_Task_Base members
   // *NOTE*: spawns threadCount_ worker thread(s)
   virtual int open (void* = NULL);
-//  inline virtual int put (ACE_Message_Block* messageBlock_in, ACE_Time_Value* timeout_in) { ACE_ASSERT (inherited::thr_count_); return inherited::putq (static_cast<MessageType*> (messageBlock_in), timeout_in); }
+  //  inline virtual int put (ACE_Message_Block* messageBlock_in, ACE_Time_Value* timeout_in) { ACE_ASSERT (inherited::thr_count_); return inherited::putq (static_cast<MessageType*> (messageBlock_in), timeout_in); }
 
   // implement Common_IAsynchTask
   // *NOTE*: calls close(1)
@@ -103,14 +103,14 @@ class Common_TaskBase_T
   bool                 closeHandles_;
 #endif // ACE_WIN32 || ACE_WIN64
   ACE_Time_Value       deadline_;
+  bool                 lockActivate_; // grab inherited::lock_ in open() ?
   // *NOTE*: this is the 'configured' (not the 'current') thread count
-  //         --> see ACE_Task::thr_count_
+  //         --> see ACE_Task::thr_count_ for that
   unsigned int         threadCount_;
   std::string          threadName_;
   typedef std::vector<ACE_Thread_ID> THREAD_IDS_T;
   typedef THREAD_IDS_T::iterator THREAD_IDS_ITERATOR_T;
   typedef THREAD_IDS_T::const_iterator THREAD_IDS_CONSTITERATOR_T;
-  //mutable MUTEX_T lock_; // *TODO*: make this a condition
   THREAD_IDS_T         threadIds_;
 
  private:
@@ -133,8 +133,9 @@ class Common_TaskBase_T
 //  virtual int svc (void);
 
   // helper methods
-  // *IMPORTANT NOTE*: must be called with inherited::lock_ held !, otherwise
-  //                   it just does the same as ACE_Task_Base::activate()
+  // *IMPORTANT NOTE*: must usually (!, see lockActivate_) be called with
+  //                   inherited::lock_ held, otherwise it just does the same as
+  //                   ACE_Task_Base::activate()
   int activate_i (long,            // flags
                   int,             // n_threads
                   int,             // force_active

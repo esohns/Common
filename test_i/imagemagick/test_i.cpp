@@ -249,7 +249,7 @@ ACE_TMAIN (int argc_in,
                              source_file_path,
                              trace_information))
   {
-    do_print_usage (ACE::basename (argv_in[0]));
+    do_print_usage (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])));
     goto clean;
   } // end IF
 
@@ -257,7 +257,7 @@ ACE_TMAIN (int argc_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("invalid argument(s), aborting\n")));
-    do_print_usage (ACE::basename (argv_in[0]));
+    do_print_usage (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])));
     goto clean;
   } // end IF
 
