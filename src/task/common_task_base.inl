@@ -728,12 +728,23 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     thread_id.id (thread_ids_p[i]);
     threadIds_.push_back (thread_id);
   } // end FOR
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("(%s): spawned %u dispatch thread(s) (group id: %d):\n%s"),
-              ACE_TEXT (threadName_.c_str ()),
-              threadCount_,
-              inherited::grp_id_,
-              ACE_TEXT (converter.str ().c_str ())));
+  if (inherited::mod_)
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("%s: (%s): spawned %u dispatch thread(s) (group id: %d, total: %u):\n%s"),
+                inherited::mod_->name (),
+                ACE_TEXT (threadName_.c_str ()),
+                threadCount_,
+                inherited::grp_id_,
+                inherited::thr_count_,
+                ACE_TEXT (converter.str ().c_str ())));
+  else
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("(%s): spawned %u dispatch thread(s) (group id: %d, total: %u):\n%s"),
+                ACE_TEXT (threadName_.c_str ()),
+                threadCount_,
+                inherited::grp_id_,
+                inherited::thr_count_,
+                ACE_TEXT (converter.str ().c_str ())));
 
   goto continue_;
 

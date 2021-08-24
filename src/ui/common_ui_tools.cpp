@@ -273,7 +273,7 @@ Common_UI_Tools::initialize ()
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
   Status result = XInitThreads ();
-  if (unlikely (result))
+  if (unlikely (result == 0))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to XInitThreads(): \"%m\", aborting\n")));
