@@ -1349,6 +1349,27 @@ Common_Image_Tools::stringToCodecId (const std::string& format_in)
 
   return return_value;
 }
+
+std::string
+Common_Image_Tools::codecIdToString (enum AVCodecID codecId_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::codecIdToString"));
+
+  std::string result;
+
+  const AVCodecDescriptor* descriptor_p =
+      avcodec_descriptor_get (codecId_in);
+  if (!descriptor_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to avcodec_descriptor_get(%d): \"%m\", aborting\n"),
+                codecId_in));
+    return result;
+  } // end IF
+  result = descriptor_p->name;
+
+  return result;
+}
 #endif // FFMPEG_SUPPORT
 
 #if defined (IMAGEMAGICK_SUPPORT)

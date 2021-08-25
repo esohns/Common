@@ -133,6 +133,7 @@ class Common_Image_Tools
 
   static std::string pixelFormatToString (enum AVPixelFormat);
   static enum AVCodecID stringToCodecId (const std::string&);
+  static std::string codecIdToString (enum AVCodecID);
 
   static std::string errorToString (int); // error code
 #endif // FFMPEG_SUPPORT

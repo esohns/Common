@@ -41,6 +41,7 @@ typedef struct {
 struct _XDisplay;
 #endif // ACE_WIN32 || ACE_WIN64
 
+#include "ace/Condition_Thread_Mutex.h"
 #include "ace/Containers_T.h"
 #include "ace/OS.h"
 #include "ace/Recursive_Thread_Mutex.h"
@@ -258,13 +259,15 @@ typedef ACE_Unbounded_Stack<enum Common_UI_EventType>::ITERATOR Common_UI_Events
 struct Common_UI_State
 {
   Common_UI_State ()
-   : eventStack (NULL)
+   : condition (lock)
+   , eventStack (NULL)
    , lock ()
    , logStack ()
    , logStackLock ()
    , subscribersLock ()
   {}
 
+  ACE_SYNCH_CONDITION       condition;
   Common_UI_Events_t        eventStack;
   ACE_SYNCH_MUTEX           lock;
   Common_MessageStack_t     logStack;

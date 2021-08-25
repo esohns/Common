@@ -694,7 +694,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                  THR_JOINABLE     |
                  THR_INHERIT_SCHED),             // flags
                  static_cast<int> (threadCount_), // # threads
-                 0,                               // force active ?
+                 1,                               // force active ?
                  ACE_DEFAULT_THREAD_PRIORITY,     // priority
                  inherited::grp_id (),            // group id (see above)
                  NULL,                            // task base
