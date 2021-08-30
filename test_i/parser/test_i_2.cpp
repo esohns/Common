@@ -173,7 +173,7 @@ do_work (int argc_in,
   unsigned int file_size_i = Common_File_Tools::size (sourceFilePath_in);
   uint8_t* data_p = NULL, *data_2 = NULL;
   ACE_Message_Block* message_block_p = NULL, * message_block_2 = NULL;
-  struct Common_ParserConfiguration configuration;
+  struct Common_FlexBisonParserConfiguration configuration;
   Bencoding_ParserDriver parser_driver;
   std::string file_path_2 = ACE::dirname (sourceFilePath_in.c_str (), '\\');
   file_path_2 += ACE_DIRECTORY_SEPARATOR_STR;

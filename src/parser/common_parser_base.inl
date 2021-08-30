@@ -64,9 +64,9 @@ Common_ParserBase_T<ConfigurationType,
 
   // finalize lex scanner
   if (buffer_)
-  { ACE_ASSERT (scannerState_.lexState);
+  { ACE_ASSERT (scannerState_.context);
     try {
-      this->destroy (scannerState_.lexState,
+      this->destroy (scannerState_.context,
                      buffer_);
     } catch (...) {
       ACE_DEBUG ((LM_ERROR,
@@ -74,10 +74,10 @@ Common_ParserBase_T<ConfigurationType,
     }
   } // end IF
 
-  if (scannerState_.lexState)
+  if (scannerState_.context)
   {
     try {
-      this->finalize (scannerState_.lexState);
+      this->finalize (scannerState_.context);
     } catch (...) {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("caught exception in Common_ILexScanner_T::finalize(): \"%m\", continuing\n")));
@@ -108,9 +108,9 @@ Common_ParserBase_T<ConfigurationType,
     fragment_ = NULL;
 
     if (buffer_)
-    { ACE_ASSERT (scannerState_.lexState);
+    { ACE_ASSERT (scannerState_.context);
       try {
-        this->destroy (scannerState_.lexState,
+        this->destroy (scannerState_.context,
                        buffer_);
       } catch (...) {
         ACE_DEBUG ((LM_ERROR,
@@ -119,15 +119,15 @@ Common_ParserBase_T<ConfigurationType,
       buffer_ = NULL;
     } // end IF
     queue_ = NULL;
-    if (scannerState_.lexState)
+    if (scannerState_.context)
     {
       try {
-        this->finalize (scannerState_.lexState);
+        this->finalize (scannerState_.context);
       } catch (...) {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("caught exception in Common_ILexScanner_T::finalize(): \"%m\", continuing\n")));
       }
-      scannerState_.lexState = NULL;
+      scannerState_.context = NULL;
     } // end IF
     scannerState_.offset = 0;
 
@@ -139,10 +139,10 @@ Common_ParserBase_T<ConfigurationType,
   block_ = configuration_in.block;
   queue_ = configuration_in.messageQueue;
 
-  ACE_ASSERT (!scannerState_.lexState);
+  ACE_ASSERT (!scannerState_.context);
   bool result = false;
   try {
-    result = this->initialize (scannerState_.lexState, NULL);
+    result = this->initialize (scannerState_.context, NULL);
   } catch (...) {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("caught exception in Common_ILexScanner_T::initialize(): \"%m\", continuing\n")));
@@ -153,11 +153,11 @@ Common_ParserBase_T<ConfigurationType,
                 ACE_TEXT ("failed to Common_ILexScanner_T::initialize(): \"%m\", aborting\n")));
     return false;
   } // end IF
-  ACE_ASSERT (scannerState_.lexState);
+  ACE_ASSERT (scannerState_.context);
 
   // trace ?
   try {
-    this->debug (scannerState_.lexState,
+    this->debug (scannerState_.context,
                  configuration_->debugScanner);
   } catch (...) {
     ACE_DEBUG ((LM_ERROR,
@@ -476,11 +476,11 @@ Common_ParserBase_T<ConfigurationType,
   // sanity check(s)
   ACE_ASSERT (!buffer_);
   ACE_ASSERT (fragment_);
-  ACE_ASSERT (scannerState_.lexState);
+  ACE_ASSERT (scannerState_.context);
 
   // create/initialize a new buffer state
   try {
-    buffer_ = this->create (scannerState_.lexState,
+    buffer_ = this->create (scannerState_.context,
                             fragment_->rd_ptr (),
                             fragment_->length ());
   }
@@ -513,13 +513,13 @@ Common_ParserBase_T<ConfigurationType,
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::end"));
 
   // sanity check(s)
-  ACE_ASSERT (scannerState_.lexState);
+  ACE_ASSERT (scannerState_.context);
   if (!buffer_)
     return;
 
   // clean buffer
   try {
-    this->destroy (scannerState_.lexState,
+    this->destroy (scannerState_.context,
                    buffer_);
   } catch (...) {
     ACE_DEBUG ((LM_ERROR,

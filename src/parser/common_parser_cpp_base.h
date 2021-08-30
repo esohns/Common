@@ -44,11 +44,11 @@ template <typename ConfigurationType,
           typename ScannerStateType, // implements struct Common_ScannerState
           typename ParserType, // yacc/bison-
           typename ParserInterfaceType, // implements Common_IParser_T
-          typename ArgumentType> // yacc/bison-
+          typename ExtraDataType> // (f/)lex-
 class Common_CppParserBase_T
  : public ParserInterfaceType
  , virtual public Common_ILexScanner_T<ScannerStateType,
-                                       ParserInterfaceType>
+                                       ExtraDataType>
 {
  public:
   Common_CppParserBase_T (bool,  // debug scanning ?
@@ -79,7 +79,7 @@ class Common_CppParserBase_T
   virtual void error (const std::string&); // message
   inline virtual void debug (yyscan_t state_in, bool toggle_in) { scanner_.debug (state_in, toggle_in); }
   inline virtual void reset () { scanner_.reset (); }
-  inline virtual bool initialize (yyscan_t& state_in, ScannerStateType* state2_in) { return scanner_.initialize (state_in, state2_in); }
+  inline virtual bool initialize (yyscan_t& state_in, ExtraDataType* extra_in) { return scanner_.initialize (state_in, extra_in); }
   virtual void finalize (yyscan_t& state_in) { scanner_.finalize (state_in); }
   inline virtual struct yy_buffer_state* create (yyscan_t state_in, char* buffer_in, size_t size_in) { return scanner_.create (state_in, buffer_in, size_in); }
   inline virtual void destroy (yyscan_t state_in, struct yy_buffer_state*& buffer_inout) { scanner_.destroy (state_in, buffer_inout); }

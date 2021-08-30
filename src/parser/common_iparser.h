@@ -21,7 +21,51 @@
 #ifndef COMMON_IPARSER_H
 #define COMMON_IPARSER_H
 
-#include "common_iscanner.h"
+#include <string>
+
+#include "location.hh"
+
+#include "common_idumpstate.h"
+#include "common_iinitialize.h"
+
+// forward declarations
+class ACE_Message_Block;
+
+template <typename ConfigurationType>
+class Common_IParser_T
+ : public Common_IInitialize_T<ConfigurationType>
+ , public Common_IDumpState
+{
+ public:
+  virtual bool parse (ACE_Message_Block*) = 0; // data buffer handle
+};
+
+//////////////////////////////////////////
+
+// forward declarations
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
+
+template <typename ConfigurationType>
+class Common_IYaccParser_T
+ : public Common_IParser_T<ConfigurationType>
+{
+ public:
+  ////////////////////////////////////////
+  virtual void error (const struct YYLTYPE&, // location
+                      const std::string&) = 0;
+  virtual void error (const yy::location&,
+                      const std::string&) = 0;
+};
 
 template <typename ConfigurationType,
           typename RecordType>

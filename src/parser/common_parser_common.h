@@ -29,6 +29,30 @@
 typedef void* yyscan_t;
 class ACE_Message_Queue_Base;
 
+//////////////////////////////////////////
+
+struct Common_ScannerState
+{
+  Common_ScannerState ()
+   : offset (0)
+  {}
+
+  unsigned int offset; // parsed (fragment) byte(s)
+};
+
+struct Common_FlexScannerState
+ : Common_ScannerState
+{
+  Common_FlexScannerState ()
+   : Common_ScannerState ()
+   , context (NULL)
+  {}
+
+  yyscan_t context;
+};
+
+//////////////////////////////////////////
+
 struct Common_Parser_FlexAllocatorConfiguration
  : Common_AllocatorConfiguration
 {
@@ -41,34 +65,37 @@ struct Common_Parser_FlexAllocatorConfiguration
   }
 };
 
+//////////////////////////////////////////
+
 struct Common_ParserConfiguration
 {
   Common_ParserConfiguration ()
    : block (true)
    , messageQueue (NULL)
-   , useYYScanBuffer (COMMON_PARSER_DEFAULT_FLEX_USE_YY_SCAN_BUFFER)
+#if defined (_DEBUG)
    , debugParser (COMMON_PARSER_DEFAULT_YACC_TRACE)
    , debugScanner (COMMON_PARSER_DEFAULT_LEX_TRACE)
+#endif // _DEBUG
   {}
 
   bool                    block; // block in parse (i.e. wait for data in yywrap() ?)
   ACE_Message_Queue_Base* messageQueue; // queue (if any) to use for yywrap
-  bool                    useYYScanBuffer; // yy_scan_buffer() ? : yy_scan_bytes() (C parsers only)
 
-  // debug
+#if defined (_DEBUG)
   bool                    debugParser;
   bool                    debugScanner;
+#endif // _DEBUG
 };
 
-struct Common_ScannerState
+struct Common_FlexBisonParserConfiguration
+ : Common_ParserConfiguration
 {
-  Common_ScannerState ()
-   : lexState (NULL)
-   , offset (0)
+  Common_FlexBisonParserConfiguration ()
+   : Common_ParserConfiguration ()
+   , useYYScanBuffer (COMMON_PARSER_DEFAULT_FLEX_USE_YY_SCAN_BUFFER)
   {}
 
-  yyscan_t     lexState;
-  unsigned int offset; // parsed (fragment) byte(s)
+  bool useYYScanBuffer; // yy_scan_buffer() ? : yy_scan_bytes() (C parsers only)
 };
 
 #endif

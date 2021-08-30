@@ -56,20 +56,20 @@ class Common_IScannerBase
 };
 
 template <typename StateType, // implements struct Common_ScannerState
-          typename ParserInterfaceType> // implements Common_IParser_T
+          typename ExtraDataType> // 'extra' data type
 class Common_ILexScanner_T
  : public Common_IScannerBase
  , public Common_IGetR_T<StateType>
 // , public Common_IGetSetP_T<ParserInterfaceType>
- , public Common_IGetP_2_T<ParserInterfaceType>
+//, public Common_IGetP_2_T<ParserInterfaceType>
 {
  public:
   virtual void debug (yyscan_t,  // state handle
                       bool) = 0; // toggle
   virtual void reset () = 0; // resets the offsets (line/column to 1,1)
 
-  virtual bool initialize (yyscan_t&,       // return value: state handle
-                           StateType*) = 0; // 'extra' data handle
+  virtual bool initialize (yyscan_t&,                  // return value: state handle
+                           ExtraDataType* = NULL) = 0; // 'extra' data handle
   virtual void finalize (yyscan_t&) = 0; // state handle
 
   virtual struct yy_buffer_state* create (yyscan_t,    // state handle
@@ -81,40 +81,6 @@ class Common_ILexScanner_T
   // *NOTE*: this is the C interface (not needed by C++ scanners)
 //  virtual bool lex (yyscan_t,           // state handle
 //                    yy::location*) = 0; // location handle
-};
-
-//////////////////////////////////////////
-
-template <typename ConfigurationType>
-class Common_IParser_T
- : public Common_IInitialize_T<ConfigurationType>
- , public Common_IDumpState
-{
- public:
-  virtual bool parse (ACE_Message_Block*) = 0; // data buffer handle
-};
-
-//////////////////////////////////////////
-
-// forward declarations
-struct YYLTYPE
-{
-  int first_line;
-  int first_column;
-  int last_line;
-  int last_column;
-};
-
-template <typename ConfigurationType>
-class Common_IYaccParser_T
- : public Common_IParser_T<ConfigurationType>
-{
- public:
-  ////////////////////////////////////////
-  virtual void error (const struct YYLTYPE&, // location
-                      const std::string&) = 0;
-  virtual void error (const yy::location&,
-                      const std::string&) = 0;
 };
 
 #endif

@@ -73,7 +73,7 @@ class Common_ParserBase_T
   virtual void error (const std::string&); // message
 
   // implement (part of) Common_ILexScanner_T
-  inline virtual const Common_ScannerState& getR () const { return scannerState_; }
+  inline virtual const Common_FlexScannerState& getR () const { return scannerState_; }
   inline virtual const IPARSER_T* const getP_2 () const { return this; }
   inline virtual bool initialize (yyscan_t&, struct Common_ScannerState*) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
   inline virtual void finalize (yyscan_t&) { /*ACE_ASSERT (false);*/ ACE_NOTSUP; ACE_NOTREACHED (return;) }
@@ -88,27 +88,27 @@ class Common_ParserBase_T
   // convenient types
   typedef ACE_Message_Queue_Base MESSAGE_QUEUE_T;
 
-  ConfigurationType*         configuration_;
-  bool                       finished_;
+  ConfigurationType*             configuration_;
+  bool                           finished_;
 //  ACE_Message_Block*         headFragment_;
-  ACE_Message_Block*         fragment_;
+  ACE_Message_Block*             fragment_;
 
   // parser
-  ParserType                 parser_;
+  ParserType                     parser_;
 //  ArgumentType            argument_;
 
   // scanner
-  struct Common_ScannerState scannerState_;
+  struct Common_FlexScannerState scannerState_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_ParserBase_T (const Common_ParserBase_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_ParserBase_T& operator= (const Common_ParserBase_T&))
 
-  bool                       block_;
-  struct yy_buffer_state*    buffer_;
-  MESSAGE_QUEUE_T*           queue_;
+  bool                           block_;
+  struct yy_buffer_state*        buffer_;
+  MESSAGE_QUEUE_T*               queue_;
 
-  bool                       isInitialized_;
+  bool                           isInitialized_;
 };
 
 // include template definition

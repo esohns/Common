@@ -201,7 +201,7 @@ do_work (int argc_in,
   message_block.wr_ptr (file_size_i);
 
   // step2: initialize parser
-  struct Common_ParserConfiguration configuration;
+  struct Common_FlexBisonParserConfiguration configuration;
   configuration.block = false;
   configuration.debugParser = debugParser_in;
   configuration.debugScanner = debugScanner_in;
