@@ -1,4 +1,4 @@
-﻿set (LIBRARY ${PROJECT_NAME}Math)
+set (LIBRARY ${PROJECT_NAME}Math)
 add_library (${LIBRARY} STATIC "")
 
 target_include_directories (${LIBRARY} PUBLIC

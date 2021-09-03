@@ -1,4 +1,4 @@
-﻿if (UNIX)
+if (UNIX)
 # find_library (CAP_LIBRARY libcap.so.2
 #               DOC "searching for libcap")
 # if (NOT CAP_LIBRARY)

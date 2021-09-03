@@ -1,4 +1,4 @@
-﻿set (LIBRARY ${PROJECT_NAME}Log)
+set (LIBRARY ${PROJECT_NAME}Log)
 add_library (${LIBRARY} STATIC "")
 
 target_include_directories (${LIBRARY} PUBLIC

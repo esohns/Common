@@ -1,4 +1,4 @@
-﻿include (SetUIFramework)
+include (SetUIFramework)
 
 find_package(Qt5Widgets CONFIG REQUIRED)
 #message (STATUS "Qt5Widgets_DEFINITIONS: ${Qt5Widgets_DEFINITIONS}")

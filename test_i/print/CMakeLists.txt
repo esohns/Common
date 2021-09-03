@@ -1,4 +1,4 @@
-﻿if (UNIX)
+if (UNIX)
  pkg_check_modules (PKG_CAIRO REQUIRED cairo)
 # pkg_check_modules (PKG_CUPS REQUIRED cups)
 endif (UNIX)

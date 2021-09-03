@@ -1,4 +1,4 @@
-﻿set (LIBRARY ${PROJECT_NAME}UI_GTK)
+set (LIBRARY ${PROJECT_NAME}UI_GTK)
 add_library (${LIBRARY} STATIC "")
 
 # *NOTE*: a bug in cmake (3.12.1) requires the additional comment

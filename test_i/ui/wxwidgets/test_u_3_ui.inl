@@ -1,4 +1,4 @@
-﻿#include "wx/aboutdlg.h"
+#include "wx/aboutdlg.h"
 #include "wx/xrc/xmlres.h"
 
 #include "ace/Log_Msg.h"

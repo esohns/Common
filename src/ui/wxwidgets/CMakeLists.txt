@@ -1,4 +1,4 @@
-﻿#include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/PreUIFramework.cmake)
+#include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/PreUIFramework.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/SetUIFramework.cmake)
 include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/SetGTKVersion.cmake)
 

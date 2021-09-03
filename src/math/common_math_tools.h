@@ -1,4 +1,4 @@
-﻿#ifndef COMMON_MATH_TOOLS_H
+#ifndef COMMON_MATH_TOOLS_H
 #define COMMON_MATH_TOOLS_H
 
 #include <bitset>

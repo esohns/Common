@@ -1,4 +1,4 @@
-﻿set (LIBRARY ${PROJECT_NAME}Error)
+set (LIBRARY ${PROJECT_NAME}Error)
 add_library (${LIBRARY} STATIC "")
 
 target_include_directories (${LIBRARY} PUBLIC

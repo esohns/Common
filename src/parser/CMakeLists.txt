@@ -1,4 +1,4 @@
-﻿set (LIBRARY ${PROJECT_NAME}Parser)
+set (LIBRARY ${PROJECT_NAME}Parser)
 add_library (${LIBRARY} STATIC "")
 
 target_include_directories (${LIBRARY} PUBLIC

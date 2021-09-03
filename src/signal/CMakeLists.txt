@@ -1,4 +1,4 @@
-﻿set (LIBRARY ${PROJECT_NAME}Signal)
+set (LIBRARY ${PROJECT_NAME}Signal)
 add_library (${LIBRARY} STATIC "")
 
 target_include_directories (${LIBRARY} PUBLIC

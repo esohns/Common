@@ -1,4 +1,4 @@
-﻿option (SD_BUS_SUPPORT "compile sd-bus (libsystemd) support" ON)
+option (SD_BUS_SUPPORT "compile sd-bus (libsystemd) support" ON)
 
 if (UNIX)
 # find_package (DBus1 MODULE)

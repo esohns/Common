@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Test program for the ambient capabilities
  *
  *

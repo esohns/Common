@@ -1,4 +1,4 @@
-﻿include (OS)
+include (OS)
 
 option (LIBPNG_SUPPORT "compile libpng support" OFF)
 if (LIBPNG_SUPPORT)

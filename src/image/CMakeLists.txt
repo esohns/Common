@@ -1,4 +1,4 @@
-﻿option (LIBPNG_SUPPORT "compile libpng support" OFF)
+option (LIBPNG_SUPPORT "compile libpng support" OFF)
 if (LIBPNG_SUPPORT)
  add_definitions (-DLIBPNG_SUPPORT)
 endif (LIBPNG_SUPPORT)
