@@ -23,7 +23,7 @@
 
 #include <string>
 
-#include "location.hh"
+//#include "location.hh"
 
 #include "common_iget.h"
 #include "common_iinitialize.h"

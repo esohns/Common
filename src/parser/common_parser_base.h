@@ -33,6 +33,7 @@
 #include "common_iscanner.h"
 
 // forward declaration(s)
+struct YYLTYPE;
 struct yy_buffer_state;
 
 template <typename ConfigurationType,
@@ -73,9 +74,9 @@ class Common_ParserBase_T
   virtual void error (const std::string&); // message
 
   // implement (part of) Common_ILexScanner_T
-  inline virtual const Common_FlexScannerState& getR () const { return scannerState_; }
+  inline virtual const struct Common_FlexScannerState& getR () const { return scannerState_; }
   inline virtual const IPARSER_T* const getP_2 () const { return this; }
-  inline virtual bool initialize (yyscan_t&, struct Common_ScannerState*) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
+  inline virtual bool initialize (yyscan_t&, struct Common_FlexScannerState*) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
   inline virtual void finalize (yyscan_t&) { /*ACE_ASSERT (false);*/ ACE_NOTSUP; ACE_NOTREACHED (return;) }
   inline virtual void destroy (yyscan_t, struct yy_buffer_state*&) { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
 

@@ -23,6 +23,7 @@
 #include "ace/Log_Msg.h"
 
 #include "common_idumpstate.h"
+#include "common_iparser.h"
 #include "common_macros.h"
 
 template <typename ConfigurationType,
