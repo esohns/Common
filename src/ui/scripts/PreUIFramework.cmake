@@ -88,7 +88,7 @@ if (UNIX)
    set (GTK2_FOUND TRUE)
    
    #set (PKG_GTK_2_INCLUDE_DIRS "/usr/include/gtk-2.0;/usr/lib64/gtk-2.0/include;/usr/include/pango-1.0;/usr/include/glib-2.0;/usr/lib64/glib-2.0/include;/usr/include/fribidi;/usr/include/harfbuzz;/usr/include/freetype2;/usr/include/libpng16;/usr/include/uuid;/usr/include/cairo;/usr/include/pixman-1;/usr/include/gdk-pixbuf-2.0;/usr/include/libmount;/usr/include/blkid;/usr/include/atk-1.0")
-   message (STATUS "PKG_GTK_2_INCLUDE_DIRS: ${PKG_GTK_2_INCLUDE_DIRS}")
+#   message (STATUS "PKG_GTK_2_INCLUDE_DIRS: ${PKG_GTK_2_INCLUDE_DIRS}")
    set (GTK2_INCLUDE_DIRS ${PKG_GTK_2_INCLUDE_DIRS})
    set (GTK2_LIBRARIES ${PKG_GTK_2_LIBRARIES})
   endif (PKG_GTK_2_FOUND)
@@ -182,7 +182,7 @@ elseif (WIN32)
   message (STATUS "found Gtk version 3")
 
  # *TODO*: Gtk < 3.16 do not have native opengl support
-  set (GTK_GL_FOUND TRUE)
+  set (GTK3_GL_FOUND TRUE)
  else ()
   message (WARNING "could not find Gtk3 (was: \"gtk-win32-3.0.lib\"), continuing")
  endif (GTK3_LIBRARY)
@@ -203,23 +203,27 @@ elseif (WIN32)
 # *TODO*: retrieve the available gtk version number(s) from the pkg-config
 #         output and pre-set this option accordingly
  if (GTK2_SUPPORT)
-  find_library (LIBGLADE_LIBRARY libglade-2.0.dll.a
+  set (LIBGLADE_DEFAULT OFF)
+  find_library (LIBGLADE_LIBRARY
+                NAMES libglade-2.0.dll.a libglade-2.0.lib
                 PATHS $ENV{LIB_ROOT}/libglade
                 PATH_SUFFIXES lib
-                DOC "searching for libglade-2.0.dll.a")
+                DOC "searching for libglade-2.0.dll.a"
+                NO_DEFAULT_PATH)
   if (LIBGLADE_LIBRARY)
-   option (LIBGLADE_SUPPORT "enable libglade support" OFF)
-   if (LIBGLADE_SUPPORT)
-    add_definitions (-DLIBGLADE_SUPPORT)
-    set (LIBGLADE_INCLUDES $ENV{LIB_ROOT}/libglade/include)
-   endif (LIBGLADE_SUPPORT)
+   set (LIBGLADE_DEFAULT ON)
    set (LIBGLADE_USE OFF CACHE BOOL "use libglade")
   endif (LIBGLADE_LIBRARY)
+  option (LIBGLADE_SUPPORT "enable libglade support" ${LIBGLADE_DEFAULT})
+  if (LIBGLADE_SUPPORT)
+   add_definitions (-DLIBGLADE_SUPPORT)
+   set (LIBGLADE_INCLUDES $ENV{LIB_ROOT}/libglade/include/libglade-2.0)
+  endif (LIBGLADE_SUPPORT)
  endif (GTK2_SUPPORT)
 endif () # UNIX || WIN32
 
 # gtk opengl support
-if (GTK_SUPPORT AND OPENGL_FOUND)
+if (GTK_SUPPORT AND OPENGL_SUPPORT)
  if (NOT GTK_GL_FOUND)
   if (UNIX)
    if (GTK3_FOUND)
@@ -279,13 +283,13 @@ if (GTK_SUPPORT AND OPENGL_FOUND)
    endif (GTKGLAREA_LIBRARY)
    option (GTKGLAREA_SUPPORT "enable GtkGLArea support" ${GTKGLAREA_DEFAULT})
    if (GTKGLAREA_SUPPORT)
-    add_definitions (-DGTKGLAREA_SUPPORT)
     add_definitions (-DGTKGL_SUPPORT)
+    add_definitions (-DGTKGLAREA_SUPPORT)
     option (GTKGL_SUPPORT "enable GTK GL support" ON)
    endif (GTKGLAREA_SUPPORT)
   endif (NOT GTKGL_SUPPORT)
  endif (NOT GTK_GL_FOUND)
-endif (GTK_SUPPORT AND OPENGL_FOUND)
+endif (GTK_SUPPORT AND OPENGL_SUPPORT)
 
 ##########################################
 

@@ -113,12 +113,10 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
         g_object_unref (G_OBJECT (builder_p)); builder_p = NULL;
         return false;
       } // end IF
-#if defined (_DEBUG)
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("loaded widget tree \"%s\": \"%s\"\n"),
                   ACE_TEXT ((*iterator).first.c_str ()),
                   ACE_TEXT ((*iterator).second.first.c_str ())));
-#endif // _DEBUG
       state_->builders[(*iterator).first] =
         std::make_pair ((*iterator).second.first, builder_p);
       builder_p = NULL;

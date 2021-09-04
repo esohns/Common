@@ -18,38 +18,37 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_UI_GTK_GLADE_DEFINITION_H
-#define COMMON_UI_GTK_GLADE_DEFINITION_H
+#ifndef COMMON_UI_GTK_GLADE_DEFINITION_T_H
+#define COMMON_UI_GTK_GLADE_DEFINITION_T_H
 
 #include "ace/Global_Macros.h"
 
 #include "common_ui_idefinition.h"
 
-#include "common_ui_gtk_common.h"
-
-class Common_UI_GladeDefinition
- : public Common_UI_IDefinition_T<Common_UI_GTK_State_t>
+template <typename StateType>
+class Common_UI_GladeDefinition_T
+ : public Common_UI_IDefinition_T<StateType>
 {
  public:
   // convenient types
-  typedef Common_UI_IDefinition_T<Common_UI_GTK_State_t> INTERFACE_T;
+  typedef Common_UI_IDefinition_T<StateType> INTERFACE_T;
 
-  Common_UI_GladeDefinition (int,          // argc
-                             ACE_TCHAR**); // argv
-  virtual ~Common_UI_GladeDefinition ();
+  Common_UI_GladeDefinition_T ();
+  virtual ~Common_UI_GladeDefinition_T ();
 
   // implement Common_UI_IDefinition_T
-  virtual bool initialize (Common_UI_GTK_State_t&); // return value: UI state
+  virtual bool initialize (StateType&); // UI state
   virtual void finalize ();
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_GladeDefinition ())
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_GladeDefinition (const Common_UI_GladeDefinition&))
-  ACE_UNIMPLEMENTED_FUNC (Common_UI_GladeDefinition& operator= (const Common_UI_GladeDefinition&))
+  //ACE_UNIMPLEMENTED_FUNC (Common_UI_GladeDefinition_T ())
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_GladeDefinition_T (const Common_UI_GladeDefinition_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_UI_GladeDefinition_T& operator= (const Common_UI_GladeDefinition_T&))
 
-  int                    argc_;
-  ACE_TCHAR**            argv_;
-  Common_UI_GTK_State_t* state_;
+  StateType* state_;
 };
+
+// include template definition
+#include "common_ui_gtk_glade_definition.inl"
 
 #endif

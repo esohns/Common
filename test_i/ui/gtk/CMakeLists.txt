@@ -6,14 +6,6 @@ endif (GTK_SUPPORT)
 
 ############## includes ###############
 include_directories (${GTK_INCLUDE_DIRS})
-if (GTKGL_SUPPORT)
- if (GTKGLAREA_SUPPORT)
-# *NOTE*: check out the 'master' branch for gtk3-based applications
-# *NOTE*: check out the 'gtkglarea-2' branch for gtk2-based applications
-# *TODO*: verify automatically
-  include_directories ($ENV{LIB_ROOT}/gtkglarea)
- endif (GTKGLAREA_SUPPORT)
-endif (GTKGL_SUPPORT)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/gl)
@@ -50,12 +42,12 @@ elseif (WIN32)
  target_link_libraries (${EXECUTABLE} OpenGL32)
 endif ()
 target_link_libraries (${EXECUTABLE} ${GTK_LIBRARIES})
-if (UNIX)
-elseif (WIN32)
- if (GTKGLAREA_SUPPORT)
-  target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/gtkglarea/${BUILD_PATH_SUFFIX}/${CMAKE_BUILD_TYPE}/gtkglarea.lib)
- endif (GTKGLAREA_SUPPORT)
-endif ()
+#if (UNIX)
+#elseif (WIN32)
+# if (GTKGLAREA_SUPPORT)
+#  target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/gtkglarea/${BUILD_PATH_SUFFIX}/${CMAKE_BUILD_TYPE}/gtkglarea.lib)
+# endif (GTKGLAREA_SUPPORT)
+#endif ()
 
 target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
 
@@ -91,17 +83,17 @@ if (UNIX)
 
  target_link_libraries (${EXECUTABLE_2} ${PKG_FFMPEG_LIBRARIES})
 elseif (WIN32)
- set_target_properties (${EXECUTABLE_2} PROPERTIES LINK_FLAGS /SAFESEH:NO)
+# set_target_properties (${EXECUTABLE_2} PROPERTIES LINK_FLAGS /SAFESEH:NO)
 
  target_link_libraries (${EXECUTABLE_2} OpenGL32)
 endif (UNIX)
 target_link_libraries (${EXECUTABLE_2} ${GTK_LIBRARIES})
-if (UNIX)
-elseif (WIN32)
- if (GTKGLAREA_SUPPORT)
-  target_link_libraries (${EXECUTABLE_2} $ENV{LIB_ROOT}/gtkglarea/${BUILD_PATH_SUFFIX}/${CMAKE_BUILD_TYPE}/gtkglarea.lib)
- endif (GTKGLAREA_SUPPORT)
-endif ()
+#if (UNIX)
+#elseif (WIN32)
+# if (GTKGLAREA_SUPPORT)
+#  target_link_libraries (${EXECUTABLE_2} $ENV{LIB_ROOT}/gtkglarea/${BUILD_PATH_SUFFIX}/${CMAKE_BUILD_TYPE}/gtkglarea.lib)
+# endif (GTKGLAREA_SUPPORT)
+#endif ()
 
 target_link_libraries (${EXECUTABLE_2} ${ACE_LIBRARY})
 
@@ -138,17 +130,17 @@ if (UNIX)
 
  target_link_libraries (${EXECUTABLE_3} ${PKG_FFMPEG_LIBRARIES})
 elseif (WIN32)
- set_target_properties (${EXECUTABLE_3} PROPERTIES LINK_FLAGS /SAFESEH:NO)
+# set_target_properties (${EXECUTABLE_3} PROPERTIES LINK_FLAGS /SAFESEH:NO)
 
  target_link_libraries (${EXECUTABLE_3} OpenGL32)
 endif (UNIX)
 target_link_libraries (${EXECUTABLE_3} ${GTK_LIBRARIES})
-if (UNIX)
-elseif (WIN32)
- if (GTKGLAREA_SUPPORT)
-  target_link_libraries (${EXECUTABLE_3} $ENV{LIB_ROOT}/gtkglarea/${BUILD_PATH_SUFFIX}/${CMAKE_BUILD_TYPE}/gtkglarea.lib)
- endif (GTKGLAREA_SUPPORT)
-endif ()
+#if (UNIX)
+#elseif (WIN32)
+# if (GTKGLAREA_SUPPORT)
+#  target_link_libraries (${EXECUTABLE_3} $ENV{LIB_ROOT}/gtkglarea/${BUILD_PATH_SUFFIX}/${CMAKE_BUILD_TYPE}/gtkglarea.lib)
+# endif (GTKGLAREA_SUPPORT)
+#endif ()
 
 target_link_libraries (${EXECUTABLE_3} ${ACE_LIBRARY})
 

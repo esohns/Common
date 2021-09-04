@@ -1,6 +1,9 @@
 set (LIBRARY ${PROJECT_NAME}UI_GTK)
 add_library (${LIBRARY} STATIC "")
 
+get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../../.. REALPATH DIRECTORY)
+get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
+
 # *NOTE*: a bug in cmake (3.12.1) requires the additional comment
 target_include_directories (${LIBRARY} PUBLIC
                             "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
@@ -21,7 +24,7 @@ elseif (WIN32)
  if (LIBGLADE_SUPPORT)
 # libglade
   target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../libglade-2.6.4/include/libglade-2.0>)
+                              $<BUILD_INTERFACE:${LIBGLADE_INCLUDES}>)
  endif (LIBGLADE_SUPPORT)
 endif ()
 
@@ -62,7 +65,8 @@ if (LIBGLADE_SUPPORT)
  set (source_files
       ${source_files}
       common_ui_gtk_glade_definition.cpp
-      common_ui_gtk_glade_definition.h)
+      common_ui_gtk_glade_definition.h
+      common_ui_gtk_glade_definition.inl)
 endif (LIBGLADE_SUPPORT) # LIBGLADE_SUPPORT
 if (GTKGL_SUPPORT)
  set (source_files
@@ -105,9 +109,9 @@ target_link_libraries (${LIBRARY} ${GTK_LIBRARIES})
 
 if (UNIX)
  if (GTKGLAREA_SUPPORT)
-  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/gtkglarea/gtkgl/.libs/libgtkgl-2.0.a)
   target_link_libraries (${LIBRARY} X11)
   target_link_libraries (${LIBRARY} GL)
+  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/gtkglarea/gtkgl/.libs/libgtkgl-2.0.a)
  endif (GTKGLAREA_SUPPORT)
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -118,7 +122,7 @@ elseif (WIN32)
 
  if (GTKGLAREA_SUPPORT)
   target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/libepoxy/lib/epoxy.lib)
-  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/gtkglarea/cmake/${CMAKE_BUILD_TYPE}/gtkglarea.lib)
+  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/gtkglarea/${BUILD_PATH_SUFFIX}/${CMAKE_BUILD_TYPE}/gtkglarea.lib)
 # else (GTKGLAREA_SUPPORT)
  # target_link_libraries (${EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtkglext/gdk/.libs/libgdkglext-win32-1.0.dll.a)
  # target_link_libraries (${EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtkglext/gtk/.libs/libgtkglext-win32-1.0.dll.a)
@@ -126,7 +130,7 @@ elseif (WIN32)
 
  if (LIBGLADE_SUPPORT)
 # libglade
-  target_link_libraries (${LIBRARY} ${CMAKE_CURRENT_SOURCE_DIR}/../../../libglade-2.6.4/lib/libglade-2.0.dll.a)
+  target_link_libraries (${LIBRARY} ${LIBGLADE_LIBRARY})
  endif (LIBGLADE_SUPPORT)
 
 # target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
@@ -138,8 +142,8 @@ endif ()
 if (WIN32)
  set_target_properties (${LIBRARY} PROPERTIES LINK_FLAGS /SAFESEH:NO)
 endif ()
-set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
-set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+#set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
+#set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
 set_target_properties (${LIBRARY} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
@@ -165,7 +169,8 @@ set (${LIBRARY}_LIB_HDRS
 #     common_ui_gtk_types.h
 if (LIBGLADE_SUPPORT)
  set (${LIBRARY}_LIB_GLADE_HDRS ${CommonUI_GTK_LIB_GLADE_HDRS}
-      common_ui_glade_definition.h)
+      common_ui_glade_definition.h
+      common_ui_gtk_glade_definition.inl)
 endif (LIBGLADE_SUPPORT)
 if (GTKGL_SUPPORT)
  set (${LIBRARY}_LIB_GLADE_HDRS ${CommonUI_GTK_LIB_GLADE_HDRS}
