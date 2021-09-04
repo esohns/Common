@@ -37,21 +37,25 @@ jobs:
    - name: Checkout submodules
      run: git submodule update --init --recursive
 
-   - name: Install dependencies (packages)
+   - name: Install dependencies (packages) [UNIX]
      if: ${{ matrix.os=='ubuntu-latest' }}
      uses: ./.github/actions/install_deps
      with:
       os: ${{matrix.os}}
+
+   - name: Install dependencies (packages) [Win32]
      if: ${{ matrix.os=='windows-latest' }}
      uses: ./.github/actions/install_deps_win32
      with:
       os: ${{matrix.os}}
 
-   - name: Install dependencies (ACE)
+   - name: Install dependencies (ACE) [UNIX]
      if: ${{ matrix.os=='ubuntu-latest' }}
      uses: ./.github/actions/install_ACE
      with:
       os: ${{matrix.os}}
+
+   - name: Install dependencies (ACE) [Win32]
      if: ${{ matrix.os=='windows-latest' }}
      uses: ./.github/actions/install_ACE_win32
      with:
