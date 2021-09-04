@@ -186,7 +186,7 @@ do_work (int argc_in,
                 ACE_TEXT ("failed to start GTK event dispatch, returning\n")));
     return;
   } // end IF
-  gtk_manager_p->wait ();
+  gtk_manager_p->wait (false);
 }
 
 int

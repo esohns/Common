@@ -189,10 +189,13 @@ elseif (WIN32)
  endif ()
 endif ()
 
-file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
-file (TO_CMAKE_PATH $ENV{LIB_ROOT}/assimp/cmake/code/${CMAKE_BUILD_TYPE} ASSIMP_LIB_PATH)
+file (TO_CMAKE_PATH $ENV{LIB_ROOT}/libxml2/bin LIBXML2_LIB_PATH)
 file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ffmpeg/bin FFMPEG_LIB_PATH)
 file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ImageMagick IMAGEMAGICK_LIB_PATH)
+file (TO_CMAKE_PATH $ENV{LIB_ROOT}/assimp/cmake/code/${CMAKE_BUILD_TYPE} ASSIMP_LIB_PATH)
+file (TO_CMAKE_PATH $ENV{LIB_ROOT}/libglade/bin LIBGLADE_LIB_PATH)
+file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
+
 create_target_launcher (${EXECUTABLE}
                         ARGS ${ARGS}
 #                         FORWARD_ARGS
@@ -206,9 +209,11 @@ create_target_launcher (${EXECUTABLE_2}
                         ARGS ${ARGS}
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
+                                             ${LIBXML2_LIB_PATH}
                                              ${ASSIMP_LIB_PATH}
                                              ${FFMPEG_LIB_PATH}
                                              ${IMAGEMAGICK_LIB_PATH}
+                                             ${LIBGLADE_LIB_PATH}
                                              ${ACE_LIB_PATH}
                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
@@ -218,9 +223,11 @@ create_target_launcher (${EXECUTABLE_3}
                         ARGS ${ARGS}
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
+                                             ${LIBXML2_LIB_PATH}
                                              ${ASSIMP_LIB_PATH}
                                              ${FFMPEG_LIB_PATH}
                                              ${IMAGEMAGICK_LIB_PATH}
+                                             ${LIBGLADE_LIB_PATH}
                                              ${ACE_LIB_PATH}
                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
