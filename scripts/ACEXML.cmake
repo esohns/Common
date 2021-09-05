@@ -1,8 +1,8 @@
 if (UNIX)
  set (ACEXML_LIB_FILE libACEXML.so)
- find_library (ACE_XML_LIBRARY ${ACEXML_LIB_FILE}
+ find_library (ACEXML_LIBRARY ${ACEXML_LIB_FILE}
                PATHS $ENV{ACE_ROOT}/ACEXML ${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE/ACEXML
-               PATH_SUFFIXES common
+               PATH_SUFFIXES lib common
                DOC "searching for ${ACEXML_LIB_FILE} (system paths)")
 
  set (ACEXML_PARSER_LIB_FILE libACEXML_Parser.so)
