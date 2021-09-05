@@ -330,13 +330,12 @@ Common_DBus_Tools::dump (struct DBusMessage& message_in)
 
   struct DBusMessageIter iterator;
   dbus_bool_t result = dbus_message_iter_init (&message_in, &iterator);
-  ACE_ASSERT (result);
+  ACE_ASSERT (result); ACE_UNUSED_ARG (result);
 
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("message %@ signature: \"%s\"; value(s):\n------------------------------\n"),
               &message_in,
               ACE_TEXT (dbus_message_iter_get_signature (&iterator))));
-
   do
   {
     Common_DBus_Tools::dumpValue (iterator);

@@ -30,8 +30,6 @@
 #ifdef __cplusplus
 extern "C"
 {
-//#include "libavcodec/avcodec.h"
-//#include "libavutil/imgutils.h"
 #include "libswscale/swscale.h"
 }
 #endif /* __cplusplus */
@@ -947,7 +945,7 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
 #else
                                         static_cast<int> (sourceResolution_in.width));
 #endif // ACE_WIN32 || ACE_WIN64
-    ACE_ASSERT (result >= 0);
+  ACE_ASSERT (result >= 0);
   result =
       av_image_fill_pointers (data_pointers_a,
                               sourcePixelFormat_in,
@@ -958,7 +956,7 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
 #endif // ACE_WIN32 || ACE_WIN64
                               sourceBuffers_in[0], // *TODO*: this is probably wrong !!!
                               line_sizes_a);
-  ACE_ASSERT (result >= 0);
+  ACE_ASSERT (result >= 0); ACE_UNUSED_ARG (result);
   ACE_ASSERT (data_pointers_a[0] == sourceBuffers_in[0]);
   ACE_ASSERT (data_pointers_a[1] == sourceBuffers_in[1]);
   ACE_ASSERT (data_pointers_a[2] == sourceBuffers_in[2]);

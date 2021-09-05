@@ -61,7 +61,7 @@ elseif (NOT CMAKE_CONFIGURATION_TYPES)
  set (CMAKE_BUILD_TYPE Debug CACHE STRING ${BUILD_TYPE_CACHE_STRING})
 endif ()
 
-#message("current CMAKE_SYSTEM_VERSION = ${CMAKE_SYSTEM_VERSION}")
+include (PrePreToolChain)
 
 cmake_policy (SET CMP0048 NEW) # allow project VERSION
 #cmake_policy (SET CMP0056 OLD) # honor per-config flags in try_compile()

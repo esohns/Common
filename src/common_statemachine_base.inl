@@ -20,6 +20,7 @@
 
 #include "ace/Guard_T.h"
 #include "ace/Log_Msg.h"
+#include "ace/Condition_Thread_Mutex.h"
 
 #include "common_macros.h"
 

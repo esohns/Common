@@ -19,7 +19,6 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-//#include "ace/Synch.h"
 #include "common_ui_tools.h"
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -1329,7 +1328,8 @@ Common_UI_Tools::getX11DisplayName (const std::string& outputName_in)
        ++i)
   {
     screen_p = ScreenOfDisplay (display_p, i);
-    ACE_ASSERT (screen_p);
+    ACE_ASSERT (screen_p); ACE_UNUSED_ARG (screen_p);
+
     screen_resources_p =
         XRRGetScreenResources (display_p,
                                RootWindow (display_p, i));
@@ -1353,13 +1353,11 @@ Common_UI_Tools::getX11DisplayName (const std::string& outputName_in)
                                     screen_resources_p,
                                     output_info_p->crtc);
       ACE_ASSERT (crtc_info_p);
-#if defined (_DEBUG)
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("found output \"%s\" in X11 session \"%s\" [%dx%d+%dx%d]\n"),
                   ACE_TEXT (outputName_in.c_str ()),
                   ACE_TEXT (return_value.c_str ()),
                   crtc_info_p->x, crtc_info_p->y, crtc_info_p->width, crtc_info_p->height));
-#endif // _DEBUG
       XRRFreeCrtcInfo (crtc_info_p); crtc_info_p = NULL;
       XRRFreeOutputInfo (output_info_p); output_info_p = NULL;
     } // end FOR
@@ -1387,7 +1385,7 @@ Common_UI_Tools::get (const struct _XDisplay& display_in,
   Status result = XGetWindowAttributes (&const_cast<Display&> (display_in),
                                         id_in,
                                         &return_value);
-  ACE_ASSERT (result == True);
+  ACE_ASSERT (result == True); ACE_UNUSED_ARG (result);
 
   return return_value;
 }
@@ -1409,7 +1407,7 @@ Common_UI_Tools::dump (const struct _XDisplay& display_in,
                                 &resolution_s.width, &resolution_s.height,
                                 &border_width_i,
                                 &depth_i);
-  ACE_ASSERT (result == True);
+  ACE_ASSERT (result == True); ACE_UNUSED_ARG (result);
   ACE_DEBUG ((LM_INFO,
               ACE_TEXT ("drawable %u:\n\twindow: %u\n\tx/y: [%u,%u]; size: [%ux%u]\n\tborder: %u; depth: %u\n"),
               id_in,

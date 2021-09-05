@@ -1,20 +1,4 @@
-#include(CMakeForceCompiler) #Disables checks
-
-# this one is important
-if (UNIX)
- set (CMAKE_SYSTEM_NAME Linux)
-elseif (WIN32)
- set (CMAKE_SYSTEM_NAME Windows)
-endif ()
-#this one not so much
-set (CMAKE_SYSTEM_VERSION 1)
-
-#option (LLVM_ENABLE_DEBUG "Compile a debug version when using LLVM/clang" NO)
-
-#set (CMAKE_SYSROOT /)
-#set (CMAKE_STAGING_PREFIX /)
-
-# specify the cross compiler
+# specify the (cross-)compiler
 if (UNIX)
  if (LLVM_USE)
 #CMAKE_FORCE_C_COMPILER( /usr/bin/clang CLang )
@@ -73,4 +57,3 @@ if (UNIX)
  endif (LLVM_USE)
 elseif (WIN32)
 endif ()
-
