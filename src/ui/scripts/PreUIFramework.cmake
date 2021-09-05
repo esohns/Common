@@ -271,6 +271,7 @@ if (GTK_SUPPORT AND OPENGL_SUPPORT)
                   DOC "searching for ${GTKGLAREA_LIB_FILE}")
    elseif (WIN32)
     set (GTKGLAREA_LIB_FILE gtkglarea.lib)
+    message (STATUS "CMAKE_BINARY_DIR: \"${CMAKE_BINARY_DIR}\"")
     get_filename_component (BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR} NAME)
     find_library (GTKGLAREA_LIBRARY ${GTKGLAREA_LIB_FILE}
                   PATHS $ENV{LIB_ROOT}/gtkglarea/${BUILD_PATH_SUFFIX}

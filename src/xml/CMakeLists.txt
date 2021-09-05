@@ -2,58 +2,6 @@ set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts
 include (PreXMLImplementation)
 include (SetXMLImplementation)
 
-set (ACE_XML_LIB_FILE libACEXML.so)
-if (UNIX)
- find_library (ACE_XML_LIBRARY ${ACE_XML_LIB_FILE}
-               PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE/ACEXML $ENV{ACE_ROOT}/ACEXML
-               PATH_SUFFIXES common
-               DOC "searching for ${ACE_XML_LIB_FILE} (system paths)")
-elseif (WIN32)
- if (CMAKE_BUILD_TYPE STREQUAL Debug)
-  set (LIB_FILE_SUFFIX d)
- endif ()
- unset (ACE_XML_LIB_FILE)
- set (ACE_XML_LIB_FILE ACEXML${LIB_FILE_SUFFIX}.lib)
- find_library (ACE_XML_LIBRARY ${ACE_XML_LIB_FILE}
-               PATHS $ENV{LIB_ROOT}/ACE_TAO/ACE
-               PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
-               DOC "searching for ${ACE_XML_LIB_FILE}")
-endif ()
-#if (NOT EXISTS ACE_XML_LIBRARY)
-if (NOT ACE_XML_LIBRARY)
- message (FATAL_ERROR "Could not find ${ACE_XML_LIB_FILE} (was: \"${ACE_XML_LIBRARY}\"), aborting")
-else ()
- #message (STATUS "Found ACEXML library \"${ACE_XML_LIBRARY}\"")
-endif ()
-set (ACE_XML_PARSER_LIB_FILE libACEXML_Parser.so)
-if (UNIX)
-# message ("CMAKE_FIND_ROOT_PATH is ${CMAKE_FIND_ROOT_PATH}")
- find_library (ACE_XML_PARSER_LIBRARY ${ACE_XML_PARSER_LIB_FILE}
-               PATHS $ENV{ACE_ROOT}/ACEXML/parser /usr/local/src/ACE_wrappers/ACEXML/parser
-               PATH_SUFFIXES lib parser
-               DOC "searching for ${ACE_XML_PARSER_LIB_FILE}")
-# else ()
-#  find_library (ACE_XML_PARSER_LIBRARY ${ACE_XML_PARSER_LIB_FILE}
-#                DOC "searching for ${ACE_XML_PARSER_LIB_FILE} (system paths)")
-# endif ()
-elseif (WIN32)
- if (CMAKE_BUILD_TYPE STREQUAL Debug)
-  set (LIB_FILE_SUFFIX d)
- endif ()
- unset (ACE_XML_PARSER_LIB_FILE)
- set (ACE_XML_PARSER_LIB_FILE ACEXML_Parser${LIB_FILE_SUFFIX}.lib)
- find_library (ACE_XML_PARSER_LIBRARY ${ACE_XML_PARSER_LIB_FILE}
-               PATHS $ENV{LIB_ROOT}/ACE_TAO/ACE
-               PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
-               DOC "searching for ${ACE_XML_PARSER_LIB_FILE}")
-endif ()
-#if (NOT EXISTS ACE_XML_PARSER_LIBRARY)
-if (NOT ACE_XML_PARSER_LIBRARY)
- message (FATAL_ERROR "Could not find ${ACE_XML_PARSER_LIB_FILE} (was: \"${ACE_XML_PARSER_LIBRARY}\"), aborting")
-else ()
- #message (STATUS "Found ACEXML parser library \"${ACE_XML_PARSER_LIBRARY}\"")
-endif ()
-
 set (LIBRARY ${PROJECT_NAME}XML)
 add_library (${LIBRARY} STATIC "")
 
@@ -117,12 +65,11 @@ target_sources (${PROJECT_NAME}XML
 #set_target_properties (${PROJECT_NAME}XML PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
 #set_target_properties (${PROJECT_NAME}XML PROPERTIES
 #                       DEFINE_SYMBOL COMMON_XML_BUILD_DLL)
-set_target_properties (${PROJECT_NAME}XML PROPERTIES
-                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-                       SOVERSION 1)
+#set_target_properties (${PROJECT_NAME}XML PROPERTIES
+#                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
-target_link_libraries (${PROJECT_NAME}XML ${ACE_XML_LIBRARY})
-target_link_libraries (${PROJECT_NAME}XML ${ACE_XML_PARSER_LIBRARY})
+target_link_libraries (${PROJECT_NAME}XML ${ACEXML_LIBRARY})
+target_link_libraries (${PROJECT_NAME}XML ${ACEXML_PARSER_LIBRARY})
 
 # add PCH
 set_target_properties (${PROJECT_NAME}XML PROPERTIES
