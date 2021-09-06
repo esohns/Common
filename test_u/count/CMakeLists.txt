@@ -76,7 +76,7 @@ target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
 
 if (WIN32)
  # *WARNING*: linking Common requires "/FORCE:MULTIPLE""
- target_link_options (${EXECUTABLE} PUBLIC "$<$<CXX_COMPILER_ID:MSVC>:-FORCE:MULTIPLE>")
+# target_link_options (${EXECUTABLE} PUBLIC "$<$<CXX_COMPILER_ID:MSVC>:-FORCE:MULTIPLE>")
 endif ()
 target_link_libraries (${EXECUTABLE} Common)
 target_link_libraries (${EXECUTABLE} CommonLog)
