@@ -26,11 +26,12 @@
 #include "ace/Global_Macros.h"
 #include "ace/Synch_Traits.h"
 
+#include "ACEXML/common/SAXExceptions.h"
+
 #include "common_xml_handler_base.h"
 #include "common_xml_parser.h"
 
 #include "common_ui_common.h"
-
 
 enum Common_UI_MonitorSetup_ParserState
 {

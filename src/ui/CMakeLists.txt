@@ -6,36 +6,36 @@ if (GTK_SUPPORT)
  include (SetGTKVersion)
 endif (GTK_SUPPORT)
 
-set (ACEXML_LIB_FILE libACEXML.so)
-if (UNIX)
- find_library (ACE_XML_LIBRARY ${ACEXML_LIB_FILE}
-               PATHS $ENV{ACE_ROOT}/ACEXML ${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE/ACEXML
-               PATH_SUFFIXES common
-               DOC "searching for ${ACEXML_LIB_FILE} (system paths)")
-elseif (WIN32)
- if (CMAKE_BUILD_TYPE STREQUAL Debug)
-  set (LIB_FILE_SUFFIX d)
- endif ()
- unset (ACEXML_LIB_FILE)
- set (ACEXML_LIB_FILE ACEXML${LIB_FILE_SUFFIX}.lib)
- find_library (ACE_XML_LIBRARY ${ACEXML_LIB_FILE}
-               PATHS $ENV{LIB_ROOT}/ACE_TAO/ACE
-               PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
-               DOC "searching for ${ACEXML_LIB_FILE}"
-               NO_DEFAULT_PATH)
-endif ()
-if (NOT ACE_XML_LIBRARY)
- message (FATAL_ERROR "Could not find ${ACEXML_LIB_FILE} (was: \"${ACE_XML_LIBRARY}\"), aborting")
-else ()
- #message (STATUS "Found ACEXML library \"${ACE_XML_LIBRARY}\"")
-endif ()
+#set (ACEXML_LIB_FILE libACEXML.so)
+#if (UNIX)
+# find_library (ACE_XML_LIBRARY ${ACEXML_LIB_FILE}
+#               PATHS $ENV{ACE_ROOT}/ACEXML ${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE/ACEXML
+#               PATH_SUFFIXES common
+#               DOC "searching for ${ACEXML_LIB_FILE} (system paths)")
+#elseif (WIN32)
+# if (CMAKE_BUILD_TYPE STREQUAL Debug)
+#  set (LIB_FILE_SUFFIX d)
+# endif ()
+# unset (ACEXML_LIB_FILE)
+# set (ACEXML_LIB_FILE ACEXML${LIB_FILE_SUFFIX}.lib)
+# find_library (ACE_XML_LIBRARY ${ACEXML_LIB_FILE}
+#               PATHS $ENV{LIB_ROOT}/ACE_TAO/ACE
+#               PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
+#               DOC "searching for ${ACEXML_LIB_FILE}"
+#               NO_DEFAULT_PATH)
+#endif ()
+#if (NOT ACE_XML_LIBRARY)
+# message (FATAL_ERROR "Could not find ${ACEXML_LIB_FILE} (was: \"${ACE_XML_LIBRARY}\"), aborting")
+#else ()
+# #message (STATUS "Found ACEXML library \"${ACE_XML_LIBRARY}\"")
+#endif ()
 #add_definitions (-DACEXML_HAS_DLL)
 
 set (LIBRARY ${PROJECT_NAME}UI)
 add_library (${LIBRARY} STATIC "")
 
 if (GTK_SUPPORT)
- message (STATUS "GTK_INCLUDE_DIRS: ${GTK_INCLUDE_DIRS}")
+# message (STATUS "GTK_INCLUDE_DIRS: ${GTK_INCLUDE_DIRS}")
  target_include_directories (${LIBRARY} PUBLIC
                              "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
 endif (GTK_SUPPORT)
@@ -48,8 +48,6 @@ target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
-#target_include_directories (${LIBRARY} PUBLIC
-#                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../image>)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../log>)
 target_include_directories (${LIBRARY} PUBLIC
@@ -95,7 +93,9 @@ target_sources (${LIBRARY}
 
 add_dependencies (${LIBRARY} Common)
 if (UNIX)
- target_link_libraries (${LIBRARY} X11 Xrandr)
+ target_link_libraries (${LIBRARY} X11)
+ target_link_libraries (${LIBRARY} Xrandr)
+ target_link_libraries (${LIBRARY} ${ACEXML_LIBRARY})
 elseif (WIN32)
 # target_link_libraries (${LIBRARY} Common)
 endif ()
@@ -103,8 +103,8 @@ endif ()
 if (WIN32)
 # set_target_properties (${LIBRARY} PROPERTIES LINK_FLAGS /SAFESEH:NO)
 endif ()
-set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
-set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+#set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
+#set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
 set_target_properties (${LIBRARY} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
