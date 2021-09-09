@@ -42,7 +42,7 @@ if %ERRORLEVEL% NEQ 0 (
 :switch_case_end
 echo platform: "!PLATFORM_TYPE!"...
 
-set DEFAULT_PROJECT_TYPE=vs2017
+set DEFAULT_PROJECT_TYPE=vs2019
 call :switch_case_2_%PROJECT_TYPE% 2>nul
 if %ERRORLEVEL% NEQ 0 (
  set PROJECT_TYPE=%DEFAULT_PROJECT_TYPE%

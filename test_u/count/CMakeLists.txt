@@ -5,6 +5,9 @@
 # find_package (Threads)
 #endif (UNIX)
 
+get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
+get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
+
 #include_directories (${CMAKE_CURRENT_BINARY_DIR}/../..)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/log)
@@ -96,13 +99,13 @@ install (TARGETS ${EXECUTABLE}
 
 if (UNIX)
  create_target_launcher (${EXECUTABLE}
-                         ARGS ""
+                         ARGS "-l -t"
 #                         FORWARD_ARGS
-                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
+                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
 #                                              ${PROJECT_SOURCE_DIR}/../gtk/gtk/Win32/debug/bin
 #                                              ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/Debug
 #                                              ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/ui/Debug
-                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/Debug
 #                                              ${PROJECT_SOURCE_DIR}/cmake/src/modules/dev/Debug
                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/file
                          ENVIRONMENT foo=bar)
@@ -111,7 +114,7 @@ elseif (WIN32)
  set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                            ${ACE_LIBRARY_PATH})
  create_target_launcher (${EXECUTABLE}
-                         ARGS "-t"
+                         ARGS "-l -t"
 #                        FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                                               G:/software/Development/dll

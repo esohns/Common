@@ -5,10 +5,13 @@
 # find_package (Threads)
 #endif (UNIX)
 
+get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
+get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
+
 if (UNIX)
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
+# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
 elseif (WIN32)
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE)
+# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE)
 endif ()
 #include_directories (${CMAKE_CURRENT_BINARY_DIR}/../..)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
@@ -103,28 +106,33 @@ if (UNIX)
  create_target_launcher (${EXECUTABLE}
                          ARGS ""
 #                         FORWARD_ARGS
-                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
+                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
 #                                              ${PROJECT_SOURCE_DIR}/../gtk/gtk/Win32/debug/bin
 #                                              ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/Debug
 #                                              ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/ui/Debug
-                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
 #                                              ${PROJECT_SOURCE_DIR}/cmake/src/modules/dev/Debug
                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/file
                          ENVIRONMENT foo=bar)
 elseif (WIN32)
+ if (VCPKG_SUPPORT)
+  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin ACE_LIB_PATH)
+ else ()
+  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
+ endif (VCPKG_SUPPORT)
  create_target_launcher (${EXECUTABLE}
                          ARGS "-t"
 #                        FORWARD_ARGS
-                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/../ATCD/ACE/lib
-                                               ${PROJECT_SOURCE_DIR}/../gtk/gtk/Win32/debug/bin
-                                               G:/software/Development/dll
-                                               ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/Debug
-                                               ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/err/Debug
-                                               ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/ui/Debug
-                                               ${PROJECT_SOURCE_DIR}/cmake/src/Debug
-                                               ${PROJECT_SOURCE_DIR}/cmake/src/modules/dec/Debug
-                                               ${PROJECT_SOURCE_DIR}/cmake/src/modules/dev/Debug
-                                               ${PROJECT_SOURCE_DIR}/cmake/src/modules/vis/Debug
+                         RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
+#                                               ${PROJECT_SOURCE_DIR}/../gtk/gtk/Win32/debug/bin
+                                              G:/software/Development/dll
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/err/${CMAKE_BUILD_TYPE}
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/ui/${CMAKE_BUILD_TYPE}
+#                                               ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
+#                                               ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/modules/dec/${CMAKE_BUILD_TYPE}
+#                                               ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/modules/dev/${CMAKE_BUILD_TYPE}
+#                                               ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/modules/vis/${CMAKE_BUILD_TYPE}
                           WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/file
                           ENVIRONMENT foo=bar)
 endif ()

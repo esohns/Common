@@ -1,6 +1,9 @@
 
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../include)
+get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
+get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
+
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/../../src)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../include)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/math)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
@@ -48,17 +51,21 @@ if (UNIX)
  create_target_launcher (${EXECUTABLE}
                          ARGS "-l -t"
 #                         FORWARD_ARGS
-                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
-                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
-                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/regex
+                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
+                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 elseif (WIN32)
- file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
+ if (VCPKG_SUPPORT)
+  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin ACE_LIB_PATH)
+ else ()
+  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
+ endif (VCPKG_SUPPORT)
  create_target_launcher (${EXECUTABLE}
                          ARGS "-l -t"
 #                        FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
-                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 endif ()

@@ -13,7 +13,7 @@ if (WIN32)
  set (VCPKG_SUPPORT OFF)
  if (NOT DEFINED ENV{VCPKG_ROOT})
 # try to find vcpkg
-  file (TO_CMAKE_PATH "C:\\\\vcpkg" VCPKG_ROOT)
+  file (TO_CMAKE_PATH "H:\\\\lib\\\\vcpkg" VCPKG_ROOT)
  else ()
   file (TO_CMAKE_PATH "ENV{VCPKG_ROOT}" VCPKG_ROOT)
  endif (NOT DEFINED ENV{VCPKG_ROOT})

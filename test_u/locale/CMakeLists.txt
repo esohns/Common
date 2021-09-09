@@ -1,3 +1,6 @@
+get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
+get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
+
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/../..)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
@@ -56,8 +59,8 @@ if (UNIX)
  create_target_launcher (${EXECUTABLE}
                          ARGS "-l -t"
 #                         FORWARD_ARGS
-                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
-                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
+                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/locale
                          ENVIRONMENT foo=bar)
 elseif (WIN32)
@@ -68,7 +71,7 @@ elseif (WIN32)
                          ARGS "-l -t"
 #                        FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${ACE_LIBRARY_PATH}
-                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/locale
                          ENVIRONMENT foo=bar)
 endif ()

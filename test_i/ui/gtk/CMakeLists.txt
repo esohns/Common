@@ -4,6 +4,9 @@ if (GTK_SUPPORT)
  include (SetGTKVersion)
 endif (GTK_SUPPORT)
 
+get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../../.. REALPATH)
+get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
+
 ############## includes ###############
 include_directories (${GTK_INCLUDE_DIRS})
 
@@ -33,8 +36,6 @@ add_executable (${EXECUTABLE}
                 ${gtk_ui_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
-get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../../.. REALPATH DIRECTORY)
-get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 if (UNIX)
  target_link_libraries (${EXECUTABLE} X11)
  target_link_libraries (${EXECUTABLE} GL)
@@ -189,49 +190,96 @@ elseif (WIN32)
  endif ()
 endif ()
 
-file (TO_CMAKE_PATH $ENV{LIB_ROOT}/libxml2/bin LIBXML2_LIB_PATH)
-file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ffmpeg/bin FFMPEG_LIB_PATH)
-file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ImageMagick IMAGEMAGICK_LIB_PATH)
-file (TO_CMAKE_PATH $ENV{LIB_ROOT}/assimp/cmake/code/${CMAKE_BUILD_TYPE} ASSIMP_LIB_PATH)
-file (TO_CMAKE_PATH $ENV{LIB_ROOT}/libglade/bin LIBGLADE_LIB_PATH)
-file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
-
-create_target_launcher (${EXECUTABLE}
-                        ARGS ${ARGS}
+if (UNIX)
+ create_target_launcher (${EXECUTABLE}
+                         ARGS ${ARGS}
 #                         FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
-                                             ${ACE_LIB_PATH}
-                                             ${PROJECT_SOURCE_DIR}/cmake/src/Debug
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
-                        ENVIRONMENT ${ENVIRONMENT})
+                         RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
+                                              ${ACE_LIB_PATH}
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
+                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
+                         ENVIRONMENT ${ENVIRONMENT})
 
-create_target_launcher (${EXECUTABLE_2}
-                        ARGS ${ARGS}
-#                         FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
-                                             ${LIBXML2_LIB_PATH}
-                                             ${ASSIMP_LIB_PATH}
-                                             ${FFMPEG_LIB_PATH}
-                                             ${IMAGEMAGICK_LIB_PATH}
-                                             ${LIBGLADE_LIB_PATH}
-                                             ${ACE_LIB_PATH}
-                                             ${PROJECT_SOURCE_DIR}/cmake/src/Debug
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
-                        ENVIRONMENT ${ENVIRONMENT})
+ create_target_launcher (${EXECUTABLE_2}
+                         ARGS ${ARGS}
+ #                         FORWARD_ARGS
+                         RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
+                                              ${LIBXML2_LIB_PATH}
+                                              ${ASSIMP_LIB_PATH}
+                                              ${FFMPEG_LIB_PATH}
+                                              ${IMAGEMAGICK_LIB_PATH}
+                                              ${LIBGLADE_LIB_PATH}
+                                              ${ACE_LIB_PATH}
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
+                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
+                         ENVIRONMENT ${ENVIRONMENT})
 
-create_target_launcher (${EXECUTABLE_3}
-                        ARGS ${ARGS}
+ create_target_launcher (${EXECUTABLE_3}
+                         ARGS ${ARGS}
+ #                         FORWARD_ARGS
+                         RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
+                                              ${LIBXML2_LIB_PATH}
+                                              ${ASSIMP_LIB_PATH}
+                                              ${FFMPEG_LIB_PATH}
+                                              ${IMAGEMAGICK_LIB_PATH}
+                                              ${LIBGLADE_LIB_PATH}
+                                              ${ACE_LIB_PATH}
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
+                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
+                         ENVIRONMENT ${ENVIRONMENT})
+elseif (WIN32)
+ if (VCPKG_SUPPORT)
+  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin LIBXML2_LIB_PATH)
+  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin FFMPEG_LIB_PATH)
+  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin IMAGEMAGICK_LIB_PATH)
+  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin ASSIMP_LIB_PATH)
+  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin LIBGLADE_LIB_PATH)
+  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin ACE_LIB_PATH) 
+ else ()
+  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/libxml2/bin LIBXML2_LIB_PATH)
+  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ffmpeg/bin FFMPEG_LIB_PATH)
+  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ImageMagick IMAGEMAGICK_LIB_PATH)
+  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/assimp/cmake/code/${CMAKE_BUILD_TYPE} ASSIMP_LIB_PATH)
+  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/libglade/bin LIBGLADE_LIB_PATH)
+  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
+ endif (VCPKG_SUPPORT)
+ create_target_launcher (${EXECUTABLE}
+                         ARGS ${ARGS}
 #                         FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
-                                             ${LIBXML2_LIB_PATH}
-                                             ${ASSIMP_LIB_PATH}
-                                             ${FFMPEG_LIB_PATH}
-                                             ${IMAGEMAGICK_LIB_PATH}
-                                             ${LIBGLADE_LIB_PATH}
-                                             ${ACE_LIB_PATH}
-                                             ${PROJECT_SOURCE_DIR}/cmake/src/Debug
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
-                        ENVIRONMENT ${ENVIRONMENT})
+                         RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
+                                              ${ACE_LIB_PATH}
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
+                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
+                         ENVIRONMENT ${ENVIRONMENT})
+
+ create_target_launcher (${EXECUTABLE_2}
+                         ARGS ${ARGS}
+ #                         FORWARD_ARGS
+                         RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
+                                              ${LIBXML2_LIB_PATH}
+                                              ${ASSIMP_LIB_PATH}
+                                              ${FFMPEG_LIB_PATH}
+                                              ${IMAGEMAGICK_LIB_PATH}
+                                              ${LIBGLADE_LIB_PATH}
+                                              ${ACE_LIB_PATH}
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
+                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
+                         ENVIRONMENT ${ENVIRONMENT})
+
+ create_target_launcher (${EXECUTABLE_3}
+                         ARGS ${ARGS}
+ #                         FORWARD_ARGS
+                         RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
+                                              ${LIBXML2_LIB_PATH}
+                                              ${ASSIMP_LIB_PATH}
+                                              ${FFMPEG_LIB_PATH}
+                                              ${IMAGEMAGICK_LIB_PATH}
+                                              ${LIBGLADE_LIB_PATH}
+                                              ${ACE_LIB_PATH}
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
+                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
+                         ENVIRONMENT ${ENVIRONMENT})
+endif ()
 
 ################ tests ###################
 add_test (NAME ${EXECUTABLE}_test

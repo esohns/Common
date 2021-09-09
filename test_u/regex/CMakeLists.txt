@@ -1,5 +1,6 @@
-#get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH DIRECTORY)
-#get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
+get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
+get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
+
 #find_package (Common ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
 #              REQUIRED
 #              CONFIG
@@ -78,16 +79,21 @@ if (UNIX)
  create_target_launcher (${EXECUTABLE}
                          ARGS "-l -t"
 #                         FORWARD_ARGS
-                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
-                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
+                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/regex
                          ENVIRONMENT foo=bar)
 elseif (WIN32)
+ if (VCPKG_SUPPORT)
+  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin ACE_LIB_PATH)
+ else ()
+  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
+ endif (VCPKG_SUPPORT)
  create_target_launcher (${EXECUTABLE}
                          ARGS "-l -t"
 #                        FORWARD_ARGS
-                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/../ATCD/ACE/lib
-                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
+                         RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/regex
                          ENVIRONMENT foo=bar)
 endif ()

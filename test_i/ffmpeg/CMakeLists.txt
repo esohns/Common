@@ -6,8 +6,8 @@ endif (UNIX)
 
 #message (STATUS "BUILD_PATH_SUFFIX: ${BUILD_PATH_SUFFIX}")
 #message (STATUS "CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
-#get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH DIRECTORY)
-#get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
+get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
+get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 #find_package (Common ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
 #              REQUIRED COMPONENTS lib
 #              CONFIG
@@ -21,7 +21,7 @@ endif (UNIX)
 ############## definitions ###############
 #add_definitions (-DACE_HAS_DLL)
 add_definitions (-DFFMPEG_SUPPORT)
-add_definitions (-DHAVE_CONFIG_H)
+#add_definitions (-DHAVE_CONFIG_H)
 #set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
 #add_definitions (-DCOMMON_HAS_DLL)
 #add_definitions (-DCOMMON_TIMER_HAS_DLL)
@@ -31,7 +31,7 @@ add_definitions (-DHAVE_CONFIG_H)
 if (UNIX)
  include_directories (${PKG_FFMPEG_INCLUDE_DIRS})
 
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
+# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
 elseif (WIN32)
  include_directories ($ENV{LIB_ROOT}/ffmpeg/include)
 endif ()
@@ -95,17 +95,37 @@ install (TARGETS ${EXECUTABLE}
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 
 ################ launchers ###############
-file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
-file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ffmpeg/bin FFMPEG_LIB_PATH)
-file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ImageMagick IMAGEMAGICK_LIB_PATH)
-create_target_launcher (${EXECUTABLE}
-                        ARGS "-f oak-tree.png -t"
+if (UNIX)
+ create_target_launcher (${EXECUTABLE}
+                         ARGS "-f oak-tree.png -t"
 #                         FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
-                                             ${FFMPEG_LIB_PATH}
-                                             ${IMAGEMAGICK_LIB_PATH}
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ffmpeg
-                        ENVIRONMENT foo=bar)
+                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
+#                                              ${PROJECT_SOURCE_DIR}/../gtk/gtk/Win32/debug/bin
+#                                              ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/Debug
+#                                              ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/ui/Debug
+                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
+#                                              ${PROJECT_SOURCE_DIR}/cmake/src/modules/dev/Debug
+                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ffmpeg
+                         ENVIRONMENT foo=bar)
+elseif (WIN32)
+ if (VCPKG_SUPPORT)
+  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin ACE_LIB_PATH)
+  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin FFMPEG_LIB_PATH)
+  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/ImageMagick IMAGEMAGICK_LIB_PATH)
+ else ()
+  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
+  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ffmpeg/bin FFMPEG_LIB_PATH)
+  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ImageMagick IMAGEMAGICK_LIB_PATH)
+ endif (VCPKG_SUPPORT)
+ create_target_launcher (${EXECUTABLE}
+                         ARGS "-f oak-tree.png -t"
+#                         FORWARD_ARGS
+                         RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
+                                              ${FFMPEG_LIB_PATH}
+                                              ${IMAGEMAGICK_LIB_PATH}
+                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ffmpeg
+                         ENVIRONMENT foo=bar)
+endif ()
 
 ################ tests ###################
 add_test (NAME ${EXECUTABLE}_test

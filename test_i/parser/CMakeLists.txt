@@ -2,8 +2,8 @@ if (UNIX)
 # pkg_check_modules (PKG_FLEX_BISON REQUIRED flex bison)
 endif (UNIX)
 
-#get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH DIRECTORY)
-#get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
+get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH DIRECTORY)
+get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 #find_package (Common ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
 #              REQUIRED COMPONENTS lib
 #              CONFIG
@@ -109,9 +109,15 @@ install (TARGETS ${EXECUTABLE_2}
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 
 ################ launchers ###############
-file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
-set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
-                          ${ACE_LIB_PATH})
+if (WIN32)
+ if (VCPKG_SUPPORT)
+  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin ACE_LIB_PATH)
+ else ()
+  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
+ endif (VCPKG_SUPPORT)
+ set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
+                           ${ACE_LIB_PATH})
+endif (WIN32)
 create_target_launcher (${EXECUTABLE}
                         ARGS "-d -e -f test.txt -l -t"
 #                         FORWARD_ARGS
