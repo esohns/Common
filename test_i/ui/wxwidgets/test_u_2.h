@@ -13,7 +13,7 @@
 #define TEST_U_2_H
 
 //#include "ace/config-lite.h"
-#include "ace/os_include/sys/os_types.h"
+//#include "ace/os_include/sys/os_types.h"
 
 //#if defined (_DEBUG)
 //#undef _DEBUG // *NOTE*: do not (!) #define __WXDEBUG__

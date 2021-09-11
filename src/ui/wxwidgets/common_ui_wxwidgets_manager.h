@@ -37,14 +37,12 @@
 #include "ace/Synch_Traits.h"
 
 #include "common_iget.h"
-#include "common_ilock.h"
-#include "common_itaskcontrol.h"
+#include "common_itask.h"
 
 template <typename ApplicationType>
 class Common_UI_WxWidgets_Manager_T
  : public wxThread
- , public Common_ITaskControl_T<ACE_NULL_SYNCH,
-                                Common_ILock_T<ACE_NULL_SYNCH> >
+ , public Common_ITask
  , public Common_IGetP_T<typename ApplicationType::INTERFACE_T>
 {
   typedef wxThread inherited;
@@ -63,22 +61,21 @@ class Common_UI_WxWidgets_Manager_T
                                  bool = false);    // auto-start ?
   virtual ~Common_UI_WxWidgets_Manager_T ();
 
-  // implement Common_ITaskControl_T
-  virtual void start ();
-  virtual void stop (bool = true,  // wait for completion ?
-                     bool = true,  // high priority ?
-                     bool = true); // locked access ?
+  // implement Common_ITask
   inline virtual bool isRunning () const { return inherited::IsAlive (); }
   inline virtual void idle () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
-  inline virtual bool lock (bool = true) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
-  inline virtual int unlock (bool = false) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (-1); ACE_NOTREACHED (return -1;) }
-  inline virtual const ACE_NULL_SYNCH::MUTEX& getR () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (ACE_NULL_SYNCH::MUTEX ()); ACE_NOTREACHED (return ACE_NULL_SYNCH::MUTEX ();) }
-  inline virtual void finished () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
+  inline virtual bool isShuttingDown () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
+  virtual void start (ACE_Time_Value* = NULL);
+  virtual void stop (bool = true,  // wait for completion ?
+                     bool = true); // high priority ?
 #if wxCHECK_VERSION(3,0,0)
   inline virtual void wait (bool = true) const { OWN_TYPE_T* this_p = const_cast<OWN_TYPE_T*> (this);  wxThread::ExitCode exit_code = this_p->Wait (wxTHREAD_WAIT_DEFAULT); ACE_UNUSED_ARG (exit_code); }
 #elif wxCHECK_VERSION(2,0,0)
   inline virtual void wait (bool = true) const { OWN_TYPE_T* this_p = const_cast<OWN_TYPE_T*> (this);  wxThread::ExitCode exit_code = this_p->Wait (); ACE_UNUSED_ARG (exit_code); }
 #endif // wxCHECK_VERSION
+  inline virtual void pause () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
+  inline virtual void resume () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
+
   inline virtual const typename ApplicationType::INTERFACE_T* const getP () const { return application_; }
 
  protected:

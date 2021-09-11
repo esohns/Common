@@ -1,42 +1,32 @@
-#find_package (Threads REQUIRED)
-find_package (ImageMagick COMPONENTS MagickCore MagickWand)
+include (ImageMagick)
+if (NOT IMAGEMAGICK_SUPPORT)
+ message (FATAL_ERROR "ImageMagick not supported, aborting")
+endif (NOT IMAGEMAGICK_SUPPORT)
 
-get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH DIRECTORY)
+get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
-#find_package (Common ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-#              REQUIRED COMPONENTS lib
-#              CONFIG
-#              PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../modules ${CMAKE_CURRENT_SOURCE_DIR}/../..
-#              PATH_SUFFIXES Common/${BUILD_PATH_SUFFIX}
-#              NO_DEFAULT_PATH)
-#if (NOT EXISTS ${Common_DIR})
-# message (FATAL_ERROR "could not find package \"Common\", aborting")
-#endif ()
 
 ############## definitions ###############
-#add_definitions (-DACE_HAS_DLL)
-#add_definitions (-DHAVE_CONFIG_H)
-#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
-#add_definitions (-DCOMMON_HAS_DLL)
-#add_definitions (-DCOMMON_TIMER_HAS_DLL)
 
 ############## includes ###############
 
 if (UNIX)
 # include_directories (${PKG_IMAGEMAGICK_INCLUDE_DIRS})
  include_directories (${ImageMagick_INCLUDE_DIRS})
-# include_directories (/usr/include/ImageMagick-6/)
-
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
-endif (UNIX)
+elseif (WIN32)
+ if (VCPKG_SUPPORT)
+  include_directories (${graphicsmagick_INCLUDE_DIRS})
+ else ()
+  include_directories ($ENV{LIB_ROOT}/ImageMagick/include)
+ endif (VCPKG_SUPPORT)
+endif ()
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/image)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/log)
 
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
-
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/..)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 ############## next target ###############
 set (imagemagick_EXE_SRCS
@@ -50,15 +40,24 @@ add_executable (${EXECUTABLE}
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
 if (THREADS_HAVE_PTHREAD_ARG)
-  set_property (TARGET ${EXECUTABLE} PROPERTY COMPILE_OPTIONS "-pthread")
-  set_property (TARGET ${EXECUTABLE} PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
+#  set_property (TARGET ${EXECUTABLE} PROPERTY COMPILE_OPTIONS "-pthread")
+#  set_property (TARGET ${EXECUTABLE} PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
 endif ()
 
 if (CMAKE_THREAD_LIBS_INIT)
- target_link_libraries (${EXECUTABLE} "${CMAKE_THREAD_LIBS_INIT}")
+ target_link_libraries (${EXECUTABLE} ${CMAKE_THREAD_LIBS_INIT})
+endif (CMAKE_THREAD_LIBS_INIT)
+if (UNIX)
+ #target_link_libraries (${EXECUTABLE} ${PKG_IMAGEMAGICK_LIBRARIES})
+ target_link_libraries (${EXECUTABLE} ${ImageMagick_LIBRARIES})
+elseif (WIN32)
+ if (VCPKG_SUPPORT)
+  target_link_libraries (${EXECUTABLE} ${graphicsmagick_LIBRARIES})
+ else ()
+  target_link_libraries (${EXECUTABLE} ${IMAGEMAGICK_LIBRARY_CORE})
+  target_link_libraries (${EXECUTABLE} ${IMAGEMAGICK_LIBRARY_WAND})
+ endif (VCPKG_SUPPORT)
 endif ()
-#target_link_libraries (${EXECUTABLE} ${PKG_IMAGEMAGICK_LIBRARIES})
-target_link_libraries (${EXECUTABLE} ${ImageMagick_LIBRARIES})
 target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
 
 target_link_libraries (${EXECUTABLE} Common)
@@ -77,15 +76,14 @@ install (TARGETS ${EXECUTABLE}
 
 ################ launchers ###############
 if (WIN32)
- set (ENVIRONMENT_MAGICK "MAGICK_CODER_MODULE_PATH=${IMAGEMAGICK_LIB_PATH}\\\\modules\\\\coders")
-
  if (VCPKG_SUPPORT)
-  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin ACE_LIB_PATH)
-  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin IMAGEMAGICK_LIB_PATH)
+  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/bin ACE_LIB_PATH)
+  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/bin IMAGEMAGICK_LIB_PATH)
  else ()
   file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
   file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ImageMagick IMAGEMAGICK_LIB_PATH)
  endif (VCPKG_SUPPORT)
+ set (ENVIRONMENT_MAGICK "MAGICK_CODER_MODULE_PATH=${IMAGEMAGICK_LIB_PATH}\\\\modules\\\\coders")
 endif (WIN32)
 create_target_launcher (${EXECUTABLE}
                         ARGS "-f oak-tree.png -t"

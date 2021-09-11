@@ -108,9 +108,11 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::~Common_UI_WxWidgets_Manager_T (
 
 template <typename ApplicationType>
 void
-Common_UI_WxWidgets_Manager_T<ApplicationType>::start ()
+Common_UI_WxWidgets_Manager_T<ApplicationType>::start (ACE_Time_Value* timeout_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgets_Manager_T::start"));
+
+  ACE_UNUSED_ARG (timeout_in);
 
   wxThreadError result = inherited::Run ();
   if (unlikely (result != wxTHREAD_NO_ERROR))
@@ -122,8 +124,7 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::start ()
 template <typename ApplicationType>
 void
 Common_UI_WxWidgets_Manager_T<ApplicationType>::stop (bool waitForCompletion_in,
-                                                      bool highPriority_in,
-                                                      bool lockedAccess_in)
+                                                      bool highPriority_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgets_Manager_T::stop"));
 

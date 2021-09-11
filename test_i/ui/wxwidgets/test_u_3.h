@@ -1,7 +1,7 @@
 #ifndef TEST_U_3_H
 #define TEST_U_3_H
 
-#include "ace/os_include/sys/os_types.h"
+//#include "ace/os_include/sys/os_types.h"
 
 #include "wx/apptrait.h"
 

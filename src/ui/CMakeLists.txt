@@ -6,31 +6,6 @@ if (GTK_SUPPORT)
  include (SetGTKVersion)
 endif (GTK_SUPPORT)
 
-#set (ACEXML_LIB_FILE libACEXML.so)
-#if (UNIX)
-# find_library (ACE_XML_LIBRARY ${ACEXML_LIB_FILE}
-#               PATHS $ENV{ACE_ROOT}/ACEXML ${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE/ACEXML
-#               PATH_SUFFIXES common
-#               DOC "searching for ${ACEXML_LIB_FILE} (system paths)")
-#elseif (WIN32)
-# if (CMAKE_BUILD_TYPE STREQUAL Debug)
-#  set (LIB_FILE_SUFFIX d)
-# endif ()
-# unset (ACEXML_LIB_FILE)
-# set (ACEXML_LIB_FILE ACEXML${LIB_FILE_SUFFIX}.lib)
-# find_library (ACE_XML_LIBRARY ${ACEXML_LIB_FILE}
-#               PATHS $ENV{LIB_ROOT}/ACE_TAO/ACE
-#               PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
-#               DOC "searching for ${ACEXML_LIB_FILE}"
-#               NO_DEFAULT_PATH)
-#endif ()
-#if (NOT ACE_XML_LIBRARY)
-# message (FATAL_ERROR "Could not find ${ACEXML_LIB_FILE} (was: \"${ACE_XML_LIBRARY}\"), aborting")
-#else ()
-# #message (STATUS "Found ACEXML library \"${ACE_XML_LIBRARY}\"")
-#endif ()
-#add_definitions (-DACEXML_HAS_DLL)
-
 set (LIBRARY ${PROJECT_NAME}UI)
 add_library (${LIBRARY} STATIC "")
 

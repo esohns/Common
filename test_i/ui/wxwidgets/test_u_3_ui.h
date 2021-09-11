@@ -3,7 +3,7 @@
 
 #include "wx/wx.h"
 
-#include "ace/config-macros.h"
+//#include "ace/config-macros.h"
 
 #include "common_ui_wxwidgets_itoplevel.h"
 

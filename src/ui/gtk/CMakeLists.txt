@@ -1,7 +1,7 @@
 set (LIBRARY ${PROJECT_NAME}UI_GTK)
 add_library (${LIBRARY} STATIC "")
 
-get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../../.. REALPATH DIRECTORY)
+get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 
 # *NOTE*: a bug in cmake (3.12.1) requires the additional comment

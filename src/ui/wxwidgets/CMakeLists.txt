@@ -1,44 +1,16 @@
-#include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/PreUIFramework.cmake)
-include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/SetUIFramework.cmake)
-include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/SetGTKVersion.cmake)
-
 message (STATUS "wxWidgets_DEFINITIONS: ${wxWidgets_DEFINITIONS}")
 message (STATUS "wxWidgets_DEFINITIONS_DEBUG: ${wxWidgets_DEFINITIONS_DEBUG}")
+message (STATUS "wxWidgets_INCLUDE_DIRS: ${wxWidgets_INCLUDE_DIRS}")
 message (STATUS "wxWidgets_CXX_FLAGS: ${wxWidgets_CXX_FLAGS}")
 message (STATUS "wxWidgets_USE_FILE: ${wxWidgets_USE_FILE}")
 # *NOTE*: re-enable ANSI mode
 # add_definitions (-DwxUSE_UNICODE=0)
-if (WIN32)
- add_definitions (-D__WXMSW__)
- add_definitions (-DWXUSINGDLL)
- if (MSVC)
-  add_definitions (-DwxMSVC_VERSION_AUTO)
- endif (MSVC)
-endif (WIN32)
-add_definitions (-DwxUSE_GUI=1)
-if (CMAKE_BUILD_TYPE STREQUAL Debug)
- add_definitions (-D__WXDEBUG__)
-endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 
 add_library (${PROJECT_NAME}UI_wxWidgets STATIC "")
 
 target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
                             "$<BUILD_INTERFACE:${wxWidgets_INCLUDE_DIRS}>")
 
-if (UNIX)
- target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
-#                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../modules/ACE>)
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../../ACE_TAO/ACE>)
-elseif (WIN32)
-#*TODO*: use pkg-config instead
-# if (DEFINED ENV{ACE_ROOT})
-#  target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
-#                              $<BUILD_INTERFACE:$ENV{ACE_ROOT}>)
-# else ()
-#  target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
-#                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../ACE_TAO/ACE>)
-# endif (DEFINED ENV{ACE_ROOT})
-endif ()
 target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../../..>)
 target_include_directories (${PROJECT_NAME}UI_wxWidgets PUBLIC
@@ -75,9 +47,7 @@ set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 
 #set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 if (WIN32)
- add_definitions(-DUNICODE -D_UNICODE)
- add_definitions (-DWX_HIDE_MODE_T)
- set_target_properties (${PROJECT_NAME}UI_wxWidgets PROPERTIES DEFINE_SYMBOL _CRT_SECURE_NO_WARNINGS)
+# set_target_properties (${PROJECT_NAME}UI_wxWidgets PROPERTIES DEFINE_SYMBOL _CRT_SECURE_NO_WARNINGS)
 endif (WIN32)
 
 unset (absolute_source_files)
@@ -97,21 +67,6 @@ target_sources (${PROJECT_NAME}UI_wxWidgets
 #message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
 
 if (UNIX)
-# if (GTK3_SUPPORT)
-#  target_link_libraries (${PROJECT_NAME}UI_GTK ${PKG_GTKGL3_LIBRARIES})
-#  if (GTKGL_SUPPORT AND GTKGLAREA_SUPPORT)
-#   target_link_libraries (${PROJECT_NAME}UI_GTK ${PKG_GTKGLAREA_LIBRARIES})
-#  endif ()
-# else ()
-#  target_link_libraries (${PROJECT_NAME}UI_GTK ${PKG_GTKGL2_LIBRARIES})
-#  if (GTKGL_SUPPORT)
-#   if (GTKGLAREA_SUPPORT)
-#    target_link_libraries (${PROJECT_NAME}UI_GTK ${PKG_GTKGLAREA_LIBRARIES})
-#   else ()
-#    target_link_libraries (${PROJECT_NAME}UI_GTK ${PKG_GTKGL2_LIBRARIES})
-#   endif ()
-#  endif ()
-# endif ()
 elseif (WIN32)
 #*TODO*: use pkg-config instead
  add_dependencies (${PROJECT_NAME}UI_wxWidgets Common)
@@ -133,8 +88,8 @@ endif ()
 if (WIN32)
 # set_target_properties (${PROJECT_NAME}UI_wxWidgets PROPERTIES LINK_FLAGS /SAFESEH:NO)
 endif ()
-set_target_properties (${PROJECT_NAME}UI_wxWidgets PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
-set_target_properties (${PROJECT_NAME}UI_wxWidgets PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+#set_target_properties (${PROJECT_NAME}UI_wxWidgets PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
+#set_target_properties (${PROJECT_NAME}UI_wxWidgets PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
 set_target_properties (${PROJECT_NAME}UI_wxWidgets PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")

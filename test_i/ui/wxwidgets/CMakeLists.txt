@@ -1,42 +1,25 @@
-get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH DIRECTORY)
+get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
-find_package (Common ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-              REQUIRED COMPONENTS lib
-              CONFIG
-              PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../modules ${CMAKE_CURRENT_SOURCE_DIR}/../..
-              PATH_SUFFIXES libCommon/${BUILD_PATH_SUFFIX}
-              NO_DEFAULT_PATH)
-if (NOT EXISTS ${Common_DIR})
- message (FATAL_ERROR "could not find package \"Common\", aborting")
-endif ()
 
-############## includes ###############
-#include_directories (${PKG_CAP_INCLUDE_DIRS})
-
-if (UNIX)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../modules/ACE)
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../../ACE_TAO/ACE)
-elseif (WIN32)
- include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../../ACE_TAO/ACE)
-endif ()
+include_directories (${wxWidgets_INCLUDE_DIRS})
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src)
-#include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/timer)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/image)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/log)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/ui)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/ui/wxwidgets)
 
-include_directories (${CMAKE_CURRENT_BINARY_DIR}/../../..)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../..)
 
-set (CMAKE_POSITION_INDEPENDENT_CODE ON)
+include_directories (${CMAKE_CURRENT_BINARY_DIR}/../../..)
 
-add_definitions (-DWX_HIDE_MODE_T)
+#set (CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 if (WIN32)
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../include)
 # add_definitions(-DUNICODE -D_UNICODE)
- add_definitions (-D_CRT_SECURE_NO_WARNINGS)
- add_definitions (-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
+# add_definitions (-D_CRT_SECURE_NO_WARNINGS)
+# add_definitions (-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
 endif (WIN32)
 
 ############## next target ###############
@@ -79,7 +62,7 @@ if (WIN32)
  add_executable (${EXECUTABLE_2} WIN32
                  EXCLUDE_FROM_ALL
                  ${wxwidgets_EXE_2_SRCS})
- add_executable (${EXECUTABLE_3} WIN32
+ add_executable (${EXECUTABLE_3}
                  EXCLUDE_FROM_ALL
                  ${wxwidgets_EXE_3_SRCS})
 else ()
@@ -103,14 +86,15 @@ target_link_libraries (${EXECUTABLE_3} ${wxWidgets_LIBRARIES})
 
 target_link_libraries (${EXECUTABLE_2} ${ACE_LIBRARY})
 target_link_libraries (${EXECUTABLE_3} ${ACE_LIBRARY})
+
 target_link_libraries (${EXECUTABLE_3} CommonUI_wxWidgets)
 
 # add PCH
 set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
 cotire (${EXECUTABLE})
-set_target_properties (${EXECUTABLE_2} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+#set_target_properties (${EXECUTABLE_2} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
 #cotire (${EXECUTABLE_2})
-set_target_properties (${EXECUTABLE_3} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+#set_target_properties (${EXECUTABLE_3} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
 #cotire (${EXECUTABLE_3})
 
 ############### installation #############
@@ -132,7 +116,7 @@ create_target_launcher (${EXECUTABLE}
                         ARGS ""
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
-                                             ${PROJECT_SOURCE_DIR}/cmake/src/Debug
+                                             ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/Debug
                                              ${wxWidgets_LIB_DIR}
                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/wxwidgets
                         ENVIRONMENT foo=bar)
@@ -141,7 +125,7 @@ create_target_launcher (${EXECUTABLE_2}
                         ARGS ""
 #                        FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
-                                             ${PROJECT_SOURCE_DIR}/cmake/src/Debug
+                                             ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/Debug
                                              ${wxWidgets_LIB_DIR}
                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/wxwidgets
                         ENVIRONMENT foo=bar)
@@ -150,7 +134,7 @@ create_target_launcher (${EXECUTABLE_3}
                         ARGS ""
 #                        FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
-                                             ${PROJECT_SOURCE_DIR}/cmake/src/Debug
+                                             ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/Debug
                                              ${wxWidgets_LIB_DIR}
                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/wxwidgets
                         ENVIRONMENT foo=bar)

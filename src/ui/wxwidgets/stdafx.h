@@ -18,12 +18,12 @@
 //#define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
-#endif
+#endif // _DEBUG
 
 // *NOTE*: nmake complains (see also:
 //         C:\Program Files (x86)\Windows Kits\8.1\include\shared\sspi.h(64))
 #define SECURITY_WIN32
-#endif
+#endif // _MSC_VER
 
 // C++ RunTime Header Files
 #include <string>
@@ -31,15 +31,15 @@
 // System Library Header Files
 
 // Library Header Files
-#include "ace/os_include/sys/os_types.h"
+//#include "ace/os_include/sys/os_types.h"
 #include "wx/wx.h"
 
 //#define ACE_HAS_SSIZE_T
 #include "ace/config-lite.h"
-//#undef ACE_LACKS_MODE_T
+#undef ACE_LACKS_MODE_T
 #include "ace/Global_Macros.h"
 #include "ace/Log_Msg.h"
-#include "ace/Synch.h"
+//#include "ace/Synch.h"
 
 //#if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
 #if defined (VALGRIND_SUPPORT)

@@ -12,7 +12,7 @@
 #ifndef TEST_U_3_UI_BASE_H
 #define TEST_U_3_UI_BASE_H
 
-#include "ace/os_include/sys/os_types.h"
+//#include "ace/os_include/sys/os_types.h"
 #include <wx/wx.h>
 #include <wx/image.h>
 

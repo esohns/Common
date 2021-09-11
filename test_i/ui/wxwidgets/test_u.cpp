@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 //#if defined (_DEBUG)
 //#undef _DEBUG // *NOTE*: do not (!) #define __WXDEBUG__
 //#define REDEDINE_DEBUG 1

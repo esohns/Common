@@ -109,6 +109,6 @@ struct Common_UI_wxWidgets_CBData
 
 typedef Common_UI_IDefinition_T<struct Common_UI_wxWidgets_State> Common_UI_wxWidgets_IDefinition_t;
 typedef Common_UI_wxWidgets_IApplicationBase_T<struct Common_UI_wxWidgets_State> Common_UI_wxWidgets_IApplicationBase_t;
-typedef Common_ITaskControl_T<ACE_NULL_SYNCH, Common_ILock_T<ACE_NULL_SYNCH> > Common_UI_wxWidgets_IManager_t;
+typedef Common_ITask Common_UI_wxWidgets_IManager_t;
 
 #endif

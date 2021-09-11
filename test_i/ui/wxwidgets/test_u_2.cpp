@@ -8,6 +8,7 @@
 // Example for compiling a multi file project under Linux using g++:
 //  g++ main.cpp $(wx-config --libs) $(wx-config --cxxflags) -o MyApp Dialog1.cpp Frame1.cpp
 //
+#include "stdafx.h"
 #include "test_u_2.h"
 
 #include "wx/xrc/xmlres.h"
@@ -97,7 +98,7 @@ void wxDialog_main::button_3_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDi
 // wxGlade: add wxDialog_main event handlers
 
 
-class Test_U_wxWidgets_Application: public wxApp {
+class Test_U_wxWidgets_Application : public wxApp {
 public:
   bool OnInit();
 };
