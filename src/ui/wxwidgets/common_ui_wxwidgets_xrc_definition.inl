@@ -98,21 +98,25 @@ Common_UI_WxWidgetsXRCDefinition_T<StateType,
       if (!ACE_OS::strcmp ((*iterator).first.c_str (),
                            ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN)))
       {
-        object_p =
-            resource_p->LoadDialog (dynamic_cast<wxWindow*> (state_->instance),
-                                    wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())));
+        //object_p =
+        //    resource_p->LoadDialog (dynamic_cast<wxWindow*> (state_->instance),
+        //                            wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())));
+        if (unlikely (!resource_p->LoadDialog (dynamic_cast<wxDialog*> (state_->instance),
+                                               NULL,
+                                               wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())))))
 //        if (unlikely (!resource_p->LoadObject (state_->instance,
 //                                               NULL,                                   // parent widget handle
 //                                               wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())),
 //                                               wxString (ACE_TEXT_ALWAYS_WCHAR (TopLevelClassName)))))
-//        {
-//          ACE_DEBUG ((LM_ERROR,
-//                      ACE_TEXT ("failed to wxXmlResource::LoadObject(0x%@,\"%s\"): \"%m\", aborting\n"),
-//                      state_->instance,
-//                      ACE_TEXT (name_.c_str ())));
-//          return false;
-//        } // end IF
-//        object_p = state_->instance;
+        {
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to wxXmlResource::LoadDialog(0x%@,\"%s\"): \"%m\", aborting\n"),
+                      //ACE_TEXT ("failed to wxXmlResource::LoadObject(0x%@,\"%s\"): \"%m\", aborting\n"),
+                      state_->instance,
+                      ACE_TEXT (name_.c_str ())));
+          return false;
+        } // end IF
+        object_p = state_->instance;
       } // end IF
       else
       {
@@ -128,12 +132,10 @@ Common_UI_WxWidgetsXRCDefinition_T<StateType,
                     ACE_TEXT (name_.c_str ())));
         return false;
       } // end IF
-#if defined (_DEBUG)
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("loaded widget tree \"%s\": \"%s\"\n"),
                   ACE_TEXT ((*iterator).first.c_str ()),
                   ACE_TEXT ((*iterator).second.first.c_str ())));
-#endif // _DEBUG
       state_->resources[(*iterator).first] =
         std::make_pair ((*iterator).second.first, object_p);
       object_p = NULL;

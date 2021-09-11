@@ -46,6 +46,7 @@ class Test_U_WxWidgetsDialog_T
   void button_3_clicked_cb(wxCommandEvent&);
   void button_about_clicked_cb (wxCommandEvent&);
   void button_quit_clicked_cb (wxCommandEvent&);
+  void on_close_cb (wxCloseEvent&);
 
 //  wxDECLARE_DYNAMIC_CLASS (OWN_TYPE_T);
 //  wxDECLARE_EVENT_TABLE ();

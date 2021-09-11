@@ -94,13 +94,34 @@ void wxDialog_main::button_3_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDi
               ACE_TEXT ("button 3, clicked\n")));
 }
 
+void wxDialog_main::on_close_cb (wxCloseEvent& event)  // wxGlade: wxDialog_main.<event_handler>
+{
+  wxWindow* parent_p = this->GetParent ();
+  ACE_ASSERT (parent_p);
+  parent_p->RemoveChild (this);
+  event.Skip();
+  // notify the user that he hasn't implemented the event handler yet
+//  wxLogDebug(wxT("Event handler (wxDialog_main::button_3_clicked_cb) not implemented yet"));
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("close, clicked\n")));
+
+  //wxTheApp->Exit ();
+  this->Destroy ();
+  //this->EndModal (0);
+}
 
 // wxGlade: add wxDialog_main event handlers
 
+class Test_U_wxWidgets_Application
+ : public wxApp {
+ public:
+  bool OnInit ();
+  void OnEndSession (wxCloseEvent&);
+  void OnQueryEndSession (wxCloseEvent&);
+  int OnExit ();
 
-class Test_U_wxWidgets_Application : public wxApp {
-public:
-  bool OnInit();
+ private:
+  wxDialog* dialog_;
 };
 
 #if wxCHECK_VERSION(3,0,0)
@@ -175,10 +196,10 @@ bool Test_U_wxWidgets_Application::OnInit()
 //                ACE_TEXT ("dialog_main")));
 //    return false;
 //  } // end IF
-  wxDialog* dialog_p =
+  dialog_ =
       resource_p->LoadDialog (dialog_main,
                               wxString (ACE_TEXT_ALWAYS_WCHAR ("dialog_main_base")));
-  ACE_ASSERT (dialog_p);
+  ACE_ASSERT (dialog_);
 #if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("loaded widget tree \"%s\"\n"),
@@ -187,12 +208,37 @@ bool Test_U_wxWidgets_Application::OnInit()
 
   SetTopWindow (dialog_main);
 //  dialog_main->Show (true);
-  dialog_p->Show (true);
+  dialog_->Show (true);
 
   Bind(wxEVT_COMMAND_BUTTON_CLICKED, &wxDialog_main::button_1_clicked_cb, dialog_main, wxID_NEW);
 //  Connect (XRCID("button_1"), wxEVT_COMMAND_BUTTON_CLICKED, (wxObjectEventFunction)&wxDialog_main::button_1_clicked_cb);
   Bind(wxEVT_COMMAND_BUTTON_CLICKED, &wxDialog_main::button_2_clicked_cb, dialog_main, wxID_COPY);
   Bind(wxEVT_COMMAND_BUTTON_CLICKED, &wxDialog_main::button_3_clicked_cb, dialog_main, wxID_CLEAR);
+  dialog_->Connect (wxEVT_CLOSE_WINDOW, wxCloseEventHandler (wxDialog_main::on_close_cb), NULL, dialog_);
 
   return true;
+}
+
+void
+Test_U_wxWidgets_Application::OnEndSession (wxCloseEvent& event_in)
+{
+  ACE_UNUSED_ARG (event_in);
+
+  ACE_ASSERT (dialog_);
+  dialog_->Close ();
+}
+
+void
+Test_U_wxWidgets_Application::OnQueryEndSession (wxCloseEvent& event_in)
+{
+  ACE_UNUSED_ARG (event_in);
+
+  ACE_ASSERT (dialog_);
+  dialog_->Close ();
+}
+
+int
+Test_U_wxWidgets_Application::OnExit ()
+{
+  return 0;
 }

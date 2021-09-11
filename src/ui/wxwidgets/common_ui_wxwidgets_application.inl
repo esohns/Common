@@ -191,7 +191,7 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
     iterator =
       state_.resources.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
     ACE_ASSERT (iterator != state_.resources.end ());
-    window_p = dynamic_cast<wxWindow*> ((*iterator).second.second);
+    window_p = static_cast<wxWindow*> ((*iterator).second.second);
     ACE_ASSERT (window_p);
 
 //    itop_level_p = dynamic_cast<ITOPLEVEL_T*> ((*iterator).second.second);
@@ -208,7 +208,7 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
     return false;
   }
 
-  widget_p = dynamic_cast<TopLevelClassType*> (itop_level_p);
+  widget_p = static_cast<TopLevelClassType*> (itop_level_p);
   ACE_ASSERT (widget_p);
   inherited::SetTopWindow (widget_p);
 //  widget_p->Show (true);

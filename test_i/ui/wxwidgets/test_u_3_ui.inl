@@ -35,18 +35,25 @@ Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
   // sanity check(s)
   ACE_ASSERT (!application_);
 
-  application_ = dynamic_cast<InterfaceType*> (iapplication_in);
+  application_ = static_cast<InterfaceType*> (iapplication_in);
   ACE_ASSERT (application_);
 
   WidgetBaseClassType* base_p = this;
-  inherited::button_1 = XRCCTRL (*base_p, "button_1", wxButton);
-  inherited::button_2 = XRCCTRL (*base_p, "button_2", wxButton);
-  inherited::button_3 = XRCCTRL (*base_p, "button_3", wxButton);
+  //int id_i = wxXmlResource::DoGetXRCID ("wxID_NEW");
+
+  //wxWindow* window_2 = wxWindow::FindWindowById (id_i);
+  //wxWindow* window_p = base_p->FindWindow (id_i);
+  //inherited::button_1 =
+  //  static_cast<wxButton*> (window_p);
+  inherited::button_1 = XRCCTRL (*base_p, "wxID_NEW", wxButton);
+  inherited::button_2 = XRCCTRL (*base_p, "wxID_COPY", wxButton);
+  inherited::button_3 = XRCCTRL (*base_p, "wxID_CLEAR", wxButton);
 
   this->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &OWN_TYPE_T::button_1_clicked_cb, this, wxID_NEW);
 //  Connect (XRCID("button_1"), wxEVT_COMMAND_BUTTON_CLICKED, (wxObjectEventFunction)&wxDialog_main::button_1_clicked_cb);
   this->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &OWN_TYPE_T::button_2_clicked_cb, this, wxID_COPY);
   this->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &OWN_TYPE_T::button_3_clicked_cb, this, wxID_CLEAR);
+  this->Connect (wxEVT_CLOSE_WINDOW, wxCloseEventHandler (OWN_TYPE_T::on_close_cb), NULL, this);
 
   // populate controls
 
@@ -138,6 +145,8 @@ Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
 
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("button_3, clicked\n")));
+
+  this->button_quit_clicked_cb (event_in);
 }
 
 //template <typename WidgetBaseClassType,
@@ -200,4 +209,24 @@ Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::raise(%S): \"%m\", continuing\n"),
                 SIGINT));
+}
+
+template <typename WidgetBaseClassType,
+          typename InterfaceType>
+void
+Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
+                         InterfaceType>::on_close_cb (wxCloseEvent& event_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Test_U_WxWidgetsDialog_T::on_close_cb"));
+
+  event_in.Skip ();
+
+  wxCommandEvent event_s (wxEVT_BUTTON, XRCID ("wxID_CLEAR"));
+
+  // Add any data; sometimes the only information needed at the destination is the arrival of the event itself
+  //event.SetString ("This is the data");
+
+  // Then post the event
+  wxPostEvent (this, event_s);
+  //this->Destroy ();
 }

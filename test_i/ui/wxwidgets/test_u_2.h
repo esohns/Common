@@ -60,6 +60,7 @@ public:
   void button_1_clicked_cb(wxCommandEvent &event); // wxGlade: <event_handler>
   void button_2_clicked_cb(wxCommandEvent &event); // wxGlade: <event_handler>
   void button_3_clicked_cb(wxCommandEvent &event); // wxGlade: <event_handler>
+  void on_close_cb (wxCloseEvent& event); // wxGlade: <event_handler>
 }; // wxGlade: end class
 
 
