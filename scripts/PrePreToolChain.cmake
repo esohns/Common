@@ -15,7 +15,7 @@ if (WIN32)
 # try to find vcpkg
   file (TO_CMAKE_PATH "H:\\\\lib\\\\vcpkg" VCPKG_ROOT)
  else ()
-  file (TO_CMAKE_PATH ENV{VCPKG_ROOT} VCPKG_ROOT)
+  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT} VCPKG_ROOT)
   message (STATUS "VCPKG_ROOT set to \"${VCPKG_ROOT}\"")
  endif (NOT DEFINED ENV{VCPKG_ROOT})
  set (VCPKG_SCRIPT "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
