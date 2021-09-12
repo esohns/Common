@@ -1,5 +1,5 @@
 if (UNIX)
- pkg_check_modules (PKG_FLEX_BISON REQUIRED flex bison)
+ pkg_check_modules (PKG_FLEX_BISON QUIET flex bison)
 endif (UNIX)
 
 get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
