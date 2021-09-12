@@ -151,7 +151,12 @@ typedef Common_UI_IDefinition_T<Common_UI_GTK_State_t> Common_UI_GTK_IDefinition
 struct Common_UI_GTK_Configuration
 {
   Common_UI_GTK_Configuration ()
+#if GTK_CHECK_VERSION(4,0,0)
+   : application (NULL)
+   , argc (0)
+#else
    : argc (0)
+#endif // GTK_CHECK_VERSION(4,0,0)
    , argv (NULL)
    , CBData (NULL)
 #if GTK_CHECK_VERSION(3,0,0)
@@ -162,6 +167,9 @@ struct Common_UI_GTK_Configuration
    , RCFiles ()
   {}
 
+#if GTK_CHECK_VERSION(4,0,0)
+  GtkApplication*                             application;
+#endif // GTK_CHECK_VERSION(4,0,0)
   int                                         argc;
   ACE_TCHAR**                                 argv;
   gpointer                                    CBData; // widget cb user data (inherits Common_UI_GTK_CBData)

@@ -43,7 +43,6 @@
 #endif // GTKGL_SUPPORT
 
 #include "ace/Global_Macros.h"
-#include "ace/OS.h"
 
 #include "common_ui_common.h"
 
@@ -89,8 +88,11 @@ class Common_UI_GTK_Tools
   static Common_UI_DisplayDevices_t getDisplayDevices (); // return value: connected devices
 
 #if defined (_DEBUG)
+#if GTK_CHECK_VERSION(4,0,0)
+#else
   // *NOTE*: recurses into any children
   static void dump (GtkContainer*); // container handle
+#endif // GTK_CHECK_VERSION(4,0,0)
 
   // print Gtk library information
   static void dumpGtkLibraryInfo ();

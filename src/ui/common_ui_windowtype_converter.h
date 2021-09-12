@@ -23,11 +23,15 @@
 
 #include "ace/config-lite.h"
 #if defined (GTK_SUPPORT)
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include "gdk/gdkwin32.h"
-#endif // ACE_WIN32 || ACE_WIN64
-//#include "glib-2.0/glib-object.h"
 #include "gtk/gtk.h"
+#include "gdk/gdktypes.h"
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if GTK_CHECK_VERSION(4,0,0)
+#include "gdk/win32/gdkwin32.h"
+#else
+#include "gdk/gdkwin32.h"
+#endif // GTK_CHECK_VERSION(4,0,0)
+#endif // ACE_WIN32 || ACE_WIN64
 #endif // GTK_SUPPORT
 
 #include "ace/Global_Macros.h"
@@ -48,13 +52,20 @@ class Common_UI_WindowTypeConverter_T
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   inline void getWindowType (const HWND windowType_in, HWND& windowType_out) { windowType_out = windowType_in; }
 #if defined (GTK_SUPPORT)
+#if GTK_CHECK_VERSION(4,0,0)
+  inline void getWindowType (const GdkSurface* windowType_in, HWND& windowType_out) { ACE_ASSERT (gdk_win32_surface_is_win32 (const_cast<GdkSurface*> (windowType_in))); windowType_out = gdk_win32_surface_get_impl_hwnd (const_cast<GdkSurface*> (windowType_in)); }
+#else
   // *TODO*: consider static_cast<HWND> (GDK_WINDOW_HWND (window_p));
   inline void getWindowType (const GdkWindow* windowType_in, HWND& windowType_out) { ACE_ASSERT (gdk_win32_window_is_win32 (const_cast<GdkWindow*> (windowType_in))); windowType_out = gdk_win32_window_get_impl_hwnd (const_cast<GdkWindow*> (windowType_in)); }
+#endif // GTK_CHECK_VERSION(4,0,0)
 #endif // GTK_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 #if defined (GTK_SUPPORT)
-  //// *IMPORTANT NOTE*: GdkWindow* return values need to be g_object_unref()ed !
+#if GTK_CHECK_VERSION(4,0,0)
+  inline void getWindowType (const GdkSurface* windowType_in, GdkSurface*& windowType_out) { ACE_ASSERT (windowType_in); /*g_object_ref (windowType_in);*/ windowType_out = const_cast<GdkSurface*> (windowType_in); }
+#else
   inline void getWindowType (const GdkWindow* windowType_in, GdkWindow*& windowType_out) { ACE_ASSERT (windowType_in); /*g_object_ref (windowType_in);*/ windowType_out = const_cast<GdkWindow*> (windowType_in); }
+#endif // GTK_CHECK_VERSION(4,0,0)
 #endif // GTK_SUPPORT
 
  private:

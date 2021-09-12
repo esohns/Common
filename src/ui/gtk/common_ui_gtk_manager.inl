@@ -41,6 +41,7 @@
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION(2/3,0,0)
 #endif // GTKGL_SUPPORT
+#include "gdk/gdk.h"
 
 #if defined (LIBGLADE_SUPPORT)
 #include "glade/glade.h"
@@ -218,9 +219,13 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #else
         gdk_threads_enter ();
 #endif // GTK_CHECK_VERSION(3,6,0)
+#if GTK_CHECK_VERSION(4,0,0)
+        g_application_quit (G_APPLICATION (configuration_->application));
+#else
         guint level = gtk_main_level ();
         if (level > 0)
           gtk_main_quit ();
+#endif // GTK_CHECK_VERSION(4,0,0)
 #if GTK_CHECK_VERSION(3,6,0)
 #else
         gdk_threads_leave ();
@@ -592,7 +597,16 @@ continue_:
   } // end IF
 #endif // GTK_CHECK_VERSION (2,24,32)
 #endif // GTK_CHECK_VERSION (3,6,0)
+
+#if GTK_CHECK_VERSION(4,0,0)
+  g_application_run (G_APPLICATION (configuration_->application),
+                     configuration_->argc,
+                     configuration_->argv);
+  g_object_unref (configuration_->application);
+#else
   gtk_main ();
+#endif // GTK_CHECK_VERSION (4,0,0)
+
 #if GTK_CHECK_VERSION(3,6,0)
 #else
   if (likely (leave_gdk_threads))
@@ -730,39 +744,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 //  gdk_display_manager_set_default_display (gdk_display_manager_get (),
 //                                           display_p);
 
-  if (unlikely (!Common_UI_GTK_Tools::initialize (configuration_->argc,
-                                                  configuration_->argv)))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_UI_GTK_Tools::initialize(), aborting\n")));
-    goto error;
-  } // end IF
-//  gtk_init (&argc_,
-//            &argv_);
-//  GOptionEntry entries_a[] = { {NULL} };
-//  if (unlikely (!gtk_init_with_args (&argc_,     // argc
-//                                     &argv_,     // argv
-//                                     NULL,       // parameter string
-//                                     entries_a,  // entries
-//                                     NULL,       // translation domain
-//                                     &error_p))) // error
-//  {
-//    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("failed to gtk_init_with_args(): \"%s\", aborting\n"),
-//                ACE_TEXT (error_p->message)));
-//    g_error_free (error_p); error_p = NULL;
-//    goto error;
-//  } // end IF
-
-#if defined (_DEBUG)
-  Common_UI_GTK_Tools::dumpGtkLibraryInfo ();
-#endif // _DEBUG
-
-#if defined (LIBGLADE_SUPPORT)
-  // step2: initialize (lib)glade
-  glade_init ();
-#endif // LIBGLADE_SUPPORT
-
+#if GTK_CHECK_VERSION(4,0,0)
+#else
   // step3a: specify any .rc files
   for (Common_UI_GTK_RCFilesIterator_t iterator = configuration_->RCFiles.begin ();
        iterator != configuration_->RCFiles.end ();
@@ -770,12 +753,22 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   {
     gtk_rc_add_default_file ((*iterator).c_str ());
 //      gtk_rc_add_default_file_utf8 ((*iterator).c_str ());
-#if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("#%u: added GTK .rc style file \"%s\"\n"),
                 i, ACE::basename ((*iterator).c_str (), ACE_DIRECTORY_SEPARATOR_CHAR)));
-#endif // _DEBUG
   } // end FOR
+#endif // GTK_CHECK_VERSION(4,0,0)
+
+  if (unlikely (!Common_UI_GTK_Tools::initialize (configuration_->argc,
+                                                  configuration_->argv)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_UI_GTK_Tools::initialize(), aborting\n")));
+    goto error;
+  } // end IF
+#if defined (_DEBUG)
+  Common_UI_GTK_Tools::dumpGtkLibraryInfo ();
+#endif // _DEBUG
 
 #if GTK_CHECK_VERSION(3,0,0)
   // step3b: specify any .css files
@@ -792,6 +785,10 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
       goto error;
     } // end IF
 
+#if GTK_CHECK_VERSION(4,0,0)
+    gtk_css_provider_load_from_path ((*iterator).second,
+                                     (*iterator).first.c_str ());
+#else
     if (unlikely (!gtk_css_provider_load_from_path ((*iterator).second,
                                                     (*iterator).first.c_str (),
                                                     &error_p)))
@@ -800,19 +797,35 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                   ACE_TEXT ("failed to gtk_css_provider_load_from_path(\"%s\"): \"%s\", continuing\n"),
                   ACE_TEXT ((*iterator).first.c_str ()),
                   ACE_TEXT (error_p->message)));
-      g_object_unref ((*iterator).second); (*iterator).second = NULL;
       g_error_free (error_p); error_p = NULL;
+      g_object_unref ((*iterator).second); (*iterator).second = NULL;
       continue;
     } // end IF
-#if defined (_DEBUG)
+#endif // GTK_CHECK_VERSION(4,0,0)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("#%u: added GTK .css style file \"%s\"\n"),
                 i, ACE::basename ((*iterator).first.c_str ())));
-#endif // _DEBUG
-  } // end FOR
-#endif // GTK_CHECK_VERSION (3,0,0)
 
-  //// step5: initialize GNOME
+#if GTK_CHECK_VERSION(4,0,0)
+    gtk_style_context_add_provider_for_display (gdk_display_get_default (),
+                                                GTK_STYLE_PROVIDER ((*iterator).second),
+                                                GTK_STYLE_PROVIDER_PRIORITY_USER);
+#else
+    gtk_style_context_add_provider_for_screen (gdk_screen_get_default (),
+                                               GTK_STYLE_PROVIDER ((*iterator).second),
+                                               GTK_STYLE_PROVIDER_PRIORITY_USER);
+#endif // GTK_CHECK_VERSION(4,0,0)
+  } // end FOR
+#endif // GTK_CHECK_VERSION(3,0,0)
+
+  // step5: initialize GNOME
+#if GTK_CHECK_VERSION(4,0,0)
+  ACE_ASSERT (!configuration_->application);
+  configuration_->application =
+    gtk_application_new (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_GTK_APPLICATION_ID_DEFAULT),
+                         G_APPLICATION_FLAGS_NONE);
+  //g_signal_connect (configuration_->application, "activate", G_CALLBACK (on_activate_cb), mainwin);
+#else
   //   GnomeClient* gnomeSession = NULL;
   //   gnomeSession = gnome_client_new();
   //   ACE_ASSERT(gnomeSession);
@@ -830,6 +843,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   //                                    argv_in,                             // cmdline
   //                                    NULL);                               // property name(s)
   //  ACE_ASSERT(gnomeProgram);
+#endif // GTK_CHECK_VERSION (4,0,0)
 
 #if GTK_CHECK_VERSION(3,6,0)
 #else

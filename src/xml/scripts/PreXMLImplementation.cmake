@@ -15,7 +15,7 @@ elseif (WIN32)
             HINTS "$ENV{LIB_ROOT}/libxml2"
             PATH_SUFFIXES include)
  set (LIBXML2_INCLUDE_DIRS "${LIBICONV_INCLUDE_DIR};${LIBXML2_INCLUDE_DIR}")
- find_library (LIBICONV_LIBRARY NAMES libiconv.lib
+ find_library (LIBICONV_LIBRARY NAMES iconv.lib
                HINTS "$ENV{LIB_ROOT}/libiconv"
                PATH_SUFFIXES lib)
  find_library (LIBXML2_LIBRARY NAMES libxml2.lib

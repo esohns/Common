@@ -22,6 +22,10 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../..)
 
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/../../..)
 
+if (VCPKG_SUPPORT)
+ link_directories (${GTK_LIB_DIRS})
+endif (VCPKG_SUPPORT)
+
 ############## next target ###############
 set (gtk_ui_EXE_SRCS
      stdafx.cpp

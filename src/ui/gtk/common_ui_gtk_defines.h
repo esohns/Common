@@ -37,6 +37,9 @@
 #define COMMON_UI_GTK_TIMEOUT_DEFAULT_MANAGER_INITIALIZATION 100 // ms
 #define COMMON_UI_GTK_TIMEOUT_DEFAULT_WIDGET_TOOLTIP_DELAY   100 // ms
 
+// application
+#define COMMON_UI_GTK_APPLICATION_ID_DEFAULT                 "application_id"
+
 // widgets
 #define COMMON_UI_GTK_DEFINITION_WIDGET_MAIN                 "dialog_main"
 

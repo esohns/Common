@@ -57,6 +57,7 @@
 
 #include "common_ui_gtk_common.h"
 #include "common_ui_gtk_defines.h"
+#include "common_ui_gtk_manager_common.h"
 #include "common_ui_gtk_tools.h"
 
 #include "test_i_gtk_defines.h"
@@ -274,16 +275,22 @@ idle_initialize_UI_cb (gpointer userData_in)
 //  } // end lock scope
 
   // step2: (auto-)connect signals/slots
+#if GTK_CHECK_VERSION(4,0,0)
+#else
   gtk_builder_connect_signals ((*iterator).second.second,
                                ui_cb_data_p);
+#endif // GTK_CHECK_VERSION(4,0,0)
 
   // step6a: connect default signals
+#if GTK_CHECK_VERSION(4,0,0)
+#else
   gulong result_2 =
       g_signal_connect (dialog_p,
                         ACE_TEXT_ALWAYS_CHAR ("destroy"),
                         G_CALLBACK (gtk_widget_destroyed),
-                        NULL);
+                        &dialog_p);
   ACE_ASSERT (result_2);
+#endif // GTK_CHECK_VERSION(4,0,0)
 
 //  result_2 = g_signal_connect_swapped (G_OBJECT (about_dialog_p),
 //                                       ACE_TEXT_ALWAYS_CHAR ("response"),
@@ -323,14 +330,23 @@ idle_initialize_UI_cb (gpointer userData_in)
 //  } // end IF
 
   // step9: draw main dialog
+#if GTK_CHECK_VERSION(4,0,0)
+  gtk_widget_show (dialog_p);
+#else
   gtk_widget_show_all (dialog_p);
+#endif // GTK_CHECK_VERSION(4,0,0)
 
   // step10: retrieve canvas coordinates, window handle and pixel buffer
   GtkAllocation allocation;
   ACE_OS::memset (&allocation, 0, sizeof (GtkAllocation));
   gtk_widget_get_allocation (GTK_WIDGET (drawing_area_p),
                              &allocation);
+#if GTK_CHECK_VERSION(4,0,0)
+  GdkSurface* window_p =
+    gtk_native_get_surface (gtk_widget_get_native (GTK_WIDGET (drawing_area_p)));
+#else
   GdkWindow* window_p = gtk_widget_get_window (GTK_WIDGET (drawing_area_p));
+#endif // GTK_CHECK_VERSION(4,0,0)
   ACE_ASSERT (window_p);
 
   // step11: select default capture source (if any)
@@ -367,9 +383,7 @@ idle_finalize_UI_cb (gpointer userData_in)
   struct Common_UI_GTK_CBData* ui_cb_data_p =
     static_cast<struct Common_UI_GTK_CBData*> (userData_in);
   ACE_ASSERT (ui_cb_data_p);
-
-  // leave GTK
-  gtk_main_quit ();
+  ACE_UNUSED_ARG (ui_cb_data_p);
 
   return G_SOURCE_REMOVE;
 }
@@ -708,24 +722,33 @@ extern "C"
 {
 #endif /* __cplusplus */
 gint
-dialog_main_delete_cb(GtkWidget* w,
-                      GdkEventAny* e,
-                      gpointer data)
+#if GTK_CHECK_VERSION(4,0,0)
+dialog_main_delete_cb (GtkWidget* w,
+                       GdkEvent* e,
+                       gpointer data)
+#else
+dialog_main_delete_cb (GtkWidget* w,
+                       GdkEventAny* e,
+                       gpointer data)
+#endif // GTK_CHECK_VERSION(4,0,0)
 {
   /* callback for "delete" signal */
-  g_print("main.c:delete_event_cb()n");
+  g_print ("dialog_main_delete_cb()n");
   return 0;
 }
 gint
+#if GTK_CHECK_VERSION(4,0,0)
+dialog_main_destroy_cb (GtkWidget* w,
+                        GdkEvent* e,
+                        gpointer data)
+#else
 dialog_main_destroy_cb (GtkWidget* w,
                         GdkEventAny* e,
                         gpointer data)
+#endif // GTK_CHECK_VERSION(4,0,0)
 {
   /* callback for "destroy" signal */
-  g_print("main.c:destroy_event_cb()n");
-
-  /* quit application */
-  gtk_main_quit();
+  g_print("dialog_main_destroy_cb()n");
   return 0;
 }
 
@@ -746,8 +769,13 @@ togglebutton_record_toggled_cb (GtkToggleButton* toggleButton_in,
   // sanity check(s)
   ACE_ASSERT (ui_cb_data_p);
 
+#if GTK_CHECK_VERSION(4,0,0)
+  gtk_button_set_label (GTK_BUTTON (toggleButton_in),
+                        (is_active_b ? ACE_TEXT_ALWAYS_CHAR ("_Stop") : ACE_TEXT_ALWAYS_CHAR ("_Record")));
+#else
   gtk_button_set_label (GTK_BUTTON (toggleButton_in),
                         (is_active_b ? GTK_STOCK_MEDIA_STOP : GTK_STOCK_MEDIA_RECORD));
+#endif // GTK_CHECK_VERSION(4,0,0)
 
     // step3: start progress reporting
     //ACE_ASSERT (!data_p->progressData.eventSourceId);
@@ -927,6 +955,24 @@ togglebutton_record_toggled_cb (GtkToggleButton* toggleButton_in,
 
 // -----------------------------------------------------------------------------
 
+#if GTK_CHECK_VERSION(4,0,0)
+void
+on_dialog_response_cb (GtkDialog* dialog_in,
+                       gint responseId_in,
+                       gpointer userData_in)
+{
+  ACE_UNUSED_ARG (userData_in);
+
+  switch (responseId_in)
+  {
+    case GTK_RESPONSE_ACCEPT:
+      break;
+    default:
+      break;
+  } // end SWITCH
+  gtk_widget_hide (GTK_WIDGET (dialog_in));
+}
+#endif // GTK_CHECK_VERSION(4,0,0)
 gint
 button_about_clicked_cb (GtkWidget* widget_in,
                          gpointer userData_in)
@@ -956,6 +1002,10 @@ button_about_clicked_cb (GtkWidget* widget_in,
   } // end IF
 
   // run dialog
+#if GTK_CHECK_VERSION(4,0,0)
+  gtk_window_set_modal (GTK_WINDOW (dialog_p), TRUE);
+  g_signal_connect (dialog_p, "response", G_CALLBACK (on_dialog_response_cb), userData_in);
+#else
   gint result = gtk_dialog_run (dialog_p);
   switch (result)
   {
@@ -965,6 +1015,7 @@ button_about_clicked_cb (GtkWidget* widget_in,
       break;
   } // end SWITCH
   gtk_widget_hide (GTK_WIDGET (dialog_p));
+#endif // GTK_CHECK_VERSION(4,0,0)
 
   return FALSE;
 } // button_about_clicked_cb
@@ -980,7 +1031,11 @@ button_quit_clicked_cb (GtkWidget* widget_in,
   // sanity check(s)
   ACE_ASSERT (ui_cb_data_p);
 
+#if GTK_CHECK_VERSION(4,0,0)
+  COMMON_UI_GTK_MANAGER_SINGLETON::instance ()->stop (false, true);
+#else
   gtk_main_quit ();
+#endif // GTK_CHECK_VERSION(4,0,0)
 
   return FALSE;
 } // button_quit_clicked_cb
@@ -1026,11 +1081,11 @@ combobox_source_changed_cb (GtkWidget* widget_in,
 
   gint n_rows = 0;
 
-#if GTK_CHECK_VERSION(3,0,0)
-  GtkToggleAction* toggle_action_p = NULL;
-#elif GTK_CHECK_VERSION(2,0,0)
-//  GtkToggleButton* toggle_button_p = NULL;
-#endif // GTK_CHECK_VERSION
+//#if GTK_CHECK_VERSION(3,0,0)
+//  GtkToggleAction* toggle_action_p = NULL;
+//#elif GTK_CHECK_VERSION(2,0,0)
+////  GtkToggleButton* toggle_button_p = NULL;
+//#endif // GTK_CHECK_VERSION
 //  bool result = false;
 
   list_store_p =
@@ -1100,7 +1155,7 @@ combobox_source_2_changed_cb (GtkWidget* widget_in,
   std::istringstream converter;
   converter.str (format_string);
   converter >> format_i;
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 } // combobox_format_changed_cb
 
 gboolean
@@ -1118,7 +1173,12 @@ drawingarea_draw_cb (GtkWidget* widget_in,
   // sanity check(s)
   ACE_ASSERT (ui_cb_data_p);
 
+#if GTK_CHECK_VERSION(4,0,0)
+  GdkSurface* window_p =
+    gtk_native_get_surface (gtk_widget_get_native (widget_in));
+#else
   GdkWindow* window_p = gtk_widget_get_window (widget_in);
+#endif // GTK_CHECK_VERSION(4,0,0)
 
   // sanity check(s)
 //  ACE_ASSERT (ui_cb_data_p->pixelBufferLock);
@@ -1221,7 +1281,12 @@ drawingarea_size_allocate_cb (GtkWidget* widget_in,
   // sanity check(s)
   ACE_ASSERT (widget_in);
 
+#if GTK_CHECK_VERSION(4,0,0)
+  GdkSurface* window_p =
+    gtk_native_get_surface (gtk_widget_get_native (widget_in));
+#else
   GdkWindow* window_p = gtk_widget_get_window (widget_in);
+#endif // GTK_CHECK_VERSION(4,0,0)
 
   // sanity check(s)
   ACE_ASSERT (allocation_in);
@@ -1402,12 +1467,15 @@ glarea_create_context_cb (GtkGLArea* GLArea_in,
   // *TODO*: this currently fails on Wayland (Gnome 3.22.24)
   // *WORKAROUND*: set GDK_BACKEND=x11 environment to force XWayland
   result_p =
-#if GTK_CHECK_VERSION (3, 16, 0)
+#if GTK_CHECK_VERSION (4,0,0)
+    gdk_surface_create_gl_context (gtk_native_get_surface (gtk_widget_get_native (GTK_WIDGET (GLArea_in))),
+                                   &error_p);
+#elif GTK_CHECK_VERSION (3,16,0)
     gdk_window_create_gl_context (gtk_widget_get_window (GTK_WIDGET (GLArea_in)),
                                   &error_p);
 #else
     NULL;
-#endif // GTK_CHECK_VERSION (3, 16, 0)
+#endif // GTK_CHECK_VERSION (3,16,0)
   if (!result_p)
   { ACE_ASSERT (error_p);
     ACE_DEBUG ((LM_ERROR,
@@ -1420,7 +1488,7 @@ glarea_create_context_cb (GtkGLArea* GLArea_in,
     return NULL;
   } // end IF
 
-#if GTK_CHECK_VERSION (3, 16, 0)
+#if GTK_CHECK_VERSION (3,16,0)
   gdk_gl_context_set_required_version (result_p,
                                        2, 1);
 #if defined (_DEBUG)
@@ -1431,9 +1499,9 @@ glarea_create_context_cb (GtkGLArea* GLArea_in,
   //                                       FALSE);
   gdk_gl_context_set_use_es (result_p,
                              -1); // auto-detect
-#endif // GTK_CHECK_VERSION (3, 16, 0)
+#endif // GTK_CHECK_VERSION (3,16,0)
 
-#if GTK_CHECK_VERSION (3, 16, 0)
+#if GTK_CHECK_VERSION (3,16,0)
   if (!gdk_gl_context_realize (result_p,
                                &error_p))
   {
@@ -1564,11 +1632,9 @@ glarea_render_cb (GtkGLArea* area_in,
                   ACE_TEXT (filename.c_str ())));
       return FALSE;
     } // end IF
-#if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("OpenGL texture id: %u\n"),
                 texture_c.id_));
-#endif // _DEBUG
   } // end IF
 
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1596,9 +1662,9 @@ glarea_render_cb (GtkGLArea* area_in,
   if (cube_rotation > 360.0f)
     cube_rotation -= 360.0f;
 
-#if GTK_CHECK_VERSION (3, 16, 0)
+#if GTK_CHECK_VERSION (3,16,0)
   gtk_gl_area_queue_render (area_in);
-#endif // GTK_CHECK_VERSION (3, 16, 0)
+#endif // GTK_CHECK_VERSION (3,16,0)
 
   return FALSE;
 }
@@ -1639,6 +1705,14 @@ glarea_resize_cb (GtkGLArea* GLArea_in,
   COMMON_GL_ASSERT
 }
 
+#if GTK_CHECK_VERSION(4,0,0)
+void
+filechooserdialog_cb (GtkNativeDialog*,
+                      int)
+{
+
+}
+#else
 void
 filechooserbutton_cb (GtkFileChooserButton* fileChooserButton_in,
                       gpointer userData_in)
@@ -1679,7 +1753,6 @@ filechooserbutton_cb (GtkFileChooserButton* fileChooserButton_in,
   } // end IF
   g_free (string_p); string_p = NULL;
 } // filechooserbutton_cb
-
 //void
 //filechooserdialog_cb (GtkFileChooser* fileChooser_in,
 //                      gpointer userData_in)
@@ -1691,10 +1764,15 @@ filechooserbutton_cb (GtkFileChooserButton* fileChooserButton_in,
 //  gtk_dialog_response (GTK_DIALOG (GTK_FILE_CHOOSER_DIALOG (fileChooser_in)),
 //                       GTK_RESPONSE_ACCEPT);
 //} // filechooserdialog_cb
+#endif // GTK_CHECK_VERSION(4,0,0)
 
 gboolean
 key_cb (GtkWidget* widget_in,
+#if GTK_CHECK_VERSION(4,0,0)
+        GdkEvent* eventKey_in,
+#else
         GdkEventKey* eventKey_in,
+#endif // GTK_CHECK_VERSION(4,0,0)
         gpointer userData_in)
 {
   ACE_UNUSED_ARG (widget_in);
@@ -1713,7 +1791,11 @@ key_cb (GtkWidget* widget_in,
   // sanity check(s)
   ACE_ASSERT (iterator != ui_cb_data_p->UIState->builders.end ());
 
+#if GTK_CHECK_VERSION(4,0,0)
+  switch (gdk_key_event_get_keyval (eventKey_in))
+#else
   switch (eventKey_in->keyval)
+#endif // GTK_CHECK_VERSION(4,0,0)
   {
 #if GTK_CHECK_VERSION(3,0,0)
     case GDK_KEY_Escape:
@@ -1733,11 +1815,13 @@ key_cb (GtkWidget* widget_in,
       is_active_b = gtk_toggle_button_get_active (toggle_button_p);
 
       // sanity check(s)
-#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(4,0,0)
+      if ((gdk_key_event_get_keyval (eventKey_in) == GDK_KEY_Escape) &&
+#elif GTK_CHECK_VERSION(3,0,0)
       if ((eventKey_in->keyval == GDK_KEY_Escape) &&
 #else
       if ((eventKey_in->keyval == GDK_Escape) &&
-#endif // GTK_CHECK_VERSION(3,0,0)
+#endif // GTK_CHECK_VERSION(3/4,0,0)
           !is_active_b)
         break; // <-- not in fullscreen mode, nothing to do
 
@@ -1755,7 +1839,11 @@ key_cb (GtkWidget* widget_in,
 
 gboolean
 drawingarea_key_press_event_cb (GtkWidget* widget_in,
+#if GTK_CHECK_VERSION(4,0,0)
+                                GdkEvent* eventKey_in,
+#else
                                 GdkEventKey* eventKey_in,
+#endif // GTK_CHECK_VERSION(4,0,0)
                                 gpointer userData_in)
 {
   return key_cb (widget_in, eventKey_in, userData_in);
@@ -1763,12 +1851,15 @@ drawingarea_key_press_event_cb (GtkWidget* widget_in,
 
 gboolean
 dialog_main_key_press_event_cb (GtkWidget* widget_in,
+#if GTK_CHECK_VERSION(4,0,0)
+                                GdkEvent* eventKey_in,
+#else
                                 GdkEventKey* eventKey_in,
+#endif // GTK_CHECK_VERSION(4,0,0)
                                 gpointer userData_in)
 {
   return key_cb (widget_in, eventKey_in, userData_in);
 }
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

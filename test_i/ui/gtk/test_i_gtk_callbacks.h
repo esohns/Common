@@ -23,10 +23,10 @@
 
 #include "gtk/gtk.h"
 
-#if GTK_CHECK_VERSION (3, 16, 0)
+#if GTK_CHECK_VERSION(3,16,0)
 #else
 #include "gtkgl/gtkglarea.h"
-#endif // GTK_CHECK_VERSION (3, 16, 0)
+#endif // GTK_CHECK_VERSION (3,16,0)
 
 //------------------------------------------------------------------------------
 
@@ -48,16 +48,32 @@ G_MODULE_EXPORT gint button_about_clicked_cb (GtkWidget*, gpointer);
 G_MODULE_EXPORT gint button_quit_clicked_cb (GtkWidget*, gpointer);
 G_MODULE_EXPORT void combobox_source_changed_cb (GtkWidget*, gpointer);
 G_MODULE_EXPORT void combobox_source_2_changed_cb (GtkWidget*, gpointer);
+#if GTK_CHECK_VERSION(4,0,0)
+G_MODULE_EXPORT gboolean dialog_main_key_press_event_cb (GtkWidget*, GdkEvent*, gpointer);
+#else
 G_MODULE_EXPORT gboolean dialog_main_key_press_event_cb (GtkWidget*, GdkEventKey*, gpointer);
+#endif // GTK_CHECK_VERSION(4,0,0)
 G_MODULE_EXPORT void drawingarea_configure_event_cb (GtkWindow*, GdkEvent*, gpointer);
 G_MODULE_EXPORT gboolean drawingarea_expose_cb (GtkWidget*, cairo_t*, gpointer);
+#if GTK_CHECK_VERSION(4,0,0)
+G_MODULE_EXPORT gboolean drawingarea_key_press_event_cb (GtkWidget*, GdkEvent*, gpointer);
+#else
 G_MODULE_EXPORT gboolean drawingarea_key_press_event_cb (GtkWidget*, GdkEventKey*, gpointer);
+#endif // GTK_CHECK_VERSION(4,0,0)
 G_MODULE_EXPORT GdkGLContext* glarea_create_context_cb (GtkGLArea*, gpointer);
 G_MODULE_EXPORT gboolean glarea_render_cb (GtkGLArea*, GdkGLContext*, gpointer);
 G_MODULE_EXPORT void glarea_resize_cb (GtkGLArea*, gint, gint, gpointer);
+#if GTK_CHECK_VERSION(4,0,0)
+G_MODULE_EXPORT void filechooserdialog_cb (GtkNativeDialog*, int);
+#else
 G_MODULE_EXPORT void filechooserbutton_cb (GtkFileChooserButton*, gpointer);
 //G_MODULE_EXPORT void filechooserdialog_cb (GtkFileChooser*, gpointer);
+#endif // GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION(4,0,0)
+G_MODULE_EXPORT gboolean key_cb (GtkWidget*, GdkEvent*, gpointer);
+#else
 G_MODULE_EXPORT gboolean key_cb (GtkWidget*, GdkEventKey*, gpointer);
+#endif // GTK_CHECK_VERSION(4,0,0)
 G_MODULE_EXPORT void togglebutton_record_toggled_cb (GtkToggleButton*, gpointer);
 #ifdef __cplusplus
 }

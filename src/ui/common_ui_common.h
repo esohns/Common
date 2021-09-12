@@ -170,10 +170,10 @@ struct Common_UI_DisplayDevice
   }
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  struct tagRECT clippingArea;
-  HMONITOR       handle;
-  std::string    id;
-  std::string    key;
+  struct tagRECT      clippingArea;
+  HMONITOR            handle;
+  std::string         id;
+  std::string         key;
 #else
   Common_UI_Rectangle clippingArea;
 #endif // ACE_WIN32 || ACE_WIN64

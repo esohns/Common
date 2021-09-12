@@ -3,6 +3,8 @@
 #include <iostream>
 #include <string>
 
+#include "gtk/gtk.h"
+
 #include "ace/config-lite.h"
 #include "ace/ACE.h"
 #include "ace/Get_Opt.h"
@@ -10,7 +12,7 @@
 #include "ace/Init_ACE.h"
 #include "ace/OS.h"
 #include "ace/Profile_Timer.h"
-#include "ace/Synch.h"
+//#include "ace/Synch.h"
 #include "ace/Time_Value.h"
 
 #if defined (HAVE_CONFIG_H)
@@ -27,7 +29,7 @@
 #include "common_ui_gtk_builder_definition.h"
 #include "common_ui_gtk_manager_common.h"
 
-#include "test_i_gtk_callbacks.h"
+//#include "test_i_gtk_callbacks.h"
 #include "test_i_gtk_defines.h"
 
 void
@@ -139,7 +141,11 @@ do_process_arguments (int argc_in,
 
 void
 on_button_pressed_cb (GtkWidget* widget,
+#if GTK_CHECK_VERSION(4,0,0)
+                      GdkButtonEvent* event,
+#else
                       GdkEventButton* event,
+#endif // GTK_CHECK_VERSION (4,0,0)
                       gpointer callback_data)
 {
   ACE_DEBUG ((LM_DEBUG,
@@ -155,6 +161,18 @@ on_delete_cb (GtkWidget* widget,
               ACE_TEXT ("delete event\n")));
   return TRUE;
 }
+#if GTK_CHECK_VERSION(4,0,0)
+void
+on_activate_cb (GtkWidget* widget,
+                gpointer data)
+{
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("activate event\n")));
+
+  GtkWidget* mainwin = (GtkWidget*)data;
+  gtk_widget_show (mainwin);
+}
+#else
 void
 on_destroy_cb (GtkWidget* widget,
                gpointer data)
@@ -164,47 +182,46 @@ on_destroy_cb (GtkWidget* widget,
 
   gtk_main_quit ();
 }
+#endif // GTK_CHECK_VERSION (4,0,0)
 
 void
 do_work (int argc_in,
          ACE_TCHAR* argv_in[],
          const std::string& UIDefinitionFilePath_in)
 {
-  // initialize GTK
-//  gtk_init(&argc_in, &argv_in);
-////  gdk_rgb_init();
-//  // Create Main Window...
-//  // Create widgets
-//  GtkWidget* window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-//  GtkWidget* button = gtk_button_new_with_label("Push the button.");
-//  // Connect widget signals
-//  g_signal_connect(G_OBJECT(button), "button_press_event", G_CALLBACK(on_button_pressed_cb), NULL);
-//  // Add widgets to main window (pack multiple widgets)
-//  gtk_container_add(GTK_CONTAINER(window), button);
-//  // Show window
-//  gtk_widget_show_all(window);
-//  // Connect Main Window Signals
-//  g_signal_connect(G_OBJECT(window), "delete_event", G_CALLBACK(on_delete_cb), NULL);
-//  g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(on_destroy_cb), NULL);  // Listen
-//  gtk_main();
-
+#if GTK_CHECK_VERSION(4,0,0)
+#undef gtk_init
+  gtk_init ();
+#else
   gtk_init (&argc_in, &argv_in);
+#endif // GTK_CHECK_VERSION(4,0,0)
 
-//  std::string ui_definition_file = Common_File_Tools::getWorkingDirectory();
-//  ui_definition_file += ACE_DIRECTORY_SEPARATOR_STR;
-//  ui_definition_file += ACE_TEXT_ALWAYS_CHAR ("etc");
-//  ui_definition_file += ACE_DIRECTORY_SEPARATOR_STR;
-//  ui_definition_file += ACE_TEXT_ALWAYS_CHAR ("gtk_ui.gtk3");
+  GtkBuilder* gtkBuilder= gtk_builder_new ();
+  gtk_builder_add_from_file (gtkBuilder,
+                             UIDefinitionFilePath_in.c_str (),
+                             NULL);
+  GtkWidget* mainwin = GTK_WIDGET (gtk_builder_get_object (gtkBuilder, "dialog_main"));
+  g_object_unref (G_OBJECT (gtkBuilder));
 
-  GtkBuilder* gtkBuilder= gtk_builder_new();
-  gtk_builder_add_from_file(gtkBuilder,UIDefinitionFilePath_in.c_str (),NULL);
-  gtk_builder_connect_signals ( gtkBuilder, NULL );
-  GtkWidget* mainwin= GTK_WIDGET(gtk_builder_get_object(gtkBuilder,"dialog_main"));
-  g_object_unref ( G_OBJECT(gtkBuilder) );
+#if GTK_CHECK_VERSION(4,0,0)
+  GtkApplication* app_p =
+    gtk_application_new ("org.gnome.example", G_APPLICATION_FLAGS_NONE);
+  g_signal_connect (app_p, "activate", G_CALLBACK (on_activate_cb), mainwin);
+#else
+  gtk_builder_connect_signals (gtkBuilder, NULL);
+#endif // GTK_CHECK_VERSION(4,0,0)
 
-  gtk_widget_show_all ( mainwin );
+#if GTK_CHECK_VERSION(4,0,0)
+#else
+  gtk_widget_show_all (mainwin);
+#endif // GTK_CHECK_VERSION(4,0,0)
 
+#if GTK_CHECK_VERSION(4,0,0)
+  g_application_run (G_APPLICATION (app_p), argc_in, argv_in);
+  g_object_unref (app_p);
+#else
   gtk_main ();
+#endif // GTK_CHECK_VERSION(4,0,0)
 }
 
 int

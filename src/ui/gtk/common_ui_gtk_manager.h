@@ -21,14 +21,14 @@
 #ifndef COMMON_UI_GTK_MANAGER_T_H
 #define COMMON_UI_GTK_MANAGER_T_H
 
+#include "gtk/gtk.h"
+
 #include "ace/Global_Macros.h"
 #include "ace/Message_Block.h"
 #include "ace/Message_Queue_T.h"
 #include "ace/Task_T.h"
 #include "ace/Singleton.h"
 #include "ace/Synch_Traits.h"
-
-#include "gtk/gtk.h"
 
 #include "common_iget.h"
 #include "common_iinitialize.h"
