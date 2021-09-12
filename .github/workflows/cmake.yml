@@ -61,19 +61,20 @@ jobs:
      with:
       os: ${{matrix.os}}
 
-   - name: Configure CMake [UNIX]
+   - name: Set environment variables [UNIX]
      if: ${{ matrix.os=='ubuntu-latest' }}
-     run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-     env:
-      VCPKG_ROOT: $VCPKG_INSTALLATION_ROOT
+     run: |
+          echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
 
-   - name: Configure CMake [Win32]
+   - name: Set environment variables [Win32]
      if: ${{ matrix.os=='windows-latest' }}
      run: |
-          dir env:
-          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+          echo "VCPKG_ROOT=$Env:VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
+
+   - name: Configure CMake
+     run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
      env:
-      VCPKG_ROOT: $Env:VCPKG_INSTALLATION_ROOT
+      VCPKG_ROOT: ${{env.VCPKG_ROOT}}
 
    - name: Build
      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
