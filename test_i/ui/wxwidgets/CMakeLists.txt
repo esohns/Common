@@ -112,10 +112,21 @@ install (TARGETS ${EXECUTABLE_3}
 
 ################ launchers ###############
 file (TO_CMAKE_PATH "${wxWidgets_LIB_DIR}" wxWidgets_LIB_DIR)
+if (UNIX)
+ file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/bin ACE_LIB_PATH)
+elseif (WIN32)
+ if (VCPKG_SUPPORT)
+  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/bin ACE_LIB_PATH)
+ else ()
+  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
+ endif (VCPKG_SUPPORT)
+endif ()
+set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
+                          ${ACE_LIB_PATH})
 create_target_launcher (${EXECUTABLE}
                         ARGS ""
 #                         FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
+                        RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
                                              ${wxWidgets_LIB_DIR}
                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/${EXECUTABLE}
@@ -124,7 +135,7 @@ create_target_launcher (${EXECUTABLE}
 create_target_launcher (${EXECUTABLE_2}
                         ARGS ""
 #                        FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
+                        RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
                                              ${wxWidgets_LIB_DIR}
                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/${EXECUTABLE}
@@ -133,8 +144,8 @@ create_target_launcher (${EXECUTABLE_2}
 create_target_launcher (${EXECUTABLE_3}
                         ARGS ""
 #                        FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
-                                             ${PROJECT_BINARY_DIR}/src/Debug
+                        RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
+                                             ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
                                              ${wxWidgets_LIB_DIR}
                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/${EXECUTABLE}
                         ENVIRONMENT foo=bar)

@@ -8,22 +8,30 @@ elseif (WIN32)
  add_definitions (-DMSXML_SUPPORT)
 
  # *TODO*: repair pkgconfig support on this platform
- find_path (LIBICONV_INCLUDE_DIR NAMES iconv.h
-            HINTS "$ENV{LIB_ROOT}/libiconv"
-            PATH_SUFFIXES include)
- find_path (LIBXML2_INCLUDE_DIR NAMES libxml/xpath.h
-            HINTS "$ENV{LIB_ROOT}/libxml2"
-            PATH_SUFFIXES include)
- set (LIBXML2_INCLUDE_DIRS "${LIBICONV_INCLUDE_DIR};${LIBXML2_INCLUDE_DIR}")
- find_library (LIBICONV_LIBRARY NAMES iconv.lib
-               HINTS "$ENV{LIB_ROOT}/libiconv"
-               PATH_SUFFIXES lib)
- find_library (LIBXML2_LIBRARY NAMES libxml2.lib
-               HINTS "$ENV{LIB_ROOT}/libxml2"
-               PATH_SUFFIXES lib)
- set (LIBXML2_LIBRARIES "${LIBICONV_LIBRARY};${LIBXML2_LIBRARY}")
- set (LIBXML2_RUNTIME_LIBDIRS "$ENV{LIB_ROOT}/libiconv/bin;$ENV{LIB_ROOT}/libxml2/bin")
- set (LIBXML2_FOUND ON)
+ if (VCPKG_SUPPORT)
+  find_package (LibXml2 MODULE)
+  find_path (LIBICONV_INCLUDE_DIR NAMES iconv.h
+             HINTS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}"
+             PATH_SUFFIXES include)
+  set (LIBXML2_INCLUDE_DIRS "${LIBICONV_INCLUDE_DIR};${LIBXML2_INCLUDE_DIR}")
+ else ()
+  find_path (LIBICONV_INCLUDE_DIR NAMES iconv.h
+             HINTS "$ENV{LIB_ROOT}/libiconv"
+             PATH_SUFFIXES include)
+  find_path (LIBXML2_INCLUDE_DIR NAMES libxml/xpath.h
+             HINTS "$ENV{LIB_ROOT}/libxml2"
+             PATH_SUFFIXES include)
+  set (LIBXML2_INCLUDE_DIRS "${LIBICONV_INCLUDE_DIR};${LIBXML2_INCLUDE_DIR}")
+  find_library (LIBICONV_LIBRARY NAMES iconv.lib
+                HINTS "$ENV{LIB_ROOT}/libiconv"
+                PATH_SUFFIXES lib)
+  find_library (LIBXML2_LIBRARY NAMES libxml2.lib
+                HINTS "$ENV{LIB_ROOT}/libxml2"
+                PATH_SUFFIXES lib)
+  set (LIBXML2_LIBRARIES "${LIBICONV_LIBRARY};${LIBXML2_LIBRARY}")
+  set (LIBXML2_RUNTIME_LIBDIRS "$ENV{LIB_ROOT}/libiconv/bin;$ENV{LIB_ROOT}/libxml2/bin")
+  set (LIBXML2_FOUND ON)
+ endif (VCPKG_SUPPORT)
 endif ()
 if (LIBXML2_FOUND)
  set (LIBXML2_SUPPORT ON)

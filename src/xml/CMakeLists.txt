@@ -65,8 +65,10 @@ if (LIBXML2_SUPPORT)
  target_link_libraries (${PROJECT_NAME}XML ${LIBXML2_LIBRARIES})
 endif (LIBXML2_SUPPORT)
 
-target_link_libraries (${PROJECT_NAME}XML ${ACEXML_LIBRARY})
-target_link_libraries (${PROJECT_NAME}XML ${ACEXML_PARSER_LIBRARY})
+if (ACEXML_SUPPORT)
+ target_link_libraries (${PROJECT_NAME}XML ${ACEXML_LIBRARY})
+ target_link_libraries (${PROJECT_NAME}XML ${ACEXML_PARSER_LIBRARY})
+endif (ACEXML_SUPPORT)
 
 # add PCH
 set_target_properties (${PROJECT_NAME}XML PROPERTIES

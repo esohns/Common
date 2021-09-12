@@ -57,10 +57,13 @@ if (UNIX)
                          ENVIRONMENT foo=bar)
 elseif (WIN32)
  if (VCPKG_SUPPORT)
-  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin ACE_LIB_PATH)
+  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/bin ACE_LIB_PATH)
  else ()
   file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
  endif (VCPKG_SUPPORT)
+ set (RUNTIME_LIBRARY_DIRS_LIST "")
+ #guess_runtime_library_dirs (RUNTIME_LIBRARY_DIRS_LIST)
+ #message (STATUS "RUNTIME_LIBRARY_DIRS_LIST: ${RUNTIME_LIBRARY_DIRS_LIST}")
  create_target_launcher (${EXECUTABLE}
                          ARGS "-l -t"
 #                        FORWARD_ARGS
