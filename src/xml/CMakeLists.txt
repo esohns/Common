@@ -5,16 +5,9 @@ include (SetXMLImplementation)
 set (LIBRARY ${PROJECT_NAME}XML)
 add_library (${LIBRARY} STATIC "")
 
-if (UNIX)
-elseif (WIN32)
- if (LIBXML2_SUPPORT)
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libiconv-1.9.2-1/include>)
- endif (LIBXML2_SUPPORT)
-endif ()
 if (LIBXML2_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:${LIBXML2_INCLUDE_DIR}>)
+                             "$<BUILD_INTERFACE:${LIBXML2_INCLUDE_DIRS}>")
 endif (LIBXML2_SUPPORT)
 
 target_include_directories (${LIBRARY} PUBLIC
@@ -67,6 +60,10 @@ target_sources (${PROJECT_NAME}XML
 #                       DEFINE_SYMBOL COMMON_XML_BUILD_DLL)
 #set_target_properties (${PROJECT_NAME}XML PROPERTIES
 #                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+
+if (LIBXML2_SUPPORT)
+ target_link_libraries (${PROJECT_NAME}XML ${LIBXML2_LIBRARIES})
+endif (LIBXML2_SUPPORT)
 
 target_link_libraries (${PROJECT_NAME}XML ${ACEXML_LIBRARY})
 target_link_libraries (${PROJECT_NAME}XML ${ACEXML_PARSER_LIBRARY})
