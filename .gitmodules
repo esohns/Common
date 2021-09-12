@@ -1,9 +1,6 @@
 [submodule "cotire"]
 	path = modules/cotire
 	url = https://github.com/sakra/cotire.git
-[submodule "cmake-modules"]
-	path = modules/cmake-modules
-	url = https://github.com/rpavlik/cmake-modules.git
 [submodule "CMakeHelpers"]
 	path = modules/CMakeHelpers
 	url = https://github.com/halex2005/CMakeHelpers.git
