@@ -1,18 +1,6 @@
-#if (UNIX)
-# include (CheckLibraryExists)
-# check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
-# set (CMAKE_THREAD_PREFER_PTHREAD ON)
-# find_package (Threads)
-#endif (UNIX)
-
 get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 
-if (UNIX)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
-elseif (WIN32)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE)
-endif ()
 #include_directories (${CMAKE_CURRENT_BINARY_DIR}/../..)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/log)
@@ -36,7 +24,7 @@ if (WIN32)
                             NAME ${EXECUTABLE}
                             BUNDLE ${PROJECT_NAME}
 #                          ICON "${CMAKE_SOURCE_DIR}/product.ico"
-                            ICON "${CMAKE_CURRENT_SOURCE_DIR}/../../include/libcommon_icon.ico"
+                            ICON "${PROJECT_SOURCE_DIR}/include/libcommon_icon.ico"
                             VERSION_MAJOR ${VERSION_MAJOR}
                             VERSION_MINOR ${VERSION_MINOR}
                             VERSION_PATCH ${VERSION_MICRO}
@@ -110,9 +98,9 @@ if (UNIX)
 #                                              ${PROJECT_SOURCE_DIR}/../gtk/gtk/Win32/debug/bin
 #                                              ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/Debug
 #                                              ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/ui/Debug
-                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
+                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
 #                                              ${PROJECT_SOURCE_DIR}/cmake/src/modules/dev/Debug
-                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/file
+                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_u/file
                          ENVIRONMENT foo=bar)
 elseif (WIN32)
  if (VCPKG_SUPPORT)
@@ -126,20 +114,20 @@ elseif (WIN32)
                          RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
 #                                               ${PROJECT_SOURCE_DIR}/../gtk/gtk/Win32/debug/bin
                                               G:/software/Development/dll
-                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
-                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/err/${CMAKE_BUILD_TYPE}
-                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/ui/${CMAKE_BUILD_TYPE}
+                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
+                                              ${PROJECT_BINARY_DIR}/src/err/${CMAKE_BUILD_TYPE}
+                                              ${PROJECT_BINARY_DIR}/src/ui/${CMAKE_BUILD_TYPE}
 #                                               ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
 #                                               ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/modules/dec/${CMAKE_BUILD_TYPE}
 #                                               ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/modules/dev/${CMAKE_BUILD_TYPE}
 #                                               ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/modules/vis/${CMAKE_BUILD_TYPE}
-                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/file
+                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_u/${EXECUTABLE}
                           ENVIRONMENT foo=bar)
 endif ()
 
 add_test (NAME ${EXECUTABLE}_test
           COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE} -l -t
-          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_u/${EXECUTABLE})
 
 set_tests_properties (${EXECUTABLE}_test
                       PROPERTIES

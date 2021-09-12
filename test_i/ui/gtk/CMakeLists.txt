@@ -233,6 +233,7 @@ elseif (WIN32)
   file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin FFMPEG_LIB_PATH)
   file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin IMAGEMAGICK_LIB_PATH)
   file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin ASSIMP_LIB_PATH)
+  file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin GTK_LIB_PATH)
   file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin LIBGLADE_LIB_PATH)
   file (TO_CMAKE_PATH $ENV{VCPKG_ROOT}/installed/bin ACE_LIB_PATH) 
  else ()
@@ -248,8 +249,8 @@ elseif (WIN32)
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
                                               ${ACE_LIB_PATH}
-                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
-                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
+                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
+                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/gtk
                          ENVIRONMENT ${ENVIRONMENT})
 
  create_target_launcher (${EXECUTABLE_2}
@@ -262,8 +263,8 @@ elseif (WIN32)
                                               ${IMAGEMAGICK_LIB_PATH}
                                               ${LIBGLADE_LIB_PATH}
                                               ${ACE_LIB_PATH}
-                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
-                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
+                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
+                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/gtk
                          ENVIRONMENT ${ENVIRONMENT})
 
  create_target_launcher (${EXECUTABLE_3}
@@ -276,15 +277,15 @@ elseif (WIN32)
                                               ${IMAGEMAGICK_LIB_PATH}
                                               ${LIBGLADE_LIB_PATH}
                                               ${ACE_LIB_PATH}
-                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
-                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
+                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
+                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/gtk
                          ENVIRONMENT ${ENVIRONMENT})
 endif ()
 
 ################ tests ###################
 add_test (NAME ${EXECUTABLE}_test
           COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE}
-          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/gtk)
 set_tests_properties (${EXECUTABLE}_test
                       PROPERTIES
                       ENVIRONMENT "PATH=D:\\projects\\ATCD\\ACE\\lib;D:\\projects\\gtk\\bin;D:\\projects\\libglade\\bin;D:\\projects\\libxml2-2.9.1\\.libs;G:\\software\\Development\\dll;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\ui\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\modules\\dev\\Debug;${PROJECT_SOURCE_DIR}\\..\\libACENetwork\\cmake\\src\\Debug;%PATH%")
@@ -292,7 +293,14 @@ set_tests_properties (${EXECUTABLE}_test
 
 add_test (NAME ${EXECUTABLE_2}_test
           COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE_2}
-          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/gtk)
 set_tests_properties (${EXECUTABLE_2}_test
+                      PROPERTIES
+                      ENVIRONMENT "PATH=D:\\projects\\ATCD\\ACE\\lib;D:\\projects\\gtk\\bin;D:\\projects\\libglade\\bin;D:\\projects\\libxml2-2.9.1\\.libs;G:\\software\\Development\\dll;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\ui\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\modules\\dev\\Debug;${PROJECT_SOURCE_DIR}\\..\\libACENetwork\\cmake\\src\\Debug;%PATH%")
+
+add_test (NAME ${EXECUTABLE_3}_test
+          COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE_3}
+          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/gtk)
+set_tests_properties (${EXECUTABLE_3}_test
                       PROPERTIES
                       ENVIRONMENT "PATH=D:\\projects\\ATCD\\ACE\\lib;D:\\projects\\gtk\\bin;D:\\projects\\libglade\\bin;D:\\projects\\libxml2-2.9.1\\.libs;G:\\software\\Development\\dll;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\ui\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\modules\\dev\\Debug;${PROJECT_SOURCE_DIR}\\..\\libACENetwork\\cmake\\src\\Debug;%PATH%")

@@ -1,18 +1,9 @@
 if (UNIX)
-# pkg_check_modules (PKG_FLEX_BISON REQUIRED flex bison)
+ pkg_check_modules (PKG_FLEX_BISON REQUIRED flex bison)
 endif (UNIX)
 
-get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH DIRECTORY)
+get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
-#find_package (Common ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-#              REQUIRED COMPONENTS lib
-#              CONFIG
-#              PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../modules ${CMAKE_CURRENT_SOURCE_DIR}/../..
-#              PATH_SUFFIXES Common/${BUILD_PATH_SUFFIX}
-#              NO_DEFAULT_PATH)
-#if (NOT EXISTS ${Common_DIR})
-# message (FATAL_ERROR "could not find package \"Common\", aborting")
-#endif ()
 
 ############## definitions ###############
 #add_definitions (-DACE_HAS_DLL)
@@ -21,11 +12,11 @@ get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 #add_definitions (-DCOMMON_HAS_DLL)
 
 ############## includes ###############
-#include_directories (${PKG_FLEX_BISON_INCLUDE_DIRS})
-
-if (WIN32)
+if (UNIX)
+ include_directories (${PKG_FLEX_BISON_INCLUDE_DIRS})
+elseif (WIN32)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../3rd_party/msvc)
-endif (WIN32)
+endif ()
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/log)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/parser)
@@ -122,27 +113,28 @@ create_target_launcher (${EXECUTABLE}
                         ARGS "-d -e -f test.txt -l -t"
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
-                                             ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/parser
+                                             ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
+                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
                         ENVIRONMENT foo=bar)
 create_target_launcher (${EXECUTABLE_2}
                         ARGS "-d -e -f test.txt -l -t"
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
-                                             ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/parser
+                                             ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
+                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
                         ENVIRONMENT foo=bar)
 
 ################ tests ###################
 add_test (NAME ${EXECUTABLE}_test
           COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE}
-          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE})
 set_tests_properties (${EXECUTABLE}_test
                       PROPERTIES
                       ENVIRONMENT "PATH=D:\\projects\\ATCD\\ACE\\lib;D:\\projects\\gtk\\bin;D:\\projects\\libglade\\bin;D:\\projects\\libxml2-2.9.1\\.libs;G:\\software\\Development\\dll;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\ui\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\modules\\dev\\Debug;${PROJECT_SOURCE_DIR}\\..\\libACENetwork\\cmake\\src\\Debug;%PATH%")
+
 add_test (NAME ${EXECUTABLE_2}_test
           COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE_2}
-          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE})
 set_tests_properties (${EXECUTABLE_2}_test
                       PROPERTIES
                       ENVIRONMENT "PATH=D:\\projects\\ATCD\\ACE\\lib;D:\\projects\\gtk\\bin;D:\\projects\\libglade\\bin;D:\\projects\\libxml2-2.9.1\\.libs;G:\\software\\Development\\dll;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\ui\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\modules\\dev\\Debug;${PROJECT_SOURCE_DIR}\\..\\libACENetwork\\cmake\\src\\Debug;%PATH%")

@@ -61,17 +61,22 @@ jobs:
      with:
       os: ${{matrix.os}}
 
-   - name: Set environment variables [UNIX]
-     if: ${{ matrix.os=='ubuntu-latest' }}
-     run: |
-          echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
+#   - name: Set environment variables [UNIX]
+#     if: ${{ matrix.os=='ubuntu-latest' }}
+#     run: |
+#          echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
 
    - name: Set environment variables [Win32]
      if: ${{ matrix.os=='windows-latest' }}
      run: |
-          echo "VCPKG_ROOT=$Env:VCPKG_INSTALLATION_ROOT" >> $Env:GITHUB_ENV
+          echo "VCPKG_ROOT=$Env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
 
-   - name: Configure CMake
+   - name: Configure CMake [UNIX]
+     if: ${{ matrix.os=='ubuntu-latest' }}
+     run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+   - name: Configure CMake [Win32]
+     if: ${{ matrix.os=='windows-latest' }}
      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
      env:
       VCPKG_ROOT: ${{env.VCPKG_ROOT}}

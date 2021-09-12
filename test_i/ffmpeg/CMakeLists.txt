@@ -1,22 +1,9 @@
-#find_package (Threads REQUIRED)
-
 if (UNIX)
  pkg_check_modules (PKG_FFMPEG REQUIRED libavcodec libavformat libavutil)
 endif (UNIX)
 
-#message (STATUS "BUILD_PATH_SUFFIX: ${BUILD_PATH_SUFFIX}")
-#message (STATUS "CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
 get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
-#find_package (Common ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-#              REQUIRED COMPONENTS lib
-#              CONFIG
-#              PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../modules ${CMAKE_CURRENT_SOURCE_DIR}/../../..
-#              PATH_SUFFIXES Common/${BUILD_PATH_SUFFIX}
-#              NO_DEFAULT_PATH)
-#if (NOT EXISTS ${Common_DIR})
-# message (FATAL_ERROR "could not find package \"Common\", aborting")
-#endif ()
 
 ############## definitions ###############
 #add_definitions (-DACE_HAS_DLL)
@@ -30,8 +17,6 @@ add_definitions (-DFFMPEG_SUPPORT)
 
 if (UNIX)
  include_directories (${PKG_FFMPEG_INCLUDE_DIRS})
-
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
 elseif (WIN32)
  include_directories ($ENV{LIB_ROOT}/ffmpeg/include)
 endif ()
@@ -103,9 +88,9 @@ if (UNIX)
 #                                              ${PROJECT_SOURCE_DIR}/../gtk/gtk/Win32/debug/bin
 #                                              ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/Debug
 #                                              ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/ui/Debug
-                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
+                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
 #                                              ${PROJECT_SOURCE_DIR}/cmake/src/modules/dev/Debug
-                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ffmpeg
+                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 elseif (WIN32)
  if (VCPKG_SUPPORT)
@@ -123,14 +108,15 @@ elseif (WIN32)
                          RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
                                               ${FFMPEG_LIB_PATH}
                                               ${IMAGEMAGICK_LIB_PATH}
-                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ffmpeg
+                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 endif ()
 
 ################ tests ###################
 add_test (NAME ${EXECUTABLE}_test
           COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE}
-          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE})
+
 set_tests_properties (${EXECUTABLE}_test
                       PROPERTIES
                       ENVIRONMENT "PATH=D:\\projects\\ATCD\\ACE\\lib;D:\\projects\\gtk\\bin;D:\\projects\\libglade\\bin;D:\\projects\\libxml2-2.9.1\\.libs;G:\\software\\Development\\dll;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\ui\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\modules\\dev\\Debug;${PROJECT_SOURCE_DIR}\\..\\libACENetwork\\cmake\\src\\Debug;%PATH%")

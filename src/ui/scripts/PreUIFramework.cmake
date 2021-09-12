@@ -153,44 +153,59 @@ if (UNIX)
   set (GTK_GL_FOUND TRUE)
  endif (GTK3_FOUND)
 elseif (WIN32)
-# *TODO*: repair win32 module support
- find_library (GTK2_LIBRARY gtk-win32-2.0.lib
-               PATHS $ENV{LIB_ROOT}/gtk2
-               PATH_SUFFIXES lib
-               DOC "searching for gtk-win32-2.0.lib")
- if (GTK2_LIBRARY)
-  set (GTK2_SUPPORT ON CACHE BOOL "GTK2 support")
-  add_definitions (-DGTK2_SUPPORT)
-  set (GTK2_INCLUDE_DIRS "$ENV{LIB_ROOT}/gtk2/include/atk-1.0;$ENV{LIB_ROOT}/gtk2/include/gdk-pixbuf-2.0;$ENV{LIB_ROOT}/gtk2/include/cairo;$ENV{LIB_ROOT}/gtk2/include/pango-1.0;$ENV{LIB_ROOT}/gtk2/lib/glib-2.0/include;$ENV{LIB_ROOT}/gtk2/include/glib-2.0;$ENV{LIB_ROOT}/gtk2/lib/gtk-2.0/include;$ENV{LIB_ROOT}/gtk2/include/gtk-2.0")
-  set (GTK2_LIBRARIES "$ENV{LIB_ROOT}/gtk2/lib/gio-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/glib-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gobject-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gthread-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gdk_pixbuf-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gdk-win32-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gtk-win32-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/pango-1.0.lib;$ENV{LIB_ROOT}/gtk2/lib/cairo.lib")
+ if (VCPKG_SUPPORT)
+  find_package (GTK)
+  if (GTK_FOUND)
+   set (GTK4_SUPPORT ON CACHE BOOL "GTK4 support")
+   add_definitions (-DGTK4_SUPPORT)
+   set (GTK4_INCLUDE_DIRS ${GTK_INCLUDE_DIRS})
+   set (GTK4_LIBRARIES ${GTK_LIBRARIES})
 
-  message (STATUS "found Gtk version 2")
+   message (STATUS "found Gtk version 4")
+   set (GTK_GL_FOUND TRUE)
+  else ()
+   message (WARNING "could not find Gtk4, continuing")
+  endif (GTK_FOUND)
  else ()
-  message (WARNING "could not find Gtk2 (was: \"gtk-win32-2.0.lib\"), continuing")
- endif (GTK2_LIBRARY)
+# *TODO*: repair win32 module support
+  find_library (GTK2_LIBRARY gtk-win32-2.0.lib
+                PATHS $ENV{LIB_ROOT}/gtk2
+                PATH_SUFFIXES lib
+                DOC "searching for gtk-win32-2.0.lib")
+  if (GTK2_LIBRARY)
+   set (GTK2_SUPPORT ON CACHE BOOL "GTK2 support")
+   add_definitions (-DGTK2_SUPPORT)
+   set (GTK2_INCLUDE_DIRS "$ENV{LIB_ROOT}/gtk2/include/atk-1.0;$ENV{LIB_ROOT}/gtk2/include/gdk-pixbuf-2.0;$ENV{LIB_ROOT}/gtk2/include/cairo;$ENV{LIB_ROOT}/gtk2/include/pango-1.0;$ENV{LIB_ROOT}/gtk2/lib/glib-2.0/include;$ENV{LIB_ROOT}/gtk2/include/glib-2.0;$ENV{LIB_ROOT}/gtk2/lib/gtk-2.0/include;$ENV{LIB_ROOT}/gtk2/include/gtk-2.0")
+   set (GTK2_LIBRARIES "$ENV{LIB_ROOT}/gtk2/lib/gio-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/glib-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gobject-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gthread-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gdk_pixbuf-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gdk-win32-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gtk-win32-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/pango-1.0.lib;$ENV{LIB_ROOT}/gtk2/lib/cairo.lib")
 
- find_library (GTK3_LIBRARY gtk-win32-3.0.lib
-               PATHS $ENV{LIB_ROOT}/gtk3
-               PATH_SUFFIXES lib
-               DOC "searching for gtk-win32-3.0.lib")
- if (GTK3_LIBRARY)
-  set (GTK3_SUPPORT ON CACHE BOOL "GTK3 support")
-  add_definitions (-DGTK3_SUPPORT)
-  set (GTK3_INCLUDE_DIRS "$ENV{LIB_ROOT}/gtk3/include/atk-1.0;$ENV{LIB_ROOT}/gtk3/include/gdk-pixbuf-2.0;$ENV{LIB_ROOT}/gtk3/include/cairo;$ENV{LIB_ROOT}/gtk3/include/pango-1.0;$ENV{LIB_ROOT}/gtk3/lib/glib-2.0/include;$ENV{LIB_ROOT}/gtk3/include/glib-2.0;$ENV{LIB_ROOT}/gtk3/include/gtk-3.0")
-  set (GTK3_LIBRARIES "$ENV{LIB_ROOT}/gtk3/lib/gio-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/glib-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gobject-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gthread-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gdk_pixbuf-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gdk-win32-3.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gtk-win32-3.0.lib;$ENV{LIB_ROOT}/gtk3/lib/pango-1.0.lib;$ENV{LIB_ROOT}/gtk3/lib/cairo.lib")
+   message (STATUS "found Gtk version 2")
+  else ()
+   message (WARNING "could not find Gtk2 (was: \"gtk-win32-2.0.lib\"), continuing")
+  endif (GTK2_LIBRARY)
 
-  message (STATUS "found Gtk version 3")
+  find_library (GTK3_LIBRARY gtk-win32-3.0.lib
+                PATHS $ENV{LIB_ROOT}/gtk3
+                PATH_SUFFIXES lib
+                DOC "searching for gtk-win32-3.0.lib")
+  if (GTK3_LIBRARY)
+   set (GTK3_SUPPORT ON CACHE BOOL "GTK3 support")
+   add_definitions (-DGTK3_SUPPORT)
+   set (GTK3_INCLUDE_DIRS "$ENV{LIB_ROOT}/gtk3/include/atk-1.0;$ENV{LIB_ROOT}/gtk3/include/gdk-pixbuf-2.0;$ENV{LIB_ROOT}/gtk3/include/cairo;$ENV{LIB_ROOT}/gtk3/include/pango-1.0;$ENV{LIB_ROOT}/gtk3/lib/glib-2.0/include;$ENV{LIB_ROOT}/gtk3/include/glib-2.0;$ENV{LIB_ROOT}/gtk3/include/gtk-3.0")
+   set (GTK3_LIBRARIES "$ENV{LIB_ROOT}/gtk3/lib/gio-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/glib-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gobject-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gthread-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gdk_pixbuf-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gdk-win32-3.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gtk-win32-3.0.lib;$ENV{LIB_ROOT}/gtk3/lib/pango-1.0.lib;$ENV{LIB_ROOT}/gtk3/lib/cairo.lib")
+
+   message (STATUS "found Gtk version 3")
 
  # *TODO*: Gtk < 3.16 do not have native opengl support
-  set (GTK3_GL_FOUND TRUE)
- else ()
-  message (WARNING "could not find Gtk3 (was: \"gtk-win32-3.0.lib\"), continuing")
- endif (GTK3_LIBRARY)
+   set (GTK_GL_FOUND TRUE)
+  else ()
+   message (WARNING "could not find Gtk3 (was: \"gtk-win32-3.0.lib\"), continuing")
+  endif (GTK3_LIBRARY)
+ endif (VCPKG_SUPPORT)
 
- if (GTK2_SUPPORT OR GTK3_SUPPORT)
+ if (GTK2_SUPPORT OR GTK3_SUPPORT OR GTK4_SUPPORT)
   set (GTK_SUPPORT ON CACHE BOOL "GTK support")
   add_definitions (-DGTK_SUPPORT)
- endif (GTK2_SUPPORT OR GTK3_SUPPORT)
+ endif (GTK2_SUPPORT OR GTK3_SUPPORT OR GTK4_SUPPORT)
 
 # *NOTE*: early versions of gtk do not support GtkBuilder
 # *TODO*: --> find the version number(s) and auto-enable this feature for these

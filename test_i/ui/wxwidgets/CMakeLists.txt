@@ -116,39 +116,40 @@ create_target_launcher (${EXECUTABLE}
                         ARGS ""
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
-                                             ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/Debug
+                                             ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
                                              ${wxWidgets_LIB_DIR}
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/wxwidgets
+                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/${EXECUTABLE}
                         ENVIRONMENT foo=bar)
 
 create_target_launcher (${EXECUTABLE_2}
                         ARGS ""
 #                        FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
-                                             ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/Debug
+                                             ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
                                              ${wxWidgets_LIB_DIR}
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/wxwidgets
+                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/${EXECUTABLE}
                         ENVIRONMENT foo=bar)
 
 create_target_launcher (${EXECUTABLE_3}
                         ARGS ""
 #                        FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
-                                             ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/Debug
+                                             ${PROJECT_BINARY_DIR}/src/Debug
                                              ${wxWidgets_LIB_DIR}
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/wxwidgets
+                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/${EXECUTABLE}
                         ENVIRONMENT foo=bar)
 
 ################ tests ###################
 add_test (NAME ${EXECUTABLE}_test
           COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE}
-          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/${EXECUTABLE})
 add_test (NAME ${EXECUTABLE_2}_test
           COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE_2}
-          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/${EXECUTABLE})
 add_test (NAME ${EXECUTABLE_3}_test
           COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE_3}
-          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/${EXECUTABLE})
+
 set_tests_properties (${EXECUTABLE}_test
                       PROPERTIES
                       ENVIRONMENT "PATH=D:\\projects\\ATCD\\ACE\\lib;D:\\projects\\gtk\\bin;D:\\projects\\libglade\\bin;D:\\projects\\libxml2-2.9.1\\.libs;G:\\software\\Development\\dll;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\ui\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\modules\\dev\\Debug;${PROJECT_SOURCE_DIR}\\..\\libACENetwork\\cmake\\src\\Debug;%PATH%")
