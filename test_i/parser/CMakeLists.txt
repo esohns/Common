@@ -102,7 +102,7 @@ install (TARGETS ${EXECUTABLE_2}
 ################ launchers ###############
 if (WIN32)
  if (VCPKG_SUPPORT)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/bin ACE_LIB_PATH)
+  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
  else ()
   file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
  endif (VCPKG_SUPPORT)

@@ -77,8 +77,8 @@ install (TARGETS ${EXECUTABLE}
 ################ launchers ###############
 if (WIN32)
  if (VCPKG_SUPPORT)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/bin IMAGEMAGICK_LIB_PATH)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/bin ACE_LIB_PATH)
+  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin IMAGEMAGICK_LIB_PATH)
+  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
  else ()
   file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ImageMagick IMAGEMAGICK_LIB_PATH)
   file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)

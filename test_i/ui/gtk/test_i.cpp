@@ -29,7 +29,7 @@
 #include "common_ui_gtk_builder_definition.h"
 #include "common_ui_gtk_manager_common.h"
 
-//#include "test_i_gtk_callbacks.h"
+#include "test_i_gtk_callbacks.h"
 #include "test_i_gtk_defines.h"
 
 void
@@ -139,17 +139,79 @@ do_process_arguments (int argc_in,
   return true;
 }
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif /* __cplusplus */
 void
-on_button_pressed_cb (GtkWidget* widget,
-#if GTK_CHECK_VERSION(4,0,0)
-                      GdkButtonEvent* event,
-#else
-                      GdkEventButton* event,
-#endif // GTK_CHECK_VERSION (4,0,0)
-                      gpointer callback_data)
+togglebutton_record_toggled_cb (GtkToggleButton* toggleButton_in,
+                                gpointer userData_in)
 {
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("button pressed\n")));
+              ACE_TEXT ("togglebutton toggled\n")));
+}
+
+void
+combobox_source_changed_cb (GtkWidget* widget_in,
+                            gpointer userData_in)
+{
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("combobox changed\n")));
+}
+
+void
+combobox_source_2_changed_cb (GtkWidget* widget_in,
+                              gpointer userData_in)
+{
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("combobox changed\n")));
+}
+
+GdkGLContext*
+glarea_create_context_cb (GtkGLArea* GLArea_in,
+                          gpointer userData_in)
+{
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("glarea create context\n")));
+  return NULL;
+}
+
+gboolean
+glarea_render_cb (GtkGLArea* area_in,
+                  GdkGLContext* context_in,
+                  gpointer userData_in)
+{
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("glarea render\n")));
+  return true;
+}
+
+void
+glarea_resize_cb (GtkGLArea* GLArea_in,
+                  gint width_in,
+                  gint height_in,
+                  gpointer userData_in)
+{
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("glarea resize\n")));
+}
+
+gint
+button_about_clicked_cb (GtkWidget* widget,
+                         gpointer callback_data)
+{
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("button about clicked\n")));
+  return 0;
+}
+
+gint
+button_quit_clicked_cb (GtkWidget* widget,
+                        gpointer callback_data)
+{
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("button quit clicked\n")));
+  return 0;
 }
 
 gboolean
@@ -183,6 +245,9 @@ on_destroy_cb (GtkWidget* widget,
   gtk_main_quit ();
 }
 #endif // GTK_CHECK_VERSION (4,0,0)
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 void
 do_work (int argc_in,
@@ -196,10 +261,19 @@ do_work (int argc_in,
   gtk_init (&argc_in, &argv_in);
 #endif // GTK_CHECK_VERSION(4,0,0)
 
+  GError* error_p = NULL;
   GtkBuilder* gtkBuilder= gtk_builder_new ();
-  gtk_builder_add_from_file (gtkBuilder,
-                             UIDefinitionFilePath_in.c_str (),
-                             NULL);
+  if (!gtk_builder_add_from_file (gtkBuilder,
+                                  UIDefinitionFilePath_in.c_str (),
+                                  &error_p))
+  { ACE_ASSERT (error_p);
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to gtk_builder_add_from_file(\"%s\"): \"%s\", returning\n"),
+                ACE_TEXT (UIDefinitionFilePath_in.c_str ()),
+                ACE_TEXT (error_p->message)));
+    g_error_free (error_p); error_p = NULL;
+    return;
+  } // end IF
   GtkWidget* mainwin = GTK_WIDGET (gtk_builder_get_object (gtkBuilder, "dialog_main"));
   g_object_unref (G_OBJECT (gtkBuilder));
 
@@ -217,7 +291,7 @@ do_work (int argc_in,
 #endif // GTK_CHECK_VERSION(4,0,0)
 
 #if GTK_CHECK_VERSION(4,0,0)
-  g_application_run (G_APPLICATION (app_p), argc_in, argv_in);
+  g_application_run (G_APPLICATION (app_p), 0, NULL);
   g_object_unref (app_p);
 #else
   gtk_main ();
