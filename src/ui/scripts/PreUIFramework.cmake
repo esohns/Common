@@ -318,12 +318,22 @@ endif (GTK_SUPPORT AND OPENGL_SUPPORT)
 
 ##########################################
 
-find_package (Qt5 CONFIG COMPONENTS Widgets)
+find_package (Qt5 CONFIG COMPONENTS Core Widgets)
 if (Qt5_FOUND)
-# message (STATUS "qt found")
+ message (STATUS "qt 5 found")
+ set (QT5_SUPPORT ON CACHE BOOL "qt 5 support")
+ set (QT5_LIB_DIR "$ENV{QT5_DIR}/../../../bin")
+endif (Qt5_FOUND)
+find_package (Qt6 CONFIG COMPONENTS Core Widgets)
+if (Qt6_FOUND)
+ message (STATUS "qt 6 found")
+ set (QT6_SUPPORT ON CACHE BOOL "qt 6 support")
+ set (QT6_LIB_DIR "$ENV{QT6_DIR}/../../../bin")
+endif (Qt6_FOUND)
+if (QT5_SUPPORT OR QT6_SUPPORT)
  set (QT_SUPPORT ON CACHE BOOL "qt support")
  add_definitions (-DQT_SUPPORT)
-endif (Qt5_FOUND)
+endif (QT5_SUPPORT OR QT6_SUPPORT)
 
 ##########################################
 
@@ -356,7 +366,7 @@ if (wxWidgets_FOUND)
  message (STATUS "wxWidgets found: ${wxWidgets_ROOT_DIR}")
 # include (${wxWidgets_USE_FILE})
 # set (wxWidgets_INCLUDE_DIRS "${wxWidgets_ROOT_DIR}/include")
- message (STATUS "wxWidgets_INCLUDE_DIRS: ${wxWidgets_INCLUDE_DIRS}")
+# message (STATUS "wxWidgets_INCLUDE_DIRS: ${wxWidgets_INCLUDE_DIRS}")
  set (WXWIDGETS_SUPPORT ON CACHE BOOL "wxWidgets support")
  add_definitions (-DWXWIDGETS_SUPPORT)
 

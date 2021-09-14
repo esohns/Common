@@ -5,6 +5,7 @@ function (is_UI_graphical UI_FRAMEWORK)
  endif (NOT GUI_SUPPORT)
 
  if (${UI_FRAMEWORK} MATCHES "gtk" OR
+     ${UI_FRAMEWORK} MATCHES "qt" OR
      ${UI_FRAMEWORK} MATCHES "wxWidgets")
  elseif (${UI_FRAMEWORK} MATCHES "none" OR
          ${UI_FRAMEWORK} MATCHES "curses")
@@ -22,12 +23,19 @@ function (disable_alternate_UI_support UI_FRAMEWORK)
 
  if (${UI_FRAMEWORK} MATCHES "gtk")
   unset (CURSES_SUPPORT)
+  unset (QT_SUPPORT)
+  unset (WXWIDGETS_SUPPORT)
+ elseif (${UI_FRAMEWORK} MATCHES "qt")
+  unset (CURSES_SUPPORT)
+  unset (GTK_SUPPORT)
   unset (WXWIDGETS_SUPPORT)
  elseif (${UI_FRAMEWORK} MATCHES "wxWidgets")
   unset (CURSES_SUPPORT)
   unset (GTK_SUPPORT)
+  unset (QT_SUPPORT)
  elseif (${UI_FRAMEWORK} MATCHES "curses")
   unset (GTK_SUPPORT)
+  unset (QT_SUPPORT)
   unset (WXWIDGETS_SUPPORT)
  else ()
   message (FATAL_ERROR "invalid/unknown UI (was: \"${UI_FRAMEWORK}\"), aborting")

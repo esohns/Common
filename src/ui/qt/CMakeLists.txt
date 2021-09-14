@@ -1,6 +1,6 @@
 include (SetUIFramework)
 
-find_package(Qt5Widgets CONFIG REQUIRED)
+#find_package (Qt5Widgets CONFIG REQUIRED)
 #message (STATUS "Qt5Widgets_DEFINITIONS: ${Qt5Widgets_DEFINITIONS}")
 #message (STATUS "Qt5Widgets_INCLUDE_DIRS: ${Qt5Widgets_INCLUDE_DIRS}")
 #message (STATUS "Qt5Widgets_EXECUTABLE_COMPILE_FLAGS: ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
@@ -11,6 +11,8 @@ if (UNIX)
  target_compile_options (${PROJECT_NAME}UI_Qt PRIVATE -fPIC)
 endif (UNIX)
 
+target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
+                            "$<BUILD_INTERFACE:${Qt5Core_INCLUDE_DIRS}>")
 target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
                             "$<BUILD_INTERFACE:${Qt5Widgets_INCLUDE_DIRS}>")
 
