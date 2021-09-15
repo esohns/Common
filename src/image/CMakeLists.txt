@@ -33,15 +33,13 @@ elseif (WIN32)
  if (DEFINED ENV{DXSDK_DIR})
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{DXSDK_DIR}/Include>)
+ elseif (VCPKG_SUPPORT)
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include>)
  else ()
- # set (DXSDK_DIR
- #      "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (June 2010)/Include")
-# message (STATUS "DirectX SDK directory: \"${DXSDK_DIR}\"")
- # target_include_directories (${LIBRARY} PUBLIC
- #                             $<BUILD_INTERFACE:${DXSDK_DIR}>)
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{LIB_ROOT}/DXSDK/Include>)
- endif (DEFINED ENV{DXSDK_DIR})
+ endif ()
 
  if (LIBPNG_SUPPORT)
   target_include_directories (${LIBRARY} PUBLIC
