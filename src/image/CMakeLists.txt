@@ -34,6 +34,7 @@ elseif (WIN32)
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{DXSDK_DIR}/Include>)
  elseif (VCPKG_SUPPORT)
+  message (STATUS "DXSDK include dir: ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include>)
  else ()
