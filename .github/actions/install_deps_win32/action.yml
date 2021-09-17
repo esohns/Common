@@ -9,7 +9,8 @@ runs:
  steps:
    - uses: lukka/run-vcpkg@v7.4
      with:
-        setupOnly: true
+      setupOnly: true
+      vcpkgGitCommitId: '4428702c1c56fdb7cb779584efdcba254d7b57ca'
    - run: vcpkg install assimp directxsdk ffmpeg freeglut glm graphicsmagick gtk
      shell: cmd
 #    if: inputs.os == 'ubuntu-latest'
