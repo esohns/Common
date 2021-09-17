@@ -7,8 +7,11 @@ inputs:
 runs:
  using: "composite"
  steps:
-  - run: vcpkg install assimp directxsdk ffmpeg freeglut glm graphicsmagick gtk
-    shell: cmd
+   - uses: lukka/run-vcpkg@v7.4
+     with:
+        setupOnly: true
+   - run: vcpkg install assimp directxsdk ffmpeg freeglut glm graphicsmagick gtk
+     shell: cmd
 #    if: inputs.os == 'ubuntu-latest'
 #  - run:
 #    shell: bash

@@ -7,6 +7,9 @@ inputs:
 runs:
  using: "composite"
  steps:
+  - uses: lukka/run-vcpkg@v7.4
+    with:
+     setupOnly: true
   - run: vcpkg install ace[xml]
     shell: cmd
 #    if: inputs.os == 'ubuntu-latest'
