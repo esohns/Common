@@ -85,11 +85,12 @@ jobs:
      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
    - name: Upload GitHub Actions artifact of vcpkg build logs [Win32]
-     if: always()
+     if: ${{ matrix.os=='windows-latest' }}
      uses: actions/upload-artifact@v2
      with:
       name: vcpkg-logs-${{ matrix.os }}
       path: ${{ github.workspace }}/vcpkg/buildtrees/**/*.log
+      if-no-files-found: ignore
 
    - name: Test
      working-directory: ${{github.workspace}}/build
