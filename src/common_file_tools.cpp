@@ -2255,11 +2255,13 @@ use_environment:
     goto fallback;
   } // end IF
   result = ACE_TEXT_ALWAYS_CHAR (string_p);
+  goto continue_;
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+use_system_api:
   // *NOTE*: %USERPROFILE% is not localized
-  ACE_TCHAR buffer[PATH_MAX];
-  ACE_OS::memset (buffer, 0, sizeof (buffer));
+  ACE_TCHAR buffer_a[PATH_MAX];
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[PATH_MAX]));
   //HRESULT result_2 = S_OK;
 
   //result_2 =
@@ -2268,7 +2270,7 @@ use_environment:
   //                   NULL,                                         // hToken
   //                   SHGFP_TYPE_CURRENT,                           // dwFlags
   //                   buffer);                                      // pszPath
-  result_2 = ACE_TEXT_GetTempPath (sizeof (buffer), buffer);
+  result_2 = ACE_TEXT_GetTempPath (sizeof (ACE_TCHAR[PATH_MAX]), buffer_a);
   //if (FAILED (result_2))
   if (unlikely (result_2 == 0))
   {
@@ -2280,8 +2282,7 @@ use_environment:
                 ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
     goto fallback;
   } // end IF
-
-  result = ACE_TEXT_ALWAYS_CHAR (buffer);
+  result = ACE_TEXT_ALWAYS_CHAR (buffer_a);
 
   // strip trailing backslashes
   position =
@@ -2292,6 +2293,8 @@ use_environment:
 #else
 use_path:
 #endif // ACE_WIN32 || ACE_WIN64
+
+continue_:
   // sanity check(s): directory exists ?
   // No ? --> (try to) create it then
   if (unlikely (!Common_File_Tools::isDirectory (result)))
@@ -2313,12 +2316,19 @@ use_path:
 fallback:
   ++fallback_level;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  if (fallback_level == 1)
+  switch (fallback_level)
   {
-    environment_variable =
-        ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE_2);
-    goto use_environment;
-  } // end IF
+    case 1:
+    {
+      environment_variable =
+          ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE_2);
+      goto use_environment;
+    }
+    case 2:
+      goto use_system_api;
+    default:
+      break;
+  } // end SWITCH
   ACE_ASSERT (false);
   // *TODO*: implement fallback levels dependent on host Windows (TM) version
   //         see: https://en.wikipedia.org/wiki/Environment_variable#Windows

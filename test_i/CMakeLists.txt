@@ -1,6 +1,7 @@
 include (Threads)
 
 include (ffmpeg)
+include (ImageMagick)
 
 set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/scripts")
 include (PreUIFramework)

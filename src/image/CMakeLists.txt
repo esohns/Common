@@ -3,18 +3,8 @@ if (LIBPNG_SUPPORT)
  add_definitions (-DLIBPNG_SUPPORT)
 endif (LIBPNG_SUPPORT)
 
-include (${CMAKE_CURRENT_SOURCE_DIR}/../../scripts/ffmpeg.cmake)
-
-option (IMAGEMAGICK_SUPPORT "compile ImageMagick support" ON)
-if (IMAGEMAGICK_SUPPORT)
- add_definitions (-DIMAGEMAGICK_SUPPORT)
-endif (IMAGEMAGICK_SUPPORT)
-
-if (UNIX)
- if (IMAGEMAGICK_SUPPORT)
-  find_package (ImageMagick COMPONENTS MagickCore MagickWand)
- endif (IMAGEMAGICK_SUPPORT)
-endif (UNIX)
+include (ffmpeg)
+include (ImageMagick)
 
 set (LIBRARY ${PROJECT_NAME}Image)
 add_library (${LIBRARY} STATIC "")

@@ -7,13 +7,7 @@ endif (LIBPNG_SUPPORT)
 
 add_definitions (-DFFMPEG_SUPPORT)
 
-option (IMAGEMAGICK_SUPPORT "compile ImageMagick support" ON)
-if (IMAGEMAGICK_SUPPORT)
- add_definitions (-DIMAGEMAGICK_SUPPORT)
- if (UNIX)
-  pkg_check_modules (PKG_IMAGEMAGICK REQUIRED ImageMagick)
- endif (UNIX)
-endif (IMAGEMAGICK_SUPPORT)
+include (ImageMagick)
 
 if (${CMAKE_VERSION} VERSION_GREATER "3.10")
  cmake_policy (SET CMP0072 OLD) # set OpenGL_GL_PREFERENCE to LEGACY|GLVND

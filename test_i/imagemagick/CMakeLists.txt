@@ -1,8 +1,3 @@
-include (ImageMagick)
-if (NOT IMAGEMAGICK_SUPPORT)
- message (FATAL_ERROR "ImageMagick not supported, aborting")
-endif (NOT IMAGEMAGICK_SUPPORT)
-
 get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 
