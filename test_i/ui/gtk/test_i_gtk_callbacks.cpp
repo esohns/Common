@@ -1448,6 +1448,7 @@ drawingarea_size_allocate_cb (GtkWidget* widget_in,
 #endif // GTK_CHECK_VERSION
 } // drawingarea_size_allocate_cb
 
+#if defined (GTKGL_SUPPORT)
 GdkGLContext*
 glarea_create_context_cb (GtkGLArea* GLArea_in,
                           gpointer userData_in)
@@ -1704,6 +1705,7 @@ glarea_resize_cb (GtkGLArea* GLArea_in,
   glMatrixMode (GL_MODELVIEW);
   COMMON_GL_ASSERT
 }
+#endif // GTKGL_SUPPORT
 
 #if GTK_CHECK_VERSION(4,0,0)
 void

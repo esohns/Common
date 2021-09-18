@@ -51,11 +51,11 @@ target_link_libraries (qt_ui_2 ${ACE_LIBRARY})
 target_link_libraries (qt_ui_2 CommonUI_Qt)
 
 # add PCH
-set_target_properties (qt_ui PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (qt_ui)
+#set_target_properties (qt_ui PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+#cotire (qt_ui)
 #get_target_property (_prefixHeader qt_ui COTIRE_CXX_PREFIX_HEADER)
 #set_target_properties (qt_ui_2 PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${_prefixHeader}")
-set_target_properties (qt_ui_2 PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
+#set_target_properties (qt_ui_2 PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
 #cotire (qt_ui_2)
 
 ############### installation #############

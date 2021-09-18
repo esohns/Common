@@ -25,7 +25,11 @@
 
 #if GTK_CHECK_VERSION(3,16,0)
 #else
+#if defined (GTKGL_SUPPORT)
+#if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gtkglarea.h"
+#endif // GTKGLAREA_SUPPORT
+#endif // GTKGL_SUPPORT
 #endif // GTK_CHECK_VERSION (3,16,0)
 
 //------------------------------------------------------------------------------
@@ -60,9 +64,11 @@ G_MODULE_EXPORT gboolean drawingarea_key_press_event_cb (GtkWidget*, GdkEvent*, 
 #else
 G_MODULE_EXPORT gboolean drawingarea_key_press_event_cb (GtkWidget*, GdkEventKey*, gpointer);
 #endif // GTK_CHECK_VERSION(4,0,0)
+#if defined (GTKGL_SUPPORT)
 G_MODULE_EXPORT GdkGLContext* glarea_create_context_cb (GtkGLArea*, gpointer);
 G_MODULE_EXPORT gboolean glarea_render_cb (GtkGLArea*, GdkGLContext*, gpointer);
 G_MODULE_EXPORT void glarea_resize_cb (GtkGLArea*, gint, gint, gpointer);
+#endif // GTKGL_SUPPORT
 #if GTK_CHECK_VERSION(4,0,0)
 G_MODULE_EXPORT void filechooserdialog_cb (GtkNativeDialog*, int);
 #else

@@ -29,6 +29,10 @@
 #include "glib-object.h"
 #endif // GTK_CHECK_VERSION (2,3,0)
 
+#if defined (LIBGLADE_SUPPORT)
+#include "glade/glade-init.h"
+#endif // LIBGLADE_SUPPORT
+
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
 

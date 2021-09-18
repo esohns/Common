@@ -4,6 +4,14 @@
 #include <string>
 
 #include "gtk/gtk.h"
+#if GTK_CHECK_VERSION(3,16,0)
+#else
+#if defined (GTKGL_SUPPORT)
+#if defined (GTKGLAREA_SUPPORT)
+#include "gtkgl/gtkglarea.h"
+#endif // GTKGLAREA_SUPPORT
+#endif // GTKGL_SUPPORT
+#endif // GTK_CHECK_VERSION (3,16,0)
 
 #include "ace/config-lite.h"
 #include "ace/ACE.h"
@@ -12,7 +20,6 @@
 #include "ace/Init_ACE.h"
 #include "ace/OS.h"
 #include "ace/Profile_Timer.h"
-//#include "ace/Synch.h"
 #include "ace/Time_Value.h"
 
 #if defined (HAVE_CONFIG_H)
@@ -167,6 +174,7 @@ combobox_source_2_changed_cb (GtkWidget* widget_in,
               ACE_TEXT ("combobox changed\n")));
 }
 
+#if defined (GTKGL_SUPPORT)
 GdkGLContext*
 glarea_create_context_cb (GtkGLArea* GLArea_in,
                           gpointer userData_in)
@@ -195,6 +203,7 @@ glarea_resize_cb (GtkGLArea* GLArea_in,
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("glarea resize\n")));
 }
+#endif // GTKGL_SUPPORT
 
 gint
 button_about_clicked_cb (GtkWidget* widget,

@@ -10,16 +10,8 @@ get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 
 ############## includes ###############
 
-if (UNIX)
 # include_directories (${PKG_IMAGEMAGICK_INCLUDE_DIRS})
- include_directories (${ImageMagick_INCLUDE_DIRS})
-elseif (WIN32)
- if (VCPKG_SUPPORT)
-  include_directories (${graphicsmagick_INCLUDE_DIRS})
- else ()
-  include_directories ($ENV{LIB_ROOT}/ImageMagick/include)
- endif (VCPKG_SUPPORT)
-endif ()
+include_directories (${ImageMagick_INCLUDE_DIRS})
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/image)
@@ -47,17 +39,9 @@ endif ()
 if (CMAKE_THREAD_LIBS_INIT)
  target_link_libraries (${EXECUTABLE} ${CMAKE_THREAD_LIBS_INIT})
 endif (CMAKE_THREAD_LIBS_INIT)
-if (UNIX)
- #target_link_libraries (${EXECUTABLE} ${PKG_IMAGEMAGICK_LIBRARIES})
- target_link_libraries (${EXECUTABLE} ${ImageMagick_LIBRARIES})
-elseif (WIN32)
- if (VCPKG_SUPPORT)
-  target_link_libraries (${EXECUTABLE} unofficial::graphicsmagick::graphicsmagick)
- else ()
-  target_link_libraries (${EXECUTABLE} ${IMAGEMAGICK_LIBRARY_CORE})
-  target_link_libraries (${EXECUTABLE} ${IMAGEMAGICK_LIBRARY_WAND})
- endif (VCPKG_SUPPORT)
-endif ()
+#target_link_libraries (${EXECUTABLE} ${PKG_IMAGEMAGICK_LIBRARIES})
+target_link_libraries (${EXECUTABLE} ${ImageMagick_LIBRARIES})
+
 target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
 
 target_link_libraries (${EXECUTABLE} Common)
@@ -76,20 +60,15 @@ install (TARGETS ${EXECUTABLE}
 
 ################ launchers ###############
 if (WIN32)
- if (VCPKG_SUPPORT)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin IMAGEMAGICK_LIB_PATH)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
- else ()
-  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ImageMagick IMAGEMAGICK_LIB_PATH)
-  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
- endif (VCPKG_SUPPORT)
+ file (TO_CMAKE_PATH "${ImageMagick_LIB_DIR}" IMAGEMAGICK_LIB_PATH)
+ file (TO_CMAKE_PATH "${ACE_LIB_DIR}" ACE_LIB_PATH)
  set (ENVIRONMENT_MAGICK "MAGICK_CODER_MODULE_PATH=${IMAGEMAGICK_LIB_PATH}\\\\modules\\\\coders")
 endif (WIN32)
 create_target_launcher (${EXECUTABLE}
                         ARGS "-f oak-tree.png -t"
 #                         FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
-                                             ${IMAGEMAGICK_LIB_PATH}
+                        RUNTIME_LIBRARY_DIRS ${IMAGEMAGICK_LIB_PATH}
+                                             ${ACE_LIB_PATH}
                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
                         ENVIRONMENT ${ENVIRONMENT_MAGICK})
 

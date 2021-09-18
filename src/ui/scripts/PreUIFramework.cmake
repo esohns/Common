@@ -150,7 +150,7 @@ if (UNIX)
   endif ()
 
 # *TODO*: Gtk < 3.16 do not have native opengl support
-  set (GTK_GL_FOUND TRUE)
+  option (GTKGL_SUPPORT "enable GTK GL support" ON)
  endif (GTK3_FOUND)
 elseif (WIN32)
  if (VCPKG_SUPPORT)
@@ -168,46 +168,47 @@ elseif (WIN32)
    set (GTK4_LIB_DIRS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
 
    message (STATUS "found Gtk version 4")
-   set (GTK_GL_FOUND TRUE)
+
+   option (GTKGL_SUPPORT "enable GTK GL support" ON)
   else ()
    message (WARNING "could not find Gtk4, continuing")
 #  endif (GTK_FOUND)
   endif (PKG_GTK_4_FOUND)
- else ()
-# *TODO*: repair win32 module support
-  find_library (GTK2_LIBRARY gtk-win32-2.0.lib
-                PATHS $ENV{LIB_ROOT}/gtk2
-                PATH_SUFFIXES lib
-                DOC "searching for gtk-win32-2.0.lib")
-  if (GTK2_LIBRARY)
-   set (GTK2_SUPPORT ON CACHE BOOL "GTK2 support")
-   add_definitions (-DGTK2_SUPPORT)
-   set (GTK2_INCLUDE_DIRS "$ENV{LIB_ROOT}/gtk2/include/atk-1.0;$ENV{LIB_ROOT}/gtk2/include/gdk-pixbuf-2.0;$ENV{LIB_ROOT}/gtk2/include/cairo;$ENV{LIB_ROOT}/gtk2/include/pango-1.0;$ENV{LIB_ROOT}/gtk2/lib/glib-2.0/include;$ENV{LIB_ROOT}/gtk2/include/glib-2.0;$ENV{LIB_ROOT}/gtk2/lib/gtk-2.0/include;$ENV{LIB_ROOT}/gtk2/include/gtk-2.0")
-   set (GTK2_LIBRARIES "$ENV{LIB_ROOT}/gtk2/lib/gio-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/glib-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gobject-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gthread-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gdk_pixbuf-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gdk-win32-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gtk-win32-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/pango-1.0.lib;$ENV{LIB_ROOT}/gtk2/lib/cairo.lib")
-
-   message (STATUS "found Gtk version 2")
-  else ()
-   message (WARNING "could not find Gtk2 (was: \"gtk-win32-2.0.lib\"), continuing")
-  endif (GTK2_LIBRARY)
-
-  find_library (GTK3_LIBRARY gtk-win32-3.0.lib
-                PATHS $ENV{LIB_ROOT}/gtk3
-                PATH_SUFFIXES lib
-                DOC "searching for gtk-win32-3.0.lib")
-  if (GTK3_LIBRARY)
-   set (GTK3_SUPPORT ON CACHE BOOL "GTK3 support")
-   add_definitions (-DGTK3_SUPPORT)
-   set (GTK3_INCLUDE_DIRS "$ENV{LIB_ROOT}/gtk3/include/atk-1.0;$ENV{LIB_ROOT}/gtk3/include/gdk-pixbuf-2.0;$ENV{LIB_ROOT}/gtk3/include/cairo;$ENV{LIB_ROOT}/gtk3/include/pango-1.0;$ENV{LIB_ROOT}/gtk3/lib/glib-2.0/include;$ENV{LIB_ROOT}/gtk3/include/glib-2.0;$ENV{LIB_ROOT}/gtk3/include/gtk-3.0")
-   set (GTK3_LIBRARIES "$ENV{LIB_ROOT}/gtk3/lib/gio-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/glib-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gobject-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gthread-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gdk_pixbuf-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gdk-win32-3.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gtk-win32-3.0.lib;$ENV{LIB_ROOT}/gtk3/lib/pango-1.0.lib;$ENV{LIB_ROOT}/gtk3/lib/cairo.lib")
-
-   message (STATUS "found Gtk version 3")
-
- # *TODO*: Gtk < 3.16 do not have native opengl support
-   set (GTK_GL_FOUND TRUE)
-  else ()
-   message (WARNING "could not find Gtk3 (was: \"gtk-win32-3.0.lib\"), continuing")
-  endif (GTK3_LIBRARY)
  endif (VCPKG_SUPPORT)
+
+# *TODO*: repair win32 module support
+ find_library (GTK2_LIBRARY gtk-win32-2.0.lib
+               PATHS $ENV{LIB_ROOT}/gtk2
+               PATH_SUFFIXES lib
+               DOC "searching for gtk-win32-2.0.lib")
+ if (GTK2_LIBRARY)
+  set (GTK2_SUPPORT ON CACHE BOOL "GTK2 support")
+  add_definitions (-DGTK2_SUPPORT)
+  set (GTK2_INCLUDE_DIRS "$ENV{LIB_ROOT}/gtk2/include/atk-1.0;$ENV{LIB_ROOT}/gtk2/include/gdk-pixbuf-2.0;$ENV{LIB_ROOT}/gtk2/include/cairo;$ENV{LIB_ROOT}/gtk2/include/pango-1.0;$ENV{LIB_ROOT}/gtk2/lib/glib-2.0/include;$ENV{LIB_ROOT}/gtk2/include/glib-2.0;$ENV{LIB_ROOT}/gtk2/lib/gtk-2.0/include;$ENV{LIB_ROOT}/gtk2/include/gtk-2.0")
+  set (GTK2_LIBRARIES "$ENV{LIB_ROOT}/gtk2/lib/gio-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/glib-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gobject-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gthread-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gdk_pixbuf-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gdk-win32-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/gtk-win32-2.0.lib;$ENV{LIB_ROOT}/gtk2/lib/pango-1.0.lib;$ENV{LIB_ROOT}/gtk2/lib/cairo.lib")
+
+  message (STATUS "found Gtk version 2")
+ else ()
+  message (WARNING "could not find Gtk2 (was: \"gtk-win32-2.0.lib\"), continuing")
+ endif (GTK2_LIBRARY)
+
+ find_library (GTK3_LIBRARY gtk-win32-3.0.lib
+               PATHS $ENV{LIB_ROOT}/gtk3
+               PATH_SUFFIXES lib
+               DOC "searching for gtk-win32-3.0.lib")
+ if (GTK3_LIBRARY)
+  set (GTK3_SUPPORT ON CACHE BOOL "GTK3 support")
+  add_definitions (-DGTK3_SUPPORT)
+  set (GTK3_INCLUDE_DIRS "$ENV{LIB_ROOT}/gtk3/include/atk-1.0;$ENV{LIB_ROOT}/gtk3/include/gdk-pixbuf-2.0;$ENV{LIB_ROOT}/gtk3/include/cairo;$ENV{LIB_ROOT}/gtk3/include/pango-1.0;$ENV{LIB_ROOT}/gtk3/lib/glib-2.0/include;$ENV{LIB_ROOT}/gtk3/include/glib-2.0;$ENV{LIB_ROOT}/gtk3/include/gtk-3.0")
+  set (GTK3_LIBRARIES "$ENV{LIB_ROOT}/gtk3/lib/gio-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/glib-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gobject-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gthread-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gdk_pixbuf-2.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gdk-win32-3.0.lib;$ENV{LIB_ROOT}/gtk3/lib/gtk-win32-3.0.lib;$ENV{LIB_ROOT}/gtk3/lib/pango-1.0.lib;$ENV{LIB_ROOT}/gtk3/lib/cairo.lib")
+
+  message (STATUS "found Gtk version 3")
+
+  # *TODO*: Gtk < 3.16 do not have native opengl support
+  option (GTKGL_SUPPORT "enable GTK GL support" ON)
+ else ()
+  message (WARNING "could not find Gtk3 (was: \"gtk-win32-3.0.lib\"), continuing")
+ endif (GTK3_LIBRARY)
 
  if (GTK2_SUPPORT OR GTK3_SUPPORT OR GTK4_SUPPORT)
   set (GTK_SUPPORT ON CACHE BOOL "GTK support")
@@ -246,74 +247,68 @@ endif () # UNIX || WIN32
 
 # gtk opengl support
 if (GTK_SUPPORT AND OPENGL_SUPPORT)
- if (NOT GTK_GL_FOUND)
+ if (UNIX)
+  if (GTK3_FOUND)
+# *TODO*: find out the distribution release versions that require this package
+   pkg_check_modules (PKG_GTKGL3 gtkgl-3.0)
+   if (PKG_GTKGL3_FOUND)
+    option (GTKGL_SUPPORT "enable GTK GL support" ON)
+   endif (PKG_GTKGL3_FOUND)
+  endif (GTK3_FOUND)
+
+  if (GTK2_FOUND)
+# *TODO*: find out the distribution release versions that require this package
+   pkg_check_modules (PKG_GTKGL2 gtkgl-2.0)
+   if (PKG_GTKGL2_FOUND)
+    option (GTKGL_SUPPORT "enable GTK GL support" ON)
+   endif (PKG_GTKGL2_FOUND)
+  endif (GTK2_FOUND)
+
+  if (GTK_FOUND)
+#    pkg_check_modules (PKG_GTKGLEXT gtkglext-libs gtkglext-devel)
+   pkg_check_modules (PKG_GTKGLEXT gdkglext-1.0 gtkglext-1.0)
+   if (PKG_GTKGLEXT_FOUND)
+    option (GTKGL_SUPPORT "enable GTK GL support" ON)
+   endif (PKG_GTKGLEXT_FOUND)
+  endif (GTK_FOUND)
+ endif (UNIX)
+
+ if (GTK2_SUPPORT OR GTK3_SUPPORT)
+  set (GTKGLAREA_DEFAULT OFF)
   if (UNIX)
    if (GTK3_FOUND)
-# *TODO*: find out the distribution release versions that require this package
-    pkg_check_modules (PKG_GTKGL3 gtkgl-3.0)
-    if (PKG_GTKGL3_FOUND)
-     add_definitions (-DGTKGL_SUPPORT)
-     option (GTKGL_SUPPORT "enable GTK GL support" ON)
-    endif (PKG_GTKGL3_FOUND)
-   endif (GTK3_FOUND)
-
-   if (GTK2_FOUND)
-# *TODO*: find out the distribution release versions that require this package
-    pkg_check_modules (PKG_GTKGL2 gtkgl-2.0)
-    if (PKG_GTKGL2_FOUND)
-     add_definitions (-DGTKGL_SUPPORT)
-     option (GTKGL_SUPPORT "enable GTK GL support" ON)
-    endif (PKG_GTKGL2_FOUND)
-   endif (GTK2_FOUND)
-
-   if (GTK_FOUND)
-#    pkg_check_modules (PKG_GTKGLEXT gtkglext-libs gtkglext-devel)
-    pkg_check_modules (PKG_GTKGLEXT gdkglext-1.0 gtkglext-1.0)
-    if (PKG_GTKGLEXT_FOUND)
-     add_definitions (-DGTKGL_SUPPORT)
-     option (GTKGL_SUPPORT "enable GTK GL support" ON)
-    endif (PKG_GTKGLEXT_FOUND)
-   endif (GTK_FOUND)
-  endif (UNIX)
-
-  if (NOT GTKGL_SUPPORT)
-   set (GTKGLAREA_DEFAULT OFF)
-   if (UNIX)
-    if (GTK3_FOUND)
-     # *NOTE*: check out the 'master' branch for gtk3-based applications
-     set (GTKGLAREA_LIB_FILE libgtkgl-3.0.so)
-    elseif (GTK2_FOUND)
-     # *NOTE*: to use gtkglarea on gtk2, check out the 'gtkglarea-2' branch
-     #         of the project (instead of 'master')
-     set (GTKGLAREA_LIB_FILE libgtkgl-2.0.so)
-    endif ()
-    find_library (GTKGLAREA_LIBRARY ${GTKGLAREA_LIB_FILE}
-                  PATHS $ENV{LIB_ROOT}/gtkglarea/gtkgl
-                  PATH_SUFFIXES .libs
-                  DOC "searching for ${GTKGLAREA_LIB_FILE}")
-   elseif (WIN32)
-    set (GTKGLAREA_LIB_FILE gtkglarea.lib)
-    get_filename_component (BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR} NAME)
-    find_library (GTKGLAREA_LIBRARY ${GTKGLAREA_LIB_FILE}
-                  PATHS $ENV{LIB_ROOT}/gtkglarea/${BUILD_PATH_SUFFIX}
-                  PATH_SUFFIXES ${CMAKE_BUILD_TYPE}
-                  DOC "searching for ${GTKGLAREA_LIB_FILE}")
+    # *NOTE*: check out the 'master' branch for gtk3-based applications
+    set (GTKGLAREA_LIB_FILE libgtkgl-3.0.so)
+   elseif (GTK2_FOUND)
+    # *NOTE*: to use gtkglarea on gtk2, check out the 'gtkglarea-2' branch
+    #         of the project (instead of 'master')
+    set (GTKGLAREA_LIB_FILE libgtkgl-2.0.so)
    endif ()
-   if (GTKGLAREA_LIBRARY)
-    set (GTKGLAREA_DEFAULT ON)
-    set (GTKGLAREA_INCLUDES $ENV{LIB_ROOT}/gtkglarea)
-   endif (GTKGLAREA_LIBRARY)
+   find_library (GTKGLAREA_LIBRARY ${GTKGLAREA_LIB_FILE}
+                 PATHS $ENV{LIB_ROOT}/gtkglarea/gtkgl
+                 PATH_SUFFIXES .libs
+                 DOC "searching for ${GTKGLAREA_LIB_FILE}")
+  elseif (WIN32)
+   set (GTKGLAREA_LIB_FILE gtkglarea.lib)
+   get_filename_component (BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR} NAME)
+   find_library (GTKGLAREA_LIBRARY ${GTKGLAREA_LIB_FILE}
+                 PATHS $ENV{LIB_ROOT}/gtkglarea/${BUILD_PATH_SUFFIX}
+                 PATH_SUFFIXES ${CMAKE_BUILD_TYPE}
+                 DOC "searching for ${GTKGLAREA_LIB_FILE}")
+  endif ()
+  if (GTKGLAREA_LIBRARY)
+   set (GTKGLAREA_DEFAULT ON)
+   set (GTKGLAREA_INCLUDES $ENV{LIB_ROOT}/gtkglarea)
+   option (GTKGL_SUPPORT "enable GTK GL support" ON)
    option (GTKGLAREA_SUPPORT "enable GtkGLArea support" ${GTKGLAREA_DEFAULT})
-   if (GTKGLAREA_SUPPORT)
-    add_definitions (-DGTKGL_SUPPORT)
-    add_definitions (-DGTKGLAREA_SUPPORT)
-    option (GTKGL_SUPPORT "enable GTK GL support" ON)
-   endif (GTKGLAREA_SUPPORT)
-  endif (NOT GTKGL_SUPPORT)
- else ()
+  endif (GTKGLAREA_LIBRARY)
+  if (GTKGLAREA_SUPPORT)
+   add_definitions (-DGTKGLAREA_SUPPORT)
+  endif (GTKGLAREA_SUPPORT)
+ endif (GTK2_SUPPORT OR GTK3_SUPPORT)
+ if (GTKGL_SUPPORT)
   add_definitions (-DGTKGL_SUPPORT)
-  option (GTKGL_SUPPORT "enable GTK GL support" ON)
- endif (NOT GTK_GL_FOUND)
+ endif (GTKGL_SUPPORT)
 endif (GTK_SUPPORT AND OPENGL_SUPPORT)
 
 ##########################################
