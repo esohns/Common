@@ -26,20 +26,20 @@
 
 #include "gtk/gtk.h"
 #if defined (GTKGL_SUPPORT)
-#if GTK_CHECK_VERSION (3,0,0)
-#if GTK_CHECK_VERSION (3,16,0)
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gdkgl.h"
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION (3,16,0)
-#elif GTK_CHECK_VERSION (2,0,0)
+#elif GTK_CHECK_VERSION(2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gdkgl.h"
 #else
 //#include "gtk/gtkgl.h" // gtkglext
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION (3,0,0)
+#endif // GTK_CHECK_VERSION(3,0,0)
 #endif // GTKGL_SUPPORT
 
 #include "ace/Global_Macros.h"
@@ -98,8 +98,8 @@ class Common_UI_GTK_Tools
   static void dumpGtkLibraryInfo ();
 #if defined (GTKGL_SUPPORT)
   // print OpenGL library information
-#if GTK_CHECK_VERSION (3,0,0)
-#if GTK_CHECK_VERSION (3,16,0)
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(3,16,0)
   // *NOTE*: the context has to be realized before calling this function
   static void dumpGtkOpenGLInfo (GdkGLContext*); // context handle
 #else
@@ -108,14 +108,14 @@ class Common_UI_GTK_Tools
 #else
   static void dumpGtkOpenGLInfo (GdkWindow*); // GtkGLArea window handle
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION (3,16,0)
-#elif GTK_CHECK_VERSION (2,0,0)
+#endif // GTK_CHECK_VERSION(3,16,0)
+#elif GTK_CHECK_VERSION(2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
   static void dumpGtkOpenGLInfo (GdkGLContext*); // OpenGL context handle
 #else
   static void dumpGtkOpenGLInfo ();
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION (3,0,0)
+#endif // GTK_CHECK_VERSION(3,0,0)
 #endif // GTKGL_SUPPORT
 #endif // _DEBUG
 

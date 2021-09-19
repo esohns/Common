@@ -27,12 +27,14 @@
 #include <d3dx9tex.h>
 #endif // ACE_WIN32 || ACE_WIN64
 
+#if defined (FFMPEG_SUPPORT)
 #ifdef __cplusplus
 extern "C"
 {
 #include "libswscale/swscale.h"
 }
 #endif /* __cplusplus */
+#endif // FFMPEG_SUPPORT
 
 #if defined (IMAGEMAGICK_SUPPORT)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

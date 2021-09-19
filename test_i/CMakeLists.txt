@@ -13,7 +13,7 @@ option (BUILD_TEST_I "build test_i" OFF)
 
 add_library (${PROJECT_NAME}_Test_I STATIC "")
 
-get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH DIRECTORY)
+get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 if (UNIX)
  if (GUI_SUPPORT)

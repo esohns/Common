@@ -47,8 +47,8 @@ class Common_UI_WxWidgetsXRCDefinition_T
   inline virtual ~Common_UI_WxWidgetsXRCDefinition_T () {}
 
   // implement Common_UI_IDefinition_T
-  virtual bool initialize (StateType&); // return value: wxwidgets XRC state
-  virtual void finalize ();
+  virtual bool initialize (StateType&); // return value: UI state
+  virtual void finalize (bool = true);  // clear pending event source(s) ?
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_WxWidgetsXRCDefinition_T ());

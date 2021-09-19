@@ -149,9 +149,11 @@ template <typename StateType,
           const char* TopLevelClassName>
 void
 Common_UI_WxWidgetsXRCDefinition_T<StateType,
-                                   TopLevelClassName>::finalize ()
+                                   TopLevelClassName>::finalize (bool clearPendingEventSources_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgetsXRCDefinition_T::finalize"));
+
+  ACE_UNUSED_ARG (clearPendingEventSources_in);
 
   // sanity check(s)
   ACE_ASSERT (state_);

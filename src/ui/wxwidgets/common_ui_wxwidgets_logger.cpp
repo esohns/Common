@@ -79,18 +79,19 @@ Common_UI_WxWidgets_Logger::DoLogTextAtLevel (wxLogLevel logLevel_in,
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown wxwidgets loglevel (was: %d), continuing\n"),
+                  ACE_TEXT ("invalid/unknown wxwidgets loglevel (was: %d), returning\n"),
                   logLevel_in));
-      break;
+      return;
     }
   } // end SWITCH
 
-  if (log_priority == LM_DEBUG)
-#if defined (_DEBUG)
-    ;
-#else
+  u_long priority_mask_i = ACE_LOG_MSG->priority_mask (ACE_Log_Msg::PROCESS);
+  if (((log_priority == LM_DEBUG) &&
+       !(priority_mask_i & LM_DEBUG)) ||
+      ((log_priority == LM_TRACE) &&
+       !(priority_mask_i & LM_TRACE)))
     return; // don't log
-#endif // _DEBUG
+
 #if wxCHECK_VERSION(3,0,0)
   ACE_DEBUG ((log_priority,
               ACE_TEXT ("%s\n"),

@@ -5,8 +5,7 @@ if (LIBPNG_SUPPORT)
  add_definitions (-DLIBPNG_SUPPORT)
 endif (LIBPNG_SUPPORT)
 
-add_definitions (-DFFMPEG_SUPPORT)
-
+include (ffmpeg)
 include (ImageMagick)
 
 if (${CMAKE_VERSION} VERSION_GREATER "3.10")

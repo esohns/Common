@@ -44,34 +44,11 @@ Common_UI_GtkBuilderDefinition_T<StateType>::~Common_UI_GtkBuilderDefinition_T (
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition_T::~Common_UI_GtkBuilderDefinition_T"));
 
+  // sanity check(s)
   if (unlikely (!state_))
-    goto continue_;
+    return;
 
-  { ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, state_->lock);
-    // step1: free widget tree(s)
-    for (Common_UI_GTK_BuildersIterator_t iterator = state_->builders.begin ();
-         iterator != state_->builders.end ();
-         iterator++)
-      if (likely ((*iterator).second.second))
-      {
-        g_object_unref (G_OBJECT ((*iterator).second.second));
-        (*iterator).second.second = NULL;
-      } // end IF
-
-    // step2: clear active events
-    gboolean result = false;
-    // *TODO*: map source ids to the corresponding builder
-    for (Common_UI_GTK_EventSourceIdsIterator_t iterator = state_->eventSourceIds.begin ();
-         iterator != state_->eventSourceIds.end ();
-         iterator++)
-    {
-      result = g_source_remove (*iterator);
-      ACE_UNUSED_ARG (result);
-    } // end FOR
-  } // end lock scope
-
-continue_:
-  return;
+  finalize (true);
 }
 
 template <typename StateType>
@@ -128,10 +105,37 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
 
 template <typename StateType>
 void
-Common_UI_GtkBuilderDefinition_T<StateType>::finalize ()
+Common_UI_GtkBuilderDefinition_T<StateType>::finalize (bool clearPendingEventSources_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GtkBuilderDefinition_T::finalize"));
 
   if (unlikely (!state_))
     return; // not initialized, nothing to do
+
+  gboolean result = false;
+  { ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, state_->lock);
+    // step1: free widget tree(s)
+    for (Common_UI_GTK_BuildersIterator_t iterator = state_->builders.begin ();
+         iterator != state_->builders.end ();
+         iterator++)
+      if (likely ((*iterator).second.second))
+      {
+        g_object_unref (G_OBJECT ((*iterator).second.second)); (*iterator).second.second = NULL;
+      } // end IF
+
+    // step2: clear active events ?
+    if (likely (clearPendingEventSources_in))
+    {
+      // *TODO*: map source ids to the corresponding builder
+      for (Common_UI_GTK_EventSourceIdsIterator_t iterator = state_->eventSourceIds.begin ();
+           iterator != state_->eventSourceIds.end ();
+           iterator++)
+      {
+        result = g_source_remove (*iterator);
+        ACE_UNUSED_ARG (result);
+      } // end FOR
+    } // end IF
+  } // end lock scope
+
+  state_ = NULL;
 }

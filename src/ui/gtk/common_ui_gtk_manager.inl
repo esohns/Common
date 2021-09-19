@@ -207,7 +207,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
       if (likely (UIIsInitialized_))
       { ACE_ASSERT (configuration_->definition);
         try {
-          configuration_->definition->finalize ();
+          configuration_->definition->finalize (false);
         } catch (...) {
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("caught exception in Common_UI_IGTK_T::finalize, continuing\n")));
@@ -281,7 +281,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #else
   bool leave_gdk_threads = false;
 #endif // GTK_CHECK_VERSION(3,6,0)
-#if defined (GTKGL_SUPPORT) && defined (GTKGL_USE)
+#if defined (GTKGL_SUPPORT)
   Common_UI_GTK_BuildersIterator_t iterator;
   GtkWidget* widget_p = NULL;
 #if GTK_CHECK_VERSION(3,0,0)
@@ -337,7 +337,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #if defined (_DEBUG)
   Common_UI_GTK_GLContextsIterator_t iterator_2;
 #endif // _DEBUG
-#endif // GTKGL_SUPPORT && GTKGL_USE
+#endif // GTKGL_SUPPORT
 
   // step1: initialize GTK
   if (!GTKIsInitialized_)
@@ -365,7 +365,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     } // end IF
   } // end IF
 
-#if defined (GTKGL_SUPPORT) && defined (GTKGL_USE)
+#if defined (GTKGL_SUPPORT)
   // step3: initialize OpenGL
   // sanity check(s)
   ACE_ASSERT (!state_.builders.empty ());
@@ -375,11 +375,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   ACE_ASSERT (state_.OpenGLContexts.empty ());
   if (configuration_->widgetName.empty ())
     goto continue_;
-
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("initializing OpenGL...\n")));
-#endif // _DEBUG
   widget_p =
     GTK_WIDGET (gtk_builder_get_object ((*iterator).second.second,
                                         ACE_TEXT_ALWAYS_CHAR (configuration_->widgetName.c_str ())));
@@ -450,7 +447,6 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("could not find visual, aborting\n")));
-
       g_object_unref (screen_p); screen_p = NULL;
       result = -1;
       goto clean_2;
@@ -536,13 +532,11 @@ clean_2:
     goto done;
   } // end IF
 #endif /* GTK_CHECK_VERSION(3,0,0) */
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("initializing OpenGL...DONE\n")));
-#endif // _DEBUG
-#endif // GTKGL_SUPPORT && GTKGL_USE
+#endif // GTKGL_SUPPORT
 
-#if defined (GTKGL_SUPPORT) && defined (GTKGL_USE)
+#if defined (GTKGL_SUPPORT)
 #if defined (_DEBUG)
   iterator_2 = state_.OpenGLContexts.find (NULL);
   ACE_ASSERT (iterator_2 != state_.OpenGLContexts.end ());
@@ -564,11 +558,11 @@ clean_2:
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION(3,0,0)
 #endif // _DEBUG
-#endif // GTKGL_SUPPORT && GTKGL_USE
+#endif // GTKGL_SUPPORT
 
-#if defined (GTKGL_SUPPORT) && defined (GTKGL_USE)
+#if defined (GTKGL_SUPPORT)
 continue_:
-#endif // GTKGL_SUPPORT && GTKGL_USE
+#endif // GTKGL_SUPPORT
   if (configuration_->eventHooks.initHook)
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_.lock, -1);
     event_source_id = g_idle_add (configuration_->eventHooks.initHook,
@@ -616,11 +610,9 @@ continue_:
   // stop() (close() --> gtk_main_quit ()) was called...
 
 done:
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t) leaving\n"),
               ACE_TEXT (inherited::threadName_.c_str ())));
-#endif // _DEBUG
 
   return result;
 }
@@ -647,12 +639,10 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   if (unlikely (!locale_p))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::setlocale(): \"%m\", continuing\n")));
-#if defined (_DEBUG)
   else
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("set locale to \"%s\"\n"),
                 ACE_TEXT (locale_p)));
-#endif // _DEBUG
 
   // step1: initialize GLib
 #if GTK_CHECK_VERSION(2,24,32)

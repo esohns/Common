@@ -141,7 +141,7 @@ struct Common_UI_GTK_EventHookConfiguration
   GSourceFunc statisticHook;
 };
 
-#if defined (GTKGL_SUPPORT) && defined (GTKGL_USE)
+#if defined (GTKGL_SUPPORT)
 typedef struct Common_UI_GTK_GLState Common_UI_GTK_State_t;
 #else
 typedef struct Common_UI_GTK_State Common_UI_GTK_State_t;
@@ -181,7 +181,7 @@ struct Common_UI_GTK_Configuration
   Common_UI_GTK_RCFiles_t                     RCFiles;
 };
 
-#if defined (GTKGL_SUPPORT) && defined (GTKGL_USE)
+#if defined (GTKGL_SUPPORT)
 typedef struct Common_UI_GTK_GLConfiguration Common_UI_GTK_Configuration_t;
 #else
 typedef struct Common_UI_GTK_Configuration Common_UI_GTK_Configuration_t;

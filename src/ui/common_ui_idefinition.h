@@ -28,8 +28,8 @@ class Common_UI_IDefinition_T
  //: public Common_IInitialize_T<StateType>
 {
  public:
-  virtual bool initialize (StateType&) = 0; // return value: GTK state
-  virtual void finalize () = 0;
+  virtual bool initialize (StateType&) = 0; // return value: UI state
+  virtual void finalize (bool = true) = 0;  // clear pending event source(s) ?
 };
 
 #endif
