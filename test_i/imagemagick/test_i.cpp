@@ -4,11 +4,9 @@
 #include <string>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define ssize_t ssize_t
-#include "MagickWand/MagickWand.h"
-#else
-#include "wand/magick_wand.h"
+#include "magick/api.h"
 #endif // ACE_WIN32 || ACE_WIN64
+#include "wand/magick_wand.h"
 
 #include "ace/config-lite.h"
 #include "ace/ACE.h"
@@ -148,6 +146,7 @@ do_work (const std::string& sourceFilePath_in)
   unsigned char buffer_a[BUFSIZ * 1024];
   ACE_OS::memset (&buffer_a, 0, sizeof (unsigned char[BUFSIZ * 1024]));
 
+  //MagickWandGenesis ();
   MagickWand* wand_p = NewMagickWand ();
   ACE_ASSERT (wand_p);
 
@@ -166,9 +165,9 @@ do_work (const std::string& sourceFilePath_in)
   MagickSetImageColorspace (wand_p, sRGBColorspace);
   MagickSetImageFormat (wand_p, "PNG");
 
-  MagickBooleanType result = MagickReadImageBlob (wand_p,
-                                                  buffer_a,
-                                                  size_2);
+  unsigned int result = MagickReadImageBlob (wand_p,
+                                             buffer_a,
+                                             size_2);
 //  MagickBooleanType result = MagickReadImage (wand_p,
 //                                              sourceFilePath_in.c_str ());
   if (result != MagickTrue)
@@ -186,8 +185,8 @@ do_work (const std::string& sourceFilePath_in)
 //  result = MagickWriteImage (wand_p, "logo.rgb");
 //  ACE_ASSERT (result == MagickTrue);
 
-  data_p = MagickGetImageBlob (wand_p,
-                               &size_i);
+  data_p = MagickWriteImageBlob (wand_p,
+                                 &size_i);
   ACE_ASSERT (data_p);
 
   file_p = ACE_OS::fopen ("logo.rgb", "w");
@@ -205,7 +204,7 @@ do_work (const std::string& sourceFilePath_in)
   {
     DestroyMagickWand (wand_p); wand_p = NULL;
   } // end IF
-  MagickWandTerminus ();
+  //MagickWandTerminus ();
 }
 
 int

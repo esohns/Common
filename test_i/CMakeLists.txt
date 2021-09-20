@@ -3,99 +3,95 @@ include (Threads)
 include (ffmpeg)
 include (ImageMagick)
 
-set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/scripts")
-include (PreUIFramework)
-include (SetUIFramework)
-
 include (ACE)
 
 option (BUILD_TEST_I "build test_i" OFF)
+
+# user interface
+option (GUI_SUPPORT "enable graphical user interface support" ON)
+if (GUI_SUPPORT)
+ add_definitions (-DGUI_SUPPORT)
+ set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/scripts")
+ include (PreUIFramework)
+ include (SetUIFramework)
+ if (GTK_USE)
+  include (SetGTKVersion)
+ endif (GTK_USE)
+endif (GTK_SUPPORT)
 
 add_library (${PROJECT_NAME}_Test_I STATIC "")
 
 get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
+
+if (GUI_SUPPORT)
+ if (GTK_USE)
+  target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+                              "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
+  target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/gtk>)
+ elseif (QT_USE)
+  target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+                              "$<BUILD_INTERFACE:${Qt_INCLUDE_DIRS}>")
+  target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/qt>)
+ elseif (WXWIDGETS_USE)
+  target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+                              "$<BUILD_INTERFACE:${wxWidgets_INCLUDE_DIRS}>")
+  target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/wxwidgets>)
+ endif ()
+ target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui>)
+endif (GUI_SUPPORT)
+
+if (WIN32)
+ target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
+endif (WIN32)
+target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/..>)
+target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src>)
+target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/log>)
+
+if (GUI_SUPPORT)
+ if (GTK_USE)
+  target_link_libraries (${PROJECT_NAME}_Test_I ${GTK_LIBRARIES})
+  if (GTKGL_SUPPORT)
+   if (GTKGLAREA_SUPPORT)
+    target_link_libraries (${PROJECT_NAME}_Test_I ${GTKGLAREA_LIBRARY})
+   endif (GTKGLAREA_SUPPORT)
+  endif (GTKGL_SUPPORT)
+ elseif (QT_USE)
+  target_link_libraries (${PROJECT_NAME}_Test_I ${Qt_LIBRARIES})
+ elseif (WXWIDGETS_USE)
+  target_link_libraries (${PROJECT_NAME}_Test_I ${wxWidgets_LIBRARIES})
+ endif ()
+endif (GUI_SUPPORT)
+
 if (UNIX)
  if (GUI_SUPPORT)
+  target_link_libraries (${PROJECT_NAME}_Test_I X11)
   if (GTK_USE)
-   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                               $<BUILD_INTERFACE:${PKG_GTK_INCLUDE_DIRS}>)
-  elseif (WXWIDGETS_USE)
-   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                               $<BUILD_INTERFACE:${PKG_WXWIDGETS_INCLUDE_DIRS}>)
-  endif ()
- endif (GUI_SUPPORT)
- target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src>)
- if (GUI_SUPPORT)
-  target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui>)
-  if (GTK_USE)
-   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/gtk>)
-  elseif (QT_USE)
-   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/qt>)
-  elseif (WXWIDGETS_USE)
-   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/wxwidgets>)
-  endif ()
+   if (GTKGL_SUPPORT)
+    target_link_libraries (${PROJECT_NAME}_Test_I GL)
+   endif (GTKGL_SUPPORT)
+  endif (GTK_USE)
  endif (GUI_SUPPORT)
 elseif (WIN32)
  if (GUI_SUPPORT)
   if (GTK_USE)
-#   message (STATUS "GTK_INCLUDE_DIRS: \"${GTK_INCLUDE_DIRS}\"")
-   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                               "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
-
-# libglade
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../libglade-2.6.4/include/libglade-2.0)
-  elseif (WXWIDGETS_USE)
-#   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-#                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../wxWidgets_win32/wxWidgets-3.0.0/include>)
-   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                               "$<BUILD_INTERFACE:${wxWidgets_INCLUDE_DIRS}>")
-  endif ()
- endif (GUI_SUPPORT)
-
- target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
- target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src>)
- target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/log>)
- if (GUI_SUPPORT)
-  target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui>)
-  if (GTK_USE)
-   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/gtk>)
-  elseif (WXWIDGETS_USE)
-   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/wxwidgets>)
-  endif ()
- endif (GUI_SUPPORT)
-endif ()
-target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/..>)
-
-if (WIN32)
- if (GUI_SUPPORT)
-  if (GTK_USE)
-   target_link_libraries (${PROJECT_NAME}_Test_I ${GTK_LIBRARIES})
-
    if (GTKGL_SUPPORT)
     target_link_libraries (${PROJECT_NAME}_Test_I OpenGL32.lib)
     if (GTKGLAREA_SUPPORT)
      target_link_libraries (${PROJECT_NAME}_Test_I $ENV{LIB_ROOT}/libepoxy/lib/epoxy.lib)
-     target_link_libraries (${PROJECT_NAME}_Test_I $ENV{LIB_ROOT}/gtkglarea/${BUILD_PATH_SUFFIX}/${CMAKE_BUILD_TYPE}/gtkglarea.lib)
     endif (GTKGLAREA_SUPPORT)
    endif (GTKGL_SUPPORT)
-  elseif (WXWIDGETS_USE)
-   target_link_libraries (${PROJECT_NAME}_Test_I ${wxWidgets_LIBRARIES})
-  endif ()
+  endif (GTK_USE)
  endif (GUI_SUPPORT)
-endif (WIN32)
+endif ()
 
 set (source_files
      common_test_i_common.h
@@ -195,7 +191,9 @@ add_subdirectory (parser)
 if (UNIX)
  add_subdirectory (print)
 endif (UNIX)
-add_subdirectory (ui)
+if (GUI_SUPPORT)
+ add_subdirectory (ui)
+endif (GUI_SUPPORT)
 
 # phonies
 add_custom_target (test_i ALL
@@ -213,23 +211,25 @@ add_dependencies (test_i parser parser_2)
 if (UNIX)
  add_dependencies (test_i print)
 endif ()
-if (GTK_SUPPORT)
- add_dependencies (test_i gtk_ui gtk_ui_2 gtk_ui_3)
-endif (GTK_SUPPORT)
-if (QT_SUPPORT)
- add_dependencies (test_i qt_ui qt_ui_2)
-endif (QT_SUPPORT)
-if (WXWIDGETS_SUPPORT)
- add_dependencies (test_i wxwidgets wxwidgets_2 wxwidgets_3)
-endif (WXWIDGETS_SUPPORT)
+if (GUI_SUPPORT)
+ if (GTK_SUPPORT)
+  add_dependencies (test_i gtk_ui gtk_ui_2 gtk_ui_3)
+ endif (GTK_SUPPORT)
+ if (QT_SUPPORT)
+  add_dependencies (test_i qt_ui qt_ui_2)
+ endif (QT_SUPPORT)
+ if (WXWIDGETS_SUPPORT)
+  add_dependencies (test_i wxwidgets wxwidgets_2 wxwidgets_3)
+ endif (WXWIDGETS_SUPPORT)
+endif (GUI_SUPPORT)
 
 if (NOT BUILD_TEST_I)
  set_target_properties (test_i PROPERTIES EXCLUDE_FROM_ALL 1)
  cmake_policy (SET CMP0012 NEW)
  if (WIN32)
   set_target_properties (test_i PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
- endif ()
-endif ()
+ endif (WIN32)
+endif (NOT BUILD_TEST_I)
 
 # ----------------------------------------
 

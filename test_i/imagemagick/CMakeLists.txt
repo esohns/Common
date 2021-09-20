@@ -34,7 +34,6 @@ endif ()
 if (CMAKE_THREAD_LIBS_INIT)
  target_link_libraries (${EXECUTABLE} ${CMAKE_THREAD_LIBS_INIT})
 endif (CMAKE_THREAD_LIBS_INIT)
-#target_link_libraries (${EXECUTABLE} ${PKG_IMAGEMAGICK_LIBRARIES})
 target_link_libraries (${EXECUTABLE} ${ImageMagick_LIBRARIES})
 
 target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})

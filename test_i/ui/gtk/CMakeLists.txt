@@ -1,9 +1,3 @@
-include (PreUIFramework)
-include (SetUIFramework)
-if (GTK_SUPPORT)
- include (SetGTKVersion)
-endif (GTK_SUPPORT)
-
 get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 
@@ -22,9 +16,7 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../..)
 
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/../../..)
 
-if (VCPKG_SUPPORT)
- link_directories (${GTK_LIB_DIRS})
-endif (VCPKG_SUPPORT)
+link_directories (${GTK_LIB_DIRS})
 
 ############## next target ###############
 set (gtk_ui_EXE_SRCS

@@ -45,8 +45,6 @@ elseif (${UI_FRAMEWORK} MATCHES "wxWidgets")
  if (NOT WXWIDGETS_FOUND)
   message (FATAL_ERROR "wxWidgets not supported")
  endif (NOT WXWIDGETS_FOUND)
- # *NOTE*: this defines UNICODE; avoid
-# include (${wxWidgets_USE_FILE})
  set (WXWIDGETS_USE ON CACHE STRING "use wxWidgets")
  mark_as_advanced (FORCE WXWIDGETS_USE)
  add_definitions (-DWXWIDGETS_USE)

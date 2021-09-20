@@ -9,22 +9,22 @@ include (ImageMagick)
 set (LIBRARY ${PROJECT_NAME}Image)
 add_library (${LIBRARY} STATIC "")
 
+if (FFMPEG_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${ffmpeg_INCLUDE_DIRS}>)
+endif (FFMPEG_SUPPORT)
+if (IMAGEMAGICK_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             ${ImageMagick_INCLUDE_DIRS})
+ message (STATUS "ImageMagick_INCLUDE_DIRS: ${ImageMagick_INCLUDE_DIRS}")
+endif (IMAGEMAGICK_SUPPORT)
 if (UNIX)
- if (FFMPEG_SUPPORT)
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:${PKG_FFMPEG_INCLUDE_DIRS}>)
- endif (FFMPEG_SUPPORT)
-
- if (IMAGEMAGICK_SUPPORT)
-  target_include_directories (${LIBRARY} PUBLIC
-                              ${ImageMagick_INCLUDE_DIRS})
- endif (IMAGEMAGICK_SUPPORT)
 elseif (WIN32)
  if (DEFINED ENV{DXSDK_DIR})
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{DXSDK_DIR}/Include>)
  elseif (VCPKG_SUPPORT)
-  message (STATUS "DXSDK include dir: ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
+#  message (STATUS "DXSDK include dir: ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include>)
  else ()
@@ -36,17 +36,6 @@ elseif (WIN32)
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libpng>)
  endif (LIBPNG_SUPPORT)
-
- if (FFMPEG_SUPPORT)
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ffmpeg/include>)
-#                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ffmpeg>)
- endif (FFMPEG_SUPPORT)
-
- if (IMAGEMAGICK_SUPPORT)
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/ImageMagick/include>)
- endif (IMAGEMAGICK_SUPPORT)
 endif ()
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
@@ -90,14 +79,13 @@ if (WIN32)
  endif ()
 endif (WIN32)
 
+if (FFMPEG_SUPPORT)
+ target_link_libraries (${LIBRARY} ${ffmpeg_LIBRARIES})
+endif (FFMPEG_SUPPORT)
+if (IMAGEMAGICK_SUPPORT)
+ target_link_libraries (${LIBRARY} ${ImageMagick_LIBRARIES})
+endif (IMAGEMAGICK_SUPPORT)
 if (UNIX)
- if (FFMPEG_SUPPORT)
-  target_link_libraries (${LIBRARY} ${PKG_FFMPEG_LIBRARIES})
- endif (FFMPEG_SUPPORT)
-   
- if (IMAGEMAGICK_SUPPORT)
-  target_link_libraries (${LIBRARY} ${ImageMagick_LIBRARIES})
- endif (IMAGEMAGICK_SUPPORT)
 elseif (WIN32)
  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/DXSDK/Lib/x86/d3dx9.lib)
 
@@ -106,26 +94,9 @@ elseif (WIN32)
   target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/libpng/cmake/${CMAKE_BUILD_TYPE}/libpng16${LIB_FILE_SUFFIX}.lib)
 # target_link_libraries (${LIBRARY} ${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25/projects/vstudio/Debug/libpng16.lib)
  endif (LIBPNG_SUPPORT)
-
-# ffmpeg
- if (FFMPEG_SUPPORT)
-  target_link_options (${LIBRARY} PUBLIC "$<$<CXX_COMPILER_ID:MSVC>:-SAFESEH:NO>")
-  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/lib/avcodec.lib)
-  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/lib/avutil.lib)
-  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/lib/swscale.lib)
- # target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/libavcodec/avcodec.lib)
- # target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ffmpeg/libavutil/avutil.lib)
- endif (FFMPEG_SUPPORT)
-
- if (IMAGEMAGICK_SUPPORT)
-  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickCore_.lib)
-  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/ImageMagick/lib/CORE_RL_MagickWand_.lib)
- endif (IMAGEMAGICK_SUPPORT)
 endif ()
 #set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_IMAGE_BUILD_DLL)
-set_target_properties (${LIBRARY} PROPERTIES
-                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-                       SOVERSION 1)
+#set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
 set_target_properties (${LIBRARY} PROPERTIES

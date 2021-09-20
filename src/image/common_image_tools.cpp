@@ -38,11 +38,9 @@ extern "C"
 
 #if defined (IMAGEMAGICK_SUPPORT)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define ssize_t ssize_t // *NOTE*: use ACEs' declaration
-#include "MagickWand/MagickWand.h"
-#else
-#include "wand/magick_wand.h"
+#include "magick/api.h"
 #endif // ACE_WIN32 || ACE_WIN64
+#include "wand/magick_wand.h"
 #endif // IMAGEMAGICK_SUPPORT
 
 #include "ace/Log_Msg.h"

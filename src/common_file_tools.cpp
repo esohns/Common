@@ -23,11 +23,11 @@
 
 #include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include <Shlobj.h>
-#include <Userenv.h>
+#include "Shlobj.h"
+#include "Userenv.h"
 #else
-#include <sys/stat.h>
-#endif
+#include "sys/stat.h"
+#endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/ACE.h"
 #include "ace/Dirent_Selector.h"
