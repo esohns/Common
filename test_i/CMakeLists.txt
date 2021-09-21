@@ -17,7 +17,7 @@ if (GUI_SUPPORT)
  if (GTK_USE)
   include (SetGTKVersion)
  endif (GTK_USE)
-endif (GTK_SUPPORT)
+endif (GUI_SUPPORT)
 
 add_library (${PROJECT_NAME}_Test_I STATIC "")
 
