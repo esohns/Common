@@ -11,7 +11,7 @@ elseif (WIN32)
   if (unofficial-graphicsmagick_FOUND)
    set (IMAGEMAGICK_FOUND TRUE)
    get_target_property (ImageMagick_INCLUDE_DIRS unofficial::graphicsmagick::graphicsmagick INTERFACE_INCLUDE_DIRECTORIES)
-   set (ImageMagick_LIBRARIES unofficial::graphicsmagick::graphicsmagick)
+   set (ImageMagick_LIBRARIES $<TARGET_LINKER_FILE:unofficial::graphicsmagick::graphicsmagick>)
    message (STATUS "ImageMagick_INCLUDE_DIRS: ${ImageMagick_INCLUDE_DIRS}")
    message (STATUS "ImageMagick_LIBRARIES: ${ImageMagick_LIBRARIES}")
    if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
