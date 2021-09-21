@@ -81,15 +81,11 @@ Common_GL_Tools::errorToString (GLenum error_in)
 GLuint
 Common_GL_Tools::loadModel (const std::string& path_in,
                             Common_GL_BoundingBox_t& boundingBox_out,
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if defined (_MSC_VER) && (_MSC_VER >= 1800)
+#if defined (GLM_SUPPORT)
                             glm::vec3& center_out)
 #else
                             struct Common_GL_VectorF3& center_out)
-#endif // _MSC_VER && (_MSC_VER >= 1800)
-#else
-                            glm::vec3& center_out)
-#endif // ACE_WIN32 || ACE_WIN64
+#endif // GLM_SUPPORT
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::loadModel"));
 

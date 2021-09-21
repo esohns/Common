@@ -30,6 +30,10 @@
 #include "GL/gl.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
+#if defined (GLM_SUPPORT)
+#include "glm/glm.hpp"
+#endif // GLM_SUPPORT
+
 #include "ace/Global_Macros.h"
 
 #include "common_gl_common.h"
@@ -41,15 +45,11 @@ class Common_GL_Tools
 
   static GLuint loadModel (const std::string&,          // path
                            Common_GL_BoundingBox_t&,    // return value: bounding box
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if defined (_MSC_VER) && (_MSC_VER >= 1800)
+#if defined (GLM_SUPPORT)
                            glm::vec3&);                 // return value: center
 #else
                            struct Common_GL_VectorF3&); // return value: center
-#endif // _MSC_VER && (_MSC_VER >= 1800)
-#else
-                           glm::vec3&);                 // return value: center
-#endif // ACE_WIN32 || ACE_WIN64
+#endif // GLM_SUPPORT
 
   // *NOTE*: invoke glTexImage2D() with 'target' GL_TEXTURE_2D and 'internal
   //         format' GL_RGBA8

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include <cmath>
 #include <iostream>
 #include <string>
 
@@ -7,6 +8,12 @@
 #if GTK_CHECK_VERSION(3,16,0)
 #else
 #if defined (GTKGL_SUPPORT)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "gl/GL.h"
+#include "gl/GLU.h"
+#else
+#include "GL/gl.h"
+#endif // ACE_WIN32 || ACE_WIN64
 #if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gtkglarea.h"
 #endif // GTKGLAREA_SUPPORT
@@ -28,6 +35,11 @@
 
 #include "common_file_tools.h"
 #include "common_tools.h"
+
+#if defined (GTKGL_SUPPORT)
+#include "common_gl_defines.h"
+#include "common_gl_tools.h"
+#endif // GTKGL_SUPPORT
 
 #include "common_log_tools.h"
 
@@ -150,7 +162,7 @@ do_process_arguments (int argc_in,
 extern "C"
 {
 #endif /* __cplusplus */
-void
+G_MODULE_EXPORT void
 togglebutton_record_toggled_cb (GtkToggleButton* toggleButton_in,
                                 gpointer userData_in)
 {
@@ -158,7 +170,7 @@ togglebutton_record_toggled_cb (GtkToggleButton* toggleButton_in,
               ACE_TEXT ("togglebutton toggled\n")));
 }
 
-void
+G_MODULE_EXPORT void
 combobox_source_changed_cb (GtkWidget* widget_in,
                             gpointer userData_in)
 {
@@ -166,7 +178,7 @@ combobox_source_changed_cb (GtkWidget* widget_in,
               ACE_TEXT ("combobox changed\n")));
 }
 
-void
+G_MODULE_EXPORT void
 combobox_source_2_changed_cb (GtkWidget* widget_in,
                               gpointer userData_in)
 {
@@ -175,7 +187,8 @@ combobox_source_2_changed_cb (GtkWidget* widget_in,
 }
 
 #if defined (GTKGL_SUPPORT)
-GdkGLContext*
+#if GTK_CHECK_VERSION(3,0,0)
+G_MODULE_EXPORT GdkGLContext*
 glarea_create_context_cb (GtkGLArea* GLArea_in,
                           gpointer userData_in)
 {
@@ -184,7 +197,7 @@ glarea_create_context_cb (GtkGLArea* GLArea_in,
   return NULL;
 }
 
-gboolean
+G_MODULE_EXPORT gboolean
 glarea_render_cb (GtkGLArea* area_in,
                   GdkGLContext* context_in,
                   gpointer userData_in)
@@ -194,7 +207,7 @@ glarea_render_cb (GtkGLArea* area_in,
   return true;
 }
 
-void
+G_MODULE_EXPORT void
 glarea_resize_cb (GtkGLArea* GLArea_in,
                   gint width_in,
                   gint height_in,
@@ -203,9 +216,280 @@ glarea_resize_cb (GtkGLArea* GLArea_in,
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("glarea resize\n")));
 }
+#elif GTK_CHECK_VERSION(2,0,0)
+#if defined (GTKGLAREA_SUPPORT)
+void
+glarea_configure_event_cb (GtkWidget* widget_in,
+                           GdkEvent* event_in,
+                           gpointer userData_in)
+{
+  // sanity check(s)
+  GtkGLArea* gl_area_p = GTK_GL_AREA (widget_in);
+  ACE_ASSERT (gl_area_p);
+  if (!gtk_gl_area_make_current (gl_area_p))
+    return;
+
+  glViewport (0, 0,
+              event_in->configure.width, event_in->configure.height);
+  COMMON_GL_ASSERT;
+
+  glMatrixMode (GL_PROJECTION);
+  COMMON_GL_ASSERT;
+  glLoadIdentity (); // Reset The Projection Matrix
+  COMMON_GL_ASSERT;
+
+#if defined (GLU_SUPPORT)
+  gluPerspective (45.0,
+                  event_in->configure.width / (GLdouble)event_in->configure.height,
+                  0.1,
+                  100.0); // Calculate The Aspect Ratio Of The Window
+#else
+  const GLdouble pi = 3.1415926535897932384626433832795;
+  GLdouble fW, fH;
+
+  //fH = tan( (fovY / 2) / 180 * pi ) * zNear;
+  fH = tan (45.0 / 360 * M_PI) * 0.1;
+  fW = fH * (event_in->configure.width / (GLdouble)event_in->configure.height);
+
+  glFrustum (-fW, fW, -fH, fH, 0.1, 100.0);
+#endif // GLU_SUPPORT
+  COMMON_GL_ASSERT;
+
+  glMatrixMode (GL_MODELVIEW);
+  COMMON_GL_ASSERT;
+}
+
+gboolean
+glarea_expose_event_cb (GtkWidget* widget_in,
+                        GdkEvent* event_in,
+                        gpointer userData_in)
+{
+  // sanity check(s)
+  GtkGLArea* gl_area_p = GTK_GL_AREA (widget_in);
+  ACE_ASSERT (gl_area_p);
+  if (!gtk_gl_area_make_current (gl_area_p))
+    return FALSE;
+  ACE_UNUSED_ARG (event_in);
+  GLuint* texture_id_p = static_cast<GLuint*> (userData_in);
+  ACE_ASSERT (texture_id_p);
+
+  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  COMMON_GL_ASSERT;
+  glLoadIdentity (); // Reset the transformation matrix.
+  COMMON_GL_ASSERT;
+  glTranslatef (0.0F, 0.0F, -5.0F); // Move back into the screen 5 units
+  COMMON_GL_ASSERT;
+
+  glBindTexture (GL_TEXTURE_2D, *texture_id_p);
+  COMMON_GL_ASSERT;
+
+//  static GLfloat rot_x = 0.0f;
+//  static GLfloat rot_y = 0.0f;
+//  static GLfloat rot_z = 0.0f;
+//  glRotatef (rot_x, 1.0f, 0.0f, 0.0f); // Rotate On The X Axis
+//  glRotatef (rot_y, 0.0f, 1.0f, 0.0f); // Rotate On The Y Axis
+//  glRotatef (rot_z, 0.0f, 0.0f, 1.0f); // Rotate On The Z Axis
+  static GLfloat rotation = 0.0F;
+  glRotatef (rotation, 1.0F, 1.0F, 1.0F); // Rotate On The X,Y,Z Axis
+  COMMON_GL_ASSERT;
+
+//  glBegin (GL_QUADS);
+
+//  glTexCoord2i (0, 0); glVertex3f (  0.0f,   0.0f, 0.0f);
+//  glTexCoord2i (0, 1); glVertex3f (  0.0f, 100.0f, 0.0f);
+//  glTexCoord2i (1, 1); glVertex3f (100.0f, 100.0f, 0.0f);
+//  glTexCoord2i (1, 0); glVertex3f (100.0f,   0.0f, 0.0f);
+
+  static GLfloat vertices[] = {
+    -0.5f, 0.0f, 0.5f,   0.5f, 0.0f, 0.5f,   0.5f, 1.0f, 0.5f,  -0.5f, 1.0f, 0.5f,
+    -0.5f, 1.0f, -0.5f,  0.5f, 1.0f, -0.5f,  0.5f, 0.0f, -0.5f, -0.5f, 0.0f, -0.5f,
+    0.5f, 0.0f, 0.5f,   0.5f, 0.0f, -0.5f,  0.5f, 1.0f, -0.5f,  0.5f, 1.0f, 0.5f,
+    -0.5f, 0.0f, -0.5f,  -0.5f, 0.0f, 0.5f,  -0.5f, 1.0f, 0.5f, -0.5f, 1.0f, -0.5f};
+  static GLfloat texture_coordinates[] = {
+    0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0,
+    0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0,
+    0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0,
+    0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0 };
+  static GLubyte cube_indices[24] = {
+    0,1,2,3, 4,5,6,7, 3,2,5,4, 7,6,1,0,
+    8,9,10,11, 12,13,14,15};
+
+  glTexCoordPointer (2, GL_FLOAT, 0, texture_coordinates);
+  COMMON_GL_ASSERT;
+  glVertexPointer (3, GL_FLOAT, 0, vertices);
+  COMMON_GL_ASSERT;
+  glDrawElements (GL_QUADS, 24, GL_UNSIGNED_BYTE, cube_indices);
+  COMMON_GL_ASSERT;
+
+//  rot_x += 0.3f;
+//  rot_y += 0.20f;
+//  rot_z += 0.4f;
+  rotation -= 1.0f; // Decrease The Rotation Variable For The Cube
+
+  //GLuint vertex_array_id = 0;
+  //glGenVertexArrays (1, &vertex_array_id);
+  //glBindVertexArray (vertex_array_id);
+
+  //static const GLfloat vertex_buffer_data[] = {
+  //  -1.0f, -1.0f, 0.0f,
+  //  1.0f, -1.0f, 0.0f,
+  //  -1.0f,  1.0f, 0.0f,
+  //  -1.0f,  1.0f, 0.0f,
+  //  1.0f, -1.0f, 0.0f,
+  //  1.0f,  1.0f, 0.0f,
+  //};
+
+  //GLuint vertex_buffer;
+  //glGenBuffers (1, &vertex_buffer);
+  //glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer);
+  //glBufferData (GL_ARRAY_BUFFER,
+  //              sizeof (vertex_buffer_data), vertex_buffer_data,
+  //              GL_STATIC_DRAW);
+
+  ////GLuint program_id = LoadShaders ("Passthrough.vertexshader",
+  ////                                 "SimpleTexture.fragmentshader");
+  ////GLuint tex_id = glGetUniformLocation (program_id, "renderedTexture");
+  ////GLuint time_id = glGetUniformLocation (program_id, "time");
+
+  //glBindFramebuffer (GL_FRAMEBUFFER, 0);
+  //glViewport (0, 0,
+  //            data_p->area3D.width, data_p->area3D.height);
+
+  gtk_gl_area_swap_buffers (gl_area_p);
+
+  return TRUE;
+}
+
+void
+glarea_realize_cb (GtkWidget* widget_in,
+                   gpointer   userData_in)
+{
+  // sanity check(s)
+  GtkGLArea* gl_area_p = GTK_GL_AREA (widget_in);
+  ACE_ASSERT (gl_area_p);
+  if (!gtk_gl_area_make_current (gl_area_p))
+    return;
+  GLuint* texture_id_p = static_cast<GLuint*> (userData_in);
+  ACE_ASSERT (texture_id_p);
+  GtkAllocation allocation;
+  // set up light colors (ambient, diffuse, specular)
+  GLfloat light_ambient[] = {1.0F, 1.0F, 1.0F, 1.0F};
+  GLfloat light_diffuse[] = {0.3F, 0.3F, 0.3F, 1.0F};
+  GLfloat light_specular[] = {1.0F, 1.0F, 1.0F, 1.0F};
+  // position the light in eye space
+  GLfloat light0_position[] = {0.0F,
+                               5.0F * 2,
+                               5.0F * 2,
+                               0.0F}; // --> directional light
+
+  // load texture
+  if (*texture_id_p > 0)
+  {
+    glDeleteTextures (1, texture_id_p);
+    COMMON_GL_ASSERT;
+    *texture_id_p = 0;
+  } // end IF
+  static GLubyte* image_p = NULL;
+  if (!image_p)
+  {
+    std::string filename = Common_File_Tools::getWorkingDirectory ();
+    filename += ACE_DIRECTORY_SEPARATOR_CHAR;
+    filename += ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY);
+    filename += ACE_DIRECTORY_SEPARATOR_CHAR;
+    filename += ACE_TEXT_ALWAYS_CHAR ("opengl_logo.png");
+    *texture_id_p = Common_GL_Tools::loadTexture (filename);
+    if (!*texture_id_p)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_GL_Tools::loadTexture(\"%s\"), returning\n"),
+                  ACE_TEXT (filename.c_str ())));
+      return;
+    } // end IF
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("OpenGL texture id: %u\n"),
+                *texture_id_p));
+  } // end IF
+
+  // initialize perspective
+  gtk_widget_get_allocation (widget_in,
+                             &allocation);
+  glViewport (0, 0,
+              static_cast<GLsizei> (allocation.width), static_cast<GLsizei> (allocation.height));
+  COMMON_GL_ASSERT;
+
+  glMatrixMode (GL_PROJECTION);
+  COMMON_GL_ASSERT;
+  glLoadIdentity (); // Reset The Projection Matrix
+  COMMON_GL_ASSERT;
+
+#if defined (GLU_SUPPORT)
+  gluPerspective (45.0,
+    event_in->configure.width / (GLdouble)event_in->configure.height,
+    0.1,
+    100.0); // Calculate The Aspect Ratio Of The Window
+#else
+  const GLdouble pi = 3.1415926535897932384626433832795;
+  GLdouble fW, fH;
+
+  //fH = tan( (fovY / 2) / 180 * pi ) * zNear;
+  fH = tan (45.0 / 360 * M_PI) * 0.1;
+  fW = fH * (allocation.width / (GLdouble)allocation.height);
+
+  glFrustum (-fW, fW, -fH, fH, 0.1, 100.0);
+#endif // GLU_SUPPORT
+  COMMON_GL_ASSERT;
+
+  glMatrixMode (GL_MODELVIEW);
+  COMMON_GL_ASSERT;
+  glLoadIdentity (); // reset the projection matrix
+  COMMON_GL_ASSERT;
+
+  /* light */
+//  GLfloat light_positions[2][4]   = { 50.0, 50.0, 0.0, 0.0,
+//                                     -50.0, 50.0, 0.0, 0.0 };
+//  GLfloat light_colors[2][4] = { .6, .6,  .6, 1.0,   /* white light */
+//                                 .4, .4, 1.0, 1.0 }; /* cold blue light */
+//  glLightfv (GL_LIGHT0, GL_POSITION, light_positions[0]);
+//  glLightfv (GL_LIGHT0, GL_DIFFUSE,  light_colors[0]);
+//  glLightfv (GL_LIGHT1, GL_POSITION, light_positions[1]);
+//  glLightfv (GL_LIGHT1, GL_DIFFUSE,  light_colors[1]);
+//  glEnable (GL_LIGHT0);
+//  glEnable (GL_LIGHT1);
+//  glEnable (GL_LIGHTING);
+
+  // set up light colors (ambient, diffuse, specular)
+  glLightfv (GL_LIGHT0, GL_AMBIENT, light_ambient);
+  COMMON_GL_ASSERT;
+  glLightfv (GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+  COMMON_GL_ASSERT;
+  glLightfv (GL_LIGHT0, GL_SPECULAR, light_specular);
+  COMMON_GL_ASSERT;
+  glLightfv (GL_LIGHT0, GL_POSITION, light0_position);
+  COMMON_GL_ASSERT;
+  glEnable (GL_LIGHT0);
+  COMMON_GL_ASSERT;
+} // glarea_realize_cb
+
+void
+glarea_destroy_cb (GtkWidget* widget_in,
+                   gpointer   userData_in)
+{
+  // sanity check(s)
+  GtkGLArea* gl_area_p = GTK_GL_AREA (widget_in);
+  ACE_ASSERT (gl_area_p);
+  gtk_gl_area_make_current (gl_area_p);
+  GLuint* texture_id_p = static_cast<GLuint*> (userData_in);
+  ACE_ASSERT (texture_id_p);
+
+  glDeleteTextures (1, texture_id_p);
+  COMMON_GL_ASSERT;
+  *texture_id_p = 0;
+} // glarea_destroy_cb
+#endif // GTKGLAREA_SUPPORT
+#endif // GTK_CHECK_VERSION(2,0,0)
 #endif // GTKGL_SUPPORT
 
-gint
+G_MODULE_EXPORT gint
 button_about_clicked_cb (GtkWidget* widget,
                          gpointer callback_data)
 {
@@ -214,7 +498,7 @@ button_about_clicked_cb (GtkWidget* widget,
   return 0;
 }
 
-gint
+G_MODULE_EXPORT gint
 button_quit_clicked_cb (GtkWidget* widget,
                         gpointer callback_data)
 {
@@ -223,17 +507,33 @@ button_quit_clicked_cb (GtkWidget* widget,
   return 0;
 }
 
-gboolean
-on_delete_cb (GtkWidget* widget,
-              GdkEvent* event,
-              gpointer data)
+G_MODULE_EXPORT void
+on_close_cb (GtkDialog* widget,
+             gpointer data)
 {
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("delete event\n")));
-  return TRUE;
+              ACE_TEXT ("close event\n")));
+}
+G_MODULE_EXPORT void
+on_response_cb (GtkDialog* widget,
+                gint response_id,
+                gpointer data)
+{
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("response event\n")));
+}
+
+G_MODULE_EXPORT gboolean
+on_delete_event_cb (GtkWidget* widget,
+                    GdkEvent* event,
+                    gpointer data)
+{
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("delete-event event\n")));
+  return FALSE; // emit 'detroy'
 }
 #if GTK_CHECK_VERSION(4,0,0)
-void
+G_MODULE_EXPORT void
 on_activate_cb (GtkWidget* widget,
                 gpointer data)
 {
@@ -244,16 +544,27 @@ on_activate_cb (GtkWidget* widget,
   gtk_widget_show (mainwin);
 }
 #else
-void
+G_MODULE_EXPORT gboolean
+on_destroy_event_cb (GtkWidget* widget,
+                     GdkEvent* event,
+                     gpointer data)
+{
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("destroy-event event\n")));
+
+  gtk_main_quit ();
+
+  return TRUE;
+}
+#endif // GTK_CHECK_VERSION (4,0,0)
+G_MODULE_EXPORT void
 on_destroy_cb (GtkWidget* widget,
                gpointer data)
 {
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("destroy event\n")));
-
   gtk_main_quit ();
 }
-#endif // GTK_CHECK_VERSION (4,0,0)
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
@@ -284,15 +595,101 @@ do_work (int argc_in,
     return;
   } // end IF
   GtkWidget* mainwin = GTK_WIDGET (gtk_builder_get_object (gtkBuilder, "dialog_main"));
-  g_object_unref (G_OBJECT (gtkBuilder));
 
 #if GTK_CHECK_VERSION(4,0,0)
   GtkApplication* app_p =
     gtk_application_new ("org.gnome.example", G_APPLICATION_FLAGS_NONE);
   g_signal_connect (app_p, "activate", G_CALLBACK (on_activate_cb), mainwin);
 #else
+  //g_signal_handlers_block_matched (mainwin, G_SIGNAL_MATCH_DATA,
+  //                                 g_signal_lookup ("delete-event", GTK_TYPE_WIDGET),
+  //                                 0, NULL, NULL, NULL);
   gtk_builder_connect_signals (gtkBuilder, NULL);
 #endif // GTK_CHECK_VERSION(4,0,0)
+
+#if defined (GTKGL_SUPPORT)
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(3,16,0)
+  GtkGLArea* gl_area_p =
+    GTK_GL_AREA (gtk_builder_get_object ((*iterator).second.second,
+      ACE_TEXT_ALWAYS_CHAR (TEST_U_STREAM_UI_GTK_GLAREA_NAME)));
+  ACE_ASSERT (gl_area_p);
+  gtk_widget_realize (GTK_WIDGET (gl_area_p));
+  GdkGLContext* context_p = gtk_gl_area_get_context (gl_area_p);
+  ACE_ASSERT (context_p);
+#else
+#if defined (GTKGLAREA_SUPPORT)
+#endif // GTKGLAREA_SUPPORT
+#endif // GTK_CHECK_VERSION(3,16,0)
+#elif GTK_CHECK_VERSION(2,0,0)
+#if defined (GTKGLAREA_SUPPORT)
+  /* Attribute list for gtkglarea widget. Specifies a
+     list of Boolean attributes and enum/integer
+     attribute/value pairs. The last attribute must be
+     GDK_GL_NONE. See glXChooseVisual manpage for further
+     explanation.
+  */
+  int gl_attributes_a[] = {
+    GDK_GL_USE_GL,
+// GDK_GL_BUFFER_SIZE
+// GDK_GL_LEVEL
+    GDK_GL_RGBA,
+    GDK_GL_DOUBLEBUFFER,
+//    GDK_GL_STEREO
+//    GDK_GL_AUX_BUFFERS
+    GDK_GL_RED_SIZE,   1,
+    GDK_GL_GREEN_SIZE, 1,
+    GDK_GL_BLUE_SIZE,  1,
+    GDK_GL_ALPHA_SIZE, 1,
+//    GDK_GL_DEPTH_SIZE
+//    GDK_GL_STENCIL_SIZE
+//    GDK_GL_ACCUM_RED_SIZE
+//    GDK_GL_ACCUM_GREEN_SIZE
+//    GDK_GL_ACCUM_BLUE_SIZE
+//    GDK_GL_ACCUM_ALPHA_SIZE
+//
+//    GDK_GL_X_VISUAL_TYPE_EXT
+//    GDK_GL_TRANSPARENT_TYPE_EXT
+//    GDK_GL_TRANSPARENT_INDEX_VALUE_EXT
+//    GDK_GL_TRANSPARENT_RED_VALUE_EXT
+//    GDK_GL_TRANSPARENT_GREEN_VALUE_EXT
+//    GDK_GL_TRANSPARENT_BLUE_VALUE_EXT
+//    GDK_GL_TRANSPARENT_ALPHA_VALUE_EXT
+    GDK_GL_NONE
+  };
+
+  GtkGLArea* gl_area_p = GTK_GL_AREA (gtk_gl_area_new (gl_attributes_a));
+  if (!gl_area_p)
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to gtk_gl_area_new(), returning\n")));
+    g_object_unref (G_OBJECT (gtkBuilder));
+    return;
+  } // end IF
+  gtk_widget_set_events (GTK_WIDGET (gl_area_p),
+                         GDK_EXPOSURE_MASK            |
+                         GDK_BUTTON_PRESS_MASK        |
+                         GDK_BUTTON_RELEASE_MASK      |
+                         GDK_POINTER_MOTION_MASK      |
+                         GDK_POINTER_MOTION_HINT_MASK);
+  g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("configure-event"),
+                    G_CALLBACK (glarea_configure_event_cb), NULL);
+  GLuint texture_id = 0;
+  g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("expose-event"),
+                    G_CALLBACK (glarea_expose_event_cb), &texture_id);
+  g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("realize"),
+                    G_CALLBACK (glarea_realize_cb), &texture_id);
+  g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("destroy"),
+                    G_CALLBACK (glarea_destroy_cb), &texture_id);
+  gtk_widget_set_size_request (GTK_WIDGET (gl_area_p), 256, 256);
+#endif // GTKGLAREA_SUPPORT
+#else
+#endif // GTK_CHECK_VERSION(2,0,0)
+  GtkVBox* box_p = GTK_VBOX (gtk_builder_get_object (gtkBuilder, "vbox3"));
+  gtk_container_foreach (GTK_CONTAINER (box_p), (GtkCallback)gtk_widget_destroy, NULL);
+  gtk_box_pack_start (GTK_BOX (box_p), GTK_WIDGET (gl_area_p), FALSE, TRUE, 0);
+#endif // GTKGL_SUPPORT
+  g_object_unref (G_OBJECT (gtkBuilder));
 
 #if GTK_CHECK_VERSION(4,0,0)
 #else

@@ -27,11 +27,9 @@
 
 #if defined (IMAGEMAGICK_SUPPORT)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define ssize_t ssize_t
-#include "MagickWand/MagickWand.h"
-#else
-#include "wand/magick_wand.h"
+#include "magick/api.h"
 #endif // ACE_WIN32 || ACE_WIN64
+#include "wand/magick_wand.h"
 #endif // IMAGEMAGICK_SUPPORT
 
 #include "ace/Log_Msg.h"
@@ -220,11 +218,11 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
   ACE_ASSERT (!data_out);
 
   struct _MagickWand* context_p = NULL;
-  MagickBooleanType result = MagickTrue;
+  unsigned int result = MagickTrue;
   unsigned char* blob_p = NULL;
   size_t file_size_i = 0;
 
-  MagickWandGenesis ();
+  //MagickWandGenesis ();
 
   context_p = NewMagickWand ();
   if (unlikely (!context_p))
@@ -257,12 +255,12 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
                 ACE_TEXT (Common_Image_Tools::errorToString (context_p).c_str ())));
     goto error;
   } // end IF
-  blob_p = MagickGetImageBlob (context_p,
-                               &file_size_i);
+  blob_p = MagickWriteImageBlob (context_p,
+                                 &file_size_i);
   if (unlikely (!blob_p))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to MagickGetImageBlob(): \"%s\", returning\n"),
+                ACE_TEXT ("failed to MagickWriteImageBlob(): \"%s\", returning\n"),
                 ACE_TEXT (Common_Image_Tools::errorToString (context_p).c_str ())));
     goto error;
   } // end IF
@@ -278,7 +276,7 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
   MagickRelinquishMemory (blob_p); blob_p = NULL;
 
   DestroyMagickWand (context_p); context_p = NULL;
-  MagickWandTerminus ();
+  //MagickWandTerminus ();
 
   return true;
 
@@ -287,7 +285,7 @@ error:
     MagickRelinquishMemory (blob_p);
   if (context_p)
     DestroyMagickWand (context_p);
-  MagickWandTerminus ();
+  //MagickWandTerminus ();
 
   return false;
 }

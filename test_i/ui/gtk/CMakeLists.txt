@@ -1,3 +1,8 @@
+if (GTKGL_SUPPORT)
+ set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../../../src/gl/scripts")
+ include (assimp)
+endif (GTKGL_SUPPORT)
+
 get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 
@@ -32,13 +37,10 @@ add_executable (${EXECUTABLE}
                 ${gtk_ui_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
-if (UNIX)
- target_link_libraries (${EXECUTABLE} X11)
- target_link_libraries (${EXECUTABLE} GL)
-elseif (WIN32)
- target_link_libraries (${EXECUTABLE} OpenGL32)
-endif ()
-target_link_libraries (${EXECUTABLE} ${GTK_LIBRARIES})
+if (GTKGL_SUPPORT)
+ target_link_libraries (${EXECUTABLE} PUBLIC ${OPENGL_LIBRARIES})
+endif (GTKGL_SUPPORT)
+#target_link_libraries (${EXECUTABLE} ${GTK_LIBRARIES})
 #if (UNIX)
 #elseif (WIN32)
 # if (GTKGLAREA_SUPPORT)
@@ -46,13 +48,18 @@ target_link_libraries (${EXECUTABLE} ${GTK_LIBRARIES})
 # endif (GTKGLAREA_SUPPORT)
 #endif ()
 
-target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
+target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
 
-target_link_libraries (${EXECUTABLE} Common)
-target_link_libraries (${EXECUTABLE} CommonLog)
-target_link_libraries (${EXECUTABLE} CommonTimer)
-target_link_libraries (${EXECUTABLE} CommonUI)
-target_link_libraries (${EXECUTABLE} CommonUI_GTK)
+target_link_libraries (${EXECUTABLE} PUBLIC Common)
+target_link_libraries (${EXECUTABLE} PUBLIC CommonLog)
+if (GTKGL_SUPPORT)
+ target_link_libraries (${EXECUTABLE} PUBLIC CommonOpenGL)
+endif (GTKGL_SUPPORT)
+target_link_libraries (${EXECUTABLE} PUBLIC CommonTimer)
+target_link_libraries (${EXECUTABLE} PUBLIC CommonUI)
+target_link_libraries (${EXECUTABLE} PUBLIC CommonUI_GTK)
+
+target_link_libraries (${EXECUTABLE} PUBLIC Common_Test_I)
 
 # add PCH
 #set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
@@ -228,27 +235,18 @@ if (UNIX)
                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
                          ENVIRONMENT ${ENVIRONMENT})
 elseif (WIN32)
- if (VCPKG_SUPPORT)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin LIBXML2_LIB_PATH)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin FFMPEG_LIB_PATH)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin IMAGEMAGICK_LIB_PATH)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ASSIMP_LIB_PATH)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin GTK_LIB_PATH)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin LIBGLADE_LIB_PATH)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH) 
- else ()
-  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/libxml2/bin LIBXML2_LIB_PATH)
-  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ffmpeg/bin FFMPEG_LIB_PATH)
-  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ImageMagick IMAGEMAGICK_LIB_PATH)
-  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/assimp/cmake/code/${CMAKE_BUILD_TYPE} ASSIMP_LIB_PATH)
-  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/libglade/bin LIBGLADE_LIB_PATH)
-  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
- endif (VCPKG_SUPPORT)
+ file (TO_CMAKE_PATH "${GTK_LIB_DIRS}" GTK_LIB_PATH)
+ file (TO_CMAKE_PATH "${ACE_LIB_DIR}" ACE_LIB_PATH)
+ file (TO_CMAKE_PATH "${ImageMagick_LIB_DIR}" IMAGEMAGICK_LIB_PATH)
+ file (TO_CMAKE_PATH "${ASSIMP_LIB_DIR}" ASSIMP_LIB_PATH)
+ message (STATUS "ASSIMP_LIB_PATH: ${ASSIMP_LIB_PATH}")
  create_target_launcher (${EXECUTABLE}
                          ARGS ${ARGS}
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
                                               ${ACE_LIB_PATH}
+                                              ${IMAGEMAGICK_LIB_PATH}
+                                              ${ASSIMP_LIB_PATH}
                                               ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/gtk
                          ENVIRONMENT ${ENVIRONMENT})

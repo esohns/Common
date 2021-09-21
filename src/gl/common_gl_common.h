@@ -23,20 +23,15 @@
 
 #include <utility>
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if defined (_MSC_VER) && (_MSC_VER >= 1800)
+#if defined (GLM_SUPPORT)
 #include "glm/glm.hpp"
-#endif // _MSC_VER && (_MSC_VER >= 1800)
-#else
-#include "glm/glm.hpp"
-#endif // ACE_WIN32 || ACE_WIN64
+#endif // GLM_SUPPORT
 
 #include "ace/OS.h"
 
 #include "common_gl_defines.h"
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if defined (_MSC_VER) && (_MSC_VER >= 1800)
+#if defined (GLM_SUPPORT)
 typedef std::pair<glm::vec3, glm::vec3> Common_GL_BoundingBox_t;
 #else
 struct Common_GL_VectorF3
@@ -52,10 +47,7 @@ struct Common_GL_VectorF3
   float z;
 };
 typedef std::pair<struct Common_GL_VectorF3, struct Common_GL_VectorF3> Common_GL_BoundingBox_t;
-#endif // _MSC_VER && (_MSC_VER >= 1800)
-#else
-typedef std::pair<glm::vec3, glm::vec3> Common_GL_BoundingBox_t;
-#endif // ACE_WIN32 || ACE_WIN64
+#endif // GLM_SUPPORT
 
 struct Common_GL_Camera
 {
@@ -67,27 +59,20 @@ struct Common_GL_Camera
     ACE_OS::memset (last, 0, sizeof (int[2]));
   }
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if defined (_MSC_VER) && (_MSC_VER >= 1800)
+#if defined (GLM_SUPPORT)
   //glm::vec3 position;
   //glm::vec3 looking_at;
   //glm::vec3 up;
-#endif // _MSC_VER && (_MSC_VER >= 1800)
-#endif // ACE_WIN32 || ACE_WIN64
+#endif // GLM_SUPPORT
 
   float zoom;
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if defined (_MSC_VER) && (_MSC_VER >= 1800)
+#if defined (GLM_SUPPORT)
   glm::vec3 rotation;
   glm::vec3 translation;
 #else
   struct Common_GL_VectorF3 rotation;
   struct Common_GL_VectorF3 translation;
-#endif // _MSC_VER && (_MSC_VER >= 1800)
-#else
-  glm::vec3 rotation;
-  glm::vec3 translation;
-#endif // ACE_WIN32 || ACE_WIN64
+#endif // GLM_SUPPORT
   int last[2];
 };
 
@@ -106,18 +91,13 @@ struct Common_GL_Scene
 
   // scene
   Common_GL_BoundingBox_t boundingBox;
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if defined (_MSC_VER) && (_MSC_VER >= 1800)
+#if defined (GLM_SUPPORT)
   glm::vec3               center;
   glm::vec3               orientation; // model/scene-
 #else
   struct Common_GL_VectorF3 center;
   struct Common_GL_VectorF3 orientation;
-#endif // _MSC_VER && (_MSC_VER >= 1800)
-#else
-  glm::vec3               center;
-  glm::vec3               orientation; // model/scene-
-#endif // ACE_WIN32 || ACE_WIN64
+#endif // GLM_SUPPORT
 };
 
 #endif

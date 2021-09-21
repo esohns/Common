@@ -28,6 +28,10 @@ if (GUI_SUPPORT)
  if (GTK_USE)
   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
                               "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
+  if (GTKGL_SUPPORT)
+   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+                               $<BUILD_INTERFACE:${OPENGL_INCLUDE_DIR}>)
+  endif (GTKGL_SUPPORT)
   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/gtk>)
  elseif (QT_USE)

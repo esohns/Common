@@ -3,6 +3,7 @@ include (SetCppExceptions)
 
 include (Threads)
 
+include (OpenGL)
 include (ACE)
 
 # *TODO*: compile in support as available automatically
@@ -240,7 +241,9 @@ if (DBUS_SUPPORT)
  add_subdirectory (dbus)
 endif (DBUS_SUPPORT)
 add_subdirectory (error)
-add_subdirectory (gl)
+if (OPENGL_SUPPORT)
+ add_subdirectory (gl)
+endif (OPENGL_SUPPORT)
 add_subdirectory (image)
 add_subdirectory (log)
 add_subdirectory (math)
