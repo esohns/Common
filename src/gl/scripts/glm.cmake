@@ -10,7 +10,7 @@ if (UNIX)
 elseif (WIN32)
  find_file (GLM_HPP_FILE
             NAMES "glm.hpp"
-            PATHS $ENV{LIB_ROOT}
+            PATHS $ENV{LIB_ROOT}/glm
             PATH_SUFFIXES glm
             DOC "searching for glm.h"
             NO_DEFAULT_PATH)
@@ -22,6 +22,7 @@ else ()
  option (GLM_SUPPORT "enable glm support" ON)
  if (GLM_SUPPORT)
   get_filename_component (GLM_HPP_PATH ${GLM_HPP_FILE} REALPATH)
+  get_filename_component (GLM_HPP_PATH ${GLM_HPP_PATH} DIRECTORY)
   get_filename_component (GLM_HPP_PATH ${GLM_HPP_PATH} DIRECTORY)
   add_definitions (-DGLM_SUPPORT)
  endif (GLM_SUPPORT)

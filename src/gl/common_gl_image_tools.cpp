@@ -35,6 +35,7 @@
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
 
+#include "common_image_defines.h"
 #include "common_image_tools.h"
 
 #if defined (LIBPNG_SUPPORT)
@@ -166,7 +167,7 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
     goto error;
-  }
+  } // end IF
   // set the individual row_pointers to point at the correct offsets of
   // image_data
   // *NOTE*: png is ordered top-to-bottom; OpenGL expects it bottom-to-top
@@ -189,6 +190,10 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
   return true;
 
 error:
+  if (data_out)
+  {
+    free (data_out); data_out = NULL;
+  } // end IF
   if (row_pointers_pp)
     free (row_pointers_pp);
   if (png_p)
