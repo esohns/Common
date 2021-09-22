@@ -222,7 +222,7 @@ Common_GL_Tools::loadTexture (const std::string& path_in)
   COMMON_GL_ASSERT;
   // select modulate to mix texture with color for shading
 //    glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-//    ACE_ASSERT (glGetError () == GL_NO_ERROR);
+//    COMMON_GL_ASSERT;
 
 //#if !defined (GL_VERSION_1_2)
 //  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); // GL_CLAMP_TO_EDGE

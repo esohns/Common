@@ -357,6 +357,9 @@ glarea_expose_event_cb (GtkWidget* widget_in,
 
   gtk_gl_area_swap_buffers (gl_area_p);
 
+  // auto-redraw
+  gtk_widget_queue_draw (widget_in);
+
   return TRUE;
 }
 
@@ -373,14 +376,14 @@ glarea_realize_cb (GtkWidget* widget_in,
   ACE_ASSERT (texture_id_p);
   GtkAllocation allocation;
   // set up light colors (ambient, diffuse, specular)
-  GLfloat light_ambient[] = {1.0F, 1.0F, 1.0F, 1.0F};
-  GLfloat light_diffuse[] = {0.3F, 0.3F, 0.3F, 1.0F};
-  GLfloat light_specular[] = {1.0F, 1.0F, 1.0F, 1.0F};
+  //GLfloat light_ambient[] = {1.0F, 1.0F, 1.0F, 1.0F};
+  //GLfloat light_diffuse[] = {0.3F, 0.3F, 0.3F, 1.0F};
+  //GLfloat light_specular[] = {1.0F, 1.0F, 1.0F, 1.0F};
   // position the light in eye space
-  GLfloat light0_position[] = {0.0F,
-                               5.0F * 2,
-                               5.0F * 2,
-                               0.0F}; // --> directional light
+  //GLfloat light0_position[] = {0.0F,
+  //                             5.0F * 2,
+  //                             5.0F * 2,
+  //                             0.0F}; // --> directional light
 
   // load texture
   if (*texture_id_p > 0)
@@ -389,8 +392,7 @@ glarea_realize_cb (GtkWidget* widget_in,
     COMMON_GL_ASSERT;
     *texture_id_p = 0;
   } // end IF
-  static GLubyte* image_p = NULL;
-  if (!image_p)
+  if (!*texture_id_p)
   {
     std::string filename = Common_File_Tools::getWorkingDirectory ();
     filename += ACE_DIRECTORY_SEPARATOR_CHAR;
@@ -458,16 +460,36 @@ glarea_realize_cb (GtkWidget* widget_in,
 //  glEnable (GL_LIGHTING);
 
   // set up light colors (ambient, diffuse, specular)
-  glLightfv (GL_LIGHT0, GL_AMBIENT, light_ambient);
+  //glLightfv (GL_LIGHT0, GL_AMBIENT, light_ambient);
+  //COMMON_GL_ASSERT;
+  //glLightfv (GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+  //COMMON_GL_ASSERT;
+  //glLightfv (GL_LIGHT0, GL_SPECULAR, light_specular);
+  //COMMON_GL_ASSERT;
+  //glLightfv (GL_LIGHT0, GL_POSITION, light0_position);
+  //COMMON_GL_ASSERT;
+  //glEnable (GL_LIGHT0);
+  //COMMON_GL_ASSERT;
+
+  //glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // Really Nice Perspective
+  //COMMON_GL_ASSERT;
+  glEnable (GL_TEXTURE_2D);                           // Enable Texture Mapping
   COMMON_GL_ASSERT;
-  glLightfv (GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+  //glShadeModel (GL_SMOOTH);                           // Enable Smooth Shading
+  //COMMON_GL_ASSERT;
+  //glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+  //COMMON_GL_ASSERT;
+
+  glEnable (GL_BLEND);                                // Enable Semi-Transparency
   COMMON_GL_ASSERT;
-  glLightfv (GL_LIGHT0, GL_SPECULAR, light_specular);
+  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   COMMON_GL_ASSERT;
-  glLightfv (GL_LIGHT0, GL_POSITION, light0_position);
-  COMMON_GL_ASSERT;
-  glEnable (GL_LIGHT0);
-  COMMON_GL_ASSERT;
+  //glEnable (GL_DEPTH_TEST);                           // Enables Depth Testing
+  //COMMON_GL_ASSERT;
+  //glDepthFunc (GL_LESS);                              // The Type Of Depth Testing To Do
+  //COMMON_GL_ASSERT;
+  //glDepthMask (GL_TRUE);
+  //COMMON_GL_ASSERT;
 } // glarea_realize_cb
 
 void
@@ -687,7 +709,7 @@ do_work (int argc_in,
 #endif // GTK_CHECK_VERSION(2,0,0)
   GtkVBox* box_p = GTK_VBOX (gtk_builder_get_object (gtkBuilder, "vbox3"));
   gtk_container_foreach (GTK_CONTAINER (box_p), (GtkCallback)gtk_widget_destroy, NULL);
-  gtk_box_pack_start (GTK_BOX (box_p), GTK_WIDGET (gl_area_p), FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (box_p), GTK_WIDGET (gl_area_p), TRUE, TRUE, 0);
 #endif // GTKGL_SUPPORT
   g_object_unref (G_OBJECT (gtkBuilder));
 
