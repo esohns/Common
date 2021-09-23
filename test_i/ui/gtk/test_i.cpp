@@ -244,7 +244,6 @@ glarea_configure_event_cb (GtkWidget* widget_in,
                   0.1,
                   100.0); // Calculate The Aspect Ratio Of The Window
 #else
-  const GLdouble pi = 3.1415926535897932384626433832795;
   GLdouble fW, fH;
 
   //fH = tan( (fovY / 2) / 180 * pi ) * zNear;
@@ -430,7 +429,6 @@ glarea_realize_cb (GtkWidget* widget_in,
     0.1,
     100.0); // Calculate The Aspect Ratio Of The Window
 #else
-  const GLdouble pi = 3.1415926535897932384626433832795;
   GLdouble fW, fH;
 
   //fH = tan( (fovY / 2) / 180 * pi ) * zNear;

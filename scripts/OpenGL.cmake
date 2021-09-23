@@ -65,3 +65,51 @@ if (OPENGL_SUPPORT)
   add_definitions (-DOPENGL_USE)
  endif (OPENGL_USE)
 endif (OPENGL_SUPPORT)
+
+##########################################
+
+# *TODO*: FindGLUT.cmake is currently broken
+find_package (GLUT)
+if (NOT GLUT_FOUND)
+ if (UNIX)
+  set (GLUT_LIB_FILE libglut.so.3)
+  find_library (GLUT_LIBRARY ${GLUT_LIB_FILE}
+                PATHS /usr/lib
+                PATH_SUFFIXES x86_64-linux-gnu
+                DOC "searching for ${GLUT_LIB_FILE}")
+  if (GLUT_LIBRARY)
+   message (STATUS "Found Glut library \"${GLUT_LIBRARY}\"")
+   set (GLUT_FOUND TRUE)
+   set (GLUT_INCLUDE_DIRS "/usr/include")
+   set (GLUT_LIBRARIES "${GLUT_LIBRARY}")
+  else ()
+   message (WARNING "could not find ${GLUT_LIB_FILE}, continuing")
+  endif (GLUT_LIBRARY)
+ elseif (WIN32)
+# unset (LIB_FILE_SUFFIX)
+  set (GLUT_LIB_FILE freeglut)
+#     if (CMAKE_BUILD_TYPE STREQUAL Debug)
+#      set (LIB_FILE_SUFFIX d)
+#     endif ()
+  set (GLUT_LIB_FILE ${GLUT_LIB_FILE}${LIB_FILE_SUFFIX}.lib)
+  find_library (GLUT_LIBRARY ${GLUT_LIB_FILE}
+                PATHS $ENV{LIB_ROOT}/freeglut
+                PATH_SUFFIXES lib
+                DOC "searching for ${GLUT_LIB_FILE}")
+  if (GLUT_LIBRARY)
+   message (STATUS "Found Glut library \"${GLUT_LIBRARY}\"")
+   set (GLUT_FOUND TRUE)
+   set (GLUT_INCLUDE_DIRS "$ENV{LIB_ROOT}/freeglut/include")
+   set (GLUT_LIBRARIES "${GLUT_LIBRARY}")
+  else ()
+   message (WARNING "could not find ${GLUT_LIB_FILE}, continuing")
+  endif (GLUT_LIBRARY)
+ endif ()
+endif (NOT GLUT_FOUND)
+if (GLUT_FOUND)
+ option (GLUT_SUPPORT "enable OpenGL GLUT support" ON)
+ if (GLUT_SUPPORT)
+  add_definitions (-DGLUT_SUPPORT)
+#  include_directories (${GLUT_INCLUDE_DIRS})
+ endif (GLUT_SUPPORT)
+endif (GLUT_FOUND)
