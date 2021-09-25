@@ -19,7 +19,8 @@ elseif (WIN32)
     set (ffmpeg_LIB_DIR "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin")
    endif ()
   endif (ffmpeg_FOUND)
- else ()
+ endif (VCPKG_SUPPORT)
+ if (NOT FFMPEG_FOUND)
   find_library (FFMPEG_LIBRARY_AVCODEC avcodec.lib
                 PATHS $ENV{LIB_ROOT}/ffmpeg
                 PATH_SUFFIXES lib
@@ -66,7 +67,7 @@ elseif (WIN32)
    set (ffmpeg_LIBRARIES "${FFMPEG_LIBRARY_AVCODEC};${FFMPEG_LIBRARY_AVFORMAT};${FFMPEG_LIBRARY_SWSCALE};${FFMPEG_LIBRARY_AVUTIL}")
    set (ffmpeg_LIB_DIR "$ENV{LIB_ROOT}/ffmpeg/bin")
   endif (FFMPEG_LIBRARY_AVCODEC AND FFMPEG_LIBRARY_AVFORMAT AND FFMPEG_LIBRARY_SWSCALE AND FFMPEG_LIBRARY_AVUTIL)
- endif (VCPKG_SUPPORT)
+ endif (NOT FFMPEG_FOUND)
 endif ()
 if (FFMPEG_FOUND)
  option (FFMPEG_SUPPORT "enable ffmpeg support" ${FFMPEG_SUPPORT_DEFAULT})
