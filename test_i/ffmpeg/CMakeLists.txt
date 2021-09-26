@@ -1,13 +1,11 @@
-if (UNIX)
- pkg_check_modules (PKG_FFMPEG REQUIRED libavcodec libavformat libavutil)
-endif (UNIX)
+include (ffmpeg)
 
 get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 
 ############## definitions ###############
 #add_definitions (-DACE_HAS_DLL)
-add_definitions (-DFFMPEG_SUPPORT)
+#add_definitions (-DFFMPEG_SUPPORT)
 #add_definitions (-DHAVE_CONFIG_H)
 #set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
 #add_definitions (-DCOMMON_HAS_DLL)
@@ -15,11 +13,7 @@ add_definitions (-DFFMPEG_SUPPORT)
 
 ############## includes ###############
 
-if (UNIX)
- include_directories (${PKG_FFMPEG_INCLUDE_DIRS})
-elseif (WIN32)
- include_directories ($ENV{LIB_ROOT}/ffmpeg/include)
-endif ()
+include_directories (${ffmpeg_INCLUDE_DIRS})
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/image)
@@ -43,32 +37,21 @@ set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 if (THREADS_HAVE_PTHREAD_ARG)
   set_property (TARGET ${EXECUTABLE} PROPERTY COMPILE_OPTIONS "-pthread")
   set_property (TARGET ${EXECUTABLE} PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
-endif ()
+endif (THREADS_HAVE_PTHREAD_ARG)
 
-if (CMAKE_THREAD_LIBS_INIT)
- target_link_libraries (${EXECUTABLE} "${CMAKE_THREAD_LIBS_INIT}")
-endif ()
+target_link_libraries (${EXECUTABLE} ${ffmpeg_LIBRARIES})
 if (UNIX)
- target_link_libraries (${EXECUTABLE} ${PKG_FFMPEG_LIBRARIES})
-elseif (WIN32)
-# target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/ffmpeg/libavcodec/avcodec.lib)
-# target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/ffmpeg/libavformat/avformat.lib)
-# target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/ffmpeg/libavutil/avutil.lib)
- target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/ffmpeg/lib/avcodec.lib)
- target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/ffmpeg/lib/avformat.lib)
- target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/ffmpeg/lib/avutil.lib)
-endif ()
+ if (CMAKE_THREAD_LIBS_INIT)
+  target_link_libraries (${EXECUTABLE} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+ endif (CMAKE_THREAD_LIBS_INIT)
+endif (UNIX)
 
-target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
+target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
 
-target_link_libraries (${EXECUTABLE} Common)
-target_link_libraries (${EXECUTABLE} CommonImage)
-target_link_libraries (${EXECUTABLE} CommonLog)
-target_link_libraries (${EXECUTABLE} CommonTimer)
-
-if (WIN32)
- set_target_properties (${EXECUTABLE} PROPERTIES LINK_FLAGS /SAFESEH:NO)
-endif (WIN32)
+target_link_libraries (${EXECUTABLE} PUBLIC Common)
+target_link_libraries (${EXECUTABLE} PUBLIC CommonImage)
+target_link_libraries (${EXECUTABLE} PUBLIC CommonLog)
+target_link_libraries (${EXECUTABLE} PUBLIC CommonTimer)
 
 # add PCH
 #set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
@@ -81,7 +64,9 @@ install (TARGETS ${EXECUTABLE}
 
 ################ launchers ###############
 if (UNIX)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}" COMMAND)
  create_target_launcher (${EXECUTABLE}
+                         COMMAND ${COMMAND}
                          ARGS "-f oak-tree.png -t"
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
@@ -93,21 +78,22 @@ if (UNIX)
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 elseif (WIN32)
- if (VCPKG_SUPPORT)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin FFMPEG_LIB_PATH)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin IMAGEMAGICK_LIB_PATH)
- else ()
-  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
-  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ffmpeg/bin FFMPEG_LIB_PATH)
-  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ImageMagick IMAGEMAGICK_LIB_PATH)
- endif (VCPKG_SUPPORT)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
+ string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
+ file (TO_CMAKE_PATH "${ffmpeg_LIB_DIR}" FFMPEG_LIB_PATH)
+ file (TO_CMAKE_PATH "${ACE_LIB_DIR}" ACE_LIB_PATH)
+ set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
+#                           ${LIBPNG_PATH}
+                           ${FFMPEG_LIB_PATH}
+#                           ${IMAGEMAGICK_PATH}
+                           ${ACE_LIB_PATH})
  create_target_launcher (${EXECUTABLE}
+                         COMMAND ${COMMAND}
                          ARGS "-f oak-tree.png -t"
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
                                               ${FFMPEG_LIB_PATH}
-                                              ${IMAGEMAGICK_LIB_PATH}
+#                                              ${IMAGEMAGICK_LIB_PATH}
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 endif ()

@@ -21,24 +21,29 @@ elseif (WIN32)
   endif (ffmpeg_FOUND)
  endif (VCPKG_SUPPORT)
  if (NOT FFMPEG_FOUND)
+  if (EXISTS $ENV{FFMPEG_ROOT})
+   set (FFMPEG_ROOT $ENV{FFMPEG_ROOT})
+  else ()
+   set (FFMPEG_ROOT $ENV{LIB_ROOT}/ffmpeg)
+  endif (EXISTS $ENV{FFMPEG_ROOT})
   find_library (FFMPEG_LIBRARY_AVCODEC avcodec.lib
-                PATHS $ENV{LIB_ROOT}/ffmpeg
-                PATH_SUFFIXES lib
+                PATHS ${FFMPEG_ROOT}
+                PATH_SUFFIXES libavcodec lib
                 DOC "searching for avcodec.lib"
                 NO_DEFAULT_PATH)
   find_library (FFMPEG_LIBRARY_AVFORMAT avformat.lib
-                PATHS $ENV{LIB_ROOT}/ffmpeg
-                PATH_SUFFIXES lib
+                PATHS ${FFMPEG_ROOT}
+                PATH_SUFFIXES libavformat lib
                 DOC "searching for avformat.lib"
                 NO_DEFAULT_PATH)
   find_library (FFMPEG_LIBRARY_SWSCALE swscale.lib
-                PATHS $ENV{LIB_ROOT}/ffmpeg
-                PATH_SUFFIXES lib
+                PATHS ${FFMPEG_ROOT}
+                PATH_SUFFIXES libswscale lib
                 DOC "searching for swscale.lib"
                 NO_DEFAULT_PATH)
   find_library (FFMPEG_LIBRARY_AVUTIL avutil.lib
-                PATHS $ENV{LIB_ROOT}/ffmpeg
-                PATH_SUFFIXES lib
+                PATHS ${FFMPEG_ROOT}
+                PATH_SUFFIXES libavutil lib
                 DOC "searching for avutil.lib"
                 NO_DEFAULT_PATH)
   if (NOT FFMPEG_LIBRARY_AVCODEC)
@@ -63,9 +68,14 @@ elseif (WIN32)
   endif (NOT FFMPEG_LIBRARY_AVUTIL)
   if (FFMPEG_LIBRARY_AVCODEC AND FFMPEG_LIBRARY_AVFORMAT AND FFMPEG_LIBRARY_SWSCALE AND FFMPEG_LIBRARY_AVUTIL)
    set (FFMPEG_FOUND TRUE)
-   set (ffmpeg_INCLUDE_DIRS "$ENV{LIB_ROOT}/ffmpeg/include")
    set (ffmpeg_LIBRARIES "${FFMPEG_LIBRARY_AVCODEC};${FFMPEG_LIBRARY_AVFORMAT};${FFMPEG_LIBRARY_SWSCALE};${FFMPEG_LIBRARY_AVUTIL}")
-   set (ffmpeg_LIB_DIR "$ENV{LIB_ROOT}/ffmpeg/bin")
+   if (EXISTS $ENV{FFMPEG_ROOT})
+    set (ffmpeg_INCLUDE_DIRS "${FFMPEG_ROOT}")
+    set (ffmpeg_LIB_DIR "${FFMPEG_ROOT}/libavcodec;${FFMPEG_ROOT}/libavformat;${FFMPEG_ROOT}/libswscale;${FFMPEG_ROOT}/libavutil")
+   else ()
+    set (ffmpeg_INCLUDE_DIRS "${FFMPEG_ROOT}/include")
+    set (ffmpeg_LIB_DIR "${FFMPEG_ROOT}/bin")
+   endif (EXISTS $ENV{FFMPEG_ROOT})
   endif (FFMPEG_LIBRARY_AVCODEC AND FFMPEG_LIBRARY_AVFORMAT AND FFMPEG_LIBRARY_SWSCALE AND FFMPEG_LIBRARY_AVUTIL)
  endif (NOT FFMPEG_FOUND)
 endif ()

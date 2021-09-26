@@ -157,6 +157,11 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   {
     case 0:
     {
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("(%s): worker thread (id: %t, group: %d) stopping\n"),
+                  ACE_TEXT (threadName_.c_str ()),
+                  inherited::grp_id_));
+
       ACE_thread_t handle = ACE_OS::thr_self ();
       // final thread ? --> clean up
       if (likely (ACE_OS::thr_equal (handle,
@@ -182,10 +187,12 @@ Common_TaskBase_T<ACE_SYNCH_USE,
           threadIds_.clear ();
         } // end lock scope
 
+        ACE_ASSERT (inherited::msg_queue_);
+        // *NOTE*: deactivate the queue so it does not accept new data
+        inherited::msg_queue_->deactivate ();
         // *NOTE*: iff the task had several worker thread(s), there will
         //         potentially still be STOP message(s) in the queue (see below)
         //         --> remove them
-        ACE_ASSERT (inherited::msg_queue_);
         int result = inherited::msg_queue_->flush ();
         if (unlikely (result == -1))
         {
@@ -209,8 +216,6 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                         ACE_TEXT ("flushed %u message(s)\n"),
                         result));
         } // end IF
-
-        inherited::msg_queue_->deactivate ();
 
         break;
       } // end IF

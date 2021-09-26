@@ -198,6 +198,7 @@ elseif (WIN32)
 endif ()
 
 if (UNIX)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}" COMMAND)
  create_target_launcher (${EXECUTABLE}
                          ARGS ${ARGS}
 #                         FORWARD_ARGS

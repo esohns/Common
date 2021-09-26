@@ -1,14 +1,16 @@
-option (LIBPNG_SUPPORT "compile libpng support" OFF)
-if (LIBPNG_SUPPORT)
- add_definitions (-DLIBPNG_SUPPORT)
-endif (LIBPNG_SUPPORT)
-
 include (ffmpeg)
 include (ImageMagick)
+
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../gl/scripts")
+include (png)
 
 set (LIBRARY ${PROJECT_NAME}Image)
 add_library (${LIBRARY} STATIC "")
 
+if (LIBPNG_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             "$<BUILD_INTERFACE:${PNG_INCLUDE_DIRS}>")
+endif (LIBPNG_SUPPORT)
 if (FFMPEG_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${ffmpeg_INCLUDE_DIRS}>)
@@ -16,7 +18,6 @@ endif (FFMPEG_SUPPORT)
 if (IMAGEMAGICK_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
                              ${ImageMagick_INCLUDE_DIRS})
- message (STATUS "ImageMagick_INCLUDE_DIRS: ${ImageMagick_INCLUDE_DIRS}")
 endif (IMAGEMAGICK_SUPPORT)
 if (UNIX)
 elseif (WIN32)
@@ -31,11 +32,6 @@ elseif (WIN32)
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{LIB_ROOT}/DXSDK/Include>)
  endif ()
-
- if (LIBPNG_SUPPORT)
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/libpng>)
- endif (LIBPNG_SUPPORT)
 endif ()
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
@@ -71,36 +67,25 @@ target_sources (${LIBRARY}
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-if (WIN32)
-## set (CMAKE_GENERATOR_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE)
-# set (CMAKE_VS_PLATFORM_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE)
- if (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)
-  add_compile_options (-Wno-c++11-narrowing)
- endif ()
-endif (WIN32)
-
+if (LIBPNG_SUPPORT)
+ target_link_libraries (${LIBRARY} PUBLIC ${PNG_LIBRARIES})
+endif (LIBPNG_SUPPORT)
 if (FFMPEG_SUPPORT)
- target_link_libraries (${LIBRARY} ${ffmpeg_LIBRARIES})
+ target_link_libraries (${LIBRARY} PUBLIC ${ffmpeg_LIBRARIES})
 endif (FFMPEG_SUPPORT)
 if (IMAGEMAGICK_SUPPORT)
- target_link_libraries (${LIBRARY} ${ImageMagick_LIBRARIES})
+ target_link_libraries (${LIBRARY} PUBLIC ${ImageMagick_LIBRARIES})
 endif (IMAGEMAGICK_SUPPORT)
 if (UNIX)
 elseif (WIN32)
- target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/DXSDK/Lib/x86/d3dx9.lib)
-
-# libpng
- if (LIBPNG_SUPPORT)
-  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/libpng/cmake/${CMAKE_BUILD_TYPE}/libpng16${LIB_FILE_SUFFIX}.lib)
-# target_link_libraries (${LIBRARY} ${CMAKE_CURRENT_SOURCE_DIR}/../../../libpng-1.6.25/projects/vstudio/Debug/libpng16.lib)
- endif (LIBPNG_SUPPORT)
+ target_link_libraries (${LIBRARY} PUBLIC $ENV{LIB_ROOT}/DXSDK/Lib/x86/d3dx9.lib)
 endif ()
+
 #set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_IMAGE_BUILD_DLL)
 #set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
-set_target_properties (${LIBRARY} PROPERTIES
-                       COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+set_target_properties (${LIBRARY} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
 cotire (${LIBRARY})
 
 # add all targets to the build-tree export set

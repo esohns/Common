@@ -1,3 +1,5 @@
+include (imagemagick)
+
 get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 
@@ -5,7 +7,6 @@ get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 
 ############## includes ###############
 
-# include_directories (${PKG_IMAGEMAGICK_INCLUDE_DIRS})
 include_directories (${ImageMagick_INCLUDE_DIRS})
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
@@ -26,22 +27,22 @@ add_executable (${EXECUTABLE}
                 ${imagemagick_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
-if (THREADS_HAVE_PTHREAD_ARG)
+#if (THREADS_HAVE_PTHREAD_ARG)
 #  set_property (TARGET ${EXECUTABLE} PROPERTY COMPILE_OPTIONS "-pthread")
 #  set_property (TARGET ${EXECUTABLE} PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
-endif ()
+#endif ()
 
 if (CMAKE_THREAD_LIBS_INIT)
- target_link_libraries (${EXECUTABLE} ${CMAKE_THREAD_LIBS_INIT})
+ target_link_libraries (${EXECUTABLE} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 endif (CMAKE_THREAD_LIBS_INIT)
-target_link_libraries (${EXECUTABLE} ${ImageMagick_LIBRARIES})
+target_link_libraries (${EXECUTABLE} PUBLIC ${ImageMagick_LIBRARIES})
 
-target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
+target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
 
-target_link_libraries (${EXECUTABLE} Common)
-target_link_libraries (${EXECUTABLE} CommonImage)
-target_link_libraries (${EXECUTABLE} CommonLog)
-target_link_libraries (${EXECUTABLE} CommonTimer)
+target_link_libraries (${EXECUTABLE} PUBLIC Common)
+target_link_libraries (${EXECUTABLE} PUBLIC CommonImage)
+target_link_libraries (${EXECUTABLE} PUBLIC CommonLog)
+target_link_libraries (${EXECUTABLE} PUBLIC CommonTimer)
 
 # add PCH
 #set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
@@ -53,16 +54,24 @@ install (TARGETS ${EXECUTABLE}
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 
 ################ launchers ###############
-if (WIN32)
+if (UNIX)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}" COMMAND)
+elseif (WIN32)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
+ string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
  file (TO_CMAKE_PATH "${ImageMagick_LIB_DIR}" IMAGEMAGICK_LIB_PATH)
  file (TO_CMAKE_PATH "${ACE_LIB_DIR}" ACE_LIB_PATH)
+ set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
+#                           ${LIBPNG_PATH}
+#                           ${FFMPEG_PATH}
+                           ${IMAGEMAGICK_PATH}
+                           ${ACE_PATH})
  set (ENVIRONMENT_MAGICK "MAGICK_CODER_MODULE_PATH=${IMAGEMAGICK_LIB_PATH}\\\\modules\\\\coders")
-endif (WIN32)
+endif ()
 create_target_launcher (${EXECUTABLE}
                         ARGS "-f oak-tree.png -t"
 #                         FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${IMAGEMAGICK_LIB_PATH}
-                                             ${ACE_LIB_PATH}
+                        RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
                         ENVIRONMENT ${ENVIRONMENT_MAGICK})
 
