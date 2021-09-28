@@ -23,6 +23,7 @@
 
 #include <string>
 
+#include "ace/Date_Time.h"
 #include "ace/Global_Macros.h"
 #include "ace/Time_Value.h"
 
@@ -41,6 +42,7 @@ class Common_Timer_Tools
   //static Common_ITimer* getTimerManager ();
 
   static ACE_Time_Value localToUTC (const ACE_Time_Value&); // local time
+  static std::string dateTimeToString (const ACE_Date_Time&); // date
 
   // --- parsers ---
   // *NOTE*: parses "YYYY/MM/DD HH:MM:SS"

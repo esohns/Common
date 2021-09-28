@@ -91,7 +91,7 @@ if (NOT GLUT_FOUND)
 #     if (CMAKE_BUILD_TYPE STREQUAL Debug)
 #      set (LIB_FILE_SUFFIX d)
 #     endif ()
-  set (GLUT_LIB_FILE ${GLUT_LIB_FILE}${LIB_FILE_SUFFIX}.lib)
+#  set (GLUT_LIB_FILE ${GLUT_LIB_FILE}${LIB_FILE_SUFFIX}.lib)
   find_library (GLUT_LIBRARY ${GLUT_LIB_FILE}
                 PATHS $ENV{LIB_ROOT}/freeglut
                 PATH_SUFFIXES lib

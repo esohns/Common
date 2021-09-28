@@ -39,7 +39,7 @@ if (THREADS_HAVE_PTHREAD_ARG)
   set_property (TARGET ${EXECUTABLE} PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
 endif (THREADS_HAVE_PTHREAD_ARG)
 
-target_link_libraries (${EXECUTABLE} ${ffmpeg_LIBRARIES})
+target_link_libraries (${EXECUTABLE} PUBLIC ${ffmpeg_LIBRARIES})
 if (UNIX)
  if (CMAKE_THREAD_LIBS_INIT)
   target_link_libraries (${EXECUTABLE} PUBLIC ${CMAKE_THREAD_LIBS_INIT})

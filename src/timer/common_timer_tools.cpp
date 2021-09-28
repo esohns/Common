@@ -19,9 +19,9 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-//#include "ace/Synch.h"
 #include "common_timer_tools.h"
 
+#include <ostream>
 #include <sstream>
 
 #include "ace/Log_Msg.h"
@@ -62,6 +62,50 @@ Common_Timer_Tools::finalize ()
   if (Common_Timer_Tools::configuration_.publishSeconds)
     COMMON_TIMER_SECONDPUBLISHER_SINGLETON::instance ()->stop (true,  // N/A
                                                                true); // N/A
+}
+
+std::string
+Common_Timer_Tools::dateTimeToString (const ACE_Date_Time& date_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Timer_Tools::dateTimeToString"));
+
+  std::string result;
+
+  std::ostringstream converter;
+  converter << date_in.year ();
+  result += converter.str ();
+  result += ACE_TEXT_ALWAYS_CHAR ("-");
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter.clear ();
+  converter << date_in.month ();
+  result += converter.str ();
+  result += ACE_TEXT_ALWAYS_CHAR ("-");
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter.clear ();
+  converter << date_in.day ();
+  result += converter.str ();
+  result += ACE_TEXT_ALWAYS_CHAR (" ");
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter.clear ();
+  converter << date_in.hour ();
+  result += converter.str ();
+  result += ACE_TEXT_ALWAYS_CHAR (":");
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter.clear ();
+  converter << date_in.minute ();
+  result += converter.str ();
+  result += ACE_TEXT_ALWAYS_CHAR (":");
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter.clear ();
+  converter << date_in.second ();
+  result += converter.str ();
+  result += ACE_TEXT_ALWAYS_CHAR (".");
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter.clear ();
+  converter << date_in.microsec ();
+  result += converter.str ();
+
+  return result;
 }
 
 ACE_Time_Value
