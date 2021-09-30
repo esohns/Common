@@ -21,8 +21,14 @@
 #ifndef COMMON_IMAGE_DEFINES_H
 #define COMMON_IMAGE_DEFINES_H
 
+#include <cstdint>
+
 // *** PNG ***
 #define COMMON_IMAGE_PNG_FILE_EXTENSION              "png"
 #define COMMON_IMAGE_PNG_NUMBER_OF_MAGIC_BYTES       8
+
+//////////////////////////////////////////
+// macros
+#define FOURCC(a,b,c,d) ((uint32_t)(a << 24)|(uint32_t)(b << 16)|(uint32_t)(c << 8)|(uint32_t)(d))
 
 #endif
