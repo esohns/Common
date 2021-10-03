@@ -10,7 +10,7 @@ add_library (${LIBRARY} STATIC "")
 
 if (IMAGEMAGICK_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:${ImageMagick_INCLUDE_DIRS}>)
+                             "$<BUILD_INTERFACE:${ImageMagick_INCLUDE_DIRS}>")
 endif (IMAGEMAGICK_SUPPORT)
 
 if (GLM_SUPPORT)
