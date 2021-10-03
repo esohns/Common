@@ -34,11 +34,11 @@
 #else
 //#include "X11/Xlib.h"
 // forward declarations
+struct _XDisplay;
 typedef struct {
     short x, y;
     unsigned short width, height;
 } Common_UI_Rectangle;
-struct _XDisplay;
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/Condition_Thread_Mutex.h"
@@ -185,17 +185,20 @@ typedef std::list<struct Common_UI_DisplayDevice> Common_UI_DisplayDevices_t;
 typedef Common_UI_DisplayDevices_t::iterator Common_UI_DisplayDevicesIterator_t;
 //typedef Common_UI_DisplayDevices_t::const_iterator Common_UI_DisplayDevicesConstIterator_t;
 
-struct Common_UI_Display // logical-
+// device ('logical'-)
+struct Common_UI_Display
 {
   Common_UI_Display ()
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-    : display (NULL)
+   : device () // output device (i.e. monitor description)
+   , display (NULL)
 #endif // ACE_WIN32 || ACE_WIN64
   {}
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
+  std::string       device;
   struct _XDisplay* display;
 #endif // ACE_WIN32 || ACE_WIN64
 };

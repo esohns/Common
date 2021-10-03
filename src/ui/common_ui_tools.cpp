@@ -322,7 +322,6 @@ Common_UI_Tools::getAdapters ()
                              &display_device_s, // lpDisplayDevice
                              flags_i))          // dwFlags
       break;
-#if defined (_DEBUG)
     device_feature_string.clear ();
 #if COMMON_OS_WIN32_TARGET_PLATFORM(0x0500) // _WIN32_WINNT_WIN2K
     if (display_device_s.StateFlags & DISPLAY_DEVICE_ACTIVE)
@@ -373,7 +372,6 @@ Common_UI_Tools::getAdapters ()
                 ACE_TEXT (display_device_s.DeviceName),
                 ACE_TEXT (device_feature_string.c_str ())));
 #endif // UNICODE
-#endif // _DEBUG
     if (excludeMirroringDevices_in &&
         (display_device_s.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER))
       goto continue_;
@@ -547,14 +545,12 @@ continue_:
       if (ACE_OS::strcmp (match_results[1].str ().c_str (),
                           pci_bus_address.c_str ()))
         continue;
-#if defined (_DEBUG)
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("found display adapter \"%s\" (slot: %s, driver: %s) at /sys/class/drm/%s\n"),
                   ACE_TEXT (match_results[2].str ().c_str ()),
                   ACE_TEXT (match_results[1].str ().c_str ()),
                   ACE_TEXT (display_adapter_s.driver.c_str ()),
                   ACE_TEXT (entries[i]->d_name)));
-#endif // _DEBUG
       display_adapter_s.description = match_results[2].str ();
       display_adapter_s.slot = match_results[1].str ();
       result.push_back (display_adapter_s);
@@ -725,12 +721,10 @@ Common_UI_Tools::getDisplays (const struct Common_UI_DisplayAdapter& adapter_in)
       continue;
     } // end IF
     delete [] buffer_p; buffer_p = NULL;
-#if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("found display device on adapter \"%s\": \"%s\"\n"),
                 ACE_TEXT (adapter_in.description.c_str ()),
                 ACE_TEXT (match_results[1].str ().c_str())));
-#endif // _DEBUG
     display_device_s.device = match_results[1].str ();
     result.push_back (display_device_s);
   } // end FOR
@@ -785,7 +779,6 @@ Common_UI_Tools::getDisplays ()
                                  &display_device_2,                                     // lpDisplayDevice
                                  flags_i))                                              // dwFlags
           break;
-#if defined (_DEBUG)
 #if defined (UNICODE)
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("\"%s\" [%s]: found display device #%d: \"%s\" [%s]\n"),
@@ -806,7 +799,6 @@ Common_UI_Tools::getDisplays ()
                   ACE_TEXT (display_device_2.DeviceString),
                   ACE_TEXT (display_device_2.DeviceName)));
 #endif // UNICODE
-#endif // _DEBUG
         display_device_s.id =
 #if defined (UNICODE)
           ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceID));
@@ -969,12 +961,9 @@ Common_UI_Tools::getDisplays ()
     ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
     ACE_ASSERT (match_results[4].matched && !match_results[4].str ().empty ());
     ACE_ASSERT (match_results[5].matched && !match_results[5].str ().empty ());
-
-#if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("found screen %s\n"),
                 ACE_TEXT (match_results[1].str ().c_str ())));
-#endif // _DEBUG
     converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
     converter_2.clear ();
     converter_2.str (match_results[4].str ());
@@ -1010,12 +999,9 @@ Common_UI_Tools::getDisplays ()
     if (ACE_OS::strcmp (match_results_2[2].str ().c_str (),
                         ACE_TEXT_ALWAYS_CHAR ("connected")))
       continue;
-
-#if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("found display device \"%s\"\n"),
                 ACE_TEXT (match_results_2[1].str ().c_str ())));
-#endif // _DEBUG
     device_s.device = match_results_2[1].str ();
     converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
     converter_2.clear ();
@@ -1127,6 +1113,32 @@ Common_UI_Tools::getDisplay (const std::string& deviceIdentifier_in)
 
   return result;
 }
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+struct Common_UI_Display
+Common_UI_Tools::getLogicalDisplay (const std::string& deviceIdentifier_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::getLogicalDisplay"));
+
+  // initialize return value(s)
+  struct Common_UI_Display result;
+
+  const char* display_name_p =
+      (deviceIdentifier_in.empty () ? NULL
+                                    : deviceIdentifier_in.c_str ());
+  result.display = XOpenDisplay (display_name_p);
+  if (unlikely (!result.display))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to XOpenDisplay(\"%s\"), aborting\n"),
+                (display_name_p ? ACE_TEXT (display_name_p) : ACE_TEXT ("NULL"))));
+    return result;
+  } // end IF
+
+  return result;
+}
+#endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
@@ -1297,48 +1309,44 @@ Common_UI_Tools::getX11DisplayName (const std::string& outputName_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::getX11DisplayName"));
 
-  std::string return_value =
+  const char* display_p =
       ACE_OS::getenv (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_X11_DISPLAY_ENVIRONMENT_VARIABLE));
-  if (return_value.empty ())
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("environment \"%s\" not set, cannot open X11 display, aborting\n"),
+  if (!display_p)
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("environment \"%s\" not set, using default display, continuing\n"),
                 ACE_TEXT (COMMON_UI_X11_DISPLAY_ENVIRONMENT_VARIABLE)));
-    return return_value;
-  } // end IF
 
   int result = -1;
-  Display* display_p = XOpenDisplay (return_value.c_str ());
-  if (!display_p)
+  struct _XDisplay* display_2 = XOpenDisplay (display_p);
+  if (!display_2)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to XOpenDisplay(%s), aborting\n"),
-                ACE_TEXT (return_value.c_str ())));
-    return_value.clear ();
-    return return_value;
+                (display_p ? ACE_TEXT (display_p) : ACE_TEXT ("NULL"))));
+    return ACE_TEXT_ALWAYS_CHAR ("");
   } // end IF
 
   // verify that the output is being used by the X11 session
-  Screen* screen_p = NULL;
+//  Screen* screen_p = NULL;
   XRRScreenResources* screen_resources_p = NULL;
   XRROutputInfo* output_info_p = NULL;
   XRRCrtcInfo* crtc_info_p = NULL;
   for (int i = 0;
-       i < ScreenCount (display_p);
+       i < ScreenCount (display_2);
        ++i)
   {
-    screen_p = ScreenOfDisplay (display_p, i);
-    ACE_ASSERT (screen_p); ACE_UNUSED_ARG (screen_p);
+//    screen_p = ScreenOfDisplay (display_2, i);
+//    ACE_ASSERT (screen_p); ACE_UNUSED_ARG (screen_p);
 
     screen_resources_p =
-        XRRGetScreenResources (display_p,
-                               RootWindow (display_p, i));
+        XRRGetScreenResources (display_2,
+                               RootWindow (display_2, i));
     ACE_ASSERT (screen_resources_p);
     for (int j = 0;
          j < screen_resources_p->noutput;
          ++j)
     {
-      output_info_p = XRRGetOutputInfo (display_p,
+      output_info_p = XRRGetOutputInfo (display_2,
                                         screen_resources_p,
                                         screen_resources_p->outputs[j]);
       ACE_ASSERT (output_info_p);
@@ -1349,14 +1357,14 @@ Common_UI_Tools::getX11DisplayName (const std::string& outputName_in)
         XRRFreeOutputInfo (output_info_p); output_info_p = NULL;
         continue;
       } // end IF
-      crtc_info_p = XRRGetCrtcInfo (display_p,
+      crtc_info_p = XRRGetCrtcInfo (display_2,
                                     screen_resources_p,
                                     output_info_p->crtc);
       ACE_ASSERT (crtc_info_p);
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("found output \"%s\" in X11 session \"%s\" [%dx%d+%dx%d]\n"),
                   ACE_TEXT (outputName_in.c_str ()),
-                  ACE_TEXT (return_value.c_str ()),
+                  (display_p ? ACE_TEXT (display_p) : ACE_TEXT ("NULL")),
                   crtc_info_p->x, crtc_info_p->y, crtc_info_p->width, crtc_info_p->height));
       XRRFreeCrtcInfo (crtc_info_p); crtc_info_p = NULL;
       XRRFreeOutputInfo (output_info_p); output_info_p = NULL;
@@ -1364,12 +1372,12 @@ Common_UI_Tools::getX11DisplayName (const std::string& outputName_in)
     XRRFreeScreenResources (screen_resources_p); screen_resources_p = NULL;
   } // end FOR
 
-  result = XCloseDisplay (display_p);
+  result = XCloseDisplay (display_2);
   if (result)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to XCloseDisplay(), continuing\n")));
 
-  return return_value;
+  return (display_p ? ACE_TEXT (display_p) : ACE_TEXT ("NULL"));
 }
 
 XWindowAttributes
@@ -1630,12 +1638,10 @@ Common_UI_Tools::get (const std::string& deviceIdentifier_in)
     converter_2.str (match_results[2].str ());
     converter_2 >> resolution_s.height;
     result.push_back (resolution_s);
-#if defined (_DEBUG)
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("device \"%s\" supports resolution %ux%u\n"),
-                  ACE_TEXT (deviceIdentifier_in.c_str ()),
-                  resolution_s.width, resolution_s.height));
-#endif // _DEBUG
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("device \"%s\" supports resolution %ux%u\n"),
+                ACE_TEXT (deviceIdentifier_in.c_str ()),
+                resolution_s.width, resolution_s.height));
   } while (!converter.fail ());
 #endif // ACE_WIN32 || ACE_WIN64
   result.sort (common_ui_resolution_less ());
