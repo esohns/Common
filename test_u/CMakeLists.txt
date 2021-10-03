@@ -141,13 +141,7 @@ target_sources (${PROJECT_NAME}_Test_U
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-#set_target_properties (${PROJECT_NAME}_Test_U PROPERTIES
-#                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-#                       SOVERSION 1)
-
-#get_target_property (debug ${PROJECT_NAME}_Test_U INTERFACE_INCLUDE_DIRECTORIES)
-#message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
-#message (STATUS "INTERFACE_INCLUDE_DIRECTORIES=${INTERFACE_INCLUDE_DIRECTORIES}")
+#set_target_properties (${PROJECT_NAME}_Test_U PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 ##########################################
 

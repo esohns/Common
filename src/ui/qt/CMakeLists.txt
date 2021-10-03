@@ -79,8 +79,6 @@ endif ()
 set_target_properties (${PROJECT_NAME}UI_Qt PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
 #cotire (${PROJECT_NAME}UI_Qt)
 
-#message (STATUS "INTERFACE_INCLUDE_DIRECTORIES=${INTERFACE_INCLUDE_DIRECTORIES}")
-
 # add all targets to the build-tree export set
 export (TARGETS ${PROJECT_NAME}UI_Qt
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")

@@ -92,9 +92,6 @@ target_sources (${PROJECT_NAME}DBus
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-#get_target_property (debug ${PROJECT_NAME}DBus INTERFACE_INCLUDE_DIRECTORIES)
-#message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
-
 #add_dependencies (${PROJECT_NAME} ACE)
 
 #set_target_properties (${PROJECT_NAME}_DBus PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
