@@ -30,13 +30,13 @@
 #include <string>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include <d3d9.h>
-#include <WinUser.h>
+#include "d3d9.h"
+#include "WinUser.h"
 #if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
-#include <physicalmonitorenumerationapi.h>
+#include "physicalmonitorenumerationapi.h"
 #endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0600)
 #else
-#include "X11/Xlib.h"
+//#include "X11/Xlib.h"
 #include "X11/extensions/Xrandr.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
@@ -1712,6 +1712,9 @@ Common_UI_Tools::has (const std::string& deviceIdentifier_in,
       return true;
   } while (true);
 #else
+    ACE_UNUSED_ARG (deviceIdentifier_in);
+    ACE_UNUSED_ARG (resolution_in);
+
     ACE_ASSERT (false);
     ACE_NOTSUP_RETURN (false);
     ACE_NOTREACHED (return false;)
@@ -1801,6 +1804,8 @@ Common_UI_Tools::mode (const std::string& deviceIdentifier_in)
   result.resolution.cx = device_mode_s.dmPelsWidth;
   result.resolution.cy = device_mode_s.dmPelsHeight;
 #else
+    ACE_UNUSED_ARG (deviceIdentifier_in);
+
     ACE_ASSERT (false);
     ACE_NOTSUP_RETURN (result);
     ACE_NOTREACHED (return result;)

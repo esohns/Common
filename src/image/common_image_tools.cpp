@@ -448,7 +448,6 @@ Common_Image_Tools::load (const std::string& path_in,
   const struct AVCodec* codec_p = NULL;
   struct AVCodecContext* codec_context_p = NULL;
   struct AVFrame* frame_p = NULL;
-  int got_picture = 0;
   struct AVPacket packet_s;
   av_init_packet (&packet_s);
   unsigned int file_size_i = 0;
@@ -590,7 +589,6 @@ Common_Image_Tools::save (const Common_Image_Resolution_t& sourceResolution_in,
   int result_2 = -1;
   const struct AVCodec* codec_p = NULL;
   struct AVCodecContext* codec_context_p = NULL;
-  int got_picture = 0;
   struct AVPacket* packet_p = NULL;
   struct AVFrame* frame_p = av_frame_alloc ();
   if (!frame_p)

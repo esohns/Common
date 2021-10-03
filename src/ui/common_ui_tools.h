@@ -24,6 +24,7 @@
 #include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
+#include "X11/X.h"
 #include "X11/Xlib.h"
 #endif // ACE_WIN32 || ACE_WIN64
 

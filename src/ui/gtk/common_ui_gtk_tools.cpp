@@ -604,14 +604,17 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::dumpGtkOpenGLInfo"));
 
-  bool release_context = false;
-  bool release_window = false;
 #if GTK_CHECK_VERSION (4,0,0)
   GdkSurface* window_p = NULL;
 #elif GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
   GdkWindow* window_p = NULL;
+  bool release_context = false;
 #else
+#if defined (GTKGLAREA_SUPPORT)
+#else
+  bool release_window = false;
+#endif /* GTKGLAREA_SUPPORT */
 #endif // GTK_CHECK_VERSION (3,16,0)
 #endif // GTK_CHECK_VERSION (3/4,0,0)
   std::ostringstream converter;

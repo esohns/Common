@@ -29,8 +29,8 @@
 #include <vector>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include <windef.h>
-#include <WinUser.h>
+#include "windef.h"
+#include "WinUser.h"
 #else
 //#include "X11/Xlib.h"
 // forward declarations

@@ -58,7 +58,9 @@ class Common_TaskBase_T
  public:
   // convenient types
   typedef ACE_SYNCH_USE SYNCH_T;
-  //typedef typename LockType::MUTEX_T MUTEX_T; // *TODO*: make this a condition
+  typedef std::vector<ACE_Thread_ID> THREAD_IDS_T;
+  typedef THREAD_IDS_T::iterator THREAD_IDS_ITERATOR_T;
+  typedef THREAD_IDS_T::const_iterator THREAD_IDS_CONSTITERATOR_T;
 
   virtual ~Common_TaskBase_T ();
 
@@ -108,9 +110,6 @@ class Common_TaskBase_T
   //         --> see ACE_Task::thr_count_ for that
   unsigned int         threadCount_;
   std::string          threadName_;
-  typedef std::vector<ACE_Thread_ID> THREAD_IDS_T;
-  typedef THREAD_IDS_T::iterator THREAD_IDS_ITERATOR_T;
-  typedef THREAD_IDS_T::const_iterator THREAD_IDS_CONSTITERATOR_T;
   THREAD_IDS_T         threadIds_;
 
  private:
