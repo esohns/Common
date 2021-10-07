@@ -113,6 +113,9 @@ install (TARGETS ${LIBRARY}
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)
 
+if (CURSES_SUPPORT)
+ add_subdirectory (curses)
+endif (CURSES_SUPPORT)
 if (GTK_SUPPORT)
  add_subdirectory (gtk)
 endif (GTK_SUPPORT)

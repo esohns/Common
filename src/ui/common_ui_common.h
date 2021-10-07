@@ -221,6 +221,18 @@ struct Common_UI_DisplayMode
 // #######################################
 
 // ui
+enum Common_UI_FrameworkType
+{
+  COMMON_UI_FRAMEWORK_INVALID = -1,
+
+  COMMON_UI_FRAMEWORK_CURSES = 0,
+  COMMON_UI_FRAMEWORK_GTK,
+  COMMON_UI_FRAMEWORK_QT,
+  COMMON_UI_FRAMEWORK_WXWIDGETS,
+  // -------------------------------------
+  COMMON_UI_FRAMEWORK_MAX
+};
+
 enum Common_UI_EventType
 {
   COMMON_UI_EVENT_INVALID              = -1,

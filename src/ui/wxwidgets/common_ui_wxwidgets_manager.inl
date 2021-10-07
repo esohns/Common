@@ -167,11 +167,9 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::Entry ()
   Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_EVENT_THREAD_NAME),
                                      0);
 #endif // ACE_WIN32 || ACE_WIN64
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t) starting\n"),
               ACE_TEXT (COMMON_UI_EVENT_THREAD_NAME)));
-#endif // _DEBUG
 
   // sanity check(s)
   ACE_ASSERT (application_);
@@ -184,11 +182,9 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::Entry ()
   }
 
 //done:
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t) leaving\n"),
               ACE_TEXT (COMMON_UI_EVENT_THREAD_NAME)));
-#endif // _DEBUG
 
   return NULL;
 }
