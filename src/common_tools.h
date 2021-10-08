@@ -157,10 +157,8 @@ class Common_Tools
   //            argument is passed to the dispatch thread function as argument
   //            --> ensure it does not fall off the stack prematurely
   static bool startEventDispatch (struct Common_EventDispatchState&); // thread data (i/o)
-  static void dispatchEvents (bool,      // dispatch reactor ? : proactor
-                              int = -1); // dispatch thread group id
-  static void finalizeEventDispatch (int,           // proactor thread group id {-1: nop}
-                                     int,           // reactor thread group id  {-1: nop}
+  static void dispatchEvents (struct Common_EventDispatchState&); // thread data (i/o)
+  static void finalizeEventDispatch (struct Common_EventDispatchState&, // thread data (i/o)
                                      bool = false); // wait for completion ?
 
   // --- (locally installed-) (UNIX) commands / programs ---

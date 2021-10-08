@@ -24,7 +24,6 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
-//#include <random>
 #include <regex>
 #include <sstream>
 #include <string>
@@ -40,28 +39,28 @@ using namespace std;
 #define ACE_IOSFWD_H
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-//#include <errors.h>
-#include <Security.h>
+//#include "errors.h"
+#include "Security.h"
 #define INITGUID
-#include <strmif.h>
-#include <strsafe.h>
+#include "strmif.h"
+#include "strsafe.h"
 
 #if COMMON_OS_WIN32_TARGET_PLATFORM(0x0602) // _WIN32_WINNT_WIN8
-#include <processthreadsapi.h>
+#include "processthreadsapi.h"
 #endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0602)
 #elif defined (ACE_LINUX)
-#include <sys/capability.h>
-#include <sys/prctl.h>
-#include <sys/utsname.h>
+#include "sys/capability.h"
+#include "sys/prctl.h"
+#include "sys/utsname.h"
 
-#include <linux/capability.h>
-#include <linux/prctl.h>
-#include <linux/securebits.h>
+#include "linux/capability.h"
+#include "linux/prctl.h"
+#include "linux/securebits.h"
 
-#include <grp.h>
+#include "grp.h"
 #elif defined (__sun) && defined (__SVR4)
 // *NOTE*: Solaris (11)-specific
-#include <rctl.h>
+#include "rctl.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/FILE_Addr.h"
@@ -2373,8 +2372,8 @@ spawn:
     converter.clear ();
     converter.str (ACE_TEXT_ALWAYS_CHAR (""));
     converter << (i + 1);
-    buffer = (!loop_i ? ACE_TEXT_ALWAYS_CHAR ("proactor ")
-                      : ACE_TEXT_ALWAYS_CHAR ("reactor "));
+    buffer = (!!loop_i ? ACE_TEXT_ALWAYS_CHAR ("proactor ")
+                       : ACE_TEXT_ALWAYS_CHAR ("reactor "));
     buffer += ACE_TEXT_ALWAYS_CHAR (COMMON_EVENT_THREAD_NAME);
     buffer += ACE_TEXT_ALWAYS_CHAR (" #");
     buffer += converter.str ();
@@ -2447,7 +2446,6 @@ spawn:
     delete [] thread_names_p[i];
   } // end FOR
 
-#if defined (_DEBUG)
   buffer = converter.str ();
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): spawned %u dispatch thread(s) (group id: %d):\n%s"),
@@ -2455,7 +2453,6 @@ spawn:
               number_of_threads_i,
               group_id_i,
               ACE_TEXT (buffer.c_str ())));
-#endif // _DEBUG
 
   // clean up
   delete [] thread_handles_p;
@@ -2471,18 +2468,15 @@ continue_:
     goto spawn;
   } // end IF
 
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("started event dispatch; spawned %u thread(s)\n"),
               dispatchState_inout.configuration->numberOfProactorThreads + dispatchState_inout.configuration->numberOfReactorThreads));
-#endif // _DEBUG
 
   return true;
 }
 
 void
-Common_Tools::finalizeEventDispatch (int proactorGroupId_in,
-                                     int reactorGroupId_in,
+Common_Tools::finalizeEventDispatch (struct Common_EventDispatchState& dispatchState_inout,
                                      bool waitForCompletion_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::finalizeEventDispatch"));
@@ -2492,7 +2486,7 @@ Common_Tools::finalizeEventDispatch (int proactorGroupId_in,
   ACE_ASSERT (thread_manager_p);
 
   // step1: stop default reactor/proactor
-  if (proactorGroupId_in != -1)
+  if (dispatchState_inout.proactorGroupId != -1)
   {
     ACE_Proactor* proactor_p = ACE_Proactor::instance ();
     ACE_ASSERT (proactor_p);
@@ -2509,7 +2503,7 @@ Common_Tools::finalizeEventDispatch (int proactorGroupId_in,
 //                  ACE_TEXT ("failed to ACE_Proactor::close: \"%m\", continuing\n")));
   } // end IF
 
-  if (reactorGroupId_in != -1)
+  if (dispatchState_inout.reactorGroupId != -1)
   {
     ACE_Reactor* reactor_p = ACE_Reactor::instance ();
     ACE_ASSERT (reactor_p);
@@ -2523,59 +2517,74 @@ Common_Tools::finalizeEventDispatch (int proactorGroupId_in,
   if (likely (!waitForCompletion_in))
     goto continue_;
 
-  if (proactorGroupId_in != -1)
+  if (dispatchState_inout.proactorGroupId != -1)
   {
-    result = thread_manager_p->wait_grp (proactorGroupId_in);
+    result = thread_manager_p->wait_grp (dispatchState_inout.proactorGroupId);
     if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Thread_Manager::wait_grp(%d): \"%m\", continuing\n"),
-                  proactorGroupId_in));
+                  dispatchState_inout.proactorGroupId));
+    dispatchState_inout.proactorGroupId = -1;
   } // end IF
 
-  if (reactorGroupId_in != -1)
+  if (dispatchState_inout.reactorGroupId != -1)
   {
-    result = thread_manager_p->wait_grp (reactorGroupId_in);
+    result =
+      thread_manager_p->wait_grp (dispatchState_inout.reactorGroupId);
     if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Thread_Manager::wait_grp(%d): \"%m\", continuing\n"),
-                  reactorGroupId_in));
+                  dispatchState_inout.reactorGroupId));
+    dispatchState_inout.reactorGroupId = -1;
   } // end IF
 
 continue_:
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("stopped event dispatch\n")));
-#else
-  ;
-#endif // _DEBUG
 }
 
 void
-Common_Tools::dispatchEvents (bool useReactor_in,
-                              int groupId_in)
+Common_Tools::dispatchEvents (struct Common_EventDispatchState& dispatchState_inout)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::dispatchEvents"));
 
   int result = -1;
 
   // *NOTE*: when using a thread pool, handle things differently
-  if (groupId_in != -1)
+  if ((dispatchState_inout.proactorGroupId != -1) ||
+      (dispatchState_inout.reactorGroupId != -1))
   {
     ACE_Thread_Manager* thread_manager_p = ACE_Thread_Manager::instance ();
     ACE_ASSERT (thread_manager_p);
-    result = thread_manager_p->wait_grp (groupId_in);
+    if (dispatchState_inout.proactorGroupId == -1)
+      goto continue_;
+    result = thread_manager_p->wait_grp (dispatchState_inout.proactorGroupId);
     if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Thread_Manager::wait_grp(%d): \"%m\", continuing\n"),
-                  groupId_in));
+                  dispatchState_inout.proactorGroupId));
     else
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("joined dispatch thread group (id was: %d)\n"),
-                  groupId_in));
+                  dispatchState_inout.proactorGroupId));
+continue_:
+    if (dispatchState_inout.reactorGroupId == -1)
+      goto continue_2;
+    result = thread_manager_p->wait_grp (dispatchState_inout.reactorGroupId);
+    if (unlikely (result == -1))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Thread_Manager::wait_grp(%d): \"%m\", continuing\n"),
+                  dispatchState_inout.reactorGroupId));
+    else
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("joined dispatch thread group (id was: %d)\n"),
+                  dispatchState_inout.reactorGroupId));
+continue_2:
+    ;
   } // end IF
   else
-  {
-    if (useReactor_in)
+  { ACE_ASSERT (dispatchState_inout.configuration);
+    if (dispatchState_inout.configuration->dispatch == COMMON_EVENT_DISPATCH_REACTOR)
     {
       ACE_Reactor* reactor_p = ACE_Reactor::instance ();
       ACE_ASSERT (reactor_p);
@@ -2586,7 +2595,7 @@ Common_Tools::dispatchEvents (bool useReactor_in,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Reactor::run_reactor_event_loop(): \"%m\", continuing\n")));
     } // end IF
-    else
+    else if (dispatchState_inout.configuration->dispatch == COMMON_EVENT_DISPATCH_PROACTOR)
     {
       ACE_Proactor* proactor_p = ACE_Proactor::instance ();
       ACE_ASSERT (proactor_p);
@@ -2594,12 +2603,10 @@ Common_Tools::dispatchEvents (bool useReactor_in,
       if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Proactor::proactor_run_event_loop(): \"%m\", continuing\n")));
-    } // end ELSE
+    } // end ELSE IF
   } // end ELSE
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("event dispatch complete\n")));
-#endif // _DEBUG
 }
 
 bool

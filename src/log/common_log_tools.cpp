@@ -230,12 +230,12 @@ Common_Log_Tools::getLogDirectory (const std::string& packageName_in,
   result = Common_File_Tools::getTempDirectory ();
 #else
   result = ACE_TEXT_ALWAYS_CHAR (COMMON_LOG_DEFAULT_DIRECTORY);
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
   goto use_path;
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 use_environment:
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
   string_p =
       ACE_OS::getenv (ACE_TEXT (environment_variable.c_str ()));
   if (unlikely (!string_p))
@@ -286,7 +286,7 @@ fallback:
       result =
         ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY);
       goto use_path;
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
     }
     case 2:
     {
@@ -298,15 +298,14 @@ fallback:
       result =
         ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEMPORARY_STORAGE_DIRECTORY_2);
       goto use_path;
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
     }
     case 3:
     {
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
       result = Common_File_Tools::getWorkingDirectory ();
       goto use_path;
-#else
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
     }
     default:
     {
@@ -318,7 +317,7 @@ fallback:
       ACE_ASSERT (false);
       // *TODO*: implement fallback levels dependent on host platform/version
       //         see e.g. http://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
       break;
     }
   } // end SWITCH
