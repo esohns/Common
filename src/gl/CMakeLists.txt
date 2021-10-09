@@ -50,10 +50,11 @@ if (ASSIMP_SUPPORT)
       common_gl_assimp_tools.h)
 endif (ASSIMP_SUPPORT)
 
+get_target_property (debug ${LIBRARY} INTERFACE_INCLUDE_DIRECTORIES)
+message (STATUS "${LIBRARY} INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
+
 # Include dir for installed targets
 #set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
-
-#set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 unset (absolute_source_files)
 foreach (source_file ${source_files})
@@ -68,14 +69,9 @@ target_sources (${LIBRARY}
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-#add_definitions (-DHAVE_CONFIG_H)
-#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
-
 #add_dependencies (${PROJECT_NAME} ACE)
 
-#set_target_properties (${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
-#set_target_properties (${PROJECT_NAME} PROPERTIES
-#                       DEFINE_SYMBOL COMMON_BUILD_DLL)
+#set_target_properties (${PROJECT_NAME} PROPERTIES DEFINE_SYMBOL COMMON_BUILD_DLL)
 #set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 target_link_libraries (${LIBRARY} PUBLIC ${OPENGL_LIBRARIES})
