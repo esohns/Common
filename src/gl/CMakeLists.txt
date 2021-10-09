@@ -15,7 +15,7 @@ endif (IMAGEMAGICK_SUPPORT)
 
 if (GLM_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:${GLM_HPP_PATH}>)
+                             "$<BUILD_INTERFACE:${GLM_HPP_PATH}>")
 endif (GLM_SUPPORT)
 if (LIBPNG_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
