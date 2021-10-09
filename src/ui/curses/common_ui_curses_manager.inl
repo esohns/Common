@@ -131,36 +131,10 @@ Common_UI_Curses_Manager_T<ACE_SYNCH_USE,
       if (unlikely (inherited::thr_count_ == 0))
         return 0; // nothing to do
 
-      // sanity check(s)
-      ACE_ASSERT (configuration_);
-
       // schedule UI finalization
-      guint event_source_id = 0;
-      if (configuration_->eventHooks.finiHook)
       { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_.lock, -1);
-        event_source_id = g_idle_add (configuration_->eventHooks.finiHook,
-                                      CBData_);
-        if (unlikely (!event_source_id))
-        {
-          ACE_DEBUG ((LM_ERROR,
-                      ACE_TEXT ("failed to g_idle_add(): \"%m\", aborting")));
-          return -1;
-        } // end IF
-        state_.eventSourceIds.insert (event_source_id);
+        state_.finished = true;
       } // end lock scope
-
-      if (likely (UIIsInitialized_))
-      { ACE_ASSERT (configuration_->definition);
-        try {
-          configuration_->definition->finalize (false);
-        } catch (...) {
-          ACE_DEBUG ((LM_ERROR,
-                      ACE_TEXT ("caught exception in Common_UI_IGTK_T::finalize, continuing\n")));
-        }
-      } // end IF
-      else
-      {
-      } // end ELSE
 
       break;
     }
@@ -203,11 +177,38 @@ Common_UI_Curses_Manager_T<ACE_SYNCH_USE,
   // sanity check(s)
   ACE_ASSERT (configuration_);
 
-  int result = 0;
+  int result = -1;
 
-  gtk_main ();
+  if (configuration_->hooks.initHook &&
+      !configuration_->hooks.initHook (&state_))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("(%s): failed to Common_UI_Curses_EventHookConfiguration::initHook(), aborting\n"),
+                ACE_TEXT (inherited::threadName_.c_str ())));
+    return -1;
+  } // end IF
 
-done:
+  ACE_ASSERT (configuration_->hooks.mainHook);
+  if (!configuration_->hooks.mainHook (&state_))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("(%s): failed to Common_UI_Curses_EventHookConfiguration::mainHook(), aborting\n"),
+                ACE_TEXT (inherited::threadName_.c_str ())));
+    goto continue_;
+  } // end IF
+
+  result = 0;
+
+continue_:
+  if (configuration_->hooks.finiHook &&
+      !configuration_->hooks.finiHook (&state_))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("(%s): failed to Common_UI_Curses_EventHookConfiguration::finiHook(), aborting\n"),
+                ACE_TEXT (inherited::threadName_.c_str ())));
+    result = -1;
+  } // end IF
+
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t) leaving\n"),
               ACE_TEXT (inherited::threadName_.c_str ())));

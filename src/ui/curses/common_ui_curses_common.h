@@ -21,26 +21,77 @@
 #ifndef COMMON_UI_CURSES_COMMON_H
 #define COMMON_UI_CURSES_COMMON_H
 
+#include <map>
+#include <string>
+
+#if defined (ACE_WIN32) || defined (ACE_WIN32)
+#include "curses.h"
+#else
+#include "ncurses.h"
+ // *NOTE*: the ncurses "timeout" macros conflicts with
+ //         ACE_Synch_Options::timeout. Since not currently used, it's safe to
+ //         undefine
+#undef timeout
+#endif // ACE_WIN32 || ACE_WIN32
+#include "panel.h"
+
 #include "common_ui_common.h"
+
+typedef std::map<std::string, struct panel*> Common_UI_Curses_Panels_t;
+typedef Common_UI_Curses_Panels_t::iterator Common_UI_Curses_PanelsIterator_t;
 
 struct Common_UI_Curses_State
  : Common_UI_State
 {
   Common_UI_Curses_State ()
    : Common_UI_State ()
+   , dispatchState (NULL)
+   , finished (false)
+   , lock ()
+   , screen (NULL)
+   , std_window (NULL)
    ///////////////////////////////////////
    , userData (NULL)
   {}
 
+  // dispatch loop
+  struct Common_EventDispatchState* dispatchState;
+  bool                              finished;
+  ACE_SYNCH_MUTEX                   lock;
+  SCREEN*                           screen;
+  WINDOW*                           std_window;
+
   ////////////////////////////////////////
 
-  void* userData; // cb user data
+  void*                             userData; // cb user data
+};
+
+typedef bool (*CursesFunc) (struct Common_UI_Curses_State*); // state
+typedef bool (*CursesDataFunc) (struct Common_UI_Curses_State*, // state
+                                int);                           // input character
+
+struct Common_UI_Curses_EventHookConfiguration
+{
+  Common_UI_Curses_EventHookConfiguration ()
+   : initHook (NULL)
+   , finiHook (NULL)
+   , inputHook (NULL)
+   , mainHook (NULL)
+  {}
+
+  CursesFunc     initHook;
+  CursesFunc     finiHook;
+  CursesDataFunc inputHook;
+  CursesFunc     mainHook;
 };
 
 struct Common_UI_Curses_Configuration
 {
   Common_UI_Curses_Configuration ()
+   : hooks ()
   {}
+
+  struct Common_UI_Curses_EventHookConfiguration hooks;
 };
 
 //////////////////////////////////////////
