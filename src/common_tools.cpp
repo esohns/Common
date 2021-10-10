@@ -1892,20 +1892,16 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
     {
       case COMMON_REACTOR_ACE_DEFAULT:
       {
-#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using ACE default (platform-specific) reactor\n")));
-#endif // _DEBUG
         break;
       }
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
       case COMMON_REACTOR_DEV_POLL:
       {
-#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using /dev/poll reactor\n")));
-#endif // _DEBUG
         ACE_NEW_NORETURN (reactor_impl_p,
                           ACE_Dev_Poll_Reactor (COMMON_EVENT_MAXIMUM_HANDLES,    // max num handles
                                                 true,                            // restart after EINTR ?
@@ -1920,10 +1916,8 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
 #endif // ACE_WIN32 || ACE_WIN64
       case COMMON_REACTOR_SELECT:
       {
-#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using select reactor\n")));
-#endif // _DEBUG
         ACE_NEW_NORETURN (reactor_impl_p,
                           ACE_Select_Reactor (static_cast<size_t> (COMMON_EVENT_MAXIMUM_HANDLES), // max num handles
                                               true,                                               // restart after EINTR ?
@@ -1937,10 +1931,8 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
       }
       case COMMON_REACTOR_THREAD_POOL:
       {
-#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using thread-pool reactor\n")));
-#endif // _DEBUG
         ACE_NEW_NORETURN (reactor_impl_p,
                           ACE_TP_Reactor (static_cast<size_t> (COMMON_EVENT_MAXIMUM_HANDLES), // max num handles
                                           true,                                               // restart after EINTR ?
@@ -1953,10 +1945,8 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
       case COMMON_REACTOR_WFMO:
       {
-#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using WFMO reactor\n")));
-#endif // _DEBUG
         ACE_NEW_NORETURN (reactor_impl_p,
                           ACE_WFMO_Reactor (ACE_WFMO_Reactor::DEFAULT_SIZE, // max num handles (62 [+ 2])
                                             0,                              // unused
@@ -2027,20 +2017,16 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
     {
       case COMMON_PROACTOR_ACE_DEFAULT:
       {
-#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using ACE default (platform-specific) proactor\n")));
-#endif // _DEBUG
         break;
       }
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
       case COMMON_PROACTOR_POSIX_AIOCB:
       {
-#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using POSIX AIOCB proactor\n")));
-#endif // _DEBUG
         ACE_NEW_NORETURN (proactor_impl_p,
                           ACE_POSIX_AIOCB_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
 
@@ -2048,10 +2034,8 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
       }
       case COMMON_PROACTOR_POSIX_CB:
       {
-#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using POSIX CB proactor\n")));
-#endif // _DEBUG
         ACE_NEW_NORETURN (proactor_impl_p,
                           ACE_POSIX_CB_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
 
@@ -2059,10 +2043,8 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
       }
       case COMMON_PROACTOR_POSIX_SIG:
       {
-#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using POSIX RT-signal proactor\n")));
-#endif // _DEBUG
         ACE_NEW_NORETURN (proactor_impl_p,
                           ACE_POSIX_SIG_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
 
@@ -2071,10 +2053,8 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
 #if defined (ACE_HAS_AIO_CALLS) && defined (sun)
       case COMMON_PROACTOR_POSIX_SUN:
       {
-#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using SunOS proactor\n")));
-#endif // _DEBUG
         ACE_NEW_NORETURN (proactor_impl_p,
                           ACE_SUN_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
 
@@ -2085,10 +2065,8 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
       case COMMON_PROACTOR_WIN32:
       {
-#if defined (_DEBUG)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using Win32 proactor\n")));
-#endif // _DEBUG
         ACE_NEW_NORETURN (proactor_impl_p,
                           ACE_WIN32_Proactor (1,       // #concurrent thread(s)/I/O completion port [0: #processors]
                                               false)); // N/A
