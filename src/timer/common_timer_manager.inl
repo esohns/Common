@@ -167,14 +167,20 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 #else
       Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_NAME),
                                          thread_ids_a[0]);
+
 #endif // _WIN32_WINNT_WIN10
-#else
-#endif // ACE_WIN32 || ACE_WIN64
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("(%s): spawned timer dispatch thread (id: %d, group id: %d)\n"),
                   ACE_TEXT (COMMON_TIMER_THREAD_NAME),
                   thread_ids_a[0],
                   COMMON_TIMER_THREAD_GROUP_ID));
+#else
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("(%s): spawned timer dispatch thread (id: %u, group id: %d)\n"),
+                  ACE_TEXT (COMMON_TIMER_THREAD_NAME),
+                  thread_ids_a[0],
+                  COMMON_TIMER_THREAD_GROUP_ID));
+#endif // ACE_WIN32 || ACE_WIN64
       break;
     }
     default:
