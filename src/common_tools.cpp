@@ -2237,12 +2237,9 @@ common_event_dispatch_function (void* arg_in)
     result = ((result_2 == 0) ? NULL : arg_in);
 #endif // ACE_WIN32 || ACE_WIN64
   } // end ELSE
-
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): thread (id: %t) leaving\n"),
               ACE_TEXT (COMMON_EVENT_THREAD_NAME)));
-#endif // _DEBUG
 
   return result;
 }
