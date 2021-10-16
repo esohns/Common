@@ -26,15 +26,7 @@
 #include <string>
 #include <utility>
 
-//#if defined (_DEBUG)
-//#undef _DEBUG // *NOTE*: do not (!) #define __WXDEBUG__
-//#define REDEDINE_DEBUG 1
-//#endif // _DEBUG
 #include "wx/wx.h"
-//#if defined (REDEDINE_DEBUG)
-//#undef REDEDINE_DEBUG
-//#define _DEBUG
-//#endif // REDEDINE_DEBUG
 
 #include "ace/Synch_Traits.h"
 

@@ -3,7 +3,7 @@
 //      are changed infrequently
 //
 #if defined (_MSC_VER)
-#define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 
 // <limits> does not work correctly with these macros
 #define NOMINMAX
@@ -11,13 +11,13 @@
 #include "targetver.h"
 
 // Windows Header Files
-#include <windows.h>
+#include "windows.h"
 
 #if defined (_DEBUG)
 // *TODO*: currently, these do not work well with ACE...
 //#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
+#include "stdlib.h"
+#include "crtdbg.h"
 #endif // _DEBUG
 
 // *NOTE*: nmake complains (see also:
@@ -31,15 +31,12 @@
 // System Library Header Files
 
 // Library Header Files
-//#include "ace/os_include/sys/os_types.h"
+#include "ace/os_include/sys/os_types.h"
 #include "wx/wx.h"
 
-//#define ACE_HAS_SSIZE_T
 #include "ace/config-lite.h"
-#undef ACE_LACKS_MODE_T
 #include "ace/Global_Macros.h"
 #include "ace/Log_Msg.h"
-//#include "ace/OS.h"
 
 #if defined (VALGRIND_SUPPORT)
 #include "valgrind/valgrind.h"

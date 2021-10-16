@@ -14,17 +14,17 @@ if (IMAGEMAGICK_SUPPORT)
 endif (IMAGEMAGICK_SUPPORT)
 
 if (GLM_SUPPORT)
- message (STATUS "GLM_HPP_PATH: ${GLM_HPP_PATH}")
+# message (STATUS "GLM_HPP_PATH: ${GLM_HPP_PATH}")
  target_include_directories (${LIBRARY} PUBLIC
                              "$<BUILD_INTERFACE:${GLM_HPP_PATH}>")
 endif (GLM_SUPPORT)
 if (LIBPNG_SUPPORT)
- message (STATUS "PNG_INCLUDE_DIRS: ${PNG_INCLUDE_DIRS}")
+# message (STATUS "PNG_INCLUDE_DIRS: ${PNG_INCLUDE_DIRS}")
  target_include_directories (${LIBRARY} PUBLIC
                              "$<BUILD_INTERFACE:${PNG_INCLUDE_DIRS}>")
 endif (LIBPNG_SUPPORT)
 if (ASSIMP_SUPPORT)
- message (STATUS "ASSIMP_INCLUDE_DIRS: ${ASSIMP_INCLUDE_DIRS}")
+# message (STATUS "ASSIMP_INCLUDE_DIRS: ${ASSIMP_INCLUDE_DIRS}")
  target_include_directories (${LIBRARY} PUBLIC
                              "$<BUILD_INTERFACE:${ASSIMP_INCLUDE_DIRS}>")
 endif (ASSIMP_SUPPORT)
@@ -53,8 +53,8 @@ if (ASSIMP_SUPPORT)
       common_gl_assimp_tools.h)
 endif (ASSIMP_SUPPORT)
 
-get_target_property (debug ${LIBRARY} INTERFACE_INCLUDE_DIRECTORIES)
-message (STATUS "${LIBRARY} INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
+#get_target_property (debug ${LIBRARY} INTERFACE_INCLUDE_DIRECTORIES)
+#message (STATUS "${LIBRARY} INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
 
 # Include dir for installed targets
 #set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})

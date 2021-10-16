@@ -109,7 +109,7 @@ main (int argc, char** argv)
                                                argc,
                                                Common_UI_WxWidgets_Tools::convertArgV (argc,
                                                                                        argv),
-                                               COMMON_UI_WXWIDGETS_APP_CMDLINE_DEFAULT_PARSE);
+                                               COMMON_UI_WXWIDGETS_APP_DEFAULT_CMDLINE_PARSE);
   struct Common_UI_wxWidgets_CBData ui_cb_data;
   application_s.initialize (ui_cb_data);
   // *NOTE*: this sets ui_cb_data.UIState
