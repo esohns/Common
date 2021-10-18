@@ -236,15 +236,17 @@ if (UNIX)
                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
                          ENVIRONMENT ${ENVIRONMENT})
 elseif (WIN32)
- file (TO_CMAKE_PATH "${GTK_LIB_DIRS}" GTK_LIB_PATH)
  file (TO_CMAKE_PATH "${ACE_LIB_DIR}" ACE_LIB_PATH)
+ file (TO_CMAKE_PATH "${ffmpeg_LIB_DIR}" FFMPEG_LIB_PATH)
  file (TO_CMAKE_PATH "${ImageMagick_LIB_DIR}" IMAGEMAGICK_LIB_PATH)
  file (TO_CMAKE_PATH "${ASSIMP_LIB_DIR}" ASSIMP_LIB_PATH)
+ file (TO_CMAKE_PATH "${GTK_LIB_DIRS}" GTK_LIB_PATH)
  create_target_launcher (${EXECUTABLE}
                          ARGS ${ARGS}
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
                                               ${ACE_LIB_PATH}
+                                              ${FFMPEG_LIB_PATH}
                                               ${IMAGEMAGICK_LIB_PATH}
                                               ${ASSIMP_LIB_PATH}
                                               ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}

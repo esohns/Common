@@ -425,9 +425,9 @@ glarea_realize_cb (GtkWidget* widget_in,
 
 #if defined (GLU_SUPPORT)
   gluPerspective (45.0,
-    event_in->configure.width / (GLdouble)event_in->configure.height,
-    0.1,
-    100.0); // Calculate The Aspect Ratio Of The Window
+                  allocation.width / (GLdouble)allocation.height,
+                  0.1,
+                  100.0); // Calculate The Aspect Ratio Of The Window
 #else
   GLdouble fW, fH;
 
