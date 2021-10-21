@@ -11,7 +11,9 @@ runs:
     with:
      setupOnly: true
      vcpkgGitCommitId: 'a79d4a8ec7ae4464eb22f6af23e277882a67595d'
-  - run: vcpkg install assimp directxsdk ffmpeg freeglut glm graphicsmagick gtk
+  - run: |
+         vcpkg update
+         vcpkg install assimp directxsdk ffmpeg freeglut glm graphicsmagick gtk
     shell: cmd
 #    if: inputs.os == 'ubuntu-latest'
 #  - run:

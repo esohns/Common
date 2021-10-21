@@ -1,13 +1,10 @@
-//#include <cmath>
 
 #include "ace/Log_Msg.h"
 
 #include "common_macros.h"
 
-template <typename ValueType,
-          unsigned int Aggregation>
-SampleIterator_T<ValueType,
-                 Aggregation>::SampleIterator_T (char* buffer_in)
+template <typename ValueType>
+SampleIterator_T<ValueType>::SampleIterator_T (char* buffer_in)
  : buffer_ (buffer_in)
  , reverseByteOrder_ (false)
  , sampleSize_ (0)
@@ -21,12 +18,10 @@ SampleIterator_T<ValueType,
 
 }
 
-template <typename ValueType,
-          unsigned int Aggregation>
+template <typename ValueType>
 ValueType
-SampleIterator_T<ValueType,
-                 Aggregation>::get (unsigned int index_in,
-                                    unsigned int subSampleIndex_in)
+SampleIterator_T<ValueType>::get (unsigned int index_in,
+                                  unsigned int subSampleIndex_in) // i.e. channel#
 {
   COMMON_TRACE (ACE_TEXT ("SampleIterator_T::get"));
 
@@ -51,8 +46,8 @@ SampleIterator_T<ValueType,
       return (subSampleByteOrder_ ? (reverseByteOrder_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG (*reinterpret_cast<int*> (&buffer_[(index_in * sampleSize_) + (subSampleIndex_in * subSampleSize_)]))
                                                                                 : ACE_SWAP_LONG (*reinterpret_cast<unsigned int*> (&buffer_[(subSampleIndex_in * sampleSize_) + (subSampleIndex_in * subSampleSize_)])))
                                                        : (isSignedSampleFormat_ ? *reinterpret_cast<int*> (&buffer_[(index_in * sampleSize_) + (subSampleIndex_in * subSampleSize_)])
-                                                                                : *reinterpret_cast<unsigned int*> (&buffer_[(index_in * sampleSize_) + (subSampleIndex_in * sampleSize_)])))
-                                  : *reinterpret_cast<float*> (&buffer_[(index_in * sampleSize_) + (subSampleIndex_in * sampleSize_)]));
+                                                                                : *reinterpret_cast<unsigned int*> (&buffer_[(index_in * sampleSize_) + (subSampleIndex_in * subSampleSize_)])))
+                                  : *reinterpret_cast<float*> (&buffer_[(index_in * sampleSize_) + (subSampleIndex_in * subSampleSize_)]));
     }
     case 8:
     {
@@ -69,19 +64,20 @@ SampleIterator_T<ValueType,
     }
   } // end SWITCH
 
-  return 0.0;
+  return 0;
 }
 
-template <typename ValueType,
-          unsigned int Aggregation>
+template <typename ValueType>
 bool
-SampleIterator_T<ValueType,
-                 Aggregation>::initialize (unsigned int sampleSize_in,
-                                           unsigned int subSampleSize_in,
-                                           bool isSignedSampleFormat_in,
-                                           int subSampleByteOrder_in)
+SampleIterator_T<ValueType>::initialize (unsigned int sampleSize_in,
+                                         unsigned int subSampleSize_in,
+                                         bool isSignedSampleFormat_in,
+                                         int subSampleByteOrder_in)
 {
   COMMON_TRACE (ACE_TEXT ("SampleIterator_T::initialize"));
+
+  // sanity check(s)
+  ACE_ASSERT (sizeof (ValueType) >= sampleSize_in);
 
   sampleSize_ = sampleSize_in;
   subSampleSize_ = subSampleSize_in;
@@ -98,12 +94,25 @@ SampleIterator_T<ValueType,
 
 //////////////////////////////////////////
 
-template <typename ValueType,
-          unsigned int Aggregation>
-Common_Math_Sample_T<ValueType,
-                     Aggregation>::Common_Math_Sample_T (unsigned int slots_in,
-                                                         unsigned int sampleRate_in)
+template <typename ValueType>
+Common_Math_Sample_T<ValueType>::Common_Math_Sample_T ()
  : buffer_ (NULL)
+ , channels_ (0)
+ , slots_ (0)
+ , sampleRate_ (0)
+ /////////////////////////////////////////
+ , isInitialized_ (false)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Math_Sample_T::Common_Math_Sample_T"));
+
+}
+
+template <typename ValueType>
+Common_Math_Sample_T<ValueType>::Common_Math_Sample_T (unsigned int channels_in,
+                                                       unsigned int slots_in,
+                                                       unsigned int sampleRate_in)
+ : buffer_ (NULL)
+ , channels_ (channels_in)
  , slots_ (slots_in)
  , sampleRate_ (sampleRate_in)
  /////////////////////////////////////////
@@ -115,45 +124,41 @@ Common_Math_Sample_T<ValueType,
                                sampleRate_in);
 }
 
-template <typename ValueType,
-          unsigned int Aggregation>
-Common_Math_Sample_T<ValueType,
-                     Aggregation>::~Common_Math_Sample_T ()
+template <typename ValueType>
+Common_Math_Sample_T<ValueType>::~Common_Math_Sample_T ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Math_Sample_T::~Common_Math_Sample_T"));
 
   if (buffer_)
-    for (unsigned int i = 0; i < Aggregation; ++i)
+    for (unsigned int i = 0; i < channels_; ++i)
       delete [] buffer_[i];
   delete [] buffer_;
 }
 
-template <typename ValueType,
-          unsigned int Aggregation>
+template <typename ValueType>
 bool
-Common_Math_Sample_T<ValueType,
-                     Aggregation>::Initialize (unsigned int slots_in,
-                                               unsigned int sampleRate_in)
+Common_Math_Sample_T<ValueType>::Initialize (unsigned int channels_in,
+                                             unsigned int slots_in,
+                                             unsigned int sampleRate_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Math_Sample_T::Initialize"));
 
   // sanity check(s)
-#if defined (_DEBUG)
   if (slots_in % 2)
-    ACE_DEBUG ((LM_ERROR,
+    ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("buffer size must be a power of 2 (was: %d), continuing\n"),
                 slots_in));
-#endif // _DEBUG
 
   if (isInitialized_)
   {
     if (buffer_)
     {
-      for (unsigned int i = 0; i < Aggregation; ++i)
+      for (unsigned int i = 0; i < channels_; ++i)
         delete [] buffer_[i];
       delete [] buffer_;
       buffer_ = NULL;
     } // end IF
+    channels_ = 0;
     slots_ = 0;
     sampleRate_ = 0;
 
@@ -161,17 +166,17 @@ Common_Math_Sample_T<ValueType,
   } // end IF
 
   ACE_NEW_NORETURN (buffer_,
-                    ValueType* [Aggregation]);
+                    ValueType*[channels_in]);
   if (!buffer_)
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory, aborting\n")));
     return false;
   } // end IF
-  for (unsigned int i = 0; i < Aggregation; ++i)
+  for (unsigned int i = 0; i < channels_in; ++i)
   {
     ACE_NEW_NORETURN (buffer_[i],
-                      ValueType [slots_in]);
+                      ValueType[slots_in]);
     if (!buffer_[i])
     {
       ACE_DEBUG ((LM_CRITICAL,
@@ -184,10 +189,11 @@ Common_Math_Sample_T<ValueType,
   for (unsigned int i = 0; i < slots_in; ++i)
     buffer_[i][j] = 1600 * sin (2.0 * M_PI * 1000.0 * j / sampleRate_in);
 #else
-  for (unsigned int i = 0; i < Aggregation; ++i)
+  for (unsigned int i = 0; i < channels_in; ++i)
     for (unsigned int j = 0; j < slots_in; ++j)
-      buffer_[i][j] = 0.0;
-#endif
+      buffer_[i][j] = 0;
+#endif // 0
+  channels_ = channels_in;
   slots_ = slots_in;
   sampleRate_ = sampleRate_in;
 

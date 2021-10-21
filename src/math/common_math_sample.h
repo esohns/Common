@@ -5,8 +5,7 @@
 
 // *TODO*: 'macroize' this code. Data access should really have (nearly) zero
 //         overhead. If that is not possible, sub-class ASAP
-template <typename ValueType,
-          unsigned int Aggregation> // #sub-slots (if any; e.g. [left-right in an interleaved] 'stereo' signal)
+template <typename ValueType>
 class SampleIterator_T
 {
  public:
@@ -40,43 +39,45 @@ class SampleIterator_T
 
 //////////////////////////////////////////
 
-template <typename ValueType,
-          unsigned int Aggregation> // #sub-slots (if any; e.g. [left-right in an interleaved] 'stereo' signal)
+template <typename ValueType>
 class Common_Math_Sample_T
 {
  public:
-  Common_Math_Sample_T (unsigned int,  // #buffered values ('magnitude' of the buffer)
+  Common_Math_Sample_T ();
+  Common_Math_Sample_T (unsigned int,  // #channels
+                        unsigned int,  // #buffered samples ('magnitude' of the buffer)
                         unsigned int); // source sample rate (Hz)
   virtual ~Common_Math_Sample_T ();
 
-  typedef SampleIterator_T<ValueType,
-                           Aggregation> ITERATOR_T;
+  typedef SampleIterator_T<ValueType> ITERATOR_T;
 
   //void CopyIn (ITERATOR_T*); // sample iterator
-  bool Initialize (unsigned int,  // #slots
+  bool Initialize (unsigned int,  // #channels
+                   unsigned int,  // #slots
                    unsigned int); // source sample rate (Hz)
   // *WARNING*: indexes are 0-based
-  virtual void Process (unsigned int,      // starting slot index
+  virtual void Process (unsigned int,      // channel#
+                        unsigned int,      // starting slot index
                         unsigned int) = 0; // ending slot index (inclusive)
 
   inline unsigned int Slots () const { return slots_; }
 
-  virtual ValueType Value (unsigned int slot_in,
-                           unsigned int subSlot_in) const = 0;
-//  { ACE_ASSERT (slot_in < slots_);
-//    ACE_ASSERT (subSlot_in < Aggregation);
-//    return static_cast<int> (buffer_[subSlot_in][slot_in]);
+  virtual ValueType Value (unsigned int,            // channel#
+                           unsigned int) const = 0; // slot#
+//  { ACE_ASSERT (slot# < slots_);
+//    ACE_ASSERT (channel# < Aggregation);
+//    return static_cast<ValueType> (buffer_[channel#][slot#]);
 //  }
 
   inline unsigned int HzToSlot (unsigned int frequency_in) const { return (static_cast<unsigned int> (slots_ * frequency_in) / sampleRate_); }
 
  protected:
-  ValueType**  buffer_;     // sample data (may contain n 'channels')
-  unsigned int slots_;      // #buffered values ('magnitude' of the buffer)
+  ValueType**  buffer_;     // sample data (may contain several 'channels')
+  unsigned int channels_;   // #channels
+  unsigned int slots_;      // #buffered samples ('magnitude' of the buffer)
   unsigned int sampleRate_; // source sample rate
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_Math_Sample_T ())
   ACE_UNIMPLEMENTED_FUNC (Common_Math_Sample_T (const Common_Math_Sample_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_Math_Sample_T& operator= (const Common_Math_Sample_T&))
 
