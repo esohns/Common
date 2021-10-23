@@ -327,7 +327,7 @@ Common_UI_GTK_Tools::localeToUTF8 (const std::string& string_in)
   return result_p;
 }
 
-guint
+gint
 Common_UI_GTK_Tools::valueToIndex (GtkTreeModel* treeModel_in,
                                    const GValue& value_in,
                                    gint column_in)
@@ -352,8 +352,7 @@ Common_UI_GTK_Tools::valueToIndex (GtkTreeModel* treeModel_in,
   // clean up
   g_value_unset (&cb_data_s.value);
 
-  return (cb_data_s.found ? cb_data_s.index
-                          : std::numeric_limits<guint>::max ());
+  return (cb_data_s.found ? cb_data_s.index : -1);
 }
 
 void
@@ -363,12 +362,21 @@ Common_UI_GTK_Tools::selectValue (GtkComboBox* comboBox_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::selectValue"));
 
-  guint index_i =
+  gint index_i =
       Common_UI_GTK_Tools::valueToIndex (gtk_combo_box_get_model (comboBox_in),
                                          value_in,
                                          column_in);
-//  ACE_ASSERT (index_i != std::numeric_limits<unsigned int>::max ());
-  gtk_combo_box_set_active (comboBox_in, static_cast<gint> (index_i));
+  if (index_i != -1)
+    gtk_combo_box_set_active (comboBox_in, index_i);
+  else
+  {
+    gchar* string_p = g_strdup_value_contents (&value_in);
+    ACE_ASSERT (string_p);
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("invalid/unknown identifier (was: \"%s\"), returning\n"),
+                string_p));
+    g_free (string_p); string_p = NULL;
+  } // end ELSE
 }
 
 Common_UI_DisplayDevices_t

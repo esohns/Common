@@ -21,7 +21,6 @@
 #ifndef COMMON_UI_GTK_TOOLS_H
 #define COMMON_UI_GTK_TOOLS_H
 
-#include <limits>
 #include <string>
 
 #include "gtk/gtk.h"
@@ -65,7 +64,7 @@ class Common_UI_GTK_Tools
     TreeModel_IndexSearch_CBData ()
      : column (0)
      , found (false)
-     , index (std::numeric_limits<guint>::max ())
+     , index (0)
      , value ()
     {
       ACE_OS::memset (&value, 0, sizeof (struct _GValue));
@@ -73,13 +72,14 @@ class Common_UI_GTK_Tools
 
     gint   column;
     bool   found;
-    guint  index;
+    gint   index;
     GValue value;
   };
   // *IMPORTANT NOTE*: convert G_TYPE_STRING values to UTF8 (second argument)
-  static guint valueToIndex (GtkTreeModel*,
-                             const GValue&,
-                             gint = 0);     // column
+  // *NOTE*: returns -1 if not found
+  static gint valueToIndex (GtkTreeModel*,
+                            const GValue&,
+                            gint = 0);     // column
 
   static void selectValue (GtkComboBox*,
                            const GValue&,
