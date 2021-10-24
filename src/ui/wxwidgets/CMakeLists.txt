@@ -1,8 +1,8 @@
-message (STATUS "wxWidgets_DEFINITIONS: ${wxWidgets_DEFINITIONS}")
-message (STATUS "wxWidgets_DEFINITIONS_DEBUG: ${wxWidgets_DEFINITIONS_DEBUG}")
-message (STATUS "wxWidgets_INCLUDE_DIRS: ${wxWidgets_INCLUDE_DIRS}")
-message (STATUS "wxWidgets_CXX_FLAGS: ${wxWidgets_CXX_FLAGS}")
-message (STATUS "wxWidgets_USE_FILE: ${wxWidgets_USE_FILE}")
+#message (STATUS "wxWidgets_DEFINITIONS: ${wxWidgets_DEFINITIONS}")
+#message (STATUS "wxWidgets_DEFINITIONS_DEBUG: ${wxWidgets_DEFINITIONS_DEBUG}")
+#message (STATUS "wxWidgets_INCLUDE_DIRS: ${wxWidgets_INCLUDE_DIRS}")
+#message (STATUS "wxWidgets_CXX_FLAGS: ${wxWidgets_CXX_FLAGS}")
+#message (STATUS "wxWidgets_USE_FILE: ${wxWidgets_USE_FILE}")
 # *NOTE*: re-enable ANSI mode
 # add_definitions (-DwxUSE_UNICODE=0)
 
@@ -62,6 +62,8 @@ target_sources (${PROJECT_NAME}UI_wxWidgets
                 PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
+target_precompile_headers (${PROJECT_NAME}UI_wxWidgets
+                           PUBLIC stdafx.h)
 
 #get_target_property (debug ${PROJECT_NAME}UI_GTK INTERFACE_INCLUDE_DIRECTORIES)
 #message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
@@ -92,8 +94,8 @@ endif ()
 #set_target_properties (${PROJECT_NAME}UI_wxWidgets PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
-set_target_properties (${PROJECT_NAME}UI_wxWidgets PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${PROJECT_NAME}UI_wxWidgets)
+#set_target_properties (${PROJECT_NAME}UI_wxWidgets PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+#cotire (${PROJECT_NAME}UI_wxWidgets)
 
 #message (STATUS "INTERFACE_INCLUDE_DIRECTORIES=${INTERFACE_INCLUDE_DIRECTORIES}")
 

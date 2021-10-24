@@ -91,6 +91,8 @@ target_sources (${LIBRARY}
                 PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
+target_precompile_headers (${LIBRARY}
+                           PUBLIC stdafx.h)
 
 #get_target_property (debug ${LIBRARY} INTERFACE_INCLUDE_DIRECTORIES)
 #message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
@@ -142,8 +144,8 @@ endif ()
 #set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
-set_target_properties (${LIBRARY} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${LIBRARY})
+#set_target_properties (${LIBRARY} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+#cotire (${LIBRARY})
 
 # add all targets to the build-tree export set
 export (TARGETS ${LIBRARY}

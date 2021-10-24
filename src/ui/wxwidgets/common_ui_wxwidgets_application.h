@@ -27,6 +27,7 @@
 //#undef _DEBUG // *NOTE*: do not (!) #define __WXDEBUG__
 //#define REDEDINE_DEBUG 1
 //#endif // _DEBUG
+#undef DrawText
 #include "wx/wx.h"
 //#if defined (REDEDINE_DEBUG)
 //#undef REDEDINE_DEBUG

@@ -26,6 +26,7 @@
 #include <string>
 #include <utility>
 
+#undef DrawText
 #include "wx/wx.h"
 
 #include "ace/Synch_Traits.h"

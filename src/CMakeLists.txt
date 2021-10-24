@@ -13,13 +13,13 @@ endif (UNIX)
 
 if (UNIX)
  include (CheckLibraryExists)
-# *TODO*: why isn't the function found ?
  check_library_exists (rt aio_init "" HAVE_LIB_AIO)
 
- set (AIO_LIB_FILE libaio.so.1)
- find_library (AIO_LIBRARY ${AIO_LIB_FILE}
-               PATHS /lib /usr/lib /usr/lib64
-               PATH_SUFFIXES x86_64-linux-gnu
+ set (AIO_LIB_FILE aio)
+ find_library (AIO_LIBRARY
+               NAMES aio libaio libaio.so libaio.so.1
+               PATHS /usr /lib
+               PATH_SUFFIXES lib lib64 x86_64-linux-gnu
                DOC "searching for ${AIO_LIB_FILE}")
  if (NOT AIO_LIBRARY)
   message (FATAL_ERROR "could not find libaio, aborting")
@@ -110,8 +110,6 @@ endif (WIN32)
 # Include dir for installed targets
 #set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 
-#set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
-
 foreach (source_file ${source_files})
  get_filename_component (abs_source_file ${source_file} ABSOLUTE)
  list (APPEND absolute_source_files
@@ -123,6 +121,8 @@ target_sources (${PROJECT_NAME}
                 PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
+target_precompile_headers (${PROJECT_NAME}
+                           PUBLIC stdafx.h)
 
 #add_dependencies (${PROJECT_NAME} ACE)
 if (UNIX)
@@ -146,7 +146,7 @@ if (UNIX)
 #  set (GCC_SHOW_INCLUDES_COMPILE_FLAGS "-E -dI")
 #  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_SHOW_INCLUDES_COMPILE_FLAGS}")
 
-  set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed")
+#  set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed")
 #  set (CMAKE_STATIC_LINKER_FLAGS "-Wl,--as-needed")
  endif (CMAKE_COMPILER_IS_GNUCXX)
 endif (UNIX)
@@ -178,9 +178,9 @@ target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}Error)
 ##########################################
 
 # add PCH
-set_target_properties (${PROJECT_NAME} PROPERTIES
-                       COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${PROJECT_NAME})
+#set_target_properties (${PROJECT_NAME} PROPERTIES
+#                       COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
+#cotire (${PROJECT_NAME})
 
 # add all targets to the build-tree export set
 export (TARGETS ${PROJECT_NAME}
