@@ -253,6 +253,7 @@ enum Common_UI_EventType
 
   // network & session
   COMMON_UI_EVENT_NETWORK_SESSION_BASE = 0x0400,
+  COMMON_UI_EVENT_ABORT,
   COMMON_UI_EVENT_CONNECT,
   COMMON_UI_EVENT_DISCONNECT,
   ////////////////////////////////////////

@@ -22,6 +22,7 @@ class Common_Math_FFT_SampleIterator
               unsigned int); // channel index (i.e. 0: mono/stereo left,
                              //                     1: stereo right, ...)
 
+  bool         isInitialized_;
   char*        buffer_;
   unsigned int dataSampleSize_;
   bool         reverseEndianness_;
@@ -32,7 +33,6 @@ class Common_Math_FFT_SampleIterator
   ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator (const Common_Math_FFT_SampleIterator&))
   ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator& operator= (const Common_Math_FFT_SampleIterator&))
 
-  bool         isInitialized_;
   bool         isSignedSampleFormat_;
   int          sampleByteOrder_; // ACE-style, 0: N/A
 };
@@ -82,6 +82,7 @@ class Common_Math_FFT
   }
 
  protected:
+  bool                   isInitialized_;
   double**               buffer_;        // sample data [/channel]
   std::complex<double>** X_;             // 'in-place' working buffer [/channel]
 
@@ -98,8 +99,6 @@ class Common_Math_FFT
   int                    logSlots_;
   double                 sqrtSlots_;
   std::complex<double>** W_;             // exponentials
-
-  bool                   isInitialized_;
 };
 
 #endif

@@ -290,6 +290,54 @@ Common_UI_Tools::finalize ()
   return true;
 }
 
+std::string
+Common_UI_Tools::toString (enum Common_UI_EventType event_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::toString"));
+
+  // initialize return value(s)
+  std::string result = ACE_TEXT_ALWAYS_CHAR ("INVALID");
+
+  switch (event_in)
+  {
+    case COMMON_UI_EVENT_CONTROL:
+      result = ACE_TEXT_ALWAYS_CHAR ("CONTROL"); break;
+    case COMMON_UI_EVENT_DATA:
+      result = ACE_TEXT_ALWAYS_CHAR ("DATA"); break;
+    case COMMON_UI_EVENT_SESSION:
+      result = ACE_TEXT_ALWAYS_CHAR ("SESSION"); break;
+    case COMMON_UI_EVENT_FINISHED:
+      result = ACE_TEXT_ALWAYS_CHAR ("FINISHED"); break;
+    case COMMON_UI_EVENT_PAUSED:
+      result = ACE_TEXT_ALWAYS_CHAR ("PAUSED"); break;
+    case COMMON_UI_EVENT_RESET:
+      result = ACE_TEXT_ALWAYS_CHAR ("RESET"); break;
+    case COMMON_UI_EVENT_STARTED:
+      result = ACE_TEXT_ALWAYS_CHAR ("STARTED"); break;
+    case COMMON_UI_EVENT_STOPPED:
+      result = ACE_TEXT_ALWAYS_CHAR ("STOPPED"); break;
+    case COMMON_UI_EVENT_ABORT:
+      result = ACE_TEXT_ALWAYS_CHAR ("ABORT"); break;
+    case COMMON_UI_EVENT_CONNECT:
+      result = ACE_TEXT_ALWAYS_CHAR ("CONNECT"); break;
+    case COMMON_UI_EVENT_DISCONNECT:
+      result = ACE_TEXT_ALWAYS_CHAR ("DISCONNECT"); break;
+    case COMMON_UI_EVENT_STATISTIC:
+      result = ACE_TEXT_ALWAYS_CHAR ("STATISTIC"); break;
+    case COMMON_UI_EVENT_RESIZE:
+      result = ACE_TEXT_ALWAYS_CHAR ("RESIZE"); break;
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown session event type (was: %d), aborting\n"),
+                  event_in));
+      break;
+    }
+  } // end SWITCH
+
+  return result;
+}
+
 Common_UI_DisplayAdapters_t
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 Common_UI_Tools::getAdapters (bool excludeMirroringDevices_in)

@@ -11,12 +11,12 @@
 #include "common_macros.h"
 
 Common_Math_FFT_SampleIterator::Common_Math_FFT_SampleIterator (char* buffer_in)
- : buffer_ (buffer_in)
+ : isInitialized_ (false)
+ , buffer_ (buffer_in)
  , dataSampleSize_ (0)
  , reverseEndianness_ (false)
  , soundSampleSize_ (0)
  /////////////////////////////////////////
- , isInitialized_ (false)
  , isSignedSampleFormat_ (true)
  , sampleByteOrder_ (ACE_BYTE_ORDER)
 {
@@ -98,7 +98,8 @@ Common_Math_FFT_SampleIterator::initialize (unsigned int dataSampleSize_in,
 Common_Math_FFT::Common_Math_FFT (unsigned int channels_in,
                                   unsigned int slots_in,
                                   unsigned int sampleRate_in)
- : buffer_ (NULL)
+ : isInitialized_ (false)
+ , buffer_ (NULL)
  , X_ (NULL)
  , bitReverseMap_ (NULL)
  , channels_ (channels_in)
@@ -108,7 +109,6 @@ Common_Math_FFT::Common_Math_FFT (unsigned int channels_in,
  , logSlots_ (0)
  , sqrtSlots_ (0.0)
  , W_ (NULL)
- , isInitialized_ (false)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Math_FFT::Common_Math_FFT"));
 

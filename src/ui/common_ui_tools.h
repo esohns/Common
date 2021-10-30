@@ -43,6 +43,8 @@ class Common_UI_Tools
   static bool initialize ();
   static bool finalize ();
 
+  static std::string toString (enum Common_UI_EventType);
+
   // *NOTE*: these refer to graphics adapters (i.e. cards/chips) connected
   //         to the motherboard/CPU, NOT 'physical' display devices
   inline static struct Common_UI_DisplayAdapter getDefaultAdapter () { return Common_UI_Tools::getAdapter (ACE_TEXT_ALWAYS_CHAR ("")); }
