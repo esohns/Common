@@ -40,13 +40,7 @@ set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 if (GTKGL_SUPPORT)
  target_link_libraries (${EXECUTABLE} PUBLIC ${OPENGL_LIBRARIES})
 endif (GTKGL_SUPPORT)
-#target_link_libraries (${EXECUTABLE} ${GTK_LIBRARIES})
-#if (UNIX)
-#elseif (WIN32)
-# if (GTKGLAREA_SUPPORT)
-#  target_link_libraries (${EXECUTABLE} $ENV{LIB_ROOT}/gtkglarea/${BUILD_PATH_SUFFIX}/${CMAKE_BUILD_TYPE}/gtkglarea.lib)
-# endif (GTKGLAREA_SUPPORT)
-#endif ()
+target_link_libraries (${EXECUTABLE} PUBLIC ${GTK_LIBRARIES})
 
 target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
 
@@ -62,8 +56,8 @@ target_link_libraries (${EXECUTABLE} PUBLIC CommonUI_GTK)
 target_link_libraries (${EXECUTABLE} PUBLIC Common_Test_I)
 
 # add PCH
-#set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-#cotire (${EXECUTABLE})
+target_precompile_headers (${EXECUTABLE}
+                           PUBLIC stdafx.h)
 
 ############## next target ###############
 set (gtk_ui_2_EXE_SRCS
@@ -82,35 +76,27 @@ add_executable (${EXECUTABLE_2}
 set_property (TARGET ${EXECUTABLE_2} PROPERTY FOLDER "test_i")
 
 if (UNIX)
- target_link_libraries (${EXECUTABLE_2} X11)
- target_link_libraries (${EXECUTABLE_2} GL)
+ target_link_libraries (${EXECUTABLE_2} PUBLIC X11)
+ target_link_libraries (${EXECUTABLE_2} PUBLIC GL)
 
- target_link_libraries (${EXECUTABLE_2} ${PKG_FFMPEG_LIBRARIES})
+ target_link_libraries (${EXECUTABLE_2} PUBLIC ${PKG_FFMPEG_LIBRARIES})
 elseif (WIN32)
-# set_target_properties (${EXECUTABLE_2} PROPERTIES LINK_FLAGS /SAFESEH:NO)
-
- target_link_libraries (${EXECUTABLE_2} OpenGL32)
+ target_link_libraries (${EXECUTABLE_2} PUBLIC OpenGL32)
 endif (UNIX)
-target_link_libraries (${EXECUTABLE_2} ${GTK_LIBRARIES})
-#if (UNIX)
-#elseif (WIN32)
-# if (GTKGLAREA_SUPPORT)
-#  target_link_libraries (${EXECUTABLE_2} $ENV{LIB_ROOT}/gtkglarea/${BUILD_PATH_SUFFIX}/${CMAKE_BUILD_TYPE}/gtkglarea.lib)
-# endif (GTKGLAREA_SUPPORT)
-#endif ()
+target_link_libraries (${EXECUTABLE_2} PUBLIC ${GTK_LIBRARIES})
 
-target_link_libraries (${EXECUTABLE_2} ${ACE_LIBRARY})
+target_link_libraries (${EXECUTABLE_2} PUBLIC ${ACE_LIBRARY})
 
-target_link_libraries (${EXECUTABLE_2} Common)
-target_link_libraries (${EXECUTABLE_2} CommonOpenGL)
-target_link_libraries (${EXECUTABLE_2} CommonLog)
-target_link_libraries (${EXECUTABLE_2} CommonTimer)
-target_link_libraries (${EXECUTABLE_2} CommonUI)
-target_link_libraries (${EXECUTABLE_2} CommonUI_GTK)
+target_link_libraries (${EXECUTABLE_2} PUBLIC Common)
+target_link_libraries (${EXECUTABLE_2} PUBLIC CommonOpenGL)
+target_link_libraries (${EXECUTABLE_2} PUBLIC CommonLog)
+target_link_libraries (${EXECUTABLE_2} PUBLIC CommonTimer)
+target_link_libraries (${EXECUTABLE_2} PUBLIC CommonUI)
+target_link_libraries (${EXECUTABLE_2} PUBLIC CommonUI_GTK)
 
 # add PCH
-#set_target_properties (${EXECUTABLE_2} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-#cotire (${EXECUTABLE_2})
+target_precompile_headers (${EXECUTABLE_2}
+                           PUBLIC stdafx.h)
 
 ############## next target ###############
 set (gtk_ui_3_EXE_SRCS
@@ -129,35 +115,27 @@ add_executable (${EXECUTABLE_3}
 set_property (TARGET ${EXECUTABLE_3} PROPERTY FOLDER "test_i")
 
 if (UNIX)
- target_link_libraries (${EXECUTABLE_3} X11)
- target_link_libraries (${EXECUTABLE_3} GL)
+ target_link_libraries (${EXECUTABLE_3} PUBLIC X11)
+ target_link_libraries (${EXECUTABLE_3} PUBLIC GL)
 
- target_link_libraries (${EXECUTABLE_3} ${PKG_FFMPEG_LIBRARIES})
+# target_link_libraries (${EXECUTABLE_3} PUBLIC ${PKG_FFMPEG_LIBRARIES})
 elseif (WIN32)
-# set_target_properties (${EXECUTABLE_3} PROPERTIES LINK_FLAGS /SAFESEH:NO)
-
- target_link_libraries (${EXECUTABLE_3} OpenGL32)
+ target_link_libraries (${EXECUTABLE_3} PUBLIC OpenGL32)
 endif (UNIX)
-target_link_libraries (${EXECUTABLE_3} ${GTK_LIBRARIES})
-#if (UNIX)
-#elseif (WIN32)
-# if (GTKGLAREA_SUPPORT)
-#  target_link_libraries (${EXECUTABLE_3} $ENV{LIB_ROOT}/gtkglarea/${BUILD_PATH_SUFFIX}/${CMAKE_BUILD_TYPE}/gtkglarea.lib)
-# endif (GTKGLAREA_SUPPORT)
-#endif ()
+target_link_libraries (${EXECUTABLE_3} PUBLIC ${GTK_LIBRARIES})
 
-target_link_libraries (${EXECUTABLE_3} ${ACE_LIBRARY})
+target_link_libraries (${EXECUTABLE_3} PUBLIC ${ACE_LIBRARY})
 
-target_link_libraries (${EXECUTABLE_3} Common)
-target_link_libraries (${EXECUTABLE_3} CommonLog)
-target_link_libraries (${EXECUTABLE_3} CommonOpenGL)
-target_link_libraries (${EXECUTABLE_3} CommonTimer)
-target_link_libraries (${EXECUTABLE_3} CommonUI)
-target_link_libraries (${EXECUTABLE_3} CommonUI_GTK)
+target_link_libraries (${EXECUTABLE_3} PUBLIC Common)
+target_link_libraries (${EXECUTABLE_3} PUBLIC CommonLog)
+target_link_libraries (${EXECUTABLE_3} PUBLIC CommonOpenGL)
+target_link_libraries (${EXECUTABLE_3} PUBLIC CommonTimer)
+target_link_libraries (${EXECUTABLE_3} PUBLIC CommonUI)
+target_link_libraries (${EXECUTABLE_3} PUBLIC CommonUI_GTK)
 
 # add PCH
-#set_target_properties (${EXECUTABLE_3} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-#cotire (${EXECUTABLE_3})
+target_precompile_headers (${EXECUTABLE_3}
+                           PUBLIC stdafx.h)
 
 ############### installation #############
 install (TARGETS ${EXECUTABLE} ${EXECUTABLE_2} ${EXECUTABLE_3}

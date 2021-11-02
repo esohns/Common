@@ -56,39 +56,22 @@ target_sources (${PROJECT_NAME}Timer
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-#add_definitions (-DHAVE_CONFIG_H)
-#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
-
 #add_dependencies (${PROJECT_NAME}Timer ACE)
 
-#set_target_properties (${PROJECT_NAME}Timer PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
 #set_target_properties (${PROJECT_NAME}Timer PROPERTIES
-#                       DEFINE_SYMBOL COMMON_BUILD_DLL)
-set_target_properties (${PROJECT_NAME}Timer PROPERTIES
-                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-                       SOVERSION 1)
+#                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
+#                       SOVERSION 1)
 
 if (UNIX)
- set_property(TARGET ${PROJECT_NAME}Timer PROPERTY CXX_STANDARD 11)
+# set_property(TARGET ${PROJECT_NAME}Timer PROPERTY CXX_STANDARD 11)
+ target_link_libraries (${PROJECT_NAME}Timer PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 elseif (WIN32)
- if (CMAKE_BUILD_TYPE STREQUAL Debug)
-#  target_link_libraries (${PROJECT_NAME}Timer Msvcrtd.lib)
- else ()
-#  target_link_libraries (${PROJECT_NAME}Timer Msvcrt.lib)
- endif ()
-# target_link_libraries (${PROJECT_NAME}Timer Quartz.lib)
-# target_link_libraries (${PROJECT_NAME}Timer Secur32.lib)
-# target_link_libraries (${PROJECT_NAME}Timer Userenv.lib)
-
- target_link_libraries (${PROJECT_NAME}Timer ${ACE_LIBRARY})
-
-# target_link_libraries (${PROJECT_NAME}Timer ${PROJECT_NAME}Error)
+ target_link_libraries (${PROJECT_NAME}Timer PUBLIC ${ACE_LIBRARY})
 endif ()
 
 # add PCH
-set_target_properties (${PROJECT_NAME}Timer PROPERTIES
-                       COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${PROJECT_NAME}Timer)
+target_precompile_headers (${PROJECT_NAME}Timer
+                           PUBLIC stdafx.h)
 
 # add all targets to the build-tree export set
 export (TARGETS ${PROJECT_NAME}Timer

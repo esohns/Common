@@ -11,45 +11,14 @@ if (NOT CUPS_LIBRARY)
  message (FATAL_ERROR "could not find ${CUPS_LIB_FILE} (was: \"${CUPS_LIBRARY}\"), aborting")
 endif ()
 
-#set (ACE_LIB_FILE libACE.so)
-#if (DEFINED ENV{ACE_ROOT})
-# find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-#               PATHS ENV ACE_ROOT
-#               PATH_SUFFIXES ace build/linux/ace
-#               DOC "searching for ${ACE_LIB_FILE}")
-#else ()
-# find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-#               DOC "searching for ${ACE_LIB_FILE} (system paths)")
-#endif ()
-##if (NOT EXISTS ACE_LIBRARY)
-#if (NOT ACE_LIBRARY)
-# message (FATAL_ERROR "could not find ${ACE_LIB_FILE} (was: \"${ACE_LIBRARY}\"), aborting")
-#endif ()
-
-get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH DIRECTORY)
+get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
-#find_package (Common ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-#              REQUIRED COMPONENTS lib
-#              CONFIG
-#              PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../modules ${CMAKE_CURRENT_SOURCE_DIR}/../..
-#              PATH_SUFFIXES libCommon/${BUILD_PATH_SUFFIX}
-#              NO_DEFAULT_PATH)
-#if (NOT EXISTS ${Common_DIR})
-# message (FATAL_ERROR "could not find package \"Common\", aborting")
-#endif ()
 
 ############## definitions ###############
-add_definitions (-DACE_HAS_DLL)
-add_definitions (-DHAVE_CONFIG_H)
-set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
-add_definitions (-DCOMMON_HAS_DLL)
 
 ############## includes ###############
 include_directories (${PKG_CAIRO_INCLUDE_DIRS})
 #include_directories (${PKG_CUPS_INCLUDE_DIRS})
-
-include_directories ($ENV{LIB_ROOT}/ACE_TAO/ACE)
-#include_directories (/usr/local/src/ACE_wrappers)
 
 if (WIN32)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../3rd_party)

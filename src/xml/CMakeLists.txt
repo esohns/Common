@@ -50,14 +50,8 @@ target_sources (${PROJECT_NAME}XML
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-#add_definitions (-DHAVE_CONFIG_H)
-#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
-
 #add_dependencies (${PROJECT_NAME}XML ACE)
 
-#set_target_properties (${PROJECT_NAME}XML PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
-#set_target_properties (${PROJECT_NAME}XML PROPERTIES
-#                       DEFINE_SYMBOL COMMON_XML_BUILD_DLL)
 #set_target_properties (${PROJECT_NAME}XML PROPERTIES
 #                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 

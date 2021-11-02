@@ -52,32 +52,26 @@ target_sources (${PROJECT_NAME}UI_Qt
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
+#add_dependencies (${PROJECT_NAME}UI_Qt Common)
+
+#message (STATUS "QT_LIBRARIES: ${QT_LIBRARIES}")
+target_link_libraries (${PROJECT_NAME}UI_Qt ${QT_LIBRARIES})
 if (UNIX)
 elseif (WIN32)
-#*TODO*: use pkg-config instead
- add_dependencies (${PROJECT_NAME}UI_Qt Common)
-
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
   target_link_libraries (${PROJECT_NAME}UI_Qt Msvcrtd.lib)
  else ()
   target_link_libraries (${PROJECT_NAME}UI_Qt Msvcrt.lib)
  endif ()
-
- target_link_libraries (${PROJECT_NAME}UI_Qt ${QT_LIBRARIES})
-
- target_link_libraries (${PROJECT_NAME}UI_Qt Common)
 endif ()
+#target_link_libraries (${PROJECT_NAME}UI_Qt Common)
 
 #set_target_properties (${PROJECT_NAME}UI_Qt PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
 #set_target_properties (${PROJECT_NAME}UI_Qt PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
-#if (UNIX)
-# set (CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> crs <TARGET> <LINK_FLAGS> <OBJECTS>")
-# set (CMAKE_CXX_ARCHIVE_FINISH "<CMAKE_RANLIB> <TARGET>")
-#endif (UNIX)
 
 # add PCH
-set_target_properties (${PROJECT_NAME}UI_Qt PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-#cotire (${PROJECT_NAME}UI_Qt)
+target_precompile_headers (${PROJECT_NAME}UI_Qt
+                           PUBLIC stdafx.h)
 
 # add all targets to the build-tree export set
 export (TARGETS ${PROJECT_NAME}UI_Qt

@@ -4,9 +4,8 @@ add_library (${LIBRARY} STATIC "")
 get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 
-# *NOTE*: a bug in cmake (3.12.1) requires the additional comment
 target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CURSES_INCLUDE_DIRS}>)
+                            "$<BUILD_INTERFACE:${CURSES_INCLUDE_DIRS}>")
 
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../../..>)

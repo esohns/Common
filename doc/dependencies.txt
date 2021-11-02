@@ -10,7 +10,7 @@ src: libcap-devel
 * Fedora 31 ('sudo dnf install')
 build: ninja-build make
 src: redhat-lsb libcap-devel dbus-devel systemd-devel NetworkManager-libnm-devel glm-devel
-     assimp-devel ffmpeg-devel gtk2-devel libxml2-devel ImageMagick-devel cups-devel
+     assimp-devel ffmpeg-devel ImageMagick-devel gtk2-devel ncurses-devel libxml2-devel cups-devel
 
 * Ubuntu 19.10 (sudo apt-get install')
 src: lsb-release libaio-dev libcap-dev libdbus-1-dev libsystemd-dev libmagick++-6-headers libmagickwand-6.q16-dev libglu1-mesa-dev

@@ -37,9 +37,10 @@ if (NOT ACE_LIBRARY)
  message (FATAL_ERROR "could not find ${ACE_LIB_FILE}, aborting")
 else ()
  message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
+#add_definitions (-DACE_HAS_DLL)
 endif ()
-add_definitions (-DACE_HAS_DLL)
 
+# add ACE include directory
 if (DEFINED ENV{ACE_ROOT})
  file (TO_CMAKE_PATH $ENV{ACE_ROOT} ACE_ROOT_CMAKE)
  include_directories (${ACE_ROOT_CMAKE})

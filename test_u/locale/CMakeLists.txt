@@ -25,31 +25,14 @@ set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_u")
 #endif ()
 
 #add_dependencies (${ACESTREAM_TARGET_NAME} ACE)
-#add_dependencies (${PROJECT_NAME} Common)
+add_dependencies (${PROJECT_NAME} Common)
 
-#target_link_libraries (${EXECUTABLE} ${CMAKE_THREAD_LIBS_INIT})
-if (UNIX)
-# target_link_libraries (${EXECUTABLE} rt)
-# target_link_libraries (${EXECUTABLE} ${PKG_CAP_LIBRARIES})
-# target_link_libraries (${EXECUTABLE} X11)
-elseif (WIN32)
-# target_link_libraries (${EXECUTABLE} Advapi32.lib)
-# target_link_libraries (${EXECUTABLE} Ole32.lib)
-# target_link_libraries (${EXECUTABLE} Quartz.lib)
-# target_link_libraries (${EXECUTABLE} Shell32.lib)
-# target_link_libraries (${EXECUTABLE} ucrtd.lib)
-# target_link_libraries (${EXECUTABLE} User32.lib)
-# target_link_libraries (${EXECUTABLE} Userenv.lib)
-# *TODO*: repair WIN32 pkgconfig support
-endif ()
-target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
-target_link_libraries (${EXECUTABLE} Common)
-target_link_libraries (${EXECUTABLE} CommonLog)
-target_link_libraries (${EXECUTABLE} Common_Test_U)
+target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
+target_link_libraries (${EXECUTABLE} PUBLIC Common)
+target_link_libraries (${EXECUTABLE} PUBLIC CommonLog)
+target_link_libraries (${EXECUTABLE} PUBLIC Common_Test_U)
 
 # add PCH
-#set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-#cotire (${EXECUTABLE})
 target_precompile_headers (${EXECUTABLE}
                            PUBLIC stdafx.h)
 

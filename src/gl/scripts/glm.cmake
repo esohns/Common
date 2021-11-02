@@ -2,11 +2,10 @@ if (UNIX)
 # include (FindPkgConfig)
 # pkg_check_modules (PKG_GLM glm)
  find_file (GLM_HPP_FILE
-            NAMES "glm.hpp"
+            NAMES glm.hpp
             PATHS /usr/include
             PATH_SUFFIXES glm
-            DOC "searching for glm.h"
-            NO_DEFAULT_PATH)
+            DOC "searching for glm.h")
  get_filename_component (GLM_HPP_PATH ${GLM_HPP_FILE} REALPATH)
  get_filename_component (GLM_HPP_PATH ${GLM_HPP_PATH} DIRECTORY)
  get_filename_component (GLM_HPP_PATH ${GLM_HPP_PATH} DIRECTORY)
@@ -22,7 +21,7 @@ elseif (WIN32)
  endif (VCPKG_SUPPORT)
  if (NOT GLM_FOUND)
   find_file (GLM_HPP_FILE
-             NAMES "glm.hpp"
+             NAMES glm.hpp
              PATHS $ENV{LIB_ROOT}/glm
              PATH_SUFFIXES glm
              DOC "searching for glm.h"

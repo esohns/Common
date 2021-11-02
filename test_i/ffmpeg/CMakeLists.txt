@@ -4,12 +4,6 @@ get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 
 ############## definitions ###############
-#add_definitions (-DACE_HAS_DLL)
-#add_definitions (-DFFMPEG_SUPPORT)
-#add_definitions (-DHAVE_CONFIG_H)
-#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
-#add_definitions (-DCOMMON_HAS_DLL)
-#add_definitions (-DCOMMON_TIMER_HAS_DLL)
 
 ############## includes ###############
 
@@ -34,17 +28,14 @@ add_executable (${EXECUTABLE}
                 ${ffmpeg_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
-if (THREADS_HAVE_PTHREAD_ARG)
+if (UNIX)
+ if (THREADS_HAVE_PTHREAD_ARG)
   set_property (TARGET ${EXECUTABLE} PROPERTY COMPILE_OPTIONS "-pthread")
   set_property (TARGET ${EXECUTABLE} PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
-endif (THREADS_HAVE_PTHREAD_ARG)
-
-target_link_libraries (${EXECUTABLE} PUBLIC ${ffmpeg_LIBRARIES})
-if (UNIX)
- if (CMAKE_THREAD_LIBS_INIT)
-  target_link_libraries (${EXECUTABLE} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
- endif (CMAKE_THREAD_LIBS_INIT)
+ endif (THREADS_HAVE_PTHREAD_ARG)
+ target_link_libraries (${EXECUTABLE} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 endif (UNIX)
+target_link_libraries (${EXECUTABLE} PUBLIC ${ffmpeg_LIBRARIES})
 
 target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
 
@@ -54,8 +45,8 @@ target_link_libraries (${EXECUTABLE} PUBLIC CommonLog)
 target_link_libraries (${EXECUTABLE} PUBLIC CommonTimer)
 
 # add PCH
-#set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-#cotire (${EXECUTABLE})
+#target_precompile_headers (${EXECUTABLE}
+#                           PUBLIC stdafx.h)
 
 ############### installation #############
 install (TARGETS ${EXECUTABLE}

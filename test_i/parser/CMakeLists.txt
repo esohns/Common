@@ -6,10 +6,6 @@ get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 
 ############## definitions ###############
-#add_definitions (-DACE_HAS_DLL)
-#add_definitions (-DHAVE_CONFIG_H)
-#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
-#add_definitions (-DCOMMON_HAS_DLL)
 
 ############## includes ###############
 if (UNIX)
@@ -67,8 +63,6 @@ add_executable (${EXECUTABLE_2}
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 set_property (TARGET ${EXECUTABLE_2} PROPERTY FOLDER "test_i")
 
-#target_link_libraries (${EXECUTABLE} ${PKG_FLEX_BISON_LIBRARIES})
-
 target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
 
 target_link_libraries (${EXECUTABLE} Common)
@@ -84,12 +78,10 @@ target_link_libraries (${EXECUTABLE_2} CommonParser)
 target_link_libraries (${EXECUTABLE_2} CommonTimer)
 
 # add PCH
-set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-if (UNIX)
- cotire (${EXECUTABLE})
-endif (UNIX)
-#set_target_properties (${EXECUTABLE_2} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-#cotire (${EXECUTABLE_2})
+target_precompile_headers (${EXECUTABLE}
+                           PUBLIC stdafx.h)
+target_precompile_headers (${EXECUTABLE_2}
+                           PUBLIC stdafx.h)
 
 ############### installation #############
 install (TARGETS ${EXECUTABLE}

@@ -57,6 +57,7 @@ using namespace std;
 #include "linux/prctl.h"
 #include "linux/securebits.h"
 
+#include "aio.h"
 #include "grp.h"
 #elif defined (__sun) && defined (__SVR4)
 // *NOTE*: Solaris (11)-specific

@@ -47,32 +47,21 @@ target_sources (${PROJECT_NAME}Task
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-#add_definitions (-DHAVE_CONFIG_H)
-#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
-
 #add_dependencies (${PROJECT_NAME}Task ACE)
 
-#set_target_properties (${PROJECT_NAME}Task PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
 #set_target_properties (${PROJECT_NAME}Task PROPERTIES
-#                       DEFINE_SYMBOL COMMON_BUILD_DLL)
-set_target_properties (${PROJECT_NAME}Task PROPERTIES
-                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-                       SOVERSION 1)
+#                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
+#                       SOVERSION 1)
 
 if (UNIX)
  set_property(TARGET ${PROJECT_NAME}Task PROPERTY CXX_STANDARD 11)
 elseif (WIN32)
- if (CMAKE_BUILD_TYPE STREQUAL Debug)
- else ()
- endif ()
-
  target_link_libraries (${PROJECT_NAME}Task ${ACE_LIBRARY})
 endif ()
 
 # add PCH
-set_target_properties (${PROJECT_NAME}Task PROPERTIES
-                       COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${PROJECT_NAME}Task)
+target_precompile_headers (${PROJECT_NAME}Task
+                           PUBLIC stdafx.h)
 
 # add all targets to the build-tree export set
 export (TARGETS ${PROJECT_NAME}Task

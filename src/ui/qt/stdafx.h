@@ -31,6 +31,8 @@
 // System Library Header Files
 
 // Library Header Files
+#undef Bool
+#include <QEvent>
 #include <QApplication>
 
 //#define ACE_HAS_SSIZE_T

@@ -12,6 +12,7 @@ if (LIBPNG_SUPPORT)
                              "$<BUILD_INTERFACE:${PNG_INCLUDE_DIRS}>")
 endif (LIBPNG_SUPPORT)
 if (FFMPEG_SUPPORT)
+# message (STATUS "ffmpeg_INCLUDE_DIRS: ${ffmpeg_INCLUDE_DIRS}")
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${ffmpeg_INCLUDE_DIRS}>)
 endif (FFMPEG_SUPPORT)
@@ -85,8 +86,8 @@ endif ()
 #set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
-set_target_properties (${LIBRARY} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${LIBRARY})
+target_precompile_headers (${LIBRARY}
+                           PUBLIC stdafx.h)
 
 # add all targets to the build-tree export set
 export (TARGETS ${LIBRARY}

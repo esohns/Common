@@ -36,22 +36,15 @@ target_sources (${PROJECT_NAME}Signal
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-#add_definitions (-DHAVE_CONFIG_H)
-#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
-
 #add_dependencies (${PROJECT_NAME}Timer ACE)
 
-#set_target_properties (${PROJECT_NAME}Timer PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
-#set_target_properties (${PROJECT_NAME}Timer PROPERTIES
-#                       DEFINE_SYMBOL COMMON_BUILD_DLL)
-set_target_properties (${PROJECT_NAME}Signal PROPERTIES
-                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-                       SOVERSION 1)
+#set_target_properties (${PROJECT_NAME}Signal PROPERTIES
+#                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
+#                       SOVERSION 1)
 
 # add PCH
-set_target_properties (${PROJECT_NAME}Signal PROPERTIES
-                       COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${PROJECT_NAME}Signal)
+target_precompile_headers (${PROJECT_NAME}Signal
+                           PUBLIC stdafx.h)
 
 # add all targets to the build-tree export set
 export (TARGETS ${PROJECT_NAME}Signal

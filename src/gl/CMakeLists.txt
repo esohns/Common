@@ -53,9 +53,6 @@ if (ASSIMP_SUPPORT)
       common_gl_assimp_tools.h)
 endif (ASSIMP_SUPPORT)
 
-#get_target_property (debug ${LIBRARY} INTERFACE_INCLUDE_DIRECTORIES)
-#message (STATUS "${LIBRARY} INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
-
 # Include dir for installed targets
 #set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 
@@ -93,9 +90,8 @@ endif (ASSIMP_SUPPORT)
 target_link_libraries (${LIBRARY} PUBLIC ${PROJECT_NAME}Image)
 
 # add PCH
-set_target_properties (${LIBRARY} PROPERTIES
-                       COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${LIBRARY})
+target_precompile_headers (${LIBRARY}
+                           PUBLIC stdafx.h)
 
 # add all targets to the build-tree export set
 export (TARGETS ${LIBRARY}

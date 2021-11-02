@@ -4,8 +4,6 @@
 #undef Status
 #include <QtGui>
 
-//#include "ace/Synch.h"
-
 #include "common_ui_qt_application.h"
 #include "common_ui_qt_common.h"
 #include "common_ui_qt_iapplication.h"

@@ -21,8 +21,10 @@
 
 #include "common_gl_tools.h"
 
+#if defined (ASSIMP_SUPPORT)
 #include "assimp/cimport.h"
 #include "assimp/scene.h"
+#endif // ASSIMP_SUPPORT
 
 #include "ace/Log_Msg.h"
 
@@ -33,7 +35,9 @@
 #include "common_image_defines.h"
 #include "common_image_tools.h"
 
+#if defined (ASSIMP_SUPPORT)
 #include "common_gl_assimp_tools.h"
+#endif // ASSIMP_SUPPORT
 #include "common_gl_defines.h"
 #include "common_gl_image_tools.h"
 
@@ -97,6 +101,7 @@ Common_GL_Tools::loadModel (const std::string& path_in,
   // sanity check(s)
   ACE_ASSERT (Common_File_Tools::isReadable (path_in));
 
+#if defined (ASSIMP_SUPPORT)
   struct aiScene* scene_p = NULL;
   if (!Common_GL_Assimp_Tools::loadModel (path_in,
                                           scene_p))
@@ -107,6 +112,7 @@ Common_GL_Tools::loadModel (const std::string& path_in,
     return return_value;
   } // end IF
   ACE_ASSERT (scene_p);
+#endif // ASSIMP_SUPPORT
 
   return_value = glGenLists (1);
   COMMON_GL_ASSERT;
@@ -114,11 +120,14 @@ Common_GL_Tools::loadModel (const std::string& path_in,
   COMMON_GL_ASSERT;
   // now begin at the root node of the imported data and traverse the scenegraph
   // by multiplying subsequent local transforms together on GLs' matrix stack
+#if defined (ASSIMP_SUPPORT)
   Common_GL_Assimp_Tools::render (scene_p, scene_p->mRootNode);
+#endif // ASSIMP_SUPPORT
   glEndList ();
   COMMON_GL_ASSERT;
 
   // compute the scenes' bounding box / center
+#if defined (ASSIMP_SUPPORT)
   aiVector3D min, max;
   Common_GL_Assimp_Tools::boundingBox (scene_p,
                                        &min, &max);
@@ -137,6 +146,7 @@ Common_GL_Tools::loadModel (const std::string& path_in,
 
   // clean up
   aiReleaseImport (scene_p); scene_p = NULL;
+#endif // ASSIMP_SUPPORT
 
   return return_value;
 }

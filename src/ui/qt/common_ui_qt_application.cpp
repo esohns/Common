@@ -19,8 +19,4 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#undef Bool
-#undef Status
-#include <QtGui>
-
 #include "common_ui_qt_application.h"

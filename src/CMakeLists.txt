@@ -15,21 +15,17 @@ if (UNIX)
  include (CheckLibraryExists)
  check_library_exists (rt aio_init "" HAVE_LIB_AIO)
 
+# set (AIO_LIBRARY /usr/lib64/libaio.so)
  set (AIO_LIB_FILE aio)
  find_library (AIO_LIBRARY
-               NAMES aio libaio libaio.so libaio.so.1
-               PATHS /usr /lib
-               PATH_SUFFIXES lib lib64 x86_64-linux-gnu
-               DOC "searching for ${AIO_LIB_FILE}")
- if (NOT AIO_LIBRARY)
-  message (FATAL_ERROR "could not find libaio, aborting")
- endif (NOT AIO_LIBRARY)
+               NAMES ${AIO_LIB_FILE} libaio.so
+               PATHS /usr
+               PATH_SUFFIXES lib64 lib x86_64-linux-gnu
+               DOC "searching for ${AIO_LIB_FILE}"
+               REQUIRED)
 
  pkg_check_modules (PKG_LIBCAP REQUIRED libcap)
 endif (UNIX)
-
-add_definitions (-DHAVE_CONFIG_H)
-#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
 
 add_library (${PROJECT_NAME} STATIC "")
 
@@ -128,20 +124,18 @@ target_precompile_headers (${PROJECT_NAME}
 
 #add_dependencies (${PROJECT_NAME} ACE)
 if (UNIX)
- if (DBUS_SUPPORT)
-  add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}DBus)
- endif (DBUS_SUPPORT)
+# if (DBUS_SUPPORT)
+#  add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}DBus)
+# endif (DBUS_SUPPORT)
 elseif (WIN32)
  add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}Error)
 endif ()
-add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}Timer)
+#add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}Timer)
 
-#set_target_properties (${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS ACE_HAS_DLL)
 #set_target_properties (${PROJECT_NAME} PROPERTIES
 #                       DEFINE_SYMBOL COMMON_BUILD_DLL)
 #set_target_properties (${PROJECT_NAME} PROPERTIES
-#                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-#                       SOVERSION 1)
+#                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 if (UNIX)
  if(CMAKE_COMPILER_IS_GNUCXX)
@@ -154,14 +148,14 @@ if (UNIX)
 endif (UNIX)
 
 if (UNIX)
- target_link_libraries (${PROJECT_NAME} pthread)
+# target_link_libraries (${PROJECT_NAME} c)
+# target_link_libraries (${PROJECT_NAME} pthread)
  target_link_libraries (${PROJECT_NAME} rt)
  target_link_libraries (${PROJECT_NAME} ${PKG_LIBCAP_LIBRARIES})
-# target_link_libraries (${PROJECT_NAME} ${ACE_LIBRARY})
- if (DBUS_SUPPORT)
-  target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}DBus)
- endif (DBUS_SUPPORT)
- target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}Signal)
+# if (DBUS_SUPPORT)
+#  target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}DBus)
+# endif (DBUS_SUPPORT)
+# target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}Signal)
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
   target_link_libraries (${PROJECT_NAME} Msvcrtd.lib)
@@ -178,11 +172,6 @@ endif ()
 target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}Error)
 
 ##########################################
-
-# add PCH
-#set_target_properties (${PROJECT_NAME} PROPERTIES
-#                       COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-#cotire (${PROJECT_NAME})
 
 # add all targets to the build-tree export set
 export (TARGETS ${PROJECT_NAME}

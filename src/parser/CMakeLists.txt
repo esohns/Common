@@ -58,16 +58,12 @@ if (WIN32)
  target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
 endif ()
 
-# *WARNING*: linking libglade-2.dll(.a) requires "/SAFESEH:NO""
-if (WIN32)
-# set_target_properties (${PROJECT_NAME}ERR PROPERTIES LINK_FLAGS /SAFESEH:NO)
-endif ()
-set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_MATH_BUILD_DLL)
-set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+#set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_PARSER_BUILD_DLL)
+#set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
-set_target_properties (${LIBRARY} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${LIBRARY})
+target_precompile_headers (${LIBRARY}
+                           PUBLIC stdafx.h)
 
 # add all targets to the build-tree export set
 export (TARGETS ${LIBRARY}
@@ -90,4 +86,3 @@ install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)
-

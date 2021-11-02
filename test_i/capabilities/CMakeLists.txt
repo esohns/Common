@@ -7,34 +7,10 @@ if (UNIX)
  pkg_check_modules (PKG_CAP REQUIRED libcap)
 endif (UNIX)
 
-#get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH DIRECTORY)
-#get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
-#find_package (Common ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-#              REQUIRED COMPONENTS lib
-#              CONFIG
-#              PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../modules ${CMAKE_CURRENT_SOURCE_DIR}/../..
-#              PATH_SUFFIXES libCommon/${BUILD_PATH_SUFFIX}
-#              NO_DEFAULT_PATH)
-#if (NOT EXISTS ${Common_DIR})
-# message (FATAL_ERROR "could not find package \"Common\", aborting")
-#endif ()
-
-#find_package (CommonTimer ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-#              REQUIRED
-#              CONFIG
-#              PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../modules ${CMAKE_CURRENT_SOURCE_DIR}/../..
-#              PATH_SUFFIXES libCommon/${BUILD_PATH_SUFFIX}
-#              NO_DEFAULT_PATH)
-#if (NOT EXISTS ${CommonTimer_DIR})
-# message (FATAL_ERROR "could not find package \"CommonTimer\", aborting")
-#endif ()
+get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
+get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 
 ############## definitions ###############
-#add_definitions (-DACE_HAS_DLL)
-#add_definitions (-DHAVE_CONFIG_H)
-#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
-#add_definitions (-DCOMMON_HAS_DLL)
-#add_definitions (-DCOMMON_TIMER_HAS_DLL)
 
 ############## includes ###############
 include_directories (${PKG_CAP_INCLUDE_DIRS})
@@ -70,8 +46,8 @@ set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 target_link_libraries (${EXECUTABLE} ${PKG_CAP_LIBRARIES})
 
 # add PCH
-set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${EXECUTABLE})
+target_precompile_headers (${EXECUTABLE}
+                           PUBLIC stdafx.h)
 
 ############### installation #############
 install (TARGETS ${EXECUTABLE}

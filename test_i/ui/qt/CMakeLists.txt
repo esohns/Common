@@ -6,9 +6,6 @@ set (CMAKE_AUTOMOC ON)
 # Create code from a list of Qt designer ui files
 set (CMAKE_AUTOUIC ON)
 
-# Find the QtWidgets library
-#find_package (Qt5Widgets CONFIG REQUIRED)
-
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../include)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/ui)
@@ -40,23 +37,24 @@ add_executable (qt_ui_2 ${qt_ui_2_SRCS})
 set_property (TARGET qt_ui PROPERTY FOLDER "test_i")
 set_property (TARGET qt_ui_2 PROPERTY FOLDER "test_i")
 
-# Use the Widgets module from Qt 5
-target_link_libraries (qt_ui Qt5::Core)
-target_link_libraries (qt_ui Qt5::Widgets)
-target_link_libraries (qt_ui_2 Qt5::Core)
-target_link_libraries (qt_ui_2 Qt5::Widgets)
+target_link_libraries (qt_ui PUBLIC ${QT_LIBRARIES})
 
-target_link_libraries (qt_ui_2 ${ACE_LIBRARY})
+if (UNIX)
+ target_link_libraries (qt_ui_2 PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+# target_link_libraries (qt_ui_2 PUBLIC c)
+endif (UNIX)
 
-target_link_libraries (qt_ui_2 CommonUI_Qt)
+target_link_libraries (qt_ui_2 PUBLIC ${QT_LIBRARIES})
+
+target_link_libraries (qt_ui_2 PUBLIC ${ACE_LIBRARY})
+
+target_link_libraries (qt_ui_2 PUBLIC CommonUI_Qt)
 
 # add PCH
-#set_target_properties (qt_ui PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-#cotire (qt_ui)
-#get_target_property (_prefixHeader qt_ui COTIRE_CXX_PREFIX_HEADER)
-#set_target_properties (qt_ui_2 PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${_prefixHeader}")
-#set_target_properties (qt_ui_2 PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
-#cotire (qt_ui_2)
+target_precompile_headers (qt_ui
+                           PUBLIC stdafx.h)
+target_precompile_headers (qt_ui_2
+                           PUBLIC stdafx.h)
 
 ############### installation #############
 install (TARGETS qt_ui

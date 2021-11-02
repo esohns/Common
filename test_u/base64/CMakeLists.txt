@@ -30,7 +30,6 @@ set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_u")
 #add_dependencies (${ACESTREAM_TARGET_NAME} ACE)
 add_dependencies (${EXECUTABLE} Common)
 
-#target_link_libraries (${EXECUTABLE} ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
 
 target_link_libraries (${EXECUTABLE} Common)
@@ -40,8 +39,6 @@ target_link_libraries (${EXECUTABLE} CommonMath)
 target_link_libraries (${EXECUTABLE} Common_Test_U)
 
 # add PCH
-#set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-#cotire (${EXECUTABLE})
 target_precompile_headers (${EXECUTABLE}
                            PUBLIC stdafx.h)
 

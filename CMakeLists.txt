@@ -212,10 +212,6 @@ set_directory_properties (PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER TRUE)
 
 ################################################################################
 
-add_subdirectory (src)
-
-################################################################################
-
 # configuration files
 # Export the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)
@@ -256,6 +252,10 @@ configure_file (${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake.in
 #                       PUBLIC_HEADER "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_config.h")
 add_definitions (-DHAVE_CONFIG_H)
 #set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
+
+################################################################################
+
+add_subdirectory (src)
 
 ################################################################################
 

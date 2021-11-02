@@ -7,41 +7,13 @@ if (UNIX)
  pkg_check_modules (PKG_CAP REQUIRED libcap)
 endif (UNIX)
 
-get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH DIRECTORY)
+get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
 get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
-#find_package (Common ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-#              REQUIRED COMPONENTS lib
-#              CONFIG
-#              PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../..
-#              PATH_SUFFIXES ${BUILD_PATH_SUFFIX}
-#              NO_DEFAULT_PATH)
-#if (NOT EXISTS ${Common_DIR})
-# message (FATAL_ERROR "could not find package \"Common\", aborting")
-#endif ()
-
-#find_package (CommonTimer ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-#              REQUIRED
-#              CONFIG
-#              PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../modules ${CMAKE_CURRENT_SOURCE_DIR}/../..
-#              PATH_SUFFIXES libCommon/${BUILD_PATH_SUFFIX}
-#              NO_DEFAULT_PATH)
-#if (NOT EXISTS ${CommonTimer_DIR})
-# message (FATAL_ERROR "could not find package \"CommonTimer\", aborting")
-#endif ()
 
 ############## definitions ###############
-#add_definitions (-DACE_HAS_DLL)
-#add_definitions (-DHAVE_CONFIG_H)
-#set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
-add_definitions (-DCOMMON_HAS_DLL)
-#add_definitions (-DCOMMON_TIMER_HAS_DLL)
 
 ############## includes ###############
 include_directories (${PKG_CAP_INCLUDE_DIRS})
-
-#include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
-#include_directories ($ENV{LIB_ROOT}/ACE_TAO/ACE)
-#include_directories (/usr/local/src/ACE_wrappers)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/timer)

@@ -72,18 +72,16 @@ if (UNIX)
  target_link_libraries (${LIBRARY} Xrandr)
  target_link_libraries (${LIBRARY} ${ACEXML_LIBRARY})
 elseif (WIN32)
-# target_link_libraries (${LIBRARY} Common)
 endif ()
 
 if (WIN32)
-# set_target_properties (${LIBRARY} PROPERTIES LINK_FLAGS /SAFESEH:NO)
 endif ()
 #set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
 #set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
-set_target_properties (${LIBRARY} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${LIBRARY})
+target_precompile_headers (${LIBRARY}
+                           PUBLIC stdafx.h)
 
 # add all targets to the build-tree export set
 export (TARGETS ${LIBRARY}

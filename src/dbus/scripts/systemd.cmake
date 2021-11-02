@@ -1,0 +1,15 @@
+#  find_library (SYSTEMD_LIBRARY libsystemd.so.0
+#                DOC "searching for libsystemd")
+#  if (NOT SYSTEMD_LIBRARY)
+#   message (FATAL_ERROR "could not find libsystemd, aborting")
+#  endif (NOT SYSTEMD_LIBRARY)
+pkg_check_modules (PKG_SYSTEMD libsystemd)
+if (PKG_SYSTEMD_FOUND)
+# *TODO*: on Fedora 29 systems /usr/lib64/pkgconfig/libsystemd.pc is broken
+#   message (STATUS "PKG_SYSTEMD_INCLUDE_DIRS: ${PKG_SYSTEMD_INCLUDE_DIRS}")
+ set (PKG_SYSTEMD_INCLUDE_DIRS "/usr/include/systemd")
+ option (SD_BUS_SUPPORT "compile sd-bus (libsystemd) support" ON)
+ if (SD_BUS_SUPPORT)
+  add_definitions (-DSD_BUS_SUPPORT)
+ endif (SD_BUS_SUPPORT)
+endif (PKG_SYSTEMD_FOUND)
