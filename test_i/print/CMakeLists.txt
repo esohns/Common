@@ -3,9 +3,12 @@ if (UNIX)
 # pkg_check_modules (PKG_CUPS REQUIRED cups)
 endif (UNIX)
 
-set (CUPS_LIB_FILE libcups.so)
- find_library (CUPS_LIBRARY ${CUPS_LIB_FILE}
-               DOC "searching for ${CUPS_LIB_FILE} (system paths)")
+set (CUPS_LIB_FILE cups)
+find_library (CUPS_LIBRARY
+              NAMES ${CUPS_LIB_FILE} libcups.so libcups.so.2
+              PATHS /usr/lib /usr
+              PATH_SUFFIXES x86_64-linux-gnu lib64
+              DOC "searching for ${CUPS_LIB_FILE} (system paths)")
 #if (NOT EXISTS ACE_LIBRARY)
 if (NOT CUPS_LIBRARY)
  message (FATAL_ERROR "could not find ${CUPS_LIB_FILE} (was: \"${CUPS_LIBRARY}\"), aborting")

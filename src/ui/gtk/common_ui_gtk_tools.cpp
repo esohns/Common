@@ -101,7 +101,6 @@ gtk_tree_model_foreach_find_index_cb (GtkTreeModel* treeModel_in,
   GValue value;
   ACE_OS::memset (&value, 0, sizeof (struct _GValue));
 #endif // GTK_CHECK_VERSION (2,30,0)
-  g_value_init (&value, G_VALUE_TYPE (&cb_data_p->value));
   gtk_tree_model_get_value (treeModel_in,
                             treeIterator_in,
                             cb_data_p->column, &value);
@@ -343,6 +342,7 @@ Common_UI_GTK_Tools::valueToIndex (GtkTreeModel* treeModel_in,
   struct Common_UI_GTK_Tools::TreeModel_IndexSearch_CBData cb_data_s;
   cb_data_s.column = column_in;
   cb_data_s.index = 0;
+  g_value_unset (&cb_data_s.value);
   g_value_init (&cb_data_s.value, G_VALUE_TYPE (&value_in));
   g_value_copy (&value_in, &cb_data_s.value);
   gtk_tree_model_foreach (treeModel_in,
