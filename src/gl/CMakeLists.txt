@@ -24,7 +24,7 @@ if (LIBPNG_SUPPORT)
                              "$<BUILD_INTERFACE:${PNG_INCLUDE_DIRS}>")
 endif (LIBPNG_SUPPORT)
 if (ASSIMP_SUPPORT)
-# message (STATUS "ASSIMP_INCLUDE_DIRS: ${ASSIMP_INCLUDE_DIRS}")
+ message (STATUS "ASSIMP_INCLUDE_DIRS: ${ASSIMP_INCLUDE_DIRS}")
  target_include_directories (${LIBRARY} PUBLIC
                              "$<BUILD_INTERFACE:${ASSIMP_INCLUDE_DIRS}>")
 endif (ASSIMP_SUPPORT)
