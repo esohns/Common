@@ -3,13 +3,7 @@ include (SetCppExceptions)
 
 include (Threads)
 
-include (OpenGL)
 include (ACE)
-
-# *TODO*: compile in support as available automatically
-if (UNIX)
- option (DBUS_SUPPORT "compile DBus support" ON)
-endif (UNIX)
 
 if (UNIX)
  include (CheckLibraryExists)
@@ -25,6 +19,8 @@ if (UNIX)
                REQUIRED)
 
  pkg_check_modules (PKG_LIBCAP REQUIRED libcap)
+
+ add_link_options ("LINKER:--as-needed")
 endif (UNIX)
 
 add_library (${PROJECT_NAME} STATIC "")
@@ -218,10 +214,11 @@ install (TARGETS ${PROJECT_NAME}
 
 ##########################################
 
-if (DBUS_SUPPORT)
+if (UNIX)
  add_subdirectory (dbus)
-endif (DBUS_SUPPORT)
+endif (UNIX)
 add_subdirectory (error)
+include (OpenGL)
 if (OPENGL_SUPPORT)
  add_subdirectory (gl)
 endif (OPENGL_SUPPORT)

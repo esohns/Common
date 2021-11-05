@@ -123,4 +123,3 @@ endif (QT_SUPPORT)
 if (WXWIDGETS_SUPPORT)
  add_subdirectory (wxwidgets)
 endif (WXWIDGETS_SUPPORT)
-

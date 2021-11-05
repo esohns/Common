@@ -43,7 +43,7 @@ ACE_Sig_Handler Common_Signal_Tools::signalHandler_;
 
 bool
 Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
-                                    bool useReactor_in,
+                                    enum Common_SignalDispatchType dispatchType_in,
                                     Common_SignalActions_t& previousActions_out,
                                     sigset_t& originalMask_out)
 {
@@ -107,13 +107,13 @@ Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
   //                   used in applications. ..." (see 'man 7 pthreads')
   //                   --> on POSIX platforms, ensure that ACE_SIGRTMIN == 34
 
-  if (!useReactor_in)
+  if (dispatchType_in == COMMON_SIGNAL_DISPATCH_PROACTOR)
   {
     ACE_POSIX_Proactor::Proactor_Type proactor_type;
     ACE_Proactor* proactor_p = ACE_Proactor::instance ();
     ACE_ASSERT (proactor_p);
     ACE_POSIX_Proactor* proactor_impl_p =
-        dynamic_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
+        static_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
     if (!proactor_impl_p)
     {
       ACE_DEBUG ((LM_DEBUG,
@@ -170,15 +170,13 @@ Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
                   ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", aborting\n")));
       return false;
     } // end IF
-#if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("%t: blocked %d real-time signal(s) [%d: %S - %d: %S]\n"),
                 number,
                 ACE_SIGRTMIN, ACE_SIGRTMIN, ACE_SIGRTMAX, ACE_SIGRTMAX));
-#endif
   } // end IF
 _continue:
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
   // *NOTE*: remove SIGSEGV to enable core dumps on non-Win32 systems
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -195,7 +193,7 @@ _continue:
 //                  ACE_TEXT ("removed %d: %S from handled signals\n"),
 //                  SIGSEGV, SIGSEGV));
   } // end IF
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
   return true;
 }

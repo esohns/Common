@@ -43,10 +43,10 @@ class Common_Signal_Tools
   //         - on non-Win32 systems, remove SIGSEGV to enable core dumps
   // *NOTE*: call this in the 'main' thread as early as possible; the signal
   //         disposition is inherited by all threads spawned thereafter
-  static bool preInitialize (ACE_Sig_Set&,            // signal set (to handle) (*NOTE*: IN/OUT)
-                             bool,                    // use reactor ? : proactor
-                             Common_SignalActions_t&, // return value: previous action(s)
-                             sigset_t&);              // return value: previous mask
+  static bool preInitialize (ACE_Sig_Set&,                   // signal set (to handle) (*NOTE*: IN/OUT)
+                             enum Common_SignalDispatchType, // dispatch type
+                             Common_SignalActions_t&,        // return value: previous action(s)
+                             sigset_t&);                     // return value: previous mask
   static bool initialize (enum Common_SignalDispatchType, // dispatch mode
                           const ACE_Sig_Set&,             // signal set (to handle)
                           const ACE_Sig_Set&,             // signal set (to ignore)
