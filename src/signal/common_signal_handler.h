@@ -28,11 +28,12 @@
 #include "ace/os_include/os_ucontext.h"
 #include "ace/OS_NS_signal.h"
 #include "ace/Synch_Traits.h"
+#include "ace/Time_Value.h"
 
-#include "common.h"
 #include "common_iinitialize.h"
 
 #include "common_isignal.h"
+#include "common_signal_common.h"
 
 template <typename ConfigurationType> // derives off Common_SignalHandlerConfiguration
 class Common_SignalHandler_T
@@ -45,6 +46,9 @@ class Common_SignalHandler_T
   typedef ACE_Event_Handler inherited2;
 
  public:
+  Common_SignalHandler_T (enum Common_SignalDispatchType, // dispatch mode
+                          ACE_SYNCH_RECURSIVE_MUTEX*,     // lock handle
+                          Common_ISignal* = NULL);        // event handler handle (NULL: 'this')
   inline virtual ~Common_SignalHandler_T () {}
 
   // *NOTE*: the signal is dispatched according to dispatchMode_
@@ -62,10 +66,6 @@ class Common_SignalHandler_T
   virtual bool initialize (const ConfigurationType&);
 
  protected:
-  Common_SignalHandler_T (enum Common_SignalDispatchType, // dispatch mode
-                          ACE_SYNCH_RECURSIVE_MUTEX*,     // lock handle
-                          Common_ISignal* = NULL);        // event handler handle (NULL: 'this')
-
   ConfigurationType*             configuration_;
   enum Common_SignalDispatchType dispatchMode_;
   bool                           isInitialized_;

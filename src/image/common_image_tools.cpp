@@ -24,7 +24,7 @@
 #include <sstream>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include <d3dx9tex.h>
+#include "d3dx9tex.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (FFMPEG_SUPPORT)

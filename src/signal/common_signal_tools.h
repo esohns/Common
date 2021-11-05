@@ -27,7 +27,7 @@
 #include "ace/os_include/os_signal.h"
 #include "ace/Sig_Handler.h"
 
-#include "common_signal.h"
+#include "common_signal_common.h"
 
 // forward declaration(s)
 class ACE_Event_Handler;

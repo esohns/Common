@@ -19,5 +19,4 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-//#include "ace/Recursive_Thread_Mutex.h"
 #include "common_statemachine_base.h"

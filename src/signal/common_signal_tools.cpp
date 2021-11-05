@@ -19,7 +19,6 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-//#include "ace/Synch.h"
 #include "common_signal_tools.h"
 
 #include <sstream>
@@ -28,7 +27,7 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 #include "ace/POSIX_Proactor.h"
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 #include "ace/Proactor.h"
 #include "ace/Reactor.h"
 
@@ -135,7 +134,7 @@ Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
     unsigned int number = 0;
     for (int i = ACE_SIGRTMIN;
          i <= ACE_SIGRTMAX;
-         ++i, number++)
+         ++i, ++number)
     {
       result = ACE_OS::sigaddset (&rt_signal_set, i);
       if (unlikely (result == -1))
@@ -171,7 +170,7 @@ Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
       return false;
     } // end IF
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("%t: blocked %d real-time signal(s) [%d: %S - %d: %S]\n"),
+                ACE_TEXT ("%t: blocked %u real-time signal(s) [%d: %S - %d: %S]\n"),
                 number,
                 ACE_SIGRTMIN, ACE_SIGRTMIN, ACE_SIGRTMAX, ACE_SIGRTMAX));
   } // end IF
@@ -242,16 +241,18 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
       result = ignore_action.register_action (i,
                                               &previous_action);
       if (unlikely (result == -1))
+      {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Sig_Action::register_action(%d: %S): \"%m\", continuing\n"),
                     i, i));
+      } // end IF
       else
       {
         previousActions_out[i] = previous_action;
-//        ACE_DEBUG ((LM_DEBUG,
-//                    ACE_TEXT ("ignoring signal %d: %S\n"),
-//                    i, i));
-      } // end IF
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("ignoring signal %d: %S\n"),
+                    i, i));
+      } // end ELSE
     } // end IF
 
   // step3: register (process-wide) signal handler
@@ -285,16 +286,11 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
                         i, i));
             return false;
           } // end IF
-//          else
-//            ACE_DEBUG ((LM_DEBUG,
-//                        ACE_TEXT ("handling signal %d: \"%S\"\n"),
-//                        i, i));
 
           // clean up
           if (event_handler_p)
           {
-            delete event_handler_p;
-            event_handler_p = NULL;
+            delete event_handler_p; event_handler_p = NULL;
           } // end IF
         } // end IF
 
@@ -325,15 +321,15 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
     }
   } // end SWITCH
 
-#if defined (_DEBUG)
   for (int i = 1;
        i < ACE_NSIG;
        ++i)
     if (signals_in.is_member (i))
+    {
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("handling signal %d: \"%S\"\n"),
                   i, i));
-#endif
+    } // end IF
 
   return true;
 }
@@ -389,19 +385,6 @@ Common_Signal_Tools::finalize (enum Common_SignalDispatchType dispatch_in,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Reactor::remove_handler(): \"%m\", continuing\n")));
 
-      for (Common_SignalActionsIterator_t iterator = previousActions_in.begin ();
-           iterator != previousActions_in.end ();
-           iterator++)
-      {
-        result =
-            const_cast<ACE_Sig_Action&> ((*iterator).second).register_action ((*iterator).first,
-                                                                              NULL);
-        if (unlikely (result == -1))
-          ACE_DEBUG ((LM_ERROR,
-                      ACE_TEXT ("failed to ACE_Sig_Action::register_action(%S): \"%m\", continuing\n"),
-                      (*iterator).first));
-      } // end FOR
-
       break;
     }
     default:
@@ -412,6 +395,18 @@ Common_Signal_Tools::finalize (enum Common_SignalDispatchType dispatch_in,
       break;
     }
   } // end SWITCH
+  for (Common_SignalActionsIterator_t iterator = previousActions_in.begin ();
+       iterator != previousActions_in.end ();
+       iterator++)
+  {
+    result =
+      const_cast<ACE_Sig_Action&> ((*iterator).second).register_action ((*iterator).first,
+                                                                        NULL);
+    if (unlikely (result == -1))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Sig_Action::register_action(%S): \"%m\", continuing\n"),
+                  (*iterator).first));
+  } // end FOR
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else

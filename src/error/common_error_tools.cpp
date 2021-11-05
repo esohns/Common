@@ -25,10 +25,9 @@
 #include <sstream>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include <DbgHelp.h>
-//#include <DxErr.h>
-#include <errors.h>
-#include <strsafe.h>
+#include "DbgHelp.h"
+#include "errors.h"
+#include "strsafe.h"
 #else
 #include "sys/prctl.h"
 #endif // ACE_WIN32 || ACE_WIN64

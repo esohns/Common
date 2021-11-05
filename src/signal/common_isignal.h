@@ -21,7 +21,7 @@
 #ifndef COMMON_ISIGNAL_H
 #define COMMON_ISIGNAL_H
 
-#include "common_signal.h"
+#include "common_signal_common.h"
 
 class Common_ISignal
 {

@@ -42,14 +42,14 @@ Common_SignalHandler_T<ConfigurationType>::Common_SignalHandler_T (enum Common_S
 {
   COMMON_TRACE (ACE_TEXT ("Common_SignalHandler_T::Common_SignalHandler_T"));
 
-//  // sanity check(s)
-//  if (unlikely (((dispatchMode_ == COMMON_SIGNAL_DISPATCH_PROACTOR) ||
-//                 (dispatchMode_ == COMMON_SIGNAL_DISPATCH_REACTOR)) &&
-//                !lock_))
-//  {
-//    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("invalid lock handle, check implementation\n")));
-//  } // end IF
+  // sanity check(s)
+  if (unlikely (((dispatchMode_ == COMMON_SIGNAL_DISPATCH_PROACTOR) ||
+                 (dispatchMode_ == COMMON_SIGNAL_DISPATCH_REACTOR)) &&
+                !lock_))
+  {
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("invalid lock handle, continuing\n")));
+  } // end IF
 }
 
 template <typename ConfigurationType>
@@ -181,6 +181,15 @@ Common_SignalHandler_T<ConfigurationType>::initialize (const ConfigurationType& 
   configuration_ = &const_cast<ConfigurationType&> (configuration_in);
   // *TODO*: remove type inference
   lock_ = &configuration_->lock;
+  // sanity check(s)
+  if (unlikely (((dispatchMode_ == COMMON_SIGNAL_DISPATCH_PROACTOR) ||
+                 (dispatchMode_ == COMMON_SIGNAL_DISPATCH_REACTOR))
+                && !lock_))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("invalid lock handle, aborting\n")));
+    return false;
+  } // end IF
 
   isInitialized_ = true;
 

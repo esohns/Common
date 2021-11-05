@@ -76,7 +76,6 @@ set (source_files
      common_referencecounter.cpp
      common_referencecounter.h
      common_referencecounter.inl
-     common_signal.h
      common_statemachine.cpp
      common_statemachine.h
      common_statemachine.inl
@@ -192,7 +191,6 @@ install (FILES
          common_process_tools.h
          common_referencecounter.h
          common_referencecounter.inl
-         common_signal.h
          common_statemachine.h
          common_statemachine.inl
          common_statemachine_base.h
