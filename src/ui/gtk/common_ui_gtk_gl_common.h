@@ -43,8 +43,6 @@
 #include "gdk/gdkgl.h"
 #endif /* GTK_CHECK_VERSION (x,0,0) */
 
-#include "common_ui_gtk_common.h"
-
 #if GTK_CHECK_VERSION(3,0,0)
 #if GTK_CHECK_VERSION(3,24,1)
 typedef std::map<GtkGLArea*, GdkGLContext*> Common_UI_GTK_GLContexts_t;
@@ -65,44 +63,4 @@ typedef std::map<GdkWindow*, gpointer> Common_UI_GTK_GLContexts_t;
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,0,0) */
 typedef Common_UI_GTK_GLContexts_t::iterator Common_UI_GTK_GLContextsIterator_t;
-
-struct Common_UI_GTK_GLConfiguration
- : Common_UI_GTK_Configuration
-{
-  Common_UI_GTK_GLConfiguration ()
-   : Common_UI_GTK_Configuration ()
-   , widgetName ()
-  {}
-
-  std::string widgetName;
-};
-
-struct Common_UI_GTK_GLState
- : Common_UI_GTK_State
-{
-  Common_UI_GTK_GLState ()
-   : Common_UI_GTK_State ()
-   , OpenGLContexts ()
-  {}
-
-  // *TODO*: an application may support multiple OpenGL-capable windows; each
-  //         window is tied to a specific (shared) GdkGLContext. Move the
-  //         mapping of a OpenGL context to a specific output device(s) into a
-  //         separate 'presentation manager' object
-  Common_UI_GTK_GLContexts_t OpenGLContexts;
-};
-
-//////////////////////////////////////////
-
-struct Common_UI_GTKGL_ProgressData
- : Common_UI_GTK_ProgressData
-{
-  Common_UI_GTKGL_ProgressData ()
-   : Common_UI_GTK_ProgressData ()
-   , state (NULL)
-  {}
-
-  struct Common_UI_GTK_GLState* state;
-};
-
 #endif

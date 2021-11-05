@@ -138,16 +138,6 @@ endif ()
 #                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 if (UNIX)
- if(CMAKE_COMPILER_IS_GNUCXX)
-#  set (GCC_SHOW_INCLUDES_COMPILE_FLAGS "-E -dI")
-#  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_SHOW_INCLUDES_COMPILE_FLAGS}")
-
-#  set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed")
-#  set (CMAKE_STATIC_LINKER_FLAGS "-Wl,--as-needed")
- endif (CMAKE_COMPILER_IS_GNUCXX)
-endif (UNIX)
-
-if (UNIX)
 # target_link_libraries (${PROJECT_NAME} c)
 # target_link_libraries (${PROJECT_NAME} pthread)
  target_link_libraries (${PROJECT_NAME} rt)

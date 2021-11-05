@@ -28,17 +28,17 @@
 #include "common_signal_common.h"
 
 #if defined (GUI_SUPPORT)
-#if defined (GTK_USE)
+#include "common_ui_common.h"
+#if defined (GTK_SUPPORT)
 #include "common_ui_gtk_common.h"
-#elif defined (QT_USE)
+#endif // GTK_SUPPORT
+#if defined (QT_SUPPORT)
 #include "common_ui_qt_common.h"
-#elif defined (WXWIDGETS_USE)
+#endif // QT_SUPPORT
+#if defined (WXWIDGETS_SUPPORT)
 #include "common_ui_wxwidgets_common.h"
-#endif
+#endif // WXWIDGETS_SUPPORT
 #endif // GUI_SUPPORT
-
-// forward declarations
-struct Common_UI_State;
 
 struct Common_Test_U_UserData
 {
@@ -92,16 +92,16 @@ struct Common_Test_U_UI_CBData
    : allowUserRuntimeStatistic (true)
    , progressData ()
 #if defined (GUI_SUPPORT)
-#if defined (GTK_USE) || defined (QT_USE) || defined (WXWIDGETS_USE)
+#if defined (GTK_SUPPORT) || defined (QT_SUPPORT) || defined (WXWIDGETS_SUPPORT)
    , UIState (NULL)
-#endif // GTK_USE || QT_USE || WXWIDGETS_USE
+#endif // GTK_SUPPORT || QT_SUPPORT || WXWIDGETS_SUPPORT
 #endif // GUI_SUPPORT
   {
     progressData.CBData = this;
 #if defined (GUI_SUPPORT)
-#if defined (GTK_USE) || defined (QT_USE) || defined (WXWIDGETS_USE)
+#if defined (GTK_SUPPORT) || defined (QT_SUPPORT) || defined (WXWIDGETS_SUPPORT)
     progressData.state = UIState;
-#endif // GTK_USE || QT_USE || WXWIDGETS_USE
+#endif // GTK_SUPPORT || QT_SUPPORT || WXWIDGETS_SUPPORT
 #endif // GUI_SUPPORT
   }
 
@@ -114,7 +114,9 @@ struct Common_Test_U_UI_CBData
   struct Common_UI_Qt_State*            UIState;
 #elif defined (WXWIDGETS_USE)
   Common_UI_wxWidgets_State*            UIState;
-#endif
+#else
+  struct Common_UI_State                UIState;
+#endif // GTK_USE || QT_USE || WXWIDGETS_USE
 #endif // GUI_SUPPORT
 };
 

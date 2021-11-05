@@ -34,16 +34,14 @@
 #include "common_ui_common.h"
 #include "common_ui_idefinition.h"
 
-//#include "common_ui_gtk_builder_definition.h"
+#if defined (GTKGL_SUPPORT)
+#include "common_ui_gtk_gl_common.h"
+#endif // GTKGL_SUPPORT
 
 // forward declarations
 #if defined (LIGBGLADE_SUPPORT)
 struct _GladeXML;
 #endif // LIGBGLADE_SUPPORT
-#if defined (GTKGL_SUPPORT)
-struct Common_UI_GTK_GLConfiguration;
-struct Common_UI_GTK_GLState;
-#endif // GTKGL_SUPPORT
 template <typename StateType>
 class Common_UI_GtkBuilderDefinition_T;
 
@@ -124,6 +122,23 @@ struct Common_UI_GTK_State
   gpointer                         userData; // cb user data
 };
 
+#if defined (GTKGL_SUPPORT)
+struct Common_UI_GTK_GLState
+ : Common_UI_GTK_State
+{
+  Common_UI_GTK_GLState ()
+   : Common_UI_GTK_State ()
+   , OpenGLContexts ()
+  {}
+
+  // *TODO*: an application may support multiple OpenGL-capable windows; each
+  //         window is tied to a specific (shared) GdkGLContext. Move the
+  //         mapping of a OpenGL context to a specific output device(s) into a
+  //         separate 'presentation manager' object
+  Common_UI_GTK_GLContexts_t OpenGLContexts;
+};
+#endif // GTKGL_SUPPORT
+
 struct Common_UI_GTK_EventHookConfiguration
 {
   Common_UI_GTK_EventHookConfiguration ()
@@ -182,6 +197,19 @@ struct Common_UI_GTK_Configuration
 };
 
 #if defined (GTKGL_SUPPORT)
+struct Common_UI_GTK_GLConfiguration
+ : Common_UI_GTK_Configuration
+{
+  Common_UI_GTK_GLConfiguration ()
+   : Common_UI_GTK_Configuration ()
+   , widgetName ()
+  {}
+
+  std::string widgetName;
+};
+#endif // GTKGL_SUPPORT
+
+#if defined (GTKGL_SUPPORT)
 typedef struct Common_UI_GTK_GLConfiguration Common_UI_GTK_Configuration_t;
 #else
 typedef struct Common_UI_GTK_Configuration Common_UI_GTK_Configuration_t;
@@ -212,6 +240,19 @@ struct Common_UI_GTK_ProgressData
   Common_UI_GTK_PendingActions_t   pendingActions;
   Common_UI_GTK_State_t*           state;
 };
+
+#if defined (GTKGL_SUPPORT)
+struct Common_UI_GTKGL_ProgressData
+ : Common_UI_GTK_ProgressData
+{
+  Common_UI_GTKGL_ProgressData ()
+   : Common_UI_GTK_ProgressData ()
+   , state (NULL)
+  {}
+
+  struct Common_UI_GTK_GLState* state;
+};
+#endif // GTKGL_SUPPORT
 
 struct Common_UI_GTK_CBData
  : Common_UI_CBData
