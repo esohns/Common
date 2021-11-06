@@ -7,6 +7,10 @@ target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
+if (UNIX)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
+endif (UNIX)
 
 ############## next target ################
 set (source_files
@@ -36,7 +40,12 @@ target_sources (${PROJECT_NAME}Signal
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-#add_dependencies (${PROJECT_NAME}Timer ACE)
+#add_dependencies (${PROJECT_NAME}Signal ACE)
+if (UNIX)
+ add_dependencies (${PROJECT_NAME}Signal ${PROJECT_NAME}Error)
+
+ target_link_libraries (${PROJECT_NAME}Signal PUBLIC ${PROJECT_NAME}Error)
+endif (UNIX)
 
 #set_target_properties (${PROJECT_NAME}Signal PROPERTIES
 #                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}

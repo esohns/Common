@@ -20,6 +20,10 @@
 
 #include <sstream>
 
+#if defined (_GNU_SOURCE)
+#include "unistd.h"
+#endif // _GNU_SOURCE
+
 #include "ace/Log_Msg.h"
 #include "ace/Message_Block.h"
 #include "ace/OS_Memory.h"
@@ -362,7 +366,10 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   ACE_ASSERT (inherited::msg_queue_);
 
   ACE_Time_Value one_second (1, 0);
+#if defined (_GNU_SOURCE)
+#else
   int result = -1;
+#endif // _GNU_SOURCE
   size_t count = 0;
   bool has_waited = false;
 
@@ -378,11 +385,15 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                 (inherited::mod_ ? ACE_TEXT (": ") : ACE_TEXT ("")),
                 count));
 
+#if defined (_GNU_SOURCE)
+    TEMP_FAILURE_RETRY(ACE_OS::sleep (one_second));
+#else
     result = ACE_OS::sleep (one_second);
     if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::sleep(%#T): \"%m\", continuing\n"),
                   &one_second));
+#endif // _GNU_SOURCE
   } while (true);
 
   if (has_waited)

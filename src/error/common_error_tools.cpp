@@ -270,7 +270,6 @@ Common_Error_Tools::inDebugSession ()
                 ACE_TEXT ("/proc/self/status")));
     goto clean;
   } // end IF
-//  buffer_a[bytes_read] = 0;
   tracer_pid_p = ACE_OS::strstr (buffer_a, tracer_pid_string);
   if (unlikely (!tracer_pid_p))
   {

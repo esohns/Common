@@ -60,7 +60,7 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_SignalHandler_T::handle_signal"));
 
-  int result = -1;
+  int result = 0;
   struct Common_Signal signal_s;
   signal_s.signal = signal_in;
   // *TODO*: WIN32 apparently does not support siginfo
@@ -75,41 +75,36 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
   // *IMPORTANT NOTE*: in signal context, many actions are forbidden (e.g.
   //                   tracing). Backup the context information and notify the
   //                   reactor / proactor for callback
-
+  // *WARNING*:        grabbing a lock here is non-portable !!!
   switch (dispatchMode_)
   {
     case COMMON_SIGNAL_DISPATCH_PROACTOR:
     { ACE_ASSERT (lock_);
-      { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, *lock_, false);
+//      { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, *lock_, false);
         signals_.push_back (signal_s);
-      } // end lock scope
+//      } // end lock scope
 
       ACE_Proactor* proactor_p = ACE_Proactor::instance ();
       ACE_ASSERT (proactor_p);
       result =
           proactor_p->schedule_timer (*this,                 // event handler
-//                                    act_p,                 // act
                                       NULL,                  // act
                                       ACE_Time_Value::zero); // expire immediately
       if (unlikely (result == -1))
       {
         // *PORTABILITY*: tracing in a signal handler context is not portable
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_Proactor::schedule_timer(): \"%m\", aborting\n")));
-
-        // clean up
-//      delete act_p;
+        //        ACE_DEBUG ((LM_ERROR,
+        //                    ACE_TEXT ("failed to ACE_Proactor::schedule_timer(): \"%m\", aborting\n")));
+        result = -1;
       } // end IF
-
-      result = 0;
 
       break;
     }
     case COMMON_SIGNAL_DISPATCH_REACTOR:
     { ACE_ASSERT (lock_);
-      { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, *lock_, false);
+//      { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, *lock_, false);
         signals_.push_back (signal_s);
-      } // end lock scope
+//      } // end lock scope
 
       ACE_Reactor* reactor_p = inherited2::reactor ();
       ACE_ASSERT (reactor_p);
@@ -119,46 +114,46 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
       if (unlikely (result == -1))
       {
         // *PORTABILITY*: tracing in a signal handler context is not portable
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_Reactor::notify(): \"%m\", aborting\n")));
+        //        ACE_DEBUG ((LM_ERROR,
+        //                    ACE_TEXT ("failed to ACE_Reactor::notify(): \"%m\", aborting\n")));
+        result = -1;
       } // end IF
-
-      result = 0;
 
       break;
     }
     case COMMON_SIGNAL_DISPATCH_SIGNAL:
     {
-#if defined (_DEBUG)
-//      // *PORTABILITY*: tracing in a signal handler context is not portable
+      // *PORTABILITY*: tracing in a signal handler context is not portable
 //      ACE_DEBUG ((LM_DEBUG,
 //                  ACE_TEXT ("%D: received [%u/\"%S\"]: %s\n"),
 //                  signal_in, signal_in,
 //                  ACE_TEXT (Common_Tools::signalToString (signal_s).c_str ())));
-#endif // _DEBUG
 
       ACE_ASSERT (callback_);
       try {
         callback_->handle (signal_s);
       } catch (...) {
         // *PORTABILITY*: tracing in a signal handler context is not portable
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("caught exception in Common_ISignal::handle(), continuing\n")));
+        //        ACE_DEBUG ((LM_ERROR,
+        //                    ACE_TEXT ("caught exception in Common_ISignal::handle(), aborting\n")));
+        result = -1;
       }
-
-      result = 0;
 
       break;
     }
     default:
     {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown signal dispatch mode (was: %d), aborting\n"),
-                  dispatchMode_));
+      // *PORTABILITY*: tracing in a signal handler context is not portable
+      //      ACE_DEBUG ((LM_ERROR,
+      //                  ACE_TEXT ("invalid/unknown signal dispatch mode (was: %d), aborting\n"),
+      //                  dispatchMode_));
+      result = -1;
+
       break;
     }
   } // end SWITCH
 
+  // *IMPORTANT NOTE*: returning -1 will remove the signal handler !
   return result;
 }
 
@@ -209,17 +204,10 @@ Common_SignalHandler_T<ConfigurationType>::handle_time_out (const ACE_Time_Value
   // sanity check(s)
   ACE_ASSERT (!act_in);
 
-//  const struct Common_Signal* signal_p =
-//    static_cast<const Common_Signal*> (act_in);
-
   int result = handle_exception (ACE_INVALID_HANDLE);
   if (result == -1)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_SignalHandler_T::handle_exception(): \"%m\", continuing\n")));
-
-//  // clean up
-//  if (signal_p)
-//    delete signal_p;
 }
 
 template <typename ConfigurationType>
@@ -250,8 +238,6 @@ Common_SignalHandler_T<ConfigurationType>::handle_exception (ACE_HANDLE handle_i
   try {
     callback_p->handle (signal_s);
   } catch (...) {
-    // *PORTABILITY*: tracing in a signal handler context is not portable
-    // *TODO*
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("caught exception in Common_ISignal::handle(), continuing\n")));
   }
