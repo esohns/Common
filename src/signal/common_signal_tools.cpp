@@ -54,7 +54,10 @@ Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
   COMMON_TRACE (ACE_TEXT ("Common_Signal_Tools::preInitialize"));
 
   int result = -1;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   sigset_t signal_set_a;
+#endif // ACE_WIN32 || ACE_WIN64
 
   // initialize return value(s)
   previousActions_out.clear ();
@@ -90,7 +93,10 @@ Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
     return false;
   } // end IF
   previousActions_out[SIGPIPE] = previous_action;
-  if (signals_inout.is_member (SIGPIPE))
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("%t: ignoring signal %d: %S\n"),
+              SIGPIPE, SIGPIPE));
+  if (signals_inout.is_member (SIGPIPE) > 0)
   {
     result = signals_inout.sig_del (SIGPIPE);
     if (unlikely (result == -1))
@@ -104,9 +110,6 @@ Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
                 ACE_TEXT ("%t: removed %d: %S from handled signals\n"),
                 SIGPIPE, SIGPIPE));
   } // end IF
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("%t: ignoring %d: %S\n"),
-              SIGPIPE, SIGPIPE));
 
   // step2: block certain signals
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -163,7 +166,7 @@ Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
       } // end IF
 
       // remove any RT signals from the signal set handled by the application
-      if (signals_inout.is_member (i))
+      if (signals_inout.is_member (i) > 0)
       {
         result = signals_inout.sig_del (i); // <-- let the event dispatch handle
                                             //     all RT signals
@@ -241,8 +244,8 @@ _continue_2:
   for (int i = 1;
        i < ACE_NSIG;
        ++i)
-    if (ACE_OS::sigismember (&signal_set_a, i) &&
-        signals_inout.is_member (i))
+    if ((ACE_OS::sigismember (&signal_set_a, i) > 0) &&
+        (signals_inout.is_member (i) > 0))
     {
       result = signals_inout.sig_del (i);
       if (unlikely (result == -1))
@@ -262,7 +265,7 @@ _end:
   // *NOTE*: remove SIGSEGV to enable core dumps on non-Win32 systems
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-  if (signals_inout.is_member (SIGSEGV))
+  if (signals_inout.is_member (SIGSEGV) > 0)
   {
     result = signals_inout.sig_del (SIGSEGV);
     if (unlikely (result == -1))
@@ -302,7 +305,7 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
   for (int i = 1;
        i < ACE_NSIG;
        ++i)
-    if (signals_in.is_member (i))
+    if (signals_in.is_member (i) > 0)
     {
       previous_action.retrieve_action (i);
       previousActions_out[i] = previous_action;
@@ -320,7 +323,7 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
   for (int i = 1;
        i < ACE_NSIG;
        i++)
-    if (ignoreSignals_in.is_member (i))
+    if (ignoreSignals_in.is_member (i) > 0)
     {
       result = ignore_action.register_action (i,
                                               &previous_action);
@@ -336,6 +339,21 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("ignoring signal %d: %S\n"),
                     i, i));
+        // sanity check(s)
+        if (signals_in.is_member (i) > 0)
+        {
+          result = const_cast<ACE_Sig_Set&> (signals_in).sig_del (i);
+          if (unlikely (result == -1))
+          {
+            ACE_DEBUG ((LM_ERROR,
+                        ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%d: %S): \"%m\", aborting\n"),
+                        i, i));
+            return false;
+          } // end IF
+          ACE_DEBUG ((LM_WARNING,
+                      ACE_TEXT ("%t: removed %d: %S from handled signals\n"),
+                      i, i));
+        } // end IF
       } // end ELSE
     } // end IF
 
@@ -355,7 +373,7 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
       for (int i = 1;
            i < ACE_NSIG;
            ++i)
-        if (signals_in.is_member (i))
+        if (signals_in.is_member (i) > 0)
         {
           result =
               Common_Signal_Tools::signalHandler_.register_handler (i,
@@ -409,7 +427,7 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
   for (int i = 1;
        i < ACE_NSIG;
        ++i)
-    if (signals_in.is_member (i))
+    if (signals_in.is_member (i) > 0)
     {
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("handling signal %d: \"%S\"\n"),
@@ -442,7 +460,7 @@ Common_Signal_Tools::finalize (enum Common_SignalDispatchType dispatch_in,
       for (int i = 1;
            i < ACE_NSIG;
            ++i)
-        if (signals_in.is_member (i))
+        if (signals_in.is_member (i) > 0)
         {
           iterator = previousActions_in.find (i);
           if (likely (iterator != previousActions_in.end ()))
@@ -502,7 +520,7 @@ Common_Signal_Tools::finalize (enum Common_SignalDispatchType dispatch_in,
   if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", continuing\n")));
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 }
 
 std::string
@@ -543,16 +561,12 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
   } // end SWITCH
 
   result += ACE_TEXT_ALWAYS_CHAR (", signalled handle: ");
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
   result += ACE_TEXT_ALWAYS_CHAR ("0x");
-#endif
   converter << signal_in.siginfo.si_handle_;
   result += converter.str ();
   //result += ACE_TEXT_ALWAYS_CHAR (", array of signalled handle(s): ");
   //result += signal_in.siginfo.si_handles_;
 #else
-//  int result_2 = -1;
-
   // step0: common information (on POSIX.1b)
   result += ACE_TEXT_ALWAYS_CHAR ("PID/UID: ");
   converter << signal_in.siginfo.si_pid;
@@ -590,24 +604,24 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
   {
 // *NOTE*: Solaris (11)-specific
 #if defined (__sun) && defined (__SVR4)
-  case SI_NOINFO:
-      result += ACE_TEXT_ALWAYS_CHAR ("SI_NOINFO"); break;
-  case SI_DTRACE:
-      result += ACE_TEXT_ALWAYS_CHAR ("SI_DTRACE"); break;
-  case SI_RCTL:
-      result += ACE_TEXT_ALWAYS_CHAR ("SI_RCTL"); break;
+    case SI_NOINFO:
+        result += ACE_TEXT_ALWAYS_CHAR ("SI_NOINFO"); break;
+    case SI_DTRACE:
+        result += ACE_TEXT_ALWAYS_CHAR ("SI_DTRACE"); break;
+    case SI_RCTL:
+        result += ACE_TEXT_ALWAYS_CHAR ("SI_RCTL"); break;
 /////////////////////////////////////////
-#endif
-  case SI_USER:
-      result += ACE_TEXT_ALWAYS_CHAR ("SI_USER"); break;
+#endif // __sun && __SVR4
+    case SI_USER:
+        result += ACE_TEXT_ALWAYS_CHAR ("SI_USER"); break;
 // *NOTE*: Solaris (11)-specific
 #if defined (__sun) && defined (__SVR4)
-  case SI_LWP:
-      result += ACE_TEXT_ALWAYS_CHAR ("SI_LWP"); break;
+    case SI_LWP:
+        result += ACE_TEXT_ALWAYS_CHAR ("SI_LWP"); break;
 #else
-  case SI_KERNEL:
-      result += ACE_TEXT_ALWAYS_CHAR ("SI_KERNEL"); break;
-#endif
+    case SI_KERNEL:
+        result += ACE_TEXT_ALWAYS_CHAR ("SI_KERNEL"); break;
+#endif // __sun && __SVR4
     case SI_QUEUE:
       result += ACE_TEXT_ALWAYS_CHAR ("SI_QUEUE"); break;
     case SI_TIMER:
@@ -618,15 +632,15 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
       result += ACE_TEXT_ALWAYS_CHAR ("SI_MESGQ"); break;
 // *NOTE*: Solaris (11)-specific
 #if defined (__sun) && defined (__SVR4)
-  case SI_LWP_QUEUE:
-      result += ACE_TEXT_ALWAYS_CHAR ("SI_LWP_QUEUE"); break;
+    case SI_LWP_QUEUE:
+        result += ACE_TEXT_ALWAYS_CHAR ("SI_LWP_QUEUE"); break;
 #else
-  case SI_SIGIO:
-      result += ACE_TEXT_ALWAYS_CHAR ("SI_SIGIO"); break;
+    case SI_SIGIO:
+        result += ACE_TEXT_ALWAYS_CHAR ("SI_SIGIO"); break;
     case SI_TKILL:
       result += ACE_TEXT_ALWAYS_CHAR ("SI_TKILL"); break;
-#endif
-  default:
+#endif // __sun && __SVR4
+    default:
     { // (signal-dependant) codes...
       switch (signal_in.signal)
       {
@@ -689,7 +703,6 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
               break;
             }
           } // end SWITCH
-
           break;
         }
         case SIGSEGV:
@@ -708,7 +721,6 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
               break;
             }
           } // end SWITCH
-
           break;
         }
         case SIGBUS:
@@ -729,7 +741,6 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
               break;
             }
           } // end SWITCH
-
           break;
         }
         case SIGTRAP:
@@ -748,7 +759,6 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
               break;
             }
           } // end SWITCH
-
           break;
         }
         case SIGCHLD:
@@ -775,7 +785,6 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
               break;
             }
           } // end SWITCH
-
           break;
         }
         case SIGPOLL:
@@ -802,7 +811,6 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
               break;
             }
           } // end SWITCH
-
           break;
         }
         default:
@@ -813,7 +821,6 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
           break;
         }
       } // end SWITCH
-
       break;
     }
   } // end SWITCH
@@ -823,7 +830,7 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
   {
     case SIGALRM:
     {
-#if defined (__linux__)
+#if defined (ACE_LINUX)
       result += ACE_TEXT_ALWAYS_CHAR (", overrun: ");
       converter.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter.clear ();
@@ -834,7 +841,7 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
       converter.clear ();
       converter << signal_in.siginfo.si_timerid;
       result += converter.str ();
-#endif
+#endif // ACE_LINUX
       break;
     }
     case SIGCHLD:
@@ -892,7 +899,7 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
       break;
     }
   } // end SWITCH
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
   return result;
 }
