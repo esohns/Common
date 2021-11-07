@@ -150,6 +150,7 @@ if (GTK_FOUND OR GTK2_FOUND)
                 DOC "searching for libglade-2.0.lib"
                 NO_DEFAULT_PATH)
   if (LIBGLADE_LIBRARY)
+   message (STATUS "found libglade: ${LIBGLADE_LIBRARY}")
    set (LIBGLADE_FOUND TRUE)
    set (LIBGLADE_INCLUDES $ENV{LIB_ROOT}/libglade/include/libglade-2.0)
    set (LIBGLADE_LIB_DIR $ENV{LIB_ROOT}/libglade/bin)
@@ -224,11 +225,12 @@ if (GTK_SUPPORT AND OPENGL_SUPPORT)
    set (GTKGLAREA_LIB_FILE gtkglarea.lib)
    get_filename_component (BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR} NAME)
    find_library (GTKGLAREA_LIBRARY ${GTKGLAREA_LIB_FILE}
-                 PATHS $ENV{LIB_ROOT}/gtkglarea/${BUILD_PATH_SUFFIX}
+                 PATHS $ENV{LIB_ROOT}/gtkglarea/build/${CMAKE_BUILD_TYPE}
                  PATH_SUFFIXES ${CMAKE_BUILD_TYPE}
                  DOC "searching for ${GTKGLAREA_LIB_FILE}")
   endif ()
   if (GTKGLAREA_LIBRARY)
+   message (STATUS "found gtkglarea: ${GTKGLAREA_LIBRARY}")
    set (GTKGLAREA_DEFAULT ON)
    set (GTKGLAREA_INCLUDES $ENV{LIB_ROOT}/gtkglarea)
    set (GTKGL_FOUND TRUE)

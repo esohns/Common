@@ -31,11 +31,6 @@ if (GUI_SUPPORT)
   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
                               "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
 
-  if (LIBGLADE_SUPPORT)
-   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                               $<BUILD_INTERFACE:${LIBGLADE_INCLUDES}>)
-  endif (LIBGLADE_SUPPORT)
-
   if (GTKGLAREA_SUPPORT)
 # *NOTE*: check out the 'master' branch for gtk3-based applications
 # *NOTE*: check out the 'gtkglarea-2' branch for gtk2-based applications
@@ -45,12 +40,15 @@ if (GUI_SUPPORT)
   endif (GTKGLAREA_SUPPORT)
  endif (GTK_SUPPORT)
  if (QT_SUPPORT)
+  if (WIN32)
+   cmake_policy (SET CMP0020 OLD)
+  endif (WIN32)
   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
                               $<BUILD_INTERFACE:${QT_INCLUDE_DIRS}>)
  endif (QT_SUPPORT)
  if (WXWIDGETS_SUPPORT)
   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                              $<BUILD_INTERFACE:${wxWidgets_INCLUDE_DIRS}>)
+                              "$<BUILD_INTERFACE:${wxWidgets_INCLUDE_DIRS}>")
  endif (WXWIDGETS_SUPPORT)
 endif (GUI_SUPPORT)
 

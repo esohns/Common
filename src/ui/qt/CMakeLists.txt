@@ -1,9 +1,8 @@
 include (SetUIFramework)
 
-#find_package (Qt5Widgets CONFIG REQUIRED)
-#message (STATUS "Qt5Widgets_DEFINITIONS: ${Qt5Widgets_DEFINITIONS}")
-#message (STATUS "Qt5Widgets_INCLUDE_DIRS: ${Qt5Widgets_INCLUDE_DIRS}")
-#message (STATUS "Qt5Widgets_EXECUTABLE_COMPILE_FLAGS: ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+if (WIN32)
+ cmake_policy (SET CMP0020 OLD)
+endif (WIN32)
 
 add_library (${PROJECT_NAME}UI_Qt STATIC "")
 
@@ -22,6 +21,10 @@ target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>)
+if (WIN32)
+ target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../include>)
+endif (WIN32)
 target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../image>)
 target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
@@ -54,7 +57,6 @@ target_sources (${PROJECT_NAME}UI_Qt
 
 #add_dependencies (${PROJECT_NAME}UI_Qt Common)
 
-#message (STATUS "QT_LIBRARIES: ${QT_LIBRARIES}")
 target_link_libraries (${PROJECT_NAME}UI_Qt ${QT_LIBRARIES})
 if (UNIX)
 elseif (WIN32)
@@ -94,4 +96,3 @@ install (TARGETS ${PROJECT_NAME}UI_Qt
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)
-

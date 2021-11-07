@@ -79,7 +79,7 @@ if (UNIX)
  target_link_libraries (${EXECUTABLE_2} PUBLIC X11)
  target_link_libraries (${EXECUTABLE_2} PUBLIC GL)
 
- target_link_libraries (${EXECUTABLE_2} PUBLIC ${PKG_FFMPEG_LIBRARIES})
+# target_link_libraries (${EXECUTABLE_2} PUBLIC ${PKG_FFMPEG_LIBRARIES})
 elseif (WIN32)
  target_link_libraries (${EXECUTABLE_2} PUBLIC OpenGL32)
 endif (UNIX)

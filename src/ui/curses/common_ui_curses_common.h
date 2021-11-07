@@ -25,6 +25,7 @@
 #include <string>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN32)
+#undef MOUSE_MOVED
 #include "curses.h"
 #else
 #include "ncurses.h"

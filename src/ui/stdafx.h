@@ -17,7 +17,7 @@
 // *TODO*: currently, these do not work well with ACE...
 //#define _CRTDBG_MAP_ALLOC
 #include "stdlib.h"
-#include "rtdbg.h"
+#include "crtdbg.h"
 #endif // _DEBUG
 
 // *NOTE*: nmake complains (see also:

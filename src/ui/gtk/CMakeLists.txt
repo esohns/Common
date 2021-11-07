@@ -7,26 +7,26 @@ get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 # *NOTE*: a bug in cmake (3.12.1) requires the additional comment
 target_include_directories (${LIBRARY} PUBLIC
                             "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
-if (GTKGLAREA_SUPPORT)
+#if (GTKGLAREA_SUPPORT)
 # *NOTE*: check out the 'master' branch for gtk3-based applications
 # *NOTE*: check out the 'gtkglarea-2' branch for gtk2-based applications
 # *TODO*: verify automatically
- target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/gtkglarea>)
-endif (GTKGLAREA_SUPPORT)
+# target_include_directories (${LIBRARY} PUBLIC
+#                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/gtkglarea>)
+#endif (GTKGLAREA_SUPPORT)
 
-if (UNIX)
- if (LIBGLADE_SUPPORT)
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:${PKG_GLADE_INCLUDE_DIRS}>)
- endif (LIBGLADE_SUPPORT)
-elseif (WIN32)
- if (LIBGLADE_SUPPORT)
+#if (UNIX)
+# if (LIBGLADE_SUPPORT)
+#  target_include_directories (${LIBRARY} PUBLIC
+#                              $<BUILD_INTERFACE:${PKG_GLADE_INCLUDE_DIRS}>)
+# endif (LIBGLADE_SUPPORT)
+#elseif (WIN32)
+# if (LIBGLADE_SUPPORT)
 # libglade
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:${LIBGLADE_INCLUDES}>)
- endif (LIBGLADE_SUPPORT)
-endif ()
+#  target_include_directories (${LIBRARY} PUBLIC
+#                              $<BUILD_INTERFACE:${LIBGLADE_INCLUDES}>)
+# endif (LIBGLADE_SUPPORT)
+#endif ()
 
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../../..>)
@@ -94,9 +94,6 @@ target_sources (${LIBRARY}
 target_precompile_headers (${LIBRARY}
                            PUBLIC stdafx.h)
 
-#get_target_property (debug ${LIBRARY} INTERFACE_INCLUDE_DIRECTORIES)
-#message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
-
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
  add_definitions (-DG_ERRORCHECK_MUTEXES)
 endif (CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -106,11 +103,10 @@ add_dependencies (${LIBRARY} Common)
 target_link_libraries (${LIBRARY} ${GTK_LIBRARIES})
 
 if (UNIX)
- if (GTKGLAREA_SUPPORT)
+ if (GTKGL_SUPPORT)
   target_link_libraries (${LIBRARY} X11)
   target_link_libraries (${LIBRARY} GL)
-  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/gtkglarea/gtkgl/.libs/libgtkgl-2.0.a)
- endif (GTKGLAREA_SUPPORT)
+ endif (GTKGL_SUPPORT)
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
   target_link_libraries (${LIBRARY} Msvcrtd.lib)
@@ -120,16 +116,16 @@ elseif (WIN32)
 
  if (GTKGLAREA_SUPPORT)
   target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/libepoxy/lib/epoxy.lib)
-  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/gtkglarea/${BUILD_PATH_SUFFIX}/${CMAKE_BUILD_TYPE}/gtkglarea.lib)
+#  target_link_libraries (${LIBRARY} $ENV{LIB_ROOT}/gtkglarea/${BUILD_PATH_SUFFIX}/${CMAKE_BUILD_TYPE}/gtkglarea.lib)
 # else (GTKGLAREA_SUPPORT)
  # target_link_libraries (${EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtkglext/gdk/.libs/libgdkglext-win32-1.0.dll.a)
  # target_link_libraries (${EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../../gtkglext/gtk/.libs/libgtkglext-win32-1.0.dll.a)
  endif (GTKGLAREA_SUPPORT)
 
- if (LIBGLADE_SUPPORT)
+# if (LIBGLADE_SUPPORT)
 # libglade
-  target_link_libraries (${LIBRARY} ${LIBGLADE_LIBRARY})
- endif (LIBGLADE_SUPPORT)
+#  target_link_libraries (${LIBRARY} ${LIBGLADE_LIBRARY})
+# endif (LIBGLADE_SUPPORT)
 
 # target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
 
