@@ -426,7 +426,7 @@ retry:
       done = true;
       break;
     }
-    case ACE_Message_Block::MB_USER:
+    case ACE_Message_Block::MB_EVENT:
     {
       result = queue_->enqueue_tail (message_block_p);
       if (result == -1)

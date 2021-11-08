@@ -70,8 +70,8 @@ class Common_Timer_Manager_T
   virtual bool isRunning () const;
   inline virtual bool isShuttingDown () const { return !isRunning (); }
   virtual bool start (ACE_Time_Value* = NULL); // N/A
-  virtual void stop (bool = true,  // wait for completion ?
-                     bool = true); // N/A
+  virtual void stop (bool = true,   // wait for completion ?
+                     bool = false); // N/A
   virtual void wait (bool = true) const; // N/A
 
   // implement Common_ITimerCB_T

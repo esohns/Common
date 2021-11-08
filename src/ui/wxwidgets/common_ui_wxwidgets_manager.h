@@ -66,8 +66,8 @@ class Common_UI_WxWidgets_Manager_T
   inline virtual void idle () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
   inline virtual bool isShuttingDown () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
   virtual void start (ACE_Time_Value* = NULL);
-  virtual void stop (bool = true,  // wait for completion ?
-                     bool = true); // high priority ?
+  virtual void stop (bool = true,   // wait for completion ?
+                     bool = false); // high priority ?
 #if wxCHECK_VERSION(3,0,0)
   inline virtual void wait (bool = true) const { OWN_TYPE_T* this_p = const_cast<OWN_TYPE_T*> (this);  wxThread::ExitCode exit_code = this_p->Wait (wxTHREAD_WAIT_DEFAULT); ACE_UNUSED_ARG (exit_code); }
 #elif wxCHECK_VERSION(2,0,0)

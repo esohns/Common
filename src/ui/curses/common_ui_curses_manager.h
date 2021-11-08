@@ -76,8 +76,8 @@ class Common_UI_Curses_Manager_T
 
   // override (part of) Common_IAsynchTask
   virtual bool start (ACE_Time_Value* = NULL); // N/A
-  virtual void stop (bool = true,  // wait for completion ?
-                     bool = true); // N/A
+  virtual void stop (bool = true,   // wait for completion ?
+                     bool = false); // N/A
 
   // implement Common_IInitialize
   virtual bool initialize (const ConfigurationType&);

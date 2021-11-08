@@ -180,8 +180,8 @@ class Common_TaskBase_T<ACE_NULL_SYNCH,
   inline virtual bool isRunning () const { return (!stopped_ && (threadId_.handle () != ACE_INVALID_HANDLE)); }
   inline virtual bool isShuttingDown () const { return stopped_; }
   virtual bool start (ACE_Time_Value* timeout_in = NULL);
-  virtual void stop (bool = true,  // wait for completion ?
-                     bool = true); // N/A
+  virtual void stop (bool = true,   // wait for completion ?
+                     bool = false); // N/A
   virtual void wait (bool = true) const; // N/A
   virtual void pause () const;
   virtual void resume () const;

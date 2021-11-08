@@ -60,8 +60,8 @@ class Common_Timer_SecondPublisher_T
   inline virtual bool isRunning () const { return (timerId_ != -1); }
   inline virtual bool isShuttingDown () const { return !isRunning (); }
   virtual bool start (ACE_Time_Value* = NULL); // N/A
-  virtual void stop (bool = true,  // N/A
-                     bool = true); // N/A
+  virtual void stop (bool = true,   // N/A
+                     bool = false); // N/A
   inline virtual void wait (bool = true) const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return; ) }
 
   virtual void subscribe (Common_ICounter*);

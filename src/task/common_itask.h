@@ -34,8 +34,8 @@ class Common_ITask
   virtual bool isShuttingDown () const = 0; // stop() has been called ?
 
   virtual bool start (ACE_Time_Value* = NULL) = 0; // duration ? relative timeout : run until finished
-  virtual void stop (bool = true,      // wait for completion ?
-                     bool = true) = 0; // high priority ? (i.e. do not wait for other queued messages)
+  virtual void stop (bool = true,       // wait for completion ?
+                     bool = false) = 0; // high priority ? (i.e. do not wait for other queued messages)
   virtual void wait (bool = true) const = 0; // wait for the message queue ? : worker thread(s) only
 
   virtual void pause () const = 0;

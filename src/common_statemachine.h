@@ -99,8 +99,8 @@ class Common_StateMachineAsynch_T
 
 //  // override (part of) Common_ITask
 //  virtual void start () = 0;
-//  virtual void stop (bool = true,      // wait for completion ?
-//                     bool = true) = 0; // locked access ?
+//  virtual void stop (bool = true,       // wait for completion ?
+//                     bool = false) = 0; // high priority ?
 //  virtual bool isRunning () const = 0;
 //  virtual void idle () = 0;
 //  virtual void finished () = 0;

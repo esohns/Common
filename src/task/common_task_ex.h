@@ -73,8 +73,8 @@ class Common_Task_Ex_T
   //         --> use Common_MessageQueueIterator_T and lock the queue manually
   virtual bool isShuttingDown () const;
   // enqueue MB_STOP --> stop worker thread(s)
-  virtual void stop (bool = true,  // wait for completion ?
-                     bool = true); // high priority ? (i.e. do not wait for queued messages)
+  virtual void stop (bool = true,   // wait for completion ?
+                     bool = false); // high priority ? (i.e. do not wait for queued messages)
 
   // implement Common_ITaskHandler_T
   // *NOTE*: the default implementation does nothing; it frees all messages
