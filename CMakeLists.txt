@@ -20,7 +20,7 @@ include (OS)
 #             "http://dbus.freedesktop.org"
 #             "https://bugs.freedesktop.org/enter_bug.cgi?product=dbus")
 
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8...3.12)
 
 cmake_policy (SET CMP0069 NEW) # IPO is enforced when enabled
 include (CheckIPOSupported)
@@ -32,8 +32,6 @@ if (IPO_SUPPORTED)
  message (STATUS "-- IPO is supported: \"${IPO_REASON}\"")
  set (CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif (IPO_SUPPORTED)
-#set (CMAKE_VERBOSE_MAKEFILE ON)
-#set (MSVC_INCREMENTAL_DEFAULT OFF)
 set_property (GLOBAL PROPERTY USE_FOLDERS ON)
 
 #include (MacroLibrary)
@@ -41,7 +39,7 @@ if (UNIX)
 # include (ConfigureChecks.cmake)
  find_program (CCACHE_PROGRAM ccache)
  if (CCACHE_PROGRAM)
-#  set_property (GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+  set_property (GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
  endif (CCACHE_PROGRAM)
  set (ENV{CCACHE_DISABLE} "true")
 elseif (WIN32)
@@ -199,6 +197,12 @@ if (CXX_COMPILER_ID_STRING_LOWER STREQUAL LLVM_COMPILER_ID_STRING_LOWER)
 endif ()
 
 ################################################################################
+# policies
+cmake_policy (SET CMP0007 NEW)
+cmake_policy (SET CMP0011 NEW)
+cmake_policy (SET CMP0074 NEW)
+
+################################################################################
 if (DEFINED ENV{LIB_ROOT})
  file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/cotire/CMake" COTIRE_PATH)
 else ()
@@ -280,8 +284,8 @@ else ()
 endif (DEFINED ENV{LIB_ROOT})
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_MODULES_PATH}")
 #include (UseBackportedModules)
-cmake_policy (SET CMP0026 OLD)
-cmake_policy (SET CMP0053 OLD)
+#cmake_policy (SET CMP0026 OLD)
+#cmake_policy (SET CMP0053 OLD)
 include (CreateLaunchers)
 if (WIN32)
  if (DEFINED ENV{LIB_ROOT})

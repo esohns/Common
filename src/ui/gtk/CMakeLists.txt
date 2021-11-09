@@ -88,11 +88,11 @@ foreach (source_file ${source_files})
  #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
 target_sources (${LIBRARY}
-                PRIVATE stdafx.cpp
+#                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 target_precompile_headers (${LIBRARY}
-                           PUBLIC stdafx.h)
+                           PRIVATE stdafx.h)
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
  add_definitions (-DG_ERRORCHECK_MUTEXES)
@@ -134,14 +134,18 @@ endif ()
 
 # *WARNING*: linking libglade-2.dll(.a) requires "/SAFESEH:NO""
 if (WIN32)
- set_target_properties (${LIBRARY} PROPERTIES LINK_FLAGS /SAFESEH:NO)
+ if (LIBGLADE_SUPPORT)
+  set_target_properties (${LIBRARY} PROPERTIES LINK_FLAGS /SAFESEH:NO)
+ endif (LIBGLADE_SUPPORT)
 endif ()
 #set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
 #set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
 target_precompile_headers (${LIBRARY}
-                           PUBLIC stdafx.h)
+                           PRIVATE stdafx.h)
+
+set_property (TARGET ${LIBRARY} PROPERTY FOLDER "modules/ui")
 
 # add all targets to the build-tree export set
 export (TARGETS ${LIBRARY}

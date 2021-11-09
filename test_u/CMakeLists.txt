@@ -108,19 +108,6 @@ set (source_files
      common_test_u_tools.cpp
      common_test_u_tools.h
      common_test_u_tools.inl)
-#if (GTK_SUPPORT)
-# set (source_files
-#      ${source_files}
-#      test_u_gtk_common.h
-#      test_u_gtk_eventhandler.cpp
-#      test_u_gtk_eventhandler.h
-#      test_u_gtk_eventhandler.inl)
-#endif (GTK_SUPPORT)
-#if (WXWIDGETS_SUPPORT)
-# set (source_files
-#      ${source_files}
-#      test_u_wxwidgets_common.h)
-#endif (WXWIDGETS_SUPPORT)
 
 foreach (source_file ${source_files})
  get_filename_component (abs_source_file ${source_file} ABSOLUTE)
@@ -133,11 +120,11 @@ endforeach ()
 ##########################################
 
 target_sources (${PROJECT_NAME}_Test_U
-                PRIVATE stdafx.cpp
+#                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 target_precompile_headers (${PROJECT_NAME}_Test_U
-                           PUBLIC stdafx.h)
+                           PRIVATE stdafx.h)
 
 #set_target_properties (${PROJECT_NAME}_Test_U PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
@@ -184,6 +171,7 @@ endif (UNIX)
 add_dependencies (test_u base64)
 add_dependencies (test_u count)
 add_dependencies (test_u file)
+add_dependencies (test_u locale)
 add_dependencies (test_u regex)
 
 if (NOT BUILD_TEST_U)

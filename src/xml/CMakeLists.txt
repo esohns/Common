@@ -46,9 +46,11 @@ foreach (source_file ${source_files})
 #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
 target_sources (${PROJECT_NAME}XML
-                PRIVATE stdafx.cpp
+#                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
+target_precompile_headers (${LIBRARY}
+                           PRIVATE stdafx.h)
 
 #add_dependencies (${PROJECT_NAME}XML ACE)
 
@@ -64,10 +66,7 @@ if (ACEXML_SUPPORT)
  target_link_libraries (${PROJECT_NAME}XML ${ACEXML_PARSER_LIBRARY})
 endif (ACEXML_SUPPORT)
 
-# add PCH
-set_target_properties (${PROJECT_NAME}XML PROPERTIES
-                       COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${PROJECT_NAME}XML)
+set_property (TARGET ${LIBRARY} PROPERTY FOLDER "modules")
 
 # add all targets to the build-tree export set
 export (TARGETS ${PROJECT_NAME}XML

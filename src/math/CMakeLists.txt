@@ -47,7 +47,7 @@ foreach (source_file ${source_files})
 #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
 target_sources (${LIBRARY}
-                PRIVATE stdafx.cpp
+#                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
@@ -68,7 +68,9 @@ endif ()
 
 # add PCH
 target_precompile_headers (${LIBRARY}
-                           PUBLIC stdafx.h)
+                           PRIVATE stdafx.h)
+
+set_property (TARGET ${LIBRARY} PROPERTY FOLDER "modules")
 
 # add all targets to the build-tree export set
 export (TARGETS ${LIBRARY}

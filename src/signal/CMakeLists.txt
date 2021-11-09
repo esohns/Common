@@ -25,8 +25,6 @@ set (source_files
 # Include dir for installed targets
 set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 
-#set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
-
 unset (absolute_source_files)
 foreach (source_file ${source_files})
  get_filename_component (abs_source_file ${source_file} ABSOLUTE)
@@ -35,28 +33,30 @@ foreach (source_file ${source_files})
        )
 #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
-target_sources (${PROJECT_NAME}Signal
-                PRIVATE stdafx.cpp
+target_sources (${LIBRARY}
+#                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
 #add_dependencies (${PROJECT_NAME}Signal ACE)
 if (UNIX)
- add_dependencies (${PROJECT_NAME}Signal ${PROJECT_NAME}Error)
+ add_dependencies (${LIBRARY} ${PROJECT_NAME}Error)
 
- target_link_libraries (${PROJECT_NAME}Signal PUBLIC ${PROJECT_NAME}Error)
+ target_link_libraries (${LIBRARY} PUBLIC ${PROJECT_NAME}Error)
 endif (UNIX)
 
-#set_target_properties (${PROJECT_NAME}Signal PROPERTIES
+#set_target_properties (${LIBRARY} PROPERTIES
 #                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
 #                       SOVERSION 1)
 
 # add PCH
-target_precompile_headers (${PROJECT_NAME}Signal
-                           PUBLIC stdafx.h)
+target_precompile_headers (${LIBRARY}
+                           PRIVATE stdafx.h)
+
+set_property (TARGET ${LIBRARY} PROPERTY FOLDER "modules")
 
 # add all targets to the build-tree export set
-export (TARGETS ${PROJECT_NAME}Signal
+export (TARGETS ${LIBRARY}
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
@@ -67,7 +67,7 @@ install (FILES
          common_signal_handler.inl
          common_signal_tools.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
-install (TARGETS ${PROJECT_NAME}Signal
+install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)

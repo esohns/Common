@@ -1,4 +1,5 @@
 include (FindPkgConfig)
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/../../gl/scripts")
 include (OpenGL)
 
 ##########################################
@@ -298,7 +299,7 @@ elseif (WIN32)
  set (wxWidgets_CONFIGURATION msw)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
 # *WARNING*: linking against debug versions incurs dependencies to the debug
-#            vcrt libraries; these may not exist on your platform
+#            vcrt libraries; these may not exist on your target platform
   set (wxWidgets_CONFIGURATION ${wxWidgets_CONFIGURATION}d)
  endif (CMAKE_BUILD_TYPE STREQUAL Debug)
 endif ()
@@ -371,6 +372,7 @@ else ()
   if (NOT CURSES_LIBRARY)
    message (WARNING "could not find pdcurses.lib, continuing")
   else ()
+   message (STATUS "curses found")
 # *NOTE*: pdcurses.lib incorporates panel.lib
    set (PANEL_LIBRARY ${CURSES_LIBRARY})
    set (CURSES_INCLUDE_DIRS "$ENV{LIB_ROOT}/PDCurses")

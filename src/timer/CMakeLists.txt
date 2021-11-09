@@ -51,30 +51,32 @@ foreach (source_file ${source_files})
        )
 #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
-target_sources (${PROJECT_NAME}Timer
-                PRIVATE stdafx.cpp
+target_sources (${LIBRARY}
+#                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-#add_dependencies (${PROJECT_NAME}Timer ACE)
+#add_dependencies (${LIBRARY} ACE)
 
-#set_target_properties (${PROJECT_NAME}Timer PROPERTIES
+#set_target_properties (${LIBRARY} PROPERTIES
 #                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
 #                       SOVERSION 1)
 
 if (UNIX)
 # set_property(TARGET ${PROJECT_NAME}Timer PROPERTY CXX_STANDARD 11)
- target_link_libraries (${PROJECT_NAME}Timer PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+ target_link_libraries (${LIBRARY} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 elseif (WIN32)
- target_link_libraries (${PROJECT_NAME}Timer PUBLIC ${ACE_LIBRARY})
+ target_link_libraries (${LIBRARY} PUBLIC ${ACE_LIBRARY})
 endif ()
 
 # add PCH
-target_precompile_headers (${PROJECT_NAME}Timer
-                           PUBLIC stdafx.h)
+target_precompile_headers (${LIBRARY}
+                           PRIVATE stdafx.h)
+
+set_property (TARGET ${LIBRARY} PROPERTY FOLDER "modules")
 
 # add all targets to the build-tree export set
-export (TARGETS ${PROJECT_NAME}Timer
+export (TARGETS ${LIBRARY}
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
@@ -94,7 +96,7 @@ install (FILES
          common_timer_second_publisher.inl
          common_timer_tools.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
-install (TARGETS ${PROJECT_NAME}Timer
+install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)

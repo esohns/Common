@@ -1,34 +1,42 @@
 
-get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
-get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
-
-include_directories (${CMAKE_CURRENT_BINARY_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../include)
+include_directories (${CMAKE_CURRENT_BINARY_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/math)
+
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 ############## next target ################
-set (EXECUTABLE base64)
-set (${EXECUTABLE}_EXE_SRCS
-     stdafx.cpp
-     stdafx.h
-#     ../test_u_common.h
-#     ../test_u_defines.h
-#     targetver.h
+
+set (source_files
      test_u.cpp)
 
+foreach (source_file ${source_files})
+ get_filename_component (abs_source_file ${source_file} ABSOLUTE)
+ list (APPEND absolute_source_files
+       PRIVATE ${abs_source_file}
+       )
+#       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
+endforeach ()
+
 #cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
+set (EXECUTABLE base64)
 add_executable (${EXECUTABLE}
-                EXCLUDE_FROM_ALL
-                ${${EXECUTABLE}_EXE_SRCS})
+                EXCLUDE_FROM_ALL)
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_u")
-#cmake_policy (SET CMP0012 NEW)
-#if (WIN32 AND NOT BUILD_TEST_U)
-# set_target_properties (${EXECUTABLE} PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
-#endif ()
+target_sources (${EXECUTABLE}
+#                PRIVATE stdafx.cpp
+                PRIVATE stdafx.h
+                ${absolute_source_files})
+target_precompile_headers (${EXECUTABLE}
+                           PRIVATE stdafx.h)
+
+#-----------------------------------------
 
 #add_dependencies (${ACESTREAM_TARGET_NAME} ACE)
+
 add_dependencies (${EXECUTABLE} Common)
+add_dependencies (${EXECUTABLE} CommonMath)
+add_dependencies (${EXECUTABLE} Common_Test_U)
 
 target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
 
@@ -38,13 +46,13 @@ target_link_libraries (${EXECUTABLE} CommonMath)
 
 target_link_libraries (${EXECUTABLE} Common_Test_U)
 
-# add PCH
-target_precompile_headers (${EXECUTABLE}
-                           PUBLIC stdafx.h)
+#-----------------------------------------
 
 install (TARGETS ${EXECUTABLE}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_u)
+
+#-----------------------------------------
 
 if (UNIX)
  create_target_launcher (${EXECUTABLE}

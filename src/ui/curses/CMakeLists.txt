@@ -49,11 +49,11 @@ foreach (source_file ${source_files})
  #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
 target_sources (${LIBRARY}
-                PRIVATE stdafx.cpp
+#                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 target_precompile_headers (${LIBRARY}
-                           PUBLIC stdafx.h)
+                           PRIVATE stdafx.h)
 
 add_dependencies (${LIBRARY} Common)
 
@@ -63,9 +63,7 @@ target_link_libraries (${LIBRARY} ${CURSES_LIBRARIES})
 
 target_link_libraries (${LIBRARY} Common)
 
-# add PCH
-#set_target_properties (${LIBRARY} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-#cotire (${LIBRARY})
+set_property (TARGET ${LIBRARY} PROPERTY FOLDER "modules/ui")
 
 # add all targets to the build-tree export set
 export (TARGETS ${LIBRARY}

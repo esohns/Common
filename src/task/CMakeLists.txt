@@ -42,26 +42,28 @@ foreach (source_file ${source_files})
        )
 #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
-target_sources (${PROJECT_NAME}Task
-                PRIVATE stdafx.cpp
+target_sources (${LIBRARY}
+#                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-#add_dependencies (${PROJECT_NAME}Task ACE)
+#add_dependencies (${LIBRARY} ACE)
 
-#set_target_properties (${PROJECT_NAME}Task PROPERTIES
+#set_target_properties (${LIBRARY} PROPERTIES
 #                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
 #                       SOVERSION 1)
 
 if (UNIX)
- set_property(TARGET ${PROJECT_NAME}Task PROPERTY CXX_STANDARD 11)
+ set_property(TARGET ${LIBRARY} PROPERTY CXX_STANDARD 11)
 elseif (WIN32)
- target_link_libraries (${PROJECT_NAME}Task ${ACE_LIBRARY})
+ target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
 endif ()
 
 # add PCH
-target_precompile_headers (${PROJECT_NAME}Task
-                           PUBLIC stdafx.h)
+target_precompile_headers (${LIBRARY}
+                           PRIVATE stdafx.h)
+
+set_property (TARGET ${LIBRARY} PROPERTY FOLDER "modules")
 
 # add all targets to the build-tree export set
 export (TARGETS ${PROJECT_NAME}Task

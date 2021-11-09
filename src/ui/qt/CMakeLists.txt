@@ -4,30 +4,31 @@ if (WIN32)
  cmake_policy (SET CMP0020 OLD)
 endif (WIN32)
 
-add_library (${PROJECT_NAME}UI_Qt STATIC "")
+set (LIBRARY ${PROJECT_NAME}UI_Qt)
+add_library (${LIBRARY} STATIC "")
 
 if (UNIX)
- target_compile_options (${PROJECT_NAME}UI_Qt PRIVATE -fPIC)
+ target_compile_options (${LIBRARY} PRIVATE -fPIC)
 endif (UNIX)
 
-target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             "$<BUILD_INTERFACE:${Qt5Core_INCLUDE_DIRS}>")
-target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             "$<BUILD_INTERFACE:${Qt5Widgets_INCLUDE_DIRS}>")
 
-target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../../..>)
-target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
-target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>)
 if (WIN32)
- target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../include>)
 endif (WIN32)
-target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../image>)
-target_include_directories (${PROJECT_NAME}UI_Qt PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../log>)
 
 ############## next target ################
@@ -50,37 +51,39 @@ foreach (source_file ${source_files})
        )
  #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
-target_sources (${PROJECT_NAME}UI_Qt
-                PRIVATE stdafx.cpp
+target_sources (${LIBRARY}
+#                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-#add_dependencies (${PROJECT_NAME}UI_Qt Common)
+#add_dependencies (${LIBRARY} Common)
 
-target_link_libraries (${PROJECT_NAME}UI_Qt ${QT_LIBRARIES})
+target_link_libraries (${LIBRARY} ${QT_LIBRARIES})
 if (UNIX)
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
-  target_link_libraries (${PROJECT_NAME}UI_Qt Msvcrtd.lib)
+  target_link_libraries (${LIBRARY} Msvcrtd.lib)
  else ()
-  target_link_libraries (${PROJECT_NAME}UI_Qt Msvcrt.lib)
+  target_link_libraries (${LIBRARY} Msvcrt.lib)
  endif ()
 endif ()
-#target_link_libraries (${PROJECT_NAME}UI_Qt Common)
+#target_link_libraries (${LIBRARY} Common)
 
-#set_target_properties (${PROJECT_NAME}UI_Qt PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
-#set_target_properties (${PROJECT_NAME}UI_Qt PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+#set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
+#set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
-target_precompile_headers (${PROJECT_NAME}UI_Qt
-                           PUBLIC stdafx.h)
+target_precompile_headers (${LIBRARY}
+                           PRIVATE stdafx.h)
+
+set_property (TARGET ${LIBRARY} PROPERTY FOLDER "modules/ui")
 
 # add all targets to the build-tree export set
-export (TARGETS ${PROJECT_NAME}UI_Qt
+export (TARGETS ${LIBRARY}
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
-set (${PROJECT_NAME}UI_Qt_LIB_HDRS
+set (${LIBRARY}_LIB_HDRS
      common_ui_qt_application.h
      common_ui_qt_application.inl
      common_ui_qt_common.h
@@ -92,7 +95,7 @@ install (FILES
          ${CommonUI_Qt_LIB_HDRS}
          DESTINATION include)
 
-install (TARGETS ${PROJECT_NAME}UI_Qt
+install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)

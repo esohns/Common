@@ -5,20 +5,21 @@ include (Threads)
 
 include (ACE)
 
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/dbus/scripts")
+include (dbus)
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/gl/scripts")
+include (OpenGL)
+
 if (UNIX)
- include (CheckLibraryExists)
- check_library_exists (rt aio_init "" HAVE_LIB_AIO)
+ include (aio)
 
-# set (AIO_LIBRARY /usr/lib64/libaio.so)
- set (AIO_LIB_FILE aio)
- find_library (AIO_LIBRARY
-               NAMES ${AIO_LIB_FILE} libaio.so
-               PATHS /usr
-               PATH_SUFFIXES lib64 lib x86_64-linux-gnu
-               DOC "searching for ${AIO_LIB_FILE}"
-               REQUIRED)
-
- pkg_check_modules (PKG_LIBCAP REQUIRED libcap)
+ pkg_check_modules (PKG_LIBCAP libcap)
+ if (PKG_LIBCAP_FOUND)
+  option (LIBCAP_SUPPORT "enable libcap support" ON)
+  if (LIBCAP_SUPPORT)
+   add_definitions (-DLIBCAP_SUPPORT)
+  endif (LIBCAP_SUPPORT)
+ endif (PKG_LIBCAP_FOUND)
 
  add_link_options ("LINKER:--as-needed")
 endif (UNIX)
@@ -26,8 +27,10 @@ endif (UNIX)
 add_library (${PROJECT_NAME} STATIC "")
 
 if (UNIX)
- target_include_directories (${PROJECT_NAME} PUBLIC
-                             $<BUILD_INTERFACE:${PKG_LIBCAP_INCLUDE_DIRS}>)
+ if (LIBCAP_SUPPORT)
+  target_include_directories (${PROJECT_NAME} PUBLIC
+                              $<BUILD_INTERFACE:${PKG_LIBCAP_INCLUDE_DIRS}>)
+ endif (LIBCAP_SUPPORT)
 endif (UNIX)
 target_include_directories (${PROJECT_NAME} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
@@ -111,20 +114,16 @@ foreach (source_file ${source_files})
 #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
 target_sources (${PROJECT_NAME}
-                PRIVATE stdafx.cpp
+#                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 target_precompile_headers (${PROJECT_NAME}
-                           PUBLIC stdafx.h)
+                           PRIVATE stdafx.h)
 
 #add_dependencies (${PROJECT_NAME} ACE)
-if (UNIX)
-# if (DBUS_SUPPORT)
-#  add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}DBus)
-# endif (DBUS_SUPPORT)
-elseif (WIN32)
+if (WIN32)
  add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}Error)
-endif ()
+endif (WIN32)
 #add_dependencies (${PROJECT_NAME} ${PROJECT_NAME}Timer)
 
 #set_target_properties (${PROJECT_NAME} PROPERTIES
@@ -133,14 +132,12 @@ endif ()
 #                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 if (UNIX)
-# target_link_libraries (${PROJECT_NAME} c)
-# target_link_libraries (${PROJECT_NAME} pthread)
- target_link_libraries (${PROJECT_NAME} rt)
- target_link_libraries (${PROJECT_NAME} ${PKG_LIBCAP_LIBRARIES})
-# if (DBUS_SUPPORT)
-#  target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}DBus)
-# endif (DBUS_SUPPORT)
-# target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}Signal)
+ if (HAVE_POSIX_AIO)
+  target_link_libraries (${PROJECT_NAME} rt)
+ endif (HAVE_POSIX_AIO)
+ if (LIBCAP_SUPPORT)
+  target_link_libraries (${PROJECT_NAME} ${PKG_LIBCAP_LIBRARIES})
+ endif (LIBCAP_SUPPORT)
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
   target_link_libraries (${PROJECT_NAME} Msvcrtd.lib)
@@ -212,11 +209,10 @@ install (TARGETS ${PROJECT_NAME}
 
 ##########################################
 
-if (UNIX)
+if (DBUS_SUPPORT)
  add_subdirectory (dbus)
-endif (UNIX)
+endif (DBUS_SUPPORT)
 add_subdirectory (error)
-include (OpenGL)
 if (OPENGL_SUPPORT)
  add_subdirectory (gl)
 endif (OPENGL_SUPPORT)
