@@ -203,16 +203,16 @@ cmake_policy (SET CMP0011 NEW)
 cmake_policy (SET CMP0074 NEW)
 
 ################################################################################
-if (DEFINED ENV{LIB_ROOT})
- file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/cotire/CMake" COTIRE_PATH)
-else ()
-  set (COTIRE_PATH "modules/cotire/CMake")
-endif (DEFINED ENV{LIB_ROOT})
-list (APPEND CMAKE_MODULE_PATH "${COTIRE_PATH}")
+#if (DEFINED ENV{LIB_ROOT})
+# file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/cotire/CMake" COTIRE_PATH)
+#else ()
+#  set (COTIRE_PATH "modules/cotire/CMake")
+#endif (DEFINED ENV{LIB_ROOT})
+#list (APPEND CMAKE_MODULE_PATH "${COTIRE_PATH}")
 #message (STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
-include (cotire)
-set_directory_properties (PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-set_directory_properties (PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER TRUE)
+#include (cotire)
+#set_directory_properties (PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+#set_directory_properties (PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER TRUE)
 
 ################################################################################
 

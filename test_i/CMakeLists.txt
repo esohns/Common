@@ -106,9 +106,6 @@ target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
 target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/..>)
 
-#get_target_property (debug ${PROJECT_NAME}_Test_I INTERFACE_INCLUDE_DIRECTORIES)
-#message (STATUS "${PROJECT_NAME}_Test_I INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
-
 if (GUI_SUPPORT)
  if (GTK_SUPPORT)
   target_link_libraries (${PROJECT_NAME}_Test_I PUBLIC ${GTK_LIBRARIES})
