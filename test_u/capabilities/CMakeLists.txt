@@ -24,7 +24,7 @@ include_directories (${CMAKE_CURRENT_BINARY_DIR}/../..)
 
 ############## next target ###############
 set (capabilities_EXE_SRCS
-     stdafx.cpp
+#     stdafx.cpp
      stdafx.h
 #     ../test_u_common.h
 #     ../test_u_defines.h
@@ -38,8 +38,8 @@ add_executable (${EXECUTABLE}
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_u")
 
 # add PCH
-set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${EXECUTABLE})
+target_precompile_headers (${EXECUTABLE}
+                           PRIVATE stdafx.h)
 
 ############## next target ###############
 # include (CheckLibraryExists)
@@ -83,9 +83,8 @@ target_link_libraries (${EXECUTABLE_2} CommonTimer)
 target_link_libraries (${EXECUTABLE_2} pthread)
 
 # add PCH
-set_target_properties (${EXECUTABLE_2} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-set_target_properties (${EXECUTABLE_2} PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
-cotire (${EXECUTABLE_2})
+target_precompile_headers (${EXECUTABLE_2}
+                           PRIVATE stdafx.h)
 
 ############### installation #############
 install (TARGETS ${EXECUTABLE} ${EXECUTABLE_2}

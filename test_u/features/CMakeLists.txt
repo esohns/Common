@@ -1,6 +1,6 @@
 
 if (UNIX)
- include_directories ($ENV{LIB_ROOT}/ACE_TAO/ACE)
+# include_directories ($ENV{LIB_ROOT}/ACE_TAO/ACE)
 # include_directories (/usr/local/src/ACE_wrappers)
 
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
@@ -35,12 +35,9 @@ add_executable (${EXECUTABLE}
                 EXCLUDE_FROM_ALL
                 ${features_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_u")
-#cmake_policy (SET CMP0012 NEW)
-#if (WIN32 AND NOT BUILD_TEST_U)
-# set_target_properties (${EXECUTABLE} PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
-#endif ()
 
 #add_dependencies (${ACESTREAM_TARGET_NAME} ACE)
+
 #add_dependencies (${PROJECT_NAME} Common)
 
 # add PCH
