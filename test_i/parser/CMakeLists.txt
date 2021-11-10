@@ -79,9 +79,9 @@ target_link_libraries (${EXECUTABLE_2} CommonTimer)
 
 # add PCH
 target_precompile_headers (${EXECUTABLE}
-                           PUBLIC stdafx.h)
+                           PRIVATE stdafx.h)
 target_precompile_headers (${EXECUTABLE_2}
-                           PUBLIC stdafx.h)
+                           PRIVATE stdafx.h)
 
 ############### installation #############
 install (TARGETS ${EXECUTABLE}

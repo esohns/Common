@@ -109,10 +109,6 @@ using namespace std;
 
 #include "common_time_common.h"
 
-#if defined (DBUS_SUPPORT)
-#include "common_dbus_tools.h"
-#endif // DBUS_SUPPORT
-
 #include "common_error_tools.h"
 
 // initialize statics
@@ -179,19 +175,11 @@ Common_Tools::initialize (bool initializeRandomNumberGenerator_in)
                 ACE_TEXT ("initializing random seed...DONE\n")));
 #endif // ACE_WIN32 || ACE_WIN64
   } // end IF
-
-#if defined (DBUS_SUPPORT)
-  Common_DBus_Tools::initialize ();
-#endif // DBUS_SUPPORT
 }
 void
 Common_Tools::finalize ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::finalize"));
-
-#if defined (DBUS_SUPPORT)
-  Common_DBus_Tools::finalize ();
-#endif // DBUS_SUPPORT
 
   Common_Error_Tools::finalize ();
 }

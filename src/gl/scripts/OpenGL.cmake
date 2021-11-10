@@ -70,7 +70,9 @@ endif (OPENGL_SUPPORT)
 ##########################################
 
 # *TODO*: FindGLUT.cmake is currently broken
-find_package (GLUT)
+cmake_policy (PUSH)
+cmake_policy (SET CMP0072 OLD)
+#find_package (GLUT)
 if (NOT GLUT_FOUND)
  if (UNIX)
   set (GLUT_LIB_FILE libglut.so)
@@ -117,3 +119,4 @@ if (OPENGL_FOUND AND GLUT_FOUND)
   set (OPENGL_LIB_DIR "${GLUT_LIB_DIR}")
  endif (GLUT_SUPPORT)
 endif (OPENGL_FOUND AND GLUT_FOUND)
+cmake_policy (POP)

@@ -61,8 +61,8 @@ target_link_libraries (${EXECUTABLE} CommonParser)
 target_link_libraries (${EXECUTABLE} CommonTimer)
 
 # add PCH
-set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-cotire (${EXECUTABLE})
+target_precompile_headers (${EXECUTABLE}
+                           PRIVATE stdafx.h)
 
 ############### installation #############
 install (TARGETS ${EXECUTABLE}
