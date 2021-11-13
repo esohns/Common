@@ -196,21 +196,26 @@ Common_StateMachine_Base_T<StateMachineName,
 
   // sanity check(s)
   if (unlikely (!isInitialized_))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("%s: not initialized, aborting\n"),
+                ACE_TEXT (StateMachineName)));
     return false;
+  } // end IF
   ACE_ASSERT (condition_);
   ACE_ASSERT (stateLock_);
 
-  StateType previous_state;
-  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, false);
-    previous_state = state_;
-  } // end lock scope
+//  StateType previous_state;
+//  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, false);
+//    previous_state = state_;
+//  } // end lock scope
 
   // invoke callback
   // *IMPORTANT NOTE*: note that the stateLock_ is NOT held during the callback
   // *TODO*: implement a consistent (thread-safe/reentrant) policy
-  bool result = true;
+  bool result = true, result_2 = true;
   try {
-    this->onChange (newState_in);
+    result_2 = this->onChange (newState_in);
   } catch (...) {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("%s: caught exception in Common_IStateMachine_T::onChange(%s), aborting\n"),
@@ -220,24 +225,20 @@ Common_StateMachine_Base_T<StateMachineName,
   }
 
   bool signal = true;
+  // *NOTE*: if the implementation is 'passive', the whole operation
+  //         pertaining to newState_in 'may' have been processed 'inline' by
+  //         the current thread and 'may' have completed by 'now'. In this
+  //         case the callback 'may' have updated the state already
+  //         --> leave the state alone if it has changed
+  if (likely (result_2))
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, false);
-    // *NOTE*: if the implementation is 'passive', the whole operation
-    //         pertaining to newState_in 'may' have been processed 'inline' by
-    //         the current thread and 'may' have completed by 'now'. In this
-    //         case the callback 'may' have updated the state already
-    //         --> leave the state alone if it has changed
-    // *TODO*: still signal waiters ?
-    // *TODO*: this may not be the best way to implement 'inline' processing
-    if (likely (previous_state == state_))
-      state_ = newState_in;
-  } // end lock scope
-//#if defined (_DEBUG)
+    state_ = newState_in;
 //  ACE_DEBUG ((LM_DEBUG,
 //              ACE_TEXT ("%s: \"%s\" --> \"%s\"\n"),
 //              ACE_TEXT (StateMachineName),
 //              ACE_TEXT (this->stateToString (previous_state).c_str ()),
 //              ACE_TEXT (this->stateToString (newState_in).c_str ())));
-//#endif // _DEBUG
+  } // end IF/lock scope
 
   // signal any waiting threads
   if (likely (signal))

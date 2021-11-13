@@ -51,7 +51,9 @@ class Common_IStateMachine_T
 
  protected:
   ////////////////////////////////////////
-  virtual void onChange (StateType) = 0; // new state
+  // *IMPORTANT NOTE*: return value ? update state : leave as is (i.e. callback
+  //                   updates the state itself
+  virtual bool onChange (StateType) = 0; // new state
 };
 
 template <typename StateType>
