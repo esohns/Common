@@ -7,8 +7,8 @@ if (UNIX)
  pkg_check_modules (PKG_CAP REQUIRED libcap)
 endif (UNIX)
 
-get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
-get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
+string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
+string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 
 ############## definitions ###############
 
@@ -24,7 +24,7 @@ include_directories (${CMAKE_CURRENT_BINARY_DIR}/../..)
 
 ############## next target ###############
 set (capabilities_EXE_SRCS
-#     stdafx.cpp
+     stdafx.cpp
      stdafx.h
 #     ../test_u_common.h
 #     ../test_u_defines.h
@@ -44,12 +44,12 @@ target_precompile_headers (${EXECUTABLE}
 ############## next target ###############
 # include (CheckLibraryExists)
 # check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
-set (CMAKE_THREAD_PREFER_PTHREAD ON)
-find_package (Threads)
+#set (CMAKE_THREAD_PREFER_PTHREAD ON)
+#find_package (Threads)
 
-include (CheckLibraryExists)
+#include (CheckLibraryExists)
 #*TODO*: why isn't the function found ?
-check_library_exists (rt aio_init "" HAVE_LIB_AIO)
+#check_library_exists (rt aio_init "" HAVE_LIB_AIO)
 
 set (capabilities_2_EXE_SRCS
      stdafx.cpp
@@ -70,17 +70,18 @@ add_dependencies (${EXECUTABLE_2} Common)
 add_dependencies (${EXECUTABLE_2} CommonTimer)
 
 # *NOTE*: Common requires libaio.so
-target_link_libraries (${EXECUTABLE_2} rt)
+#target_link_libraries (${EXECUTABLE_2} rt)
 # *NOTE*: Common requires libpthread.so
-target_link_libraries (${EXECUTABLE_2} pthread)
+#target_link_libraries (${EXECUTABLE_2} pthread)
 target_link_libraries (${EXECUTABLE_2} ${PKG_CAP_LIBRARIES})
+
 target_link_libraries (${EXECUTABLE_2} ${ACE_LIBRARY})
 
 target_link_libraries (${EXECUTABLE_2} Common)
 target_link_libraries (${EXECUTABLE_2} CommonLog)
 target_link_libraries (${EXECUTABLE_2} CommonTimer)
 
-target_link_libraries (${EXECUTABLE_2} pthread)
+#target_link_libraries (${EXECUTABLE_2} pthread)
 
 # add PCH
 target_precompile_headers (${EXECUTABLE_2}
@@ -95,16 +96,14 @@ install (TARGETS ${EXECUTABLE} ${EXECUTABLE_2}
 create_target_launcher (${EXECUTABLE}
                         ARGS "-l -t"
 #                         FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
-                                             ${PROJECT_SOURCE_DIR}/cmake/src/Debug
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/features
+                        RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
+                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/${EXECUTABLE}
                         ENVIRONMENT foo=bar)
 create_target_launcher (${EXECUTABLE_2}
                         ARGS "-l -t"
 #                         FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
-                                             ${PROJECT_SOURCE_DIR}/cmake/src/Debug
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/features
+                        RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
+                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/${EXECUTABLE}
                         ENVIRONMENT foo=bar)
 
 ################ tests ###################

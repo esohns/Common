@@ -1,24 +1,10 @@
 
+string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
+string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
+
 if (UNIX)
-# include_directories ($ENV{LIB_ROOT}/ACE_TAO/ACE)
-# include_directories (/usr/local/src/ACE_wrappers)
-
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/Common/src/timer)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/Common/src/ui)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/Common/src/ui/gtk)
-elseif (WIN32)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../ATCD/ACE)
-# include_directories ($ENV{ACE_ROOT})
-
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/src)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/src/timer)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/src/ui)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/src/ui/gtk)
-endif ()
-#include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
-#include_directories (${CMAKE_CURRENT_BINARY_DIR}/../..)
-#include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
+endif (UNIX)
 
 ############## next target ################
 set (features_EXE_SRCS
@@ -42,7 +28,7 @@ set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_u")
 
 # add PCH
 target_precompile_headers (${EXECUTABLE}
-                           PUBLIC stdafx.h)
+                           PRIVATE stdafx.h)
 
 install (TARGETS ${EXECUTABLE}
          EXPORT ${PROJECT_NAME}Targets
@@ -52,49 +38,10 @@ if (UNIX)
  create_target_launcher (${EXECUTABLE}
                          ARGS "-l -t"
 #                         FORWARD_ARGS
-                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
-#                                              ${PROJECT_SOURCE_DIR}/../gtk/gtk/Win32/debug/bin
-#                                              ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/Debug
-#                                              ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/ui/Debug
-                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
-#                                              ${PROJECT_SOURCE_DIR}/cmake/src/modules/dev/Debug
-                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/features
+                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
+                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
-elseif (WIN32)
-# if (GTK3_SUPPORT)
-#  create_target_launcher (${EXECUTABLE}
-#                          ARGS "-g.\\\\etc\\\\filecopy.glade -l -t"
-#                        FORWARD_ARGS
-#                          RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/../ATCD/ACE/lib
-#                                               ${PROJECT_SOURCE_DIR}/../gtk/gtk/Win32/debug/bin
-#                                               G:/software/Development/dll
-#                                               ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/Debug
-#                                               ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/err/Debug
-#                                               ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/ui/Debug
-#                                               ${PROJECT_SOURCE_DIR}/cmake/src/Debug
-#                                               ${PROJECT_SOURCE_DIR}/cmake/src/modules/dec/Debug
-#                                               ${PROJECT_SOURCE_DIR}/cmake/src/modules/dev/Debug
-#                                               ${PROJECT_SOURCE_DIR}/cmake/src/modules/vis/Debug
-#                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/filecopy
-#                          ENVIRONMENT foo=bar)
-# else ()
-#  create_target_launcher (${EXECUTABLE}
-#                          ARGS "-g.\\\\etc\\\\filecopy.glade -l -t"
-#                        FORWARD_ARGS
-#                          RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/../ATCD/ACE/lib
-#                                               ${PROJECT_SOURCE_DIR}/../gtk2/bin
-#                                               G:/software/Development/dll
-#                                               ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/Debug
-#                                               ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/err/Debug
-#                                               ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/ui/Debug
-#                                               ${PROJECT_SOURCE_DIR}/cmake/src/Debug
-#                                               ${PROJECT_SOURCE_DIR}/cmake/src/modules/dec/Debug
-#                                               ${PROJECT_SOURCE_DIR}/cmake/src/modules/dev/Debug
-#                                               ${PROJECT_SOURCE_DIR}/cmake/src/modules/vis/Debug
-#                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/filecopy
-#                          ENVIRONMENT foo=bar)
-# endif ()
-endif ()
+endif (UNIX)
 
 add_test (NAME ${EXECUTABLE}_test
           COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE} -l -t

@@ -7,8 +7,8 @@ if (UNIX)
  pkg_check_modules (PKG_CAP REQUIRED libcap)
 endif (UNIX)
 
-get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
-get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
+string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
+string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 
 ############## definitions ###############
 
@@ -47,7 +47,7 @@ target_link_libraries (${EXECUTABLE} ${PKG_CAP_LIBRARIES})
 
 # add PCH
 target_precompile_headers (${EXECUTABLE}
-                           PUBLIC stdafx.h)
+                           PRIVATE stdafx.h)
 
 ############### installation #############
 install (TARGETS ${EXECUTABLE}
@@ -58,8 +58,7 @@ install (TARGETS ${EXECUTABLE}
 create_target_launcher (${EXECUTABLE}
                         ARGS "12 /bin/bash"
 #                         FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE_TAO/ACE/lib
-                                             ${PROJECT_SOURCE_DIR}/cmake/src/Debug
+                        RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/capabilities
                         ENVIRONMENT foo=bar)
 

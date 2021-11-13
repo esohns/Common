@@ -1,7 +1,7 @@
 include (ffmpeg)
 
-get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
-get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
+string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
+string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 
 ############## definitions ###############
 
@@ -61,11 +61,7 @@ if (UNIX)
                          ARGS "-f oak-tree.png -t"
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
-#                                              ${PROJECT_SOURCE_DIR}/../gtk/gtk/Win32/debug/bin
-#                                              ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/Debug
-#                                              ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/ui/Debug
                                               ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
-#                                              ${PROJECT_SOURCE_DIR}/cmake/src/modules/dev/Debug
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 elseif (WIN32)
@@ -74,9 +70,7 @@ elseif (WIN32)
  file (TO_CMAKE_PATH "${ffmpeg_LIB_DIR}" FFMPEG_LIB_PATH)
  file (TO_CMAKE_PATH "${ACE_LIB_DIR}" ACE_LIB_PATH)
  set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
-#                           ${LIBPNG_PATH}
                            ${FFMPEG_LIB_PATH}
-#                           ${IMAGEMAGICK_PATH}
                            ${ACE_LIB_PATH})
  create_target_launcher (${EXECUTABLE}
                          COMMAND ${COMMAND}

@@ -5,28 +5,20 @@ if (UNIX)
 #  message (FATAL_ERROR "could not find libcap, aborting")
 # endif ()
  pkg_check_modules (PKG_CAP REQUIRED libcap)
-endif ()
+endif (UNIX)
 
-get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
-get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
+string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
+string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 
 if (UNIX)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
 
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/log)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/timer)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/Common/src/ui)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/Common/src/ui/gtk)
 elseif (WIN32)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/src)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/src/timer)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/src/ui)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/src/ui/gtk)
 endif ()
-#include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
-#include_directories (${CMAKE_CURRENT_BINARY_DIR}/../..)
-#include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 ############## next target ################
 set (debug_wrapper_EXE_SRCS
@@ -79,22 +71,14 @@ set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_u")
 add_dependencies (${PROJECT_NAME} Common)
 
 target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
-if (UNIX)
-# target_link_libraries (${EXECUTABLE} rt)
-# target_link_libraries (${EXECUTABLE} pthread)
-# target_link_libraries (${EXECUTABLE} ${PKG_CAP_LIBRARIES})
-endif ()
+
 target_link_libraries (${EXECUTABLE} PUBLIC Common)
 target_link_libraries (${EXECUTABLE} PUBLIC CommonLog)
 target_link_libraries (${EXECUTABLE} PUBLIC CommonTimer)
 
-#if (UNIX)
-# target_link_libraries (${EXECUTABLE} pthread)
-#endif (UNIX)
-
 # add PCH
 target_precompile_headers (${EXECUTABLE}
-                           PUBLIC stdafx.h)
+                           PRIVATE stdafx.h)
 
 install (TARGETS ${EXECUTABLE}
          EXPORT ${PROJECT_NAME}Targets
@@ -104,49 +88,10 @@ if (UNIX)
  create_target_launcher (${EXECUTABLE}
                          ARGS "-f ../../../ardrone/cmake/src/ardrone -l -t"
 #                         FORWARD_ARGS
-                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ATCD/ACE/lib
-#                                              ${PROJECT_SOURCE_DIR}/../gtk/gtk/Win32/debug/bin
-#                                              ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/Debug
-#                                              ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/ui/Debug
-                                              ${PROJECT_SOURCE_DIR}/cmake/src/Debug
-#                                              ${PROJECT_SOURCE_DIR}/cmake/src/modules/dev/Debug
+                         RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../../../ardrone/src
                          ENVIRONMENT foo=bar)
-elseif (WIN32)
-# if (GTK3_SUPPORT)
-#  create_target_launcher (${EXECUTABLE}
-#                          ARGS "-g.\\\\etc\\\\filecopy.glade -l -t"
-#                        FORWARD_ARGS
-#                          RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/../ATCD/ACE/lib
-#                                               ${PROJECT_SOURCE_DIR}/../gtk/gtk/Win32/debug/bin
-#                                               G:/software/Development/dll
-#                                               ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/Debug
-#                                               ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/err/Debug
-#                                               ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/ui/Debug
-#                                               ${PROJECT_SOURCE_DIR}/cmake/src/Debug
-#                                               ${PROJECT_SOURCE_DIR}/cmake/src/modules/dec/Debug
-#                                               ${PROJECT_SOURCE_DIR}/cmake/src/modules/dev/Debug
-#                                               ${PROJECT_SOURCE_DIR}/cmake/src/modules/vis/Debug
-#                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/filecopy
-#                          ENVIRONMENT foo=bar)
-# else ()
-#  create_target_launcher (${EXECUTABLE}
-#                          ARGS "-g.\\\\etc\\\\filecopy.glade -l -t"
-#                        FORWARD_ARGS
-#                          RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/../ATCD/ACE/lib
-#                                               ${PROJECT_SOURCE_DIR}/../gtk2/bin
-#                                               G:/software/Development/dll
-#                                               ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/Debug
-#                                               ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/err/Debug
-#                                               ${PROJECT_SOURCE_DIR}/../libCommon/cmake/src/ui/Debug
-#                                               ${PROJECT_SOURCE_DIR}/cmake/src/Debug
-#                                               ${PROJECT_SOURCE_DIR}/cmake/src/modules/dec/Debug
-#                                               ${PROJECT_SOURCE_DIR}/cmake/src/modules/dev/Debug
-#                                               ${PROJECT_SOURCE_DIR}/cmake/src/modules/vis/Debug
-#                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_u/filecopy
-#                          ENVIRONMENT foo=bar)
-# endif ()
-endif ()
+endif (UNIX)
 
 add_test (NAME ${EXECUTABLE}_test
           COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE} -f ../../../ardrone/cmake/src/ardrone -l -t

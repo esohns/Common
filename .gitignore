@@ -27,6 +27,9 @@
 *.out
 *.app
 
+# build
+build/
+
 # Automake
 Makefile.in
 aclocal.m4
@@ -40,19 +43,13 @@ m4/ltoptions.m4
 m4/ltsugar.m4
 m4/ltversion.m4
 m4/lt~obsolete.m4
-build/
 
 # Kdevelop
 .kdev4/
-
-#Linux
-clang/
-cmake/
+*.kdev4
 
 # QtCreator
 CMakeLists.txt.user*
 
 # MSVC
-Debug
-Release
 .vs/

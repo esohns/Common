@@ -3,8 +3,8 @@ if (GTKGL_SUPPORT)
  include (assimp)
 endif (GTKGL_SUPPORT)
 
-get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../../.. REALPATH)
-get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
+string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
+string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 
 ############## includes ###############
 include_directories (${GTK_INCLUDE_DIRS})
@@ -57,7 +57,7 @@ target_link_libraries (${EXECUTABLE} PUBLIC Common_Test_I)
 
 # add PCH
 target_precompile_headers (${EXECUTABLE}
-                           PUBLIC stdafx.h)
+                           PRIVATE stdafx.h)
 
 ############## next target ###############
 set (gtk_ui_2_EXE_SRCS
@@ -78,8 +78,6 @@ set_property (TARGET ${EXECUTABLE_2} PROPERTY FOLDER "test_i")
 if (UNIX)
  target_link_libraries (${EXECUTABLE_2} PUBLIC X11)
  target_link_libraries (${EXECUTABLE_2} PUBLIC GL)
-
-# target_link_libraries (${EXECUTABLE_2} PUBLIC ${PKG_FFMPEG_LIBRARIES})
 elseif (WIN32)
  target_link_libraries (${EXECUTABLE_2} PUBLIC OpenGL32)
 endif (UNIX)
@@ -96,7 +94,7 @@ target_link_libraries (${EXECUTABLE_2} PUBLIC CommonUI_GTK)
 
 # add PCH
 target_precompile_headers (${EXECUTABLE_2}
-                           PUBLIC stdafx.h)
+                           PRIVATE stdafx.h)
 
 ############## next target ###############
 set (gtk_ui_3_EXE_SRCS
@@ -117,8 +115,6 @@ set_property (TARGET ${EXECUTABLE_3} PROPERTY FOLDER "test_i")
 if (UNIX)
  target_link_libraries (${EXECUTABLE_3} PUBLIC X11)
  target_link_libraries (${EXECUTABLE_3} PUBLIC GL)
-
-# target_link_libraries (${EXECUTABLE_3} PUBLIC ${PKG_FFMPEG_LIBRARIES})
 elseif (WIN32)
  target_link_libraries (${EXECUTABLE_3} PUBLIC OpenGL32)
 endif (UNIX)
@@ -135,7 +131,7 @@ target_link_libraries (${EXECUTABLE_3} PUBLIC CommonUI_GTK)
 
 # add PCH
 target_precompile_headers (${EXECUTABLE_3}
-                           PUBLIC stdafx.h)
+                           PRIVATE stdafx.h)
 
 ############### installation #############
 install (TARGETS ${EXECUTABLE} ${EXECUTABLE_2} ${EXECUTABLE_3}
@@ -182,7 +178,6 @@ if (UNIX)
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
                                               ${ACE_LIB_PATH}
-                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
                          ENVIRONMENT ${ENVIRONMENT})
 
@@ -196,7 +191,6 @@ if (UNIX)
                                               ${IMAGEMAGICK_LIB_PATH}
                                               ${LIBGLADE_LIB_PATH}
                                               ${ACE_LIB_PATH}
-                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
                          ENVIRONMENT ${ENVIRONMENT})
 
@@ -210,7 +204,6 @@ if (UNIX)
                                               ${IMAGEMAGICK_LIB_PATH}
                                               ${LIBGLADE_LIB_PATH}
                                               ${ACE_LIB_PATH}
-                                              ${PROJECT_SOURCE_DIR}/${BUILD_PATH_SUFFIX}/src/${CMAKE_BUILD_TYPE}
                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
                          ENVIRONMENT ${ENVIRONMENT})
 elseif (WIN32)
@@ -227,7 +220,6 @@ elseif (WIN32)
                                               ${FFMPEG_LIB_PATH}
                                               ${IMAGEMAGICK_LIB_PATH}
                                               ${ASSIMP_LIB_PATH}
-                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/gtk
                          ENVIRONMENT ${ENVIRONMENT})
 
@@ -241,7 +233,6 @@ elseif (WIN32)
                                               ${IMAGEMAGICK_LIB_PATH}
                                               ${LIBGLADE_LIB_PATH}
                                               ${ACE_LIB_PATH}
-                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/gtk
                          ENVIRONMENT ${ENVIRONMENT})
 
@@ -255,7 +246,6 @@ elseif (WIN32)
                                               ${IMAGEMAGICK_LIB_PATH}
                                               ${LIBGLADE_LIB_PATH}
                                               ${ACE_LIB_PATH}
-                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/gtk
                          ENVIRONMENT ${ENVIRONMENT})
 endif ()

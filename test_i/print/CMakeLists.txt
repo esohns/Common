@@ -12,10 +12,10 @@ find_library (CUPS_LIBRARY
 #if (NOT EXISTS ACE_LIBRARY)
 if (NOT CUPS_LIBRARY)
  message (FATAL_ERROR "could not find ${CUPS_LIB_FILE} (was: \"${CUPS_LIBRARY}\"), aborting")
-endif ()
+endif (NOT CUPS_LIBRARY)
 
-get_filename_component (BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/../.. REALPATH)
-get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
+string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
+string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 
 ############## definitions ###############
 
@@ -70,15 +70,16 @@ install (TARGETS ${EXECUTABLE}
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 
 ################ launchers ###############
-file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
-set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
-                          ${ACE_LIB_PATH})
+if (WIN32)
+ file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
+ set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
+                           ${ACE_LIB_PATH})
+endif (WIN32)
 create_target_launcher (${EXECUTABLE}
                         ARGS "-d -e -f test.txt -l -t"
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
-                                             ${PROJECT_SOURCE_DIR}/cmake/src/Debug
-                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/parser
+                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/${EXECUTABLE}
                         ENVIRONMENT foo=bar)
 
 ################ tests ###################
