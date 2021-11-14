@@ -342,7 +342,6 @@ Common_UI_GTK_Tools::valueToIndex (GtkTreeModel* treeModel_in,
   struct Common_UI_GTK_Tools::TreeModel_IndexSearch_CBData cb_data_s;
   cb_data_s.column = column_in;
   cb_data_s.index = 0;
-  g_value_unset (&cb_data_s.value);
   g_value_init (&cb_data_s.value, G_VALUE_TYPE (&value_in));
   g_value_copy (&value_in, &cb_data_s.value);
   gtk_tree_model_foreach (treeModel_in,

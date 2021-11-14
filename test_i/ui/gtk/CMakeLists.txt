@@ -1,6 +1,7 @@
 if (GTKGL_SUPPORT)
  set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../../../src/gl/scripts")
  include (assimp)
+ include (png)
 endif (GTKGL_SUPPORT)
 
 string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
@@ -210,6 +211,7 @@ elseif (WIN32)
  file (TO_CMAKE_PATH "${ACE_LIB_DIR}" ACE_LIB_PATH)
  file (TO_CMAKE_PATH "${ffmpeg_LIB_DIR}" FFMPEG_LIB_PATH)
  file (TO_CMAKE_PATH "${ImageMagick_LIB_DIR}" IMAGEMAGICK_LIB_PATH)
+ file (TO_CMAKE_PATH "${PNG_LIB_DIR}" PNG_LIB_PATH)
  file (TO_CMAKE_PATH "${ASSIMP_LIB_DIR}" ASSIMP_LIB_PATH)
  file (TO_CMAKE_PATH "${GTK_LIB_DIRS}" GTK_LIB_PATH)
  create_target_launcher (${EXECUTABLE}
@@ -219,6 +221,7 @@ elseif (WIN32)
                                               ${ACE_LIB_PATH}
                                               ${FFMPEG_LIB_PATH}
                                               ${IMAGEMAGICK_LIB_PATH}
+                                              ${PNG_LIB_PATH}
                                               ${ASSIMP_LIB_PATH}
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/gtk
                          ENVIRONMENT ${ENVIRONMENT})
@@ -229,6 +232,7 @@ elseif (WIN32)
                          RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
                                               ${LIBXML2_LIB_PATH}
                                               ${ASSIMP_LIB_PATH}
+                                              ${PNG_LIB_PATH}
                                               ${FFMPEG_LIB_PATH}
                                               ${IMAGEMAGICK_LIB_PATH}
                                               ${LIBGLADE_LIB_PATH}
@@ -242,6 +246,7 @@ elseif (WIN32)
                          RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
                                               ${LIBXML2_LIB_PATH}
                                               ${ASSIMP_LIB_PATH}
+                                              ${PNG_LIB_PATH}
                                               ${FFMPEG_LIB_PATH}
                                               ${IMAGEMAGICK_LIB_PATH}
                                               ${LIBGLADE_LIB_PATH}

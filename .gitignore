@@ -27,6 +27,12 @@
 *.out
 *.app
 
+# Backup files
+*.bak
+
+# Patches
+*.patch
+
 # build
 build/
 
@@ -49,6 +55,7 @@ m4/lt~obsolete.m4
 *.kdev4
 
 # QtCreator
+Makefile.am.user
 CMakeLists.txt.user*
 
 # MSVC
