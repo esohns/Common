@@ -38,8 +38,8 @@ class Common_File_Tools
   static void initialize (const std::string&); // *NOTE*: pass argv[0] here
 
   static std::string addressToString (const ACE_FILE_Addr&); // file name
-  static std::string basename (const std::string&, // (FQ) paths
-                               bool = false);      // strip trailing '.'-suffix ?
+  static std::string basename (const std::string&, // (FQ) path
+                               bool = false);      // strip trailing '.xxx'-suffix ?
   inline static bool backup (const std::string& path_in) { return Common_File_Tools::copyFile (path_in, ACE_TEXT_ALWAYS_CHAR ("")); }
   static bool create (const std::string&); // (FQ) path
   static bool createDirectory (const std::string&, // directory
@@ -48,6 +48,7 @@ class Common_File_Tools
                         const std::string&); // directory {"": make a backup in the same directory}
   static bool deleteFile (const std::string&); // (FQ) path
   static bool deleteFiles (const Common_File_IdentifierList_t&); // file(s)
+  static std::string directory (const std::string&); // (FQ) path
   // *NOTE*: this doesn't do any sanity checking --> use with care
   static std::string fileExtension (const std::string&, // (FQ) path
                                     bool = false);      // return leading '.' (if any) ?

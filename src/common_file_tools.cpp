@@ -128,10 +128,9 @@ Common_File_Tools::exists (const std::string& path_in)
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::exists"));
 
   int result = -1;
-  ACE_stat stat;
-  ACE_OS::memset (&stat, 0, sizeof (ACE_stat));
-  result = ACE_OS::stat (ACE_TEXT (path_in.c_str ()),
-                         &stat);
+  ACE_stat stat_s;
+  ACE_OS::memset (&stat_s, 0, sizeof (ACE_stat));
+  result = ACE_OS::stat (ACE_TEXT (path_in.c_str ()), &stat_s);
   if (unlikely (result == -1))
   {
     int error = ACE_OS::last_error ();
@@ -993,6 +992,7 @@ Common_File_Tools::create (const std::string& path_in)
 
   return true;
 }
+
 bool
 Common_File_Tools::createDirectory (const std::string& directory_in,
                                     bool createMissingSubdirectories_in)
@@ -1356,6 +1356,24 @@ Common_File_Tools::deleteFiles (const Common_File_IdentifierList_t& identifiers_
     result = result && Common_File_Tools::deleteFile ((*iterator).identifier);
 
   return result;
+}
+
+std::string
+Common_File_Tools::directory (const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::directory"));
+
+  std::string return_value =
+    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (path_in.c_str ()),
+                                        ACE_DIRECTORY_SEPARATOR_CHAR));
+  //if (stripSuffix_in)
+  //{
+  //  std::string::size_type position = return_value.find_last_of ('.');
+  //  if (position != std::string::npos)
+  //    return_value.erase (position, std::string::npos);
+  //} // end IF
+
+  return return_value;
 }
 
 bool
