@@ -30,7 +30,8 @@
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "windef.h"
-#include "WinUser.h"
+//#include "WinUser.h"
+//#include "wtypes.h"
 #else
 //#include "X11/Xlib.h"
 // forward declarations
@@ -162,8 +163,9 @@ struct Common_UI_DisplayDevice
    , primary (false)
   {
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-    BOOL result = SetRectEmpty (&clippingArea);
-    ACE_ASSERT (result);
+    //BOOL result = SetRectEmpty (&clippingArea);
+    //ACE_ASSERT (result);
+    ACE_OS::memset (&clippingArea, 0, sizeof (struct tagRECT));
 #else
     ACE_OS::memset (&clippingArea, 0, sizeof (Common_UI_Rectangle));
 #endif // ACE_WIN32 || ACE_WIN64
