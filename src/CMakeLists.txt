@@ -91,7 +91,8 @@ set (source_files
      common_string_tools.cpp
      common_string_tools.h
      common_tools.cpp
-     common_tools.h)
+     common_tools.h
+     common_tools.inl)
 set (source_files
      ${CMAKE_CURRENT_BINARY_DIR}/../${PROJECT_NAME}_config.h
      ${source_files})
@@ -196,6 +197,7 @@ install (FILES
          common_statistic_handler.inl
          common_string_tools.h
          common_tools.h
+         common_tools.inl
          DESTINATION ${INSTALL_INCLUDE_DIR})
 if (WIN32)
  install (FILES

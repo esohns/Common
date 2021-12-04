@@ -176,6 +176,7 @@ Common_Tools::initialize (bool initializeRandomNumberGenerator_in)
 #endif // ACE_WIN32 || ACE_WIN64
   } // end IF
 }
+
 void
 Common_Tools::finalize ()
 {
@@ -204,7 +205,7 @@ BOOL CALLBACK locale_cb_function (LPWSTR name_in,
 
   return TRUE;
 }
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
 unsigned int
 Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)

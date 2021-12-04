@@ -53,6 +53,8 @@ class Common_Tools
   static void finalize ();
 
   // --- platform ---
+  template <typename ValueType>
+  static ValueType byteswap (ValueType);
   static unsigned int getNumberOfCPUs (bool = true); // consider logical cores (i.e. 'hyperthreading') ?
   static std::string getPlatformName ();
   static enum Common_OperatingSystemType getOperatingSystem ();
@@ -190,5 +192,8 @@ class Common_Tools
   //                   on this (!) platform (check ACE source code)
   static bool defaultPlatformReactorIsSelectBased();
 };
+
+// include template definition
+#include "common_tools.inl"
 
 #endif
