@@ -59,20 +59,18 @@ class Common_Math_FFT
 
   inline double       Intensity (unsigned int slot_in,
                                  unsigned int channel_in) const
-  { ACE_ASSERT (slot_in < slots_);
-    ACE_ASSERT (channel_in < channels_);
+  { ACE_ASSERT (slot_in < slots_); ACE_ASSERT (channel_in < channels_);
     return (sqrt (norm (X_[channel_in][slot_in])) / sqrtSlots_);
   }
   inline int          Value (unsigned int slot_in,
                              unsigned int channel_in) const
-  { ACE_ASSERT (slot_in < slots_);
-    ACE_ASSERT (channel_in < channels_);
+  { ACE_ASSERT (slot_in < slots_); ACE_ASSERT (channel_in < channels_);
     return static_cast<int> (buffer_[channel_in][slot_in]);
   }
 
   // return frequency in Hz of a given slot
   inline unsigned int Frequency (unsigned int slot_in) const
-  { if (slot_in >= slots_) slot_in = slots_;
+  { ACE_ASSERT (slot_in < slots_);
     return (static_cast<unsigned int> (sampleRate_ * slot_in) / slots_);
   }
   inline unsigned int MaxFrequency () const { return sampleRate_; }

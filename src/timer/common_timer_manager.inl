@@ -18,6 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "avrt.h"
+#endif // ACE_WIN32 || ACE_WIN64
+
 #include "ace/Asynch_IO.h"
 #include "ace/Event_Handler.h"
 #include "ace/Log_Msg.h"
@@ -125,7 +129,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       break;
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
-      ACE_Task_Base& task_base_r = const_cast<ACE_Task_Base&> (getR_5 ());
+      //ACE_Task_Base& task_base_r = const_cast<ACE_Task_Base&> (getR_5 ());
 
       // spawn the dispatching worker thread
       int result = -1;
@@ -141,46 +145,26 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       ACE_OS::memset (thread_names_a, 0, sizeof (const char*[1]));
       thread_names_a[0] = thread_name_a;
       result =
-        task_base_r.activate ((THR_NEW_LWP      |
-                               THR_JOINABLE     |
-                               THR_INHERIT_SCHED),          // flags
-                              1,                            // # threads --> 1
-                              0,                            // force active ?
-                              ACE_DEFAULT_THREAD_PRIORITY,  // priority
-                              COMMON_TIMER_THREAD_GROUP_ID, // group id
-                              NULL,                         // task base
-                              thread_handles_a,             // thread handle(s)
-                              NULL,                         // stack(s)
-                              NULL,                         // stack size(s)
-                              thread_ids_a,                 // thread id(s)
-                              thread_names_a);              // thread name(s)
+        //task_base_r.activate ((THR_NEW_LWP      |
+        inherited::activate ((THR_NEW_LWP |
+                              THR_JOINABLE     |
+                              THR_INHERIT_SCHED),          // flags
+                             1,                            // # threads --> 1
+                             0,                            // force active ?
+                             ACE_DEFAULT_THREAD_PRIORITY,  // priority
+                             COMMON_TIMER_THREAD_GROUP_ID, // group id
+                             NULL,                         // task base
+                             thread_handles_a,             // thread handle(s)
+                             NULL,                         // stack(s)
+                             NULL,                         // stack size(s)
+                             thread_ids_a,                 // thread id(s)
+                             thread_names_a);              // thread name(s)
       if (unlikely (result == -1))
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Thread_Timer_Queue_Adapter::activate(): \"%m\", aborting\n")));
         return false;
       } // end IF
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
-      Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_NAME),
-                                         thread_handles_a[0]);
-#else
-      Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_NAME),
-                                         thread_ids_a[0]);
-
-#endif // _WIN32_WINNT_WIN10
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("(%s): spawned timer dispatch thread (id: %d, group id: %d)\n"),
-                  ACE_TEXT (COMMON_TIMER_THREAD_NAME),
-                  thread_ids_a[0],
-                  COMMON_TIMER_THREAD_GROUP_ID));
-#else
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("(%s): spawned timer dispatch thread (id: %u, group id: %d)\n"),
-                  ACE_TEXT (COMMON_TIMER_THREAD_NAME),
-                  thread_ids_a[0],
-                  COMMON_TIMER_THREAD_GROUP_ID));
-#endif // ACE_WIN32 || ACE_WIN64
       break;
     }
     default:
@@ -214,13 +198,10 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   {
     case COMMON_TIMER_DISPATCH_PROACTOR:
     {
-      ACE_Proactor_Timer_Queue* timer_queue_p = NULL;
+      // sanity check(s)
       ACE_Proactor* proactor_p = ACE_Proactor::instance ();
-      // sanity check(s)
       ACE_ASSERT (proactor_p);
-
-      timer_queue_p = proactor_p->timer_queue ();
-      // sanity check(s)
+      ACE_Proactor_Timer_Queue* timer_queue_p = proactor_p->timer_queue ();
       ACE_ASSERT (timer_queue_p);
 
       result = timer_queue_p->close ();
@@ -231,13 +212,10 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_TIMER_DISPATCH_REACTOR:
     {
-      ACE_Timer_Queue* timer_queue_p = NULL;
+      // sanity check(s)
       ACE_Reactor* reactor_p = ACE_Reactor::instance ();
-      // sanity check(s)
       ACE_ASSERT (reactor_p);
-
-      timer_queue_p = reactor_p->timer_queue ();
-      // sanity check(s)
+      ACE_Timer_Queue* timer_queue_p = reactor_p->timer_queue ();
       ACE_ASSERT (timer_queue_p);
 
       result = timer_queue_p->close ();
@@ -248,9 +226,12 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_TIMER_DISPATCH_SIGNAL:
     {
+      // sanity check(s)
       ASYNCH_TIMER_QUEUE_T* timer_queue_p =
           dynamic_cast<ASYNCH_TIMER_QUEUE_T*> (this);
       Common_ITimerQueue_t* timer_queue_2 = &(timer_queue_p->timer_queue ());
+      ACE_ASSERT (timer_queue_p);
+
       result = timer_queue_2->close ();
       if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
@@ -259,11 +240,12 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
-      // *NOTE*: deactivate the timer queue and wake up the worker thread
+      // sanity check(s)
       THREAD_TIMER_QUEUE_T* timer_queue_p =
           dynamic_cast<THREAD_TIMER_QUEUE_T*> (this);
-      timer_queue_p->deactivate ();
+      ACE_ASSERT (timer_queue_p);
 
+      timer_queue_p->deactivate ();
       if (likely (waitForCompletion_in))
       {
         ACE_Task_Base& task_base_r = const_cast<ACE_Task_Base&> (getR_5 ());
@@ -309,16 +291,18 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   {
     case COMMON_TIMER_DISPATCH_PROACTOR:
     {
-      ACE_Proactor* proactor_p = ACE_Proactor::instance ();
       // sanity check(s)
+      ACE_Proactor* proactor_p = ACE_Proactor::instance ();
       ACE_ASSERT (proactor_p);
+
       return !proactor_p->proactor_event_loop_done ();
     }
     case COMMON_TIMER_DISPATCH_REACTOR:
     {
-      ACE_Reactor* reactor_p = ACE_Reactor::instance ();
       // sanity check(s)
+      ACE_Reactor* reactor_p = ACE_Reactor::instance ();
       ACE_ASSERT (reactor_p);
+
       return !reactor_p->event_loop_done ();
     }
     case COMMON_TIMER_DISPATCH_SIGNAL:
@@ -359,13 +343,10 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   {
     case COMMON_TIMER_DISPATCH_PROACTOR:
     {
-      ACE_Proactor_Timer_Queue* timer_queue_p = NULL;
+      // sanity check(s)
       ACE_Proactor* proactor_p = ACE_Proactor::instance ();
-      // sanity check(s)
       ACE_ASSERT (proactor_p);
-
-      timer_queue_p = proactor_p->timer_queue ();
-      // sanity check(s)
+      ACE_Proactor_Timer_Queue* timer_queue_p = proactor_p->timer_queue ();
       ACE_ASSERT (timer_queue_p);
 
       ACE_Time_Value one_second (1, 0);
@@ -381,13 +362,10 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_TIMER_DISPATCH_REACTOR:
     {
-      ACE_Timer_Queue* timer_queue_p = NULL;
+      // sanity check(s)
       ACE_Reactor* reactor_p = ACE_Reactor::instance ();
-      // sanity check(s)
       ACE_ASSERT (reactor_p);
-
-      timer_queue_p = reactor_p->timer_queue ();
-      // sanity check(s)
+      ACE_Timer_Queue* timer_queue_p = reactor_p->timer_queue ();
       ACE_ASSERT (timer_queue_p);
 
       ACE_Time_Value one_second (1, 0);
@@ -445,13 +423,10 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   {
     case COMMON_TIMER_DISPATCH_PROACTOR:
     {
-      ACE_Proactor_Timer_Queue* timer_queue_p = NULL;
+      // sanity check(s)
       ACE_Proactor* proactor_p = ACE_Proactor::instance ();
-      // sanity check(s)
       ACE_ASSERT (proactor_p);
-
-      timer_queue_p = proactor_p->timer_queue ();
-      // sanity check(s)
+      ACE_Proactor_Timer_Queue* timer_queue_p = proactor_p->timer_queue ();
       ACE_ASSERT (timer_queue_p);
 
       result = timer_queue_p->close ();
@@ -462,13 +437,10 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_TIMER_DISPATCH_REACTOR:
     {
-      ACE_Timer_Queue* timer_queue_p = NULL;
+      // sanity check(s)
       ACE_Reactor* reactor_p = ACE_Reactor::instance ();
-      // sanity check(s)
       ACE_ASSERT (reactor_p);
-
-      timer_queue_p = reactor_p->timer_queue ();
-      // sanity check(s)
+      ACE_Timer_Queue* timer_queue_p = reactor_p->timer_queue ();
       ACE_ASSERT (timer_queue_p);
 
       result = timer_queue_p->close ();
@@ -479,9 +451,13 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_TIMER_DISPATCH_SIGNAL:
     {
+      // sanity check(s)
       ASYNCH_TIMER_QUEUE_T* timer_queue_p =
           dynamic_cast<ASYNCH_TIMER_QUEUE_T*> (this);
+      ACE_ASSERT (timer_queue_p);
       Common_ITimerQueue_t* timer_queue_2 = &(timer_queue_p->timer_queue ());
+      ACE_ASSERT (timer_queue_2);
+
       result = timer_queue_2->close ();
       if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
@@ -490,8 +466,13 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
+      // sanity check(s)
       THREAD_TIMER_QUEUE_T* timer_queue_p =
           dynamic_cast<THREAD_TIMER_QUEUE_T*> (this);
+      ACE_ASSERT (timer_queue_p);
+      Common_ITimerQueue_t* timer_queue_2 = timer_queue_p->timer_queue ();
+      ACE_ASSERT (timer_queue_2);
+
       ACE_SYNCH_RECURSIVE_MUTEX& mutex_r = timer_queue_p->mutex ();
       if (lockedAccess_in)
       {
@@ -520,8 +501,6 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 //                      ACE_TEXT ("cancelled timer (id: %d)\n"),
 //                      timer_id));
 //      } // end FOR
-      Common_ITimerQueue_t* timer_queue_2 = timer_queue_p->timer_queue ();
-      ACE_ASSERT (timer_queue_2);
       result = timer_queue_2->close ();
       if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
@@ -560,6 +539,9 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 
   // sanity check(s)
   ACE_ASSERT (configuration_);
+  THREAD_TIMER_QUEUE_T* timer_queue_2 =
+    dynamic_cast<THREAD_TIMER_QUEUE_T*> (this);
+  ACE_ASSERT (timer_queue_2);
 
   int result = -1;
   Common_ITimerQueue_t* timer_queue_p = NULL;
@@ -568,8 +550,6 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     stop (true,  // wait ?
           true); // N/A
 
-  THREAD_TIMER_QUEUE_T* timer_queue_2 =
-      dynamic_cast<THREAD_TIMER_QUEUE_T*> (this);
   if (unlikely (timerQueue_))
   {
     flushTimers ();
@@ -635,13 +615,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     return false;
   } // end IF
   timerQueue_ = static_cast<TIMER_QUEUE_T*> (timer_queue_p);
-//  if (unlikely (!timerQueue_))
-//  {
-//    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("failed to dynamic_cast<ACE_Abstract_Timer_Queue>, aborting\n")));
-//    delete timer_queue_p; timer_queue_p = NULL;
-//    return false;
-//  } // end IF
+
   result = timer_queue_2->timer_queue (timerQueue_);
   if (unlikely (result == -1))
   {
@@ -681,8 +655,8 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   {
     case COMMON_TIMER_DISPATCH_PROACTOR:
     {
-      ACE_Proactor* proactor_p = ACE_Proactor::instance ();
       // sanity check(s)
+      ACE_Proactor* proactor_p = ACE_Proactor::instance ();
       ACE_ASSERT (proactor_p);
 
       ACE_Handler* handler_p = handler_in;
@@ -718,8 +692,8 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_TIMER_DISPATCH_REACTOR:
     {
-      ACE_Reactor* reactor_p = ACE_Reactor::instance ();
       // sanity check(s)
+      ACE_Reactor* reactor_p = ACE_Reactor::instance ();
       ACE_ASSERT (reactor_p);
 
       ACE_Event_Handler* handler_p = handler_in;
@@ -791,8 +765,11 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
+      // sanity check(s)
       THREAD_TIMER_QUEUE_T* timer_queue_p =
           dynamic_cast<THREAD_TIMER_QUEUE_T*> (this);
+      ACE_ASSERT (timer_queue_p);
+
       ACE_SYNCH_RECURSIVE_MUTEX& mutex_r =
         const_cast<ACE_SYNCH_RECURSIVE_MUTEX&> (getR_3 ());
       { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, mutex_r, -1);
@@ -818,8 +795,9 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
   } // end SWITCH
    ACE_DEBUG ((LM_DEBUG,
-               ACE_TEXT ("reset timer interval (id was: %d)\n"),
-               timerId_in));
+               ACE_TEXT ("reset timer interval (id was: %d, interval: %#T)\n"),
+               timerId_in,
+               &interval_in));
   return result;
 }
 
@@ -844,8 +822,10 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   {
     case COMMON_TIMER_DISPATCH_PROACTOR:
     {
+      // sanity check(s)
       ACE_Proactor* proactor_p = ACE_Proactor::instance ();
       ACE_ASSERT (proactor_p);
+
       result = proactor_p->cancel_timer (timerId_in, ACT_out);
       if (unlikely (result <= 0))
       { // *NOTE*: 0: timer had already expired
@@ -872,8 +852,10 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_TIMER_DISPATCH_REACTOR:
     {
+      // sanity check(s)
       ACE_Reactor* reactor_p = ACE_Reactor::instance ();
       ACE_ASSERT (reactor_p);
+
       result = reactor_p->cancel_timer (timerId_in, ACT_out);
       if (unlikely (result <= 0))
       {
@@ -934,6 +916,61 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 template <ACE_SYNCH_DECL,
           typename ConfigurationType,
           typename TimerQueueAdapterType>
+int
+Common_Timer_Manager_T<ACE_SYNCH_USE,
+                       ConfigurationType,
+                       TimerQueueAdapterType>::svc ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::svc"));
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
+  Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_NAME),
+                                     NULL);
+#else
+  Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_NAME),
+                                     0);
+#endif // _WIN32_WINNT_WIN10
+#endif // ACE_WIN32 || ACE_WIN64
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("%s: spawned thread (id: %t, group id: %d)\n"),
+              ACE_TEXT (COMMON_TIMER_THREAD_NAME),
+              COMMON_TIMER_THREAD_GROUP_ID));
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  ACE_ASSERT (configuration_);
+
+  HANDLE task_h = NULL;
+  if (!configuration_->taskType.empty ())
+  {
+    DWORD task_index_i = 0;
+    task_h =
+      AvSetMmThreadCharacteristics (TEXT (configuration_->taskType.c_str ()), &task_index_i);
+    if (!task_h)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("%s: failed to AvSetMmThreadCharacteristics(): \"%m\", aborting\n"),
+                  ACE_TEXT (COMMON_TIMER_THREAD_NAME)));
+      return -1;
+    } // end IF
+  } // end IF
+#endif // ACE_WIN32 || ACE_WIN64
+
+  int result = inherited::svc ();
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  if (task_h)
+  {
+    AvRevertMmThreadCharacteristics (task_h); task_h = NULL;
+  } // end IF
+#endif // ACE_WIN32 || ACE_WIN64
+
+  return result;
+}
+
+template <ACE_SYNCH_DECL,
+          typename ConfigurationType,
+          typename TimerQueueAdapterType>
 bool
 Common_Timer_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
@@ -961,7 +998,6 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   dispatch_ = configuration_in.dispatch;
   queueType_ = configuration_in.queueType;
 
-  // sanity check(s)
   switch (dispatch_)
   {
     case COMMON_TIMER_DISPATCH_PROACTOR:
@@ -1020,9 +1056,12 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       break;
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
+      // sanity check(s)
       OWN_TYPE_T* this_p = const_cast<OWN_TYPE_T*> (this);
       THREAD_TIMER_QUEUE_T* timer_queue_p =
           dynamic_cast<THREAD_TIMER_QUEUE_T*> (this_p);
+      ACE_ASSERT (timer_queue_p);
+
       return timer_queue_p->mutex ();
     }
     default:
@@ -1096,9 +1135,12 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       break;
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
+      // sanity check(s)
       OWN_TYPE_T* this_p = const_cast<OWN_TYPE_T*> (this);
       THREAD_TIMER_QUEUE_T* timer_queue_p =
           dynamic_cast<THREAD_TIMER_QUEUE_T*> (this_p);
+      ACE_ASSERT (timer_queue_p);
+
       return *timer_queue_p;
     }
     default:

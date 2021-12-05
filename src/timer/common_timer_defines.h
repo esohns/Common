@@ -21,19 +21,23 @@
 #ifndef COMMON_TIMER_DEFINES_H
 #define COMMON_TIMER_DEFINES_H
 
-#define COMMON_TIMER_DEFAULT_DISPATCH           COMMON_TIMER_DISPATCH_QUEUE
-#define COMMON_TIMER_DEFAULT_QUEUE              COMMON_TIMER_QUEUE_HEAP
+#define COMMON_TIMER_DEFAULT_DISPATCH        COMMON_TIMER_DISPATCH_QUEUE
+#define COMMON_TIMER_DEFAULT_QUEUE           COMMON_TIMER_QUEUE_HEAP
 
 // *IMPORTANT NOTE*: make sure group ids are consistent across the entire (!)
 //                   application
-#define COMMON_TIMER_THREAD_GROUP_ID            100
-#define COMMON_TIMER_THREAD_NAME                "timer dispatch"
+#define COMMON_TIMER_THREAD_GROUP_ID         100
+#define COMMON_TIMER_THREAD_NAME             "timer dispatch"
 // *IMPORTANT NOTE*: currently used for (initial !) slot pre-allocation only;
 //                   ultimately, the total number of available concurrent slots
 //                   depends on the actual implementation
 //                   --> check the code, don't rely on ACE_DEFAULT_TIMERS
 //#define COMMON_TIMER_DEFAULT_NUM_TIMER_SLOTS    ACE_DEFAULT_TIMERS
-#define COMMON_TIMER_DEFAULT_NUM_TIMER_SLOTS    32768
-#define COMMON_TIMER_PREALLOCATE_TIMER_SLOTS    true
+#define COMMON_TIMER_DEFAULT_NUM_TIMER_SLOTS 32768
+#define COMMON_TIMER_PREALLOCATE_TIMER_SLOTS true
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#define COMMON_TIMER_THREAD_DEFAULT_TASKNAME "" // --> not set
+#endif // ACE_WIN32 || ACE_WIN64
 
 #endif

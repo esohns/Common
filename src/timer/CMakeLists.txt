@@ -66,6 +66,8 @@ if (UNIX)
 # set_property(TARGET ${PROJECT_NAME}Timer PROPERTY CXX_STANDARD 11)
  target_link_libraries (${LIBRARY} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 elseif (WIN32)
+ target_link_libraries (${LIBRARY} PUBLIC Avrt.lib)
+
  target_link_libraries (${LIBRARY} PUBLIC ${ACE_LIBRARY})
 endif ()
 

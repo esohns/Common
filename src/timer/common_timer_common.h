@@ -21,17 +21,19 @@
 #ifndef COMMON_TIMER_COMMON_H
 #define COMMON_TIMER_COMMON_H
 
+#include <string>
+
 #include "ace/Abstract_Timer_Queue.h"
 #include "ace/Event_Handler.h"
 #include "ace/Version.h"
-#if (ACE_MAJOR_VERSION  > 6) || \
-     ((ACE_MAJOR_VERSION  == 6) && \
-      ((ACE_MINOR_VERSION >  0) || \
-       (ACE_BETA_VERSION  >  3)))
+#if ((ACE_MAJOR_VERSION > 6) ||   \
+     ((ACE_MAJOR_VERSION == 6) && \
+      ((ACE_MINOR_VERSION > 0) || \
+       (ACE_BETA_VERSION  > 3))))
 #include "ace/Event_Handler_Handle_Timeout_Upcall.h"
 #else
 #include "ace/Timer_Queuefwd.h"
-#endif
+#endif // ACE_VERSION > 6.0.3
 #include "ace/Synch_Traits.h"
 #include "ace/Timer_Heap_T.h"
 #include "ace/Timer_List_T.h"
@@ -76,12 +78,18 @@ struct Common_TimerConfiguration
    : dispatch (COMMON_TIMER_DEFAULT_DISPATCH)
    , publishSeconds (false)
    , queueType (COMMON_TIMER_DEFAULT_QUEUE)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+   , taskType (ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_DEFAULT_TASKNAME))
+#endif // ACE_WIN32 || ACE_WIN64
   {}
 
   enum Common_TimerDispatchType dispatch;
   bool                          publishSeconds;
   // *NOTE*: applies to COMMON_TIMER_DISPATCH_QUEUE dispatch only
   enum Common_TimerQueueType    queueType;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  std::string                   taskType;
+#endif // ACE_WIN32 || ACE_WIN64
 };
 
 // *** timer queue ***

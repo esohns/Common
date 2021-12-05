@@ -37,6 +37,9 @@ struct Common_File_Identifier
    , selector (NULL) // *NOTE*: NULL will select all (!) entries by default
   {}
 
+  inline void clear () { identifier.clear (); identifierDiscriminator = Common_File_Identifier::FILE; selector = NULL; }
+  inline bool empty () { return identifier.empty (); }
+
   enum discriminatorType
   {
     FILE = 0,

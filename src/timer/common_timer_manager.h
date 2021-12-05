@@ -99,6 +99,9 @@ class Common_Timer_Manager_T
   // implement Common_IDumpState
   virtual void dump_state () const;
 
+  // override (part of) ACE_Task_Base
+  virtual int svc ();
+
  private:
   // convenient types
   typedef typename TimerQueueAdapterType::TIMER_QUEUE TIMER_QUEUE_T;
