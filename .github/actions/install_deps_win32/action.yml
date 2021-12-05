@@ -10,7 +10,7 @@ runs:
   - uses: lukka/run-vcpkg@v7.4
     with:
      setupOnly: true
-     vcpkgGitCommitId: '297f1b8ea02f2ab44b6d17025bfa3570c823817b'
+     vcpkgGitCommitId: '63e935d967a3410e26bf4a708efa39d8384d2bbb'
   - run: |
          vcpkg update
          vcpkg install assimp directxsdk ffmpeg freeglut glm graphicsmagick gtk
