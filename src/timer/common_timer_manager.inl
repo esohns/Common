@@ -146,19 +146,19 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       thread_names_a[0] = thread_name_a;
       result =
         //task_base_r.activate ((THR_NEW_LWP      |
-        inherited::activate ((THR_NEW_LWP |
-                              THR_JOINABLE     |
-                              THR_INHERIT_SCHED),          // flags
-                             1,                            // # threads --> 1
-                             0,                            // force active ?
-                             ACE_DEFAULT_THREAD_PRIORITY,  // priority
-                             COMMON_TIMER_THREAD_GROUP_ID, // group id
-                             NULL,                         // task base
-                             thread_handles_a,             // thread handle(s)
-                             NULL,                         // stack(s)
-                             NULL,                         // stack size(s)
-                             thread_ids_a,                 // thread id(s)
-                             thread_names_a);              // thread name(s)
+        THREAD_TIMER_QUEUE_T::activate ((THR_NEW_LWP      |
+                                         THR_JOINABLE     |
+                                         THR_INHERIT_SCHED),          // flags
+                                        1,                            // # threads --> 1
+                                        0,                            // force active ?
+                                        ACE_DEFAULT_THREAD_PRIORITY,  // priority
+                                        COMMON_TIMER_THREAD_GROUP_ID, // group id
+                                        NULL,                         // task base
+                                        thread_handles_a,             // thread handle(s)
+                                        NULL,                         // stack(s)
+                                        NULL,                         // stack size(s)
+                                        thread_ids_a,                 // thread id(s)
+                                        thread_names_a);              // thread name(s)
       if (unlikely (result == -1))
       {
         ACE_DEBUG ((LM_ERROR,
@@ -956,7 +956,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   } // end IF
 #endif // ACE_WIN32 || ACE_WIN64
 
-  int result = inherited::svc ();
+  int result = THREAD_TIMER_QUEUE_T::svc ();
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   if (task_h)
