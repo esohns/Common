@@ -148,7 +148,8 @@ Common_Tools::initialize (bool initializeRandomNumberGenerator_in)
                 ACE_TEXT ("initializing C++-style random seed\n")));
     std::random_device prng_device;
     //PRNG_SEED_ARRAY_T seed_a;
-    COMMON_APPLICATION_RNG_ENGINE::result_type seed_a[COMMON_APPLICATION_RNG_ENGINE::state_size];
+    //COMMON_APPLICATION_RNG_ENGINE::result_type seed_a[COMMON_APPLICATION_RNG_ENGINE::state_size];
+    COMMON_APPLICATION_RNG_ENGINE::result_type seed_a[COMMON_APPLICATION_RNG_ENGINE_DEFAULT_STATE_SIZE];
     std::chrono::time_point<std::chrono::system_clock> time_point;
     //for (PRNG_SEED_ARRAY_ITERATOR_T iterator = seed_a.cbegin ();
     //     iterator != seed_a.cend ();

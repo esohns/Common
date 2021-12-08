@@ -261,5 +261,6 @@
 // random numbers
 //#define COMMON_APPLICATION_RNG_ENGINE                          std::mt19937_64
 #define COMMON_APPLICATION_RNG_ENGINE                          std::default_random_engine
+#define COMMON_APPLICATION_RNG_ENGINE_DEFAULT_STATE_SIZE       200
 
 #endif
