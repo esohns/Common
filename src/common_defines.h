@@ -258,4 +258,8 @@
 
 #define COMMON_APPLICATION_THREAD_GROUP_ID                     1000
 
+// random numbers
+//#define COMMON_APPLICATION_RNG_ENGINE                          std::mt19937_64
+#define COMMON_APPLICATION_RNG_ENGINE                          std::default_random_engine
+
 #endif

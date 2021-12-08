@@ -21,13 +21,15 @@
 #ifndef COMMON_TOOLS_H
 #define COMMON_TOOLS_H
 
+#include <random>
 #include <sstream>
 #include <string>
+//#include <utility>
 
 #include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include <guiddef.h>
-#include <Ks.h>
+#include "guiddef.h"
+#include "minwindef.h"
 #else
 #include "sys/capability.h"
 #endif // ACE_WIN32 || ACE_WIN64
@@ -170,13 +172,13 @@ class Common_Tools
                            std::string&);      // return value: (FQ) path
 
   // --- randomization ---
-  static unsigned int            randomSeed;
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-  static char                    randomStateBuffer[BUFSIZ];
-#endif // ACE_WIN32 || ACE_WIN64
-  static unsigned int getRandomNumber (unsigned int,  // start (inclusive)
-                                       unsigned int); // end   (inclusive)
+  template <typename ValueType>
+  static ValueType getRandomNumber (ValueType,  // start (inclusive)
+                                    ValueType); // end   (inclusive)
+  template <typename ValueType>
+  inline static ValueType getRandomNumber (std::uniform_int_distribution<ValueType>& distribution_in) { return distribution_in (Common_Tools::randomEngine); }
+  template <typename ValueType>
+  static ValueType getRandomNumber (std::uniform_real_distribution<ValueType>& distribution_in) { return distribution_in (Common_Tools::randomEngine); }
 
   // --- libraries ---
   inline static std::string compiledVersion_ACE () { std::ostringstream converter; converter << ACE_MAJOR_VERSION; converter << ACE_TEXT_ALWAYS_CHAR ("."); converter << ACE_MINOR_VERSION; converter << ACE_TEXT_ALWAYS_CHAR ("."); converter << ACE_MICRO_VERSION; return converter.str (); }
@@ -186,6 +188,18 @@ class Common_Tools
   ACE_UNIMPLEMENTED_FUNC (~Common_Tools ())
   ACE_UNIMPLEMENTED_FUNC (Common_Tools (const Common_Tools&))
   ACE_UNIMPLEMENTED_FUNC (Common_Tools& operator= (const Common_Tools&))
+
+  // --- randomization ---
+  //typedef std::array<COMMON_APPLICATION_RNG_ENGINE::result_type,
+  //                   COMMON_APPLICATION_RNG_ENGINE::state_size> PRNG_SEED_ARRAY_T;
+  //typedef PRNG_SEED_ARRAY_T::iterator_type PRNG_SEED_ARRAY_ITERATOR_T;
+
+  static COMMON_APPLICATION_RNG_ENGINE randomEngine;
+  static unsigned int                  randomSeed;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  static char                          randomStateBuffer[BUFSIZ];
+#endif // ACE_WIN32 || ACE_WIN64
 
   // --- event loop ---
   // *IMPORTANT NOTE*: -in the sense of what COMMON_REACTOR_ACE_DEFAULT maps to

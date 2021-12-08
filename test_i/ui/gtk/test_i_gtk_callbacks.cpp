@@ -19,18 +19,19 @@
  ***************************************************************************/
 #include "stdafx.h"
 
+#include "test_i_gtk_callbacks.h"
+
 #include <sstream>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include <gl/GL.h>
-#include <gl/GLU.h>
+#include "gl/GL.h"
+#include "gl/GLU.h"
+
+#include "ks.h"
 #else
 #include "GL/gl.h"
 #include "GL/glu.h"
 #endif // ACE_WIN32 || ACE_WIN64
-
-#include "ace/Synch.h"
-#include "test_i_gtk_callbacks.h"
 
 #include "ace/config-lite.h"
 

@@ -26,7 +26,7 @@
 #include <limits>
 #include <regex>
 #include <sstream>
-#include <string>
+#include <utility>
 #include <vector>
 
 // *WORKAROUND*
@@ -40,6 +40,7 @@ using namespace std;
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 //#include "errors.h"
+#include "ks.h"
 #include "Security.h"
 #define INITGUID
 #include "strmif.h"
@@ -112,6 +113,7 @@ using namespace std;
 #include "common_error_tools.h"
 
 // initialize statics
+COMMON_APPLICATION_RNG_ENGINE Common_Tools::randomEngine;
 unsigned int Common_Tools::randomSeed = 0;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
@@ -125,11 +127,11 @@ Common_Tools::initialize (bool initializeRandomNumberGenerator_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::initialize"));
 
-#if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
+#if defined (VALGRIND_SUPPORT)
   if (RUNNING_ON_VALGRIND)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("running under valgrind\n")));
-#endif /* LIBCOMMON_ENABLE_VALGRIND_SUPPORT */
+#endif // VALGRIND_SUPPORT
 
   Common_Error_Tools::initialize ();
 
@@ -141,9 +143,39 @@ Common_Tools::initialize (bool initializeRandomNumberGenerator_in)
 
   if (unlikely (initializeRandomNumberGenerator_in))
   {
-    // *TODO*: use STL functionality here
+    // *TODO*: use randomSeed to seed std::random_device ?
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("initializing random seed (RAND_MAX: %d)\n"),
+                ACE_TEXT ("initializing C++-style random seed\n")));
+    std::random_device prng_device;
+    //PRNG_SEED_ARRAY_T seed_a;
+    COMMON_APPLICATION_RNG_ENGINE::result_type seed_a[COMMON_APPLICATION_RNG_ENGINE::state_size];
+    std::chrono::time_point<std::chrono::system_clock> time_point;
+    //for (PRNG_SEED_ARRAY_ITERATOR_T iterator = seed_a.cbegin ();
+    //     iterator != seed_a.cend ();
+    for (COMMON_APPLICATION_RNG_ENGINE::result_type* iterator = std::begin (seed_a);
+         iterator != std::end (seed_a);
+         ++iterator)
+    {
+      // read from std::random_device
+      *iterator = prng_device ();
+
+      // mix with a C++ equivalent of time(NULL) - UNIX time in seconds
+      time_point = std::chrono::system_clock::now ();
+      *iterator ^=
+        std::chrono::duration_cast<std::chrono::seconds> (time_point.time_since_epoch ()).count ();
+
+      // mix with a high precision time in microseconds
+      *iterator ^=
+        std::chrono::duration_cast<std::chrono::microseconds> (time_point.time_since_epoch ()).count ();
+
+      //*iterator ^= more_external_random_stuff;
+    } // end FOR
+    std::seed_seq seed_sequence (std::begin (seed_a), std::end (seed_a));
+    //Common_Tools::randomEngine.seed (prng_device);
+    Common_Tools::randomEngine.seed (seed_sequence);
+
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("initializing C-style random seed (RAND_MAX: %d)\n"),
                 RAND_MAX));
     Common_Tools::randomSeed = COMMON_TIME_NOW.usec ();
     // *PORTABILITY*: outside glibc, this is not very portable
@@ -2687,26 +2719,4 @@ Common_Tools::isInstalled (const std::string& executableName_in,
 #endif // ACE_LINUX
 
   return result;
-}
-
-unsigned int
-Common_Tools::getRandomNumber (unsigned int begin_in,
-                               unsigned int end_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::getRandomNumber"));
-
-  // *TODO*: use randomSeed to seed std::random_device...
-  //std::random_device device;
-  //std::default_random_engine engine (device ());
-  //std::uniform_int_distribution<unsigned int> distribution (begin_in, end_in);
-  ////std::function<unsigned int ()> generator =
-  ////    std::bind (distribution, engine);
-
-  //return generator ();
-  //return distribution (engine);
-
-  // sanity check(s)
-  ACE_ASSERT (begin_in <= end_in);
-
-  return (static_cast<unsigned int> (ACE_OS::rand () % (end_in - begin_in + 1)) + begin_in);
 }
