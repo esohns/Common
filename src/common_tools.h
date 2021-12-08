@@ -24,7 +24,6 @@
 #include <random>
 #include <sstream>
 #include <string>
-//#include <utility>
 
 #include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -180,6 +179,8 @@ class Common_Tools
   template <typename ValueType>
   static ValueType getRandomNumber (std::uniform_real_distribution<ValueType>& distribution_in) { return distribution_in (Common_Tools::randomEngine); }
 
+  static unsigned int                  randomSeed;
+
   // --- libraries ---
   inline static std::string compiledVersion_ACE () { std::ostringstream converter; converter << ACE_MAJOR_VERSION; converter << ACE_TEXT_ALWAYS_CHAR ("."); converter << ACE_MINOR_VERSION; converter << ACE_TEXT_ALWAYS_CHAR ("."); converter << ACE_MICRO_VERSION; return converter.str (); }
 
@@ -195,7 +196,6 @@ class Common_Tools
   //typedef PRNG_SEED_ARRAY_T::iterator_type PRNG_SEED_ARRAY_ITERATOR_T;
 
   static COMMON_APPLICATION_RNG_ENGINE randomEngine;
-  static unsigned int                  randomSeed;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
   static char                          randomStateBuffer[BUFSIZ];

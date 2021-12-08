@@ -183,9 +183,7 @@ Common_Tools::initialize (bool initializeRandomNumberGenerator_in)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
     ACE_OS::srand (static_cast<u_int> (randomSeed));
 #else
-    ACE_OS::memset (&Common_Tools::randomStateBuffer,
-                    0,
-                    sizeof (char[BUFSIZ]));
+    ACE_OS::memset (&Common_Tools::randomStateBuffer, 0, sizeof (char[BUFSIZ]));
     struct random_data random_data_s;
     ACE_OS::memset (&random_data_s, 0, sizeof (struct random_data));
     int result = ::initstate_r (Common_Tools::randomSeed,
