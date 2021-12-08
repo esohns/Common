@@ -85,6 +85,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       // *IMPORTANT NOTE*: avoid close()ing the timer queue in the base class dtor
       THREAD_TIMER_QUEUE_T* timer_queue_p =
           dynamic_cast<THREAD_TIMER_QUEUE_T*> (this);
+      ACE_ASSERT (timer_queue_p);
       result = timer_queue_p->timer_queue (NULL);
       if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
@@ -130,6 +131,9 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
       //ACE_Task_Base& task_base_r = const_cast<ACE_Task_Base&> (getR_5 ());
+      THREAD_TIMER_QUEUE_T* timer_queue_p =
+        dynamic_cast<THREAD_TIMER_QUEUE_T*> (this);
+      ACE_ASSERT (timer_queue_p);
 
       // spawn the dispatching worker thread
       int result = -1;
@@ -146,19 +150,19 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       thread_names_a[0] = thread_name_a;
       result =
         //task_base_r.activate ((THR_NEW_LWP      |
-        this->THREAD_TIMER_QUEUE_T::activate ((THR_NEW_LWP      |
-                                               THR_JOINABLE |
-                                               THR_INHERIT_SCHED),          // flags
-                                              1,                            // # threads --> 1
-                                              0,                            // force active ?
-                                              ACE_DEFAULT_THREAD_PRIORITY,  // priority
-                                              COMMON_TIMER_THREAD_GROUP_ID, // group id
-                                              NULL,                         // task base
-                                              thread_handles_a,             // thread handle(s)
-                                              NULL,                         // stack(s)
-                                              NULL,                         // stack size(s)
-                                              thread_ids_a,                 // thread id(s)
-                                              thread_names_a);              // thread name(s)
+        timer_queue_p->activate ((THR_NEW_LWP      |
+                                  THR_JOINABLE     |
+                                  THR_INHERIT_SCHED),          // flags
+                                 1,                            // # threads --> 1
+                                 0,                            // force active ?
+                                 ACE_DEFAULT_THREAD_PRIORITY,  // priority
+                                 COMMON_TIMER_THREAD_GROUP_ID, // group id
+                                 NULL,                         // task base
+                                 thread_handles_a,             // thread handle(s)
+                                 NULL,                         // stack(s)
+                                 NULL,                         // stack size(s)
+                                 thread_ids_a,                 // thread id(s)
+                                 thread_names_a);              // thread name(s)
       if (unlikely (result == -1))
       {
         ACE_DEBUG ((LM_ERROR,
@@ -956,7 +960,11 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   } // end IF
 #endif // ACE_WIN32 || ACE_WIN64
 
-  int result = this->THREAD_TIMER_QUEUE_T::svc ();
+  THREAD_TIMER_QUEUE_T* timer_queue_p =
+    dynamic_cast<THREAD_TIMER_QUEUE_T*> (this);
+  ACE_ASSERT (timer_queue_p);
+
+  int result = timer_queue_p->THREAD_TIMER_QUEUE_T::svc ();
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   if (task_h)
