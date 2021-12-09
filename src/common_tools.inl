@@ -20,6 +20,7 @@
 
 #include "ace/Basic_Types.h"
 #include "ace/Log_Msg.h"
+#include "ace/OS.h"
 
 #include "common_macros.h"
 
@@ -52,7 +53,7 @@ Common_Tools::byteswap (ValueType value_in)
 }
 
 template <typename ValueType>
-ValueType
+std::enable_if_t<std::is_integral<ValueType>::value, ValueType>
 Common_Tools::getRandomNumber (ValueType begin_in,
                                ValueType end_in)
 {
@@ -68,11 +69,20 @@ Common_Tools::getRandomNumber (ValueType begin_in,
 ////    std::bind (distribution, engine);
 
 //return generator ();
-  if (std::is_integral<ValueType>::value)
-  {
-    std::uniform_int_distribution<ValueType> distribution (begin_in, end_in);
-    return distribution (Common_Tools::randomEngine);
-  } // end IF
+  ACE_ASSERT (std::is_integral<ValueType>::value);
+  std::uniform_int_distribution<ValueType> distribution (begin_in, end_in);
+  return Common_Tools::getRandomNumber (distribution);
+}
+
+template <typename ValueType>
+std::enable_if_t<!std::is_integral<ValueType>::value, ValueType>
+Common_Tools::getRandomNumber (ValueType begin_in,
+                               ValueType end_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::getRandomNumber"));
+
+  // sanity check(s)
+  ACE_ASSERT (begin_in <= end_in);
 
   std::uniform_real_distribution<ValueType> distribution (begin_in, end_in);
   return distribution (Common_Tools::randomEngine);

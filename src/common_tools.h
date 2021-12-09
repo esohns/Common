@@ -172,8 +172,11 @@ class Common_Tools
 
   // --- randomization ---
   template <typename ValueType>
-  static ValueType getRandomNumber (ValueType,  // start (inclusive)
-                                    ValueType); // end   (inclusive)
+  static std::enable_if_t<std::is_integral<ValueType>::value, ValueType> getRandomNumber (ValueType,  // start (inclusive)
+                                                                                          ValueType); // end   (inclusive)
+  template <typename ValueType>
+  static std::enable_if_t<!std::is_integral<ValueType>::value, ValueType> getRandomNumber (ValueType,  // start (inclusive)
+                                                                                           ValueType); // end   (inclusive)
   template <typename ValueType>
   inline static ValueType getRandomNumber (std::uniform_int_distribution<ValueType>& distribution_in) { return distribution_in (Common_Tools::randomEngine); }
   template <typename ValueType>
