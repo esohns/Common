@@ -288,22 +288,22 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 
   int result = -1;
 
-  if (unlikely (inherited::thr_count_))
+  if (unlikely (inherited::thr_count_ > 0))
   {
-    if (inherited::mod_)
-      ACE_DEBUG ((LM_WARNING,
-                  ACE_TEXT ("%s: object already active (thread pool size: %u), continuing\n"),
-                  inherited::mod_->name (),
-                  inherited::thr_count_));
-    else
-      ACE_DEBUG ((LM_WARNING,
-                  ACE_TEXT ("object already active (thread pool size: %u), continuing\n"),
-                  inherited::thr_count_));
+    //if (inherited::mod_)
+    //  ACE_DEBUG ((LM_WARNING,
+    //              ACE_TEXT ("%s: object already active (thread pool size: %u), continuing\n"),
+    //              inherited::mod_->name (),
+    //              inherited::thr_count_));
+    //else
+    //  ACE_DEBUG ((LM_WARNING,
+    //              ACE_TEXT ("object already active (thread pool size: %u), continuing\n"),
+    //              inherited::thr_count_));
   } // end IF
   else
   {
-    deadline_ = (timeout_in ? COMMON_TIME_NOW + *timeout_in
-                            : ACE_Time_Value::zero);
+    deadline_ =
+      (timeout_in ? COMMON_TIME_NOW + *timeout_in : ACE_Time_Value::zero);
 
     // sanity check(s)
     ACE_ASSERT (inherited::msg_queue_);
@@ -345,6 +345,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     } // end IF
     return false;
   } // end IF
+
   return true;
 }
 
@@ -951,7 +952,8 @@ Common_TaskBase_T<ACE_NULL_SYNCH,
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::start"));
 
-  deadline_ = (timeout_in ? COMMON_TIME_NOW + *timeout_in : ACE_Time_Value::zero);
+  deadline_ =
+    (timeout_in ? COMMON_TIME_NOW + *timeout_in : ACE_Time_Value::zero);
 
   threadId_.id (ACE_OS::thr_self ());
   ACE_hthread_t handle = ACE_INVALID_HANDLE;

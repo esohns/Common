@@ -78,6 +78,9 @@ Common_Tools::min (uint8_t numberOfBytes_in,
   COMMON_TRACE (ACE_TEXT ("Common_Tools::min"));
 
   // sanity check(s)
+  ACE_ASSERT (ACE_SIZEOF_FLOAT == 4);
+  ACE_ASSERT (ACE_SIZEOF_DOUBLE == 8);
+  //ACE_ASSERT (ACE_SIZEOF_LONG_DOUBLE == 16); // *TODO*: 8 on Win32
   ACE_ASSERT (!isSigned_in);
 
   switch (numberOfBytes_in)
@@ -96,9 +99,9 @@ Common_Tools::min (uint8_t numberOfBytes_in,
       break;
     default:
     {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown value size (was: %u), continuing\n"),
-                  numberOfBytes_in));
+      //ACE_DEBUG ((LM_ERROR,
+      //            ACE_TEXT ("invalid/unknown value size (was: %u), continuing\n"),
+      //            numberOfBytes_in));
       value_out =
         static_cast<ValueType> (-std::numeric_limits<long double>::infinity ());
       break;
@@ -158,6 +161,9 @@ Common_Tools::max (uint8_t numberOfBytes_in,
   COMMON_TRACE (ACE_TEXT ("Common_Tools::max"));
 
   // sanity check(s)
+  ACE_ASSERT (ACE_SIZEOF_FLOAT == 4);
+  ACE_ASSERT (ACE_SIZEOF_DOUBLE == 8);
+  //ACE_ASSERT (ACE_SIZEOF_LONG_DOUBLE == 16); // *TODO*: 8 on Win32
   ACE_ASSERT (!isSigned_in);
 
   switch (numberOfBytes_in)
@@ -176,9 +182,9 @@ Common_Tools::max (uint8_t numberOfBytes_in,
       break;
     default:
     {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("invalid/unknown value size (was: %u), continuing\n"),
-                  numberOfBytes_in));
+      //ACE_DEBUG ((LM_ERROR,
+      //            ACE_TEXT ("invalid/unknown value size (was: %u), continuing\n"),
+      //            numberOfBytes_in));
       value_out =
         static_cast<ValueType> (std::numeric_limits<long double>::infinity ());
       break;
@@ -198,11 +204,11 @@ Common_Tools::byteSwap (ValueType value_in)
     case 1:
       return value_in;
     case 2:
-      return static_cast<ValueType> (ACE_SWAP_WORD (value_in));
+      return static_cast<ValueType> (ACE_SWAP_WORD (*(uint16_t*)&value_in));
     case 4:
-      return static_cast<ValueType> (ACE_SWAP_LONG (value_in));
+      return static_cast<ValueType> (ACE_SWAP_LONG (*(uint32_t*)&value_in));
     case 8:
-      return static_cast<ValueType> (ACE_SWAP_LONG_LONG (value_in));
+      return static_cast<ValueType> (ACE_SWAP_LONG_LONG (*(uint64_t*)&value_in));
     default:
     {
       ACE_DEBUG ((LM_ERROR,

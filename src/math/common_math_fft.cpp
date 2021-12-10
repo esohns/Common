@@ -103,6 +103,7 @@ Common_Math_FFT::Common_Math_FFT (unsigned int channels_in,
  , X_ (NULL)
  , bitReverseMap_ (NULL)
  , channels_ (channels_in)
+ , halfSlots_ (slots_in / 2)
  , slots_ (slots_in)
  , sampleRate_ (sampleRate_in)
  /////////////////////////////////////////
@@ -163,6 +164,7 @@ Common_Math_FFT::Initialize (unsigned int channels_in,
       buffer_ = NULL;
     } // end IF
     channels_ = 0;
+    halfSlots_ = 0;
     slots_ = 0;
     sampleRate_ = 0;
 
@@ -221,6 +223,7 @@ Common_Math_FFT::Initialize (unsigned int channels_in,
       buffer_[i][j] = 0.0;
 #endif
   channels_ = channels_in;
+  halfSlots_ = slots_in / 2;
   slots_ = slots_in;
   sampleRate_ = sampleRate_in;
 
@@ -235,11 +238,10 @@ Common_Math_FFT::Initialize (unsigned int channels_in,
 
   // set up bit-reverse mapping
   int rev = 0;
-  int half_slots = slots_ / 2;
   for (unsigned int i = 0; i < slots_ - 1; ++i)
   {
     bitReverseMap_[i] = rev;
-    int mask = half_slots;
+    int mask = halfSlots_;
     // add 1 backwards
     while (rev >= mask)
     {
