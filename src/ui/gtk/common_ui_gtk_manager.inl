@@ -339,6 +339,11 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #endif // _DEBUG
 #endif // GTKGL_SUPPORT
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  // step0: initialize COM
+  bool COM_initialized = Common_Tools::initializeCOM ();
+#endif // ACE_WIN32 || ACE_WIN64
+
   // step1: initialize GTK
   if (!GTKIsInitialized_)
   {
@@ -610,6 +615,10 @@ continue_:
   // stop() (close() --> gtk_main_quit ()) was called...
 
 done:
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  if (COM_initialized) Common_Tools::finalizeCOM ();
+#endif // ACE_WIN32 || ACE_WIN64
+
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t) leaving\n"),
               ACE_TEXT (inherited::threadName_.c_str ())));

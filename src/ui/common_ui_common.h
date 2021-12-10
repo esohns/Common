@@ -308,9 +308,15 @@ struct Common_UI_CBData
 {
   Common_UI_CBData ()
    : UIState (NULL)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+   , COMInitialized (false)
+#endif // ACE_WIN32 || ACE_WIN64
   {}
 
   struct Common_UI_State* UIState;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  bool                    COMInitialized; // <-- refers to the UIs' main loop thread, if there is one
+#endif // ACE_WIN32 || ACE_WIN64
 };
 
 #endif

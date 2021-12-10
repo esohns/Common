@@ -241,6 +241,9 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 // registry
 #define COMMON_WIN32_REGISTRY_RESOLVE_RETRIES                  3
+
+// COM
+#define COMMON_WIN32_COM_INITIALIZATION_DEFAULT_FLAGS          COINIT_MULTITHREADED | COINIT_DISABLE_OLE1DDE | COINIT_SPEED_OVER_MEMORY
 #else
 // systemd
 #define COMMON_SYSTEMD_UNIT_COMMAND_RESTART                    "restart"

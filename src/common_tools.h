@@ -27,6 +27,8 @@
 
 #include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+#define __CGUID_H__
+#include "combaseapi.h"
 #include "guiddef.h"
 #include "minwindef.h"
 #else
@@ -151,6 +153,11 @@ class Common_Tools
   static void printUserIds ();
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+  // --- COM ---
+  // *IMPORTANT NOTE*: iff this returns 'true', invoke finalizeCOM()
+  static bool initializeCOM ();
+  inline static void finalizeCOM () { CoUninitialize (); }
+
   // --- UID ---
   static std::string GUIDToString (REFGUID);
   static struct _GUID StringToGUID (const std::string&);
@@ -209,6 +216,11 @@ class Common_Tools
   ACE_UNIMPLEMENTED_FUNC (~Common_Tools ())
   ACE_UNIMPLEMENTED_FUNC (Common_Tools (const Common_Tools&))
   ACE_UNIMPLEMENTED_FUNC (Common_Tools& operator= (const Common_Tools&))
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  // *TODO*: thread-specific --> place this in a TSS
+  static bool                          COMInitialized;
+#endif // ACE_WIN32 || ACE_WIN64
 
   // --- randomization ---
   //typedef std::array<COMMON_APPLICATION_RNG_ENGINE::result_type,

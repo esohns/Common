@@ -113,11 +113,38 @@ using namespace std;
 #include "common_error_tools.h"
 
 // initialize statics
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+bool Common_Tools::COMInitialized = false;
+#endif // ACE_WIN32 || ACE_WIN64
 COMMON_APPLICATION_RNG_ENGINE Common_Tools::randomEngine;
 unsigned int Common_Tools::randomSeed = 0;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 char Common_Tools::randomStateBuffer[BUFSIZ];
+#endif // ACE_WIN32 || ACE_WIN64
+
+//////////////////////////////////////////
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+BOOL CALLBACK common_locale_cb_function (LPWSTR name_in,
+                                         DWORD flags_in,
+                                         LPARAM parameter_in)
+{
+  COMMON_TRACE (ACE_TEXT ("::common_locale_cb_function"));
+
+  // sanity check(s)
+  ACE_ASSERT (parameter_in);
+
+  std::vector<std::string>* locales_p =
+    reinterpret_cast<std::vector<std::string>*> (parameter_in);
+
+  // sanity check(s)
+  ACE_ASSERT (locales_p);
+
+  locales_p->push_back (ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (name_in)));
+
+  return TRUE;
+}
 #endif // ACE_WIN32 || ACE_WIN64
 
 //////////////////////////////////////////
@@ -215,28 +242,6 @@ Common_Tools::finalize ()
 
   Common_Error_Tools::finalize ();
 }
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-BOOL CALLBACK locale_cb_function (LPWSTR name_in,
-                                  DWORD flags_in,
-                                  LPARAM parameter_in)
-{
-  COMMON_TRACE (ACE_TEXT ("::locale_cb_function"));
-
-  // sanity check(s)
-  ACE_ASSERT (parameter_in);
-
-  std::vector<std::string>* locales_p =
-    reinterpret_cast<std::vector<std::string>*> (parameter_in);
-
-  // sanity check(s)
-  ACE_ASSERT (locales_p);
-
-  locales_p->push_back (ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (name_in)));
-
-  return TRUE;
-}
-#endif // ACE_WIN32 || ACE_WIN64
 
 unsigned int
 Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
@@ -468,7 +473,7 @@ Common_Tools::printLocales ()
   std::vector<std::string> locales;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
-  if (unlikely (!EnumSystemLocalesEx (locale_cb_function,
+  if (unlikely (!EnumSystemLocalesEx (common_locale_cb_function,
                                       LOCALE_ALL,
                                       reinterpret_cast<LPARAM> (&locales),
                                       NULL)))
@@ -1668,6 +1673,27 @@ Common_Tools::getHostName ()
 }
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+bool
+Common_Tools::initializeCOM ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::initializeCOM"));
+
+  HRESULT result =
+    CoInitializeEx (NULL,
+                    COMMON_WIN32_COM_INITIALIZATION_DEFAULT_FLAGS);
+  if (FAILED (result)) // RPC_E_CHANGED_MODE : 0x80010106L
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to CoInitializeEx(NULL,0x%x): \"%s\", aborting\n"),
+                COMMON_WIN32_COM_INITIALIZATION_DEFAULT_FLAGS,
+                ACE_TEXT (Common_Error_Tools::errorToString (result).c_str ())));
+    return false;
+  } // end IF
+  Common_Tools::COMInitialized = true;
+
+  return true;
+}
+
 std::string
 Common_Tools::GUIDToString (REFGUID GUID_in)
 {
