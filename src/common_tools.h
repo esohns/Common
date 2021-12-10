@@ -55,7 +55,24 @@ class Common_Tools
 
   // --- platform ---
   template <typename ValueType>
-  static ValueType byteswap (ValueType);
+  static void min (uint8_t,                                                           // number of bytes
+                   bool,                                                              // signed ? : unsigned
+                   std::enable_if_t<std::is_integral<ValueType>::value, ValueType&>); // return value
+  template <typename ValueType>
+  static void min (uint8_t,                                                            // number of bytes
+                   bool,                                                               // signed ? : unsigned
+                   std::enable_if_t<!std::is_integral<ValueType>::value, ValueType&>); // return value
+  template <typename ValueType>
+  static void max (uint8_t,                                                           // number of bytes
+                   bool,                                                              // signed ? : unsigned
+                   std::enable_if_t<std::is_integral<ValueType>::value, ValueType&>); // return value
+  template <typename ValueType>
+  static void max (uint8_t,                                                            // number of bytes
+                   bool,                                                               // signed ? : unsigned
+                   std::enable_if_t<!std::is_integral<ValueType>::value, ValueType&>); // return value
+  template <typename ValueType>
+  static ValueType byteSwap (ValueType);
+
   static unsigned int getNumberOfCPUs (bool = true); // consider logical cores (i.e. 'hyperthreading') ?
   static std::string getPlatformName ();
   static enum Common_OperatingSystemType getOperatingSystem ();
