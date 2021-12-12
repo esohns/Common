@@ -260,6 +260,7 @@ enum Common_UI_EventType
   COMMON_UI_EVENT_DISCONNECT,
   ////////////////////////////////////////
   COMMON_UI_EVENT_STATISTIC,
+  COMMON_UI_EVENT_STEP,
 
   // UI
   COMMON_UI_EVENT_UI_BASE              = 0x0800,

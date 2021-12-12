@@ -60,12 +60,12 @@ class Common_Math_FFT
   inline double       Amplitude (unsigned int slot_in,
                                  unsigned int channel_in) const
   { ACE_ASSERT (slot_in < slots_); ACE_ASSERT (channel_in < channels_);
-    return (2.0 * sqrt (norm (X_[channel_in][slot_in])));
+    return (slot_in ? sqrt (2.0) * sqrt (norm (X_[channel_in][slot_in])) : 0.0);
   }
   inline double       Magnitude (unsigned int slot_in,
                                  unsigned int channel_in) const
   { ACE_ASSERT (slot_in < slots_); ACE_ASSERT (channel_in < channels_);
-    return (sqrt (norm (X_[channel_in][slot_in])));
+    return sqrt (norm (X_[channel_in][slot_in]));
   }
   //inline int          Value (unsigned int slot_in,
   //                           unsigned int channel_in) const
