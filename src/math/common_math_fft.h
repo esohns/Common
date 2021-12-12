@@ -57,31 +57,31 @@ class Common_Math_FFT
   inline unsigned int Channels () const { return channels_; }
   inline unsigned int Slots () const { return slots_; }
 
-  //inline double       Intensity (unsigned int slot_in,
-  //                               unsigned int channel_in) const
-  //{ ACE_ASSERT (slot_in < slots_); ACE_ASSERT (channel_in < channels_);
-  //  return (sqrt (norm (X_[channel_in][slot_in])) / sqrtSlots_);
-  //}
+  inline double       Amplitude (unsigned int slot_in,
+                                 unsigned int channel_in) const
+  { ACE_ASSERT (slot_in < slots_); ACE_ASSERT (channel_in < channels_);
+    return (2.0 * sqrt (norm (X_[channel_in][slot_in])));
+  }
   inline double       Magnitude (unsigned int slot_in,
                                  unsigned int channel_in) const
   { ACE_ASSERT (slot_in < slots_); ACE_ASSERT (channel_in < channels_);
     return (sqrt (norm (X_[channel_in][slot_in])));
   }
-  inline int          Value (unsigned int slot_in,
-                             unsigned int channel_in) const
-  { ACE_ASSERT (slot_in < slots_); ACE_ASSERT (channel_in < channels_);
-    return static_cast<int> (buffer_[channel_in][slot_in]);
-  }
+  //inline int          Value (unsigned int slot_in,
+  //                           unsigned int channel_in) const
+  //{ ACE_ASSERT (slot_in < slots_); ACE_ASSERT (channel_in < channels_);
+  //  return static_cast<int> (buffer_[channel_in][slot_in]);
+  //}
 
   // return frequency in Hz of a given slot
   inline unsigned int Frequency (unsigned int slot_in) const
   { ACE_ASSERT (slot_in < slots_);
-    return static_cast<unsigned int> ((sampleRate_ * slot_in) / static_cast<double> (slots_));
+    return static_cast<unsigned int> (((sampleRate_ / 2) * slot_in) / static_cast<double> (slots_));
   }
-  inline unsigned int MaxFrequency () const { return sampleRate_; }
+  inline unsigned int MaxFrequency () const { return sampleRate_ / 2; }
   inline unsigned int HzToSlot (unsigned int frequency_in) const
   {
-    return static_cast<unsigned int> ((slots_ * frequency_in) / static_cast<double> (sampleRate_));
+    return static_cast<unsigned int> ((slots_ * frequency_in) / static_cast<double> (sampleRate_ / 2));
   }
 
  protected:
