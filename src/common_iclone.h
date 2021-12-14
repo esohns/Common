@@ -25,7 +25,7 @@ template <typename Type>
 class Common_IClone_T
 {
  public:
-  virtual Type* clone () = 0;
+  virtual Type* clone () const = 0;
 };
 
 #endif
