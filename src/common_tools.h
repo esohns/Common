@@ -56,25 +56,24 @@ class Common_Tools
   static void finalize ();
 
   // --- platform ---
+
+  // limits
   template <typename ValueType>
-  static void min (uint8_t,                                                           // number of bytes
-                   bool,                                                              // signed ? : unsigned
-                   std::enable_if_t<std::is_integral<ValueType>::value, ValueType&>); // return value
+  static std::enable_if_t<std::is_integral<ValueType>::value, ValueType> min (unsigned int, // number of bytes
+                                                                              bool);        // signed ? : unsigned
   template <typename ValueType>
-  static void min (uint8_t,                                                            // number of bytes
-                   bool,                                                               // signed ? : unsigned
-                   std::enable_if_t<!std::is_integral<ValueType>::value, ValueType&>); // return value
+  static std::enable_if_t<std::is_integral<ValueType>::value, ValueType> max (unsigned int, // number of bytes
+                                                                              bool);        // signed ? : unsigned
   template <typename ValueType>
-  static void max (uint8_t,                                                           // number of bytes
-                   bool,                                                              // signed ? : unsigned
-                   std::enable_if_t<std::is_integral<ValueType>::value, ValueType&>); // return value
+  static std::enable_if_t<!std::is_integral<ValueType>::value, ValueType> min (unsigned int); // number of bytes
   template <typename ValueType>
-  static void max (uint8_t,                                                            // number of bytes
-                   bool,                                                               // signed ? : unsigned
-                   std::enable_if_t<!std::is_integral<ValueType>::value, ValueType&>); // return value
+  static std::enable_if_t<!std::is_integral<ValueType>::value, ValueType> max (unsigned int); // number of bytes
+
+  // endianness
   template <typename ValueType>
   static ValueType byteSwap (ValueType);
 
+  // architecture
   static unsigned int getNumberOfCPUs (bool = true); // consider logical cores (i.e. 'hyperthreading') ?
   static std::string getPlatformName ();
   static enum Common_OperatingSystemType getOperatingSystem ();

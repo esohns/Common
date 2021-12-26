@@ -27,53 +27,76 @@
 #include "common_macros.h"
 
 template <typename ValueType>
-void
-Common_Tools::min (uint8_t numberOfBytes_in,
-                   bool isSigned_in,
-                   std::enable_if_t<std::is_integral<ValueType>::value, ValueType&> value_out)
+std::enable_if_t<std::is_integral<ValueType>::value, ValueType>
+Common_Tools::min (unsigned int numberOfBytes_in,
+                   bool isSigned_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::min"));
 
   switch (numberOfBytes_in)
   {
     case 1:
-      value_out =
-        static_cast<ValueType> (isSigned_in ? std::numeric_limits<int8_t>::min ()
-                                            : std::numeric_limits<uint8_t>::min ());
-      break;
+      return static_cast<ValueType> (isSigned_in ? std::numeric_limits<int8_t>::min ()
+                                                 : std::numeric_limits<uint8_t>::min ());
     case 2:
-      value_out =
-        static_cast<ValueType> (isSigned_in ? std::numeric_limits<int16_t>::min ()
-                                            : std::numeric_limits<uint16_t>::min ());
-      break;
+      return static_cast<ValueType> (isSigned_in ? std::numeric_limits<int16_t>::min ()
+                                                 : std::numeric_limits<uint16_t>::min ());
     case 4:
-      value_out =
-        static_cast<ValueType> (isSigned_in ? std::numeric_limits<int32_t>::min ()
-                                            : std::numeric_limits<uint32_t>::min ());
-      break;
+      return static_cast<ValueType> (isSigned_in ? std::numeric_limits<int32_t>::min ()
+                                                 : std::numeric_limits<uint32_t>::min ());
     case 8:
-      value_out =
-        static_cast<ValueType> (isSigned_in ? std::numeric_limits<int64_t>::min ()
-                                            : std::numeric_limits<uint64_t>::min ());
-      break;
+      return static_cast<ValueType> (isSigned_in ? std::numeric_limits<int64_t>::min ()
+                                                 : std::numeric_limits<uint64_t>::min ());
     default:
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("invalid/unknown value size (was: %u), continuing\n"),
                   numberOfBytes_in));
-      value_out =
-        static_cast<ValueType> (isSigned_in ? std::numeric_limits<int64_t>::min ()
-                                            : std::numeric_limits<uint64_t>::min ());
       break;
     }
   } // end SWITCH
+
+  return static_cast<ValueType> (isSigned_in ? std::numeric_limits<int64_t>::min ()
+                                             : std::numeric_limits<uint64_t>::min ());
 }
 
 template <typename ValueType>
-void
-Common_Tools::min (uint8_t numberOfBytes_in,
-                   bool isSigned_in,
-                   std::enable_if_t<!std::is_integral<ValueType>::value, ValueType&> value_out)
+std::enable_if_t<std::is_integral<ValueType>::value, ValueType>
+Common_Tools::max (unsigned int numberOfBytes_in,
+                   bool isSigned_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::max"));
+
+  switch (numberOfBytes_in)
+  {
+    case 1:
+      return static_cast<ValueType> (isSigned_in ? std::numeric_limits<int8_t>::max ()
+                                                 : std::numeric_limits<uint8_t>::max ());
+    case 2:
+      return static_cast<ValueType> (isSigned_in ? std::numeric_limits<int16_t>::max ()
+                                                 : std::numeric_limits<uint16_t>::max ());
+    case 4:
+      return static_cast<ValueType> (isSigned_in ? std::numeric_limits<int32_t>::max ()
+                                                 : std::numeric_limits<uint32_t>::max ());
+    case 8:
+      return static_cast<ValueType> (isSigned_in ? std::numeric_limits<int64_t>::max ()
+                                                 : std::numeric_limits<uint64_t>::max ());
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown value size (was: %u), continuing\n"),
+                  numberOfBytes_in));
+      break;
+    }
+  } // end SWITCH
+
+  return static_cast<ValueType> (isSigned_in ? std::numeric_limits<int64_t>::max ()
+                                             : std::numeric_limits<uint64_t>::max ());
+}
+
+template <typename ValueType>
+std::enable_if_t<!std::is_integral<ValueType>::value, ValueType>
+Common_Tools::min (unsigned int numberOfBytes_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::min"));
 
@@ -81,82 +104,30 @@ Common_Tools::min (uint8_t numberOfBytes_in,
   ACE_ASSERT (ACE_SIZEOF_FLOAT == 4);
   ACE_ASSERT (ACE_SIZEOF_DOUBLE == 8);
   //ACE_ASSERT (ACE_SIZEOF_LONG_DOUBLE == 16); // *TODO*: 8 on Win32
-  ACE_ASSERT (!isSigned_in);
 
   switch (numberOfBytes_in)
   {
     case 4:
-      value_out =
-        static_cast<ValueType> (std::numeric_limits<float>::min ());
-      break;
+      return static_cast<ValueType> (std::numeric_limits<float>::min ());
     case 8:
-      value_out =
-        static_cast<ValueType> (std::numeric_limits<double>::min ());
-      break;
+      return static_cast<ValueType> (std::numeric_limits<double>::min ());
     case 16:
-      value_out =
-        static_cast<ValueType> (std::numeric_limits<long double>::min ());
-      break;
-    default:
-    {
-      //ACE_DEBUG ((LM_ERROR,
-      //            ACE_TEXT ("invalid/unknown value size (was: %u), continuing\n"),
-      //            numberOfBytes_in));
-      value_out =
-        static_cast<ValueType> (-std::numeric_limits<long double>::infinity ());
-      break;
-    }
-  } // end SWITCH
-}
-
-template <typename ValueType>
-void
-Common_Tools::max (uint8_t numberOfBytes_in,
-                   bool isSigned_in,
-                   std::enable_if_t<std::is_integral<ValueType>::value, ValueType&> value_out)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::max"));
-
-  switch (numberOfBytes_in)
-  {
-    case 1:
-      value_out =
-        static_cast<ValueType> (isSigned_in ? std::numeric_limits<int8_t>::max ()
-                                            : std::numeric_limits<uint8_t>::max ());
-      break;
-    case 2:
-      value_out =
-        static_cast<ValueType> (isSigned_in ? std::numeric_limits<int16_t>::max ()
-                                            : std::numeric_limits<uint16_t>::max ());
-      break;
-    case 4:
-      value_out =
-        static_cast<ValueType> (isSigned_in ? std::numeric_limits<int32_t>::max ()
-                                            : std::numeric_limits<uint32_t>::max ());
-      break;
-    case 8:
-      value_out =
-        static_cast<ValueType> (isSigned_in ? std::numeric_limits<int64_t>::max ()
-                                            : std::numeric_limits<uint64_t>::max ());
-      break;
+      return static_cast<ValueType> (std::numeric_limits<long double>::min ());
     default:
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("invalid/unknown value size (was: %u), continuing\n"),
                   numberOfBytes_in));
-      value_out =
-        static_cast<ValueType> (isSigned_in ? std::numeric_limits<int64_t>::max ()
-                                            : std::numeric_limits<uint64_t>::max ());
       break;
     }
   } // end SWITCH
+
+  return static_cast<ValueType> (-std::numeric_limits<long double>::infinity ());
 }
 
 template <typename ValueType>
-void
-Common_Tools::max (uint8_t numberOfBytes_in,
-                   bool isSigned_in,
-                   std::enable_if_t<!std::is_integral<ValueType>::value, ValueType&> value_out)
+std::enable_if_t<!std::is_integral<ValueType>::value, ValueType>
+Common_Tools::max (unsigned int numberOfBytes_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::max"));
 
@@ -164,32 +135,25 @@ Common_Tools::max (uint8_t numberOfBytes_in,
   ACE_ASSERT (ACE_SIZEOF_FLOAT == 4);
   ACE_ASSERT (ACE_SIZEOF_DOUBLE == 8);
   //ACE_ASSERT (ACE_SIZEOF_LONG_DOUBLE == 16); // *TODO*: 8 on Win32
-  ACE_ASSERT (!isSigned_in);
 
   switch (numberOfBytes_in)
   {
     case 4:
-      value_out =
-        static_cast<ValueType> (std::numeric_limits<float>::max ());
-      break;
+      return static_cast<ValueType> (std::numeric_limits<float>::max ());
     case 8:
-      value_out =
-        static_cast<ValueType> (std::numeric_limits<double>::max ());
-      break;
+      return static_cast<ValueType> (std::numeric_limits<double>::max ());
     case 16:
-      value_out =
-        static_cast<ValueType> (std::numeric_limits<long double>::max ());
-      break;
+      return static_cast<ValueType> (std::numeric_limits<long double>::max ());
     default:
     {
-      //ACE_DEBUG ((LM_ERROR,
-      //            ACE_TEXT ("invalid/unknown value size (was: %u), continuing\n"),
-      //            numberOfBytes_in));
-      value_out =
-        static_cast<ValueType> (std::numeric_limits<long double>::infinity ());
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown value size (was: %u), continuing\n"),
+                  numberOfBytes_in));
       break;
     }
   } // end SWITCH
+
+  return static_cast<ValueType> (std::numeric_limits<long double>::infinity ());
 }
 
 template <typename ValueType>
