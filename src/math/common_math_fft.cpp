@@ -18,6 +18,7 @@ Common_Math_FFT_SampleIterator::Common_Math_FFT_SampleIterator (char* buffer_in)
  , soundSampleSize_ (0)
  /////////////////////////////////////////
  , isSignedSampleFormat_ (true)
+ , isFloatingPointFormat_ (false)
  , sampleByteOrder_ (ACE_BYTE_ORDER)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_SampleIterator_T::Common_Math_FFT_SampleIterator_T"));
@@ -39,26 +40,30 @@ Common_Math_FFT_SampleIterator::get (unsigned int index_in,
     case 1: // --> data is single-byte (possibly non-integer)
       return buffer_[(index_in * dataSampleSize_) + channel_in];
     case 2:
-      return (reverseEndianness_ ? (isSignedSampleFormat_ ? ACE_SWAP_WORD (*reinterpret_cast<short*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))
-                                                          : ACE_SWAP_WORD (*reinterpret_cast<unsigned short*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
-                                 : (isSignedSampleFormat_ ? *reinterpret_cast<short*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
-                                                          : *reinterpret_cast<unsigned short*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])));
+      return (reverseEndianness_ ? (isSignedSampleFormat_ ? ACE_SWAP_WORD (*reinterpret_cast<int16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))
+                                                          : ACE_SWAP_WORD (*reinterpret_cast<uint16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
+                                 : (isSignedSampleFormat_ ? *reinterpret_cast<int16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
+                                                          : *reinterpret_cast<uint16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])));
     case 4:
-    { // --> non-integer type data is (most probably) a 32-bit IEEE float
-      // *TODO*: this isn't very portable
-      ACE_ASSERT (ACE_SIZEOF_FLOAT == 4);
-      return (sampleByteOrder_ ? (reverseEndianness_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG (*reinterpret_cast<int*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))
-                                                                              : ACE_SWAP_LONG (*reinterpret_cast<unsigned int*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
-                                                     : (isSignedSampleFormat_ ? *reinterpret_cast<int*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
-                                                                              : *reinterpret_cast<unsigned int*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
-                               : *reinterpret_cast<float*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]));
+    { ACE_ASSERT (ACE_SIZEOF_FLOAT == 4);
+      return (isFloatingPointFormat_ ? *reinterpret_cast<float*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
+                                     : (reverseEndianness_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG (*reinterpret_cast<int32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))
+                                                                                    : ACE_SWAP_LONG (*reinterpret_cast<uint32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
+                                                           : (isSignedSampleFormat_ ? *reinterpret_cast<int32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
+                                                                                    : *reinterpret_cast<uint32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))));
     }
     case 8:
-    {
-      // --> non-integer type data is (most probably) a 64-bit IEEE float (aka double)
-      // *TODO*: this isn't very portable
-      ACE_ASSERT (ACE_SIZEOF_DOUBLE == 8);
-      return *reinterpret_cast<double*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]);
+    { ACE_ASSERT (ACE_SIZEOF_DOUBLE == 8);
+      return (isFloatingPointFormat_ ? *reinterpret_cast<double*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
+                                     : (reverseEndianness_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG_LONG (*reinterpret_cast<int64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))
+                                                                                    : ACE_SWAP_LONG_LONG (*reinterpret_cast<uint64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
+                                                           : (isSignedSampleFormat_ ? *reinterpret_cast<int64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
+                                                                                    : *reinterpret_cast<uint64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))));
+    }
+    case 16:
+    { ACE_ASSERT (ACE_SIZEOF_LONG_DOUBLE == 16);
+      ACE_ASSERT (isFloatingPointFormat_);
+      return *reinterpret_cast<long double*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]);
     }
     default:
     {
@@ -76,6 +81,7 @@ bool
 Common_Math_FFT_SampleIterator::initialize (unsigned int dataSampleSize_in,
                                             unsigned int soundSampleSize_in,
                                             bool isSignedSampleFormat_in,
+                                            bool isFloatingPointFormat_in,
                                             int sampleByteOrder_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_SampleIterator::initialize"));
@@ -83,6 +89,7 @@ Common_Math_FFT_SampleIterator::initialize (unsigned int dataSampleSize_in,
   dataSampleSize_ = dataSampleSize_in;
   soundSampleSize_ = soundSampleSize_in;
   isSignedSampleFormat_ = isSignedSampleFormat_in;
+  isFloatingPointFormat_ = isFloatingPointFormat_in;
   sampleByteOrder_ = sampleByteOrder_in;
 
   reverseEndianness_ =

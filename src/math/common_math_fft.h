@@ -17,6 +17,7 @@ class Common_Math_FFT_SampleIterator
   bool initialize (unsigned int, // bytes / 'data sample' (i.e. sizeof ('sound sample') * channels)
                    unsigned int, // resolution: bytes per 'sound sample'
                    bool,         // signed 'sound sample' format ?
+                   bool,         // floating point format ? : integer format
                    int);         // 'sound sample' byte order (ACE-style, 0: N/A)
   double get (unsigned int,  // index (i.e. #sample into buffer)
               unsigned int); // channel index (i.e. 0: mono/stereo left,
@@ -34,6 +35,7 @@ class Common_Math_FFT_SampleIterator
   ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator& operator= (const Common_Math_FFT_SampleIterator&))
 
   bool         isSignedSampleFormat_;
+  bool         isFloatingPointFormat_;
   int          sampleByteOrder_; // ACE-style, 0: N/A
 };
 
@@ -57,16 +59,14 @@ class Common_Math_FFT
   inline unsigned int Channels () const { return channels_; }
   inline unsigned int Slots () const { return slots_; }
 
-  inline double       Amplitude (unsigned int slot_in,
-                                 unsigned int channel_in) const
-  { ACE_ASSERT (slot_in < slots_); ACE_ASSERT (channel_in < channels_);
-    //return (slot_in ? sqrt (2.0) * sqrt (norm (X_[channel_in][slot_in])) / slots_ : 0.0);
-    return (slot_in ? sqrt (2.0) * 4.0 * sqrt (norm (X_[channel_in][slot_in])) / slots_ : 0.0);
-  }
   inline double       Magnitude (unsigned int slot_in,
-                                 unsigned int channel_in) const
+                                 unsigned int channel_in,
+                                 bool normalize_in = true) const
   { ACE_ASSERT (slot_in < slots_); ACE_ASSERT (channel_in < channels_);
-    return sqrt (norm (X_[channel_in][slot_in]));
+    return (normalize_in ? (slot_in ? sqrt (norm (X_[channel_in][slot_in])) 
+                                    : 0.0) * (2.0 / static_cast<double> (slots_))
+                         : (slot_in ? sqrt (norm (X_[channel_in][slot_in]))
+                                    : 0.0));
   }
   //inline int          Value (unsigned int slot_in,
   //                           unsigned int channel_in) const
