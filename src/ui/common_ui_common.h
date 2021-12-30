@@ -320,4 +320,12 @@ struct Common_UI_CBData
 #endif // ACE_WIN32 || ACE_WIN64
 };
 
+struct Common_UI_ThreadData
+{
+  Common_UI_ThreadData ()
+   : CBData (NULL)
+  {}
+
+  struct Common_UI_CBData* CBData;
+};
 #endif

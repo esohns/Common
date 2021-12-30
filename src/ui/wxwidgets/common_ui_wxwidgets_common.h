@@ -81,8 +81,6 @@ struct Common_UI_wxWidgets_ProgressData
   struct Common_UI_wxWidgets_State*      state;
 };
 
-//////////////////////////////////////////
-
 struct Common_UI_wxWidgets_CBData
  : Common_UI_CBData
 {
@@ -96,6 +94,17 @@ struct Common_UI_wxWidgets_CBData
 
   struct Common_UI_wxWidgets_ProgressData progressData;
   struct Common_UI_wxWidgets_State*       UIState;
+};
+
+struct Common_UI_wxWidgets_ThreadData
+ : Common_UI_ThreadData
+{
+  Common_UI_wxWidgets_ThreadData ()
+   : Common_UI_ThreadData ()
+   , CBData (NULL)
+  {}
+
+  struct Common_UI_wxWidgets_CBData* CBData;
 };
 
 //////////////////////////////////////////

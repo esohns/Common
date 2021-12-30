@@ -269,4 +269,15 @@ struct Common_UI_GTK_CBData
   Common_UI_GTK_State_t*            UIState;
 };
 
+struct Common_UI_GTK_ThreadData
+ : Common_UI_ThreadData
+{
+  Common_UI_GTK_ThreadData ()
+   : Common_UI_ThreadData ()
+   , CBData (NULL)
+  {}
+
+  struct Common_UI_GTK_CBData* CBData;
+};
+
 #endif

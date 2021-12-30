@@ -64,8 +64,6 @@ struct Common_UI_Qt_ProgressData
   struct Common_UI_Qt_State*      state;
 };
 
-//////////////////////////////////////////
-
 struct Common_UI_Qt_CBData
  : Common_UI_CBData
 {
@@ -79,6 +77,17 @@ struct Common_UI_Qt_CBData
 
   struct Common_UI_Qt_ProgressData progressData;
   struct Common_UI_Qt_State*       UIState;
+};
+
+struct Common_UI_Qt_ThreadData
+ : Common_UI_ThreadData
+{
+  Common_UI_Qt_ThreadData ()
+   : Common_UI_ThreadData ()
+   , CBData (NULL)
+  {}
+
+  struct Common_UI_Qt_CBData* CBData;
 };
 
 //////////////////////////////////////////
