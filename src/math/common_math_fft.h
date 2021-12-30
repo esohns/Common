@@ -26,6 +26,7 @@ class Common_Math_FFT_SampleIterator
   bool         isInitialized_;
   char*        buffer_;
   unsigned int dataSampleSize_;
+  bool         isSignedSampleFormat_;
   bool         reverseEndianness_;
   unsigned int soundSampleSize_;
 
@@ -34,7 +35,6 @@ class Common_Math_FFT_SampleIterator
   ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator (const Common_Math_FFT_SampleIterator&))
   ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator& operator= (const Common_Math_FFT_SampleIterator&))
 
-  bool         isSignedSampleFormat_;
   bool         isFloatingPointFormat_;
   int          sampleByteOrder_; // ACE-style, 0: N/A
 };

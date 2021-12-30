@@ -20,9 +20,9 @@
 
 #include <limits>
 
+#include "ace/Assert.h"
 #include "ace/Basic_Types.h"
 #include "ace/Log_Msg.h"
-#include "ace/OS.h"
 
 #include "common_macros.h"
 
@@ -100,19 +100,20 @@ Common_Tools::min (unsigned int numberOfBytes_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::min"));
 
-  // sanity check(s)
-  ACE_ASSERT (ACE_SIZEOF_FLOAT == 4);
-  ACE_ASSERT (ACE_SIZEOF_DOUBLE == 8);
-  //ACE_ASSERT (ACE_SIZEOF_LONG_DOUBLE == 16); // *TODO*: 8 on Win32
-
   switch (numberOfBytes_in)
   {
     case 4:
+    { ACE_ASSERT (ACE_SIZEOF_FLOAT == 4);
       return static_cast<ValueType> (std::numeric_limits<float>::min ());
+    }
     case 8:
+    { ACE_ASSERT (ACE_SIZEOF_DOUBLE == 8);
       return static_cast<ValueType> (std::numeric_limits<double>::min ());
+    }
     case 16:
+    { ACE_ASSERT (ACE_SIZEOF_LONG_DOUBLE == 16); // *TODO*: 8 on Win32
       return static_cast<ValueType> (std::numeric_limits<long double>::min ());
+    }
     default:
     {
       ACE_DEBUG ((LM_ERROR,
@@ -131,19 +132,20 @@ Common_Tools::max (unsigned int numberOfBytes_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::max"));
 
-  // sanity check(s)
-  ACE_ASSERT (ACE_SIZEOF_FLOAT == 4);
-  ACE_ASSERT (ACE_SIZEOF_DOUBLE == 8);
-  //ACE_ASSERT (ACE_SIZEOF_LONG_DOUBLE == 16); // *TODO*: 8 on Win32
-
   switch (numberOfBytes_in)
   {
     case 4:
+    { ACE_ASSERT (ACE_SIZEOF_FLOAT == 4);
       return static_cast<ValueType> (std::numeric_limits<float>::max ());
+    }
     case 8:
+    { ACE_ASSERT (ACE_SIZEOF_DOUBLE == 8);
       return static_cast<ValueType> (std::numeric_limits<double>::max ());
+    }
     case 16:
+    { ACE_ASSERT (ACE_SIZEOF_LONG_DOUBLE == 16); // *TODO*: 8 on Win32
       return static_cast<ValueType> (std::numeric_limits<long double>::max ());
+    }
     default:
     {
       ACE_DEBUG ((LM_ERROR,
@@ -166,13 +168,15 @@ Common_Tools::byteSwap (ValueType value_in)
   switch (sizeof (ValueType))
   {
     case 1:
+    { ACE_ASSERT (false);
       return value_in;
+    }
     case 2:
-      return static_cast<ValueType> (ACE_SWAP_WORD (*(uint16_t*)&value_in));
+      return static_cast<ValueType> (ACE_SWAP_WORD (*reinterpret_cast<uint16_t*> (&value_in)));
     case 4:
-      return static_cast<ValueType> (ACE_SWAP_LONG (*(uint32_t*)&value_in));
+      return static_cast<ValueType> (ACE_SWAP_LONG (*reinterpret_cast<uint32_t*> (&value_in)));
     case 8:
-      return static_cast<ValueType> (ACE_SWAP_LONG_LONG (*(uint64_t*)&value_in));
+      return static_cast<ValueType> (ACE_SWAP_LONG_LONG (*reinterpret_cast<uint64_t*> (&value_in)));
     default:
     {
       ACE_DEBUG ((LM_ERROR,
