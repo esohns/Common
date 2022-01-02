@@ -35,10 +35,12 @@ class Common_Logger_T
   typedef ACE_Log_Msg_Backend inherited;
 
  public:
-  Common_Logger_T (Common_MessageStack_t*,     // message stack handle {NULL: do not cache messages}
-                   ACE_SYNCH_MUTEX_T* = NULL); // message stack lock handle {NULL: single-threaded application}
-  //                 ACE_Lock* = NULL);      // message stack lock handle {NULL: single-threaded application}
+  Common_Logger_T (Common_MessageStack_t* = NULL, // message stack handle {NULL: do not cache messages}
+                   ACE_SYNCH_MUTEX_T* = NULL);    // message stack lock handle {NULL: single-threaded application}
   virtual ~Common_Logger_T ();
+
+  bool initialize (Common_MessageStack_t*, // message stack handle {NULL: do not cache messages}
+                   ACE_SYNCH_MUTEX_T*);    // message stack lock handle {NULL: single-threaded application}
 
   // implement ACE_Log_Msg_Backend interface
   virtual int open (const ACE_TCHAR*); // logger key
@@ -52,8 +54,7 @@ class Common_Logger_T
   ACE_UNIMPLEMENTED_FUNC (Common_Logger_T& operator= (const Common_Logger_T&))
 
 //  FILE*                  buffer_;
-
-  //ACE_Lock*              lock_;
+  bool                   isInitialized_;
   ACE_SYNCH_MUTEX_T*     lock_;
   Common_MessageStack_t* messageStack_;
 };

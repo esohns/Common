@@ -46,9 +46,7 @@ class Common_SignalHandler_T
   typedef ACE_Event_Handler inherited2;
 
  public:
-  Common_SignalHandler_T (enum Common_SignalDispatchType, // dispatch mode
-                          ACE_SYNCH_RECURSIVE_MUTEX*,     // lock handle
-                          Common_ISignal* = NULL);        // event handler handle (NULL: 'this')
+  Common_SignalHandler_T (Common_ISignal* = NULL); // event handler handle (NULL: 'this')
   inline virtual ~Common_SignalHandler_T () {}
 
   // *NOTE*: the signal is dispatched according to dispatchMode_
@@ -66,11 +64,11 @@ class Common_SignalHandler_T
   virtual bool initialize (const ConfigurationType&);
 
  protected:
-  ConfigurationType*             configuration_;
-  enum Common_SignalDispatchType dispatchMode_;
-  bool                           isInitialized_;
-  ACE_SYNCH_RECURSIVE_MUTEX*     lock_;
-  Common_Signals_t               signals_;
+  ConfigurationType*        configuration_;
+  bool                      isInitialized_;
+  // *PORTABILITY*: grabbing a lock in signal handler contexts is not portable
+  ACE_SYNCH_RECURSIVE_MUTEX lock_;
+  Common_Signals_t          signals_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_SignalHandler_T ())

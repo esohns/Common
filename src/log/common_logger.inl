@@ -28,13 +28,13 @@
 #include "common_tools.h"
 
 template <ACE_SYNCH_DECL>
-Common_Logger_T<ACE_SYNCH_USE>::Common_Logger_T (Common_MessageStack_t* stack_in,
+Common_Logger_T<ACE_SYNCH_USE>::Common_Logger_T (Common_MessageStack_t* messageStack_in,
                                                  ACE_SYNCH_MUTEX_T* lock_in)
-                                                 //ACE_Lock* lock_in)
  : inherited ()
- //, buffer_ (NULL)
+//, buffer_ (NULL)
+ , isInitialized_ (false)
  , lock_ (lock_in)
- , messageStack_ (stack_in)
+ , messageStack_ (messageStack_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Logger_T::Common_Logger_T"));
 
@@ -71,6 +71,21 @@ Common_Logger_T<ACE_SYNCH_USE>::~Common_Logger_T ()
   //    ACE_DEBUG ((LM_ERROR,
   //                ACE_TEXT ("failed to ACE_OS::fclose(): \"%m\", continuing\n")));
   //} // end IF
+}
+
+template <ACE_SYNCH_DECL>
+bool
+Common_Logger_T<ACE_SYNCH_USE>::initialize (Common_MessageStack_t* messageStack_in,
+                                            ACE_SYNCH_MUTEX_T* lock_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Logger_T::initialize"));
+
+  lock_ = lock_in;
+  messageStack_ = messageStack_in;
+
+  isInitialized_ = true;
+
+  return true;
 }
 
 template <ACE_SYNCH_DECL>
@@ -162,7 +177,7 @@ Common_Logger_T<ACE_SYNCH_USE>::log (ACE_Log_Record& record_in)
     if (likely (lock_))
     {
       result = lock_->acquire ();
-      if (result == -1)
+      if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_SYNCH_MUTEX_T::acquire(): \"%m\", continuing\n")));
     } // end IF
@@ -170,7 +185,7 @@ Common_Logger_T<ACE_SYNCH_USE>::log (ACE_Log_Record& record_in)
     if (likely (lock_))
     {
       result = lock_->release ();
-      if (result == -1)
+      if (unlikely (result == -1))
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_SYNCH_MUTEX_T::release(): \"%m\", continuing\n")));
     } // end IF
@@ -179,7 +194,7 @@ Common_Logger_T<ACE_SYNCH_USE>::log (ACE_Log_Record& record_in)
   if (likely (acquire_lock))
   {
     result = log_msg_p->acquire ();
-    if (result == -1)
+    if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Log_Msg::acquire(): \"%m\", continuing\n")));
   } // end IF

@@ -27,29 +27,18 @@
 #include "common_signal_tools.h"
 
 template <typename ConfigurationType>
-Common_SignalHandler_T<ConfigurationType>::Common_SignalHandler_T (enum Common_SignalDispatchType dispatchMode_in,
-                                                                   ACE_SYNCH_RECURSIVE_MUTEX* lock_in,
-                                                                   Common_ISignal* callback_in)
- : inherited ()
- , inherited2 (NULL,                           // -->  default reactor
+Common_SignalHandler_T<ConfigurationType>::Common_SignalHandler_T (Common_ISignal* callback_in)
+ : inherited (ACE_Proactor::instance ()) // -->  default proactor
+ , inherited2 (ACE_Reactor::instance (),       // -->  default reactor
                ACE_Event_Handler::LO_PRIORITY) // priority
  , configuration_ (NULL)
- , dispatchMode_ (dispatchMode_in)
  , isInitialized_ (false)
- , lock_ (lock_in)
+ , lock_ ()
  , signals_ ()
  , callback_ (callback_in ? callback_in : this)
 {
   COMMON_TRACE (ACE_TEXT ("Common_SignalHandler_T::Common_SignalHandler_T"));
 
-  // sanity check(s)
-  if (unlikely (((dispatchMode_ == COMMON_SIGNAL_DISPATCH_PROACTOR) ||
-                 (dispatchMode_ == COMMON_SIGNAL_DISPATCH_REACTOR)) &&
-                !lock_))
-  {
-    ACE_DEBUG ((LM_WARNING,
-                ACE_TEXT ("invalid lock handle, continuing\n")));
-  } // end IF
 }
 
 template <typename ConfigurationType>
@@ -59,6 +48,9 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
                                                           ucontext_t* ucontext_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_SignalHandler_T::handle_signal"));
+
+  // sanity check(s)
+  ACE_ASSERT (configuration_);
 
   int result = 0;
   struct Common_Signal signal_s;
@@ -76,12 +68,12 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
   //                   tracing). Backup the context information and notify the
   //                   reactor / proactor for callback
   // *WARNING*:        grabbing a lock here is non-portable !!!
-  switch (dispatchMode_)
+  switch (configuration_->mode)
   {
     case COMMON_SIGNAL_DISPATCH_PROACTOR:
-    { ACE_ASSERT (lock_);
-//      { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, *lock_, false);
-        signals_.push_back (signal_s);
+    {
+//      { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, lock_, -1);
+      signals_.push_back (signal_s);
 //      } // end lock scope
 
       ACE_Proactor* proactor_p = ACE_Proactor::instance ();
@@ -101,9 +93,9 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
       break;
     }
     case COMMON_SIGNAL_DISPATCH_REACTOR:
-    { ACE_ASSERT (lock_);
-//      { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, *lock_, false);
-        signals_.push_back (signal_s);
+    {
+//      { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, *lock_, -1);
+      signals_.push_back (signal_s);
 //      } // end lock scope
 
       ACE_Reactor* reactor_p = inherited2::reactor ();
@@ -163,29 +155,16 @@ Common_SignalHandler_T<ConfigurationType>::initialize (const ConfigurationType& 
 {
   COMMON_TRACE (ACE_TEXT ("Common_SignalHandler_T::initialize"));
 
-  if (isInitialized_)
-  { ACE_ASSERT (lock_);
-    { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, *lock_, false);
+  if (unlikely (isInitialized_))
+  {
+    { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, lock_, false);
       signals_.clear ();
     } // end lock scope
 
     isInitialized_ = false;
   } // end IF
 
-  inherited2::reactor (ACE_Reactor::instance ());
   configuration_ = &const_cast<ConfigurationType&> (configuration_in);
-  // *TODO*: remove type inference
-  lock_ = &configuration_->lock;
-  // sanity check(s)
-  if (unlikely (((dispatchMode_ == COMMON_SIGNAL_DISPATCH_PROACTOR) ||
-                 (dispatchMode_ == COMMON_SIGNAL_DISPATCH_REACTOR))
-                && !lock_))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("invalid lock handle, aborting\n")));
-    return false;
-  } // end IF
-
   isInitialized_ = true;
 
   return true;
@@ -205,7 +184,7 @@ Common_SignalHandler_T<ConfigurationType>::handle_time_out (const ACE_Time_Value
   ACE_ASSERT (!act_in);
 
   int result = handle_exception (ACE_INVALID_HANDLE);
-  if (result == -1)
+  if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_SignalHandler_T::handle_exception(): \"%m\", continuing\n")));
 }
@@ -219,13 +198,9 @@ Common_SignalHandler_T<ConfigurationType>::handle_exception (ACE_HANDLE handle_i
   ACE_UNUSED_ARG (handle_in);
 
   Common_ISignal* callback_p = (callback_ ? callback_ : this);
-
   struct Common_Signal signal_s;
 
-  // sanity check(s)
-  ACE_ASSERT (lock_);
-
-  { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, *lock_, -1);
+  { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, lock_, -1);
     ACE_ASSERT (!signals_.empty ());
     signal_s = signals_.front ();
     signals_.erase (signals_.begin ());

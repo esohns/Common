@@ -49,12 +49,12 @@ struct Common_SignalHandlerConfiguration
 {
   Common_SignalHandlerConfiguration ()
    : dispatchState (NULL)
-   , lock ()
+   , mode (COMMON_SIGNAL_DEFAULT_DISPATCH_MODE)
    , stopEventDispatchOnShutdown (false)
   {}
 
   struct Common_EventDispatchState* dispatchState;
-  ACE_SYNCH_RECURSIVE_MUTEX         lock;
+  enum Common_SignalDispatchType    mode;
   bool                              stopEventDispatchOnShutdown;
 };
 
