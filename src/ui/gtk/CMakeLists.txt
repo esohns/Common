@@ -61,13 +61,13 @@ set (source_files
      common_ui_gtk_tools.cpp
      common_ui_gtk_tools.h)
 #     common_ui_gtk_types.h
-if (LIBGLADE_SUPPORT)
+if (LIBGLADE_SUPPORT AND GTK2_USE)
  set (source_files
       ${source_files}
       common_ui_gtk_glade_definition.cpp
       common_ui_gtk_glade_definition.h
       common_ui_gtk_glade_definition.inl)
-endif (LIBGLADE_SUPPORT) # LIBGLADE_SUPPORT
+endif (LIBGLADE_SUPPORT AND GTK2_USE) # LIBGLADE_SUPPORT
 if (GTKGL_SUPPORT)
  set (source_files
       ${source_files}

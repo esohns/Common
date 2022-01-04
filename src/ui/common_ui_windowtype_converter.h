@@ -23,8 +23,8 @@
 
 #include "ace/config-lite.h"
 #if defined (GTK_SUPPORT)
+#include "gdk/gdk.h"
 #include "gtk/gtk.h"
-#include "gdk/gdktypes.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #if GTK_CHECK_VERSION(4,0,0)
 #include "gdk/win32/gdkwin32.h"

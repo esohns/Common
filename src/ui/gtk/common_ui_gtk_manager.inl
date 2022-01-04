@@ -43,9 +43,11 @@
 #endif // GTKGL_SUPPORT
 #include "gdk/gdk.h"
 
+#if defined (GTK2_USE)
 #if defined (LIBGLADE_SUPPORT)
 #include "glade/glade.h"
 #endif // LIBGLADE_SUPPORT
+#endif // GTK2_USE
 
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"

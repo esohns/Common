@@ -208,7 +208,6 @@ if (GTK_SUPPORT AND OPENGL_SUPPORT)
  endif (UNIX)
 
  if (GTK2_SUPPORT OR GTK3_SUPPORT)
-  set (GTKGLAREA_DEFAULT OFF)
   if (UNIX)
    if (GTK3_FOUND)
     # *NOTE*: check out the 'master' branch for gtk3-based applications
@@ -224,9 +223,8 @@ if (GTK_SUPPORT AND OPENGL_SUPPORT)
                  DOC "searching for ${GTKGLAREA_LIB_FILE}")
   elseif (WIN32)
    set (GTKGLAREA_LIB_FILE gtkglarea.lib)
-   get_filename_component (BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR} NAME)
    find_library (GTKGLAREA_LIBRARY ${GTKGLAREA_LIB_FILE}
-                 PATHS $ENV{LIB_ROOT}/gtkglarea/build/${CMAKE_BUILD_TYPE}
+                 PATHS $ENV{LIB_ROOT}/gtkglarea/build
                  PATH_SUFFIXES ${CMAKE_BUILD_TYPE}
                  DOC "searching for ${GTKGLAREA_LIB_FILE}")
   endif ()
@@ -234,6 +232,7 @@ if (GTK_SUPPORT AND OPENGL_SUPPORT)
    message (STATUS "found gtkglarea: ${GTKGLAREA_LIBRARY}")
    set (GTKGLAREA_DEFAULT ON)
    set (GTKGLAREA_INCLUDES $ENV{LIB_ROOT}/gtkglarea)
+   set (GTKGLAREA_LIB_DIR $ENV{LIB_ROOT}/libepoxy/bin)
    set (GTKGL_FOUND TRUE)
    option (GTKGLAREA_SUPPORT "enable GtkGLArea support" ${GTKGLAREA_DEFAULT})
   endif (GTKGLAREA_LIBRARY)

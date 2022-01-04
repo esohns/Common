@@ -29,9 +29,11 @@
 #include "glib-object.h"
 #endif // GTK_CHECK_VERSION (2,3,0)
 
+#if defined (GTK2_USE)
 #if defined (LIBGLADE_SUPPORT)
 #include "glade/glade-init.h"
 #endif // LIBGLADE_SUPPORT
+#endif // GTK2_USE
 
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
@@ -250,10 +252,12 @@ Common_UI_GTK_Tools::initialize (int argc_in,
   gdk_rgb_init ();
 #endif // GTK_CHECK_VERSION(3,0,0)
 
+#if defined (GTK2_USE)
 #if defined (LIBGLADE_SUPPORT)
   // step2: initialize (lib)glade
   glade_init ();
 #endif // LIBGLADE_SUPPORT
+#endif // GTK2_USE
 
   Common_UI_GTK_Tools::GTKInitialized = true;
 
