@@ -1,5 +1,5 @@
 // *NOTE*: uncomment the line corresponding to your platform !
-#include "ace/config-sunos5.11.h"
+#include "ace/config-macosx-mojave.h"
 
 // *NOTE*: don't use the regular pipe-based mechanism,
 // it has several drawbacks (see relevant documentation)
@@ -16,6 +16,6 @@
 #undef __FD_SETSIZE
 #define __FD_SETSIZE 65536
 #include <sys/select.h>
-//#include <sunos5/posix_types.h>
+//#include <macosx/posix_types.h>
 
 #define ACE_HAS_IP_MULTICAST 1

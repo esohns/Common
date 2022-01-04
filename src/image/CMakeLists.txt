@@ -79,7 +79,7 @@ if (IMAGEMAGICK_SUPPORT)
 endif (IMAGEMAGICK_SUPPORT)
 if (UNIX)
 elseif (WIN32)
- target_link_libraries (${LIBRARY} PUBLIC $ENV{LIB_ROOT}/DXSDK/Lib/x86/d3dx9.lib)
+ target_link_libraries (${LIBRARY} PUBLIC $ENV{LIB_ROOT}/DXSDK/Lib/${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE}/d3dx9.lib)
 endif ()
 
 #set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_IMAGE_BUILD_DLL)

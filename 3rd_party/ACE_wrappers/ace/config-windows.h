@@ -1,38 +1,9 @@
-#define ACE_CONFIG_WIN32_H
-#include "ace/config-win32-common.h"
+//#include <sdkddkver.h>
 
-// *TODO*: these seem to be handled inconsistently and should probably be moved
-//         to config-win32-common.h
-#define ACE_LACKS_DIRENT_H
-#define ACE_LACKS_DLFCN_H
-#define ACE_LACKS_NET_IF_H
-#define ACE_LACKS_NETDB_H
-#define ACE_LACKS_NETINET_IN_H
-#define ACE_LACKS_POLL_H
-#define ACE_LACKS_SEMAPHORE_H
-#define ACE_LACKS_STRINGS_H
-#define ACE_LACKS_STROPTS_H
-#define ACE_LACKS_SYS_IOCTL_H
-#define ACE_LACKS_SYS_IPC_H
-#define ACE_LACKS_SYS_MMAN_H
-#define ACE_LACKS_SYS_RESOURCE_H
-#define ACE_LACKS_SYS_SELECT_H
-#define ACE_LACKS_SYS_SEM_H
-#define ACE_LACKS_SYS_SOCKET_H
-#define ACE_LACKS_SYS_TIME_H
-#define ACE_LACKS_SYS_UIO_H
-#define ACE_LACKS_SYS_WAIT_H
-#define ACE_LACKS_UCONTEXT_H
+// *NOTE*: compile with large(r) file support
+#define _FILE_OFFSET_BITS 64
 
-/////////////////////////////////////////
-
-// *NOTE*: llvm does not support exceptions on win32 platforms yet
-//         (see also: http://stackoverflow.com/questions/24197773/c-program-not-compiling-with-clang-and-visual-studio-2010-express)
-#define _HAS_EXCEPTIONS 0
-
-//#define ACE_throw_bad_alloc
-
-/////////////////////////////////////////
+#include "ace/config-win32.h"
 
 // *NOTE*: this settings corresponds with the UNICODE preprocessor symbol (MSVC
 //         builds):
@@ -42,16 +13,15 @@
 //#define ACE_USES_WCHAR 1
 
 // *NOTE*: needed for ACE_IOStream
-#define ACE_HAS_STANDARD_CPP_LIBRARY 1
-#define ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB 1
+//#define ACE_HAS_STANDARD_CPP_LIBRARY 1
 
 // *NOTE*: don't use the regular pipe-based mechanism,
 // it has several drawbacks (see relevant documentation)
-#define ACE_HAS_REACTOR_NOTIFICATION_QUEUE
+#define ACE_HAS_REACTOR_NOTIFICATION_QUEUE 1
 
 // *NOTE*: don't use the WFMO-reactor on Microsoft Windows (TM) platforms,
 //         it only supports ~64 concurrent handles...
-#define ACE_USE_SELECT_REACTOR_FOR_REACTOR_IMPL
+#define ACE_USE_SELECT_REACTOR_FOR_REACTOR_IMPL 1
 
 // *NOTE*: (proactor) ACE contains SEH-enabled code; however, the default MPC
 //         (auto-)generated project files do not apply the correct compilation

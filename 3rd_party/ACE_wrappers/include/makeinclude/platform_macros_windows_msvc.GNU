@@ -1,6 +1,6 @@
 # -*- Makefile -*-
 
-INSTALL_PREFIX=/usr/local
+#INSTALL_PREFIX=/usr/local
 
 #ace_for_tao=0
 
@@ -33,29 +33,30 @@ static_link=0
 templates=automatic
 threads=1
 trio=0
-versioned_so=1
+versioned_so=0
 
 # features
 pipes=1
 qos=1
-rapi=1
+rapi=0
 ssl=1
+stlport=0
 
 # (ui) reactors
 fl=1
 fox=1
 qt=1
 tk=1
-wfmo=0
-xt=1
+wfmo=1
+xt=0
 
 # toolkits
 stlport=0
-winnt=0
-winregistry=0
+winnt=1
+winregistry=1
 
 # apps
 rwho=1
 #sctp=openss7
 
-include $(ACE_ROOT)/include/makeinclude/platform_linux.GNU
+include %ACE_ROOT%\include\makeinclude\platform_win32_msvc.GNU

@@ -19,13 +19,13 @@ ipv6=1
 //ace_svcconf_gen=0
 //ace_for_tao=0
 
-gl=0
+gl=1
 
 //fl=0
 //tao_flresource=0
 //ace_flreactor=0
 
-//gtk=1
+gtk=1
 
 //tk=0
 //tao_tkresource=0

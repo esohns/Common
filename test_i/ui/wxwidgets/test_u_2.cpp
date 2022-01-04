@@ -14,6 +14,7 @@
 #include "wx/xrc/xmlres.h"
 
 #include "ace/Log_Msg.h"
+#include "ace/OS_Memory.h"
 
 // begin wxGlade: ::extracode
 // end wxGlade
@@ -165,11 +166,11 @@ bool Test_U_wxWidgets_Application::OnInit()
 //  wxObject* object_p = NULL;
 #if wxCHECK_VERSION(3,0,0)
   wxFileName file_name;
-  file_name.Assign (wxString (ACE_TEXT_ALWAYS_WCHAR ("test_u_2.xrc")),
+  file_name.Assign (wxString (ACE_TEXT_ALWAYS_CHAR ("test_u_2.xrc")),
                     wxPATH_NATIVE);
   if (!resource_p->LoadFile (file_name))
 #elif wxCHECK_VERSION(2,0,0)
-  wxString file_name (ACE_TEXT_ALWAYS_WCHAR ("test_u_2.xrc"));
+  wxString file_name (ACE_TEXT_ALWAYS_CHAR ("test_u_2.xrc"));
   if (unlikely (!resource_p->Load (file_name)))
 #endif // wxCHECK_VERSION
   {
@@ -185,11 +186,18 @@ bool Test_U_wxWidgets_Application::OnInit()
     return false;
   } // end IF
 
-  wxDialog_main* dialog_main = new wxDialog_main(NULL, wxID_ANY, wxEmptyString);
+  wxDialog_main* dialog_main_p = NULL;
+  ACE_NEW_NORETURN (dialog_main_p,
+                    wxDialog_main (NULL,
+                                   wxID_ANY,
+                                   wxEmptyString,
+                                   wxDefaultPosition,
+                                   wxDefaultSize,
+                                   wxDEFAULT_DIALOG_STYLE));
 //  wxDialog dialog_s;
  //  if (!resource_p->LoadDialog (&dialog_s,
 //                               dialog_main,
-//                               wxString (ACE_TEXT_ALWAYS_WCHAR ("dialog_main_base"))))
+//                               wxString (ACE_TEXT_ALWAYS_CHAR ("dialog_main_base"))))
 //  {
 //    ACE_DEBUG ((LM_ERROR,
 //                ACE_TEXT ("failed to wxXmlResource::LoadDialog(\"%s\"): \"%m\", aborting\n"),
@@ -197,23 +205,21 @@ bool Test_U_wxWidgets_Application::OnInit()
 //    return false;
 //  } // end IF
   dialog_ =
-      resource_p->LoadDialog (dialog_main,
-                              wxString (ACE_TEXT_ALWAYS_WCHAR ("dialog_main_base")));
+      resource_p->LoadDialog (dialog_main_p,
+                              wxString (ACE_TEXT_ALWAYS_CHAR ("dialog_main_base")));
   ACE_ASSERT (dialog_);
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("loaded widget tree \"%s\"\n"),
               ACE_TEXT ("test_u_2.xrc")));
-#endif // _DEBUG
 
-  SetTopWindow (dialog_main);
+  SetTopWindow (dialog_main_p);
 //  dialog_main->Show (true);
   dialog_->Show (true);
 
-  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &wxDialog_main::button_1_clicked_cb, dialog_main, wxID_NEW);
+  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &wxDialog_main::button_1_clicked_cb, dialog_main_p, wxID_NEW);
 //  Connect (XRCID("button_1"), wxEVT_COMMAND_BUTTON_CLICKED, (wxObjectEventFunction)&wxDialog_main::button_1_clicked_cb);
-  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &wxDialog_main::button_2_clicked_cb, dialog_main, wxID_COPY);
-  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &wxDialog_main::button_3_clicked_cb, dialog_main, wxID_CLEAR);
+  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &wxDialog_main::button_2_clicked_cb, dialog_main_p, wxID_COPY);
+  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &wxDialog_main::button_3_clicked_cb, dialog_main_p, wxID_CLEAR);
   dialog_->Connect (wxEVT_CLOSE_WINDOW, wxCloseEventHandler (wxDialog_main::on_close_cb), NULL, dialog_);
 
   return true;

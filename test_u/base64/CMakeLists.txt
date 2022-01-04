@@ -3,6 +3,7 @@ string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
 string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../include)
+
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/math)
 
@@ -38,16 +39,18 @@ target_precompile_headers (${EXECUTABLE}
 #add_dependencies (${ACESTREAM_TARGET_NAME} ACE)
 
 add_dependencies (${EXECUTABLE} Common)
+
 add_dependencies (${EXECUTABLE} CommonMath)
+
 add_dependencies (${EXECUTABLE} Common_Test_U)
 
-target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
+target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
 
-target_link_libraries (${EXECUTABLE} Common)
+target_link_libraries (${EXECUTABLE} PUBLIC ${PROJECT_NAME})
 
-target_link_libraries (${EXECUTABLE} CommonMath)
+target_link_libraries (${EXECUTABLE} PUBLIC ${PROJECT_NAME}Math)
 
-target_link_libraries (${EXECUTABLE} Common_Test_U)
+target_link_libraries (${EXECUTABLE} PUBLIC ${PROJECT_NAME}_Test_U)
 
 #-----------------------------------------
 

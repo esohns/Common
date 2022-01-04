@@ -2397,7 +2397,7 @@ Common_File_Tools::getTempFilename (const std::string& prefix_in,
 
   // *NOTE*: see also: man 3 mkstemp
   ACE_TCHAR buffer[BUFSIZ];
-  unsigned int offset_i = prefix_in.size ();
+  size_t offset_i = prefix_in.size ();
   char* result_p = NULL;
   if (unlikely (!prefix_in.empty ()))
   {
