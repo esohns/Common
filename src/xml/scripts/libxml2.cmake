@@ -26,13 +26,14 @@ elseif (WIN32)
   find_path (LIBXML2_INCLUDE_DIR NAMES libxml/xpath.h
              PATHS "$ENV{LIB_ROOT}/libxml2/include"
              PATH_SUFFIXES libxml2)
+  set (CMAKE_FIND_LIBRARY_SUFFIXES .lib .dll.a)
   find_library (LIBXML2_LIBRARY
-                NAMES libxml2.dll.a
+                NAMES libxml2
                 PATHS "$ENV{LIB_ROOT}/libxml2"
                 PATH_SUFFIXES lib
                 NO_DEFAULT_PATH)
   if (LIBXML2_INCLUDE_DIR AND LIBXML2_LIBRARY)
-   message (STATUS "found Libxml2")
+   message (STATUS "found libxml2")
    set (LIBXML2_FOUND TRUE)
    set (LIBXML2_INCLUDE_DIRS "${LIBXML2_INCLUDE_DIR}")
    set (LIBXML2_LIBRARIES "${LIBXML2_LIBRARY}")
