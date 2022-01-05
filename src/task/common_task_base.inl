@@ -707,7 +707,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   //         situations where this is undesirable
   result =
     //inherited::activate ((THR_NEW_LWP      |
-    activate_i ((THR_NEW_LWP |
+    activate_i ((THR_NEW_LWP      |
                  THR_JOINABLE     |
                  THR_INHERIT_SCHED),             // flags
                  static_cast<int> (threadCount_), // # threads
