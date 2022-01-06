@@ -21,26 +21,25 @@
 #ifndef COMMON_UI_GTK_DEFINES_H
 #define COMMON_UI_GTK_DEFINES_H
 
-#include "ace/config-lite.h"
+#include "gtk/gtk.h"
 
-// *IMPORTANT NOTE*: for some reason, the glib 2 Win32 package does not define
-//                   these
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define G_SOURCE_CONTINUE                                    TRUE
-#define G_SOURCE_REMOVE                                      FALSE
-#endif // ACE_WIN32 || ACE_WIN64
+#if GTK_CHECK_VERSION(2,32,0)
+#else
+#define G_SOURCE_CONTINUE                                       TRUE
+#define G_SOURCE_REMOVE                                         FALSE
+#endif // GTK_CHECK_VERSION(2,32,0)
 
 // refresh rates / timeouts
-#define COMMON_UI_GTK_REFRESH_DEFAULT_CAIRO_MS               COMMON_UI_REFRESH_DEFAULT_VIDEO_MS
-#define COMMON_UI_GTK_REFRESH_DEFAULT_OPENGL_MS              COMMON_UI_REFRESH_DEFAULT_VIDEO_MS
+#define COMMON_UI_GTK_REFRESH_DEFAULT_CAIRO_MS                  COMMON_UI_REFRESH_DEFAULT_VIDEO_MS
+#define COMMON_UI_GTK_REFRESH_DEFAULT_OPENGL_MS                 COMMON_UI_REFRESH_DEFAULT_VIDEO_MS
 
-#define COMMON_UI_GTK_TIMEOUT_DEFAULT_MANAGER_INITIALIZATION 100 // ms
-#define COMMON_UI_GTK_TIMEOUT_DEFAULT_WIDGET_TOOLTIP_DELAY   100 // ms
+#define COMMON_UI_GTK_TIMEOUT_DEFAULT_MANAGER_INITIALIZATION_MS 100 // ms
+#define COMMON_UI_GTK_TIMEOUT_DEFAULT_WIDGET_TOOLTIP_DELAY_MS   100 // ms
 
 // application
-#define COMMON_UI_GTK_APPLICATION_ID_DEFAULT                 "application_id"
+#define COMMON_UI_GTK_APPLICATION_ID_DEFAULT                    "application_id"
 
 // widgets
-#define COMMON_UI_GTK_DEFINITION_WIDGET_MAIN                 "dialog_main"
+#define COMMON_UI_GTK_DEFINITION_WIDGET_MAIN                    "dialog_main"
 
 #endif

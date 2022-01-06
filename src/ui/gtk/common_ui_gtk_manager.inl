@@ -768,6 +768,9 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     goto error;
   } // end IF
 #if defined (_DEBUG)
+#if GTK_CHECK_VERSION(3,14,0)
+  gtk_window_set_interactive_debugging (TRUE);
+#endif // GTK_CHECK_VERSION(3,14,0)
   Common_UI_GTK_Tools::dumpGtkLibraryInfo ();
 #endif // _DEBUG
 

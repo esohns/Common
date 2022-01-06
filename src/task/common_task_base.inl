@@ -650,17 +650,17 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                     ACE_thread_t[threadCount_]);
   if (unlikely (!thread_ids_p))
     goto allocation_error;
-  ACE_OS::memset (thread_ids_p, 0, sizeof (thread_ids_p));
+  ACE_OS::memset (thread_ids_p, 0, threadCount_ * sizeof (ACE_thread_t));
   ACE_NEW_NORETURN (thread_handles_p,
                     ACE_hthread_t[threadCount_]);
   if (unlikely (!thread_handles_p))
     goto allocation_error;
-  ACE_OS::memset (thread_handles_p, 0, sizeof (thread_handles_p));
+  ACE_OS::memset (thread_handles_p, 0, threadCount_ * sizeof (ACE_hthread_t));
   ACE_NEW_NORETURN (thread_names_p,
                     const char*[threadCount_]);
   if (unlikely (!thread_names_p))
     goto allocation_error;
-  ACE_OS::memset (thread_names_p, 0, sizeof (thread_names_p));
+  ACE_OS::memset (thread_names_p, 0, threadCount_ * sizeof (char*));
   for (unsigned int i = 0;
        i < threadCount_;
        i++)
@@ -674,7 +674,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
         delete [] thread_names_p[j];
       goto allocation_error;
     } // end IF
-    ACE_OS::memset (thread_name_p, 0, sizeof (thread_name_p));
+    ACE_OS::memset (thread_name_p, 0, sizeof (char[BUFSIZ]));
     converter.str (ACE_TEXT_ALWAYS_CHAR (""));
     converter.clear ();
     converter << (i + 1);
