@@ -115,11 +115,11 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                   inherited::thr_count_));
 
     // *WARNING*: there already may or may not be a message queue at this stage
-    result = close (1);
+    result = OWN_TYPE_T::close (1);
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_TaskBase_T::close(1): \"%m\", continuing\n")));
-    wait (false); // don't wait for queue
+    OWN_TYPE_T::wait (false); // don't wait for queue
   } // end IF
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -253,6 +253,8 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     {
       if (unlikely (inherited::thr_count_ == 0))
         break; // nothing (more) to do
+      // *TODO*: when invoked from the dtor, this crashes (instance already
+      //         partially dismantled)
       this->stop (false, // wait for completion ?
                   true); // high priority ?
       break;

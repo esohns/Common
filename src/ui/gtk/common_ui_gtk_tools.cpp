@@ -112,7 +112,7 @@ gtk_tree_model_foreach_find_index_cb (GtkTreeModel* treeModel_in,
     case G_TYPE_CHAR:
     {
       cb_data_p->found =
-          (g_value_get_char (&cb_data_p->value) == g_value_get_char (&value));
+          (g_value_get_schar (&cb_data_p->value) == g_value_get_schar (&value));
       break;
     }
     case G_TYPE_UCHAR:
