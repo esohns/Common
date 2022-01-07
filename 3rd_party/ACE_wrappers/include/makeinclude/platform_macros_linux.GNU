@@ -37,15 +37,15 @@ versioned_so=1
 
 # features
 pipes=1
-qos=1
-rapi=1
+qos=0 # (currently) depends on rapi=1 !
+rapi=0
 ssl=1
 
 # (ui) reactors
 fl=1
 fox=1
 qt=1
-tk=1
+tk=0
 wfmo=0
 xt=1
 

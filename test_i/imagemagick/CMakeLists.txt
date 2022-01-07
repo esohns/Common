@@ -4,6 +4,7 @@ string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
 string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 
 ############## definitions ###############
+add_definitions (${MAGICK_CXX_FLAGS})
 
 ############## includes ###############
 
@@ -27,6 +28,10 @@ add_executable (${EXECUTABLE}
                 ${imagemagick_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
+############## definitions ###############
+add_link_options (${MAGICK_LD_FLAGS})
+
+############## libraries ###############
 target_link_libraries (${EXECUTABLE} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries (${EXECUTABLE} PUBLIC ${ImageMagick_LIBRARIES})
 

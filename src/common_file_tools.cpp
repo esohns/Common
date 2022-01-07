@@ -1384,7 +1384,7 @@ Common_File_Tools::load (const std::string& path_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::load"));
 
-  bool result = false;
+  bool result = true;
   int result_2 = -1;
   size_t result_3 = 0;
   long file_size_i = 0;
@@ -1447,15 +1447,15 @@ Common_File_Tools::load (const std::string& path_in,
 
   // *PORTABILITY* allocate array
   ACE_NEW_NORETURN (file_out,
-                    unsigned char[static_cast<size_t> (file_size_i + padding_in)]);
+                    uint8_t[static_cast<size_t> (file_size_i + padding_in)]);
   if (unlikely (!file_out))
   {
     ACE_DEBUG ((LM_CRITICAL,
-                ACE_TEXT ("failed to allocate memory(%d): \"%m\", aborting\n"),
+                ACE_TEXT ("failed to allocate memory (was: %d byte(s)): \"%m\", aborting\n"),
                 file_size_i + padding_in));
     goto error;
   } // end IF
-  ACE_OS::memset (file_out, 0, file_size_i + padding_in);
+  ACE_OS::memset (file_out, 0, sizeof (uint8_t) * (file_size_i + padding_in));
 
   // read data
   result_3 =
@@ -1463,8 +1463,8 @@ Common_File_Tools::load (const std::string& path_in,
                    1,                                 // read everything ...
                    static_cast<size_t> (file_size_i), // ... at once
                    file_p);                           // stream handle
-  if (unlikely ((result_3 != static_cast<size_t> (file_size_i) &&
-                 !::feof (file_p))))
+  if (unlikely ((result_3 != static_cast<size_t> (file_size_i)) ||
+                !::feof (file_p)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fread(\"%s\",%d): \"%m\", aborting\n"),
@@ -1472,8 +1472,6 @@ Common_File_Tools::load (const std::string& path_in,
                 file_size_i));
     goto error;
   } // end IF
-
-  result = true;
 
   goto continue_;
 
@@ -1483,6 +1481,8 @@ error:
     delete [] file_out; file_out = NULL;
   } // end IF
   fileSize_out = 0;
+
+  result = false;
 continue_:
   result_2 = ACE_OS::fclose (file_p);
   if (unlikely (result_2 == -1))

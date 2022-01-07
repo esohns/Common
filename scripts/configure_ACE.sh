@@ -24,7 +24,7 @@ else
  # parse any arguments
  if [ $# -ge 1 ]
  then
-  if [ "$1" != "linux" -a "$1" != "solaris" -a "$1" != "win32" ]
+  if [ "$1" != "linux" -a "$1" != "macos" -a "$1" != "solaris" -a "$1" != "windows" ]
   then
    echo "invalid argument (was: "$1"), aborting"; exit 1;
   fi
@@ -42,7 +42,7 @@ then
 #   PROJECT_TYPE="gnuace"
    ;;
   win32)
-   PROJECT_TYPE="vc15"
+   PROJECT_TYPE="vc17"
    ;;
   *)
    echo "invalid platform (was: "${PLATFORM}"), aborting"; exit 1;
@@ -75,7 +75,7 @@ then
 fi
 fi
 
-DEFAULT_PROJECT_DIRECTORY="$(dirname $(readlink -f $0))/.."
+DEFAULT_PROJECT_DIRECTORY="$(dirname $(readlink -f $0))/../.."
 PROJECT_DIRECTORY=${DEFAULT_PROJECT_DIRECTORY}
 # sanity check(s)
 [ ! -d ${PROJECT_DIRECTORY} ] && echo "ERROR: invalid directory (was: \"${PROJECT_DIRECTORY}\"), aborting" && exit 1
@@ -148,7 +148,7 @@ ACENetwork"
 for PROJECT in $PROJECTS
 do
  echo "INFO: processing project \"${PROJECT}\"..."
- PATCH_DIRECTORY=${PROJECT_DIRECTORY}/../${PROJECT}/3rd_party/ACE_wrappers/patches
+ PATCH_DIRECTORY=${PROJECT_DIRECTORY}/${PROJECT}/3rd_party/ACE_wrappers/patches
  [ ! -d ${PATCH_DIRECTORY} ] && echo "ERROR: invalid directory (was: \"${PATCH_DIRECTORY}\"), aborting" && exit 1
  cd ${ACE_DIRECTORY}
  for filename in ${PATCH_DIRECTORY}/*.patch; do

@@ -1,8 +1,8 @@
 @rem //%%%FILE%%%////////////////////////////////////////////////////////////////////
 @rem // File Name: initialize_ACE.bat
 @rem //
-@rem // arguments [1]: linux | macos | solaris | windows
-@rem // arguments [2]: 32 | {64}
+@rem // arguments [1]platform: linux | macos | solaris | windows
+@rem // arguments [2]bitness : 32 | {64}
 @rem // History:
 @rem //   Date   |Name | Description of modification
 @rem // ---------|-----|-------------------------------------------------------------

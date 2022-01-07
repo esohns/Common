@@ -14,10 +14,10 @@ Common_Math_FFT_SampleIterator::Common_Math_FFT_SampleIterator (char* buffer_in)
  : isInitialized_ (false)
  , buffer_ (buffer_in)
  , dataSampleSize_ (0)
+ , isSignedSampleFormat_ (true)
  , reverseEndianness_ (false)
  , soundSampleSize_ (0)
  /////////////////////////////////////////
- , isSignedSampleFormat_ (true)
  , isFloatingPointFormat_ (false)
  , sampleByteOrder_ (ACE_BYTE_ORDER)
 {
