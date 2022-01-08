@@ -683,8 +683,16 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     buffer = threadName_;
     buffer += ACE_TEXT_ALWAYS_CHAR (" #");
     buffer += converter.str ();
-    ACE_OS::strcpy (thread_name_p,
-                    buffer.c_str ());
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    ACE_OS::strncpy (thread_name_p,
+                     buffer.c_str (),
+                     std::min (static_cast<size_t> (BUFSIZ - 1), static_cast<size_t> (buffer.size ())));
+#else
+    ACE_ASSERT (COMMON_THREAD_PTHREAD_NAME_MAX_LENGTH <= BUFSIZ);
+    ACE_OS::strncpy (thread_name_p,
+                     buffer.c_str (),
+                     std::min (static_cast<size_t> (COMMON_THREAD_PTHREAD_NAME_MAX_LENGTH - 1), static_cast<size_t> (buffer.size ())));
+#endif // ACE_WIN32 || ACE_WIN64
     thread_names_p[i] = thread_name_p;
   } // end FOR
   converter.str (ACE_TEXT_ALWAYS_CHAR (""));

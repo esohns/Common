@@ -140,7 +140,7 @@
 
 // *** log ***
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-//#define COMMON_LOG_DEFAULT_DIRECTORY                 ACE_OS::getenv (COMMON_LOCATION_LOG_STORAGE_VARIABLE)
+//#define COMMON_LOG_DEFAULT_DIRECTORY                           ACE_OS::getenv (COMMON_LOCATION_LOG_STORAGE_VARIABLE)
 #else
 #define COMMON_LOG_DEFAULT_DIRECTORY                           COMMON_LOCATION_LOG_STORAGE_DIRECTORY
 #endif // ACE_WIN32 || ACE_WIN64
@@ -149,6 +149,12 @@
 
 // *** signals ***
 #define COMMON_SIGNAL_DEFAULT_DISPATCH_MODE                    COMMON_SIGNAL_DISPATCH_SIGNAL
+
+// *** threads ***
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+#define COMMON_THREAD_PTHREAD_NAME_MAX_LENGTH                  16 // includes '\0' (!)
+#endif // ACE_WIN32 || ACE_WIN64
 
 // *** timeouts ***
 #if defined (_DEBUG)

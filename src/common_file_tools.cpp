@@ -1463,8 +1463,7 @@ Common_File_Tools::load (const std::string& path_in,
                    1,                                 // read everything ...
                    static_cast<size_t> (file_size_i), // ... at once
                    file_p);                           // stream handle
-  if (unlikely ((result_3 != static_cast<size_t> (file_size_i)) ||
-                !::feof (file_p)))
+  if (unlikely (result_3 != static_cast<size_t> (file_size_i)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::fread(\"%s\",%d): \"%m\", aborting\n"),
