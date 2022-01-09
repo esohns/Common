@@ -316,9 +316,8 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
   // step2a: ignore certain signals
   // *NOTE*: there is no need to keep this around after registration
   ACE_Sig_Action ignore_action (static_cast<ACE_SignalHandler> (SIG_IGN), // ignore action
-                                ACE_Sig_Set (1),                          // mask of signals to be blocked when servicing
-                                                                          // --> block them all (bar KILL/STOP; see manual)
-                                SA_RESTART);                              // flags
+                                ACE_Sig_Set (false),                      // N/A
+                                0);                                       // N/A
   int result = -1;
   for (int i = 1;
        i < ACE_NSIG;
@@ -358,11 +357,15 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
     } // end IF
 
   // step3: register (process-wide) signal handler
+  int flags_i = SA_NOCLDSTOP |
+                SA_NOCLDWAIT |
+                SA_SIGINFO   |
+                SA_RESTART   |
+                SA_NODEFER;
   // *NOTE*: there is no need to keep this around after registration
-  ACE_Sig_Action default_action (static_cast<ACE_SignalHandler> (SIG_DFL), // N/A (reset in ACE_Sig_Handler::register_handler())
-                                 ACE_Sig_Set (1),                          // mask of signals to be blocked when servicing
-                                                                           // --> block them all (bar KILL/STOP; see manual)
-                                 (SA_RESTART | SA_SIGINFO));               // flags
+  ACE_Sig_Action signal_action (static_cast<ACE_SignalHandler> (SIG_DFL), // N/A (reset in ACE_Sig_Handler::register_handler())
+                                ACE_Sig_Set (false),                      // mask of signals to be blocked when servicing --> none
+                                flags_i);                                 // flags
   switch (dispatch_in)
   {
     case COMMON_SIGNAL_DISPATCH_PROACTOR:
@@ -378,7 +381,7 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
           result =
               Common_Signal_Tools::signalHandler_.register_handler (i,
                                                                     eventHandler_in,
-                                                                    &default_action,
+                                                                    &signal_action,
                                                                     &event_handler_p,
                                                                     &previous_action);
           if (unlikely (result == -1))
@@ -405,7 +408,7 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
       ACE_ASSERT (reactor_p);
       result = reactor_p->register_handler (signals_in,
                                             eventHandler_in,
-                                            &default_action);
+                                            &signal_action);
       if (unlikely (result == -1))
       {
         ACE_DEBUG ((LM_ERROR,
