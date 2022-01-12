@@ -18,20 +18,27 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_ERROR_DEFINES_H
-#define COMMON_ERROR_DEFINES_H
+#ifndef COMMON_TASK_TOOLS_H
+#define COMMON_TASK_TOOLS_H
 
-#include "ace/config-lite.h"
-
-// *TODO*: turn this into a compile-time option
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-//#if defined (_DEBUG)
-//#define COMMON_ERROR_WIN32_DEFAULT_DEBUGHEAP        true
-//#else
-#define COMMON_ERROR_WIN32_DEFAULT_DEBUGHEAP          false
-//#endif // _DEBUG
 #else
-#define COMMON_ERROR_LINUX_PROC_STATUS_TRACER_PID_KEY "TracerPid"
+#include "sched.h"
 #endif // ACE_WIN32 || ACE_WIN64
+
+#include "ace/Global_Macros.h"
+
+class Common_Task_Tools
+{
+ public:
+  static bool setThreadPriority (pid_t, // process/thread id (0: current process, current thread)
+                                 int);  // priority (19: lowest to -20: highest [-INTMAX: highest possible: i.e. RLIMIT_NICE->rlim_max])
+
+ private:
+  ACE_UNIMPLEMENTED_FUNC (Common_Task_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (~Common_Task_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (Common_Task_Tools (const Common_Task_Tools&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Task_Tools& operator= (const Common_Task_Tools&))
+};
 
 #endif

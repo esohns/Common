@@ -11,7 +11,7 @@
 class Common_Math_FFT_SampleIterator
 {
  public:
-  Common_Math_FFT_SampleIterator (char*); // buffer
+  Common_Math_FFT_SampleIterator (uint8_t*); // buffer
   inline virtual ~Common_Math_FFT_SampleIterator () {}
 
   bool initialize (unsigned int, // bytes / 'data sample' (i.e. sizeof ('sound sample') * channels)
@@ -24,11 +24,11 @@ class Common_Math_FFT_SampleIterator
                              //                     1: stereo right, ...)
 
   bool         isInitialized_;
-  char*        buffer_;
-  unsigned int dataSampleSize_;
+  uint8_t*     buffer_;
+  unsigned int dataSampleSize_; // soundSampleSize_ * #channels
   bool         isSignedSampleFormat_;
   bool         reverseEndianness_;
-  unsigned int soundSampleSize_;
+  unsigned int soundSampleSize_; // mono-
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator ())

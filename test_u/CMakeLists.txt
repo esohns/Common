@@ -159,6 +159,7 @@ add_subdirectory (count)
 add_subdirectory (file)
 add_subdirectory (locale)
 add_subdirectory (regex)
+add_subdirectory (signal)
 
 # phonies
 add_custom_target (test_u ALL
@@ -173,6 +174,7 @@ add_dependencies (test_u count)
 add_dependencies (test_u file)
 add_dependencies (test_u locale)
 add_dependencies (test_u regex)
+add_dependencies (test_u signal)
 
 if (NOT BUILD_TEST_U)
  set_target_properties (test_u PROPERTIES EXCLUDE_FROM_ALL 1)

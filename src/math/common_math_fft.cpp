@@ -10,7 +10,7 @@
 
 #include "common_macros.h"
 
-Common_Math_FFT_SampleIterator::Common_Math_FFT_SampleIterator (char* buffer_in)
+Common_Math_FFT_SampleIterator::Common_Math_FFT_SampleIterator (uint8_t* buffer_in)
  : isInitialized_ (false)
  , buffer_ (buffer_in)
  , dataSampleSize_ (0)

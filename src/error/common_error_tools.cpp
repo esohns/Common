@@ -247,7 +247,6 @@ Common_Error_Tools::inDebugSession ()
   ACE_TCHAR buffer_a[BUFSIZ];
   ssize_t bytes_read = -1;
   int result_2 = -1;
-  static const ACE_TCHAR tracer_pid_string[] = ACE_TEXT ("TracerPid:");
   ACE_TCHAR* tracer_pid_p = NULL;
 
   status_fd = ACE_OS::open (ACE_TEXT_ALWAYS_CHAR ("/proc/self/status"),
@@ -270,15 +269,18 @@ Common_Error_Tools::inDebugSession ()
                 ACE_TEXT ("/proc/self/status")));
     goto clean;
   } // end IF
-  tracer_pid_p = ACE_OS::strstr (buffer_a, tracer_pid_string);
+  tracer_pid_p =
+      ACE_OS::strstr (buffer_a,
+                      ACE_TEXT_ALWAYS_CHAR (COMMON_ERROR_LINUX_PROC_STATUS_TRACER_PID_KEY));
   if (unlikely (!tracer_pid_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::strstr(%s): \"%m\", aborting\n"),
-                tracer_pid_string));
+                ACE_TEXT (COMMON_ERROR_LINUX_PROC_STATUS_TRACER_PID_KEY)));
     goto clean;
   } // end IF
-  result = !!ACE_OS::atoi (tracer_pid_p + sizeof (tracer_pid_string) - 1);
+  result =
+      !!ACE_OS::atoi (tracer_pid_p + (sizeof (ACE_TEXT_ALWAYS_CHAR (COMMON_ERROR_LINUX_PROC_STATUS_TRACER_PID_KEY)) + 1));
 
 clean:
   if (likely (status_fd != ACE_INVALID_HANDLE))

@@ -34,14 +34,15 @@ foreach (source_file ${source_files})
 #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
 target_sources (${LIBRARY}
-#                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
-#add_dependencies (${PROJECT_NAME}Signal ACE)
+#add_dependencies (${LIBRARY} ACE)
 if (UNIX)
+ add_dependencies (${LIBRARY} ${PROJECT_NAME})
  add_dependencies (${LIBRARY} ${PROJECT_NAME}Error)
 
+ target_link_libraries (${LIBRARY} PUBLIC ${PROJECT_NAME})
  target_link_libraries (${LIBRARY} PUBLIC ${PROJECT_NAME}Error)
 endif (UNIX)
 

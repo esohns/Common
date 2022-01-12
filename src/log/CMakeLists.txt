@@ -20,8 +20,6 @@ set (source_files
 # Include dir for installed targets
 set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 
-#set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
-
 unset (absolute_source_files)
 foreach (source_file ${source_files})
  get_filename_component (abs_source_file ${source_file} ABSOLUTE)
@@ -31,7 +29,6 @@ foreach (source_file ${source_files})
 #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
 target_sources (${LIBRARY}
-#                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
@@ -43,13 +40,16 @@ if (WIN32)
  endif ()
 endif ()
 
-#*TODO*: use pkg-config instead
-if (WIN32)
-# target_link_libraries (${LIBRARY} ${COMMON_TARGET_NAME})
-endif ()
+#add_dependencies (${LIBRARY} ACE)
+if (UNIX)
+ add_dependencies (${LIBRARY} ${PROJECT_NAME})
 
-#set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_LOG_BUILD_DLL)
-#set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+ target_link_libraries (${LIBRARY} PUBLIC ${PROJECT_NAME})
+endif (UNIX)
+
+#set_target_properties (${LIBRARY} PROPERTIES
+#                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
+#                       SOVERSION 1)
 
 # add PCH
 target_precompile_headers (${LIBRARY}

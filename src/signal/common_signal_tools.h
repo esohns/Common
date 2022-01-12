@@ -45,6 +45,7 @@ class Common_Signal_Tools
   //         disposition is inherited by all threads spawned thereafter
   static bool preInitialize (ACE_Sig_Set&,                   // signal set (to handle) (*NOTE*: IN/OUT)
                              enum Common_SignalDispatchType, // dispatch type
+                             bool,                           // using networking ? --> ignore SIGPIPE
                              Common_SignalActions_t&,        // return value: previous action(s)
                              sigset_t&);                     // return value: previous mask
   static bool initialize (enum Common_SignalDispatchType, // dispatch mode
