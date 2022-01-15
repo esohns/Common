@@ -37,26 +37,28 @@ class Common_Signal_Tools
 {
  public:
   // *NOTE*: this does the following:
-  //         - ignore SIGPIPE
+  //         - ignore SIGPIPE iff using networking (3rd argument)
   //         - on non-Win32 systems, iff the proactor framework is used with the
   //           ACE_POSIX_Proactor::PROACTOR_SIG, block RT signals
   //         - on non-Win32 systems, remove SIGSEGV to enable core dumps
   // *NOTE*: call this in the 'main' thread as early as possible; the signal
-  //         disposition is inherited by all threads spawned thereafter
+  //         dispositions are inherited by all threads spawned thereafter
   static bool preInitialize (ACE_Sig_Set&,                   // signal set (to handle) (*NOTE*: IN/OUT)
                              enum Common_SignalDispatchType, // dispatch type
                              bool,                           // using networking ? --> ignore SIGPIPE
                              Common_SignalActions_t&,        // return value: previous action(s)
-                             sigset_t&);                     // return value: previous mask
+                             ACE_Sig_Set&);                  // return value: previous mask
   static bool initialize (enum Common_SignalDispatchType, // dispatch mode
                           const ACE_Sig_Set&,             // signal set (to handle)
                           const ACE_Sig_Set&,             // signal set (to ignore)
                           ACE_Event_Handler*,             // event handler handle
                           Common_SignalActions_t&);       // return value: previous action(s)
   static void finalize (enum Common_SignalDispatchType, // dispatch mode
-                        const ACE_Sig_Set&,             // signal set (handled)
                         const Common_SignalActions_t&,  // previous action(s)
-                        const sigset_t&);               // previous mask
+                        const ACE_Sig_Set&);            // previous mask
+
+  // dump signal settings of the current thread
+  static void dump ();
 
   static std::string signalToString (const struct Common_Signal&); // signal information
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

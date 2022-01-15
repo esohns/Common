@@ -50,23 +50,19 @@ Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
                                     enum Common_SignalDispatchType dispatchType_in,
                                     bool useNetworking_in,
                                     Common_SignalActions_t& previousActions_out,
-                                    sigset_t& originalMask_out)
+                                    ACE_Sig_Set& originalMask_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Signal_Tools::preInitialize"));
 
   int result = -1;
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-  sigset_t signal_set_a;
-#endif // ACE_WIN32 || ACE_WIN64
 
   // initialize return value(s)
   previousActions_out.clear ();
-  result = ACE_OS::sigemptyset (&originalMask_out);
+  result = originalMask_out.empty_set ();
   if (unlikely (result == - 1))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", aborting\n")));
+                ACE_TEXT ("failed to ACE_Sig_Set::empty_set(): \"%m\", aborting\n")));
     return false;
   } // end IF
 
@@ -76,14 +72,14 @@ Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
 
   ACE_Sig_Action ignore_action (static_cast<ACE_SignalHandler> (SIG_IGN), // ignore action
                                 ACE_Sig_Set (false),                      // mask of signals to be blocked when servicing --> none
-                                                                          // --> block them all (bar KILL/STOP; see manual)
                                 0);                                       // flags
   ACE_Sig_Action previous_action;
 
+  // step1: ignore certain signals
   if (!useNetworking_in)
     goto continue_;
 
-  // step1: ignore SIGPIPE: continue gracefully after a client suddenly
+  // step1a: ignore SIGPIPE: continue gracefully after a client suddenly
   // disconnects (i.e. application/system crash, etc...)
   // --> specify ignore action
   // *IMPORTANT NOTE*: specifically, do NOT restart system calls in this case (see manual)
@@ -98,7 +94,7 @@ Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
     return false;
   } // end IF
   previousActions_out[SIGPIPE] = previous_action;
-  ACE_DEBUG ((LM_DEBUG,
+  ACE_DEBUG ((LM_WARNING,
               ACE_TEXT ("%t: ignoring signal %d: \"%S\"\n"),
               SIGPIPE, SIGPIPE));
   if (signals_inout.is_member (SIGPIPE) > 0)
@@ -118,6 +114,15 @@ Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
 
 continue_:
   // step2: block certain signals
+  ACE_Sig_Set blocked_signal_set;
+  result = blocked_signal_set.empty_set ();
+  if (unlikely (result == - 1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Sig_Set::empty_set(): \"%m\", aborting\n")));
+    return false;
+  } // end IF
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
   // *IMPORTANT NOTE*: child threads inherit the signal mask of their parent
@@ -135,12 +140,6 @@ continue_:
   // --> see also: POSIX_Proactor.cpp:1864
   // --> see also: man sigwaitinfo, man 7 signal
   // --> when using the proactor, block the signals in the main thread
-
-  // *IMPORTANT NOTE*: "...NPTL makes internal use of the first two real-time
-  //                   signals (see also signal(7)); these signals cannot be
-  //                   used in applications. ..." (see 'man 7 pthreads')
-  //                   --> on POSIX platforms, ensure that ACE_SIGRTMIN == 34
-
   if (dispatchType_in == COMMON_SIGNAL_DISPATCH_PROACTOR)
   {
     unsigned int number = 0;
@@ -152,22 +151,15 @@ continue_:
     if (proactor_impl_p->get_impl_type () != ACE_POSIX_Proactor::PROACTOR_SIG)
       goto continue_2;
 
-    result = ACE_OS::sigemptyset (&signal_set_a);
-    if (unlikely (result == - 1))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", aborting\n")));
-      return false;
-    } // end IF
     for (int i = ACE_SIGRTMIN;
          i <= ACE_SIGRTMAX;
          ++i, ++number)
     {
-      result = ACE_OS::sigaddset (&signal_set_a, i);
+      result = blocked_signal_set.sig_add (i);
       if (unlikely (result == -1))
       {
         ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_OS::sigaddset(%d: %S): \"%m\", aborting\n"),
+                    ACE_TEXT ("failed to ACE_Sig_Set::sig_add(%d: \"%S\"): \"%m\", aborting\n"),
                     i, i));
         return false;
       } // end IF
@@ -189,80 +181,117 @@ continue_:
                     i, i));
       } // end IF
     } // end IF
-    result = ACE_OS::thr_sigsetmask (SIG_BLOCK,
-                                     &signal_set_a,
-                                     &originalMask_out);
-    if (unlikely (result == -1))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", aborting\n")));
-      return false;
-    } // end IF
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("%t: blocked %u real-time signal(s) [%d: \"%S\" - %d: \"%S\"]\n"),
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("%t: blocking %u real-time signal(s) [%d: \"%S\" - %d: \"%S\"]\n"),
                 number,
                 ACE_SIGRTMIN, ACE_SIGRTMIN, ACE_SIGRTMAX, ACE_SIGRTMAX));
   } // end IF
 continue_2:
+#if defined (ACE_LINUX)
+  // *IMPORTANT NOTE*: "...NPTL makes internal use of the first two real-time
+  //                   signals (see also signal(7)); these signals cannot be
+  //                   used in applications. ..." (see 'man 7 pthreads')
+  //                   --> on POSIX platforms, ensure that ACE_SIGRTMIN == 34
+  if (signals_inout.is_member (32) > 0)
+  {
+    result = signals_inout.sig_del (32);
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                 ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%d: \"%S\"): \"%m\", aborting\n"),
+                 32, 32));
+      return false;
+    } // end IF
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("%t: removed %d: \"%S\" from handled signals\n"),
+                32, 32));
+  } // end IF
+  if (signals_inout.is_member (33) > 0)
+  {
+    result = signals_inout.sig_del (33);
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%d: \"%S\"): \"%m\", aborting\n"),
+                  33, 33));
+      return false;
+    } // end IF
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("%t: removed %d: \"%S\" from handled signals\n"),
+                33, 33));
+  } // end IF
+#endif // ACE_LINUX
 #endif // ACE_WIN32 || ACE_WIN64
 
-  // *NOTE*: on UNIX remove SIGTRAP/SIGSTOP/SIGCONT when running in a debugger
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-  result = ACE_OS::sigemptyset (&signal_set_a);
-  if (unlikely (result == - 1))
-  {
-    ACE_DEBUG ((LM_ERROR,
-               ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", aborting\n")));
-    return false;
-  } // end IF
+  // *NOTE*: on UNIX remove SIGSTOP/SIGKILL; these cannot be handled
   // *NOTE*: "...The SIGSTOP signal stops the process. It cannot be handled,
   //         ignored, or blocked. ..."
-  result = ACE_OS::sigaddset (&signal_set_a, SIGSTOP);
-  if (unlikely (result == -1))
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  if (signals_inout.is_member (SIGSTOP) > 0)
   {
-    ACE_DEBUG ((LM_ERROR,
-               ACE_TEXT ("failed to ACE_OS::sigaddset(%d: \"%S\"): \"%m\", aborting\n"),
-               SIGSTOP, SIGSTOP));
-    return false;
+    result = signals_inout.sig_del (SIGSTOP);
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%d: \"%S\"): \"%m\", aborting\n"),
+                  SIGSTOP, SIGSTOP));
+      return false;
+    } // end IF
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("%t: removed %d: \"%S\" from handled signals\n"),
+                SIGSTOP, SIGSTOP));
   } // end IF
+  if (signals_inout.is_member (SIGKILL) > 0)
+  {
+    result = signals_inout.sig_del (SIGKILL);
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%d: \"%S\"): \"%m\", aborting\n"),
+                  SIGKILL, SIGKILL));
+      return false;
+    } // end IF
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("%t: removed %d: \"%S\" from handled signals\n"),
+                SIGKILL, SIGKILL));
+  } // end IF
+#endif // ACE_WIN32 || ACE_WIN64
+
+  // *NOTE*: on UNIX remove SIGTRAP/[SIGSTOP]/SIGCONT when running in a debugger
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   if (!Common_Error_Tools::inDebugSession ())
     goto continue_3;
-  result = ACE_OS::sigaddset (&signal_set_a, SIGTRAP);
-  if (unlikely (result == -1))
+  if (signals_inout.is_member (SIGTRAP) > 0)
   {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::sigaddset(%d: \"%S\"): \"%m\", aborting\n"),
+    result = signals_inout.sig_del (SIGTRAP);
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%d: \"%S\"): \"%m\", aborting\n"),
+                  SIGTRAP, SIGTRAP));
+      return false;
+    } // end IF
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("%t: removed %d: \"%S\" from handled signals\n"),
                 SIGTRAP, SIGTRAP));
-    return false;
   } // end IF
-  result = ACE_OS::sigaddset (&signal_set_a, SIGCONT);
-  if (unlikely (result == -1))
+  if (signals_inout.is_member (SIGCONT) > 0)
   {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::sigaddset(%d: \"%S\"): \"%m\", aborting\n"),
+    result = signals_inout.sig_del (SIGCONT);
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%d: \"%S\"): \"%m\", aborting\n"),
+                  SIGCONT, SIGCONT));
+      return false;
+    } // end IF
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("%t: removed %d: \"%S\" from handled signals\n"),
                 SIGCONT, SIGCONT));
-    return false;
   } // end IF
 continue_3:
-  for (int i = 1;
-       i < ACE_NSIG;
-       ++i)
-    if ((ACE_OS::sigismember (&signal_set_a, i) > 0) &&
-        (signals_inout.is_member (i) > 0))
-    {
-      result = signals_inout.sig_del (i);
-      if (unlikely (result == -1))
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%d: \"%S\"): \"%m\", aborting\n"),
-                    i, i));
-        return false;
-      } // end iF
-      ACE_DEBUG ((LM_WARNING,
-                  ACE_TEXT ("%t: removed %d: \"%S\" from handled signals\n"),
-                  i, i));
-    } // end IF
 #endif // ACE_WIN32 || ACE_WIN64
 
   // *NOTE*: remove SIGSEGV to enable core dumps on non-Win32 systems
@@ -282,7 +311,39 @@ continue_3:
                 ACE_TEXT ("%t: removed %d: \"%S\" from handled signals\n"),
                 SIGSEGV, SIGSEGV));
   } // end IF
+
+#if defined (VALGRIND_SUPPORT)
+  // *NOTE*: valgrind uses SIGRT32 (--> SIGRTMAX ?) and apparently will not work
+  // if the application installs its own handler (see documentation)
+  if (unlikely (RUNNING_ON_VALGRIND))
+  {
+    if (signals_inout.is_member (SIGRTMAX) > 0)
+    {
+      result = signals_inout.sig_del (SIGRTMAX);
+      if (unlikely (result == -1))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%d: \"%S\"): \"%m\", aborting\n"),
+                    SIGRTMAX, SIGRTMAX));
+        return false;
+      } // end iF
+      ACE_DEBUG ((LM_WARNING,
+                 ACE_TEXT ("%t: removed %d: \"%S\" from handled signals\n"),
+                 SIGRTMAX, SIGRTMAX));
+    } // end IF
+  } // end IF
+#endif // VALGRIND_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
+
+  result = ACE_OS::thr_sigsetmask (SIG_BLOCK,
+                                   blocked_signal_set,
+                                   originalMask_out);
+  if (unlikely (result == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+               ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", aborting\n")));
+    return false;
+  } // end IF
 
   return true;
 }
@@ -338,9 +399,9 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
       else
       {
         previousActions_out[i] = previous_action;
-        ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("ignoring signal %d: \"%S\"\n"),
-                    i, i));
+//        ACE_DEBUG ((LM_DEBUG,
+//                    ACE_TEXT ("%t: ignoring signal %d: \"%S\"\n"),
+//                    i, i));
         // sanity check(s)
         if (signals_in.is_member (i) > 0)
         {
@@ -366,9 +427,9 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
                 SA_RESTART   |
                 SA_NODEFER;
   // *NOTE*: there is no need to keep this around after registration
-  ACE_Sig_Action signal_action (static_cast<ACE_SignalHandler> (SIG_DFL), // N/A (reset in ACE_Sig_Handler::register_handler())
-                                ACE_Sig_Set (false),                      // mask of signals to be blocked when servicing --> none
-                                flags_i);                                 // flags
+  ACE_Sig_Action signal_action (NULL,                // N/A (reset in ACE_Sig_Handler::register_handler())
+                                ACE_Sig_Set (false), // mask of signals to be blocked when servicing --> none
+                                flags_i);            // flags
   switch (dispatch_in)
   {
     case COMMON_SIGNAL_DISPATCH_PROACTOR:
@@ -430,24 +491,17 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
     }
   } // end SWITCH
 
-  for (int i = 1;
-       i < ACE_NSIG;
-       ++i)
-    if (signals_in.is_member (i) > 0)
-    {
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("handling signal %d: \"%S\"\n"),
-                  i, i));
-    } // end IF
+#if defined (_DEBUG)
+  Common_Signal_Tools::dump ();
+#endif // _DEBUG
 
   return true;
 }
 
 void
 Common_Signal_Tools::finalize (enum Common_SignalDispatchType dispatch_in,
-                               const ACE_Sig_Set& signals_in,
                                const Common_SignalActions_t& previousActions_in,
-                               const sigset_t& previousMask_in)
+                               const ACE_Sig_Set& previousMask_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Signal_Tools::finalize"));
 
@@ -461,39 +515,40 @@ Common_Signal_Tools::finalize (enum Common_SignalDispatchType dispatch_in,
     case COMMON_SIGNAL_DISPATCH_PROACTOR:
     case COMMON_SIGNAL_DISPATCH_SIGNAL:
     {
-      ACE_Sig_Action current_action;
-      Common_SignalActionsIterator_t iterator;
-      for (int i = 1;
-           i < ACE_NSIG;
-           ++i)
-        if (signals_in.is_member (i) > 0)
-        {
-          iterator = previousActions_in.find (i);
-          if (likely (iterator != previousActions_in.end ()))
-          {
-            result =
-                Common_Signal_Tools::signalHandler_.remove_handler (i,
-                                                                    const_cast<ACE_Sig_Action*> (&(*iterator).second),
-                                                                    &current_action,
-                                                                    -1);
-            if (unlikely (result == -1))
-              ACE_DEBUG ((LM_ERROR,
-                          ACE_TEXT ("failed to ACE_Sig_Handler::remove_handler(%d: %S): \"%m\", continuing\n"),
-                          i, i));
-          } // end IF
-        } // end IF
-
+      for (Common_SignalActionsIterator_t iterator = const_cast<Common_SignalActions_t&> (previousActions_in).begin ();
+           iterator != const_cast<Common_SignalActions_t&> (previousActions_in).end ();
+           ++iterator)
+      {
+        result =
+            Common_Signal_Tools::signalHandler_.remove_handler ((*iterator).first,
+                                                                const_cast<ACE_Sig_Action*> (&(*iterator).second),
+                                                                NULL,
+                                                                -1);
+        if (unlikely (result == -1))
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to ACE_Sig_Handler::remove_handler(%d: \"%S\"): \"%m\", continuing\n"),
+                      (*iterator).first, (*iterator).first));
+      } // end FOR
       break;
     }
     case COMMON_SIGNAL_DISPATCH_REACTOR:
     {
       ACE_Reactor* reactor_p = ACE_Reactor::instance ();
       ACE_ASSERT (reactor_p);
-      result = reactor_p->remove_handler (signals_in);
-      if (unlikely (result == -1))
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_Reactor::remove_handler(): \"%m\", continuing\n")));
-
+      for (Common_SignalActionsIterator_t iterator = const_cast<Common_SignalActions_t&> (previousActions_in).begin ();
+           iterator != const_cast<Common_SignalActions_t&> (previousActions_in).end ();
+           ++iterator)
+      {
+        result =
+            reactor_p->remove_handler ((*iterator).first,
+                                       const_cast<ACE_Sig_Action*> (&(*iterator).second),
+                                       NULL,
+                                       -1);
+        if (unlikely (result == -1))
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to ACE_Reactor::remove_handler(%d: \"%S\"): \"%m\", continuing\n"),
+                      (*iterator).first, (*iterator).first));
+      } // end FOR
       break;
     }
     default:
@@ -504,29 +559,77 @@ Common_Signal_Tools::finalize (enum Common_SignalDispatchType dispatch_in,
       break;
     }
   } // end SWITCH
-  for (Common_SignalActionsIterator_t iterator = previousActions_in.begin ();
-       iterator != previousActions_in.end ();
-       iterator++)
-  {
-    result =
-      const_cast<ACE_Sig_Action&> ((*iterator).second).register_action ((*iterator).first,
-                                                                        NULL);
-    if (unlikely (result == -1))
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Sig_Action::register_action(%S): \"%m\", continuing\n"),
-                  (*iterator).first));
-  } // end FOR
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
   // step2: restore previous signal mask
   result = ACE_OS::thr_sigsetmask (SIG_SETMASK,
-                                   &previousMask_in,
+                                   const_cast<ACE_Sig_Set&> (previousMask_in),
                                    NULL);
   if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", continuing\n")));
 #endif // ACE_WIN32 || ACE_WIN64
+}
+
+void
+Common_Signal_Tools::dump ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Signal_Tools::dump"));
+
+  int result = -1;
+
+  // step1: retrieve blocked signals
+  ACE_Sig_Set signals_a (false); // start with empty set
+  result = ACE_OS::pthread_sigmask (0,
+                                    NULL,
+                                    signals_a);
+  if (unlikely (result == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+               ACE_TEXT ("failed to ACE_OS::pthread_sigmask(): \"%m\", returning\n")));
+    return;
+  } // end IF
+  for (int i = 1;
+       i < ACE_NSIG;
+       ++i)
+    if (signals_a.is_member (i))
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("%t is blocking %d [\"%S\"]\n"),
+                    i, i));
+
+  // step2: retrieve handled/ignored signals
+  ACE_Sig_Action signal_action;
+  for (int i = 1;
+       i < ACE_NSIG;
+       ++i)
+  {
+    result = ACE_OS::sigaction (i,
+                                NULL,
+                                signal_action);
+    if (unlikely (result == -1))
+    {
+#if defined (ACE_LINUX)
+      // *NOTE*: (currently,) this fails for the NPTL signals 32,33
+      int error_i = ACE_OS::last_error ();
+      if (((i == 32) && (error_i == EINVAL)) ||
+          ((i == 33) && (error_i == EINVAL)))
+        continue;
+#endif // ACE_LINUX
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::sigaction(%d): \"%m\", returning\n"),
+                  i));
+      return;
+    } // end IF
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("%t: %d [\"%S\"]\t\t\thandler: %s,\tflags: 0x%x\n"),
+                i, i,
+                ((signal_action.handler () == SIG_DFL) ? ACE_TEXT ("default")
+                                                       : ((signal_action.handler () == SIG_IGN) ? ACE_TEXT ("ignored")
+                                                                                                : signal_action.handler () ? ACE_TEXT ("set")
+                                                                                                                           : ACE_TEXT ("not set"))),
+               signal_action.flags ()));
+  } // end FOR
 }
 
 std::string

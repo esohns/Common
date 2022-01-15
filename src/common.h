@@ -25,7 +25,7 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <list>
 
-#include <guiddef.h>
+#include "guiddef.h"
 #else
 #include <string>
 #include <vector>

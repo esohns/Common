@@ -160,8 +160,7 @@ Common_StateMachine_Base_T<StateMachineName,
   // *NOTE*: (unfortunately,) ACE conditions cannot be reinitialized yet
   if (unlikely (condition_))
   {
-    delete condition_;
-    condition_ = NULL;
+    delete condition_; condition_ = NULL;
   } // end IF
 
   ACE_NEW_NORETURN (condition_,
@@ -172,7 +171,8 @@ Common_StateMachine_Base_T<StateMachineName,
   if (unlikely (!condition_))
   {
     ACE_DEBUG ((LM_CRITICAL,
-                ACE_TEXT ("failed to allocate memory, aborting\n")));
+                ACE_TEXT ("%s: failed to allocate memory, aborting\n"),
+                ACE_TEXT (StateMachineName)));
     return false;
   } // end IF
   stateLock_ = &const_cast<ACE_SYNCH_MUTEX_T&> (lock_in);
@@ -205,15 +205,13 @@ Common_StateMachine_Base_T<StateMachineName,
   ACE_ASSERT (condition_);
   ACE_ASSERT (stateLock_);
 
-//  StateType previous_state;
-//  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, false);
-//    previous_state = state_;
-//  } // end lock scope
+  bool result = true, result_2 = true;
+  int result_3 = -1;
+  bool signal = true;
 
   // invoke callback
   // *IMPORTANT NOTE*: note that the stateLock_ is NOT held during the callback
   // *TODO*: implement a consistent (thread-safe/reentrant) policy
-  bool result = true, result_2 = true;
   try {
     result_2 = this->onChange (newState_in);
   } catch (...) {
@@ -224,7 +222,6 @@ Common_StateMachine_Base_T<StateMachineName,
     result = false;
   }
 
-  bool signal = true;
   // *NOTE*: if the implementation is 'passive', the whole operation
   //         pertaining to newState_in 'may' have been processed 'inline' by
   //         the current thread and 'may' have completed by 'now'. In this
@@ -242,13 +239,16 @@ Common_StateMachine_Base_T<StateMachineName,
 
   // signal any waiting threads
   if (likely (signal))
-  {
-    int result_2 = condition_->broadcast ();
-    if (unlikely (result_2 == -1))
+  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, false);
+    result_3 = condition_->broadcast ();
+    if (unlikely (result_3 == -1))
+    {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("%s: failed to ACE_Condition::broadcast(): \"%m\", continuing\n"),
+                  ACE_TEXT ("%s: failed to ACE_Condition::broadcast(): \"%m\", aborting\n"),
                   ACE_TEXT (StateMachineName)));
-  } // end IF
+      result = false;
+    } // end IF
+  } // end IF/lock scope
 
   return result;
 }

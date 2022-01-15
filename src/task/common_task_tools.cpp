@@ -24,6 +24,31 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 #include "sys/resource.h"
+#if defined (ACE_LINUX)
+//#include "linux/sched/types.h"
+struct sched_attr {
+  __u32 size;
+
+  __u32 sched_policy;
+  __u64 sched_flags;
+
+  /* SCHED_NORMAL, SCHED_BATCH */
+  __s32 sched_nice;
+
+  /* SCHED_FIFO, SCHED_RR */
+  __u32 sched_priority;
+
+  /* SCHED_DEADLINE */
+  __u64 sched_runtime;
+  __u64 sched_deadline;
+  __u64 sched_period;
+
+  /* Utilization hints */
+  __u32 sched_util_min;
+  __u32 sched_util_max;
+};
+#include "sys/syscall.h"
+#endif // ACE_LINUX
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include <limits>
@@ -69,11 +94,16 @@ Common_Task_Tools::setThreadPriority (pid_t threadId_in,
         return false;
       } // end IF
       ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("raised RLIMIT_NICE soft limit to (%u): \"%m\", aborting\n"),
+                  ACE_TEXT ("raised RLIMIT_NICE soft limit to (%u): \"%m\"\n"),
                   rlimit_s.rlim_cur));
     } // end IF
     // *NOTE*: see also 'man 2 getrlimit'
-    priority_i = 20 - rlimit_s.rlim_max;
+    // *NOTE*: the man pages state that valid RLIMIT_NICE rlimit values range
+    //         between 1-40 (low to high), which maps to priorities -20 to 19.
+    //         But (on Fedora 35), the limits do not seem to be set (check with
+    //         ulimit -e or /etc/security/[limits.conf|limits.d]), returning 0
+    //         instead, so 20-rlim_max results in an (invalid) value of 20
+    priority_i = (rlimit_s.rlim_max ? 20 - rlimit_s.rlim_max : 0);
 #endif // ACE_WIN32 || ACE_WIN64
   } // end IF
 
@@ -96,6 +126,45 @@ Common_Task_Tools::setThreadPriority (pid_t threadId_in,
     return false;
   } // end IF
 
+#if defined (ACE_LINUX)
+  struct sched_attr attributes_s;
+  ACE_OS::memset (&attributes_s, 0, sizeof (struct sched_attr));
+  result = ::syscall (SYS_sched_getattr,
+                      threadId_in,
+                      &attributes_s,
+                      sizeof (struct sched_attr),
+                      0);
+  if (unlikely (result == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to syscall (SYS_sched_getattr): \"%m\", aborting\n")));
+    return false;
+  } // end IF
+  if ((attributes_s.sched_policy == SCHED_OTHER) &&
+      (attributes_s.sched_nice == priority_i))
+    return true; // nothing to do
+  ACE_OS::memset (&attributes_s, 0, sizeof (struct sched_attr));
+  attributes_s.size = sizeof (struct sched_attr);
+  attributes_s.sched_policy = SCHED_OTHER;
+  attributes_s.sched_flags = SCHED_RESET_ON_FORK;
+  attributes_s.sched_nice = priority_i;
+  result = ::syscall (SYS_sched_setattr,
+                      threadId_in,
+                      &attributes_s,
+                      0);
+  if (unlikely (result == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+               ACE_TEXT ("failed to syscall (SYS_sched_setattr)(%d): \"%m\", aborting\n"),
+               priority_i));
+    return false;
+  } // end IF
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("%u: set thread priority to %d\n"),
+              threadId_in,
+              priority_i));
+#else
+// *NOTE*: uses pthread_setschedparam()
   result = ACE_OS::thr_setprio (thread_h, priority_i, -1);
   if (unlikely (result == -1))
   {
@@ -104,6 +173,7 @@ Common_Task_Tools::setThreadPriority (pid_t threadId_in,
                priority_i));
     return false;
   } // end IF
+#endif // ACE_LINUX
 
   return true;
 }

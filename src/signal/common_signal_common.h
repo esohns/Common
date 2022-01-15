@@ -84,7 +84,7 @@ typedef std::vector <struct Common_Signal> Common_Signals_t;
 typedef Common_Signals_t::const_iterator Common_SignalsIterator_t;
 
 typedef std::map<int, ACE_Sig_Action> Common_SignalActions_t;
-typedef Common_SignalActions_t::const_iterator Common_SignalActionsIterator_t;
+typedef Common_SignalActions_t::iterator Common_SignalActionsIterator_t;
 
 //////////////////////////////////////////
 typedef Common_SignalHandler_T<struct Common_SignalHandlerConfiguration> Common_SignalHandler_t;

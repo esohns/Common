@@ -65,7 +65,8 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
 #endif // ACE_WIN32 || ACE_WIN64
 
   // *IMPORTANT NOTE*: in signal context, many actions are forbidden (e.g.
-  //                   tracing). Backup the context information and notify the
+  //                   tracing; see also: man 7 signal-safety)
+  //                   --> Backup the context information and notify the
   //                   reactor / proactor for callback
   // *WARNING*:        grabbing a lock here is non-portable !!!
   switch (configuration_->mode)

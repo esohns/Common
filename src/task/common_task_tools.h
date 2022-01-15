@@ -23,7 +23,10 @@
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-#include "sched.h"
+//#include "sched.h"
+#include "sys/types.h"
+
+typedef __pid_t pid_t;
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/Global_Macros.h"

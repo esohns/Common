@@ -248,14 +248,7 @@ do_work (enum Test_U_Common_Signal_ModeType mode_in,
 {
   COMMON_TRACE (ACE_TEXT ("::do_work"));
 
-  sigset_t previous_signal_mask;
-  int result = ACE_OS::sigemptyset (&previous_signal_mask);
-  if (result == -1)
-  {
-    ACE_DEBUG ((LM_ERROR,
-               ACE_TEXT ("failed to ACE_OS::sigemptyset(): \"%m\", returning\n")));
-    return;
-  } // end IF
+  ACE_Sig_Set previous_signal_mask (false); // fill ?
   Common_SignalActions_t previous_signal_actions;
   if (!Common_Signal_Tools::preInitialize (signals_in,
                                            COMMON_SIGNAL_DISPATCH_SIGNAL,
@@ -323,7 +316,7 @@ do_work (enum Test_U_Common_Signal_ModeType mode_in,
     } // end SWITCH
 
   { ACE_GUARD (ACE_Thread_Mutex, aGuard, lock);
-    result = configuration.condition->wait (NULL);
+    int result = configuration.condition->wait (NULL);
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Thread_Condition::wait(): \"%m\", continuing\n")));
@@ -334,7 +327,6 @@ do_work (enum Test_U_Common_Signal_ModeType mode_in,
 
 error:
   Common_Signal_Tools::finalize (COMMON_SIGNAL_DISPATCH_SIGNAL,
-                                 signals_in,
                                  previous_signal_actions,
                                  previous_signal_mask);
 }
