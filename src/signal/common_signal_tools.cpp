@@ -421,11 +421,15 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
     } // end IF
 
   // step3: register (process-wide) signal handler
-  int flags_i = SA_NOCLDSTOP |
+  int flags_i = SA_SIGINFO |
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                SA_RESTART;
+#else
+                SA_RESTART |
+                SA_NOCLDSTOP |
                 SA_NOCLDWAIT |
-                SA_SIGINFO   |
-                SA_RESTART   |
                 SA_NODEFER;
+#endif // ACE_WIN32 || ACE_WIN64
   // *NOTE*: there is no need to keep this around after registration
   ACE_Sig_Action signal_action (NULL,                // N/A (reset in ACE_Sig_Handler::register_handler())
                                 ACE_Sig_Set (false), // mask of signals to be blocked when servicing --> none

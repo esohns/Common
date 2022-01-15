@@ -24,6 +24,7 @@
 #include <iostream>
 #include <string>
 
+#include "ace/ACE.h"
 #include "ace/Condition_T.h"
 #include "ace/Get_Opt.h"
 #include "ace/High_Res_Timer.h"
@@ -367,17 +368,17 @@ ACE_TMAIN (int argc_in,
                             mode_type_e,
                             trace_information_b))
   {
-    do_printUsage (ACE::basename (argv_in[0]));
+    do_printUsage (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])));
     goto error;
   } // end IF
 
   // step1d: initialize logging and/or tracing
-  if (!Common_Log_Tools::initializeLogging (ACE::basename (argv_in[0]), // program name
-                                            log_file_name,              // log file name
-                                            false,                      // log to syslog ?
-                                            false,                      // trace messages ?
-                                            trace_information_b,        // debug messages ?
-                                            NULL))                      // logger ?
+  if (!Common_Log_Tools::initializeLogging (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])), // program name
+                                            log_file_name,                                     // log file name
+                                            false,                                             // log to syslog ?
+                                            false,                                             // trace messages ?
+                                            trace_information_b,                               // debug messages ?
+                                            NULL))                                             // logger ?
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Log_Tools::initializeLogging(), aborting\n")));
