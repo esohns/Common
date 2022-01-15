@@ -4,7 +4,7 @@
 #include "common_macros.h"
 
 template <typename ValueType>
-SampleIterator_T<ValueType>::SampleIterator_T (char* buffer_in)
+Common_Math_SampleIterator_T<ValueType>::Common_Math_SampleIterator_T (uint8_t* buffer_in)
  : buffer_ (buffer_in)
  , reverseByteOrder_ (false)
  , sampleSize_ (0)
@@ -14,16 +14,16 @@ SampleIterator_T<ValueType>::SampleIterator_T (char* buffer_in)
  , isSignedSampleFormat_ (true)
  , subSampleByteOrder_ (ACE_BYTE_ORDER)
 {
-  COMMON_TRACE (ACE_TEXT ("SampleIterator_T_T::SampleIterator_T_T"));
+  COMMON_TRACE (ACE_TEXT ("Common_Math_SampleIterator_T_T::Common_Math_SampleIterator_T_T"));
 
 }
 
 template <typename ValueType>
 ValueType
-SampleIterator_T<ValueType>::get (unsigned int index_in,
-                                  unsigned int subSampleIndex_in) // i.e. channel#
+Common_Math_SampleIterator_T<ValueType>::get (unsigned int index_in,
+                                              unsigned int subSampleIndex_in) // i.e. channel#
 {
-  COMMON_TRACE (ACE_TEXT ("SampleIterator_T::get"));
+  COMMON_TRACE (ACE_TEXT ("Common_Math_SampleIterator_T::get"));
 
   // sanity check(s)
   ACE_ASSERT (buffer_);
@@ -69,12 +69,12 @@ SampleIterator_T<ValueType>::get (unsigned int index_in,
 
 template <typename ValueType>
 bool
-SampleIterator_T<ValueType>::initialize (unsigned int sampleSize_in,
-                                         unsigned int subSampleSize_in,
-                                         bool isSignedSampleFormat_in,
-                                         int subSampleByteOrder_in)
+Common_Math_SampleIterator_T<ValueType>::initialize (unsigned int sampleSize_in,
+                                                     unsigned int subSampleSize_in,
+                                                     bool isSignedSampleFormat_in,
+                                                     int subSampleByteOrder_in)
 {
-  COMMON_TRACE (ACE_TEXT ("SampleIterator_T::initialize"));
+  COMMON_TRACE (ACE_TEXT ("Common_Math_SampleIterator_T::initialize"));
 
   // sanity check(s)
   ACE_ASSERT (sizeof (ValueType) >= sampleSize_in);

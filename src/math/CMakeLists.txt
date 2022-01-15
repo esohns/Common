@@ -17,9 +17,9 @@ endif (WIN32)
 ############## next target ################
 set (source_files
      common_math_defines.h
-#     common_math_exports.h
      common_math_fft.cpp
      common_math_fft.h
+     common_math_fft.inl
      common_math_pidcontrol.cpp
      common_math_pidcontrol.h
      common_math_pidcontrol_zieglernichols.cpp
@@ -79,8 +79,8 @@ export (TARGETS ${LIBRARY}
 ############### install files ################
 install (FILES
          common_math_defines.h
-#         common_math_exports.h
          common_math_fft.h
+         common_math_fft.inl
          common_math_pidcontrol.h
          common_math_pidcontrol_zieglernichols.h
          common_math_pt1_tracker.h

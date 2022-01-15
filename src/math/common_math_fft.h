@@ -6,8 +6,6 @@
 #include "ace/Assert.h"
 #include "ace/Global_Macros.h"
 
-//#include "common_math_exports.h"
-
 class Common_Math_FFT_SampleIterator
 {
  public:
@@ -41,13 +39,14 @@ class Common_Math_FFT_SampleIterator
 
 //////////////////////////////////////////
 
-class Common_Math_FFT
+template <typename ValueType>
+class Common_Math_FFT_T
 {
  public:
-  Common_Math_FFT (unsigned int,  // #channels
-                   unsigned int,  // #slots (must be a power of 2)
-                   unsigned int); // sample rate (Hz)
-  virtual ~Common_Math_FFT ();
+  Common_Math_FFT_T (unsigned int,  // #channels
+                     unsigned int,  // #slots (must be a power of 2)
+                     unsigned int); // sample rate (Hz)
+  virtual ~Common_Math_FFT_T ();
 
   void Compute (unsigned int); // channel
   //void CopyIn (unsigned int, // channel
@@ -86,24 +85,27 @@ class Common_Math_FFT
   }
 
  protected:
-  bool                   isInitialized_;
-  double**               buffer_;        // sample data [/channel]
-  std::complex<double>** X_;             // 'in-place' working buffer [/channel]
+  bool                      isInitialized_;
+  double**                  buffer_;        // sample data [/channel]
+  std::complex<ValueType>** X_;             // 'in-place' working buffer [/channel]
 
-  int*                   bitReverseMap_; // bit-reverse vector mapping
-  unsigned int           channels_;      // #channels
-  unsigned int           halfSlots_;     // #slots / 2
-  unsigned int           slots_;         // #buffered samples / channel
-  unsigned int           sampleRate_;
+  int*                      bitReverseMap_; // bit-reverse vector mapping
+  unsigned int              channels_;      // #channels
+  unsigned int              halfSlots_;     // #slots / 2
+  unsigned int              slots_;         // #buffered samples / channel
+  unsigned int              sampleRate_;
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT ())
-  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT (const Common_Math_FFT&))
-  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT& operator= (const Common_Math_FFT&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_T ())
+  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_T (const Common_Math_FFT_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_T& operator= (const Common_Math_FFT_T&))
 
-  int                    logSlots_;
-  double                 sqrtSlots_;
-  std::complex<double>** W_;             // exponentials
+  int                       logSlots_;
+  double                    sqrtSlots_;
+  std::complex<ValueType>** W_;             // exponentials
 };
+
+// include template definition
+#include "common_math_fft.inl"
 
 #endif

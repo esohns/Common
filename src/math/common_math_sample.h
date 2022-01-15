@@ -6,11 +6,11 @@
 // *TODO*: 'macroize' this code. Data access should really have (nearly) zero
 //         overhead. If that is not possible, sub-class ASAP
 template <typename ValueType>
-class SampleIterator_T
+class Common_Math_SampleIterator_T
 {
  public:
-  SampleIterator_T (char*); // buffer
-  inline virtual ~SampleIterator_T () {}
+  Common_Math_SampleIterator_T (uint8_t*); // buffer
+  inline virtual ~Common_Math_SampleIterator_T () {}
 
   // *TODO*: needs more serious consideration
   bool initialize (unsigned int, // bytes / ('buffer'/'chunk'/'frame'/...) sample
@@ -22,15 +22,15 @@ class SampleIterator_T
                  unsigned int); // subsample index (e.g. 0: mono/stereo left,
                                 //                       1: stereo right, ...)
 
-  char*        buffer_;
+  uint8_t*     buffer_;
   bool         reverseByteOrder_;
   unsigned int sampleSize_;
   unsigned int subSampleSize_;
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (SampleIterator_T ())
-  ACE_UNIMPLEMENTED_FUNC (SampleIterator_T (const SampleIterator_T&))
-  ACE_UNIMPLEMENTED_FUNC (SampleIterator_T& operator= (const SampleIterator_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Math_SampleIterator_T ())
+  ACE_UNIMPLEMENTED_FUNC (Common_Math_SampleIterator_T (const Common_Math_SampleIterator_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Math_SampleIterator_T& operator= (const Common_Math_SampleIterator_T&))
 
   bool         isInitialized_;
   bool         isSignedSampleFormat_;
@@ -49,7 +49,7 @@ class Common_Math_Sample_T
                         unsigned int); // source sample rate (Hz)
   virtual ~Common_Math_Sample_T ();
 
-  typedef SampleIterator_T<ValueType> ITERATOR_T;
+  typedef Common_Math_SampleIterator_T<ValueType> ITERATOR_T;
 
   //void CopyIn (ITERATOR_T*); // sample iterator
   bool Initialize (unsigned int,  // #channels
