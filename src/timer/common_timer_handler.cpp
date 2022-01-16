@@ -22,15 +22,17 @@
 #include "common_timer_handler.h"
 
 #include "ace/Log_Msg.h"
+#include "ace/Proactor.h"
+#include "ace/Reactor.h"
 
 #include "common_macros.h"
 #include "common_itimerhandler.h"
 
 Common_Timer_Handler::Common_Timer_Handler (Common_ITimerHandler* handler_in,
                                             bool isOneShot_in)
- : inherited (NULL,                           // --> default reactor
+ : inherited (ACE_Reactor::instance (),    // reactor
               ACE_Event_Handler::LO_PRIORITY) // priority
- , inherited2 (NULL) // no proactor
+ , inherited2 (ACE_Proactor::instance ()) // proactor
  , id_ (-1)
  , isOneShot_ (isOneShot_in)
  , handler_ (handler_in)

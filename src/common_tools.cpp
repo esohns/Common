@@ -2302,23 +2302,20 @@ Common_Tools::startEventDispatch (struct Common_EventDispatchState& dispatchStat
   ACE_ASSERT (dispatchState_inout.reactorGroupId == -1);
 
   // reset event dispatch
-  if (dispatchState_inout.configuration->numberOfReactorThreads)
-  {
-    ACE_Reactor* reactor_p = ACE_Reactor::instance ();
-    ACE_ASSERT (reactor_p);
-    reactor_p->reset_reactor_event_loop ();
-  } // end IF
+  ACE_Reactor* reactor_p = ACE_Reactor::instance ();
+  ACE_ASSERT (reactor_p);
+  reactor_p->reset_reactor_event_loop ();
 
   int result = -1;
-  if (dispatchState_inout.configuration->numberOfProactorThreads)
+  ACE_Proactor* proactor_p = ACE_Proactor::instance ();
+  ACE_ASSERT (proactor_p);
+  result = proactor_p->proactor_reset_event_loop ();
+  if (unlikely (result == -1))
   {
-    ACE_Proactor* proactor_p = ACE_Proactor::instance ();
-    ACE_ASSERT (proactor_p);
-    result = proactor_p->proactor_reset_event_loop ();
-    if (unlikely (result == -1))
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Proactor::proactor_reset_event_loop: \"%m\", continuing\n")));
-  } // end ELSE
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Proactor::proactor_reset_event_loop: \"%m\", aborting\n")));
+    return false;
+  } // end IF
 
   // spawn worker thread(s) ?
   int loop_i = 0, group_id_i = -1;
@@ -2394,16 +2391,20 @@ spawn:
     converter.clear ();
     converter.str (ACE_TEXT_ALWAYS_CHAR (""));
     converter << (i + 1);
-    buffer = (!!loop_i ? ACE_TEXT_ALWAYS_CHAR ("proactor ")
-                       : ACE_TEXT_ALWAYS_CHAR ("reactor "));
+//    buffer = (!!loop_i ? ACE_TEXT_ALWAYS_CHAR ("proactor ")
+//                       : ACE_TEXT_ALWAYS_CHAR ("reactor "));
     buffer += ACE_TEXT_ALWAYS_CHAR (COMMON_EVENT_THREAD_NAME);
     buffer += ACE_TEXT_ALWAYS_CHAR (" #");
     buffer += converter.str ();
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
     ACE_OS::strcpy (thread_name_p, buffer.c_str ());
+#else
+    ACE_OS::strncpy (thread_name_p, buffer.c_str (), COMMON_THREAD_PTHREAD_NAME_MAX_LENGTH - 1);
+#endif // ACE_WIN32 || ACE_WIN64
     thread_names_p[i] = thread_name_p;
   } // end FOR
   group_id_i =
-    thread_manager_p->spawn_n (number_of_threads_i,          // # threads
+    thread_manager_p->spawn_n (number_of_threads_i,          // #threads
                                function_p,                   // function
                                arg_p,                        // argument
                                (THR_NEW_LWP      |
@@ -2422,13 +2423,10 @@ spawn:
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Thread_Manager::spawn_n(%u): \"%m\", aborting\n"),
                 number_of_threads_i));
-
-    // clean up
     delete [] thread_handles_p;
     for (unsigned int i = 0; i < number_of_threads_i; ++i)
       delete [] thread_names_p[i];
     delete [] thread_names_p;
-
     return false;
   } // end IF
   if (!!loop_i)
@@ -2463,9 +2461,7 @@ spawn:
 //              << thread_id
 #endif // ACE_WIN32 || ACE_WIN64
               << ACE_TEXT_ALWAYS_CHAR ("\n");
-
-    // also: clean up
-    delete [] thread_names_p[i];
+    delete [] thread_names_p[i]; thread_names_p[i] = NULL;
   } // end FOR
 
   buffer = converter.str ();
@@ -2476,11 +2472,8 @@ spawn:
               group_id_i,
               ACE_TEXT (buffer.c_str ())));
 
-  // clean up
-  delete [] thread_handles_p;
-  thread_handles_p = NULL;
-  delete [] thread_names_p;
-  thread_names_p = NULL;
+  delete [] thread_handles_p; thread_handles_p = NULL;
+  delete [] thread_names_p; thread_names_p = NULL;
 
 continue_:
   if (!loop_i)

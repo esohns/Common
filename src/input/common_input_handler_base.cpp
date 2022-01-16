@@ -17,35 +17,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#include "stdafx.h"
 
-#ifndef COMMON_ISUBSCRIBE_H
-#define COMMON_ISUBSCRIBE_H
-
-class Common_IRegister
-{
- public:
-  // *IMPORTANT NOTE*: 'register' is a keyword and cannot be used as identifier
-  virtual bool register_ () = 0;
-  virtual void deregister () = 0;
-};
-
-template <typename InterfaceType>
-class Common_IRegister_T
-{
- public:
-  // *IMPORTANT NOTE*: 'register' is a keyword and cannot be used as identifier
-  virtual bool register_ (InterfaceType*) = 0;
-  virtual void deregister (InterfaceType*) = 0;
-};
-
-//////////////////////////////////////////
-
-template <typename InterfaceType>
-class Common_ISubscribe_T
-{
- public:
-  virtual void subscribe (InterfaceType*) = 0;
-  virtual void unsubscribe (InterfaceType*) = 0;
-};
-
-#endif
+#include "common_input_handler_base.h"

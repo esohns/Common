@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2009 by Erik Sohns   *
+ *   Copyright (C) 2010 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -17,35 +17,17 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#include "stdafx.h"
 
-#ifndef COMMON_ISUBSCRIBE_H
-#define COMMON_ISUBSCRIBE_H
+#include "common_input_manager.h"
 
-class Common_IRegister
-{
- public:
-  // *IMPORTANT NOTE*: 'register' is a keyword and cannot be used as identifier
-  virtual bool register_ () = 0;
-  virtual void deregister () = 0;
-};
-
-template <typename InterfaceType>
-class Common_IRegister_T
-{
- public:
-  // *IMPORTANT NOTE*: 'register' is a keyword and cannot be used as identifier
-  virtual bool register_ (InterfaceType*) = 0;
-  virtual void deregister (InterfaceType*) = 0;
-};
-
-//////////////////////////////////////////
-
-template <typename InterfaceType>
-class Common_ISubscribe_T
-{
- public:
-  virtual void subscribe (InterfaceType*) = 0;
-  virtual void unsubscribe (InterfaceType*) = 0;
-};
-
-#endif
+//*TODO*: template instantiations should be defined in the corresponding
+//        library/executable translation unit(s)
+//#if defined (GTKGL_SUPPORT)
+//COMMON_INPUT_SINGLETON_DECLARE (ACE_Singleton,
+//                                Common_Input_Manager_T<struct Common_Input_State>,
+//                                typename ACE_MT_SYNCH::RECURSIVE_MUTEX);
+//#endif
+//COMMON_INPUT_SINGLETON_DECLARE (ACE_Singleton,
+//                                Common_Input_Manager_T<struct Common_Input_State>,
+//                                typename ACE_MT_SYNCH::RECURSIVE_MUTEX);

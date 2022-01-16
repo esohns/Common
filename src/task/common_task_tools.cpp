@@ -114,6 +114,7 @@ Common_Task_Tools::setThreadPriority (pid_t threadId_in,
   {
 #if defined (ACE_LINUX)
 //  thread_h = __find_thread_by_id (threadId_in); // *TODO*
+//    pthread_getthreadid_np ()
 #endif // ACE_LINUX
     ACE_ASSERT (false); // *TODO*
   } // end IF

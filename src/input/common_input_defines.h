@@ -18,34 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_ISUBSCRIBE_H
-#define COMMON_ISUBSCRIBE_H
+#ifndef COMMON_INPUT_DEFINES_H
+#define COMMON_INPUT_DEFINES_H
 
-class Common_IRegister
-{
- public:
-  // *IMPORTANT NOTE*: 'register' is a keyword and cannot be used as identifier
-  virtual bool register_ () = 0;
-  virtual void deregister () = 0;
-};
-
-template <typename InterfaceType>
-class Common_IRegister_T
-{
- public:
-  // *IMPORTANT NOTE*: 'register' is a keyword and cannot be used as identifier
-  virtual bool register_ (InterfaceType*) = 0;
-  virtual void deregister (InterfaceType*) = 0;
-};
-
-//////////////////////////////////////////
-
-template <typename InterfaceType>
-class Common_ISubscribe_T
-{
- public:
-  virtual void subscribe (InterfaceType*) = 0;
-  virtual void unsubscribe (InterfaceType*) = 0;
-};
+// event dispatch
+#define COMMON_INPUT_EVENT_THREAD_GROUP_ID                           100
+#define COMMON_INPUT_EVENT_THREAD_NAME                               "input dispatch"
 
 #endif
