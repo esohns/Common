@@ -22,7 +22,7 @@
 #define COMMON_INPUT_DEFINES_H
 
 // event dispatch
-#define COMMON_INPUT_EVENT_THREAD_GROUP_ID                           100
+#define COMMON_INPUT_EVENT_THREAD_GROUP_ID                           200
 #define COMMON_INPUT_EVENT_THREAD_NAME                               "input dispatch"
 
 #endif

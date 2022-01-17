@@ -255,6 +255,12 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
   dispatch_state_s.configuration = configuration_->eventDispatchConfiguration;
   configuration_->eventDispatchState = &dispatch_state_s;
 
+  if (unlikely (!Common_Tools::startEventDispatch (dispatch_state_s)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+               ACE_TEXT ("failed to Common_Tools::startEventDispatch(), aborting\n")));
+    return -1;
+  } // end IF
   switch (configuration_->eventDispatchConfiguration->dispatch)
   {
     case COMMON_EVENT_DISPATCH_PROACTOR:
@@ -275,12 +281,6 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
       return -1;
     }
   } // end SWITCH
-  if (unlikely (!Common_Tools::startEventDispatch (dispatch_state_s)))
-  {
-    ACE_DEBUG ((LM_ERROR,
-               ACE_TEXT ("failed to Common_Tools::startEventDispatch(), aborting\n")));
-    return -1;
-  } // end IF
 
   Common_Tools::dispatchEvents (dispatch_state_s);
 
