@@ -29,7 +29,6 @@
 #include "ace/Singleton.h"
 #include "ace/Synch_Traits.h"
 
-#include "common_iget.h"
 #include "common_iinitialize.h"
 
 #include "common_time_common.h"
@@ -40,8 +39,7 @@
 
 template <ACE_SYNCH_DECL,
           typename ConfigurationType, // implements Common_Input_Manager_Configuration
-          typename HandlerType, // implements Common_InputHandler_Base_T
-          typename StreamType>
+          typename HandlerType> // implements Common_InputHandler_Base_T
 class Common_Input_Manager_T
  : public Common_TaskBase_T<ACE_SYNCH_USE,
                             Common_TimePolicy_t,
@@ -51,7 +49,6 @@ class Common_Input_Manager_T
                             ACE_Task<ACE_SYNCH_USE,
                                      Common_TimePolicy_t> >
  , public Common_IInitialize_T<ConfigurationType>
- , public Common_IGetR_T<StreamType>
 {
   typedef Common_TaskBase_T<ACE_SYNCH_USE,
                             Common_TimePolicy_t,
@@ -64,16 +61,14 @@ class Common_Input_Manager_T
   // singleton requires access to the ctor/dtor
   friend class ACE_Singleton<Common_Input_Manager_T<ACE_SYNCH_USE,
                                                     ConfigurationType,
-                                                    HandlerType,
-                                                    StreamType>,
+                                                    HandlerType>,
                              ACE_SYNCH_MUTEX_T>;
 
  public:
   // convenient types
   typedef ACE_Singleton<Common_Input_Manager_T<ACE_SYNCH_USE,
                                                ConfigurationType,
-                                               HandlerType,
-                                               StreamType>,
+                                               HandlerType>,
                         ACE_SYNCH_MUTEX_T> SINGLETON_T;
 
   // override (part of) Common_IAsynchTask
@@ -84,21 +79,23 @@ class Common_Input_Manager_T
   // implement Common_IInitialize
   virtual bool initialize (const ConfigurationType&);
 
-  // implement Common_IGetR_T
-  inline virtual const StreamType& getR () const { return stream_; }
+ protected:
+  Common_Input_Manager_T ();
+  virtual ~Common_Input_Manager_T ();
+
+  ConfigurationType* configuration_;
+  HandlerType*       handler_;
 
  private:
   // convenient types
-  typedef Common_TaskBase_T<ACE_SYNCH_USE,
-                            Common_TimePolicy_t,
-                            ACE_Message_Block,
-                            ACE_Message_Queue<ACE_SYNCH_USE,
-                                              Common_TimePolicy_t>,
-                            ACE_Task<ACE_SYNCH_USE,
-                                     Common_TimePolicy_t> > TASKBASE_T;
+//  typedef Common_TaskBase_T<ACE_SYNCH_USE,
+//                            Common_TimePolicy_t,
+//                            ACE_Message_Block,
+//                            ACE_Message_Queue<ACE_SYNCH_USE,
+//                                              Common_TimePolicy_t>,
+//                            ACE_Task<ACE_SYNCH_USE,
+//                                     Common_TimePolicy_t> > TASKBASE_T;
 
-  Common_Input_Manager_T ();
-  virtual ~Common_Input_Manager_T ();
   ACE_UNIMPLEMENTED_FUNC (Common_Input_Manager_T (const Common_Input_Manager_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_Input_Manager_T& operator= (const Common_Input_Manager_T&))
 
@@ -109,10 +106,6 @@ class Common_Input_Manager_T
   // hide some Common_IAsynchTask member(s)
   inline virtual void idle () const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
   inline virtual bool isShuttingDown () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
-
-  ConfigurationType* configuration_;
-  HandlerType*       handler_;
-  StreamType         stream_;
 };
 
 // include template definition

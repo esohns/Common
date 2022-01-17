@@ -47,11 +47,9 @@ struct Common_Input_Configuration
   ACE_Asynch_Read_Stream*                   stream;
 };
 
-template <typename StreamConfigurationType>
-class Common_Input_Manager_Configuration_T
+struct Common_Input_Manager_Configuration
 {
- public:
-  Common_Input_Manager_Configuration_T ()
+  Common_Input_Manager_Configuration ()
    : eventDispatchConfiguration (NULL)
    , eventDispatchState (NULL)
    , handlerConfiguration (NULL)
@@ -62,7 +60,6 @@ class Common_Input_Manager_Configuration_T
   struct Common_EventDispatchState*         eventDispatchState;
   struct Common_Input_Configuration*        handlerConfiguration;
   bool                                      manageEventDispatch;
-  StreamConfigurationType*                  streamConfiguration;
 };
 
 //////////////////////////////////////////

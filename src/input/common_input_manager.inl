@@ -30,19 +30,16 @@
 
 template <ACE_SYNCH_DECL,
           typename ConfigurationType,
-          typename HandlerType,
-          typename StreamType>
+          typename HandlerType>
 Common_Input_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
-                       HandlerType,
-                       StreamType>::Common_Input_Manager_T ()
+                       HandlerType>::Common_Input_Manager_T ()
  : inherited (ACE_TEXT_ALWAYS_CHAR (COMMON_INPUT_EVENT_THREAD_NAME), // thread name
               COMMON_INPUT_EVENT_THREAD_GROUP_ID,                    // group id
               1,                                                     // # threads
               false)                                                 // do NOT auto-start !
  , configuration_ (NULL)
  , handler_ (NULL)
- , stream_ ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Manager_T::Common_Input_Manager_T"));
 
@@ -50,12 +47,10 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename ConfigurationType,
-          typename HandlerType,
-          typename StreamType>
+          typename HandlerType>
 Common_Input_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
-                       HandlerType,
-                       StreamType>::~Common_Input_Manager_T ()
+                       HandlerType>::~Common_Input_Manager_T ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Manager_T::~Common_Input_Manager_T"));
 
@@ -65,13 +60,11 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename ConfigurationType,
-          typename HandlerType,
-          typename StreamType>
+          typename HandlerType>
 bool
 Common_Input_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
-                       HandlerType,
-                       StreamType>::initialize (const ConfigurationType& configuration_in)
+                       HandlerType>::initialize (const ConfigurationType& configuration_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Manager_T::initialize"));
 
@@ -87,14 +80,6 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
     } // end IF
   } // end IF
 
-  ACE_ASSERT (configuration_in.streamConfiguration);
-  if (unlikely (!stream_.initialize (*configuration_in.streamConfiguration)))
-  {
-    ACE_DEBUG ((LM_ERROR,
-               ACE_TEXT ("failed to initialize input stream, aborting\n")));
-    return false;
-  } // end IF
-
   configuration_ = &const_cast<ConfigurationType&> (configuration_in);
 
   return true;
@@ -102,13 +87,11 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename ConfigurationType,
-          typename HandlerType,
-          typename StreamType>
+          typename HandlerType>
 bool
 Common_Input_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
-                       HandlerType,
-                       StreamType>::start (ACE_Time_Value* timeout_in)
+                       HandlerType>::start (ACE_Time_Value* timeout_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Manager_T::start"));
 
@@ -118,8 +101,6 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
   ACE_ASSERT (configuration_);
   ACE_ASSERT (configuration_->handlerConfiguration);
   ACE_ASSERT (!handler_);
-
-  stream_.start ();
 
   ACE_NEW_NORETURN (handler_,
                     HandlerType ());
@@ -162,20 +143,17 @@ error:
   {
     handler_->deregister (); handler_ = NULL;
   } // end IF
-  stream_.stop (true); // wait ?
 
   return false;
 }
 
 template <ACE_SYNCH_DECL,
           typename ConfigurationType,
-          typename HandlerType,
-          typename StreamType>
+          typename HandlerType>
 void
 Common_Input_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
-                       HandlerType,
-                       StreamType>::stop (bool waitForCompletion_in,
+                       HandlerType>::stop (bool waitForCompletion_in,
                                           bool)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Manager_T::stop"));
@@ -191,13 +169,11 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename ConfigurationType,
-          typename HandlerType,
-          typename StreamType>
+          typename HandlerType>
 int
 Common_Input_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
-                       HandlerType,
-                       StreamType>::close (u_long arg_in)
+                       HandlerType>::close (u_long arg_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Manager_T::close"));
 
@@ -214,11 +190,14 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
     }
     case 1:
     {
-      ACE_ASSERT (configuration_);
+      // sanity check(s)
+      if (unlikely (!configuration_))
+        goto continue_; // nothing to do
       if (unlikely (configuration_->manageEventDispatch))
-      { ACE_ASSERT (configuration_->eventDispatchState);
+      {
         if (unlikely (inherited::thr_count_ == 0))
           goto continue_; // nothing to do
+        ACE_ASSERT (configuration_->eventDispatchState);
         Common_Tools::finalizeEventDispatch (*configuration_->eventDispatchState,
                                              false); // wait ?
       } // end IF
@@ -228,8 +207,6 @@ continue_:
       { // *NOTE*: handler_ cleans itself up
         handler_->deregister (); handler_ = NULL;
       } // end IF
-
-      stream_.stop (true); // wait ?
 
       break;
     }
@@ -247,13 +224,11 @@ continue_:
 
 template <ACE_SYNCH_DECL,
           typename ConfigurationType,
-          typename HandlerType,
-          typename StreamType>
+          typename HandlerType>
 int
 Common_Input_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
-                       HandlerType,
-                       StreamType>::svc (void)
+                       HandlerType>::svc (void)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Manager_T::svc"));
 
