@@ -11,11 +11,10 @@
 #include "targetver.h"
 
 // Windows Header Files
-#include <windows.h>
+#include "windows.h"
 #endif // _MSC_VER
 
 // C RunTime Header Files
-//#include <sstream>
 #include <string>
 
 // System Library Header Files
@@ -23,23 +22,17 @@
 #include "ace/Global_Macros.h"
 #include "ace/Log_Msg.h"
 
-#if defined (VALGRIND_SUPPORT)
+#if defined (VALGRIND_USE)
 #include "valgrind/valgrind.h"
-#endif // VALGRIND_SUPPORT
+#endif // VALGRIND_USE
 
 // Local Header Files
 #if defined (HAVE_CONFIG_H)
 #include "Common_config.h"
 #endif // HAVE_CONFIG_H
+
 #include "common.h"
 #include "common_macros.h"
 #include "common_pragmas.h"
 
-//#include "test_i_common.h"
-#if defined (GUI_SUPPORT)
-#if defined (GTK_USE)
-//#include "test_i_gtk_common.h"
-#elif defined (WXWIDGETS_USE)
-//#include "test_i_wxwidgets_common.h"
-#endif
-#endif // GUI_SUPPORT
+#include "common_test_i_common.h"

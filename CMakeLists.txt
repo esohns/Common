@@ -148,16 +148,7 @@ else ()
 #  set_property (SOURCE PROPERTY COMPILE_DEFINITIONS COMMON_NTRACE=1)
 endif ()
 
-option (VALGRIND_SUPPORT "enable valgrind support" OFF)
-if (VALGRIND_SUPPORT)
- include (CheckIncludeFiles)
- check_include_files (valgrind/valgrind.h HAVE_VALGRIND_H)
-#  include (CheckLibraryExists)
-#  check_library_exists (libvalgrind "" "" HAVE_LIB_VALGRIND)
- pkg_check_modules (PKGVALGRIND REQUIRED valgrind)
- add_definitions (-DLIBCOMMON_ENABLE_VALGRIND_SUPPORT)
-#  set_property (SOURCE PROPERTY COMPILE_DEFINITIONS LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
-endif ()
+include (valgrind)
 
 option (BUILD_MODULES "build (git) sub-modules" OFF)
 

@@ -41,14 +41,15 @@
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
 
-#if defined (VALGRIND_SUPPORT)
+#if defined (VALGRIND_USE)
 #include "valgrind/valgrind.h"
-#endif // VALGRIND_SUPPORT
+#endif // VALGRIND_USE
 
 // Local Header Files
 #if defined (HAVE_CONFIG_H)
 #include "Common_config.h"
 #endif // HAVE_CONFIG_H
+
 #include "common.h"
 #include "common_macros.h"
 #include "common_pragmas.h"

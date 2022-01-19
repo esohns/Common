@@ -723,7 +723,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                  static_cast<int> (threadCount_), // # threads
                  1,                               // force active ?
                  ACE_DEFAULT_THREAD_PRIORITY,     // priority
-                 inherited::grp_id (),            // group id (see above)
+                 inherited::grp_id_,              // group id (see above)
                  NULL,                            // task base
                  thread_handles_p,                // thread handle(s)
                  NULL,                            // stack(s)

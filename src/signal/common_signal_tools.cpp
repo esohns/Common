@@ -312,7 +312,7 @@ continue_3:
                 SIGSEGV, SIGSEGV));
   } // end IF
 
-#if defined (VALGRIND_SUPPORT)
+#if defined (VALGRIND_USE)
   // *NOTE*: valgrind uses SIGRT32 (--> SIGRTMAX ?) and apparently will not work
   // if the application installs its own handler (see documentation)
   if (unlikely (RUNNING_ON_VALGRIND))
@@ -332,7 +332,7 @@ continue_3:
                  SIGRTMAX, SIGRTMAX));
     } // end IF
   } // end IF
-#endif // VALGRIND_SUPPORT
+#endif // VALGRIND_USE
 #endif // ACE_WIN32 || ACE_WIN64
 
   result = ACE_OS::thr_sigsetmask (SIG_BLOCK,

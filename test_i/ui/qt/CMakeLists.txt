@@ -9,7 +9,7 @@ set (CMAKE_AUTOMOC ON)
 # Create code from a list of Qt designer ui files
 set (CMAKE_AUTOUIC ON)
 
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../include)
+include_directories (${CMAKE_BINARY_DIR})
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/ui)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/ui/qt)

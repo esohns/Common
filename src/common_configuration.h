@@ -61,7 +61,8 @@ struct Common_EventDispatchConfiguration
   //         the same (!) handle (i.e. socket file descriptor) in parallel,
   //         shared resources may (!) need to be protected by mutexes
   bool                          callbacksRequireSynchronization; // reactor-only
-  enum Common_EventDispatchType dispatch;
+  // *IMPORTANT NOTE*: that several dispatch mechanisms may be active at once
+  enum Common_EventDispatchType dispatch; // main-
 
   unsigned int                  numberOfProactorThreads;
   enum Common_ProactorType      proactorType;

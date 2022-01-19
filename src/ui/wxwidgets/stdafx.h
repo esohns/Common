@@ -38,10 +38,9 @@
 #include "ace/Global_Macros.h"
 #include "ace/Log_Msg.h"
 
-//#if defined (LIBCOMMON_ENABLE_VALGRIND_SUPPORT)
-#if defined (VALGRIND_SUPPORT)
+#if defined (VALGRIND_USE)
 #include "valgrind/valgrind.h"
-#endif // VALGRIND_SUPPORT
+#endif // VALGRIND_USE
 
 // Local Header Files
 #if defined (HAVE_CONFIG_H)

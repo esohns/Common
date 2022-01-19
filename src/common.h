@@ -80,11 +80,11 @@ typedef Common_UserGroups_t::const_iterator Common_UserGroupsIterator_t;
 // *** (ACE) event dispatch ***
 enum Common_EventDispatchType
 {
-  COMMON_EVENT_DISPATCH_NONE = 0,
-  COMMON_EVENT_DISPATCH_PROACTOR,
+  COMMON_EVENT_DISPATCH_INVALID = -1,
+  ////////////////////////////////////////
+  COMMON_EVENT_DISPATCH_PROACTOR = 0,
   COMMON_EVENT_DISPATCH_REACTOR,
-  ///////////////////////////////////////
-  COMMON_EVENT_DISPATCH_INVALID,
+  ////////////////////////////////////////
   COMMON_EVENT_DISPATCH_MAX
 };
 

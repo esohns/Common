@@ -154,11 +154,11 @@ Common_Tools::initialize (bool initializeRandomNumberGenerator_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::initialize"));
 
-#if defined (VALGRIND_SUPPORT)
+#if defined (VALGRIND_USE)
   if (RUNNING_ON_VALGRIND)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("running under valgrind\n")));
-#endif // VALGRIND_SUPPORT
+#endif // VALGRIND_USE
 
   Common_Error_Tools::initialize ();
 
@@ -2563,63 +2563,97 @@ Common_Tools::dispatchEvents (struct Common_EventDispatchState& dispatchState_in
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::dispatchEvents"));
 
-  int result = -1;
+  // sanity check(s)
+  ACE_ASSERT (dispatchState_inout.configuration);
 
-  // *NOTE*: when using a thread pool, handle things differently
-  if ((dispatchState_inout.proactorGroupId != -1) ||
-      (dispatchState_inout.reactorGroupId != -1))
+  int result = -1;
+  int group_id_i = -1;
+  ACE_Thread_Manager *thread_manager_p = NULL;
+  enum Common_EventDispatchType dispatch_e = COMMON_EVENT_DISPATCH_PROACTOR;
+
+next:
+  switch (dispatch_e)
   {
-    ACE_Thread_Manager* thread_manager_p = ACE_Thread_Manager::instance ();
-    ACE_ASSERT (thread_manager_p);
-    if (dispatchState_inout.proactorGroupId == -1)
-      goto continue_;
-    result = thread_manager_p->wait_grp (dispatchState_inout.proactorGroupId);
-    if (unlikely (result == -1))
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Thread_Manager::wait_grp(%d): \"%m\", continuing\n"),
-                  dispatchState_inout.proactorGroupId));
-    else
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("joined dispatch thread group (id was: %d)\n"),
-                  dispatchState_inout.proactorGroupId));
-continue_:
-    if (dispatchState_inout.reactorGroupId == -1)
-      goto continue_2;
-    result = thread_manager_p->wait_grp (dispatchState_inout.reactorGroupId);
-    if (unlikely (result == -1))
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Thread_Manager::wait_grp(%d): \"%m\", continuing\n"),
-                  dispatchState_inout.reactorGroupId));
-    else
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("joined dispatch thread group (id was: %d)\n"),
-                  dispatchState_inout.reactorGroupId));
-continue_2:
-    ;
-  } // end IF
-  else
-  { ACE_ASSERT (dispatchState_inout.configuration);
-    if (dispatchState_inout.configuration->dispatch == COMMON_EVENT_DISPATCH_REACTOR)
+    case COMMON_EVENT_DISPATCH_PROACTOR:
     {
-      ACE_Reactor* reactor_p = ACE_Reactor::instance ();
-      ACE_ASSERT (reactor_p);
-      //// *WARNING*: restart system calls (after e.g. SIGINT) for the reactor
-      //reactor_p->restart (1);
-      result = reactor_p->run_reactor_event_loop (0);
-      if (unlikely (result == -1))
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_Reactor::run_reactor_event_loop(): \"%m\", continuing\n")));
-    } // end IF
-    else if (dispatchState_inout.configuration->dispatch == COMMON_EVENT_DISPATCH_PROACTOR)
-    {
+      if (likely (dispatchState_inout.configuration->numberOfProactorThreads > 0))
+      {
+        group_id_i = dispatchState_inout.proactorGroupId;
+        goto wait_group;
+      } // end IF
+
       ACE_Proactor* proactor_p = ACE_Proactor::instance ();
       ACE_ASSERT (proactor_p);
-      result = proactor_p->proactor_run_event_loop (0);
+      result = proactor_p->proactor_run_event_loop (NULL);
       if (unlikely (result == -1))
+      {
         ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to ACE_Proactor::proactor_run_event_loop(): \"%m\", continuing\n")));
-    } // end ELSE IF
-  } // end ELSE
+                   ACE_TEXT ("failed to ACE_Proactor::proactor_run_event_loop(): \"%m\", returning\n")));
+        return;
+      } // end IF
+
+      goto continue_;
+    }
+    case COMMON_EVENT_DISPATCH_REACTOR:
+    {
+      if (likely (dispatchState_inout.configuration->numberOfReactorThreads > 0))
+      {
+        group_id_i = dispatchState_inout.reactorGroupId;
+        goto wait_group;
+      } // end IF
+
+      ACE_Reactor* reactor_p = ACE_Reactor::instance ();
+      ACE_ASSERT (reactor_p);
+      result = reactor_p->run_reactor_event_loop (NULL);
+      if (unlikely (result == -1))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_Reactor::run_reactor_event_loop(): \"%m\", returning\n")));
+        return;
+      } // end IF
+
+      goto continue_;
+    }
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown dispatch type (was: %d), returning\n"),
+                  dispatchState_inout.configuration->dispatch));
+      return;
+    }
+  } // end SWITCH
+  ACE_NOTREACHED (goto continue_;)
+
+wait_group:
+  // sanity check(s)
+  if (unlikely (group_id_i == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("invalid group id (was: %d), returning\n"),
+                group_id_i));
+    return;
+  } // end IF
+
+  thread_manager_p = ACE_Thread_Manager::instance ();
+  ACE_ASSERT (thread_manager_p);
+  result = thread_manager_p->wait_grp (group_id_i);
+  if (unlikely (result == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Thread_Manager::wait_grp(%d): \"%m\", returning\n"),
+                group_id_i));
+    return;
+  } // end IF
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("joined dispatch thread group (id was: %d)\n"),
+              group_id_i));
+
+  // wait for the next mechanism ?
+  dispatch_e = static_cast<enum Common_EventDispatchType> (dispatch_e + 1);
+  if (dispatch_e < COMMON_EVENT_DISPATCH_MAX)
+    goto next;
+
+continue_:
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("event dispatch complete\n")));
 }

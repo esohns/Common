@@ -66,12 +66,24 @@ Common_Math_FFT_T<ValueType>::Initialize (unsigned int channels_in,
   COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Initialize"));
 
   // sanity check(s)
-  ACE_ASSERT (channels_in > 0);
-  if (slots_in % 2)
+  if (unlikely (!channels_in))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("buffer size must be a power of 2 (was: %d), aborting\n"),
+                ACE_TEXT ("invalid #channels, aborting\n")));
+    return false;
+  } // end IF
+  if (unlikely (!slots_in ||
+                (slots_in % 2)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("invalid #slots (must be > 0 and a power of 2; was: %d), aborting\n"),
                 slots_in));
+    return false;
+  } // end IF
+  if (unlikely (!sampleRate_in))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("invalid sample rate, aborting\n")));
     return false;
   } // end IF
 
@@ -110,23 +122,26 @@ Common_Math_FFT_T<ValueType>::Initialize (unsigned int channels_in,
     isInitialized_ = false;
   } // end IF
 
+  int rev = 0;
+  int _2_l = 2;
+
   ACE_NEW_NORETURN (buffer_,
                     ValueType*[channels_in]);
-  if (!buffer_)
+  if (unlikely (!buffer_))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory, aborting\n")));
-    return false;
+    goto error;
   } // end IF
   for (unsigned int i = 0; i < channels_in; ++i)
   {
     ACE_NEW_NORETURN (buffer_[i],
                       ValueType[slots_in]);
-    if (!buffer_[i])
+    if (unlikely (!buffer_[i]))
     {
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("failed to allocate memory, aborting\n")));
-      return false;
+      goto error;
     } // end IF
   } // end FOR
 #if 0
@@ -142,17 +157,15 @@ Common_Math_FFT_T<ValueType>::Initialize (unsigned int channels_in,
   slots_ = slots_in;
   sampleRate_ = sampleRate_in;
 
+  // set up bit-reverse mapping
   ACE_NEW_NORETURN (bitReverseMap_,
                     int[slots_]);
-  if (!bitReverseMap_)
+  if (unlikely (!bitReverseMap_))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory, aborting\n")));
-    return false;
+    goto error;
   } // end IF
-
-  // set up bit-reverse mapping
-  int rev = 0;
   for (unsigned int i = 0; i < slots_ - 1; ++i)
   {
     bitReverseMap_[i] = rev;
@@ -176,57 +189,82 @@ Common_Math_FFT_T<ValueType>::Initialize (unsigned int channels_in,
   } // end WHILE
   sqrtSlots_ = sqrt (static_cast<double> (slots_));
 
-  ACE_NEW_NORETURN (W_,
-                    std::complex<ValueType>* [logSlots_ + 1]);
-  if (!W_)
+  // precompute complex exponentials
+  //  ACE_NEW_NORETURN (W_,
+  //                    std::complex<ValueType>*[logSlots_ + 1]);
+  W_ =
+      reinterpret_cast<std::complex<ValueType>**> (ACE_OS::malloc (sizeof (std::complex<ValueType>*) * (logSlots_ + 1)));
+  if (unlikely (!W_))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory, aborting\n")));
-    return false;
+    goto error;
   } // end IF
-  // precompute complex exponentials
-  int _2_l = 2;
   for (int l = 1; l <= logSlots_; ++l)
   {
     ACE_NEW_NORETURN (W_[l],
                       std::complex<ValueType>[slots_]);
-    if (!W_[l])
+    if (unlikely (!W_[l]))
     {
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("failed to allocate memory, aborting\n")));
-      return false;
+      goto error;
     } // end IF
-
     for (unsigned int i = 0; i < slots_; ++i)
       W_[l][i] = std::complex<ValueType> ( cos (2.0 * M_PI * i / _2_l),
                                           -sin (2.0 * M_PI * i / _2_l));
-
     _2_l *= 2;
   } // end FOR
 
   ACE_NEW_NORETURN (X_,
                     std::complex<ValueType>*[channels_]);
-  if (!X_)
+  if (unlikely (!X_))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory, aborting\n")));
-    return false;
+    goto error;
   } // end IF
   for (unsigned int i = 0; i < channels_; ++i)
   {
     ACE_NEW_NORETURN (X_[i],
                       std::complex<ValueType>[slots_]);
-    if (!X_[i])
+    if (unlikely (!X_[i]))
     {
       ACE_DEBUG ((LM_CRITICAL,
                   ACE_TEXT ("failed to allocate memory, aborting\n")));
-      return false;
+      goto error;
     } // end IF
   } // end FOR
 
   isInitialized_ = true;
 
   return true;
+
+error:
+  if (buffer_)
+  {
+    for (unsigned int i = 0; i < channels_in; ++i)
+      delete [] buffer_[i];
+    delete [] buffer_; buffer_ = NULL;
+  } // end IF
+  if (bitReverseMap_)
+  {
+    delete [] bitReverseMap_; bitReverseMap_ = NULL;
+  } // end IF
+  if (W_)
+  {
+    for (int l = 1; l <= logSlots_; ++l)
+      delete [] W_[l];
+    delete [] W_; W_ = NULL;
+  } // end IF
+  if (X_)
+  {
+    for (unsigned int i = 0; i < channels_in; ++i)
+      delete [] X_[i];
+    delete [] X_; X_ = NULL;
+  } // end IF
+
+  return false;
 }
 
 //void
