@@ -150,7 +150,8 @@ Common_Math_FFT_T<ValueType>::Initialize (unsigned int channels_in,
     for (unsigned int j = 0; j < slots_in; ++j)
         buffer_[i][j] = 1600 * sin (2.0 * M_PI * 1000.0 * j / sampleRate_in);
 #else
-  ACE_OS::memset (buffer_, 0, channels_in * slots_in * sizeof (ValueType));
+  for (unsigned int i = 0; i < channels_in; ++i)
+    ACE_OS::memset (buffer_[i], 0, slots_in * sizeof (ValueType));
 #endif // 0
   channels_ = channels_in;
   halfSlots_ = slots_in / 2;

@@ -18,13 +18,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_ITASKCONTROL_H
-#define COMMON_ITASKCONTROL_H
+#ifndef COMMON_ICONTROL_H
+#define COMMON_ICONTROL_H
 
-class Common_ITaskControl
+class Common_IControl
 {
  public:
-  inline virtual ~Common_ITaskControl () {};
+  inline virtual ~Common_IControl () {}
 
   // exposed interface
   //virtual void initialize () = 0;
