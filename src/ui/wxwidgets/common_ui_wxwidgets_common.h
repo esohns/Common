@@ -31,8 +31,6 @@
 
 #include "ace/Synch_Traits.h"
 
-#include "common_itaskcontrol.h"
-
 #include "common_ui_common.h"
 #include "common_ui_idefinition.h"
 
