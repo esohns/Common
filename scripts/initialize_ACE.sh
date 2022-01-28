@@ -74,3 +74,4 @@ fi
 mv -f ${SOURCE_DIRECTORY}/${MACROS_FILE} ${TARGET_DIRECTORY} >/dev/null 2>&1
 [ $? -ne 0 ] && echo "ERROR: failed to mv \"${SOURCE_DIRECTORY}/${MACROS_FILE}\", aborting" && exit 1
 echo "processing ${MACROS_FILE}...DONE"
+
