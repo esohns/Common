@@ -8,6 +8,7 @@
 @rem // ---------|-----|-------------------------------------------------------------
 @rem // 20/02/06 | soh | Creation.
 @rem //%%%FILE%%%////////////////////////////////////////////////////////////////////
+
 @echo off
 set RC=0
 setlocal enabledelayedexpansion
@@ -24,7 +25,15 @@ goto Clean_Up
 @rem  echo invalid directory LIB_ROOT ^(was: "%LIB_ROOT%"^)^, exiting
 @rem  goto Failed
 @rem )
-set PROJECT_ROOT=%~dp0..\..
+set PROJECTS_ROOT_DIR_DEFAULT=D:\projects
+set PROJECTS_ROOT_DIR="%PRJ_ROOT%"
+if NOT exist "%PROJECTS_ROOT_DIR%" (
+ set PROJECTS_ROOT_DIR="%PROJECTS_ROOT_DIR_DEFAULT%"
+)
+if NOT exist "%PROJECTS_ROOT_DIR%" (
+ echo invalid projects directory ^(was: "%PROJECTS_ROOT_DIR%"^)^, exiting
+ goto Failed
+)
 
 @rem handle options
 if "%1."=="." (
@@ -65,7 +74,7 @@ if NOT exist "%TARGET_DIRECTORY%" (
  goto Failed
 )
 set TARGET_FILE=%TARGET_DIRECTORY%\config.h
-set SOURCE_DIRECTORY=%PROJECT_ROOT%\Common\3rd_party\ACE_wrappers\ace
+set SOURCE_DIRECTORY=%PROJECTS_ROOT_DIR%\Common\3rd_party\ACE_wrappers\ace
 if NOT exist "%SOURCE_DIRECTORY%" (
  echo invalid directory ^(was: "%SOURCE_DIRECTORY%"^)^, exiting
  goto Failed
@@ -99,7 +108,7 @@ if NOT exist "%TARGET_DIRECTORY%" (
  goto Failed
 )
 set TARGET_FILE=%TARGET_DIRECTORY%\platform_macros.GNU
-set SOURCE_DIRECTORY=%PROJECT_ROOT%\Common\3rd_party\ACE_wrappers\include\makeinclude
+set SOURCE_DIRECTORY=%PROJECTS_ROOT_DIR%\Common\3rd_party\ACE_wrappers\include\makeinclude
 if NOT exist "%SOURCE_DIRECTORY%" (
  echo invalid directory ^(was: ^"%SOURCE_DIRECTORY%^"^)^, exiting
  goto Failed
