@@ -154,7 +154,7 @@ void
 Common_Input_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
                        HandlerType>::stop (bool waitForCompletion_in,
-                                          bool)
+                                           bool)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Manager_T::stop"));
 

@@ -335,6 +335,8 @@ continue_3:
 #endif // VALGRIND_USE
 #endif // ACE_WIN32 || ACE_WIN64
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   result = ACE_OS::thr_sigsetmask (SIG_BLOCK,
                                    blocked_signal_set,
                                    originalMask_out);
@@ -344,6 +346,7 @@ continue_3:
                ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(): \"%m\", aborting\n")));
     return false;
   } // end IF
+#endif // ACE_WIN32 || ACE_WIN64
 
   return true;
 }
@@ -583,6 +586,8 @@ Common_Signal_Tools::dump ()
 
   int result = -1;
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   // step1: retrieve blocked signals
   ACE_Sig_Set signals_a (false); // start with empty set
   result = ACE_OS::pthread_sigmask (0,
@@ -601,6 +606,7 @@ Common_Signal_Tools::dump ()
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("%t is blocking %d [\"%S\"]\n"),
                     i, i));
+#endif // ACE_WIN32 || ACE_WIN64
 
   // step2: retrieve handled/ignored signals
   ACE_Sig_Action signal_action;
@@ -608,6 +614,16 @@ Common_Signal_Tools::dump ()
        i < ACE_NSIG;
        ++i)
   {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    // *NOTE*: (currently,) this fails for all signals other than
+    //         SIGINT, SIGILL, SIGABRT_COMPAT, SIGFPE, SIGSEGV, SIGTERM,
+    //         SIGBREAK, SIGABRT
+    if ((i != SIGINT) && (i != SIGILL) && (i != SIGABRT_COMPAT) &&
+        (i != SIGFPE) && (i != SIGSEGV) && (i != SIGTERM) && (i != SIGBREAK) &&
+        (i != SIGABRT))
+      continue;
+#endif // ACE_WIN32 || ACE_WIN64
+
     result = ACE_OS::sigaction (i,
                                 NULL,
                                 signal_action);
@@ -616,8 +632,8 @@ Common_Signal_Tools::dump ()
 #if defined (ACE_LINUX)
       // *NOTE*: (currently,) this fails for the NPTL signals 32,33
       int error_i = ACE_OS::last_error ();
-      if (((i == 32) && (error_i == EINVAL)) ||
-          ((i == 33) && (error_i == EINVAL)))
+      if (((i == 32) || (i == 33)) &&
+          (error_i == EINVAL))
         continue;
 #endif // ACE_LINUX
       ACE_DEBUG ((LM_ERROR,

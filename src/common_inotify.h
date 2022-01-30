@@ -21,6 +21,12 @@
 #ifndef COMMON_INOTIFY_H
 #define COMMON_INOTIFY_H
 
+class Common_IDispatch
+{
+ public:
+  virtual void dispatch (void*) = 0; // user data
+};
+
 template <typename EventType>
 class Common_IDispatch_T
 {

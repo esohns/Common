@@ -39,7 +39,6 @@ using namespace std;
 #define ACE_IOSFWD_H
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-//#include "errors.h"
 #include "ks.h"
 #include "Security.h"
 #define INITGUID
@@ -126,9 +125,10 @@ char Common_Tools::randomStateBuffer[BUFSIZ];
 //////////////////////////////////////////
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-BOOL CALLBACK common_locale_cb_function (LPWSTR name_in,
-                                         DWORD flags_in,
-                                         LPARAM parameter_in)
+BOOL CALLBACK
+common_locale_cb_function (LPWSTR name_in,
+                           DWORD flags_in,
+                           LPARAM parameter_in)
 {
   COMMON_TRACE (ACE_TEXT ("::common_locale_cb_function"));
 

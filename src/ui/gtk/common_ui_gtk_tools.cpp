@@ -216,13 +216,7 @@ Common_UI_GTK_Tools::initialize (int argc_in,
   if (Common_UI_GTK_Tools::GTKInitialized)
     return true;
 
-#if GTK_CHECK_VERSION(4,0,0)
-  ACE_UNUSED_ARG (argc_in); ACE_UNUSED_ARG (argv_in);
-#undef gtk_init_check
-  if (!gtk_init_check ())
-#else
   if (!gtk_init_check (&argc_in, &argv_in))
-#endif // GTK_CHECK_VERSION(4,0,0)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to gtk_init_check(): \"%m\", aborting\n")));

@@ -61,6 +61,23 @@ Common_Error_Tools::MiniDumpWriteDumpFunc_t Common_Error_Tools::miniDumpWriteDum
 //////////////////////////////////////////
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+void
+common_error_win32_crt_invalid_parameter_cb_function (wchar_t const* expression_in,
+                                                      wchar_t const* function_in,
+                                                      wchar_t const* file_in,
+                                                      unsigned int line_in,
+                                                      uintptr_t pReserved_in)
+{
+  COMMON_TRACE (ACE_TEXT ("::common_error_win32_crt_invalid_parameter_cb_function"));
+
+  ACE_DEBUG ((LM_ERROR,
+              ACE_TEXT ("\"%s\":%u: passed invalid parameter to CRT: \"%s\" in \"%s\", continuing\n"),
+              ACE_TEXT_WCHAR_TO_TCHAR (file_in),
+              line_in,
+              ACE_TEXT_WCHAR_TO_TCHAR (expression_in),
+              ACE_TEXT_WCHAR_TO_TCHAR (function_in)));
+}
+
 LONG WINAPI
 common_error_win32_seh_filter_core_dump (unsigned int exceptionCode_in,
                                          struct _EXCEPTION_POINTERS* exceptionInformation_in)
@@ -189,6 +206,8 @@ Common_Error_Tools::initialize ()
   COMMON_TRACE (ACE_TEXT ("Common_Error_Tools::initialize"));
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+  _set_invalid_parameter_handler (common_error_win32_crt_invalid_parameter_cb_function);
+
 #if defined (_DEBUG)
   if (!COMMON_ERROR_WIN32_DEFAULT_DEBUGHEAP ||
       (Common_Error_Tools::debugHeapLogFileHandle != ACE_INVALID_HANDLE))

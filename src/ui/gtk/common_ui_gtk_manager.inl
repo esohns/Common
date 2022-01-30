@@ -217,10 +217,10 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
       } // end IF
       else
       {
-#if GTK_CHECK_VERSION(3,6,0)
+#if GTK_CHECK_VERSION (3,6,0)
 #else
         gdk_threads_enter ();
-#endif // GTK_CHECK_VERSION(3,6,0)
+#endif // GTK_CHECK_VERSION (3,6,0)
 #if GTK_CHECK_VERSION(4,0,0)
         g_application_quit (G_APPLICATION (configuration_->application));
 #else
@@ -228,10 +228,10 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
         if (level > 0)
           gtk_main_quit ();
 #endif // GTK_CHECK_VERSION(4,0,0)
-#if GTK_CHECK_VERSION(3,6,0)
+#if GTK_CHECK_VERSION (3,6,0)
 #else
         gdk_threads_leave ();
-#endif // GTK_CHECK_VERSION(3,6,0)
+#endif // GTK_CHECK_VERSION (3,6,0)
       } // end ELSE
 
       break;
@@ -279,10 +279,10 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 
   int result = 0;
   guint event_source_id = 0;
-#if GTK_CHECK_VERSION(3,6,0)
+#if GTK_CHECK_VERSION (3,6,0)
 #else
   bool leave_gdk_threads = false;
-#endif // GTK_CHECK_VERSION(3,6,0)
+#endif // GTK_CHECK_VERSION (3,6,0)
 #if defined (GTKGL_SUPPORT)
   Common_UI_GTK_BuildersIterator_t iterator;
   GtkWidget* widget_p = NULL;
@@ -294,7 +294,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #if defined (GTKGLAREA_SUPPORT)
   GglaContext* context_p = NULL;
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION(3,16,0)
+#endif // GTK_CHECK_VERSION (3,16,0)
 #elif GTK_CHECK_VERSION(2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
   GtkWidget* widget_2 = NULL;
@@ -584,20 +584,14 @@ continue_:
     state_.eventSourceIds.insert (event_source_id);
   } // end IF
 
-#if GTK_CHECK_VERSION(3,6,0)
-#else
-#if GTK_CHECK_VERSION(2,24,32)
-#else
   if (likely (g_thread_get_initialized ()))
   {
-#endif // GTK_CHECK_VERSION (2,24,32)
+#if GTK_CHECK_VERSION (3,6,0)
+#else
     gdk_threads_enter ();
     leave_gdk_threads = true;
-#if GTK_CHECK_VERSION(2,24,32)
-#else
-  } // end IF
-#endif // GTK_CHECK_VERSION (2,24,32)
 #endif // GTK_CHECK_VERSION (3,6,0)
+  } // end IF
 
 #if GTK_CHECK_VERSION(4,0,0)
   g_application_run (G_APPLICATION (configuration_->application),
@@ -608,7 +602,7 @@ continue_:
   gtk_main ();
 #endif // GTK_CHECK_VERSION (4,0,0)
 
-#if GTK_CHECK_VERSION(3,6,0)
+#if GTK_CHECK_VERSION (3,6,0)
 #else
   if (likely (leave_gdk_threads))
     gdk_threads_leave ();
@@ -656,7 +650,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                 ACE_TEXT (locale_p)));
 
   // step1: initialize GLib
-#if GTK_CHECK_VERSION(2,24,32)
+#if GTK_CHECK_VERSION (2,24,32)
 #else
 #if defined (_DEBUG)
   GTypeDebugFlags debug_flags =
@@ -669,10 +663,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #else
   g_type_init ();
 #endif // _DEBUG
-#endif // GTK_CHECK_VERSION(2,24,32)
+#endif // GTK_CHECK_VERSION (2,24,32)
 
-#if GTK_CHECK_VERSION(2,24,32)
-#else
   if (likely (g_thread_supported ()))
   {
 #if defined (_DEBUG)
@@ -681,11 +673,10 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     g_thread_init (NULL);
 #endif // _DEBUG
   } // end IF
-#endif // GTK_CHECK_VERSION(2,24,32)
-#if GTK_CHECK_VERSION(3,6,0)
+#if GTK_CHECK_VERSION (3,6,0)
 #else
   gdk_threads_init ();
-#endif // GTK_CHECK_VERSION(3,6,0)
+#endif // GTK_CHECK_VERSION (3,6,0)
 
 #if GTK_CHECK_VERSION(3,0,0)
   GError* error_p = NULL;
@@ -713,17 +704,17 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                      static_cast <GLogLevelFlags> (log_flags | log_level),
                      glib_log_handler, user_data_p);
 
-#if GTK_CHECK_VERSION(3,6,0)
+#if GTK_CHECK_VERSION (3,6,0)
 #else
   bool leave_gdk_threads = false;
   gdk_threads_enter ();
   leave_gdk_threads = true;
-#endif // GTK_CHECK_VERSION(3,6,0)
+#endif // GTK_CHECK_VERSION (3,6,0)
   int i = 1;
 
 #if defined (GTKGL_SUPPORT)
-#if GTK_CHECK_VERSION(3,0,0)
-#elif GTK_CHECK_VERSION(2,0,0)
+#if GTK_CHECK_VERSION (3,0,0)
+#elif GTK_CHECK_VERSION (2,0,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
 #else
@@ -745,7 +736,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 //  gdk_display_manager_set_default_display (gdk_display_manager_get (),
 //                                           display_p);
 
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
 #else
   // step3a: specify any .rc files
   for (Common_UI_GTK_RCFilesIterator_t iterator = configuration_->RCFiles.begin ();
@@ -849,19 +840,19 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   //  ACE_ASSERT(gnomeProgram);
 #endif // GTK_CHECK_VERSION (4,0,0)
 
-#if GTK_CHECK_VERSION(3,6,0)
+#if GTK_CHECK_VERSION (3,6,0)
 #else
   gdk_threads_leave ();
-#endif // GTK_CHECK_VERSION(3,6,0)
+#endif // GTK_CHECK_VERSION (3,6,0)
 
   return true;
 
 error:
-#if GTK_CHECK_VERSION(3,6,0)
+#if GTK_CHECK_VERSION (3,6,0)
 #else
   if (leave_gdk_threads)
     gdk_threads_leave ();
-#endif // GTK_CHECK_VERSION(3,6,0)
+#endif // GTK_CHECK_VERSION (3,6,0)
 
   return false;
 }
