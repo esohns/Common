@@ -44,7 +44,7 @@
 bool Common_UI_GTK_Tools::GTKInitialized = false;
 
 #if defined (_DEBUG)
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
 #else
 void
 gtk_container_dump_cb (GtkWidget* widget_in,
@@ -73,7 +73,7 @@ gtk_container_dump_cb (GtkWidget* widget_in,
                          gtk_container_dump_cb,
                          &indent_i);
 }
-#endif // GTK_CHECK_VERSION(4,0,0)
+#endif // GTK_CHECK_VERSION (4,0,0)
 #endif // _DEBUG
 
 gboolean
@@ -91,13 +91,11 @@ gtk_tree_model_foreach_find_index_cb (GtkTreeModel* treeModel_in,
   ACE_ASSERT (treeModel_in);
   ACE_ASSERT (treeIterator_in);
   ACE_ASSERT (userData_in);
-
   struct Common_UI_GTK_Tools::TreeModel_IndexSearch_CBData* cb_data_p =
       reinterpret_cast<struct Common_UI_GTK_Tools::TreeModel_IndexSearch_CBData*> (userData_in);
-  // sanity check(s)
   ACE_ASSERT (cb_data_p);
 
-#if GTK_CHECK_VERSION(2,30,0)
+#if GTK_CHECK_VERSION (2,30,0)
   GValue value = G_VALUE_INIT;
 #else
   GValue value;
@@ -216,7 +214,11 @@ Common_UI_GTK_Tools::initialize (int argc_in,
   if (Common_UI_GTK_Tools::GTKInitialized)
     return true;
 
+#if defined (_DEBUG)
   if (!gtk_init_check (&argc_in, &argv_in))
+#else
+  if (!gtk_init (&argc_in, &argv_in))
+#endif // _DEBUG
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to gtk_init_check(): \"%m\", aborting\n")));

@@ -520,7 +520,7 @@ Common_CppParserBase_T<ConfigurationType,
 
   // create/initialize a new buffer state
   streamBuffer_.set (fragment_->rd_ptr (),
-                     fragment_->length () + COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE);
+                     static_cast<unsigned int> (fragment_->length ()) + COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE);
 //  stream_.rdbuf (&streamBuffer_);
   scanner_.switch_streams (&stream_, NULL);
 

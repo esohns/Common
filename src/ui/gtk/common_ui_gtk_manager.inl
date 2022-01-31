@@ -18,11 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "ace/config-lite.h"
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-//#include "X11/Xlib.h"
-#endif // ACE_WIN32 || ACE_WIN64
+#include "glib.h"
 
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION(3,0,0)
@@ -209,7 +205,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
       if (likely (UIIsInitialized_))
       { ACE_ASSERT (configuration_->definition);
         try {
-          configuration_->definition->finalize (false);
+          configuration_->definition->finalize (false); // clear pending event sources ?
         } catch (...) {
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("caught exception in Common_UI_IGTK_T::finalize, continuing\n")));
@@ -261,7 +257,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::svc"));
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
+#if COMMON_OS_WIN32_TARGET_PLATFORM (0x0A00) // _WIN32_WINNT_WIN10
   Common_Error_Tools::setThreadName (inherited::threadName_,
                                      NULL);
 #else
@@ -286,16 +282,16 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #if defined (GTKGL_SUPPORT)
   Common_UI_GTK_BuildersIterator_t iterator;
   GtkWidget* widget_p = NULL;
-#if GTK_CHECK_VERSION(3,0,0)
-#if GTK_CHECK_VERSION(3,16,0)
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
   GdkGLContext* context_p = NULL;
   GError* error_p = NULL;
-#else /* GTK_CHECK_VERSION(3,16,0) */
+#else /* GTK_CHECK_VERSION (3,16,0) */
 #if defined (GTKGLAREA_SUPPORT)
   GglaContext* context_p = NULL;
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION (3,16,0)
-#elif GTK_CHECK_VERSION(2,0,0)
+#elif GTK_CHECK_VERSION (2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
   GtkWidget* widget_2 = NULL;
 
@@ -584,7 +580,7 @@ continue_:
     state_.eventSourceIds.insert (event_source_id);
   } // end IF
 
-  if (likely (g_thread_get_initialized ()))
+  if (likely (g_threads_got_initialized))
   {
 #if GTK_CHECK_VERSION (3,6,0)
 #else
@@ -640,16 +636,22 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   u_long process_priority_mask =
     ACE_LOG_MSG->priority_mask (ACE_Log_Msg::PROCESS);
 
+  // step1: initialize GLib
+  // *NOTE*: "...A number of interfaces in GLib depend on the current locale in
+  //         which an application is running. Therefore, most GLib-using
+  //         applications should call setlocale (LC_ALL, "") to set up the
+  //         current locale. ..."
   char* locale_p = ::setlocale (LC_ALL, "");
   if (unlikely (!locale_p))
+  {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ::setlocale(): \"%m\", continuing\n")));
-  else
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("set locale to \"%s\"\n"),
-                ACE_TEXT (locale_p)));
+                ACE_TEXT ("failed to ::setlocale(): \"%m\", aborting\n")));
+    return false;
+  } // end IF
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("set locale to \"%s\"\n"),
+              ACE_TEXT (locale_p)));
 
-  // step1: initialize GLib
 #if GTK_CHECK_VERSION (2,24,32)
 #else
 #if defined (_DEBUG)
@@ -667,18 +669,27 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 
   if (likely (g_thread_supported ()))
   {
+#if GTK_CHECK_VERSION (2,32,0)
+#else
 #if defined (_DEBUG)
     g_thread_init_with_errorcheck_mutexes (NULL);
 #else
     g_thread_init (NULL);
 #endif // _DEBUG
+#endif // GTK_CHECK_VERSION (2,32,0)
+  } // end IF
+  if (unlikely (!g_threads_got_initialized))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to initialize GLib thread functionality, aborting\n")));
+    return false;
   } // end IF
 #if GTK_CHECK_VERSION (3,6,0)
 #else
   gdk_threads_init ();
 #endif // GTK_CHECK_VERSION (3,6,0)
 
-#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION (3,0,0)
   GError* error_p = NULL;
 #endif // GTK_CHECK_VERSION (3,0,0)
   // step1a: set log handlers
@@ -749,7 +760,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                 ACE_TEXT ("#%u: added GTK .rc style file \"%s\"\n"),
                 i, ACE::basename ((*iterator).c_str (), ACE_DIRECTORY_SEPARATOR_CHAR)));
   } // end FOR
-#endif // GTK_CHECK_VERSION(4,0,0)
+#endif // GTK_CHECK_VERSION (4,0,0)
 
   if (unlikely (!Common_UI_GTK_Tools::initialize (configuration_->argc,
                                                   configuration_->argv)))

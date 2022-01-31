@@ -134,6 +134,7 @@ Common_UI_GtkBuilderDefinition_T<StateType>::finalize (bool clearPendingEventSou
         result = g_source_remove (*iterator);
         ACE_UNUSED_ARG (result);
       } // end FOR
+      state_->eventSourceIds.clear ();
     } // end IF
   } // end lock scope
 
