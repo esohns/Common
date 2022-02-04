@@ -40,6 +40,7 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
               false)                                                 // do NOT auto-start !
  , configuration_ (NULL)
  , handler_ (NULL)
+ , lock_ ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Manager_T::Common_Input_Manager_T"));
 
@@ -54,8 +55,114 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Manager_T::~Common_Input_Manager_T"));
 
-  if (unlikely (handler_))
-    handler_->deregister ();
+  { ACE_GUARD (ACE_Thread_Mutex, aGuard, lock_);
+    if (unlikely (handler_))
+      handler_->deregister ();
+  } // end lock scope
+}
+
+template <ACE_SYNCH_DECL,
+          typename ConfigurationType,
+          typename HandlerType>
+bool
+Common_Input_Manager_T<ACE_SYNCH_USE,
+                       ConfigurationType,
+                       HandlerType>::start (ACE_Time_Value* timeout_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Input_Manager_T::start"));
+
+  ACE_UNUSED_ARG (timeout_in);
+
+  // sanity check(s)
+  ACE_ASSERT (configuration_);
+  ACE_ASSERT (configuration_->handlerConfiguration);
+  ACE_ASSERT (!handler_);
+
+  bool deregister_b = false;
+
+  ACE_NEW_NORETURN (handler_,
+                    HandlerType ());
+  if (unlikely (!handler_))
+  {
+    ACE_DEBUG ((LM_CRITICAL,
+                ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
+    goto error;
+  } // end IF
+  if (unlikely (!handler_->initialize (*static_cast<typename HandlerType::CONFIGURATION_T*> (configuration_->handlerConfiguration))))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to HandlerType::initialize(), aborting\n")));
+    delete handler_; handler_ = NULL;
+    goto error;
+  } // end IF
+  if (unlikely (!handler_->register_ ()))
+  {
+    ACE_DEBUG ((LM_ERROR,
+               ACE_TEXT ("failed to HandlerType::register_(), aborting\n")));
+    delete handler_; handler_ = NULL;
+    goto error;
+  } // end IF
+  deregister_b = true;
+
+  if (unlikely (configuration_->manageEventDispatch))
+  {
+    int result = inherited::open (NULL);
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_TaskBase_T::open(NULL): \"%m\", aborting\n")));
+      goto error;
+    } // end IF
+  } // end IF
+
+  return true;
+
+error:
+  if (handler_)
+  {
+    if (deregister_b)
+      handler_->deregister ();
+    else
+      delete handler_;
+    handler_ = NULL;
+  } // end IF
+
+  return false;
+}
+
+template <ACE_SYNCH_DECL,
+          typename ConfigurationType,
+          typename HandlerType>
+void
+Common_Input_Manager_T<ACE_SYNCH_USE,
+                       ConfigurationType,
+                       HandlerType>::stop (bool waitForCompletion_in,
+                                           bool)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Input_Manager_T::stop"));
+
+  int result = close (1);
+  if (unlikely (result == -1))
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_Input_Manager_T::close(1): \"%m\", continuing\n")));
+
+  if (waitForCompletion_in)
+    inherited::wait (false);
+}
+
+template <ACE_SYNCH_DECL,
+          typename ConfigurationType,
+          typename HandlerType>
+void
+Common_Input_Manager_T<ACE_SYNCH_USE,
+                       ConfigurationType,
+                       HandlerType>::deregister ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Input_Manager_T::deregister"));
+
+  { ACE_GUARD (ACE_Thread_Mutex, aGuard, lock_);
+    handler_ = NULL;
+  } // end lock scope
 }
 
 template <ACE_SYNCH_DECL,
@@ -80,91 +187,32 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
     } // end IF
   } // end IF
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  // disable 'line input'
+  DWORD console_mode_i = 0;
+  if (unlikely (!GetConsoleMode (ACE_STDIN,
+                                 &console_mode_i)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to GetConsoleMode(): \"%m\", aborting\n")));
+    return false;
+  } // end IF
+  console_mode_i &= ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT);
+  if (unlikely (!SetConsoleMode (ACE_STDIN,
+                                 console_mode_i)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to SetConsoleMode(%u): \"%m\", aborting\n"),
+                console_mode_i));
+    return false;
+  } // end IF
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("disabled ENABLE_LINE_INPUT\n")));
+#endif // ACE_WIN32 || ACE_WIN64
+
   configuration_ = &const_cast<ConfigurationType&> (configuration_in);
 
   return true;
-}
-
-template <ACE_SYNCH_DECL,
-          typename ConfigurationType,
-          typename HandlerType>
-bool
-Common_Input_Manager_T<ACE_SYNCH_USE,
-                       ConfigurationType,
-                       HandlerType>::start (ACE_Time_Value* timeout_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Input_Manager_T::start"));
-
-  ACE_UNUSED_ARG (timeout_in);
-
-  // sanity check(s)
-  ACE_ASSERT (configuration_);
-  ACE_ASSERT (configuration_->handlerConfiguration);
-  ACE_ASSERT (!handler_);
-
-  ACE_NEW_NORETURN (handler_,
-                    HandlerType ());
-  if (unlikely (!handler_))
-  {
-    ACE_DEBUG ((LM_CRITICAL,
-                ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
-    goto error;
-  } // end IF
-  if (unlikely (!handler_->initialize (*static_cast<typename HandlerType::CONFIGURATION_T*> (configuration_->handlerConfiguration))))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to HandlerType::initialize(), aborting\n")));
-    delete handler_; handler_ = NULL;
-    goto error;
-  } // end IF
-  if (unlikely (!handler_->register_ ()))
-  {
-    ACE_DEBUG ((LM_ERROR,
-               ACE_TEXT ("failed to HandlerType::register_(), aborting\n")));
-    delete handler_; handler_ = NULL;
-    goto error;
-  } // end IF
-
-  if (unlikely (configuration_->manageEventDispatch))
-  {
-    int result = inherited::open (NULL);
-    if (unlikely (result == -1))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to Common_TaskBase_T::open(NULL): \"%m\", aborting\n")));
-      goto error;
-    } // end IF
-  } // end IF
-
-  return true;
-
-error:
-  if (handler_)
-  {
-    handler_->deregister (); handler_ = NULL;
-  } // end IF
-
-  return false;
-}
-
-template <ACE_SYNCH_DECL,
-          typename ConfigurationType,
-          typename HandlerType>
-void
-Common_Input_Manager_T<ACE_SYNCH_USE,
-                       ConfigurationType,
-                       HandlerType>::stop (bool waitForCompletion_in,
-                                           bool)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Input_Manager_T::stop"));
-
-  int result = close (1);
-  if (unlikely (result == -1))
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_Input_Manager_T::close(1): \"%m\", continuing\n")));
-
-  if (waitForCompletion_in)
-    inherited::wait (false);
 }
 
 template <ACE_SYNCH_DECL,
@@ -203,10 +251,12 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
       } // end IF
 
 continue_:
-      if (likely (handler_))
-      { // *NOTE*: handler_ cleans itself up
-        handler_->deregister (); handler_ = NULL;
-      } // end IF
+      { ACE_GUARD_RETURN (ACE_Thread_Mutex, aGuard, lock_, -1);
+        if (likely (handler_))
+        { // *NOTE*: handler_ cleans itself up [WIN32: eventually]
+          handler_->deregister (); handler_ = NULL;
+        } // end IF
+      } // end lock scope
 
       break;
     }
@@ -284,7 +334,6 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
 
   Common_Tools::dispatchEvents (dispatch_state_s);
 
-//done:
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t) leaving\n"),
               ACE_TEXT (inherited::threadName_.c_str ())));

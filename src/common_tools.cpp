@@ -2501,14 +2501,12 @@ Common_Tools::finalizeEventDispatch (struct Common_EventDispatchState& dispatchS
   ACE_ASSERT (thread_manager_p);
 
   // step1: stop default reactor/proactor
-  if (dispatchState_inout.proactorGroupId != -1)
-  {
-    ACE_Proactor* proactor_p = ACE_Proactor::instance ();
-    ACE_ASSERT (proactor_p);
-    result = proactor_p->end_event_loop ();
-    if (unlikely (result == -1))
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Proactor::end_event_loop: \"%m\", continuing\n")));
+  ACE_Proactor* proactor_p = ACE_Proactor::instance ();
+  ACE_ASSERT (proactor_p != NULL);
+  result = proactor_p->end_event_loop ();
+  if (unlikely (result == -1))
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Proactor::end_event_loop: \"%m\", continuing\n")));
 
 //    // *WARNING*: on UNIX; this could prevent proper signal reactivation (see
 //    //            finalizeSignals())
@@ -2516,17 +2514,13 @@ Common_Tools::finalizeEventDispatch (struct Common_EventDispatchState& dispatchS
 //    if (result == -1)
 //      ACE_DEBUG ((LM_ERROR,
 //                  ACE_TEXT ("failed to ACE_Proactor::close: \"%m\", continuing\n")));
-  } // end IF
 
-  if (dispatchState_inout.reactorGroupId != -1)
-  {
-    ACE_Reactor* reactor_p = ACE_Reactor::instance ();
-    ACE_ASSERT (reactor_p);
-    result = reactor_p->end_event_loop ();
-    if (unlikely (result == -1))
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Reactor::end_event_loop: \"%m\", continuing\n")));
-  } // end IF
+  ACE_Reactor* reactor_p = ACE_Reactor::instance ();
+  ACE_ASSERT (reactor_p != NULL);
+  result = reactor_p->end_event_loop ();
+  if (unlikely (result == -1))
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Reactor::end_event_loop: \"%m\", continuing\n")));
 
   // step2: wait for any worker thread(s) ?
   if (likely (!waitForCompletion_in))
@@ -2570,6 +2564,17 @@ Common_Tools::dispatchEvents (struct Common_EventDispatchState& dispatchState_in
   int group_id_i = -1;
   ACE_Thread_Manager *thread_manager_p = NULL;
   enum Common_EventDispatchType dispatch_e = COMMON_EVENT_DISPATCH_PROACTOR;
+  //std::vector<unsigned int> number_of_threads;
+  //number_of_threads.push_back (dispatchState_inout.configuration->numberOfProactorThreads);
+  //number_of_threads.push_back (dispatchState_inout.configuration->numberOfReactorThreads);
+  //bool do_not_iterate_b = false;
+
+  if (!dispatchState_inout.configuration->numberOfProactorThreads &&
+      !dispatchState_inout.configuration->numberOfReactorThreads)
+  {
+    //do_not_iterate_b = true;
+    dispatch_e = dispatchState_inout.configuration->dispatch;
+  } // end IF
 
 next:
   switch (dispatch_e)

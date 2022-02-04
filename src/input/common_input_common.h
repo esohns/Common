@@ -29,12 +29,14 @@
 
 #include "common_input_defines.h"
 #include "common_input_handler_base.h"
+#include "common_input_manager.h"
 
 struct Common_Input_Configuration
 {
   Common_Input_Configuration ()
    : allocatorConfiguration (NULL)
    , eventDispatchConfiguration (NULL)
+   , manager (NULL)
    , messageAllocator (NULL)
    , queue (NULL)
    , stream (NULL)
@@ -42,8 +44,9 @@ struct Common_Input_Configuration
 
   struct Common_AllocatorConfiguration*     allocatorConfiguration;
   struct Common_EventDispatchConfiguration* eventDispatchConfiguration;
+  Common_IRegister*                         manager;
   ACE_Allocator*                            messageAllocator;
-  ACE_Message_Queue_Base*                   queue;
+  ACE_Message_Queue_Base*                   queue; // drop input data into this queue
   ACE_Asynch_Read_Stream*                   stream;
 };
 

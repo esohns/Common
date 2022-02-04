@@ -45,6 +45,10 @@ Common_InputHandler_Base_T<ConfigurationType>::~Common_InputHandler_Base_T ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_InputHandler_Base_T::~Common_InputHandler_Base_T"));
 
+  if (configuration_ &&
+      configuration_->manager)
+    configuration_->manager->deregister ();
+
   if (unlikely (registered_))
     deregister ();
 
@@ -73,7 +77,7 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_HANDLE handle_i
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_InputHandler_Base_T::allocateMessage(%u), aborting\n"),
                   configuration_->allocatorConfiguration->defaultBufferSize));
-      return -1;
+      return -1; // *NOTE*: will deregister/delete this
     } // end IF
   } // end IF
   ACE_ASSERT (buffer_);
@@ -99,7 +103,7 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_HANDLE handle_i
     case 0:
     {
       buffer_->release (); buffer_ = NULL;
-      return -1;
+      return -1; // *NOTE*: will deregister/delete this
     }
     default:
     {
@@ -151,7 +155,7 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_read_stream (const ACE_Asy
     case 0:
     {
       result_in.message_block ().release ();
-      return;
+      goto deregister;
     }
     default:
     {
@@ -187,6 +191,13 @@ error:
 #endif // ACE_WIN32 || ACE_WIN64
 
   result_in.message_block ().release ();
+
+deregister:
+  deregister ();
+  if (configuration_ &&
+      configuration_->manager)
+    configuration_->manager->deregister ();
+  delete this;
 }
 
 template <typename ConfigurationType>
@@ -395,11 +406,11 @@ Common_InputHandler_Base_T<ConfigurationType>::initiate_read_stream ()
   // start (asynchronous) read...
 retry:
   result =
-      configuration_->stream->read (*message_block_p,                     // buffer
-                                    configuration_->allocatorConfiguration->defaultBufferSize, // bytes to read
-                                    NULL,                                 // ACT
-                                    0,                                    // priority
-                                    COMMON_EVENT_PROACTOR_SIG_RT_SIGNAL); // signal
+    configuration_->stream->read (*message_block_p,                                          // buffer
+                                  configuration_->allocatorConfiguration->defaultBufferSize, // bytes to read
+                                  NULL,                                                      // ACT
+                                  0,                                                         // priority
+                                  COMMON_EVENT_PROACTOR_SIG_RT_SIGNAL);                      // signal
   if (unlikely (result == -1))
   {
     error_i = ACE_OS::last_error ();

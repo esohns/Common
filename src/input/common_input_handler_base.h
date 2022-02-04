@@ -25,6 +25,7 @@
 #include "ace/Global_Macros.h"
 #include "ace/Event_Handler.h"
 #include "ace/Message_Block.h"
+#include "ace/Singleton.h"
 
 #include "common_iinitialize.h"
 #include "common_isubscribe.h"

@@ -125,19 +125,11 @@ Common_StateMachine_Base_T<StateMachineName,
       } // end IF
     } // end WHILE
     if (unlikely (state_ != state_in))
-    {
       ACE_DEBUG ((LM_WARNING,
-                  ACE_TEXT ("%s: reached state %s (requested: %s), continuing\n"),
+                  ACE_TEXT ("%s: reached state \"%s\" (requested: \"%s\"), continuing\n"),
                   ACE_TEXT (StateMachineName),
                   ACE_TEXT (this->stateToString (state_).c_str ()),
                   ACE_TEXT (this->stateToString (state_in).c_str ())));
-    } // end IF
-    //else
-    //{
-    //  ACE_DEBUG ((LM_DEBUG,
-    //              ACE_TEXT ("reached state \"%s\"\n"),
-    //              ACE_TEXT (this->stateToString (state_in).c_str ())));
-    //} // end ELSE
   } // end lock scope
   result = true;
 

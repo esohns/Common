@@ -36,6 +36,7 @@
 #include "common_task_base.h"
 
 #include "common_input_common.h"
+#include "common_input_handler_base.h"
 
 template <ACE_SYNCH_DECL,
           typename ConfigurationType, // implements Common_Input_Manager_Configuration
@@ -48,6 +49,7 @@ class Common_Input_Manager_T
                                               Common_TimePolicy_t>,
                             ACE_Task<ACE_SYNCH_USE,
                                      Common_TimePolicy_t> >
+ , public Common_IRegister
  , public Common_IInitialize_T<ConfigurationType>
 {
   typedef Common_TaskBase_T<ACE_SYNCH_USE,
@@ -63,6 +65,7 @@ class Common_Input_Manager_T
                                                     ConfigurationType,
                                                     HandlerType>,
                              ACE_SYNCH_MUTEX_T>;
+  friend class Common_InputHandler_Base_T<struct Common_Input_Configuration>;
 
  public:
   // convenient types
@@ -76,6 +79,10 @@ class Common_Input_Manager_T
   virtual void stop (bool = true,   // wait for completion ?
                      bool = false); // N/A
 
+  // implement Common_IRegister
+  inline virtual bool register_ () { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
+  virtual void deregister ();
+
   // implement Common_IInitialize
   virtual bool initialize (const ConfigurationType&);
 
@@ -85,16 +92,10 @@ class Common_Input_Manager_T
 
   ConfigurationType* configuration_;
   HandlerType*       handler_;
+  ACE_Thread_Mutex   lock_;
 
  private:
   // convenient types
-//  typedef Common_TaskBase_T<ACE_SYNCH_USE,
-//                            Common_TimePolicy_t,
-//                            ACE_Message_Block,
-//                            ACE_Message_Queue<ACE_SYNCH_USE,
-//                                              Common_TimePolicy_t>,
-//                            ACE_Task<ACE_SYNCH_USE,
-//                                     Common_TimePolicy_t> > TASKBASE_T;
 
   ACE_UNIMPLEMENTED_FUNC (Common_Input_Manager_T (const Common_Input_Manager_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_Input_Manager_T& operator= (const Common_Input_Manager_T&))
