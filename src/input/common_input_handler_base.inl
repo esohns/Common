@@ -83,9 +83,75 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_HANDLE handle_i
   ACE_ASSERT (buffer_);
 
   // read some data from STDIN
-  ssize_t bytes_received = ACE_OS::read (handle_in,
-                                         buffer_->wr_ptr (),
-                                         buffer_->space () - 1); // \0
+  ssize_t bytes_received = 0;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  // *IMPORTANT NOTE*: ACE_OS::read() invokes ReadFile(). This function, however
+  //                   does not return non-ASCII characters.
+  //                   --> use ReadConsoleInput() instead
+  struct _INPUT_RECORD input_record_s;
+  DWORD result_2 = 0;
+  do
+  {
+    result_2 = WaitForSingleObject (handle_in,
+                                    INFINITE); // wait forever
+    if (unlikely (result_2 != WAIT_OBJECT_0))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to WaitForSingleObject(): \"%s\", aborting\n"),
+                  Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ()));
+      buffer_->release (); buffer_ = NULL;
+      return -1; // *NOTE*: will deregister/delete this
+    } // end IF
+    if (unlikely (!GetNumberOfConsoleInputEvents (handle_in,
+                                                  &result_2)))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ReadConsoleInput(): \"%s\", aborting\n"),
+                  Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ()));
+      buffer_->release (); buffer_ = NULL;
+      return -1; // *NOTE*: will deregister/delete this
+    } // end IF
+    // *NOTE*: handle_in was signalled without any data being present
+    //         --> shutdown
+    // *IMPORTANT NOTE*: this shutdown mechanism is inherently racy, i.e. if
+    //                   there is user input while handle_in is signalled
+    if (unlikely (!result_2))
+      goto continue_; // --> shutdown
+    if (unlikely (!ReadConsoleInput (handle_in,
+                                     &input_record_s,
+                                     1,
+                                     &result_2) ||
+                  (result_2 != 1)))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ReadConsoleInput(): \"%s\", aborting\n"),
+                  Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ()));
+      buffer_->release (); buffer_ = NULL;
+      return -1; // *NOTE*: will deregister/delete this
+    } // end IF
+    if (input_record_s.EventType != KEY_EVENT)
+      continue;
+    if (!input_record_s.Event.KeyEvent.bKeyDown)
+      continue;
+    break;
+  } while (true);
+  result =
+    buffer_->copy (reinterpret_cast<char*> (&input_record_s.Event.KeyEvent),
+                   sizeof (struct _KEY_EVENT_RECORD));
+  if (unlikely (result == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Message_Block::copy(%u): \"%m\", aborting\n"),
+                sizeof (struct _KEY_EVENT_RECORD)));
+    buffer_->release (); buffer_ = NULL;
+    return -1; // *NOTE*: will deregister/delete this
+  } // end IF
+  bytes_received = sizeof (struct _KEY_EVENT_RECORD);
+#else
+  bytes_received = ACE_OS::read (handle_in,
+                                 buffer_->wr_ptr (),
+                                 buffer_->space () - 1); // \0
+#endif // ACE_WIN32 || ACE_WIN64
   switch (bytes_received)
   {
     case -1:
@@ -102,17 +168,24 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_HANDLE handle_i
     // *** GOOD CASES ***
     case 0:
     {
+continue_:
       buffer_->release (); buffer_ = NULL;
       return -1; // *NOTE*: will deregister/delete this
     }
     default:
     {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
       // adjust write pointer
       buffer_->wr_ptr (bytes_received);
+#endif // ACE_WIN32 || ACE_WIN64
       break;
     }
   } // end SWITCH
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
   *buffer_->wr_ptr () = 0; // 0-terminate string
+#endif // ACE_WIN32 || ACE_WIN64
 
   result = configuration_->queue->enqueue (buffer_, NULL);
   if (unlikely (result == -1))
@@ -122,6 +195,7 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_HANDLE handle_i
     buffer_->release (); buffer_ = NULL;
     return -1;
   } // end IF
+  buffer_ = NULL;
 
   return registered_ ? 0 : -1; // handle WIN32
 }

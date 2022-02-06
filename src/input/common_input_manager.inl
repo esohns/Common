@@ -233,7 +233,8 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
   switch (arg_in)
   {
     case 0:
-    { ACE_ASSERT (ACE_OS::thr_equal (ACE_Thread::self (), inherited::last_thread ()));
+    { ACE_ASSERT (ACE_OS::thr_equal (ACE_Thread::self (),
+                                     inherited::last_thread ()));
       break;
     }
     case 1:
@@ -241,6 +242,12 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
       // sanity check(s)
       if (unlikely (!configuration_))
         goto continue_; // nothing to do
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      if (unlikely (!SetEvent (ACE_STDIN)))
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to SetEvent(): \"%s\", continuing\n"),
+                    ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
+#endif // ACE_WIN32 || ACE_WIN64
       if (unlikely (configuration_->manageEventDispatch))
       {
         if (unlikely (inherited::thr_count_ == 0))
@@ -299,13 +306,9 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
   // sanity check(s)
   ACE_ASSERT (configuration_);
   ACE_ASSERT (configuration_->eventDispatchConfiguration);
-  ACE_ASSERT (!configuration_->eventDispatchState);
+  ACE_ASSERT (configuration_->eventDispatchState);
 
-  struct Common_EventDispatchState dispatch_state_s;
-  dispatch_state_s.configuration = configuration_->eventDispatchConfiguration;
-  configuration_->eventDispatchState = &dispatch_state_s;
-
-  if (unlikely (!Common_Tools::startEventDispatch (dispatch_state_s)))
+  if (unlikely (!Common_Tools::startEventDispatch (*configuration_->eventDispatchState)))
   {
     ACE_DEBUG ((LM_ERROR,
                ACE_TEXT ("failed to Common_Tools::startEventDispatch(), aborting\n")));
@@ -315,12 +318,12 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
   {
     case COMMON_EVENT_DISPATCH_PROACTOR:
     {
-      dispatch_state_s.proactorGroupId = inherited::grp_id_;
+      configuration_->eventDispatchState->proactorGroupId = inherited::grp_id_;
       break;
     }
     case COMMON_EVENT_DISPATCH_REACTOR:
     {
-      dispatch_state_s.reactorGroupId = inherited::grp_id_;
+      configuration_->eventDispatchState->reactorGroupId = inherited::grp_id_;
       break;
     }
     default:
@@ -332,7 +335,7 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
     }
   } // end SWITCH
 
-  Common_Tools::dispatchEvents (dispatch_state_s);
+  Common_Tools::dispatchEvents (*configuration_->eventDispatchState);
 
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t) leaving\n"),
