@@ -652,7 +652,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
               ACE_TEXT ("set locale to \"%s\"\n"),
               ACE_TEXT (locale_p)));
 
-#if GTK_CHECK_VERSION (2,24,32)
+#if GLIB_CHECK_VERSION (2,24,32)
 #else
 #if defined (_DEBUG)
   GTypeDebugFlags debug_flags =
@@ -665,25 +665,25 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #else
   g_type_init ();
 #endif // _DEBUG
-#endif // GTK_CHECK_VERSION (2,24,32)
+#endif // GLIB_CHECK_VERSION (2,24,32)
 
-#if GTK_CHECK_VERSION (2,32,0)
+#if GLIB_CHECK_VERSION (2,32,0)
 #else
   if (likely (g_thread_supported ()))
   {
-#endif // GTK_CHECK_VERSION (2,32,0)
-#if GTK_CHECK_VERSION (2,32,0)
+#endif // GLIB_CHECK_VERSION (2,32,0)
+#if GLIB_CHECK_VERSION (2,32,0)
 #else
 #if defined (_DEBUG)
     g_thread_init_with_errorcheck_mutexes (NULL);
 #else
     g_thread_init (NULL);
 #endif // _DEBUG
-#endif // GTK_CHECK_VERSION (2,32,0)
-#if GTK_CHECK_VERSION (2,32,0)
+#endif // GLIB_CHECK_VERSION (2,32,0)
+#if GLIB_CHECK_VERSION (2,32,0)
 #else
   } // end IF
-#endif // GTK_CHECK_VERSION (2,32,0)
+#endif // GLIB_CHECK_VERSION (2,32,0)
   if (unlikely (!g_threads_got_initialized))
   {
     ACE_DEBUG ((LM_ERROR,

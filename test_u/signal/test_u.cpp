@@ -47,13 +47,9 @@
 
 #include "common_timer_tools.h"
 
-//////////////////////////////////////////
+#include "common_test_u_common.h"
 
-struct Test_U_SignalHandlerConfiguration
- : Common_SignalHandlerConfiguration
-{
-  ACE_Thread_Condition<ACE_Thread_Mutex>* condition;
-};
+//////////////////////////////////////////
 
 class Test_U_SignalHandler
  : public Common_SignalHandler_T<struct Test_U_SignalHandlerConfiguration>

@@ -3,14 +3,12 @@ string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
 string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../include)
-
-include_directories (${CMAKE_CURRENT_BINARY_DIR}/../../src)
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/math)
-
+#include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
+include_directories (${CMAKE_CURRENT_BINARY_DIR}/../..)
 
 ############## next target ################
-set (EXECUTABLE base64)
+set (EXECUTABLE string)
 set (${EXECUTABLE}_EXE_SRCS
 #     stdafx.cpp
 #     stdafx.h
@@ -27,34 +25,27 @@ target_sources (${EXECUTABLE}
 #                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${${EXECUTABLE}_EXE_SRCS})
-target_precompile_headers (${EXECUTABLE}
-                           PRIVATE stdafx.h)
-
-#-----------------------------------------
 
 #add_dependencies (${EXECUTABLE} ACE)
-
 add_dependencies (${EXECUTABLE} Common)
 
-add_dependencies (${EXECUTABLE} CommonMath)
+if (UNIX)
+elseif (WIN32)
+ target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
+endif ()
+target_link_libraries (${EXECUTABLE} PUBLIC Common)
+target_link_libraries (${EXECUTABLE} PUBLIC CommonLog)
+target_link_libraries (${EXECUTABLE} PUBLIC CommonTimer)
 
-add_dependencies (${EXECUTABLE} Common_Test_U)
+target_link_libraries (${EXECUTABLE} PUBLIC Common_Test_U)
 
-target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
-
-target_link_libraries (${EXECUTABLE} PUBLIC ${PROJECT_NAME})
-
-target_link_libraries (${EXECUTABLE} PUBLIC ${PROJECT_NAME}Math)
-
-target_link_libraries (${EXECUTABLE} PUBLIC ${PROJECT_NAME}_Test_U)
-
-#-----------------------------------------
+# add PCH
+target_precompile_headers (${EXECUTABLE}
+                           PRIVATE stdafx.h)
 
 install (TARGETS ${EXECUTABLE}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_u)
-
-#-----------------------------------------
 
 if (UNIX)
  create_target_launcher (${EXECUTABLE}
@@ -64,18 +55,20 @@ if (UNIX)
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_u/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 elseif (WIN32)
- if (VCPKG_SUPPORT)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
- else ()
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
+ string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
+# if (VCPKG_SUPPORT)
+#  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
+# else ()
   file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
- endif (VCPKG_SUPPORT)
- set (RUNTIME_LIBRARY_DIRS_LIST "")
- #guess_runtime_library_dirs (RUNTIME_LIBRARY_DIRS_LIST)
- #message (STATUS "RUNTIME_LIBRARY_DIRS_LIST: ${RUNTIME_LIBRARY_DIRS_LIST}")
+# endif (VCPKG_SUPPORT)
+  file (TO_CMAKE_PATH ${wxWidgets_LIB_DIR} WXWIDGETS_LIB_PATH)
  create_target_launcher (${EXECUTABLE}
+                         COMMAND ${COMMAND}
                          ARGS "-l -t"
 #                        FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
+                                              ${WXWIDGETS_LIB_PATH}
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_u/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 endif ()

@@ -40,18 +40,24 @@
 #endif // WXWIDGETS_SUPPORT
 #endif // GUI_SUPPORT
 
-struct Common_Test_U_UserData
+struct Test_U_UserData
 {
-  Common_Test_U_UserData ()
+  Test_U_UserData ()
    : userData (NULL)
   {}
 
   void* userData;
 };
 
-struct Common_Test_U_Configuration
+struct Test_U_SignalHandlerConfiguration
+ : Common_SignalHandlerConfiguration
 {
-  Common_Test_U_Configuration ()
+  ACE_Thread_Condition<ACE_Thread_Mutex>* condition;
+};
+
+struct Test_U_Configuration
+{
+  Test_U_Configuration ()
    : dispatchConfiguration ()
    , signalHandlerConfiguration ()
    , userData (NULL)
@@ -60,16 +66,16 @@ struct Common_Test_U_Configuration
   struct Common_EventDispatchConfiguration dispatchConfiguration;
   struct Common_SignalHandlerConfiguration signalHandlerConfiguration;
 
-  struct Common_Test_U_UserData*           userData;
+  struct Test_U_UserData*                  userData;
 };
 
 //////////////////////////////////////////
 
 #if defined (GUI_SUPPORT)
-struct Common_Test_U_UI_CBData;
-struct Common_Test_U_UI_ProgressData
+struct Test_U_UI_CBData;
+struct Test_U_UI_ProgressData
 {
-  Common_Test_U_UI_ProgressData ()
+  Test_U_UI_ProgressData ()
    : CBData (NULL)
 #if defined (GUI_SUPPORT)
 #if defined (GTK_USE) || defined (QT_USE) || defined (WXWIDGETS_USE)
@@ -78,17 +84,17 @@ struct Common_Test_U_UI_ProgressData
 #endif // GUI_SUPPORT
   {}
 
-  struct Common_Test_U_UI_CBData* CBData;
+  struct Test_U_UI_CBData* CBData;
 #if defined (GUI_SUPPORT)
 #if defined (GTK_USE) || defined (QT_USE) || defined (WXWIDGETS_USE)
-  struct Common_UI_State*         state;
+  struct Common_UI_State*  state;
 #endif // GTK_USE || QT_USE || WXWIDGETS_USE
 #endif // GUI_SUPPORT
 };
 
-struct Common_Test_U_UI_CBData
+struct Test_U_UI_CBData
 {
-  Common_Test_U_UI_CBData ()
+  Test_U_UI_CBData ()
    : allowUserRuntimeStatistic (true)
    , progressData ()
 #if defined (GUI_SUPPORT)
@@ -105,36 +111,36 @@ struct Common_Test_U_UI_CBData
 #endif // GUI_SUPPORT
   }
 
-  bool                                  allowUserRuntimeStatistic;
-  struct Common_Test_U_UI_ProgressData  progressData;
+  bool                          allowUserRuntimeStatistic;
+  struct Test_U_UI_ProgressData progressData;
 #if defined (GUI_SUPPORT)
 #if defined (GTK_USE)
-  Common_UI_GTK_State_t*                UIState;
+  Common_UI_GTK_State_t*        UIState;
 #elif defined (QT_USE)
-  struct Common_UI_Qt_State*            UIState;
+  struct Common_UI_Qt_State*    UIState;
 #elif defined (WXWIDGETS_USE)
-  Common_UI_wxWidgets_State*            UIState;
+  Common_UI_wxWidgets_State*    UIState;
 #else
-  struct Common_UI_State                UIState;
+  struct Common_UI_State        UIState;
 #endif // GTK_USE || QT_USE || WXWIDGETS_USE
 #endif // GUI_SUPPORT
 };
 
-struct Common_Test_U_ThreadData
+struct Test_U_ThreadData
 {
-  Common_Test_U_ThreadData ()
+  Test_U_ThreadData ()
 #if defined (GUI_SUPPORT)
-    : CBData (NULL)
-    , sessionId (0)
+   : CBData (NULL)
+   , sessionId (0)
 #else
-    : sessionId (0)
+   : sessionId (0)
 #endif // GUI_SUPPORT
   {}
 
 #if defined (GUI_SUPPORT)
-  struct Common_Test_U_UI_CBData* CBData;
+  struct Test_U_UI_CBData* CBData;
 #endif // GUI_SUPPORT
-  size_t                          sessionId;
+  size_t                   sessionId;
 };
 #endif // GUI_SUPPORT
 

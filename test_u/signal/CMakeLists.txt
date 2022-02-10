@@ -6,7 +6,7 @@ string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/log)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/signal)
-#include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 ############## next target ################
 set (EXECUTABLE signal)
