@@ -47,12 +47,9 @@ class Common_InputHandler_Base_T
   Common_InputHandler_Base_T ();
   virtual ~Common_InputHandler_Base_T ();
 
-  // implement (part of) ACE_Event_Handler
-  virtual int handle_input (ACE_HANDLE = ACE_INVALID_HANDLE); // handle
-  inline virtual int handle_close (ACE_HANDLE, ACE_Reactor_Mask) { delete this;  return 0; }
-
-  // implement (part of) ACE_Handler
-  virtual void handle_read_stream (const ACE_Asynch_Read_Stream::Result&);
+  // *NOTE*: the default action is to drop the message block into the queue (if any)
+  // *IMPORTANT NOTE*: fire-and-forget first argument
+  virtual bool handle_input (ACE_Message_Block*); // message block containing input
 
   // implement Common_IInitialize_T
   virtual bool initialize (const ConfigurationType&);
@@ -63,6 +60,14 @@ class Common_InputHandler_Base_T
   virtual void deregister ();
 
  protected:
+  // implement (part of) ACE_Event_Handler
+  virtual int handle_input (ACE_HANDLE = ACE_INVALID_HANDLE); // handle
+  inline virtual int handle_close (ACE_HANDLE, ACE_Reactor_Mask) { delete this;  return 0; }
+
+  // implement (part of) ACE_Handler
+  virtual void handle_read_stream (const ACE_Asynch_Read_Stream::Result&);
+
+  // helper methods
   ACE_Message_Block* allocateMessage (unsigned int); // #bytes
   bool initiate_read_stream (); // start (next) asynch I/O
 

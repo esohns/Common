@@ -34,7 +34,7 @@
 #include "common_ui_qt_common.h"
 #elif defined (WXWIDGETS_USE)
 #include "common_ui_wxwidgets_common.h"
-#endif
+#endif // GTK_USE || QT_USE || WXWIDGETS_USE
 #endif // GUI_SUPPORT
 
 // forward declarations
@@ -136,4 +136,4 @@ struct Common_Test_I_ThreadData
 };
 #endif // GUI_SUPPORT
 
-#endif
+#endif // COMMON_TEST_I_COMMON_H

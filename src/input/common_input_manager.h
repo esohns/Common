@@ -77,7 +77,7 @@ class Common_Input_Manager_T
   // override (part of) Common_IAsynchTask
   virtual bool start (ACE_Time_Value* = NULL); // N/A
   virtual void stop (bool = true,   // wait for completion ?
-                     bool = false); // N/A
+                     bool = false); // high priority ?
 
   // implement Common_IRegister
   inline virtual bool register_ () { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }

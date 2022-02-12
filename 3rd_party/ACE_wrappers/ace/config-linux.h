@@ -8,10 +8,6 @@
 // it has several drawbacks (see relevant documentation)
 #define ACE_HAS_REACTOR_NOTIFICATION_QUEUE 1
 
-// *NOTE*: libpthread now supports thread names
-//         (see /usr/include/pthread.h::453: pthread_setname_np())
-#define ACE_HAS_PTHREAD_SETNAME_NP 1
-
 // *NOTE*: set FD_SETSIZE so select-based reactors can dispatch more than the
 //         default (1024, see below) handles
 //#include <bits/typesizes.h>

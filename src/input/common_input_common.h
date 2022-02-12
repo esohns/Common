@@ -31,10 +31,18 @@
 #include "common_input_handler_base.h"
 #include "common_input_manager.h"
 
+// froward declarations
+#if defined (GUI_SUPPORT)
+struct Common_UI_CBData;
+#endif // GUI_SUPPORT
+
 struct Common_Input_Configuration
 {
   Common_Input_Configuration ()
    : allocatorConfiguration (NULL)
+#if defined (GUI_SUPPORT)
+   , CBData (NULL)
+#endif // GUI_SUPPORT
    , eventDispatchConfiguration (NULL)
    , manager (NULL)
    , messageAllocator (NULL)
@@ -43,6 +51,9 @@ struct Common_Input_Configuration
   {}
 
   struct Common_AllocatorConfiguration*     allocatorConfiguration;
+#if defined (GUI_SUPPORT)
+  struct Common_UI_CBData*                  CBData;
+#endif // GUI_SUPPORT
   struct Common_EventDispatchConfiguration* eventDispatchConfiguration;
   Common_IRegister*                         manager;
   ACE_Allocator*                            messageAllocator;
@@ -53,12 +64,20 @@ struct Common_Input_Configuration
 struct Common_Input_Manager_Configuration
 {
   Common_Input_Manager_Configuration ()
+#if defined (GUI_SUPPORT)
+   : CBData (NULL)
+   , eventDispatchConfiguration (NULL)
+#else
    : eventDispatchConfiguration (NULL)
+#endif // GUI_SUPPORT
    , eventDispatchState (NULL)
    , handlerConfiguration (NULL)
    , manageEventDispatch (false)
   {}
 
+#if defined (GUI_SUPPORT)
+  struct Common_UI_CBData*                  CBData;
+#endif // GUI_SUPPORT
   struct Common_EventDispatchConfiguration* eventDispatchConfiguration;
   struct Common_EventDispatchState*         eventDispatchState;
   struct Common_Input_Configuration*        handlerConfiguration;

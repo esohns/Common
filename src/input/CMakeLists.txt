@@ -21,7 +21,9 @@ set (source_files
      common_input_handler_base.inl
      common_input_manager.cpp
      common_input_manager.h
-     common_input_manager.inl)
+     common_input_manager.inl
+     common_input_tools.cpp
+     common_input_tools.h)
 
 # Include dir for installed targets
 set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
@@ -76,6 +78,7 @@ install (FILES
          common_input_handler_base.inl
          common_input_manager.h
          common_input_manager.inl
+         common_input_tools.h
          DESTINATION include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets

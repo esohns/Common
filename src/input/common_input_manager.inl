@@ -18,10 +18,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "ace/config-lite.h"
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
+#include "ace/Reactor.h"
+#include "ace/Reactor_Impl.h"
 #include "ace/Thread.h"
+#include "ace/Thread_Mutex.h"
 
 #include "common_macros.h"
 #include "common_tools.h"
@@ -323,6 +325,18 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
     }
     case COMMON_EVENT_DISPATCH_REACTOR:
     {
+      ACE_Reactor* reactor_p = ACE_Reactor::instance ();
+      ACE_ASSERT (reactor_p);
+      ACE_Reactor_Impl* reactor_impl_p = reactor_p->implementation ();
+      ACE_ASSERT (reactor_impl_p);
+      int result = reactor_impl_p->owner (ACE_OS::thr_self ());
+      if (unlikely (result == -1))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_Reactor_Impl::owner(): \"%s\", aborting\n")));
+        return -1;
+      } // end IF
+
       configuration_->eventDispatchState->reactorGroupId = inherited::grp_id_;
       break;
     }

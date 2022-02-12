@@ -57,17 +57,44 @@ Common_InputHandler_Base_T<ConfigurationType>::~Common_InputHandler_Base_T ()
 }
 
 template <typename ConfigurationType>
+bool
+Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_Message_Block* messageBlock_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_InputHandler_Base_T::handle_input"));
+
+  // sanity check(s)
+  ACE_ASSERT (configuration_);
+  ACE_ASSERT (messageBlock_in);
+
+  int result = -1;
+
+  if (unlikely (!configuration_->queue))
+  {
+    messageBlock_in->release ();
+    return true;
+  } // end IF
+
+  result = configuration_->queue->enqueue (messageBlock_in, NULL);
+  if (unlikely (result == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_Message_Queue_Base::enqueue(): \"%m\", aborting\n")));
+    buffer_->release (); buffer_ = NULL;
+    return false;
+  } // end IF
+
+  return true;
+}
+
+template <typename ConfigurationType>
 int
 Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_HANDLE handle_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_InputHandler_Base_T::handle_input"));
 
-  int result = -1;
-
   // sanity check(s)
   ACE_ASSERT (configuration_);
   ACE_ASSERT (configuration_->allocatorConfiguration);
-  ACE_ASSERT (configuration_->queue);
 
   if (likely (!buffer_))
   { // allocate a message buffer
@@ -168,7 +195,9 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_HANDLE handle_i
     // *** GOOD CASES ***
     case 0:
     {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 continue_:
+#endif // ACE_WIN32 || ACE_WIN64
       buffer_->release (); buffer_ = NULL;
       return -1; // *NOTE*: will deregister/delete this
     }
@@ -187,14 +216,13 @@ continue_:
   *buffer_->wr_ptr () = 0; // 0-terminate string
 #endif // ACE_WIN32 || ACE_WIN64
 
-  result = configuration_->queue->enqueue (buffer_, NULL);
-  if (unlikely (result == -1))
-  {
+  try {
+    handle_input (buffer_);
+  } catch (...) {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_Message_Queue_Base::enqueue(): \"%m\", aborting\n")));
-    buffer_->release (); buffer_ = NULL;
-    return -1;
-  } // end IF
+                ACE_TEXT ("caught exception in Common_InputHandler_Base_T::handle_input(), continuing\n")));
+    buffer_->release ();
+  }
   buffer_ = NULL;
 
   return registered_ ? 0 : -1; // handle WIN32
@@ -244,7 +272,7 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_read_stream (const ACE_Asy
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
-               ACE_TEXT ("failed to ACE_Message_Queue_Base::enqueue(): \"%m\", returning\n")));
+                ACE_TEXT ("failed to ACE_Message_Queue_Base::enqueue(): \"%m\", returning\n")));
     result_in.message_block ().release ();
     return;
   } // end IF
@@ -279,8 +307,6 @@ bool
 Common_InputHandler_Base_T<ConfigurationType>::initialize (const ConfigurationType& configuration_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_InputHandler_Base_T::initialize"));
-
-  int result = -1;
 
   if (unlikely (registered_))
     deregister ();
@@ -324,7 +350,7 @@ Common_InputHandler_Base_T<ConfigurationType>::register_ ()
       if (unlikely (result == -1))
       {
         ACE_DEBUG ((LM_ERROR,
-                   ACE_TEXT ("failed to ACE_Event_Handler::register_stdin_handler(): \"%m\", aborting\n")));
+                    ACE_TEXT ("failed to ACE_Event_Handler::register_stdin_handler(): \"%m\", aborting\n")));
         return false;
       } // end IF
       break;
@@ -332,14 +358,14 @@ Common_InputHandler_Base_T<ConfigurationType>::register_ ()
     default: // *TODO*
     {
       ACE_DEBUG ((LM_ERROR,
-                 ACE_TEXT ("invalid/unknown dispatch type (was: %d), aborting\n"),
-                 configuration_->eventDispatchConfiguration->dispatch));
+                  ACE_TEXT ("invalid/unknown dispatch type (was: %d), aborting\n"),
+                  configuration_->eventDispatchConfiguration->dispatch));
       return false;
     }
   } // end SWITCH
   registered_ = true;
   ACE_DEBUG ((LM_DEBUG,
-             ACE_TEXT ("registered input handler...\n")));
+              ACE_TEXT ("registered input handler...\n")));
 
   return true;
 }

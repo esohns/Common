@@ -29,10 +29,8 @@ target_sources (${EXECUTABLE}
 #add_dependencies (${EXECUTABLE} ACE)
 add_dependencies (${EXECUTABLE} Common)
 
-if (UNIX)
-elseif (WIN32)
- target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
-endif ()
+target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
+
 target_link_libraries (${EXECUTABLE} PUBLIC Common)
 target_link_libraries (${EXECUTABLE} PUBLIC CommonLog)
 target_link_libraries (${EXECUTABLE} PUBLIC CommonTimer)

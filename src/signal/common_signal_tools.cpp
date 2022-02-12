@@ -50,7 +50,7 @@ Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
                                     enum Common_SignalDispatchType dispatchType_in,
                                     bool useNetworking_in,
                                     Common_SignalActions_t& previousActions_out,
-                                    ACE_Sig_Set& originalMask_out)
+                                    ACE_Sig_Set& previousMask_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Signal_Tools::preInitialize"));
 
@@ -58,7 +58,7 @@ Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
 
   // initialize return value(s)
   previousActions_out.clear ();
-  result = originalMask_out.empty_set ();
+  result = previousMask_out.empty_set ();
   if (unlikely (result == - 1))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -339,7 +339,7 @@ continue_3:
 #else
   result = ACE_OS::thr_sigsetmask (SIG_BLOCK,
                                    blocked_signal_set,
-                                   originalMask_out);
+                                   previousMask_out);
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
