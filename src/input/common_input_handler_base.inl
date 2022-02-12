@@ -96,6 +96,10 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_HANDLE handle_i
   ACE_ASSERT (configuration_);
   ACE_ASSERT (configuration_->allocatorConfiguration);
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  int result = -1;
+#endif // ACE_WIN32 || ACE_WIN64
+
   if (likely (!buffer_))
   { // allocate a message buffer
     buffer_ = allocateMessage (configuration_->allocatorConfiguration->defaultBufferSize);
