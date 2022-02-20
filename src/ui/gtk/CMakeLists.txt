@@ -29,7 +29,11 @@ target_include_directories (${LIBRARY} PUBLIC
 #endif ()
 
 target_include_directories (${LIBRARY} PUBLIC
+                            $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)
+
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
+
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 target_include_directories (${LIBRARY} PUBLIC

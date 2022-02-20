@@ -1,4 +1,3 @@
-
 string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
 string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 
@@ -9,21 +8,24 @@ set (CMAKE_AUTOMOC ON)
 # Create code from a list of Qt designer ui files
 set (CMAKE_AUTOUIC ON)
 
+include_directories (${ACE_INCLUDE_DIR})
+
 include_directories (${CMAKE_BINARY_DIR})
+
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/ui)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/ui/qt)
 
 # Populate a CMake variable with the sources
 set (qt_ui_SRCS
-     stdafx.cpp
+#     stdafx.cpp
      stdafx.h
      mainwindow.ui
      mainwindow.cpp
      mainwindow.h
      test_u.cpp)
 set (qt_ui_2_SRCS
-     stdafx.cpp
+#     stdafx.cpp
      stdafx.h
      mainwindow.ui
      mainwindow.cpp
@@ -57,7 +59,7 @@ target_link_libraries (qt_ui_2 PUBLIC CommonUI_Qt)
 target_precompile_headers (qt_ui
                            PUBLIC stdafx.h)
 target_precompile_headers (qt_ui_2
-                           PUBLIC stdafx.h)
+                           REUSE_FROM qt_ui)
 
 ############### installation #############
 install (TARGETS qt_ui

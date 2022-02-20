@@ -41,9 +41,9 @@ target_include_directories (${PROJECT_NAME} PUBLIC
 if (WIN32)
  target_include_directories (${PROJECT_NAME} PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
- target_include_directories (${PROJECT_NAME} PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/error>)
 endif (WIN32)
+target_include_directories (${PROJECT_NAME} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/error>)
 target_include_directories (${PROJECT_NAME} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/signal>)
 target_include_directories (${PROJECT_NAME} PUBLIC

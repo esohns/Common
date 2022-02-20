@@ -291,8 +291,8 @@ continue_3:
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("finished working\n")));
 
-error:
-  ;
+//error:
+//  ;
 }
 
 int

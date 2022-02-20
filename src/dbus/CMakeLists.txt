@@ -19,8 +19,12 @@ if (UNIX)
                               $<BUILD_INTERFACE:${PKG_SYSTEMD_INCLUDE_DIRS}>)
  endif (SD_BUS_SUPPORT)
 endif (UNIX)
+
 target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
+                            $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)
+
+target_include_directories (${LIBRARY} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 
@@ -43,7 +47,7 @@ foreach (source_file ${source_files})
 #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
 target_sources (${LIBRARY}
-                PRIVATE stdafx.cpp
+#                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 

@@ -1,13 +1,15 @@
-
 string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
 string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 
+include_directories (${ACE_INCLUDE_DIR})
+
 include_directories (${CMAKE_BINARY_DIR})
+
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 
 ############## next target ################
 set (features_EXE_SRCS
-     stdafx.cpp
+#     stdafx.cpp
      stdafx.h
 #     ../test_u_common.h
 #     ../test_u_defines.h

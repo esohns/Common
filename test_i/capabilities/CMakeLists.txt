@@ -15,18 +15,14 @@ string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 ############## includes ###############
 include_directories (${PKG_CAP_INCLUDE_DIRS})
 
-if (UNIX)
-# include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../modules/ACE)
-elseif (WIN32)
-# include_directories ($ENV{LIB_ROOT}/ACE_TAO/ACE)
-endif ()
+include_directories (${ACE_INCLUDE_DIR})
+
+include_directories (${CMAKE_BINARY_DIR})
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/timer)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
-
-include_directories (${CMAKE_CURRENT_BINARY_DIR}/../..)
 
 ############## next target ###############
 set (capability_wrapper_EXE_SRCS

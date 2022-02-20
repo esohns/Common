@@ -41,7 +41,9 @@
 #include "common_macros.h"
 #include "common_tools.h"
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "common_error_tools.h"
+#endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (HAVE_CONFIG_H)
 #include "Common_config.h"

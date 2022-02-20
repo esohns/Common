@@ -102,14 +102,14 @@ using namespace std;
 #include "common_string_tools.h"
 #endif // ACE_LINUX
 
+#include "common_error_tools.h"
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 #include "common_signal_tools.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "common_time_common.h"
-
-#include "common_error_tools.h"
 
 // initialize statics
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

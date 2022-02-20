@@ -15,16 +15,18 @@ string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 ############## includes ###############
 include_directories (${PKG_CAP_INCLUDE_DIRS})
 
+include_directories (${ACE_INCLUDE_DIR})
+
+include_directories (${CMAKE_BINARY_DIR})
+
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/timer)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-include_directories (${CMAKE_CURRENT_BINARY_DIR}/../..)
-
 ############## next target ###############
 set (capabilities_EXE_SRCS
-     stdafx.cpp
+#     stdafx.cpp
      stdafx.h
 #     ../test_u_common.h
 #     ../test_u_defines.h
@@ -52,7 +54,7 @@ target_precompile_headers (${EXECUTABLE}
 #check_library_exists (rt aio_init "" HAVE_LIB_AIO)
 
 set (capabilities_2_EXE_SRCS
-     stdafx.cpp
+#     stdafx.cpp
      stdafx.h
 #     ../test_u_common.h
 #     ../test_u_defines.h
@@ -85,7 +87,7 @@ target_link_libraries (${EXECUTABLE_2} CommonTimer)
 
 # add PCH
 target_precompile_headers (${EXECUTABLE_2}
-                           PRIVATE stdafx.h)
+                           REUSE_FROM ${EXECUTABLE})
 
 ############### installation #############
 install (TARGETS ${EXECUTABLE} ${EXECUTABLE_2}

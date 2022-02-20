@@ -23,9 +23,9 @@
 #include <locale>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include <OleAuto.h>
-#include <stringapiset.h>
-#include <WinNls.h>
+#include "OleAuto.h"
+#include "stringapiset.h"
+#include "WinNls.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "common_string_tools.h"
@@ -35,7 +35,9 @@
 
 #include "common_macros.h"
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "common_error_tools.h"
+#endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 std::string

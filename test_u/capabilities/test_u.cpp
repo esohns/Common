@@ -28,29 +28,29 @@
 /* Defintion to be updated in the user space include files */
 //#define PR_CAP_AMBIENT 45
 
-int main(int argc, char **argv)
+int main (int argc, char** argv)
 {
 //  int rc;
 
 //  if (prctl(PR_CAP_AMBIENT, CAP_NET_RAW))
 //    perror("Cannot set CAP_NET_RAW");
 
-  if (prctl(PR_CAP_AMBIENT,
-            PR_CAP_AMBIENT_RAISE,
-            CAP_NET_ADMIN))
-    perror("Cannot set CAP_NET_ADMIN");
+  if (prctl (PR_CAP_AMBIENT,
+             PR_CAP_AMBIENT_RAISE,
+             CAP_NET_ADMIN))
+    perror ("Cannot set CAP_NET_ADMIN");
 
-//  if (prctl(PR_CAP_AMBIENT, CAP_SYS_NICE))
-//    perror("Cannot set CAP_SYS_NICE");
+//  if (prctl (PR_CAP_AMBIENT, CAP_SYS_NICE))
+//    perror ("Cannot set CAP_SYS_NICE");
 
   // -------------------------------------
 
-  if (prctl(PR_SET_KEEPCAPS, 1))
-    perror("Cannot set PR_SET_KEEPCAPS");
+  if (prctl (PR_SET_KEEPCAPS, 1))
+    perror ("Cannot set PR_SET_KEEPCAPS");
 
-  printf("Ambient_test forking shell\n");
-  if (execv(argv[1], argv + 1))
-    perror("Cannot exec");
+  printf ("Ambient_test forking shell\n");
+  if (execv (argv[1], argv + 1))
+    perror ("Cannot exec");
 
   return 0;
 }
