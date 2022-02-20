@@ -11,9 +11,14 @@ if (LIBXML2_SUPPORT)
 endif (LIBXML2_SUPPORT)
 
 target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
+                            $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)
+
 target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>)
+                            $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
+if (WIN32)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>)
+endif (WIN32)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 
@@ -35,8 +40,6 @@ set (source_files
 # Include dir for installed targets
 set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 
-#set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
-
 unset (absolute_source_files)
 foreach (source_file ${source_files})
  get_filename_component (abs_source_file ${source_file} ABSOLUTE)
@@ -45,31 +48,30 @@ foreach (source_file ${source_files})
        )
 #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
-target_sources (${PROJECT_NAME}XML
+target_sources (${LIBRARY}
 #                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 target_precompile_headers (${LIBRARY}
                            PRIVATE stdafx.h)
 
-#add_dependencies (${PROJECT_NAME}XML ACE)
+#add_dependencies (${LIBRARY} ACE)
 
-#set_target_properties (${PROJECT_NAME}XML PROPERTIES
+#set_target_properties (${LIBRARY} PROPERTIES
 #                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 if (LIBXML2_SUPPORT)
- target_link_libraries (${PROJECT_NAME}XML ${LIBXML2_LIBRARIES})
+ target_link_libraries (${LIBRARY} PUBLIC ${LIBXML2_LIBRARIES})
 endif (LIBXML2_SUPPORT)
 
 if (ACEXML_SUPPORT)
- target_link_libraries (${PROJECT_NAME}XML ${ACEXML_LIBRARY})
- target_link_libraries (${PROJECT_NAME}XML ${ACEXML_PARSER_LIBRARY})
+ target_link_libraries (${LIBRARY} PUBLIC ${ACEXML_LIBRARIES})
 endif (ACEXML_SUPPORT)
 
 set_property (TARGET ${LIBRARY} PROPERTY FOLDER "modules")
 
 # add all targets to the build-tree export set
-export (TARGETS ${PROJECT_NAME}XML
+export (TARGETS ${LIBRARY}
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
@@ -83,7 +85,7 @@ install (FILES
          common_xml_parser.inl
          common_xml_tools.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
-install (TARGETS ${PROJECT_NAME}XML
+install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)

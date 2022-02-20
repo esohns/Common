@@ -32,18 +32,24 @@ if (UNIX)
                               $<BUILD_INTERFACE:${PKG_LIBCAP_INCLUDE_DIRS}>)
  endif (LIBCAP_SUPPORT)
 endif (UNIX)
+
 target_include_directories (${PROJECT_NAME} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
+                            $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)
+
 target_include_directories (${PROJECT_NAME} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/error>)
+                            $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
+if (WIN32)
+ target_include_directories (${PROJECT_NAME} PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
+ target_include_directories (${PROJECT_NAME} PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/error>)
+endif (WIN32)
 target_include_directories (${PROJECT_NAME} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/signal>)
 target_include_directories (${PROJECT_NAME} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/task>)
 target_include_directories (${PROJECT_NAME} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/timer>)
-target_include_directories (${PROJECT_NAME} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/..>)
 
 ############## next target ################
 set (source_files

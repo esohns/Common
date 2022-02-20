@@ -28,13 +28,15 @@
 #include "common_signal_common.h"
 
 #if defined (GUI_SUPPORT)
-#if defined (GTK_USE)
+#if defined (GTK_SUPPORT)
 #include "common_ui_gtk_common.h"
-#elif defined (QT_USE)
+#endif // GTK_SUPPORT
+#if defined (QT_SUPPORT)
 #include "common_ui_qt_common.h"
-#elif defined (WXWIDGETS_USE)
+#endif // QT_SUPPORT
+#if defined (WXWIDGETS_SUPPORT)
 #include "common_ui_wxwidgets_common.h"
-#endif // GTK_USE || QT_USE || WXWIDGETS_USE
+#endif // WXWIDGETS_SUPPORT
 #endif // GUI_SUPPORT
 
 // forward declarations

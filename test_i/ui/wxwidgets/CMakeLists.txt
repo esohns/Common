@@ -24,14 +24,14 @@ endif (WIN32)
 
 ############## next target ###############
 set (wxwidgets_EXE_SRCS
-     stdafx.cpp
+#     stdafx.cpp
      stdafx.h
 #     ../test_u_common.h
 #     ../test_u_defines.h
      test_u.cpp)
 
 set (wxwidgets_EXE_2_SRCS
-     stdafx.cpp
+#     stdafx.cpp
      stdafx.h
 #     ../test_u_common.h
 #     ../test_u_defines.h
@@ -39,7 +39,7 @@ set (wxwidgets_EXE_2_SRCS
      test_u_2.h)
 
 set (wxwidgets_EXE_3_SRCS
-     stdafx.cpp
+#     stdafx.cpp
      stdafx.h
 #     ../test_u_common.h
 #     ../test_u_defines.h
@@ -80,22 +80,27 @@ set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 set_property (TARGET ${EXECUTABLE_2} PROPERTY FOLDER "test_i")
 set_property (TARGET ${EXECUTABLE_3} PROPERTY FOLDER "test_i")
 
-target_link_libraries (${EXECUTABLE} ${wxWidgets_LIBRARIES})
-target_link_libraries (${EXECUTABLE_2} ${wxWidgets_LIBRARIES})
-target_link_libraries (${EXECUTABLE_3} ${wxWidgets_LIBRARIES})
-
-target_link_libraries (${EXECUTABLE_2} ${ACE_LIBRARY})
-target_link_libraries (${EXECUTABLE_3} ${ACE_LIBRARY})
-
-target_link_libraries (${EXECUTABLE_3} CommonUI_wxWidgets)
-
 # add PCH
-#set_target_properties (${EXECUTABLE} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-#cotire (${EXECUTABLE})
-#set_target_properties (${EXECUTABLE_2} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-#cotire (${EXECUTABLE_2})
-#set_target_properties (${EXECUTABLE_3} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "stdafx.h")
-#cotire (${EXECUTABLE_3})
+target_precompile_headers (${EXECUTABLE}
+                           PRIVATE stdafx.h)
+target_precompile_headers (${EXECUTABLE_2}
+                           REUSE_FROM ${EXECUTABLE})
+target_precompile_headers (${EXECUTABLE_3}
+                           REUSE_FROM ${EXECUTABLE})
+
+target_link_libraries (${EXECUTABLE} PUBLIC ${wxWidgets_LIBRARIES})
+target_link_libraries (${EXECUTABLE_2} PUBLIC ${wxWidgets_LIBRARIES})
+target_link_libraries (${EXECUTABLE_3} PUBLIC ${wxWidgets_LIBRARIES})
+
+target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
+target_link_libraries (${EXECUTABLE_2} PUBLIC ${ACE_LIBRARY})
+target_link_libraries (${EXECUTABLE_3} PUBLIC ${ACE_LIBRARY})
+
+target_link_libraries (${EXECUTABLE_3} PUBLIC CommonUI_wxWidgets)
+
+target_link_libraries (${EXECUTABLE} PUBLIC Common_Test_I)
+target_link_libraries (${EXECUTABLE_2} PUBLIC Common_Test_I)
+target_link_libraries (${EXECUTABLE_3} PUBLIC Common_Test_I)
 
 ############### installation #############
 install (TARGETS ${EXECUTABLE}
@@ -118,7 +123,7 @@ elseif (WIN32)
  if (VCPKG_SUPPORT)
   file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
  else ()
-  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
+  file (TO_CMAKE_PATH ${ACE_LIB_DIR} ACE_LIB_PATH)
  endif (VCPKG_SUPPORT)
 endif ()
 set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}

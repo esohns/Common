@@ -16,13 +16,18 @@ if (GTK_SUPPORT)
 endif (GTK_SUPPORT)
 
 target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
+                            $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)
+
 target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>)
+                            $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
+if (WIN32)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
+endif (WIN32)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
-target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../log>)
 target_include_directories (${LIBRARY} PUBLIC
@@ -68,13 +73,11 @@ target_sources (${LIBRARY}
 
 add_dependencies (${LIBRARY} Common)
 if (UNIX)
- target_link_libraries (${LIBRARY} X11)
- target_link_libraries (${LIBRARY} Xrandr)
- target_link_libraries (${LIBRARY} ${ACEXML_LIBRARY})
-endif ()
+ target_link_libraries (${LIBRARY} PUBLIC X11)
+ target_link_libraries (${LIBRARY} PUBLIC Xrandr)
+ target_link_libraries (${LIBRARY} PUBLIC ${ACEXML_LIBRARY})
+endif (UNIX)
 
-if (WIN32)
-endif ()
 #set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
 #set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 

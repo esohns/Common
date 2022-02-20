@@ -31,10 +31,15 @@
 // System Library Header Files
 
 // Library Header Files
-#include "ace/os_include/sys/os_types.h"
+//#include "ace/os_include/sys/os_types.h"
+#undef DrawText
+#undef SIZEOF_SIZE_T
+#undef wxHAS_MODE_T
 #include "wx/wx.h"
+#define ACE_HAS_SSIZE_T
 
 #include "ace/config-lite.h"
+#undef ACE_LACKS_MODE_T
 #include "ace/Global_Macros.h"
 #include "ace/Log_Msg.h"
 

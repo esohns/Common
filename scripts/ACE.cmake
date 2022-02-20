@@ -26,7 +26,7 @@ elseif (WIN32)
  else ()
   find_library (ACE_LIBRARY ${ACE_LIB_FILE}
                 PATHS $ENV{ACE_ROOT} $ENV{LIB_ROOT}/ACE_TAO/ACE
-                PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
+                PATH_SUFFIXES lib
                 DOC "searching for ${ACE_LIB_FILE}"
                 REQUIRED
                 NO_DEFAULT_PATH)
@@ -43,25 +43,26 @@ endif ()
 # add ACE include directory
 if (DEFINED ENV{ACE_ROOT})
  file (TO_CMAKE_PATH $ENV{ACE_ROOT} ACE_ROOT_CMAKE)
- include_directories (${ACE_ROOT_CMAKE})
- set (ACE_LIB_DIR $ENV{ACE_ROOT}/lib)
+ set (ACE_INCLUDE_DIR ${ACE_ROOT_CMAKE})
+ set (ACE_LIB_DIR ${ACE_ROOT_CMAKE}/lib)
 endif (DEFINED ENV{ACE_ROOT})
 if (UNIX)
  if (NOT DEFINED ENV{ACE_ROOT})
-  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE)
+  set (ACE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE)
  endif (NOT DEFINED ENV{ACE_ROOT})
 elseif (WIN32)
  if (NOT DEFINED ENV{ACE_ROOT})
   if (VCPKG_SUPPORT)
-   include_directories (${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/include)
-   if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
-       CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+   set (ACE_INCLUDE_DIR ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/include)
+   if ($<CONFIG> STREQUAL "Debug" OR
+       $<CONFIG> STREQUAL "RelWithDebInfo")
     set (ACE_LIB_DIR ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/debug/bin)
    else ()
     set (ACE_LIB_DIR ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin)
-   endif ()
+   endif ($<CONFIG> STREQUAL "Debug" OR
+          $<CONFIG> STREQUAL "RelWithDebInfo")
   else ()
-   include_directories ($ENV{LIB_ROOT}/ACE_TAO/ACE)
+   set (ACE_INCLUDE_DIR $ENV{LIB_ROOT}/ACE_TAO/ACE)
    set (ACE_LIB_DIR $ENV{LIB_ROOT}/ACE_TAO/ACE/lib)
   endif (VCPKG_SUPPORT)
  endif (NOT DEFINED ENV{ACE_ROOT})

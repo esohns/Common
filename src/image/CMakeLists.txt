@@ -34,14 +34,20 @@ elseif (WIN32)
                               $<BUILD_INTERFACE:$ENV{LIB_ROOT}/DXSDK/Include>)
  endif ()
 endif ()
+
 target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
+                            $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)
+
 target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>)
+                            $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
+if (WIN32)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
+endif (WIN32)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
-target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
 
 ############## next target ################
 set (source_files
@@ -100,7 +106,6 @@ install (FILES
          common_image_common.h
          common_image_defines.h
          common_image_tools.h
-         stdafx.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
 #install (TARGETS ${LIBRARY}
 #         EXPORT ${PROJECT_NAME}Targets

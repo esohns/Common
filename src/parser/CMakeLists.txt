@@ -2,9 +2,14 @@ set (LIBRARY ${PROJECT_NAME}Parser)
 add_library (${LIBRARY} STATIC "")
 
 target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
+                            $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)
+
 target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>)
+                            $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
+if (WIN32)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>)
+endif (WIN32)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../3rd_party/bison>)
 target_include_directories (${LIBRARY} PUBLIC
@@ -45,18 +50,16 @@ target_sources (${LIBRARY}
                 ${absolute_source_files})
 
 if (WIN32)
-## set (CMAKE_GENERATOR_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE)
-# set (CMAKE_VS_PLATFORM_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE)
  if (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)
   add_compile_options (-Wno-c++11-narrowing)
- endif ()
-endif ()
+ endif (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)
+endif (WIN32)
 
 #*TODO*: use pkg-config instead
 if (WIN32)
 # target_link_libraries (${LIBRARY} ${COMMON_TARGET_NAME})
  target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
-endif ()
+endif (WIN32)
 
 #set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_PARSER_BUILD_DLL)
 #set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)

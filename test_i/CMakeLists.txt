@@ -20,22 +20,23 @@ if (UNIX)
  add_link_options ("LINKER:--as-needed")
 endif (UNIX)
 
-add_library (${PROJECT_NAME}_Test_I STATIC "")
+set (LIBRARY ${PROJECT_NAME}_Test_I)
+add_library (${LIBRARY} STATIC "")
 
 if (GUI_SUPPORT)
  if (CURSES_SUPPORT)
-  target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               "$<BUILD_INTERFACE:${CURSES_INCLUDE_DIRS}>")
  endif (CURSES_SUPPORT)
  if (GTK_SUPPORT)
-  target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
 
   if (GTKGLAREA_SUPPORT)
 # *NOTE*: check out the 'master' branch for gtk3-based applications
 # *NOTE*: check out the 'gtkglarea-2' branch for gtk2-based applications
 # *TODO*: verify automatically
-   target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+   target_include_directories (${LIBRARY} PUBLIC
                                $<BUILD_INTERFACE:${GTKGLAREA_INCLUDES}>)
   endif (GTKGLAREA_SUPPORT)
  endif (GTK_SUPPORT)
@@ -43,71 +44,78 @@ if (GUI_SUPPORT)
   if (WIN32)
    cmake_policy (SET CMP0020 OLD)
   endif (WIN32)
-  target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:${QT_INCLUDE_DIRS}>)
  endif (QT_SUPPORT)
  if (WXWIDGETS_SUPPORT)
-  target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               "$<BUILD_INTERFACE:${wxWidgets_INCLUDE_DIRS}>")
  endif (WXWIDGETS_SUPPORT)
 endif (GUI_SUPPORT)
 
-if (WIN32)
- target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
-endif (WIN32)
-target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
+                            $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)
+
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
-target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+if (WIN32)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/error>)
+endif (WIN32)
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src>)
-target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/signal>)
-target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/log>)
+target_include_directories (${LIBRARY} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/task>)
 if (GUI_SUPPORT)
- target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+ target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui>)
  if (CURSES_SUPPORT)
-  target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/curses>)
  endif (CURSES_SUPPORT)
  if (GTK_SUPPORT)
-  target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/gtk>)
  endif (GTK_SUPPORT)
  if (QT_SUPPORT)
-  target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/qt>)
  endif (QT_SUPPORT)
  if (WXWIDGETS_SUPPORT)
-  target_include_directories (${PROJECT_NAME}_Test_I PUBLIC
+  target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/wxwidgets>)
  endif (WXWIDGETS_SUPPORT)
 endif (GUI_SUPPORT)
 
 if (GUI_SUPPORT)
  if (GTK_SUPPORT)
-  target_link_libraries (${PROJECT_NAME}_Test_I PUBLIC ${GTK_LIBRARIES})
+  target_link_libraries (${LIBRARY} PUBLIC ${GTK_LIBRARIES})
   if (GTKGL_SUPPORT)
    if (GTKGLAREA_SUPPORT)
-    target_link_libraries (${PROJECT_NAME}_Test_I PUBLIC ${GTKGLAREA_LIBRARY})
+    target_link_libraries (${LIBRARY} PUBLIC ${GTKGLAREA_LIBRARY})
    endif (GTKGLAREA_SUPPORT)
   endif (GTKGL_SUPPORT)
  endif (GTK_SUPPORT)
  if (QT_SUPPORT)
-  target_link_libraries (${PROJECT_NAME}_Test_I PUBLIC ${QT_LIBRARIES})
+  target_link_libraries (${LIBRARY} PUBLIC ${QT_LIBRARIES})
  endif (QT_SUPPORT)
  if (WXWIDGETS_SUPPORT)
-  target_link_libraries (${PROJECT_NAME}_Test_I PUBLIC ${wxWidgets_LIBRARIES})
+  target_link_libraries (${LIBRARY} PUBLIC ${wxWidgets_LIBRARIES})
  endif (WXWIDGETS_SUPPORT)
 endif (GUI_SUPPORT)
 
 if (UNIX)
  if (GUI_SUPPORT)
-  target_link_libraries (${PROJECT_NAME}_Test_I PUBLIC X11)
+  target_link_libraries (${LIBRARY} PUBLIC X11)
   if (GTK_USE)
    if (GTKGL_SUPPORT)
-    target_link_libraries (${PROJECT_NAME}_Test_I PUBLIC GL)
+    target_link_libraries (${LIBRARY} PUBLIC GL)
    endif (GTKGL_SUPPORT)
   endif (GTK_USE)
  endif (GUI_SUPPORT)
@@ -115,9 +123,9 @@ elseif (WIN32)
  if (GUI_SUPPORT)
   if (GTK_USE)
    if (GTKGL_SUPPORT)
-    target_link_libraries (${PROJECT_NAME}_Test_I PUBLIC OpenGL32.lib)
+    target_link_libraries (${LIBRARY} PUBLIC OpenGL32.lib)
     if (GTKGLAREA_SUPPORT)
-     target_link_libraries (${PROJECT_NAME}_Test_I PUBLIC $ENV{LIB_ROOT}/libepoxy/lib/epoxy.lib)
+     target_link_libraries (${LIBRARY} PUBLIC $ENV{LIB_ROOT}/libepoxy/lib/epoxy.lib)
     endif (GTKGLAREA_SUPPORT)
    endif (GTKGL_SUPPORT)
   endif (GTK_USE)
@@ -141,14 +149,14 @@ endforeach ()
 
 ##########################################
 
-target_sources (${PROJECT_NAME}_Test_I
+target_sources (${LIBRARY}
 #                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
-target_precompile_headers (${PROJECT_NAME}_Test_I
+target_precompile_headers (${LIBRARY}
                            PRIVATE stdafx.h)
 
-#set_target_properties (${PROJECT_NAME}_Test_I PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
+#set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 ##########################################
 
@@ -157,7 +165,7 @@ install (FILES
          common_test_i_tools.h
          common_test_i_tools.inl
          DESTINATION include)
-install (TARGETS ${PROJECT_NAME}_Test_I
+install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION ${INSTALL_LIB_DIR} COMPONENT lib
          LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT lib
@@ -166,7 +174,7 @@ install (TARGETS ${PROJECT_NAME}_Test_I
 ##########################################
 
 # add all targets to the build-tree export set
-export (TARGETS ${PROJECT_NAME}_Test_I
+export (TARGETS ${LIBRARY}
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ##########################################

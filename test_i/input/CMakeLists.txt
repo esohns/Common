@@ -24,7 +24,7 @@ set (${EXECUTABLE}_EXE_SRCS
      test_i_signalhandler.cpp
      test_i_signalhandler.h
 #     stdafx.cpp
-#     stdafx.h
+     stdafx.h
 #     ../common_test_i_common.h
 #     ../common_test_i_defines.h
      test_i.cpp)

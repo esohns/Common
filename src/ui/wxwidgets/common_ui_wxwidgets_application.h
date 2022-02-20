@@ -28,6 +28,7 @@
 //#define REDEDINE_DEBUG 1
 //#endif // _DEBUG
 #undef DrawText
+#undef SIZEOF_SIZE_T
 #include "wx/wx.h"
 //#if defined (REDEDINE_DEBUG)
 //#undef REDEDINE_DEBUG

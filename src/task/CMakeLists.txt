@@ -2,16 +2,18 @@ set (LIBRARY ${PROJECT_NAME}Task)
 add_library (${LIBRARY} STATIC "")
 
 target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
+                            $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)
+
 target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>)
-target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
-if (UNIX)
-elseif (WIN32)
+                            $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
+if (WIN32)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>)
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
-endif ()
+endif (WIN32)
+target_include_directories (${LIBRARY} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../timer>)
 
@@ -52,8 +54,7 @@ target_sources (${LIBRARY}
 #add_dependencies (${LIBRARY} ACE)
 
 #set_target_properties (${LIBRARY} PROPERTIES
-#                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-#                       SOVERSION 1)
+#                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 if (UNIX)
  set_property(TARGET ${LIBRARY} PROPERTY CXX_STANDARD 11)
@@ -68,7 +69,7 @@ target_precompile_headers (${LIBRARY}
 set_property (TARGET ${LIBRARY} PROPERTY FOLDER "modules")
 
 # add all targets to the build-tree export set
-export (TARGETS ${PROJECT_NAME}Task
+export (TARGETS ${LIBRARY}
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
@@ -85,7 +86,7 @@ install (FILES
          common_task_ex.inl
          common_task_tools.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
-install (TARGETS ${PROJECT_NAME}Task
+install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)

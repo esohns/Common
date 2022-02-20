@@ -4,6 +4,8 @@
 //#undef _DEBUG // *NOTE*: do not (!) #define __WXDEBUG__
 //#define REDEDINE_DEBUG 1
 //#endif // _DEBUG
+#undef DrawText
+#undef SIZEOF_SIZE_T
 #include "wx/wx.h"
 //#if defined (REDEDINE_DEBUG)
 //#undef REDEDINE_DEBUG
@@ -25,7 +27,7 @@ class MyApp
  : public wxApp
 {
  public:
-  bool OnInit ()
+  virtual bool OnInit ()
   {
 #if defined (_DEBUG)
     wxLog::SetLogLevel (wxLOG_Max);
@@ -33,6 +35,29 @@ class MyApp
     Simple *simple = new Simple (wxT ("Simple"));
     simple->Show (true);
     return true;
+  }
+
+  inline virtual void OnAssertFailure (const wxChar* file,
+                                       int line,
+                                       const wxChar* func,
+                                       const wxChar* cond,
+                                       const wxChar* msg)
+  {
+    ACE_ASSERT (false);
+  }
+
+  // old version of the function without func parameter, for compatibility
+  // only, override OnAssertFailure() in the new code
+  inline virtual void OnAssert (const wxChar* file,
+                                int line,
+                                const wxChar* cond,
+                                const wxChar* msg)
+  {
+    OnAssertFailure (file,
+                     line,
+                     NULL,
+                     cond,
+                     msg);
   }
 };
 

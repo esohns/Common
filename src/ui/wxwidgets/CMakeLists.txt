@@ -51,7 +51,7 @@ foreach (source_file ${source_files})
  #       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
 target_sources (${LIBRARY}
-                PRIVATE stdafx.cpp
+#                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 target_precompile_headers (${LIBRARY}
@@ -60,8 +60,7 @@ target_precompile_headers (${LIBRARY}
 #get_target_property (debug ${PROJECT_NAME}UI_GTK INTERFACE_INCLUDE_DIRECTORIES)
 #message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
 
-if (UNIX)
-elseif (WIN32)
+if (WIN32)
 #*TODO*: use pkg-config instead
  add_dependencies (${LIBRARY} Common)
 
@@ -76,7 +75,7 @@ elseif (WIN32)
 # target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
 
  target_link_libraries (${LIBRARY} Common)
-endif ()
+endif (WIN32)
 
 #set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
 #set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)

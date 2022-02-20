@@ -2,9 +2,14 @@ set (LIBRARY ${PROJECT_NAME}Error)
 add_library (${LIBRARY} STATIC "")
 
 target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>)
+                            $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)
+
 target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>)
+                            $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
+if (WIN32)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>)
+endif (WIN32)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 target_include_directories (${LIBRARY} PUBLIC
@@ -13,7 +18,7 @@ target_include_directories (${LIBRARY} PUBLIC
 ############## next target ################
 set (source_files
      common_error_defines.h
-     common_error_exports.h
+#     common_error_exports.h
      common_error_tools.cpp
      common_error_tools.h)
 if (WIN32)
@@ -42,12 +47,10 @@ target_sources (${LIBRARY}
                 ${absolute_source_files})
 	
 if (WIN32)
-## set (CMAKE_GENERATOR_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE)
-# set (CMAKE_VS_PLATFORM_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE)
  if (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)
   add_compile_options (-Wno-c++11-narrowing)
- endif ()
-endif ()
+ endif (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)
+endif (WIN32)
 
 #*TODO*: use pkg-config instead
 if (WIN32)
@@ -70,7 +73,7 @@ export (TARGETS ${LIBRARY}
 ############### install files ################
 install (FILES
          common_error_defines.h
-         common_error_exports.h
+#         common_error_exports.h
          common_error_tools.h
          DESTINATION include)
 if (WIN32)
