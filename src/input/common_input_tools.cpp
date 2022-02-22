@@ -27,18 +27,31 @@
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
+void
+common_reset_input_mode (void)
+{
+  tcsetattr (ACE_STDIN,
+             TCSANOW,
+             &Common_Input_Tools::terminalSettings);
+}
+
 // initialize statics
 struct termios Common_Input_Tools::terminalSettings;
 #endif // ACE_WIN32 || ACE_WIN64
 
 bool
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 Common_Input_Tools::initialize ()
+#else
+Common_Input_Tools::initialize (bool lineMode_in)
+#endif // ACE_WIN32 || ACE_WIN64
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Tools::initialize"));
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-  if (unlikely (!Common_Input_Tools::initializeInput (Common_Input_Tools::terminalSettings)))
+  if (unlikely (!Common_Input_Tools::initializeInput (lineMode_in,
+                                                      Common_Input_Tools::terminalSettings)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Input_Tools::initializeInput(), aborting\n")));
@@ -65,12 +78,24 @@ Common_Input_Tools::finalize ()
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 bool
-Common_Input_Tools::initializeInput (struct termios& terminalSettings_out)
+Common_Input_Tools::initializeInput (bool lineMode_in,
+                                     struct termios& terminalSettings_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Tools::initializeInput"));
 
   int result = -1;
   struct termios termios_s;
+
+  // sanity check(s)
+  if (unlikely (!isatty (ACE_STDIN)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("%d is not associated to a terminal, aborting\n"),
+                ACE_STDIN));
+    return false;
+  } // end IF
+  if (unlikely (lineMode_in))
+    return true; // nothing to do
 
   result = ::tcgetattr (ACE_STDIN,
                         &terminalSettings_out);
@@ -84,16 +109,29 @@ Common_Input_Tools::initializeInput (struct termios& terminalSettings_out)
   } // end IF
 
   ACE_OS::memcpy (&termios_s, &terminalSettings_out, sizeof (struct termios));
-//  ACE_OS::atexit(reset_terminal_mode);
-  cfmakeraw (&termios_s);
+  //  cfmakeraw (&termios_s);
+//  termios_s.c_lflag &= ~(ICANON|ECHO); /* Clear ICANON and ECHO. */
+  termios_s.c_lflag &= ~(ICANON); /* Clear ICANON */
+  termios_s.c_cc[VMIN] = 1;
+  termios_s.c_cc[VTIME] = 0;
+
   result = ::tcsetattr (ACE_STDIN,
-                        TCSANOW,
+                        TCSAFLUSH,
                         &termios_s);
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to tcsetattr(%d,TCSANOW): \"%m\", aborting\n"),
                 ACE_STDIN));
+    return false;
+  } // end IF
+
+  // schedule reset at program end
+  result = ACE_OS::atexit (common_reset_input_mode);
+  if (unlikely (result == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::atexit(): \"%m\", aborting\n")));
     return false;
   } // end IF
 

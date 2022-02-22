@@ -79,7 +79,7 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_Message_Block* 
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Message_Queue_Base::enqueue(): \"%m\", aborting\n")));
-    buffer_->release (); buffer_ = NULL;
+    messageBlock_in->release ();
     return false;
   } // end IF
 
@@ -220,16 +220,21 @@ continue_:
   *buffer_->wr_ptr () = 0; // 0-terminate string
 #endif // ACE_WIN32 || ACE_WIN64
 
+  bool result_3 = false;
   try {
-    handle_input (buffer_);
+    result_3 = handle_input (buffer_);
   } catch (...) {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("caught exception in Common_InputHandler_Base_T::handle_input(), continuing\n")));
     buffer_->release ();
+    result_3 = false;
   }
   buffer_ = NULL;
+  if (unlikely (!result_3))
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_InputHandler_Base_T::handle_input(), aborting\n")));
 
-  return registered_ ? 0 : -1; // handle WIN32
+  return (registered_ ? (result_3 ? 0 : -1) : -1); // handle WIN32
 }
 
 template <typename ConfigurationType>

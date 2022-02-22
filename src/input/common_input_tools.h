@@ -29,28 +29,39 @@
 #include "ace/config-lite.h"
 #include "ace/Global_Macros.h"
 
-#include "common_iinitialize.h"
+//#include "common_iinitialize.h"
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+void
+common_reset_input_mode (void);
+#endif // ACE_WIN32 || ACE_WIN64
 
 class Common_Input_Tools
- : public Common_SInitializeFinalize_T<Common_Input_Tools>
+// : public Common_SInitializeFinalize_T<Common_Input_Tools>
 {
  public:
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   static bool initialize ();
+#else
+  static bool initialize (bool = false); // line mode ? : character-by-character
+#endif // ACE_WIN32 || ACE_WIN64
   static bool finalize ();
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-  static bool initializeInput (struct termios&); // return value: previous terminal settings
+  static bool initializeInput (bool,             // line mode ? : character-by-character
+                               struct termios&); // return value: previous terminal settings
   static void finalizeInput (const struct termios&); // previous terminal settings
 #endif // ACE_WIN32 || ACE_WIN64
+
+  static struct termios terminalSettings;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Input_Tools ())
   ACE_UNIMPLEMENTED_FUNC (~Common_Input_Tools ())
   ACE_UNIMPLEMENTED_FUNC (Common_Input_Tools (const Common_Input_Tools&))
   ACE_UNIMPLEMENTED_FUNC (Common_Input_Tools& operator= (const Common_Input_Tools&))
-
-  static struct termios terminalSettings;
 };
 
 #endif
