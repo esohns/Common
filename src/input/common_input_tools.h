@@ -41,21 +41,24 @@ class Common_Input_Tools
 // : public Common_SInitializeFinalize_T<Common_Input_Tools>
 {
  public:
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  static bool initialize ();
-#else
   static bool initialize (bool = false); // line mode ? : character-by-character
-#endif // ACE_WIN32 || ACE_WIN64
   static bool finalize ();
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static bool initializeInput (bool,    // line mode ? : character-by-character
+                               DWORD&); // return value: previous terminal settings
+  static void finalizeInput (DWORD); // previous terminal settings
 #else
   static bool initializeInput (bool,             // line mode ? : character-by-character
                                struct termios&); // return value: previous terminal settings
   static void finalizeInput (const struct termios&); // previous terminal settings
 #endif // ACE_WIN32 || ACE_WIN64
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static DWORD terminalSettings;
+#else
   static struct termios terminalSettings;
+#endif // ACE_WIN32 || ACE_WIN64
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Input_Tools ())

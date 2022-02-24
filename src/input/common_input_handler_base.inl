@@ -137,7 +137,7 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_HANDLE handle_i
                                                   &result_2)))
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ReadConsoleInput(): \"%s\", aborting\n"),
+                  ACE_TEXT ("failed to GetNumberOfConsoleInputEvents(): \"%s\", aborting\n"),
                   Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ()));
       buffer_->release (); buffer_ = NULL;
       return -1; // *NOTE*: will deregister/delete this

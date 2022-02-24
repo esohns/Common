@@ -22,10 +22,20 @@
 #include "common_input_tools.h"
 
 #include "ace/Log_Msg.h"
+#include "ace/OS.h"
 
 #include "common_macros.h"
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+void
+common_reset_input_mode (void)
+{
+  SetConsoleMode (ACE_STDIN,
+                  Common_Input_Tools::terminalSettings);
+}
+
+// initialize statics
+DWORD Common_Input_Tools::terminalSettings;
 #else
 void
 common_reset_input_mode (void)
@@ -40,16 +50,10 @@ struct termios Common_Input_Tools::terminalSettings;
 #endif // ACE_WIN32 || ACE_WIN64
 
 bool
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-Common_Input_Tools::initialize ()
-#else
 Common_Input_Tools::initialize (bool lineMode_in)
-#endif // ACE_WIN32 || ACE_WIN64
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Tools::initialize"));
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
   if (unlikely (!Common_Input_Tools::initializeInput (lineMode_in,
                                                       Common_Input_Tools::terminalSettings)))
   {
@@ -57,7 +61,6 @@ Common_Input_Tools::initialize (bool lineMode_in)
                 ACE_TEXT ("failed to Common_Input_Tools::initializeInput(), aborting\n")));
     return false;
   } // end IF
-#endif // ACE_WIN32 || ACE_WIN64
 
   return true;
 }
@@ -67,23 +70,50 @@ Common_Input_Tools::finalize ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Tools::finalize"));
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
   Common_Input_Tools::finalizeInput (Common_Input_Tools::terminalSettings);
-#endif // ACE_WIN32 || ACE_WIN64
 
   return true;
 }
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
 bool
 Common_Input_Tools::initializeInput (bool lineMode_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                     DWORD& terminalSettings_out)
+#else
                                      struct termios& terminalSettings_out)
+#endif // ACE_WIN32 || ACE_WIN64
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Tools::initializeInput"));
 
   int result = -1;
+
+  // sanity check(s)
+  if (unlikely (lineMode_in))
+    return true; // nothing to do
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  // disable 'line input'
+  if (unlikely (!GetConsoleMode (ACE_STDIN,
+                                 &terminalSettings_out)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to GetConsoleMode(): \"%m\", aborting\n")));
+    return false;
+  } // end IF
+  DWORD console_mode_i = terminalSettings_out;
+  //console_mode_i &= ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT);
+  console_mode_i &= ~ENABLE_LINE_INPUT;
+  if (unlikely (!SetConsoleMode (ACE_STDIN,
+                                 console_mode_i)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to SetConsoleMode(%u): \"%m\", aborting\n"),
+                console_mode_i));
+    return false;
+  } // end IF
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("disabled ENABLE_LINE_INPUT\n")));
+#else
   struct termios termios_s;
 
   // sanity check(s)
@@ -94,8 +124,6 @@ Common_Input_Tools::initializeInput (bool lineMode_in,
                 ACE_STDIN));
     return false;
   } // end IF
-  if (unlikely (lineMode_in))
-    return true; // nothing to do
 
   result = ::tcgetattr (ACE_STDIN,
                         &terminalSettings_out);
@@ -121,10 +149,14 @@ Common_Input_Tools::initializeInput (bool lineMode_in,
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to tcsetattr(%d,TCSANOW): \"%m\", aborting\n"),
+                ACE_TEXT ("failed to tcsetattr(%d,TCSAFLUSH): \"%m\", aborting\n"),
                 ACE_STDIN));
     return false;
   } // end IF
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("%d: disabled canonical mode\n"),
+              ACE_STDIN));
+#endif // ACE_WIN32 || ACE_WIN64
 
   // schedule reset at program end
   result = ACE_OS::atexit (common_reset_input_mode);
@@ -139,10 +171,24 @@ Common_Input_Tools::initializeInput (bool lineMode_in,
 }
 
 void
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+Common_Input_Tools::finalizeInput (DWORD terminalSettings_in)
+#else
 Common_Input_Tools::finalizeInput (const struct termios& terminalSettings_in)
+#endif // ACE_WIN32 || ACE_WIN64
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Tools::finalizeInput"));
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  if (unlikely (!SetConsoleMode (ACE_STDIN,
+                                 terminalSettings_in)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to SetConsoleMode(%u): \"%m\", returning\n"),
+                terminalSettings_in));
+    return;
+  } // end IF
+#else
   int result = ::tcsetattr (ACE_STDIN,
                             TCSANOW,
                             &terminalSettings_in);
@@ -153,5 +199,5 @@ Common_Input_Tools::finalizeInput (const struct termios& terminalSettings_in)
                 ACE_STDIN));
     return;
   } // end IF
-}
 #endif // ACE_WIN32 || ACE_WIN64
+}

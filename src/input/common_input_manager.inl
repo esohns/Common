@@ -189,29 +189,6 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
     } // end IF
   } // end IF
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  // disable 'line input'
-  DWORD console_mode_i = 0;
-  if (unlikely (!GetConsoleMode (ACE_STDIN,
-                                 &console_mode_i)))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to GetConsoleMode(): \"%m\", aborting\n")));
-    return false;
-  } // end IF
-  console_mode_i &= ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT);
-  if (unlikely (!SetConsoleMode (ACE_STDIN,
-                                 console_mode_i)))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to SetConsoleMode(%u): \"%m\", aborting\n"),
-                console_mode_i));
-    return false;
-  } // end IF
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("disabled ENABLE_LINE_INPUT\n")));
-#endif // ACE_WIN32 || ACE_WIN64
-
   configuration_ = &const_cast<ConfigurationType&> (configuration_in);
 
   return true;

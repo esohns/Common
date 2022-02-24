@@ -107,6 +107,13 @@ class Common_IGetR_5_T
 };
 
 template <typename Type>
+class Common_IGetR_6_T
+{
+public:
+  virtual const Type& getR_6 () const = 0; // return value: type
+};
+
+template <typename Type>
 class Common_ISetR_T
 {
  public:
