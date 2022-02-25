@@ -82,11 +82,27 @@ Test_I_InputHandler_T<
   COMMON_TRACE (ACE_TEXT ("Test_I_InputHandler_T::handle_input"));
 
   // sanity check(s)
+  ACE_ASSERT (inherited::configuration_);
   ACE_ASSERT (messageBlock_in);
 
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("read input: \"%s\"\n"),
-              ACE_TEXT (messageBlock_in->rd_ptr ())));
+  if (inherited::configuration_->lineMode)
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("read input: \"%s\"\n"),
+                ACE_TEXT (messageBlock_in->rd_ptr ())));
+  else
+  {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    struct _KEY_EVENT_RECORD* key_event_record_p =
+      reinterpret_cast<struct _KEY_EVENT_RECORD*> (messageBlock_in->rd_ptr ());
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("read input: \"%c\"\n"),
+                key_event_record_p->uChar.AsciiChar));
+#else
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("read input: \"%c\"\n"),
+                *messageBlock_in->rd_ptr ()));
+#endif // ACE_WIN32 || ACE_WIN64
+  } // end ELSE
   messageBlock_in->release ();
 
   return true;

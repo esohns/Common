@@ -62,10 +62,15 @@ if (WIN32)
  else ()
   file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
  endif (VCPKG_SUPPORT)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/${EXECUTABLE}.exe" COMMAND)
+ string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
+ file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
  set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
-                           ${ACE_LIB_PATH})
+                           ${ACE_LIB_PATH}
+                           ${wxWidgets_LIB_DIR})
 endif (WIN32)
 create_target_launcher (${EXECUTABLE}
+                        COMMAND ${COMMAND}
                         ARGS "-l -t"
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}

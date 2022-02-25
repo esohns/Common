@@ -148,6 +148,29 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_HANDLE handle_i
     //                   there is user input while handle_in is signalled
     if (unlikely (!result_2))
       goto continue_; // --> shutdown
+
+    if (configuration_->lineMode)
+    {
+      std::string input_string;
+      std::getline (std::cin, input_string);
+
+      bytes_received =
+        std::min (input_string.size (), buffer_->space () - 1);
+      result = buffer_->copy (input_string.c_str (),
+                              bytes_received);
+      if (unlikely (result == -1))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_Message_Block::copy(%u): \"%m\", aborting\n"),
+                    sizeof (struct _KEY_EVENT_RECORD)));
+        buffer_->release (); buffer_ = NULL;
+        return -1; // *NOTE*: will deregister/delete this
+      } // end IF
+      *buffer_->wr_ptr () = 0; // 0-terminate string
+
+      goto continue_2;
+    } // end IF
+
     if (unlikely (!ReadConsoleInput (handle_in,
                                      &input_record_s,
                                      1,
@@ -160,9 +183,8 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_HANDLE handle_i
       buffer_->release (); buffer_ = NULL;
       return -1; // *NOTE*: will deregister/delete this
     } // end IF
-    if (input_record_s.EventType != KEY_EVENT)
-      continue;
-    if (!input_record_s.Event.KeyEvent.bKeyDown)
+    if ((input_record_s.EventType != KEY_EVENT) ||
+        !input_record_s.Event.KeyEvent.bKeyDown)
       continue;
     break;
   } while (true);
@@ -178,6 +200,7 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_HANDLE handle_i
     return -1; // *NOTE*: will deregister/delete this
   } // end IF
   bytes_received = sizeof (struct _KEY_EVENT_RECORD);
+continue_2:
 #else
   bytes_received = ACE_OS::read (handle_in,
                                  buffer_->wr_ptr (),

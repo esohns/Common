@@ -56,6 +56,10 @@ do_print_usage (const std::string& programName_in)
             << false
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-m          : line mode [")
+            << false
+            << ACE_TEXT_ALWAYS_CHAR ("]")
+            << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-t          : trace information [")
             << false
             << ACE_TEXT_ALWAYS_CHAR ("]")
@@ -66,6 +70,7 @@ bool
 do_process_arguments (int argc_in,
                       ACE_TCHAR** argv_in, // cannot be const...
                       bool& logToFile_out,
+                      bool& lineMode_out,
                       bool& traceInformation_out)
 {
   std::string path_root =
@@ -73,11 +78,12 @@ do_process_arguments (int argc_in,
 
   // initialize results
   logToFile_out = false;
+  lineMode_out = false;
   traceInformation_out = false;
 
   ACE_Get_Opt argument_parser (argc_in,
                                argv_in,
-                               ACE_TEXT ("lt"),
+                               ACE_TEXT ("lmt"),
                                1,                         // skip command name
                                1,                         // report parsing errors
                                ACE_Get_Opt::PERMUTE_ARGS, // ordering
@@ -92,6 +98,11 @@ do_process_arguments (int argc_in,
       case 'l':
       {
         logToFile_out = true;
+        break;
+      }
+      case 'm':
+      {
+        lineMode_out = true;
         break;
       }
       case 't':
@@ -135,10 +146,21 @@ do_process_arguments (int argc_in,
 
 void
 do_work (int argc_in,
-         ACE_TCHAR* argv_in[])
+         ACE_TCHAR* argv_in[],
+         bool lineMode_in)
 {
   // step1: initialize signals
   ACE_Sig_Set signals_a (true);
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  signals_a.empty_set ();
+  signals_a.sig_add (SIGINT);            // 2       /* interrupt */
+  signals_a.sig_add (SIGILL);            // 4       /* illegal instruction - invalid function image */
+  signals_a.sig_add (SIGFPE);            // 8       /* floating point exception */
+  //  signals_a.sig_add (SIGSEGV);           // 11      /* segment violation */
+  signals_a.sig_add (SIGBREAK);          // 21      /* Ctrl-Break sequence */
+  signals_a.sig_add (SIGABRT);           // 22      /* abnormal termination triggered by abort call */
+  signals_a.sig_add (SIGABRT_COMPAT);    // 6       /* SIGABRT compatible with other platforms, same as SIGABRT */
+#endif // ACE_WIN32 || ACE_WIN64
   ACE_Sig_Set previous_signal_mask_a (false);
   Common_SignalActions_t previous_signal_actions_a;
   if (unlikely (!Common_Signal_Tools::preInitialize (signals_a,
@@ -183,7 +205,7 @@ do_work (int argc_in,
   struct Common_Input_Manager_Configuration configuration;
 
   // step2: initialize input
-  if (unlikely (!Common_Input_Tools::initialize ()))
+  if (unlikely (!Common_Input_Tools::initialize (lineMode_in)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Input_Tools::initialize(), returning\n")));
@@ -196,6 +218,7 @@ do_work (int argc_in,
   input_configuration.allocatorConfiguration = &allocator_configuration;
   input_configuration.eventDispatchConfiguration =
       &event_dispatch_configuration;
+  input_configuration.lineMode = lineMode_in;
   input_configuration.manager = input_manager_p;
   input_configuration.CBData = &cbdata_s;
   configuration.eventDispatchConfiguration = &event_dispatch_configuration;
@@ -262,12 +285,14 @@ ACE_TMAIN (int argc_in,
   // step1a set defaults
   bool log_to_file = false;
   std::string log_file_name;
+  bool line_mode = false;
   bool trace_information = false;
 
   // step1b: parse/process/validate configuration
   if (!do_process_arguments (argc_in,
                              argv_in,
                              log_to_file,
+                             line_mode,
                              trace_information))
   {
     do_print_usage (ACE::basename (argv_in[0]));
@@ -302,7 +327,8 @@ ACE_TMAIN (int argc_in,
   timer.start ();
   // step2: do actual work
   do_work (argc_in,
-           argv_in);
+           argv_in,
+           line_mode);
   timer.stop ();
 
   // debug info

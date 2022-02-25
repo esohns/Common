@@ -44,6 +44,7 @@ struct Common_Input_Configuration
    , CBData (NULL)
 #endif // GUI_SUPPORT
    , eventDispatchConfiguration (NULL)
+   , lineMode (false)
    , manager (NULL)
    , messageAllocator (NULL)
    , queue (NULL)
@@ -55,6 +56,7 @@ struct Common_Input_Configuration
   struct Common_UI_CBData*                  CBData;
 #endif // GUI_SUPPORT
   struct Common_EventDispatchConfiguration* eventDispatchConfiguration;
+  bool                                      lineMode; // read lines of characters ? : single characters
   Common_IRegister*                         manager;
   ACE_Allocator*                            messageAllocator;
   ACE_Message_Queue_Base*                   queue; // drop input data into this queue

@@ -101,8 +101,7 @@ Common_Input_Tools::initializeInput (bool lineMode_in,
     return false;
   } // end IF
   DWORD console_mode_i = terminalSettings_out;
-  //console_mode_i &= ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT);
-  console_mode_i &= ~ENABLE_LINE_INPUT;
+  console_mode_i &= ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT);
   if (unlikely (!SetConsoleMode (ACE_STDIN,
                                  console_mode_i)))
   {
