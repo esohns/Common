@@ -92,6 +92,21 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_HANDLE handle_i
 {
   COMMON_TRACE (ACE_TEXT ("Common_InputHandler_Base_T::handle_input"));
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static bool is_first = true;
+  if (unlikely (is_first))
+  {
+    is_first = false;
+#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
+    Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_INPUT_EVENT_HANDLER_THREAD_NAME),
+                                       NULL);
+#else
+    Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_INPUT_EVENT_HANDLER_THREAD_NAME),
+                                       0);
+#endif // _WIN32_WINNT_WIN10
+  } // end IF
+#endif // ACE_WIN32 || ACE_WIN64
+
   // sanity check(s)
   ACE_ASSERT (configuration_);
   ACE_ASSERT (configuration_->allocatorConfiguration);
@@ -154,15 +169,14 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_HANDLE handle_i
       std::string input_string;
       std::getline (std::cin, input_string);
 
-      bytes_received =
-        std::min (input_string.size (), buffer_->space () - 1);
+      bytes_received = std::min (input_string.size (), buffer_->space () - 1);
       result = buffer_->copy (input_string.c_str (),
                               bytes_received);
       if (unlikely (result == -1))
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to ACE_Message_Block::copy(%u): \"%m\", aborting\n"),
-                    sizeof (struct _KEY_EVENT_RECORD)));
+                    bytes_received));
         buffer_->release (); buffer_ = NULL;
         return -1; // *NOTE*: will deregister/delete this
       } // end IF

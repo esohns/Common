@@ -24,5 +24,8 @@
 // event dispatch
 #define COMMON_INPUT_EVENT_THREAD_GROUP_ID                           200
 #define COMMON_INPUT_EVENT_THREAD_NAME                               "input dispatch"
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#define COMMON_INPUT_EVENT_HANDLER_THREAD_NAME                       "input handler"
+#endif // ACE_WIN32 || ACE_WIN64
 
 #endif

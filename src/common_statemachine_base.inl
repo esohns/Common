@@ -204,6 +204,8 @@ Common_StateMachine_Base_T<StateMachineName,
   // invoke callback
   // *IMPORTANT NOTE*: note that the stateLock_ is NOT held during the callback
   // *TODO*: implement a consistent (thread-safe/reentrant) policy
+  // *TODO*: set the new state BEFORE invoking the callback and pass the
+  //         previous state to the callback; this should be more consistent
   try {
     result_2 = this->onChange (newState_in);
   } catch (...) {

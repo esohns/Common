@@ -2508,13 +2508,6 @@ Common_Tools::finalizeEventDispatch (struct Common_EventDispatchState& dispatchS
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_Proactor::end_event_loop: \"%m\", continuing\n")));
 
-//    // *WARNING*: on UNIX; this could prevent proper signal reactivation (see
-//    //            finalizeSignals())
-//    result = proactor_p->close ();
-//    if (result == -1)
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("failed to ACE_Proactor::close: \"%m\", continuing\n")));
-
   ACE_Reactor* reactor_p = ACE_Reactor::instance ();
   ACE_ASSERT (reactor_p != NULL);
   result = reactor_p->end_event_loop ();
@@ -2548,6 +2541,10 @@ Common_Tools::finalizeEventDispatch (struct Common_EventDispatchState& dispatchS
   } // end IF
 
 continue_:
+  // *WARNING*: on UNIX; this could prevent proper signal reactivation (see
+  //            finalizeSignals())
+  ACE_Proactor::close_singleton ();
+
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("stopped event dispatch\n")));
 }

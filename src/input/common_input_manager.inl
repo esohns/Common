@@ -222,8 +222,9 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
       if (unlikely (!configuration_))
         goto continue_; // nothing to do
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-      if (unlikely (!SetEvent (ACE_STDIN)))
-        ACE_DEBUG ((LM_ERROR,
+      //if (unlikely (SetEvent (ACE_STDIN) == FALSE))
+      if (unlikely (PulseEvent (ACE_STDIN) == FALSE))
+          ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to SetEvent(): \"%s\", continuing\n"),
                     ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
 #endif // ACE_WIN32 || ACE_WIN64
