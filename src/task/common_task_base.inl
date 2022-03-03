@@ -625,18 +625,18 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   //         ACE_Stream::push_module()
   if (!threadCount_)
     return 0; // nothing to do here
-  if (unlikely (inherited::thr_count_ > 0))
-  {
-    if (inherited::mod_)
-      ACE_DEBUG ((LM_WARNING,
-                  ACE_TEXT ("%s: object already active (thread pool size: %u), continuing\n"),
-                  inherited::mod_->name (),
-                  inherited::thr_count_));
-    else
-      ACE_DEBUG ((LM_WARNING,
-                  ACE_TEXT ("object already active (thread pool size: %u), continuing\n"),
-                  inherited::thr_count_));
-  } // end IF
+  //if (unlikely (inherited::thr_count_ > 0))
+  //{
+  //  if (inherited::mod_)
+  //    ACE_DEBUG ((LM_WARNING,
+  //                ACE_TEXT ("%s: object already active (thread pool size: %u), continuing\n"),
+  //                inherited::mod_->name (),
+  //                inherited::thr_count_));
+  //  else
+  //    ACE_DEBUG ((LM_WARNING,
+  //                ACE_TEXT ("object already active (thread pool size: %u), continuing\n"),
+  //                inherited::thr_count_));
+  //} // end IF
 
   ACE_thread_t* thread_ids_p = NULL;
   ACE_hthread_t* thread_handles_p = NULL;
