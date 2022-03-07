@@ -162,9 +162,9 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Manager_T::deregister"));
 
-  { ACE_GUARD (ACE_Thread_Mutex, aGuard, lock_);
+//  { ACE_GUARD (ACE_Thread_Mutex, aGuard, lock_);
     handler_ = NULL;
-  } // end lock scope
+//  } // end lock scope
 }
 
 template <ACE_SYNCH_DECL,
