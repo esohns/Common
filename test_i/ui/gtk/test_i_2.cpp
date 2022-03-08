@@ -30,6 +30,152 @@
 #include "test_i_gtk_callbacks.h"
 #include "test_i_gtk_defines.h"
 
+enum Test_I_ModeType
+{
+  TEST_I_MODE_DEFAULT = 0,
+  ////////////////////////////////////////
+  TEST_I_MODE_MAX,
+  TEST_I_MODE_INVALID
+};
+
+#if GTK_CHECK_VERSION(3,0,0)
+gboolean
+drawing_area_draw_cb (GtkWidget* widget_in,
+                      cairo_t* context_in,
+                      gpointer userData_in)
+{
+  // sanity check(s)
+  ACE_ASSERT (context_in);
+  struct Common_UI_GTK_CBData* ui_cb_data_p =
+    static_cast<struct Common_UI_GTK_CBData*> (userData_in);
+  ACE_ASSERT (ui_cb_data_p);
+
+  GtkAllocation allocation_s;
+  gtk_widget_get_allocation (widget_in,
+                             &allocation_s);
+  cairo_scale (context_in,
+               allocation_s.width, allocation_s.height);
+
+  // step1: clear area
+  cairo_set_source_rgb (context_in,
+                        0.0, 0.0, 0.0); // opaque black
+  cairo_rectangle (context_in,
+                   0.0, 0.0,
+                   1.0, 1.0);
+  cairo_fill (context_in);
+
+  // step2: draw something
+  static int draw_shape = 0;
+  cairo_set_source_rgb (context_in, 1.0, 1.0, 1.0); // opaque white
+  cairo_set_line_width (context_in, 0.1);
+  switch (++draw_shape % 5)
+  {
+    case 0: // rectangle
+    {
+      cairo_rectangle (context_in,
+                       0.25, 0.25,
+                       0.5, 0.5);
+      cairo_fill (context_in);
+      break;
+    }
+    case 1: // circle
+    {
+      cairo_arc (context_in,
+                 0.5, 0.5,
+                 0.25,
+                 0.0, 2 * M_PI);
+      cairo_fill (context_in);
+      break;
+    }
+    case 2: // text
+    {
+      cairo_font_extents_t fe;
+      cairo_text_extents_t te;
+      char letter_a[2];
+      ACE_OS::memset (letter_a, 0, sizeof (char[2]));
+      letter_a[0] = 'a';
+      cairo_set_font_size (context_in, 0.5);
+      cairo_select_font_face (context_in, "Georgia",
+                              CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+      cairo_font_extents (context_in, &fe);
+      cairo_text_extents (context_in, letter_a, &te);
+      cairo_move_to (context_in,
+                     0.5 - te.x_bearing - te.width / 2,
+                     0.5 - fe.descent + fe.height / 2);
+      cairo_show_text (context_in, letter_a);
+      break;
+    }
+    case 3: // stroke
+    {
+      cairo_set_line_width (context_in, 0.1);
+      cairo_move_to (context_in, 0.0, 0.0);
+      cairo_line_to (context_in, 1.0, 1.0);
+      cairo_move_to (context_in, 1.0, 0.0);
+      cairo_line_to (context_in, 0.0, 1.0);
+      cairo_stroke (context_in);
+      break;
+    }
+    case 4: // fill
+    {
+      //cairo_set_source_rgb (context_in,
+      //                      1.0, 1.0, 1.0); // opaque white
+      cairo_rectangle (context_in,
+                       0.0, 0.0,
+                       1.0, 1.0);
+      cairo_fill (context_in);
+      break;
+    }
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid shape, aborting\n")));
+      return FALSE; // propagate event
+    }
+  } // end SWITCH
+
+  return TRUE; // do NOT propagate the event
+}
+#else
+gboolean
+drawing_area_expose_event_cb (GtkWidget* widget_in,
+                              GdkEvent* event_in,
+                              gpointer userData_in)
+{
+  ACE_UNUSED_ARG (widget_in);
+  ACE_UNUSED_ARG (event_in);
+
+  // sanity check(s)
+  struct Common_UI_GTK_CBData* ui_cb_data_p =
+    static_cast<struct Common_UI_GTK_CBData*> (userData_in);
+  ACE_ASSERT (ui_cb_data_p);
+
+  return TRUE; // do NOT propagate the event
+}
+#endif // GTK_CHECK_VERSION(3,0,0)
+
+gboolean
+idle_mode_0_cb (gpointer userData_in)
+{
+  struct Common_UI_GTK_CBData* ui_cb_data_p =
+    static_cast<struct Common_UI_GTK_CBData*> (userData_in);
+  ACE_ASSERT (ui_cb_data_p);
+  ACE_ASSERT (ui_cb_data_p->UIState);
+  Common_UI_GTK_BuildersIterator_t iterator =
+    ui_cb_data_p->UIState->builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
+  GtkDrawingArea* drawing_area_p =
+    GTK_DRAWING_AREA (gtk_builder_get_object ((*iterator).second.second,
+                                              ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_DRAWINGAREA_NAME)));
+  ACE_ASSERT (drawing_area_p);
+
+  gdk_window_invalidate_rect (gtk_widget_get_window (GTK_WIDGET (drawing_area_p)),
+                              NULL,   // whole window
+                              FALSE); // invalidate children ?
+
+  return G_SOURCE_CONTINUE;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void
 do_print_usage (const std::string& programName_in)
 {
@@ -55,6 +201,10 @@ do_print_usage (const std::string& programName_in)
             << ui_definition_file_path
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-m           : program mode [")
+            << 0
+            << ACE_TEXT_ALWAYS_CHAR ("]")
+            << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-t           : trace information [")
             << false
             << ACE_TEXT_ALWAYS_CHAR ("]")
@@ -64,6 +214,7 @@ do_print_usage (const std::string& programName_in)
 bool
 do_process_arguments (int argc_in,
                       ACE_TCHAR** argv_in, // cannot be const...
+                      enum Test_I_ModeType& mode_out,
                       bool& traceInformation_out,
                       std::string& UIDefinitionFilePath_out)
 {
@@ -71,6 +222,7 @@ do_process_arguments (int argc_in,
     Common_File_Tools::getWorkingDirectory ();
 
   // initialize results
+  mode_out = TEST_I_MODE_DEFAULT;
   traceInformation_out = false;
   UIDefinitionFilePath_out = path_root;
   UIDefinitionFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
@@ -80,7 +232,7 @@ do_process_arguments (int argc_in,
 
   ACE_Get_Opt argument_parser (argc_in,
                                argv_in,
-                               ACE_TEXT ("g:t"),
+                               ACE_TEXT ("g:m:t"),
                                1,                         // skip command name
                                1,                         // report parsing errors
                                ACE_Get_Opt::PERMUTE_ARGS, // ordering
@@ -96,6 +248,15 @@ do_process_arguments (int argc_in,
       {
         UIDefinitionFilePath_out =
           ACE_TEXT_ALWAYS_CHAR (argument_parser.opt_arg ());
+        break;
+      }
+      case 'm':
+      {
+        std::istringstream converter (ACE_TEXT_ALWAYS_CHAR (argument_parser.opt_arg ()),
+                                      1);
+        int i = 0;
+        converter >> i;
+        mode_out << static_cast<enum Test_U_ModeType> (i);
         break;
       }
       case 't':
@@ -140,7 +301,8 @@ do_process_arguments (int argc_in,
 void
 do_work (int argc_in,
          ACE_TCHAR* argv_in[],
-         const std::string& UIDefinitionFilePath_in)
+         const std::string& UIDefinitionFilePath_in,
+         enum Test_I_ModeType mode_in)
 {
   Common_UI_GTK_Configuration_t gtk_configuration;
   struct Common_UI_GTK_CBData ui_cb_data;
@@ -173,20 +335,67 @@ do_work (int argc_in,
   } // end IF
 
   gtk_manager_p->start ();
-  ACE_Time_Value timeout (0,
-                          COMMON_UI_GTK_TIMEOUT_DEFAULT_MANAGER_INITIALIZATION_MS * 1000);
-  result = ACE_OS::sleep (timeout);
-  if (result == -1)
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::sleep(%#T): \"%m\", continuing\n"),
-                &timeout));
   if (!gtk_manager_p->isRunning ())
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to start GTK event dispatch, returning\n")));
     return;
   } // end IF
+  ACE_OS::sleep (ACE_Time_Value (1, 0));
+
+  switch (mode_in)
+  {
+    case TEST_I_MODE_DEFAULT:
+    {
+      Common_UI_GTK_BuildersIterator_t iterator =
+        state_r.builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
+      ACE_ASSERT (iterator != state_r.builders.end ());
+      GtkDrawingArea* drawing_area_p =
+        GTK_DRAWING_AREA (gtk_builder_get_object ((*iterator).second.second,
+                                                  ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_DRAWINGAREA_NAME)));
+      ACE_ASSERT (drawing_area_p);
+
+      gulong result_3 =
+#if GTK_CHECK_VERSION(3,0,0)
+        g_signal_connect (G_OBJECT (drawing_area_p),
+                          ACE_TEXT_ALWAYS_CHAR ("draw"),
+                          G_CALLBACK (drawing_area_draw_cb),
+                          &ui_cb_data);
+#else
+        g_signal_connect (G_OBJECT (drawing_area_p),
+                          ACE_TEXT_ALWAYS_CHAR ("expose-event"),
+                          G_CALLBACK (drawing_area_expose_event_cb),
+                          &ui_cb_data);
+#endif // GTK_CHECK_VERSION(3,0,0)
+      ACE_ASSERT (result_3);
+
+      guint event_source_id = //g_idle_add (
+                              g_timeout_add (1000, // ms
+                                          idle_mode_0_cb,
+                                          &ui_cb_data);
+      if (unlikely (!event_source_id))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to g_idle_add(): \"%m\", returning")));
+        goto error;
+      } // end IF
+
+      break;
+    }
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown mode (was: %d), returning\n"),
+                  mode_in));
+      goto error;
+    }
+  } // end SWITCH
+
   gtk_manager_p->wait (false);
+
+error:
+  gtk_manager_p->stop (true,   // wait for completion ?
+                       false); // N/A
 }
 
 int
@@ -219,6 +428,7 @@ ACE_TMAIN (int argc_in,
 
   // step1a set defaults
   std::string path_root = Common_File_Tools::getWorkingDirectory ();
+  enum Test_I_ModeType program_mode_e = TEST_I_MODE_INVALID;
   bool trace_information = false;
   std::string ui_definition_file_path = path_root;
   ui_definition_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
@@ -229,6 +439,7 @@ ACE_TMAIN (int argc_in,
   // step1b: parse/process/validate configuration
   if (!do_process_arguments (argc_in,
                              argv_in,
+                             program_mode_e,
                              trace_information,
                              ui_definition_file_path))
   {
@@ -261,7 +472,8 @@ ACE_TMAIN (int argc_in,
   // step2: do actual work
   do_work (argc_in,
            argv_in,
-           ui_definition_file_path);
+           ui_definition_file_path,
+           program_mode_e);
   timer.stop ();
 
   // debug info

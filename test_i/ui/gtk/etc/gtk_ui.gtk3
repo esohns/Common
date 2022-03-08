@@ -147,14 +147,16 @@
             </child>
             <child>
               <object class="GtkDrawingArea" id="drawingarea">
-                <property name="width-request">100</property>
-                <property name="height-request">100</property>
+                <property name="width-request">320</property>
+                <property name="height-request">240</property>
                 <property name="visible">True</property>
                 <property name="app-paintable">True</property>
                 <property name="can-focus">False</property>
+                <property name="double-buffered">False</property>
+                <signal name="draw" handler="drawingarea_draw_cb" swapped="no"/>
               </object>
               <packing>
-                <property name="expand">False</property>
+                <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">2</property>
               </packing>
@@ -187,7 +189,7 @@
             </child>
           </object>
           <packing>
-            <property name="expand">False</property>
+            <property name="expand">True</property>
             <property name="fill">True</property>
             <property name="position">1</property>
           </packing>

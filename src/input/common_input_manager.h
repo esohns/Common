@@ -90,18 +90,18 @@ class Common_Input_Manager_T
   Common_Input_Manager_T ();
   virtual ~Common_Input_Manager_T ();
 
+  // override/hide some ACE_Task_Base member(s)
+  virtual int close (u_long = 0);
+
   ConfigurationType* configuration_;
   HandlerType*       handler_;
   ACE_Thread_Mutex   lock_;
 
  private:
-  // convenient types
-
   ACE_UNIMPLEMENTED_FUNC (Common_Input_Manager_T (const Common_Input_Manager_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_Input_Manager_T& operator= (const Common_Input_Manager_T&))
 
   // override/hide some ACE_Task_Base member(s)
-  virtual int close (u_long = 0);
   virtual int svc (void);
 
   // hide some Common_IAsynchTask member(s)

@@ -45,12 +45,12 @@ Common_InputHandler_Base_T<ConfigurationType>::~Common_InputHandler_Base_T ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_InputHandler_Base_T::~Common_InputHandler_Base_T"));
 
+  // sanity check(s)
+  ACE_ASSERT (!registered_);
+
   if (configuration_ &&
       configuration_->manager)
     configuration_->manager->deregister ();
-
-  if (unlikely (registered_))
-    deregister ();
 
   if (unlikely (buffer_))
     buffer_->release ();
@@ -137,7 +137,7 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_HANDLE handle_i
   struct _INPUT_RECORD input_record_s;
   DWORD result_2 = 0;
   do
-  {
+  { // *TODO*: this method must NOT block as this prevents an ordered shutdown
     result_2 = WaitForSingleObject (handle_in,
                                     INFINITE); // wait forever
     if (unlikely (result_2 != WAIT_OBJECT_0))
@@ -148,21 +148,18 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_HANDLE handle_i
       buffer_->release (); buffer_ = NULL;
       return -1; // *NOTE*: will deregister/delete this
     } // end IF
-    if (unlikely (!GetNumberOfConsoleInputEvents (handle_in,
-                                                  &result_2)))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to GetNumberOfConsoleInputEvents(): \"%s\", aborting\n"),
-                  Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ()));
-      buffer_->release (); buffer_ = NULL;
-      return -1; // *NOTE*: will deregister/delete this
-    } // end IF
-    // *NOTE*: handle_in was signalled without any data being present
-    //         --> shutdown
-    // *IMPORTANT NOTE*: this shutdown mechanism is inherently racy, i.e. if
-    //                   there is user input while handle_in is signalled
-    if (unlikely (!result_2))
+    if (unlikely (!registered_))
       goto continue_; // --> shutdown
+//    if (unlikely (!GetNumberOfConsoleInputEvents (handle_in,
+//                                                  &result_2) ||
+//                  !result_2))
+//    {
+//      ACE_DEBUG ((LM_ERROR,
+//                  ACE_TEXT ("failed to GetNumberOfConsoleInputEvents(): \"%s\", aborting\n"),
+//                  Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ()));
+//      buffer_->release (); buffer_ = NULL;
+//      return -1; // *NOTE*: will deregister/delete this
+//    } // end IF
 
     if (configuration_->lineMode)
     {
@@ -248,14 +245,11 @@ continue_:
 #else
       // adjust write pointer
       buffer_->wr_ptr (bytes_received);
+      *buffer_->wr_ptr () = 0; // 0-terminate string
 #endif // ACE_WIN32 || ACE_WIN64
       break;
     }
   } // end SWITCH
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-  *buffer_->wr_ptr () = 0; // 0-terminate string
-#endif // ACE_WIN32 || ACE_WIN64
 
   bool result_3 = false;
   try {

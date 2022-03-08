@@ -74,12 +74,12 @@ do_printUsage (const std::string& programName_in)
             << std::endl << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("currently available options:")
             << std::endl;
-  //std::cout << ACE_TEXT_ALWAYS_CHAR ("-i          : ignore SIGINT [")
-  //          << false
-  //          << ACE_TEXT_ALWAYS_CHAR ("]")
-  //          << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-l          : log to a file [")
             << false
+            << ACE_TEXT_ALWAYS_CHAR ("]")
+            << std::endl;
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-m          : program mode [")
+            << 0
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-t          : trace information [")
@@ -104,7 +104,7 @@ do_processArguments (int argc_in,
 
   ACE_Get_Opt argument_parser (argc_in,
                                argv_in,
-                               ACE_TEXT ("lt"),
+                               ACE_TEXT ("lm:t"),
                                1,                         // skip command name
                                1,                         // report parsing errors
                                ACE_Get_Opt::PERMUTE_ARGS, // ordering
@@ -118,6 +118,15 @@ do_processArguments (int argc_in,
       case 'l':
       {
         logToFile_out = true;
+        break;
+      }
+      case 'm':
+      {
+        std::istringstream converter (ACE_TEXT_ALWAYS_CHAR (argument_parser.opt_arg ()),
+                                      1);
+        int i = 0;
+        converter >> i;
+        mode_out << static_cast<enum Test_U_ModeType> (i);
         break;
       }
       case 't':

@@ -76,9 +76,11 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
   ACE_UNUSED_ARG (timeout_in);
 
   // sanity check(s)
-  ACE_ASSERT (configuration_);
+  if (unlikely (!configuration_))
+    return false;
   ACE_ASSERT (configuration_->handlerConfiguration);
-  ACE_ASSERT (!handler_);
+  if (unlikely (handler_))
+    return true;
 
   bool deregister_b = false;
 
@@ -221,13 +223,6 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
       // sanity check(s)
       if (unlikely (!configuration_))
         goto continue_; // nothing to do
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-      //if (unlikely (SetEvent (ACE_STDIN) == FALSE))
-      if (unlikely (PulseEvent (ACE_STDIN) == FALSE))
-          ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to SetEvent(): \"%s\", continuing\n"),
-                    ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
-#endif // ACE_WIN32 || ACE_WIN64
       if (unlikely (configuration_->manageEventDispatch))
       {
         if (unlikely (inherited::thr_count_ == 0))
@@ -238,12 +233,26 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
       } // end IF
 
 continue_:
-      { ACE_GUARD_RETURN (ACE_Thread_Mutex, aGuard, lock_, -1);
+//      { ACE_GUARD_RETURN (ACE_Thread_Mutex, aGuard, lock_, -1);
         if (likely (handler_))
         { // *NOTE*: handler_ cleans itself up [WIN32: eventually]
           handler_->deregister (); handler_ = NULL;
         } // end IF
-      } // end lock scope
+//      } // end lock scope
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+        // *WARNING*: as it turns out SetEvent() (and friends) do NOT work on
+        //            file handles, signal the handle so the handler can go away
+        // *TODO*: "...Use WaitForMultipleObject instead, and pass 2 handles.
+        //          The existing one, and one for an event called something like
+        //          'exit'. During app shutdown, SetEvent on the exit event, and
+        //          the WaitForMultipleObject will return.... You need to switch
+        //          on the return value of WaitForMultipleObject to do the
+        //          appropriate behaviour depending on which one of the handles
+        //          was triggered. ..."
+        ACE_OS::write (ACE_STDIN,
+                       static_cast<void*> (ACE_TEXT_ALWAYS_CHAR ("0")),
+                       1);
+#endif // ACE_WIN32 || ACE_WIN64
 
       break;
     }
