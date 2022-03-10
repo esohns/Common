@@ -232,8 +232,12 @@
 #define COMMON_COMMAND_TASKKILL                                "taskkill.exe"
 #define COMMON_COMMAND_TASKLIST                                "tasklist.exe"
 #else
-//#define COMMON_COMMAND_ADDUSER_STRING                          "adduser"
+#define COMMON_COMMAND_FIND                                    "find"
 #define COMMON_COMMAND_GPASSWD                                 "gpasswd"
+#define COMMON_COMMAND_HWINFO                                  "hwinfo"
+#define COMMON_COMMAND_SWITCH_HWINFO_DISPLAY                   "display"
+#define COMMON_COMMAND_SWITCH_HWINFO_MONITOR                   "monitor"
+#define COMMON_COMMAND_SWITCH_HWINFO_SHORT                     "short"
 #define COMMON_COMMAND_LOCATE                                  "locate"
 #define COMMON_COMMAND_LSB_RELEASE                             "lsb_release"
 #define COMMON_COMMAND_SWITCH_LSB_RELEASE_DISTRIBUTOR          "i"
@@ -242,6 +246,8 @@
 #define COMMON_COMMAND_PIDOFPROC                               "pidofproc"
 #define COMMON_COMMAND_USERMOD                                 "usermod"
 #define COMMON_COMMAND_WHICH                                   "which"
+#define COMMON_COMMAND_XARGS                                   "xargs"
+#define COMMON_COMMAND_XRANDR                                  "xrandr"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

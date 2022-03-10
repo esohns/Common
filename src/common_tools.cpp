@@ -2696,29 +2696,9 @@ Common_Tools::isInstalled (const std::string& executableName_in,
     case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_UBUNTU:
     {
       // sanity check(s)
-      command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_WHICH);
-      command_line_string += ACE_TEXT_ALWAYS_CHAR (" ");
-      command_line_string +=
-          ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LOCATE);
-      int exit_status_i = 0;
-      if (unlikely(!Common_Process_Tools::command (command_line_string,
-                                                   exit_status_i,
-                                                   command_output_string)))
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
-                    ACE_TEXT (command_line_string.c_str ())));
-        return result; // *TODO*: avoid false negatives
-      } // end IF
-      if (unlikely(command_output_string.empty ()))
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to 'which' \"%s\", aborting\n"),
-                    ACE_TEXT (COMMON_COMMAND_LOCATE)));
-        return result; // *TODO*: avoid false negatives
-      } // end IF
-      command_line_string = Common_String_Tools::strip (command_output_string);
-//      ACE_ASSERT (Common_File_Tools::isExecutable (command_line_string));
+      ACE_ASSERT (Common_Tools::findProgram (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_FIND)));
+      ACE_ASSERT (Common_Tools::findProgram (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LOCATE)));
+      ACE_ASSERT (Common_Tools::findProgram (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_XARGS)));
       break;
     }
     default:
@@ -2729,12 +2709,17 @@ Common_Tools::isInstalled (const std::string& executableName_in,
       return result; // *TODO*: avoid false negatives
     }
   } // end SWITCH
-  ACE_ASSERT (!command_line_string.empty ());
+
+  command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LOCATE);
   command_line_string += ACE_TEXT_ALWAYS_CHAR (" -b '\\");
   command_line_string +=
       ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (executableName_in.c_str ()),
                                            ACE_DIRECTORY_SEPARATOR_CHAR));
-  command_line_string += ACE_TEXT_ALWAYS_CHAR ("' -e -l 1");
+  command_line_string += ACE_TEXT_ALWAYS_CHAR ("' -e | ");
+  command_line_string += ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_XARGS);
+  command_line_string += ACE_TEXT_ALWAYS_CHAR (" -ri ");
+  command_line_string += ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_FIND);
+  command_line_string += ACE_TEXT_ALWAYS_CHAR (" {} -prune -type f -executable");
   int exit_status_i = 0;
   if (unlikely (!Common_Process_Tools::command (command_line_string,
                                                 exit_status_i,
@@ -2745,7 +2730,8 @@ Common_Tools::isInstalled (const std::string& executableName_in,
                 ACE_TEXT (command_line_string.c_str ())));
     return result; // *TODO*: avoid false negatives
   } // end IF
-  ACE_ASSERT (!command_output_string.empty ());
+  if (command_output_string.empty())
+    return result;
 
   std::istringstream converter;
   converter.str (command_output_string);
@@ -2773,4 +2759,37 @@ Common_Tools::isInstalled (const std::string& executableName_in,
 #endif // ACE_LINUX
 
   return result;
+}
+
+bool
+Common_Tools::findProgram (const std::string& executableName_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::findProgram"));
+
+  std::string command_line_string;
+  command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_WHICH);
+  command_line_string += ACE_TEXT_ALWAYS_CHAR (" ");
+  command_line_string += executableName_in;
+  int exit_status_i = 0;
+  std::string command_output_string;
+  if (unlikely(!Common_Process_Tools::command (command_line_string,
+                                               exit_status_i,
+                                               command_output_string)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+               ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
+               ACE_TEXT (command_line_string.c_str ())));
+    return false; // *TODO*: avoid false negatives
+  } // end IF
+  if (unlikely(command_output_string.empty ()))
+  {
+    ACE_DEBUG ((LM_ERROR,
+               ACE_TEXT ("failed to 'which' \"%s\", aborting\n"),
+               ACE_TEXT (executableName_in.c_str ())));
+    return false; // *TODO*: avoid false negatives
+  } // end IF
+  command_line_string = Common_String_Tools::strip (command_output_string);
+  ACE_ASSERT (Common_File_Tools::isExecutable (command_line_string));
+
+  return true;
 }

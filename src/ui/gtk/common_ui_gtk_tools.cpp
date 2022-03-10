@@ -342,7 +342,7 @@ Common_UI_GTK_Tools::valueToIndex (GtkTreeModel* treeModel_in,
   ACE_ASSERT (treeModel_in);
   if (!gtk_tree_model_iter_n_children (treeModel_in,
                                        NULL))
-    return std::numeric_limits<guint>::max ();
+    return -1;
 
   struct Common_UI_GTK_Tools::TreeModel_IndexSearch_CBData cb_data_s;
   cb_data_s.column = column_in;

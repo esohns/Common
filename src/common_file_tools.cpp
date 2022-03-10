@@ -1462,16 +1462,25 @@ Common_File_Tools::load (const std::string& path_in,
   // read data
   result_3 =
     ACE_OS::fread (static_cast<void*> (file_out),     // target buffer
-                   1,                                 // read everything ...
-                   static_cast<size_t> (file_size_i), // ... at once
+                   static_cast<size_t> (file_size_i), // read everything ...
+                   1,                                 // ... at once
                    file_p);                           // stream handle
-  if (unlikely (result_3 != static_cast<size_t> (file_size_i)))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::fread(\"%s\",%d): \"%m\", aborting\n"),
-                ACE_TEXT (path_in.c_str ()),
-                file_size_i));
-    goto error;
+  if (unlikely (result_3 != static_cast<size_t> (1)))
+  { // *NOTE*: apparently, virtual filesystem files (e.g. sysfs) do not report
+    //         correct sizes; fread fails but reads what is there --> continue
+    if (::feof (file_p))
+      ACE_DEBUG ((LM_WARNING,
+                  ACE_TEXT ("failed to ACE_OS::fread(\"%s\",%d): \"%m\" (sysfs short read ?), continuing\n"),
+                  ACE_TEXT (path_in.c_str ()),
+                  file_size_i));
+    else
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::fread(\"%s\",%d): \"%m\", aborting\n"),
+                  ACE_TEXT (path_in.c_str ()),
+                  file_size_i));
+      goto error;
+    } // end ELSE
   } // end IF
 
   goto continue_;

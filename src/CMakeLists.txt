@@ -21,6 +21,14 @@ if (UNIX)
   endif (LIBCAP_SUPPORT)
  endif (PKG_LIBCAP_FOUND)
 
+ pkg_check_modules (PKG_LIBSYSFS libsysfs)
+ if (PKG_LIBSYSFS_FOUND)
+  option (LIBSYSFS_SUPPORT "enable libsysfs support" ON)
+  if (LIBSYSFS_SUPPORT)
+   add_definitions (-DLIBSYSFS_SUPPORT)
+  endif (LIBSYSFS_SUPPORT)
+ endif (PKG_LIBSYSFS_FOUND)
+
  add_link_options ("LINKER:--as-needed")
 endif (UNIX)
 
@@ -31,6 +39,11 @@ if (UNIX)
   target_include_directories (${PROJECT_NAME} PUBLIC
                               $<BUILD_INTERFACE:${PKG_LIBCAP_INCLUDE_DIRS}>)
  endif (LIBCAP_SUPPORT)
+
+ if (LIBSYSFS_SUPPORT)
+  target_include_directories (${PROJECT_NAME} PUBLIC
+                              $<BUILD_INTERFACE:${PKG_LIBSYSFS_INCLUDE_DIRS}>)
+ endif (LIBSYSFS_SUPPORT)
 endif (UNIX)
 
 target_include_directories (${PROJECT_NAME} PUBLIC
@@ -140,25 +153,30 @@ endif (WIN32)
 
 if (UNIX)
  if (HAVE_POSIX_AIO)
-  target_link_libraries (${PROJECT_NAME} rt)
+  target_link_libraries (${PROJECT_NAME} PUBLIC rt)
  endif (HAVE_POSIX_AIO)
+
  if (LIBCAP_SUPPORT)
-  target_link_libraries (${PROJECT_NAME} ${PKG_LIBCAP_LIBRARIES})
+  target_link_libraries (${PROJECT_NAME} PUBLIC ${PKG_LIBCAP_LIBRARIES})
  endif (LIBCAP_SUPPORT)
+
+ if (LIBSYSFS_SUPPORT)
+  target_link_libraries (${PROJECT_NAME} PUBLIC ${PKG_LIBSYSFS_LIBRARIES})
+ endif (LIBSYSFS_SUPPORT)
 elseif (WIN32)
  if (CMAKE_BUILD_TYPE STREQUAL Debug)
-  target_link_libraries (${PROJECT_NAME} Msvcrtd.lib)
+  target_link_libraries (${PROJECT_NAME} PUBLIC Msvcrtd.lib)
  else ()
-  target_link_libraries (${PROJECT_NAME} Msvcrt.lib)
+  target_link_libraries (${PROJECT_NAME} PUBLIC Msvcrt.lib)
  endif (CMAKE_BUILD_TYPE STREQUAL Debug)
- target_link_libraries (${PROJECT_NAME} Dbghelp.lib)
- target_link_libraries (${PROJECT_NAME} Quartz.lib)
- target_link_libraries (${PROJECT_NAME} Secur32.lib)
- target_link_libraries (${PROJECT_NAME} Userenv.lib)
+ target_link_libraries (${PROJECT_NAME} PUBLIC Dbghelp.lib)
+ target_link_libraries (${PROJECT_NAME} PUBLIC Quartz.lib)
+ target_link_libraries (${PROJECT_NAME} PUBLIC Secur32.lib)
+ target_link_libraries (${PROJECT_NAME} PUBLIC Userenv.lib)
 
- target_link_libraries (${PROJECT_NAME} ${ACE_LIBRARY})
+ target_link_libraries (${PROJECT_NAME} PUBLIC ${ACE_LIBRARY})
 endif ()
-target_link_libraries (${PROJECT_NAME} ${PROJECT_NAME}Error)
+target_link_libraries (${PROJECT_NAME} PUBLIC ${PROJECT_NAME}Error)
 
 ##########################################
 

@@ -123,10 +123,10 @@ do_processArguments (int argc_in,
       case 'm':
       {
         std::istringstream converter (ACE_TEXT_ALWAYS_CHAR (argument_parser.opt_arg ()),
-                                      1);
+                                      std::ios_base::in);
         int i = 0;
         converter >> i;
-        mode_out << static_cast<enum Test_U_ModeType> (i);
+        mode_out = static_cast<enum Test_U_ModeType> (i);
         break;
       }
       case 't':

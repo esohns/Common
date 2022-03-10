@@ -188,7 +188,7 @@ class Common_Tools
                                      bool = false); // wait for completion ?
 
   // --- (locally installed-) (UNIX) commands / programs ---
-  // *NOTE*: the Linux implementation relies on 'locate' [-b '\$@' -c -e -l 1]
+  // *NOTE*: the Linux implementation relies on 'locate', 'xargs' and 'find'
   //         (and 'which' to locate 'locate' itself)
   static bool isInstalled (const std::string&, // executable (base-)name
                            std::string&);      // return value: (FQ) path
@@ -235,7 +235,14 @@ class Common_Tools
   // --- event loop ---
   // *IMPORTANT NOTE*: -in the sense of what COMMON_REACTOR_ACE_DEFAULT maps to
   //                   on this (!) platform (check ACE source code)
-  static bool defaultPlatformReactorIsSelectBased();
+  static bool defaultPlatformReactorIsSelectBased ();
+
+  // --- (locally installed-) (UNIX) commands / programs ---
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  // *NOTE*: the Linux implementation relies on 'which'
+  static bool findProgram (const std::string &);
+#endif // ACE_WIN32 || ACE_WIN64
 };
 
 // include template definition
