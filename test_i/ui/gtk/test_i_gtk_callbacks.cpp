@@ -1159,295 +1159,239 @@ combobox_source_2_changed_cb (GtkWidget* widget_in,
 #endif // ACE_WIN32 || ACE_WIN64
 } // combobox_format_changed_cb
 
+#if GTK_CHECK_VERSION(3,0,0)
 gboolean
 drawingarea_draw_cb (GtkWidget* widget_in,
                      cairo_t* context_in,
                      gpointer userData_in)
 {
   // sanity check(s)
-  ACE_UNUSED_ARG (widget_in);
-  ACE_ASSERT (userData_in);
-
+  ACE_ASSERT (context_in);
   struct Common_UI_GTK_CBData* ui_cb_data_p =
-    static_cast<struct Common_UI_GTK_CBData*> (userData_in);
-
-  // sanity check(s)
+      static_cast<struct Common_UI_GTK_CBData*> (userData_in);
   ACE_ASSERT (ui_cb_data_p);
 
-#if GTK_CHECK_VERSION(4,0,0)
-  GdkSurface* window_p =
-    gtk_native_get_surface (gtk_widget_get_native (widget_in));
-#else
-  GdkWindow* window_p = gtk_widget_get_window (widget_in);
-#endif // GTK_CHECK_VERSION(4,0,0)
+  GtkAllocation allocation_s;
+  gtk_widget_get_allocation (widget_in,
+                            &allocation_s);
+  cairo_scale (context_in,
+              allocation_s.width, allocation_s.height);
 
-  // sanity check(s)
-//  ACE_ASSERT (ui_cb_data_p->pixelBufferLock);
-//  ACE_ASSERT (context_in);
-//  if (!ui_cb_data_p->pixelBuffer)
-//    return TRUE; // --> widget has not been realized yet
-  ACE_ASSERT (window_p);
+  // step1: clear area
+  cairo_set_source_rgb (context_in,
+                       0.0, 0.0, 0.0); // opaque black
+  cairo_rectangle (context_in,
+                  0.0, 0.0,
+                  1.0, 1.0);
+  cairo_fill (context_in);
 
-//  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, *ui_cb_data_p->pixelBufferLock, FALSE);
-//#if GTK_CHECK_VERSION(3,0,0)
-//    cairo_set_source_surface (context_in,
-//                              ui_cb_data_p->pixelBuffer,
-//                              0.0, 0.0);
-//#elif GTK_CHECK_VERSION(2,0,0)
-//    gdk_cairo_set_source_pixbuf (context_in,
-//                                 ui_cb_data_p->pixelBuffer,
-//                                 0.0, 0.0);
-//#endif // GTK_CHECK_VERSION
+  // step2: draw something
+  static int draw_shape = 0;
+  cairo_set_source_rgb (context_in, 1.0, 1.0, 1.0); // opaque white
+  cairo_set_line_width (context_in, 0.1);
+  switch (++draw_shape % 5)
+  {
+    case 0: // rectangle
+    {
+      cairo_rectangle (context_in,
+                      0.25, 0.25,
+                      0.5, 0.5);
+      cairo_fill (context_in);
+      break;
+    }
+    case 1: // circle
+    {
+      cairo_arc (context_in,
+                0.5, 0.5,
+                0.25,
+                0.0, 2 * M_PI);
+      cairo_fill (context_in);
+      break;
+    }
+    case 2: // text
+    {
+      cairo_font_extents_t fe;
+      cairo_text_extents_t te;
+      char letter_a[2];
+      ACE_OS::memset (letter_a, 0, sizeof (char[2]));
+      letter_a[0] = 'a';
+      cairo_set_font_size (context_in, 0.5);
+      cairo_select_font_face (context_in, "Georgia",
+                             CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+      cairo_font_extents (context_in, &fe);
+      cairo_text_extents (context_in, letter_a, &te);
+      cairo_move_to (context_in,
+                    0.5 - te.x_bearing - te.width / 2,
+                    0.5 - fe.descent + fe.height / 2);
+      cairo_show_text (context_in, letter_a);
+      break;
+    }
+    case 3: // stroke
+    {
+      cairo_set_line_width (context_in, 0.1);
+      cairo_move_to (context_in, 0.0, 0.0);
+      cairo_line_to (context_in, 1.0, 1.0);
+      cairo_move_to (context_in, 1.0, 0.0);
+      cairo_line_to (context_in, 0.0, 1.0);
+      cairo_stroke (context_in);
+      break;
+    }
+    case 4: // fill
+    {
+      //cairo_set_source_rgb (context_in,
+      //                      1.0, 1.0, 1.0); // opaque white
+      cairo_rectangle (context_in,
+                      0.0, 0.0,
+                      1.0, 1.0);
+      cairo_fill (context_in);
+      break;
+    }
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                 ACE_TEXT ("invalid shape, aborting\n")));
+      return FALSE; // propagate event
+    }
+  } // end SWITCH
 
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
-//  // *NOTE*: media foundation capture frames are v-flipped
-//  cairo_rotate (context_p, 180.0 * M_PI / 180.0);
-//#endif
-//    cairo_fill (context_in);
-//  } // end lock scope
-
-  return TRUE;
+  return TRUE; // do NOT propagate the event
 }
-
-//void
-//drawingarea_configure_event_cb (GtkWindow* window_in,
-//                                GdkEvent* event_in,
-//                                gpointer userData_in)
-//{
-//  STREAM_TRACE (ACE_TEXT ("::drawingarea_configure_event_cb"));
-
-//  Common_UI_GTK_CBData* data_p =
-//    static_cast<Common_UI_GTK_CBData*> (userData_in);
-
-//  // sanity check(s)
-//  ACE_ASSERT (data_p);
-//  ACE_ASSERT (data_p->configuration);
-
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
-//  if (!data_p->configuration->moduleHandlerConfiguration.window          ||
-//      !data_p->configuration->moduleHandlerConfiguration.windowController) // <-- window not realized yet ?
-//    return;
-//#else
-//  if (!data_p->configuration->moduleHandlerConfiguration.window) // <-- window not realized yet ?
-//    return;
-//#endif
-
-//  Common_UI_GTK_BuildersIterator_t iterator =
-//    data_p->builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
-//  // sanity check(s)
-//  ACE_ASSERT (iterator != data_p->builders.end ());
-
-//  GtkDrawingArea* drawing_area_p =
-//    GTK_DRAWING_AREA (gtk_builder_get_object ((*iterator).second.second,
-//                                              ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_DRAWINGAREA_NAME)));
-//  ACE_ASSERT (drawing_area_p);
-//  GtkAllocation allocation;
-//  ACE_OS::memset (&allocation, 0, sizeof (GtkAllocation));
-//  gtk_widget_get_allocation (GTK_WIDGET (drawing_area_p),
-//                             &allocation);
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
-//  // sanity check(s)
-//  ACE_ASSERT (data_p->configuration->moduleHandlerConfiguration.windowController);
-
-//  data_p->configuration->moduleHandlerConfiguration.area.bottom =
-//    allocation.height;
-//  data_p->configuration->moduleHandlerConfiguration.area.left =
-//    allocation.x;
-//  data_p->configuration->moduleHandlerConfiguration.area.right =
-//    allocation.width;
-//  data_p->configuration->moduleHandlerConfiguration.area.top =
-//    allocation.y;
-
-//  //HRESULT result =
-//  //  data_p->configuration->moduleHandlerConfiguration.windowController->SetWindowPosition (data_p->configuration->moduleHandlerConfiguration.area.left,
-//  //                                                                                                               data_p->configuration->moduleHandlerConfiguration.area.top,
-//  //                                                                                                               data_p->configuration->moduleHandlerConfiguration.area.right,
-//  //                                                                                                               data_p->configuration->moduleHandlerConfiguration.area.bottom);
-//  //if (FAILED (result))
-//  //  ACE_DEBUG ((LM_ERROR,
-//  //              ACE_TEXT ("failed to IVideoWindow::SetWindowPosition(%d,%d,%d,%d): \"%s\", continuing\n"),
-//  //              data_p->configuration->moduleHandlerConfiguration.area.left, data_p->configuration->moduleHandlerConfiguration.area.top,
-//  //              data_p->configuration->moduleHandlerConfiguration.area.right, data_p->configuration->moduleHandlerConfiguration.area.bottom,
-//  //              ACE_TEXT (Common_Error_Tools::errorToString (result).c_str ())));
-//#else
-//  data_p->configuration->moduleHandlerConfiguration.area =
-//    allocation;
-//#endif
-//} // drawingarea_configure_event_cb
-void
-drawingarea_size_allocate_cb (GtkWidget* widget_in,
-                              GdkRectangle* allocation_in,
-                              gpointer userData_in)
-{
-  // sanity check(s)
-  ACE_ASSERT (widget_in);
-
-#if GTK_CHECK_VERSION(4,0,0)
-  GdkSurface* window_p =
-    gtk_native_get_surface (gtk_widget_get_native (widget_in));
 #else
-  GdkWindow* window_p = gtk_widget_get_window (widget_in);
-#endif // GTK_CHECK_VERSION(4,0,0)
+gboolean
+drawingarea_expose_event_cb (GtkWidget* widget_in,
+                             GdkEvent* event_in,
+                             gpointer userData_in)
+{
+  ACE_UNUSED_ARG (event_in);
 
   // sanity check(s)
-  ACE_ASSERT (allocation_in);
-  ACE_ASSERT (userData_in);
-  ACE_ASSERT (window_p);
-
   struct Common_UI_GTK_CBData* ui_cb_data_p =
-    static_cast<struct Common_UI_GTK_CBData*> (userData_in);
-
-  // sanity check(s)
+      static_cast<struct Common_UI_GTK_CBData*> (userData_in);
   ACE_ASSERT (ui_cb_data_p);
 
+  GtkAllocation allocation_s;
+  gtk_widget_get_allocation (widget_in,
+                             &allocation_s);
+  GdkWindow* window_p = gtk_widget_get_window (widget_in);
+  ACE_ASSERT (window_p);
+  cairo_t* context_p = gdk_cairo_create (GDK_DRAWABLE (window_p));
+  ACE_ASSERT (context_p);
+
+  cairo_scale (context_p,
+               allocation_s.width, allocation_s.height);
+
+  // step1: clear area
+  cairo_set_source_rgb (context_p,
+                        0.0, 0.0, 0.0); // opaque black
+  cairo_rectangle (context_p,
+                   0.0, 0.0,
+                   1.0, 1.0);
+  cairo_fill (context_p);
+
+  // step2: draw something
+  static int draw_shape = 0;
+  cairo_set_source_rgb (context_p, 1.0, 1.0, 1.0); // opaque white
+  cairo_set_line_width (context_p, 0.1);
+  switch (++draw_shape % 5)
+  {
+    case 0: // rectangle
+    {
+      cairo_rectangle (context_p,
+                       0.25, 0.25,
+                       0.5, 0.5);
+      cairo_fill (context_p);
+      break;
+    }
+    case 1: // circle
+    {
+      cairo_arc (context_p,
+                 0.5, 0.5,
+                 0.25,
+                 0.0, 2 * M_PI);
+      cairo_fill (context_p);
+      break;
+    }
+    case 2: // text
+    {
+      cairo_font_extents_t fe;
+      cairo_text_extents_t te;
+      char letter_a[2];
+      ACE_OS::memset (letter_a, 0, sizeof (char[2]));
+      letter_a[0] = 'a';
+      cairo_set_font_size (context_p, 0.5);
+      cairo_select_font_face (context_p, "Georgia",
+                              CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+      cairo_font_extents (context_p, &fe);
+      cairo_text_extents (context_p, letter_a, &te);
+      cairo_move_to (context_p,
+                    0.5 - te.x_bearing - te.width / 2,
+                    0.5 - fe.descent + fe.height / 2);
+      cairo_show_text (context_p, letter_a);
+      break;
+    }
+    case 3: // stroke
+    {
+      cairo_set_line_width (context_p, 0.1);
+      cairo_move_to (context_p, 0.0, 0.0);
+      cairo_line_to (context_p, 1.0, 1.0);
+      cairo_move_to (context_p, 1.0, 0.0);
+      cairo_line_to (context_p, 0.0, 1.0);
+      cairo_stroke (context_p);
+      break;
+    }
+    case 4: // fill
+    {
+      //cairo_set_source_rgb (context_in,
+      //                      1.0, 1.0, 1.0); // opaque white
+      cairo_rectangle (context_p,
+                       0.0, 0.0,
+                       1.0, 1.0);
+      cairo_fill (context_p);
+      break;
+    }
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid shape, aborting\n")));
+      cairo_destroy (context_p); context_p = NULL;
+      return FALSE; // propagate event
+    }
+  } // end SWITCH
+
+  cairo_destroy (context_p); context_p = NULL;
+
+  return TRUE; // do NOT propagate the event
+}
+#endif // GTK_CHECK_VERSION(3,0,0)
+
+gboolean
+drawingarea_configure_event_cb (GtkWidget* window_in,
+                                GdkEvent* event_in,
+                                gpointer userData_in)
+{
+  COMMON_TRACE (ACE_TEXT ("::drawingarea_configure_event_cb"));
+
+  // sanity check(s)
+  Common_UI_GTK_CBData* data_p =
+    static_cast<Common_UI_GTK_CBData*> (userData_in);
+  ACE_ASSERT (data_p);
+  ACE_ASSERT (data_p->UIState);
   Common_UI_GTK_BuildersIterator_t iterator =
-    ui_cb_data_p->UIState->builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
+      data_p->UIState->builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
   // sanity check(s)
-  ACE_ASSERT (iterator != ui_cb_data_p->UIState->builders.end ());
+  ACE_ASSERT (iterator != data_p->UIState->builders.end ());
 
-  //GtkToggleAction* toggle_action_p =
-  //    GTK_TOGGLE_ACTION (gtk_builder_get_object ((*iterator).second.second,
-  //                                               ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_TOGGLEACTION_FULLSCREEN_NAME)));
-  //ACE_ASSERT (toggle_action_p);
+  GtkDrawingArea* drawing_area_p =
+    GTK_DRAWING_AREA (gtk_builder_get_object ((*iterator).second.second,
+                                              ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_DRAWINGAREA_NAME)));
+  ACE_ASSERT (drawing_area_p);
+  GtkAllocation allocation;
+  ACE_OS::memset (&allocation, 0, sizeof (GtkAllocation));
+  gtk_widget_get_allocation (GTK_WIDGET (drawing_area_p),
+                             &allocation);
 
-  // sanity check(s)
-//  ACE_ASSERT (ui_cb_data_p->pixelBuffer);
-//  ACE_ASSERT (ui_cb_data_p->pixelBuffer == (*iterator_3).second.second.pixelBuffer);
-//  ACE_ASSERT (ui_cb_data_p->pixelBufferLock);
-//  ACE_ASSERT (ui_cb_data_p->pixelBufferLock == (*iterator_3).second.second.pixelBufferLock);
-
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("window resized to %dx%d\n"),
-              allocation_in->width, allocation_in->height));
-
-#if GTK_CHECK_VERSION (3,0,0)
-#else
-//  GdkPixbuf* pixbuf_p =
-//    gdk_pixbuf_new (GDK_COLORSPACE_RGB,
-//                    TRUE,
-//                    8,
-//                    allocation_in->width, allocation_in->height);
-//  if (!pixbuf_p)
-//  {
-//    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("failed to gdk_pixbuf_new(), returning\n")));
-//    return;
-//  } // end IF
-#endif // GTK_CHECK_VERSION
-
-//  { ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, *ui_cb_data_p->pixelBufferLock);
-//    if (ui_cb_data_p->pixelBuffer)
-//    {
-//      g_object_unref (ui_cb_data_p->pixelBuffer); ui_cb_data_p->pixelBuffer = NULL;
-//    } // end IF
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
-//    switch (ui_cb_data_p->mediaFramework)
-//    {
-//      case STREAM_MEDIAFRAMEWORK_DIRECTSHOW:
-//        (*directshow_stream_iterator).second.second.pixelBuffer = NULL;
-//        break;
-//      case STREAM_MEDIAFRAMEWORK_MEDIAFOUNDATION:
-//        (*mediafoundation_stream_iterator).second.second.pixelBuffer = NULL;
-//        break;
-//      default:
-//      {
-//        ACE_DEBUG ((LM_ERROR,
-//                    ACE_TEXT ("invalid/unknown media framework (was: %d), returning\n"),
-//                    ui_cb_data_p->mediaFramework));
-//        return;
-//      }
-//    } // end SWITCH
-//#else
-//    (*iterator_3).second.second.pixelBuffer = NULL;
-//#endif
-
-#if GTK_CHECK_VERSION (3,0,0)
-//    GdkPixbuf* pixbuf_p =
-//        gdk_pixbuf_get_from_window (window_p,
-//                                    0, 0,
-//                                    allocation_in->width, allocation_in->height);
-//    if (!pixbuf_p)
-//    {
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("failed to gdk_pixbuf_get_from_window(%@), returning\n"),
-//                  window_p));
-//      return;
-//    } // end IF
-#endif // GTK_CHECK_VERSION
-
-//    ui_cb_data_p->pixelBuffer =
-//#if GTK_CHECK_VERSION (3,0,0)
-//        gdk_cairo_surface_create_from_pixbuf (pixbuf_p,
-//                                              0,       // scale
-//                                              window_p);
-//    g_object_unref (pixbuf_p); pixbuf_p = NULL;
-//#elif GTK_CHECK_VERSION (2,0,0)
-//        gdk_pixbuf_get_from_drawable (pixbuf_p,
-//                                      GDK_DRAWABLE (window_p),
-//                                      NULL,
-//                                      0, 0,
-//                                      0, 0, allocation_in->width, allocation_in->height);
-//#else
-//      gdk_pixbuf_get_from_drawable (pixbuf_p,
-//                                    GDK_DRAWABLE (window_p),
-//                                    NULL,
-//                                    0, 0,
-//                                    0, 0, allocation_in->width, allocation_in->height);
-//#endif // GTK_CHECK_VERSION
-//    if (!ui_cb_data_p->pixelBuffer)
-//    {
-//#if GTK_CHECK_VERSION (3,0,0)
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("failed to gdk_cairo_surface_create_from_pixbuf(%@), returning\n"),
-//                  window_p));
-//#elif GTK_CHECK_VERSION (2,0,0)
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("failed to gdk_pixbuf_get_from_window(%@), returning\n"),
-//                  window_p));
-//#else
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("failed to gdk_pixbuf_get_from_drawable(%@), returning\n"),
-//                  GDK_DRAWABLE (window_p)));
-//      gdk_pixbuf_unref (pixbuf_p); pixbuf_p = NULL;
-//#endif // GTK_CHECK_VERSION
-//      return;
-//    } // end IF
-
-    //    GHashTable* hash_table_p = gdk_pixbuf_get_options (cb_data_p->pixelBuffer);
-    //    GHashTableIter iterator;
-    //    g_hash_table_iter_init (&iterator, hash_table_p);
-    //    gpointer key, value;
-    //    for (unsigned int i = 0;
-    //         g_hash_table_iter_next (iterator, &key, &value);
-    //         ++i)
-    //      ACE_DEBUG ((LM_DEBUG,
-    //                  ACE_TEXT ("%u: \"\" --> \"\"\n"),
-    //                  i,
-    //                  static_cast<gchar*> (key),
-    //                  static_cast<gchar*> (value)));
-
-    // sanity check(s)
-#if GTK_CHECK_VERSION (3,0,0)
-//  ACE_ASSERT (cairo_surface_status (ui_cb_data_p->pixelBuffer) == CAIRO_STATUS_SUCCESS);
-//  ACE_ASSERT (cairo_surface_get_type (ui_cb_data_p->pixelBuffer) == CAIRO_SURFACE_TYPE_IMAGE);
-//  ACE_ASSERT (cairo_image_surface_get_format (ui_cb_data_p->pixelBuffer) == CAIRO_FORMAT_ARGB32);
-#elif GTK_CHECK_VERSION (2,0,0)
-//    ACE_ASSERT (gdk_pixbuf_get_bits_per_sample (ui_cb_data_p->pixelBuffer) == 8);
-//    ACE_ASSERT (gdk_pixbuf_get_colorspace (ui_cb_data_p->pixelBuffer) == GDK_COLORSPACE_RGB);
-//    ACE_ASSERT (gdk_pixbuf_get_n_channels (ui_cb_data_p->pixelBuffer) == 4);
-//    if (!gdk_pixbuf_get_has_alpha (data_p->pixelBuffer))
-//    { ACE_ASSERT (gdk_pixbuf_get_n_channels (data_p->pixelBuffer) == 3);
-//      GdkPixbuf* pixbuf_p =
-//          gdk_pixbuf_add_alpha (data_p->pixelBuffer,
-//                                FALSE, 0, 0, 0);
-//      ACE_ASSERT (pixbuf_p);
-//      gdk_pixbuf_unref (data_p->pixelBuffer);
-//      data_p->pixelBuffer = pixbuf_p;
-//    } // end IF
-//    // sanity check(s)
-//    ACE_ASSERT (gdk_pixbuf_get_has_alpha (data_p->pixelBuffer));
-#endif // GTK_CHECK_VERSION
-} // drawingarea_size_allocate_cb
+  return FALSE;
+} // drawingarea_configure_event_cb
 
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION(3,0,0)
@@ -2034,17 +1978,13 @@ filechooserbutton_cb (GtkFileChooserButton* fileChooserButton_in,
 
 gboolean
 key_cb (GtkWidget* widget_in,
-#if GTK_CHECK_VERSION(4,0,0)
-        GdkEvent* eventKey_in,
-#else
-        GdkEventKey* eventKey_in,
-#endif // GTK_CHECK_VERSION(4,0,0)
+        GdkEvent* event_in,
         gpointer userData_in)
 {
   ACE_UNUSED_ARG (widget_in);
 
   // sanity check(s)
-  ACE_ASSERT (eventKey_in);
+  ACE_ASSERT (event_in);
 
   struct Common_UI_GTK_CBData* ui_cb_data_p =
       reinterpret_cast<struct Common_UI_GTK_CBData*> (userData_in);
@@ -2058,9 +1998,9 @@ key_cb (GtkWidget* widget_in,
   ACE_ASSERT (iterator != ui_cb_data_p->UIState->builders.end ());
 
 #if GTK_CHECK_VERSION(4,0,0)
-  switch (gdk_key_event_get_keyval (eventKey_in))
+  switch (gdk_key_event_get_keyval (event_in))
 #else
-  switch (eventKey_in->keyval)
+  switch (event_in->key.keyval)
 #endif // GTK_CHECK_VERSION(4,0,0)
   {
 #if GTK_CHECK_VERSION(3,0,0)
@@ -2086,7 +2026,7 @@ key_cb (GtkWidget* widget_in,
 #elif GTK_CHECK_VERSION(3,0,0)
       if ((eventKey_in->keyval == GDK_KEY_Escape) &&
 #else
-      if ((eventKey_in->keyval == GDK_Escape) &&
+      if ((event_in->key.keyval == GDK_Escape) &&
 #endif // GTK_CHECK_VERSION(3/4,0,0)
           !is_active_b)
         break; // <-- not in fullscreen mode, nothing to do
@@ -2105,26 +2045,18 @@ key_cb (GtkWidget* widget_in,
 
 gboolean
 drawingarea_key_press_event_cb (GtkWidget* widget_in,
-#if GTK_CHECK_VERSION(4,0,0)
-                                GdkEvent* eventKey_in,
-#else
-                                GdkEventKey* eventKey_in,
-#endif // GTK_CHECK_VERSION(4,0,0)
+                                GdkEvent* event_in,
                                 gpointer userData_in)
 {
-  return key_cb (widget_in, eventKey_in, userData_in);
+  return key_cb (widget_in, event_in, userData_in);
 }
 
 gboolean
 dialog_main_key_press_event_cb (GtkWidget* widget_in,
-#if GTK_CHECK_VERSION(4,0,0)
-                                GdkEvent* eventKey_in,
-#else
-                                GdkEventKey* eventKey_in,
-#endif // GTK_CHECK_VERSION(4,0,0)
+                                GdkEvent* event_in,
                                 gpointer userData_in)
 {
-  return key_cb (widget_in, eventKey_in, userData_in);
+  return key_cb (widget_in, event_in, userData_in);
 }
 #ifdef __cplusplus
 }

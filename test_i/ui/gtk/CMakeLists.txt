@@ -26,7 +26,7 @@ link_directories (${GTK_LIB_DIRS})
 
 ############## next target ###############
 set (gtk_ui_EXE_SRCS
-     stdafx.cpp
+#     stdafx.cpp
      stdafx.h
      test_i.cpp
      test_i_gtk_defines.h)
@@ -37,6 +37,10 @@ add_executable (${EXECUTABLE}
                 EXCLUDE_FROM_ALL
                 ${gtk_ui_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
+
+if (UNIX)
+ add_link_options ("-rdynamic")
+endif (UNIX)
 
 if (GTKGL_SUPPORT)
  target_link_libraries (${EXECUTABLE} PUBLIC ${OPENGL_LIBRARIES})
@@ -62,7 +66,7 @@ target_precompile_headers (${EXECUTABLE}
 
 ############## next target ###############
 set (gtk_ui_2_EXE_SRCS
-     stdafx.cpp
+#     stdafx.cpp
      stdafx.h
      test_i_2.cpp
      test_i_gtk_callbacks.cpp
@@ -99,7 +103,7 @@ target_precompile_headers (${EXECUTABLE_2}
 
 ############## next target ###############
 set (gtk_ui_3_EXE_SRCS
-     stdafx.cpp
+#     stdafx.cpp
      stdafx.h
      test_i_3.cpp
      test_i_gtk_callbacks.cpp

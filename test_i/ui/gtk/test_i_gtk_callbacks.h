@@ -52,18 +52,14 @@ G_MODULE_EXPORT gint button_about_clicked_cb (GtkWidget*, gpointer);
 G_MODULE_EXPORT gint button_quit_clicked_cb (GtkWidget*, gpointer);
 G_MODULE_EXPORT void combobox_source_changed_cb (GtkWidget*, gpointer);
 G_MODULE_EXPORT void combobox_source_2_changed_cb (GtkWidget*, gpointer);
-#if GTK_CHECK_VERSION(4,0,0)
 G_MODULE_EXPORT gboolean dialog_main_key_press_event_cb (GtkWidget*, GdkEvent*, gpointer);
+#if GTK_CHECK_VERSION(3,0,0)
+G_MODULE_EXPORT gboolean drawingarea_draw_cb (GtkWidget*, cairo_t*, gpointer);
 #else
-G_MODULE_EXPORT gboolean dialog_main_key_press_event_cb (GtkWidget*, GdkEventKey*, gpointer);
-#endif // GTK_CHECK_VERSION(4,0,0)
-G_MODULE_EXPORT void drawingarea_configure_event_cb (GtkWindow*, GdkEvent*, gpointer);
-G_MODULE_EXPORT gboolean drawingarea_expose_cb (GtkWidget*, cairo_t*, gpointer);
-#if GTK_CHECK_VERSION(4,0,0)
+G_MODULE_EXPORT gboolean drawingarea_expose_event_cb (GtkWidget*, GdkEvent*, gpointer);
+#endif // GTK_CHECK_VERSION(3,0,0)
+G_MODULE_EXPORT gboolean drawingarea_configure_event_cb (GtkWidget*, GdkEvent*, gpointer);
 G_MODULE_EXPORT gboolean drawingarea_key_press_event_cb (GtkWidget*, GdkEvent*, gpointer);
-#else
-G_MODULE_EXPORT gboolean drawingarea_key_press_event_cb (GtkWidget*, GdkEventKey*, gpointer);
-#endif // GTK_CHECK_VERSION(4,0,0)
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION(3,0,0)
 #if defined (GTKGLAREA_SUPPORT)
@@ -85,11 +81,7 @@ G_MODULE_EXPORT void filechooserdialog_cb (GtkNativeDialog*, int);
 G_MODULE_EXPORT void filechooserbutton_cb (GtkFileChooserButton*, gpointer);
 //G_MODULE_EXPORT void filechooserdialog_cb (GtkFileChooser*, gpointer);
 #endif // GTK_CHECK_VERSION(4,0,0)
-#if GTK_CHECK_VERSION(4,0,0)
-G_MODULE_EXPORT gboolean key_cb (GtkWidget*, GdkEvent*, gpointer);
-#else
-G_MODULE_EXPORT gboolean key_cb (GtkWidget*, GdkEventKey*, gpointer);
-#endif // GTK_CHECK_VERSION(4,0,0)
+gboolean key_cb (GtkWidget*, GdkEvent*, gpointer);
 G_MODULE_EXPORT void togglebutton_record_toggled_cb (GtkToggleButton*, gpointer);
 #ifdef __cplusplus
 }
