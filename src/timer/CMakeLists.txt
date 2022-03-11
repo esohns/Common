@@ -56,7 +56,7 @@ endforeach ()
 target_sources (${LIBRARY}
 #                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
-                ${absolute_source_files})
+                PRIVATE ${absolute_source_files})
 
 #add_dependencies (${LIBRARY} ACE)
 

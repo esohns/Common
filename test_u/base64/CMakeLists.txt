@@ -26,7 +26,7 @@ set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_u")
 target_sources (${EXECUTABLE}
 #                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
-                ${${EXECUTABLE}_EXE_SRCS})
+                PRIVATE ${${EXECUTABLE}_EXE_SRCS})
 target_precompile_headers (${EXECUTABLE}
                            PRIVATE stdafx.h)
 

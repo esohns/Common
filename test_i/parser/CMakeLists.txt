@@ -31,7 +31,7 @@ set (parser_EXE_SRCS
      bencoding_parser_driver.h
      bencoding_scanner.cpp
      bencoding_scanner.h
-     stdafx.cpp
+#     stdafx.cpp
      stdafx.h
 #     ../test_i_common.h
 #     ../test_i_defines.h
@@ -45,7 +45,7 @@ set (parser_2_EXE_SRCS
      bencoding_parser_driver.h
      bencoding_scanner.cpp
      bencoding_scanner.h
-     stdafx.cpp
+#     stdafx.cpp
      stdafx.h
 #     ../test_i_common.h
 #     ../test_i_defines.h

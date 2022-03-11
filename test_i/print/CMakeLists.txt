@@ -37,7 +37,7 @@ include_directories (${CMAKE_CURRENT_BINARY_DIR}/../..)
 
 ############## next target ###############
 set (print_EXE_SRCS
-     stdafx.cpp
+#     stdafx.cpp
      stdafx.h
 #     ../test_i_common.h
 #     ../test_i_defines.h

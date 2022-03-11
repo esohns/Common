@@ -33,7 +33,6 @@ set (source_files
      common_ui_curses_eventhandler.cpp
      common_ui_curses_eventhandler.h
      common_ui_curses_eventhandler.inl
-#     common_ui_curses_exports.h
      common_ui_curses_manager.cpp
      common_ui_curses_manager.h
      common_ui_curses_manager.inl
@@ -55,7 +54,7 @@ endforeach ()
 target_sources (${LIBRARY}
 #                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
-                ${absolute_source_files})
+                PRIVATE ${absolute_source_files})
 target_precompile_headers (${LIBRARY}
                            PRIVATE stdafx.h)
 
@@ -79,7 +78,6 @@ set (${LIBRARY}_LIB_HDRS
      common_ui_curses_defines.h
      common_ui_curses_eventhandler.h
      common_ui_curses_eventhandler.inl
-#     common_ui_curses_exports.h
      common_ui_curses_manager.h
      common_ui_curses_manager.inl
      common_ui_curses_manager_common.h

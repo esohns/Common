@@ -18,7 +18,6 @@ target_include_directories (${LIBRARY} PUBLIC
 ############## next target ################
 set (source_files
      common_error_defines.h
-#     common_error_exports.h
      common_error_tools.cpp
      common_error_tools.h)
 if (WIN32)
@@ -44,8 +43,8 @@ endforeach ()
 target_sources (${LIBRARY}
 #                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
-                ${absolute_source_files})
-	
+                PRIVATE ${absolute_source_files})
+
 if (WIN32)
  if (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)
   add_compile_options (-Wno-c++11-narrowing)

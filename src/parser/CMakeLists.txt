@@ -47,7 +47,7 @@ endforeach ()
 target_sources (${LIBRARY}
 #                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
-                ${absolute_source_files})
+                PRIVATE ${absolute_source_files})
 
 if (WIN32)
  if (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)

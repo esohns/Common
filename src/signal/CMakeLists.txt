@@ -40,7 +40,7 @@ foreach (source_file ${source_files})
 endforeach ()
 target_sources (${LIBRARY}
                 PRIVATE stdafx.h
-                ${absolute_source_files})
+                PRIVATE ${absolute_source_files})
 
 #add_dependencies (${LIBRARY} ACE)
 if (UNIX)

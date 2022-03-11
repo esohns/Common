@@ -51,7 +51,7 @@ endforeach ()
 target_sources (${LIBRARY}
 #                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
-                ${absolute_source_files})
+                PRIVATE ${absolute_source_files})
 target_precompile_headers (${LIBRARY}
                            PRIVATE stdafx.h)
 

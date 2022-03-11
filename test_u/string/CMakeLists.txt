@@ -10,8 +10,6 @@ include_directories (${CMAKE_CURRENT_BINARY_DIR}/../..)
 ############## next target ################
 set (EXECUTABLE string)
 set (${EXECUTABLE}_EXE_SRCS
-#     stdafx.cpp
-#     stdafx.h
 #     ../test_u_common.h
 #     ../test_u_defines.h
 #     targetver.h
@@ -24,7 +22,7 @@ set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_u")
 target_sources (${EXECUTABLE}
 #                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
-                ${${EXECUTABLE}_EXE_SRCS})
+                PRIVATE ${${EXECUTABLE}_EXE_SRCS})
 
 #add_dependencies (${EXECUTABLE} ACE)
 add_dependencies (${EXECUTABLE} Common)

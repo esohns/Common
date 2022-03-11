@@ -37,7 +37,6 @@ target_include_directories (${LIBRARY} PUBLIC
 set (source_files
      common_ui_common.h
      common_ui_defines.h
-#     common_ui_exports.h
      common_ui_idefinition.h
      common_ui_ifullscreen.h
      common_ui_tools.cpp
@@ -69,7 +68,7 @@ endforeach ()
 target_sources (${LIBRARY}
 #                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
-                ${absolute_source_files})
+                PRIVATE ${absolute_source_files})
 
 add_dependencies (${LIBRARY} Common)
 if (UNIX)
@@ -95,7 +94,6 @@ export (TARGETS ${LIBRARY}
 set (${LIBRARY}_LIB_HDRS
      common_ui_common.h
      common_ui_defines.h
-#     common_ui_exports.h
      common_ui_idefinition.h
      common_ui_ifullscreen.h
      common_ui_tools.h
