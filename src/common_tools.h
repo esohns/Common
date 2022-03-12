@@ -241,7 +241,7 @@ class Common_Tools
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
   // *NOTE*: the Linux implementation relies on 'which'
-  static bool findProgram (const std::string &);
+  static bool findProgram (const std::string&);
 #endif // ACE_WIN32 || ACE_WIN64
 };
 

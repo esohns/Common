@@ -2761,6 +2761,8 @@ Common_Tools::isInstalled (const std::string& executableName_in,
   return result;
 }
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
 bool
 Common_Tools::findProgram (const std::string& executableName_in)
 {
@@ -2793,3 +2795,4 @@ Common_Tools::findProgram (const std::string& executableName_in)
 
   return true;
 }
+#endif // ACE_WIN32 || ACE_WIN64

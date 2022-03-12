@@ -2024,7 +2024,7 @@ key_cb (GtkWidget* widget_in,
 #if GTK_CHECK_VERSION(4,0,0)
       if ((gdk_key_event_get_keyval (eventKey_in) == GDK_KEY_Escape) &&
 #elif GTK_CHECK_VERSION(3,0,0)
-      if ((eventKey_in->keyval == GDK_KEY_Escape) &&
+      if ((event_in->key.keyval == GDK_KEY_Escape) &&
 #else
       if ((event_in->key.keyval == GDK_Escape) &&
 #endif // GTK_CHECK_VERSION(3/4,0,0)

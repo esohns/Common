@@ -26,7 +26,7 @@
 #define COMMON_UI_EVENT_THREAD_NAME                               "UI dispatch"
 
 // refresh rates
-#define COMMON_UI_REFRESH_DEFAULT_PROGRESS_MS                     50  // ms --> 20 fps
+#define COMMON_UI_REFRESH_DEFAULT_PROGRESS_MS                     100 // ms --> 10 fps
 #define COMMON_UI_REFRESH_DEFAULT_VIDEO_MS                        33  // ms --> ~30 fps
 #define COMMON_UI_REFRESH_DEFAULT_WIDGET_MS                       200 // ms --> 5 fps
 
