@@ -1,7 +1,9 @@
 ##########################################
 
 function (get_linux_lsb_release_information)
- find_program (LSB_RELEASE_EXEC lsb_release)
+ find_program (LSB_RELEASE_EXEC lsb_release
+               PATHS /usr
+               PATH_SUFFIXES bin)
  if (NOT LSB_RELEASE_EXEC)
   message (FATAL_ERROR "could not detect lsb_release executable, can not gather required information")
  endif (NOT LSB_RELEASE_EXEC)

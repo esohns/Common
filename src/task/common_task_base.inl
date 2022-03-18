@@ -191,7 +191,8 @@ Common_TaskBase_T<ACE_SYNCH_USE,
           threadIds_.clear ();
         } // end lock scope
 
-        ACE_ASSERT (inherited::msg_queue_);
+        if (!inherited::msg_queue_)
+          break;
         // *NOTE*: deactivate the queue so it does not accept new data
         inherited::msg_queue_->deactivate ();
         // *NOTE*: iff the task had several worker thread(s), there will

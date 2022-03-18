@@ -60,3 +60,6 @@ CMakeLists.txt.user*
 
 # MSVC
 .vs/
+
+# CLion
+.idea/
