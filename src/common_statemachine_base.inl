@@ -199,7 +199,6 @@ Common_StateMachine_Base_T<StateMachineName,
 
   bool result = true, result_2 = true;
   int result_3 = -1;
-  bool signal = true;
 
   // invoke callback
   // *IMPORTANT NOTE*: note that the stateLock_ is NOT held during the callback
@@ -224,6 +223,15 @@ Common_StateMachine_Base_T<StateMachineName,
   if (likely (result_2))
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, false);
     state_ = newState_in;
+
+    result_3 = condition_->broadcast ();
+    if (unlikely (result_3 == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                 ACE_TEXT ("%s: failed to ACE_Condition::broadcast(): \"%m\", aborting\n"),
+                 ACE_TEXT (StateMachineName)));
+      result = false;
+    } // end IF
 //  ACE_DEBUG ((LM_DEBUG,
 //              ACE_TEXT ("%s: \"%s\" --> \"%s\"\n"),
 //              ACE_TEXT (StateMachineName),
@@ -231,18 +239,32 @@ Common_StateMachine_Base_T<StateMachineName,
 //              ACE_TEXT (this->stateToString (newState_in).c_str ())));
   } // end IF/lock scope
 
-  // signal any waiting threads
-  if (likely (signal))
-  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_, false);
-    result_3 = condition_->broadcast ();
-    if (unlikely (result_3 == -1))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("%s: failed to ACE_Condition::broadcast(): \"%m\", aborting\n"),
-                  ACE_TEXT (StateMachineName)));
-      result = false;
-    } // end IF
-  } // end IF/lock scope
-
   return result;
+}
+
+template <const char* StateMachineName,
+          ACE_SYNCH_DECL,
+          typename StateType,
+          typename InterfaceType>
+void
+Common_StateMachine_Base_T<StateMachineName,
+                           ACE_SYNCH_USE,
+                           StateType,
+                           InterfaceType>::signal ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_StateMachine_Base_T::signal"));
+
+  // sanity check(s)
+  ACE_ASSERT (condition_);
+  ACE_ASSERT (stateLock_);
+
+  int result = -1;
+
+  { ACE_GUARD (ACE_SYNCH_MUTEX_T, aGuard, *stateLock_);
+    result = condition_->broadcast ();
+  } // end lock scope
+  if (unlikely (result == -1))
+    ACE_DEBUG ((LM_ERROR,
+               ACE_TEXT ("%s: failed to ACE_Condition::broadcast(): \"%m\", continuing\n"),
+               ACE_TEXT (StateMachineName)));
 }

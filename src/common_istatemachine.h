@@ -50,7 +50,11 @@ class Common_IStateMachine_T
   virtual std::string stateToString (StateType) const = 0; // return value: state
 
  protected:
-  ////////////////////////////////////////
+  // helper methods
+  // *WARNING*: callbacks may use this if they update the state themselves (see
+  //            below)
+  virtual void signal () = 0;
+
   // *IMPORTANT NOTE*: return value ? update state : leave as is (i.e. callback
   //                   updates the state itself
   virtual bool onChange (StateType) = 0; // new state

@@ -65,6 +65,7 @@ class Common_StateMachine_Base_T
 
   // implement (part of) Common_IStateMachine_T
   virtual bool change (StateType); // new state
+  virtual void signal ();
 
   // implement Common_IIinitialize_T
   virtual bool initialize (const ACE_SYNCH_MUTEX_T&);

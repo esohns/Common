@@ -98,16 +98,14 @@ struct Test_U_UI_CBData
    : allowUserRuntimeStatistic (true)
    , progressData ()
 #if defined (GUI_SUPPORT)
-#if defined (GTK_SUPPORT) || defined (QT_SUPPORT) || defined (WXWIDGETS_SUPPORT)
    , UIState (NULL)
-#endif // GTK_SUPPORT || QT_SUPPORT || WXWIDGETS_SUPPORT
 #endif // GUI_SUPPORT
   {
     progressData.CBData = this;
 #if defined (GUI_SUPPORT)
-#if defined (GTK_SUPPORT) || defined (QT_SUPPORT) || defined (WXWIDGETS_SUPPORT)
+#if defined (GTK_USE) || defined (QT_USE) || defined (WXWIDGETS_USE)
     progressData.state = UIState;
-#endif // GTK_SUPPORT || QT_SUPPORT || WXWIDGETS_SUPPORT
+#endif // GTK_USE || QT_USE || WXWIDGETS_USE
 #endif // GUI_SUPPORT
   }
 
@@ -121,7 +119,7 @@ struct Test_U_UI_CBData
 #elif defined (WXWIDGETS_USE)
   Common_UI_wxWidgets_State*    UIState;
 #else
-  struct Common_UI_State        UIState;
+  struct Common_UI_State*       UIState;
 #endif // GTK_USE || QT_USE || WXWIDGETS_USE
 #endif // GUI_SUPPORT
 };

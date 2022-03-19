@@ -114,7 +114,6 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                   ACE_TEXT ("%d active thread(s) in dtor --> check implementation\n"),
                   inherited::thr_count_));
 
-    // *WARNING*: there already may or may not be a message queue at this stage
     result = OWN_TYPE_T::close (1);
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
@@ -254,10 +253,9 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     {
       if (unlikely (inherited::thr_count_ == 0))
         break; // nothing (more) to do
-      // *TODO*: when invoked from the dtor, this crashes (instance already
-      //         partially dismantled)
-      this->stop (false, // wait for completion ?
-                  true); // high priority ?
+      if (!inherited::msg_queue_)
+        break;
+      inherited::msg_queue_->deactivate ();
       break;
     }
     default:
