@@ -323,16 +323,16 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     } // end IF
   } // end ELSE
 
-  result = open (NULL);
+  result = OWN_TYPE_T::open (NULL);
   if (unlikely (result == -1))
   {
     if (inherited::mod_)
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("%s: failed to ACE_Task_Base::open(NULL): \"%m\", aborting\n"),
+                  ACE_TEXT ("%s: failed to Common_TaskBase_T::open(NULL): \"%m\", aborting\n"),
                   inherited::mod_->name ()));
     else
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Task_Base::open(NULL): \"%m\", aborting\n")));
+                  ACE_TEXT ("failed to Common_TaskBase_T::open(NULL): \"%m\", aborting\n")));
     result = inherited::msg_queue_->deactivate ();
     if (unlikely (result == -1))
     {
