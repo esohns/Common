@@ -1932,7 +1932,12 @@ Common_Tools::initializeEventDispatch (struct Common_EventDispatchConfiguration&
   } // end IF
 
   // step1: initialize reactor
-  if (configuration_inout.numberOfReactorThreads)
+  if (configuration_inout.numberOfReactorThreads
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+      || true // (currently) need this for proactor connector cancellations
+#else
+#endif // ACE_WIN32 || ACE_WIN64
+      )
   {
     ACE_Reactor_Impl* reactor_impl_p = NULL;
     switch (configuration_inout.reactorType)
