@@ -19,10 +19,12 @@
  ***************************************************************************/
 
 #include <limits>
+#include <typeinfo>
 
 #include "ace/Assert.h"
 #include "ace/Basic_Types.h"
 #include "ace/Log_Msg.h"
+#include "ace/OS.h"
 
 #include "common_macros.h"
 
@@ -187,6 +189,25 @@ Common_Tools::byteSwap (ValueType value_in)
   } // end SWITCH
   ACE_ASSERT (false);
   return 0;
+}
+
+template <typename Type,
+          typename Type_2>
+bool
+Common_Tools::equalType (Type* pointer_in,
+                         Type_2* pointer_2_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::equalType"));
+
+  // sanity check(s)
+  ACE_ASSERT (pointer_in);
+  ACE_ASSERT (pointer_2_in);
+
+  std::type_info type_info_s = typeid (pointer_in);
+  std::type_info type_info_2 = typeid (pointer_2_in);
+
+  return !ACE_OS::strcmp (type_info_s.name,
+                          type_info_2.name);
 }
 
 template <typename ValueType>

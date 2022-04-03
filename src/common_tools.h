@@ -73,6 +73,12 @@ class Common_Tools
   template <typename ValueType>
   static ValueType byteSwap (ValueType);
 
+  // RTTI
+  template <typename Type,
+            typename Type_2>
+  static bool equalType (Type*,    // type 1 pointer
+                         Type_2*); // type 2 pointer
+
   // architecture
   static unsigned int getNumberOfCPUs (bool = true); // consider logical cores (i.e. 'hyperthreading') ?
   static std::string getPlatformName ();
