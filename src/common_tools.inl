@@ -203,11 +203,8 @@ Common_Tools::equalType (Type* pointer_in,
   ACE_ASSERT (pointer_in);
   ACE_ASSERT (pointer_2_in);
 
-  std::type_info type_info_s = typeid (pointer_in);
-  std::type_info type_info_2 = typeid (pointer_2_in);
-
-  return !ACE_OS::strcmp (type_info_s.name,
-                          type_info_2.name);
+  return !ACE_OS::strcmp (typeid (pointer_in).name (),
+                          typeid (pointer_2_in).name ());
 }
 
 template <typename ValueType>
