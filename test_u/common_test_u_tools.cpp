@@ -24,16 +24,27 @@
 #include "ace/Log_Msg.h"
 
 #include "common_macros.h"
-#include "common_tools.h"
+#include "common_file_tools.h"
 
-//std::string
-//Common_Test_U_Tools::version (const std::string& programName_in)
-//{
-//  COMMON_TRACE (ACE_TEXT ("Common_Test_U_Tools::version"));
-//
-//  std::string result = programName_in;
-//  result += ACE_TEXT_ALWAYS_CHAR ("");
-//
-//
-//  return result;
-//}
+#include "common_error_tools.h"
+
+bool
+Common_Test_U_Tools::initialize ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Test_U_Tools::initialize"));
+
+  if (likely (!Common_Error_Tools::inDebugSession ()))
+  {
+    if (unlikely (!Common_File_Tools::setWorkingDirectory (ACE_TEXT_ALWAYS_CHAR (".."))))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_File_Tools::setWorkingDirectory(\"..\"), aborting\n")));
+      return false;
+    } // end IF
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("set working directory to \"%s\"\n"),
+                ACE_TEXT (Common_File_Tools::getWorkingDirectory ().c_str ())));
+  } // end IF
+
+  return true;
+}

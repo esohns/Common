@@ -145,15 +145,11 @@ class Common_File_Tools
   //                this defaults to $PROJECTS_ROOT/$PACKAGENAME/src
   static std::string getSourceDirectory (const std::string&,  // package name
                                          const std::string&); // module name
-  // *PORTABILITY*: this can be influenced by #define BASEDIR and returns
-  //                BASEDIR/$PACKAGENAME/xxx
-  //                - on UNIX this defaults to /usr/[local]/[share|etc]/$PACKAGENAME,
-  //                depending on distribution (and version; see also: LSB)
-  // *TODO*: consider enforcing [/var|[/etc||/usr/[local]/etc]]/$PACKAGENAME to
-  //         more effectively untangle sharing of (application-) asset data
-  //                - on WIN32 this defaults to $APPDATA/$PACKAGENAME/xxx
-  // *NOTE*: iff DEBUG_DEBUGGER is #define'd, this returns
-  //         getSourceDirectory()../$PACKAGENAME/xxx instead
+  // *NOTE*: returns APPDATA/packagename[/modulename] | /usr/local/etc|share/packagename
+  static std::string getSystemConfigurationDataDirectory (const std::string&, // package name
+                                                          const std::string&, // module name
+                                                          bool);              // configuration ? : data
+  // *NOTE*: depends on whether running in a debug session
   static std::string getConfigurationDataDirectory (const std::string&, // package name
                                                     const std::string&, // module name
                                                     bool);              // configuration ? : data
@@ -162,13 +158,16 @@ class Common_File_Tools
   // *NOTE*: (try to) create the directory if it doesn't exist
   static std::string getUserConfigurationDirectory ();
   static std::string getUserDownloadDirectory (const std::string&); // user name (empty ? current user)
+
+  static bool setWorkingDirectory (const std::string&); // path string
   static std::string getWorkingDirectory ();
 
   static std::string getTempDirectory ();
   static std::string getTempFilename (const std::string&, // prefix
                                       bool = true);       // return full path ?
 
-  static std::string executableBase;
+  static std::string executable; // executable base name + extension
+  static std::string executableBase; // executables' base directory
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_File_Tools ())

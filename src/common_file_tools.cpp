@@ -39,6 +39,7 @@
 
 #include "common_defines.h"
 #include "common_macros.h"
+#include "common_string_tools.h"
 #include "common_tools.h"
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -50,7 +51,8 @@
 #endif // HAVE_CONFIG_H
 
 // initialize statics
-std::string Common_File_Tools::executableBase = ACE_TEXT_ALWAYS_CHAR("");
+std::string Common_File_Tools::executable = ACE_TEXT_ALWAYS_CHAR ("");
+std::string Common_File_Tools::executableBase = ACE_TEXT_ALWAYS_CHAR ("");
 
 void
 Common_File_Tools::initialize (const std::string& argv0_in)
@@ -59,6 +61,9 @@ Common_File_Tools::initialize (const std::string& argv0_in)
 
   // sanity check(s)
   ACE_ASSERT (Common_File_Tools::isValidFilename (argv0_in));
+
+  Common_File_Tools::executable =
+    ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv0_in.c_str (), ACE_DIRECTORY_SEPARATOR_CHAR));
 
   Common_File_Tools::executableBase =
       ACE_TEXT_ALWAYS_CHAR (ACE::dirname (argv0_in.c_str(), ACE_DIRECTORY_SEPARATOR_CHAR));
@@ -1808,6 +1813,23 @@ Common_File_Tools::realPath (const std::string& path_in)
   return return_value;
 }
 
+bool
+Common_File_Tools::setWorkingDirectory (const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::setWorkingDirectory"));
+
+  int result = chdir (path_in.c_str ());
+  if (unlikely (result == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ::chdir(\"%s\"): %m, aborting\n"),
+                ACE_TEXT (path_in.c_str ())));
+    return false;
+  } // end IF
+
+  return true;
+}
+
 std::string
 Common_File_Tools::getWorkingDirectory ()
 {
@@ -1883,11 +1905,11 @@ Common_File_Tools::getSourceDirectory (const std::string& packageName_in,
 }
 
 std::string
-Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName_in,
-                                                  const std::string& moduleName_in,
-                                                  bool isConfiguration_in)
+Common_File_Tools::getSystemConfigurationDataDirectory (const std::string& packageName_in,
+                                                        const std::string& moduleName_in,
+                                                        bool isConfiguration_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getConfigurationDataDirectory"));
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getSystemConfigurationDataDirectory"));
 
   // initialize return value(s)
   std::string return_value;
@@ -1895,22 +1917,6 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
   // sanity check(s)
   ACE_ASSERT (!packageName_in.empty ());
 
-#if defined (DEBUG_DEBUGGER)
-  return_value = Common_File_Tools::getSourceDirectory (packageName_in,
-                                                        moduleName_in);
-  return_value += ACE_DIRECTORY_SEPARATOR_STR;
-  return_value +=
-      (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
-                          : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
-#elif defined (BASEDIR)
-  return_value = ACE_TEXT_ALWAYS_CHAR (BASEDIR);
-  return_value += ACE_DIRECTORY_SEPARATOR_STR;
-  return_value += packageName_in;
-  return_value += ACE_DIRECTORY_SEPARATOR_STR;
-  return_value +=
-    (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
-                        : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
-#else
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #if defined (UNICODE)
 #if defined (ACE_USES_WCHAR)
@@ -1932,14 +1938,14 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
 
   HRESULT result_2 =
 #if defined (UNICODE)
-    SHGetFolderPathW (NULL,                                   // hwndOwner
+    SHGetFolderPathW (NULL,                                         // hwndOwner
 #else
-    SHGetFolderPathA (NULL,                                   // hwndOwner
+    SHGetFolderPathA (NULL,                                         // hwndOwner
 #endif // UNICODE
-                      CSIDL_APPDATA | CSIDL_FLAG_DONT_VERIFY, // nFolder
-                      NULL,                                   // hToken
-                      SHGFP_TYPE_CURRENT,                     // dwFlags
-                      buffer_a);                              // pszPath
+                      CSIDL_LOCAL_APPDATA | CSIDL_FLAG_DONT_VERIFY, // nFolder
+                      NULL,                                         // hToken
+                      SHGFP_TYPE_CURRENT,                           // dwFlags
+                      buffer_a);                                    // pszPath
   if (unlikely (FAILED (result_2)))
   {
     ACE_DEBUG ((LM_WARNING,
@@ -1957,26 +1963,103 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
 #else
   return_value =
     ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_APPLICATION_STORAGE_ROOT_DIRECTORY);
-  // *TODO*: support 'local' installations (i.e. /usr/local/...)
+  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value +=
+    ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_APPLICATION_STORAGE_LOCAL_SUBDIRECTORY);
   return_value += ACE_DIRECTORY_SEPARATOR_STR;
   return_value +=
     (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
                         : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_APPLICATION_STORAGE_SUBDIRECTORY));
   return_value += ACE_DIRECTORY_SEPARATOR_STR;
   return_value += packageName_in;
+  if (!moduleName_in.empty ())
+  {
+    return_value += ACE_DIRECTORY_SEPARATOR_STR;
+    return_value += moduleName_in;
+  } // end IF
 #endif // ACE_WIN32 || ACE_WIN64
-#endif // DEBUG_DEBUGGER || BASEDIR
+
+  return return_value;
+}
+
+std::string
+Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName_in,
+                                                  const std::string& moduleName_in,
+                                                  bool isConfiguration_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::getConfigurationDataDirectory"));
+
+  // initialize return value(s)
+  std::string return_value;
 
   // sanity check(s)
-  if (unlikely (!Common_File_Tools::isDirectory (return_value)))
-  {
-    ACE_DEBUG ((LM_WARNING,
-                ACE_TEXT ("not a directory (was: \"%s\"), falling back\n"),
-                ACE_TEXT (return_value.c_str ())));
+  ACE_ASSERT (!packageName_in.empty ());
 
-    // fallback
-    return Common_File_Tools::getWorkingDirectory ();
+  bool is_test_b =
+    (!ACE_OS::strcmp (moduleName_in.c_str (), ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY)) ||
+     !ACE_OS::strcmp (moduleName_in.c_str (), ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_U_SUBDIRECTORY)));
+
+  if (Common_Error_Tools::inDebugSession ())
+  {
+    if (!is_test_b)
+    {
+      return_value = Common_File_Tools::getSourceDirectory (packageName_in,
+                                                            moduleName_in);
+      return_value += ACE_DIRECTORY_SEPARATOR_STR;
+      return_value +=
+          (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
+                              : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
+    } // end IF
+    else
+    {
+      // sanity check(s)
+      ACE_ASSERT (!Common_File_Tools::executable.empty ());
+
+      return_value =
+        Common_File_Tools::getSourceDirectory (packageName_in,
+                                               ACE_TEXT_ALWAYS_CHAR (""));
+      return_value += ACE_DIRECTORY_SEPARATOR_STR;
+      return_value +=
+        ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_PARENT_SUBDIRECTORY);
+      return_value += ACE_DIRECTORY_SEPARATOR_STR;
+      return_value += moduleName_in;
+      return_value += ACE_DIRECTORY_SEPARATOR_STR;
+      return_value +=
+        Common_String_Tools::tolower (Common_File_Tools::basename (Common_File_Tools::executable, true));
+      return_value += ACE_DIRECTORY_SEPARATOR_STR;
+      return_value +=
+          (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
+                              : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
+    } // end ELSE
+    // sanity check(s)
+    ACE_ASSERT (Common_File_Tools::isDirectory (return_value));
+
+    return return_value;
   } // end IF
+
+  // not running in a debug session
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  return_value = Common_File_Tools::getWorkingDirectory ();
+  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value +=
+    ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_PARENT_SUBDIRECTORY);
+  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value +=
+      (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
+                          : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
+  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value +=
+    Common_String_Tools::tolower (Common_File_Tools::basename (Common_File_Tools::executable, true));
+#else
+  return_value =
+    Common_File_Tools::getSystemConfigurationDataDirectory (packageName_in,
+                                                            moduleName_in,
+                                                            isConfiguration_in);
+#endif // ACE_WIN32 || ACE_WIN64
+
+  // sanity check(s)
+  ACE_ASSERT (Common_File_Tools::isDirectory (return_value));
 
   return return_value;
 }

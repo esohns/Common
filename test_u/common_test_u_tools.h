@@ -29,6 +29,8 @@
 class Common_Test_U_Tools
 {
  public:
+  static bool initialize ();
+
   template <typename ThreadDataType,
             typename CallbackDataType>
   static bool spawn (const std::string&,      // thread name
@@ -36,8 +38,6 @@ class Common_Test_U_Tools
                      int,                     // group id
                      const CallbackDataType&, // callback data
                      ACE_Thread_ID&);         // return value: thread id
-
-  //static std::string version ();
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Test_U_Tools ())

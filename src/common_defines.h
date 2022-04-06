@@ -110,10 +110,12 @@
 #endif // ACE_WIN32 || ACE_WIN64
 
 #define COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY             "etc"
-#define COMMON_LOCATION_DATA_SUBDIRECTORY                      "data"
+#define COMMON_LOCATION_DATA_SUBDIRECTORY                      "share"
 #define COMMON_LOCATION_PARENT_SUBDIRECTORY                    ".."
 #define COMMON_LOCATION_SCRIPTS_SUBDIRECTORY                   "scripts"
 #define COMMON_LOCATION_SOURCE_SUBDIRECTORY                    "src"
+#define COMMON_LOCATION_TEST_I_SUBDIRECTORY                    "test_i"
+#define COMMON_LOCATION_TEST_U_SUBDIRECTORY                    "test_u"
 
 // // software
 
@@ -220,7 +222,7 @@
 #endif // ACE_WIN32 || ACE_WIN64
 #define COMMON_ENVIRONMENT_DIRECTORY_ROOT_ACE                  "ACE_ROOT"
 #define COMMON_ENVIRONMENT_DIRECTORY_ROOT_LIB                  "LIB_ROOT"
-#define COMMON_ENVIRONMENT_DIRECTORY_ROOT_PROJECTS             "PROJECTS_ROOT"
+#define COMMON_ENVIRONMENT_DIRECTORY_ROOT_PROJECTS             "PRJ_ROOT"
 
 // *** state machine ***
 #define COMMON_STATEMACHINE_THREAD_GROUP_ID                    110
