@@ -37,18 +37,15 @@
 #include "ace/OS.h"
 #include "ace/OS_NS_sys_sendfile.h"
 
+#if defined (HAVE_CONFIG_H)
+#include "Common_config.h"
+#endif // HAVE_CONFIG_H
 #include "common_defines.h"
 #include "common_macros.h"
 #include "common_string_tools.h"
 #include "common_tools.h"
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "common_error_tools.h"
-#endif // ACE_WIN32 || ACE_WIN64
-
-#if defined (HAVE_CONFIG_H)
-#include "Common_config.h"
-#endif // HAVE_CONFIG_H
 
 // initialize statics
 std::string Common_File_Tools::executable = ACE_TEXT_ALWAYS_CHAR ("");
