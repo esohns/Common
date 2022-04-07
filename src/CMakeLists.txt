@@ -113,7 +113,7 @@ set (source_files
      common_tools.h
      common_tools.inl)
 set (source_files
-     ${CMAKE_CURRENT_BINARY_DIR}/../${PROJECT_NAME}_config.h
+     ${CMAKE_BINARY_DIR}/${PROJECT_NAME}_config.h
      ${source_files})
 if (WIN32)
  set (source_files
@@ -222,16 +222,17 @@ install (FILES
          common_string_tools.h
          common_tools.h
          common_tools.inl
-         DESTINATION ${INSTALL_INCLUDE_DIR})
-if (WIN32)
- install (FILES
-          ../include/lib${PROJECT_NAME}_config.h
-         DESTINATION ${INSTALL_INCLUDE_DIR})
-endif (WIN32)
+         DESTINATION "${INSTALL_INCLUDE_DIR}/${PROJECT_NAME}"
+         COMPONENT include)
+install (FILES
+         ${CMAKE_BINARY_DIR}/${PROJECT_NAME}_config.h
+         DESTINATION "${INSTALL_INCLUDE_DIR}/${PROJECT_NAME}"
+         COMPONENT include)
 install (TARGETS ${PROJECT_NAME}
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-         COMPONENT lib)
+         ARCHIVE DESTINATION ${INSTALL_LIB_DIR} COMPONENT lib
+         LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT lib
+         RUNTIME DESTINATION ${INSTALL_LIB_DIR} COMPONENT lib)
 
 ##########################################
 

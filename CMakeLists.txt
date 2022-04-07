@@ -87,6 +87,7 @@ endif (UNIX)
 set (INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
 set (INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
 set (INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
+set (INSTALL_SHARE_DIR share CACHE PATH "Installation directory for data files")
 if (WIN32 AND NOT CYGWIN)
  set (DEF_INSTALL_CMAKE_DIR CMake)
 else ()
@@ -95,17 +96,22 @@ endif ()
 set (INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH "Installation directory for CMake files")
 
 # make relative paths absolute (needed later on)
-foreach (path LIB BIN INCLUDE CMAKE)
+foreach (path BIN CMAKE SHARE INCLUDE LIB)
  set (var INSTALL_${path}_DIR)
- if (NOT IS_ABSOLUTE "${${var}}")
-  set (${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
+# if (NOT IS_ABSOLUTE "${${var}}")
+ string (TOLOWER "${path}" RELATIVE_INSTALL_PATH)
+
+ if (UNIX)
+  set (${var} "${CMAKE_INSTALL_PREFIX}/${RELATIVE_INSTALL_PATH}")
+ elseif (WIN32)
+  set (${var} ${RELATIVE_INSTALL_PATH})
  endif ()
+# message (STATUS "set \"${var}\" to \"${${var}}\"")
+
+#endif ()
 endforeach ()
 
 # project options
-set (DEBUG_DEBUGGER TRUE
-     CACHE BOOL "in debugger")
-
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
  if (CMAKE_COMPILER_IS_GNUCXX)
   add_compile_options (-g)
@@ -117,10 +123,6 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug)
 #  add_definitions (-D_ITERATOR_DEBUG_LEVEL=2)
  endif ()
 #  set_property (SOURCE PROPERTY COMPILE_DEFINITIONS _DEBUG)
- if (DEBUG_DEBUGGER AND
-     NOT DEFINED IN_CPACK)
-  add_definitions (-DDEBUG_DEBUGGER)
- endif ()
 elseif (CMAKE_BUILD_TYPE STREQUAL Release)
  if (CMAKE_COMPILER_IS_GNUCXX)
   add_compile_options (-O3)
@@ -214,7 +216,7 @@ export (PACKAGE ${PROJECT_NAME})
 
 # Create the CommonConfig.cmake and CommonConfigVersion.cmake files
 # *NOTE*: see: https://cmake.org/Wiki/CMake/Tutorials/How_to_create_a_ProjectConfig.cmake_file
-file (RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}")
+#file (RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}")
 # ... for the build tree
 set (CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
 if (UNIX)
