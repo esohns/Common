@@ -29,21 +29,18 @@
 template <typename ConfigurationType,
           typename ParserType,
           typename ParserInterfaceType,
-          typename ArgumentType>
+          typename ExtraDataType>
 Common_ParserBase_T<ConfigurationType,
                     ParserType,
                     ParserInterfaceType,
-                    ArgumentType>::Common_ParserBase_T ()
+                    ExtraDataType>::Common_ParserBase_T ()
  : configuration_ (NULL)
  , finished_ (false)
-// , headFragment_ (NULL)
  , fragment_ (NULL)
  , parser_ (this, // parser
             this) // scanner
  , scannerState_ ()
- , block_ (true)
  , buffer_ (NULL)
- , queue_ (NULL)
  , isInitialized_ (false)
 {
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::Common_ParserBase_T"));
@@ -52,11 +49,11 @@ Common_ParserBase_T<ConfigurationType,
 template <typename ConfigurationType,
           typename ParserType,
           typename ParserInterfaceType,
-          typename ArgumentType>
+          typename ExtraDataType>
 Common_ParserBase_T<ConfigurationType,
                     ParserType,
                     ParserInterfaceType,
-                    ArgumentType>::~Common_ParserBase_T ()
+                    ExtraDataType>::~Common_ParserBase_T ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::~Common_ParserBase_T"));
 
@@ -89,12 +86,12 @@ Common_ParserBase_T<ConfigurationType,
 template <typename ConfigurationType,
           typename ParserType,
           typename ParserInterfaceType,
-          typename ArgumentType>
+          typename ExtraDataType>
 bool
 Common_ParserBase_T<ConfigurationType,
                     ParserType,
                     ParserInterfaceType,
-                    ArgumentType>::initialize (const ConfigurationType& configuration_in)
+                    ExtraDataType>::initialize (const ConfigurationType& configuration_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::initialize"));
 
@@ -119,7 +116,6 @@ Common_ParserBase_T<ConfigurationType,
       }
       buffer_ = NULL;
     } // end IF
-    queue_ = NULL;
     if (scannerState_.context)
     {
       try {
@@ -137,13 +133,11 @@ Common_ParserBase_T<ConfigurationType,
     isInitialized_ = false;
   } // end IF
 
-  block_ = configuration_in.block;
-  queue_ = configuration_in.messageQueue;
-
   ACE_ASSERT (!scannerState_.context);
   bool result = false;
+  ExtraDataType* extra_p = this;
   try {
-    result = this->initialize (scannerState_.context, NULL);
+    result = this->initialize (scannerState_.context, extra_p);
   } catch (...) {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("caught exception in Common_ILexScanner_T::initialize(): \"%m\", continuing\n")));
@@ -156,6 +150,7 @@ Common_ParserBase_T<ConfigurationType,
   } // end IF
   ACE_ASSERT (scannerState_.context);
 
+#if defined (_DEBUG)
   // trace ?
   try {
     this->debug (scannerState_.context,
@@ -165,6 +160,7 @@ Common_ParserBase_T<ConfigurationType,
                 ACE_TEXT ("caught exception in Common_ILexScanner_T::debug(): \"%m\", continuing\n")));
   }
   parser_.set_debug_level (configuration_->debugParser ? 1 : 0);
+#endif // _DEBUG
 
   isInitialized_ = true;
 
@@ -174,14 +170,14 @@ Common_ParserBase_T<ConfigurationType,
 template <typename ConfigurationType,
           typename ParserType,
           typename ParserInterfaceType,
-          typename ArgumentType>
+          typename ExtraDataType>
 void
 //Common_ParserBase_T<SessionMessageType>::error (const YYLTYPE& location_in,
 //                                                      const std::string& message_in)
 Common_ParserBase_T<ConfigurationType,
                     ParserType,
                     ParserInterfaceType,
-                    ArgumentType>::error (const std::string& message_in)
+                    ExtraDataType>::error (const std::string& message_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::error"));
 
@@ -221,12 +217,12 @@ Common_ParserBase_T<ConfigurationType,
 template <typename ConfigurationType,
           typename ParserType,
           typename ParserInterfaceType,
-          typename ArgumentType>
+          typename ExtraDataType>
 bool
 Common_ParserBase_T<ConfigurationType,
                     ParserType,
                     ParserInterfaceType,
-                    ArgumentType>::parse (ACE_Message_Block* data_in)
+                    ExtraDataType>::parse (ACE_Message_Block* data_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::parse"));
 
@@ -279,7 +275,7 @@ Common_ParserBase_T<ConfigurationType,
     default:
     { // *NOTE*: most probable reason: connection
       //         has been closed --> session end
-      ACE_DEBUG ((LM_DEBUG,
+      ACE_DEBUG ((LM_WARNING,
                   ACE_TEXT ("failed to Common_IParser_T::parse (result was: %d), aborting\n"),
                   result));
       goto error;
@@ -305,12 +301,12 @@ continue_:
 template <typename ConfigurationType,
           typename ParserType,
           typename ParserInterfaceType,
-          typename ArgumentType>
+          typename ExtraDataType>
 bool
 Common_ParserBase_T<ConfigurationType,
                     ParserType,
                     ParserInterfaceType,
-                    ArgumentType>::switchBuffer (bool unlink_in)
+                    ExtraDataType>::switchBuffer (bool unlink_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::switchBuffer"));
 
@@ -325,7 +321,7 @@ Common_ParserBase_T<ConfigurationType,
       return false; // already finished
 
     // sanity check(s)
-    if (!block_)
+    if (!configuration_->block)
       return false; // not enough data, cannot proceed
 
     waitBuffer (); // <-- wait for data
@@ -370,12 +366,12 @@ Common_ParserBase_T<ConfigurationType,
 template <typename ConfigurationType,
           typename ParserType,
           typename ParserInterfaceType,
-          typename ArgumentType>
+          typename ExtraDataType>
 void
 Common_ParserBase_T<ConfigurationType,
                     ParserType,
                     ParserInterfaceType,
-                    ArgumentType>::waitBuffer ()
+                    ExtraDataType>::waitBuffer ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::waitBuffer"));
 
@@ -389,7 +385,7 @@ Common_ParserBase_T<ConfigurationType,
   // sanity check(s)
   ACE_ASSERT (configuration_);
   ACE_ASSERT (configuration_->block);
-  if (!queue_)
+  if (unlikely (!configuration_->messageQueue))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("message queue not set - cannot wait, returning\n")));
@@ -398,8 +394,8 @@ Common_ParserBase_T<ConfigurationType,
 
   // 1. wait for data
 retry:
-  result = queue_->dequeue_head (message_block_p,
-                                 NULL);
+  result = configuration_->messageQueue->dequeue_head (message_block_p,
+                                                       NULL);
   if (result == -1)
   {
     error = ACE_OS::last_error ();
@@ -413,7 +409,7 @@ retry:
   {
     case ACE_Message_Block::MB_STOP:
     {
-      result = queue_->enqueue_tail (message_block_p);
+      result = configuration_->messageQueue->enqueue_tail (message_block_p);
       if (result == -1)
       {
         error = ACE_OS::last_error ();
@@ -428,7 +424,7 @@ retry:
     }
     case ACE_Message_Block::MB_EVENT:
     {
-      result = queue_->enqueue_tail (message_block_p);
+      result = configuration_->messageQueue->enqueue_tail (message_block_p);
       if (result == -1)
       {
         error = ACE_OS::last_error ();
@@ -459,13 +455,13 @@ retry:
 template <typename ConfigurationType,
           typename ParserType,
           typename ParserInterfaceType,
-          typename ArgumentType>
+          typename ExtraDataType>
 bool
 Common_ParserBase_T<ConfigurationType,
                     ParserType,
                     ParserInterfaceType,
-                    ArgumentType>::begin (const char* buffer_in,
-                                          unsigned int bufferSize_in)
+                    ExtraDataType>::begin (const char* buffer_in,
+                                           unsigned int bufferSize_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::begin"));
 
@@ -504,12 +500,12 @@ Common_ParserBase_T<ConfigurationType,
 template <typename ConfigurationType,
           typename ParserType,
           typename ParserInterfaceType,
-          typename ArgumentType>
+          typename ExtraDataType>
 void
 Common_ParserBase_T<ConfigurationType,
                     ParserType,
                     ParserInterfaceType,
-                    ArgumentType>::end ()
+                    ExtraDataType>::end ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::end"));
 
@@ -532,12 +528,12 @@ Common_ParserBase_T<ConfigurationType,
 template <typename ConfigurationType,
           typename ParserType,
           typename ParserInterfaceType,
-          typename ArgumentType>
+          typename ExtraDataType>
 void
 Common_ParserBase_T<ConfigurationType,
                     ParserType,
                     ParserInterfaceType,
-                    ArgumentType>::error (const struct YYLTYPE& location_in,
+                    ExtraDataType>::error (const struct YYLTYPE& location_in,
                                           const std::string& message_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::error"));
@@ -578,12 +574,12 @@ Common_ParserBase_T<ConfigurationType,
 template <typename ConfigurationType,
           typename ParserType,
           typename ParserInterfaceType,
-          typename ArgumentType>
+          typename ExtraDataType>
 void
 Common_ParserBase_T<ConfigurationType,
                     ParserType,
                     ParserInterfaceType,
-                    ArgumentType>::error (const yy::location& location_in,
+                    ExtraDataType>::error (const yy::location& location_in,
                                           const std::string& message_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::error"));

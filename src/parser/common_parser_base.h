@@ -39,7 +39,7 @@ struct yy_buffer_state;
 template <typename ConfigurationType,
           typename ParserType, // yacc/bison-
           typename ParserInterfaceType, // implements Common_IParser_T
-          typename ArgumentType> // yacc/bison-
+          typename ExtraDataType> // (f)lex-
 class Common_ParserBase_T
  : public ParserInterfaceType
 {
@@ -76,8 +76,8 @@ class Common_ParserBase_T
   // implement (part of) Common_ILexScanner_T
   inline virtual const struct Common_FlexScannerState& getR () const { return scannerState_; }
   inline virtual const IPARSER_T* const getP_2 () const { return this; }
-  inline virtual bool initialize (yyscan_t&, struct Common_FlexScannerState*) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
-  inline virtual void finalize (yyscan_t&) { /*ACE_ASSERT (false);*/ ACE_NOTSUP; ACE_NOTREACHED (return;) }
+  inline virtual bool initialize (yyscan_t&, ExtraDataType*) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
+  inline virtual void finalize (yyscan_t&) { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
   inline virtual void destroy (yyscan_t, struct yy_buffer_state*&) { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
 
   // implement (part of) Common_IYaccParser_T
@@ -91,12 +91,10 @@ class Common_ParserBase_T
 
   ConfigurationType*             configuration_;
   bool                           finished_;
-//  ACE_Message_Block*         headFragment_;
   ACE_Message_Block*             fragment_;
 
   // parser
   ParserType                     parser_;
-//  ArgumentType            argument_;
 
   // scanner
   struct Common_FlexScannerState scannerState_;
@@ -105,9 +103,7 @@ class Common_ParserBase_T
   ACE_UNIMPLEMENTED_FUNC (Common_ParserBase_T (const Common_ParserBase_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_ParserBase_T& operator= (const Common_ParserBase_T&))
 
-  bool                           block_;
   struct yy_buffer_state*        buffer_;
-  MESSAGE_QUEUE_T*               queue_;
 
   bool                           isInitialized_;
 };

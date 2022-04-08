@@ -39,5 +39,3 @@
 #cmakedefine TRACING
 
 #cmakedefine VALGRIND_SUPPORT
-
-//#cmakedefine DEBUG_DEBUGGER

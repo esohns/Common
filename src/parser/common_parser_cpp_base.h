@@ -40,11 +40,11 @@ struct yy_buffer_state;
 typedef void* yyscan_t;
 
 template <typename ConfigurationType,
-          typename ScannerType, // (f/)lex-
+          typename ScannerType, // (f)lex-
           typename ScannerStateType, // implements struct Common_ScannerState
           typename ParserType, // yacc/bison-
           typename ParserInterfaceType, // implements Common_IParser_T
-          typename ExtraDataType> // (f/)lex-
+          typename ExtraDataType> // (f)lex-
 class Common_CppParserBase_T
  : public ParserInterfaceType
  , virtual public Common_ILexScanner_T<ScannerStateType,
