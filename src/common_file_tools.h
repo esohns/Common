@@ -24,6 +24,7 @@
 #include <cstdint>
 #include <string>
 
+#include "ace/ACE.h"
 #include "ace/Basic_Types.h"
 #include "ace/Global_Macros.h"
 #include "ace/FILE_Addr.h"
@@ -40,6 +41,8 @@ class Common_File_Tools
   static std::string addressToString (const ACE_FILE_Addr&); // file name
   static std::string basename (const std::string&, // (FQ) path
                                bool = false);      // strip trailing '.xxx'-suffix ?
+  // *NOTE*: returns dirname == empty && basename != empty
+  static bool isBasename (const std::string&); // (FQ) path
   inline static bool backup (const std::string& path_in) { return Common_File_Tools::copyFile (path_in, ACE_TEXT_ALWAYS_CHAR ("")); }
   static bool create (const std::string&); // (FQ) path
   static bool createDirectory (const std::string&, // directory
@@ -48,7 +51,7 @@ class Common_File_Tools
                         const std::string&); // directory {"": make a backup in the same directory}
   static bool deleteFile (const std::string&); // (FQ) path
   static bool deleteFiles (const Common_File_IdentifierList_t&); // file(s)
-  static std::string directory (const std::string&); // (FQ) path
+  inline static std::string directory (const std::string& path_in) { return ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (path_in.c_str ()), ACE_DIRECTORY_SEPARATOR_CHAR)); }
   // *NOTE*: this doesn't do any sanity checking --> use with care
   static std::string fileExtension (const std::string&, // (FQ) path
                                     bool = false);      // return leading '.' (if any) ?

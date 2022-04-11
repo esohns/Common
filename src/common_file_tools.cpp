@@ -940,6 +940,24 @@ Common_File_Tools::basename (const std::string& path_in,
 }
 
 bool
+Common_File_Tools::isBasename (const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isBasename"));
+
+  std::string directory, file_name;
+  directory =
+    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (path_in.c_str ()),
+                                        ACE_DIRECTORY_SEPARATOR_CHAR));
+  file_name =
+    ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (path_in.c_str ()),
+                                         ACE_DIRECTORY_SEPARATOR_CHAR));
+
+  return (!ACE_OS::strcmp (directory.c_str (),
+                           ACE_TEXT_ALWAYS_CHAR (".")) &&
+          !file_name.empty ());
+}
+
+bool
 Common_File_Tools::create (const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::create"));
@@ -1360,24 +1378,6 @@ Common_File_Tools::deleteFiles (const Common_File_IdentifierList_t& identifiers_
     result = result && Common_File_Tools::deleteFile ((*iterator).identifier);
 
   return result;
-}
-
-std::string
-Common_File_Tools::directory (const std::string& path_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::directory"));
-
-  std::string return_value =
-    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (path_in.c_str ()),
-                                        ACE_DIRECTORY_SEPARATOR_CHAR));
-  //if (stripSuffix_in)
-  //{
-  //  std::string::size_type position = return_value.find_last_of ('.');
-  //  if (position != std::string::npos)
-  //    return_value.erase (position, std::string::npos);
-  //} // end IF
-
-  return return_value;
 }
 
 bool
@@ -2002,6 +2002,9 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
     {
       return_value = Common_File_Tools::getSourceDirectory (packageName_in,
                                                             moduleName_in);
+      return_value += ACE_DIRECTORY_SEPARATOR_STR;
+      return_value +=
+        ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_PARENT_SUBDIRECTORY);
       return_value += ACE_DIRECTORY_SEPARATOR_STR;
       return_value +=
           (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)

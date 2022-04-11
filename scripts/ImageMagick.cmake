@@ -65,11 +65,12 @@ if (IMAGEMAGICK_FOUND)
   if (NOT IMAGEMAGICK_IS_GRAPHICSMAGIC)
 # Find Imagemagick Library directory
    get_filename_component (MAGICK_LIB_DIR ${ImageMagick_MagickCore_LIBRARY} DIRECTORY)
-# Find where Magick++-config lives
-   file (GLOB_RECURSE MAGICK_CONFIG FOLLOW_SYMLINKS ${MAGICK_LIB_DIR}/Magick++-config)
+# Find where Magick-config lives
+#   file (GLOB_RECURSE MAGICK_CONFIG FOLLOW_SYMLINKS ${MAGICK_LIB_DIR}/Magick++-config)
+   file (GLOB_RECURSE MAGICK_CONFIG FOLLOW_SYMLINKS /usr/bin/Magick-config)
 # Ask about CXX and lib flags/locations
-   set (MAGICK_CONFIG ${MAGICK_CONFIG} CACHE STRING "Path to Magick++-config utility")
-   execute_process (COMMAND "${MAGICK_CONFIG}" "--cxxflags" OUTPUT_VARIABLE MAGICK_CXX_FLAGS)
+   set (MAGICK_CONFIG ${MAGICK_CONFIG} CACHE STRING "Path to Magick-config utility")
+   execute_process (COMMAND "${MAGICK_CONFIG}" "--cppflags" OUTPUT_VARIABLE MAGICK_CXX_FLAGS)
    execute_process (COMMAND "${MAGICK_CONFIG}" "--libs" OUTPUT_VARIABLE MAGICK_LD_FLAGS)
 # Add these to cache
    set (MAGICK_CXX_FLAGS "${MAGICK_CXX_FLAGS}" CACHE STRING "ImageMagick configuration specific compilation flags." )

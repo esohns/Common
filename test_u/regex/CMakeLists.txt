@@ -30,10 +30,8 @@ set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_u")
 #add_dependencies (${ACESTREAM_TARGET_NAME} ACE)
 add_dependencies (${PROJECT_NAME} Common)
 
-if (UNIX)
-elseif (WIN32)
- target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
-endif ()
+target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
+
 target_link_libraries (${EXECUTABLE} PUBLIC Common)
 target_link_libraries (${EXECUTABLE} PUBLIC Common_Test_U)
 
@@ -53,11 +51,11 @@ if (UNIX)
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_u/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 elseif (WIN32)
- if (VCPKG_SUPPORT)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
- else ()
+# if (VCPKG_SUPPORT)
+#  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
+# else ()
   file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
- endif (VCPKG_SUPPORT)
+# endif (VCPKG_SUPPORT)
  create_target_launcher (${EXECUTABLE}
                          ARGS "-l -t"
 #                        FORWARD_ARGS

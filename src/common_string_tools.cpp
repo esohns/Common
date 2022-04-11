@@ -344,6 +344,7 @@ Common_String_Tools::toupper (const std::string& string_in)
 
   return return_value;
 }
+
 std::string
 Common_String_Tools::tolower (const std::string& string_in)
 {
@@ -359,4 +360,17 @@ Common_String_Tools::tolower (const std::string& string_in)
     return_value += std::tolower (string_in[i], locale);
 
   return return_value;
+}
+
+bool Common_String_Tools::endswith (const std::string& string_in,
+                                    const std::string& end_in)
+{
+  COMMON_TRACE(ACE_TEXT("Common_String_Tools::endswith"));
+
+  // sanity check(s)
+  ACE_ASSERT (!end_in.empty ());
+
+  size_t position = string_in.rfind (end_in);
+
+  return (position == (string_in.size () - end_in.size ()));
 }

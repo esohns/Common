@@ -139,18 +139,15 @@ target_precompile_headers (${EXECUTABLE_3}
                            PRIVATE stdafx.h)
 
 set (ui_definition_file "")
-if (GTK_USE)
- if (GTK4_USE)
-  set (ui_definition_file ${EXECUTABLE}.gtk4)
-  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/gtk4/bin GTK_LIB_PATH)
- elseif (GTK3_USE)
-  set (ui_definition_file ${EXECUTABLE}.gtk3)
-  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/gtk3/bin GTK_LIB_PATH)
- elseif (GTK2_USE)
-  set (ui_definition_file ${EXECUTABLE}.gtk2)
-  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/gtk2/bin GTK_LIB_PATH)
- endif ()
-elseif (WXWIDGETS_USE)
+if (GTK4_USE)
+ set (ui_definition_file ${EXECUTABLE}.gtk4)
+ file (TO_CMAKE_PATH $ENV{LIB_ROOT}/gtk4/bin GTK_LIB_PATH)
+elseif (GTK3_USE)
+ set (ui_definition_file ${EXECUTABLE}.gtk3)
+ file (TO_CMAKE_PATH $ENV{LIB_ROOT}/gtk3/bin GTK_LIB_PATH)
+elseif (GTK2_USE)
+ set (ui_definition_file ${EXECUTABLE}.gtk2)
+ file (TO_CMAKE_PATH $ENV{LIB_ROOT}/gtk2/bin GTK_LIB_PATH)
 endif ()
 
 ############### installation #############
@@ -204,8 +201,10 @@ if (WIN32)
                 ${LIB_ROOT}/zlib/build/Debug/zlibd.dll
           DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 endif (WIN32)
-install (FILES etc/${ui_definition_file}
-         DESTINATION "etc/${EXECUTABLE}" COMPONENT config)
+if (GTK_USE)
+ install (FILES etc/${ui_definition_file}
+          DESTINATION "etc/${EXECUTABLE}" COMPONENT config)
+endif (GTK_USE)
 install (FILES share/opengl_logo.png
          DESTINATION "${INSTALL_SHARE_DIR}/${EXECUTABLE}" COMPONENT data)
 

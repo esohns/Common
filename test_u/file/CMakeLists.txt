@@ -25,7 +25,7 @@ if (WIN32)
                             NAME ${EXECUTABLE}
                             BUNDLE ${PROJECT_NAME}
 #                          ICON "${CMAKE_SOURCE_DIR}/product.ico"
-                            ICON "${PROJECT_SOURCE_DIR}/include/Common_icon.ico"
+                            ICON "${PROJECT_SOURCE_DIR}/share/Common_icon.ico"
                             VERSION_MAJOR ${VERSION_MAJOR}
                             VERSION_MINOR ${VERSION_MINOR}
                             VERSION_PATCH ${VERSION_MICRO}

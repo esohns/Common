@@ -52,6 +52,9 @@ class Common_String_Tools
   static std::string toupper (const std::string&);
   static std::string tolower (const std::string&);
 
+  static bool endswith (const std::string &,
+                        const std::string &);
+
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_String_Tools ())
   ACE_UNIMPLEMENTED_FUNC (~Common_String_Tools ())
