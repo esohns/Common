@@ -1,28 +1,27 @@
-#ifndef Bencoding_HEADER_H
-#define Bencoding_HEADER_H 1
-#define Bencoding_IN_HEADER 1
+#ifndef M3U_HEADER_H
+#define M3U_HEADER_H 1
+#define M3U_IN_HEADER 1
 
-//  #include "ace/Synch.h"
   #include "common_iparser.h"
 
-  #include "bencoding_parser.h"
+  #include "m3u_parser.h"
 
-#if defined (Bencoding_IN_HEADER)
-class Bencoding_IParser;
+#if defined (M3U_IN_HEADER)
+class M3U_IParser;
 #else
 #define YY_STRUCT_YY_BUFFER_STATE
-  #include "bencoding_scanner.h"
+  #include "m3u_scanner.h"
 
-  #include "bencoding_iparser.h"
+  #include "m3u_iparser.h"
 #undef YY_STRUCT_YY_BUFFER_STATE
 #endif
 
 #define YY_DECL                                     \
 int                                                 \
-Bencoding_lex (yy::parser::semantic_type* yylval,   \
-               yy::parser::location_type* location, \
-               Bencoding_IParser* parser,           \
-               yyscan_t yyscanner)
+M3U_lex (yy::parser::semantic_type* yylval,   \
+         yy::parser::location_type* location, \
+         M3U_IParser_t* parser,                 \
+         yyscan_t yyscanner)
 // ... and declare it for the parser's sake
 extern YY_DECL;
 
@@ -69,228 +68,228 @@ extern YY_DECL;
 
 /* %if-c-only */
 #ifdef yy_create_buffer
-#define Bencoding__create_buffer_ALREADY_DEFINED
+#define M3U__create_buffer_ALREADY_DEFINED
 #else
-#define yy_create_buffer Bencoding__create_buffer
+#define yy_create_buffer M3U__create_buffer
 #endif
 
     
 #ifdef yy_delete_buffer
-#define Bencoding__delete_buffer_ALREADY_DEFINED
+#define M3U__delete_buffer_ALREADY_DEFINED
 #else
-#define yy_delete_buffer Bencoding__delete_buffer
+#define yy_delete_buffer M3U__delete_buffer
 #endif
 
     
 #ifdef yy_scan_buffer
-#define Bencoding__scan_buffer_ALREADY_DEFINED
+#define M3U__scan_buffer_ALREADY_DEFINED
 #else
-#define yy_scan_buffer Bencoding__scan_buffer
+#define yy_scan_buffer M3U__scan_buffer
 #endif
 
     
 #ifdef yy_scan_string
-#define Bencoding__scan_string_ALREADY_DEFINED
+#define M3U__scan_string_ALREADY_DEFINED
 #else
-#define yy_scan_string Bencoding__scan_string
+#define yy_scan_string M3U__scan_string
 #endif
 
     
 #ifdef yy_scan_bytes
-#define Bencoding__scan_bytes_ALREADY_DEFINED
+#define M3U__scan_bytes_ALREADY_DEFINED
 #else
-#define yy_scan_bytes Bencoding__scan_bytes
+#define yy_scan_bytes M3U__scan_bytes
 #endif
 
     
 #ifdef yy_init_buffer
-#define Bencoding__init_buffer_ALREADY_DEFINED
+#define M3U__init_buffer_ALREADY_DEFINED
 #else
-#define yy_init_buffer Bencoding__init_buffer
+#define yy_init_buffer M3U__init_buffer
 #endif
 
     
 #ifdef yy_flush_buffer
-#define Bencoding__flush_buffer_ALREADY_DEFINED
+#define M3U__flush_buffer_ALREADY_DEFINED
 #else
-#define yy_flush_buffer Bencoding__flush_buffer
+#define yy_flush_buffer M3U__flush_buffer
 #endif
 
     
 #ifdef yy_load_buffer_state
-#define Bencoding__load_buffer_state_ALREADY_DEFINED
+#define M3U__load_buffer_state_ALREADY_DEFINED
 #else
-#define yy_load_buffer_state Bencoding__load_buffer_state
+#define yy_load_buffer_state M3U__load_buffer_state
 #endif
 
     
 #ifdef yy_switch_to_buffer
-#define Bencoding__switch_to_buffer_ALREADY_DEFINED
+#define M3U__switch_to_buffer_ALREADY_DEFINED
 #else
-#define yy_switch_to_buffer Bencoding__switch_to_buffer
+#define yy_switch_to_buffer M3U__switch_to_buffer
 #endif
 
     
 #ifdef yypush_buffer_state
-#define Bencoding_push_buffer_state_ALREADY_DEFINED
+#define M3U_push_buffer_state_ALREADY_DEFINED
 #else
-#define yypush_buffer_state Bencoding_push_buffer_state
+#define yypush_buffer_state M3U_push_buffer_state
 #endif
 
     
 #ifdef yypop_buffer_state
-#define Bencoding_pop_buffer_state_ALREADY_DEFINED
+#define M3U_pop_buffer_state_ALREADY_DEFINED
 #else
-#define yypop_buffer_state Bencoding_pop_buffer_state
+#define yypop_buffer_state M3U_pop_buffer_state
 #endif
 
     
 #ifdef yyensure_buffer_stack
-#define Bencoding_ensure_buffer_stack_ALREADY_DEFINED
+#define M3U_ensure_buffer_stack_ALREADY_DEFINED
 #else
-#define yyensure_buffer_stack Bencoding_ensure_buffer_stack
+#define yyensure_buffer_stack M3U_ensure_buffer_stack
 #endif
 
     
 #ifdef yylex
-#define Bencoding_lex_ALREADY_DEFINED
+#define M3U_lex_ALREADY_DEFINED
 #else
-#define yylex Bencoding_lex
+#define yylex M3U_lex
 #endif
 
     
 #ifdef yyrestart
-#define Bencoding_restart_ALREADY_DEFINED
+#define M3U_restart_ALREADY_DEFINED
 #else
-#define yyrestart Bencoding_restart
+#define yyrestart M3U_restart
 #endif
 
     
 #ifdef yylex_init
-#define Bencoding_lex_init_ALREADY_DEFINED
+#define M3U_lex_init_ALREADY_DEFINED
 #else
-#define yylex_init Bencoding_lex_init
+#define yylex_init M3U_lex_init
 #endif
 
     
 #ifdef yylex_init_extra
-#define Bencoding_lex_init_extra_ALREADY_DEFINED
+#define M3U_lex_init_extra_ALREADY_DEFINED
 #else
-#define yylex_init_extra Bencoding_lex_init_extra
+#define yylex_init_extra M3U_lex_init_extra
 #endif
 
     
 #ifdef yylex_destroy
-#define Bencoding_lex_destroy_ALREADY_DEFINED
+#define M3U_lex_destroy_ALREADY_DEFINED
 #else
-#define yylex_destroy Bencoding_lex_destroy
+#define yylex_destroy M3U_lex_destroy
 #endif
 
     
 #ifdef yyget_debug
-#define Bencoding_get_debug_ALREADY_DEFINED
+#define M3U_get_debug_ALREADY_DEFINED
 #else
-#define yyget_debug Bencoding_get_debug
+#define yyget_debug M3U_get_debug
 #endif
 
     
 #ifdef yyset_debug
-#define Bencoding_set_debug_ALREADY_DEFINED
+#define M3U_set_debug_ALREADY_DEFINED
 #else
-#define yyset_debug Bencoding_set_debug
+#define yyset_debug M3U_set_debug
 #endif
 
     
 #ifdef yyget_extra
-#define Bencoding_get_extra_ALREADY_DEFINED
+#define M3U_get_extra_ALREADY_DEFINED
 #else
-#define yyget_extra Bencoding_get_extra
+#define yyget_extra M3U_get_extra
 #endif
 
     
 #ifdef yyset_extra
-#define Bencoding_set_extra_ALREADY_DEFINED
+#define M3U_set_extra_ALREADY_DEFINED
 #else
-#define yyset_extra Bencoding_set_extra
+#define yyset_extra M3U_set_extra
 #endif
 
     
 #ifdef yyget_in
-#define Bencoding_get_in_ALREADY_DEFINED
+#define M3U_get_in_ALREADY_DEFINED
 #else
-#define yyget_in Bencoding_get_in
+#define yyget_in M3U_get_in
 #endif
 
     
 #ifdef yyset_in
-#define Bencoding_set_in_ALREADY_DEFINED
+#define M3U_set_in_ALREADY_DEFINED
 #else
-#define yyset_in Bencoding_set_in
+#define yyset_in M3U_set_in
 #endif
 
     
 #ifdef yyget_out
-#define Bencoding_get_out_ALREADY_DEFINED
+#define M3U_get_out_ALREADY_DEFINED
 #else
-#define yyget_out Bencoding_get_out
+#define yyget_out M3U_get_out
 #endif
 
     
 #ifdef yyset_out
-#define Bencoding_set_out_ALREADY_DEFINED
+#define M3U_set_out_ALREADY_DEFINED
 #else
-#define yyset_out Bencoding_set_out
+#define yyset_out M3U_set_out
 #endif
 
     
 #ifdef yyget_leng
-#define Bencoding_get_leng_ALREADY_DEFINED
+#define M3U_get_leng_ALREADY_DEFINED
 #else
-#define yyget_leng Bencoding_get_leng
+#define yyget_leng M3U_get_leng
 #endif
 
     
 #ifdef yyget_text
-#define Bencoding_get_text_ALREADY_DEFINED
+#define M3U_get_text_ALREADY_DEFINED
 #else
-#define yyget_text Bencoding_get_text
+#define yyget_text M3U_get_text
 #endif
 
     
 #ifdef yyget_lineno
-#define Bencoding_get_lineno_ALREADY_DEFINED
+#define M3U_get_lineno_ALREADY_DEFINED
 #else
-#define yyget_lineno Bencoding_get_lineno
+#define yyget_lineno M3U_get_lineno
 #endif
 
     
 #ifdef yyset_lineno
-#define Bencoding_set_lineno_ALREADY_DEFINED
+#define M3U_set_lineno_ALREADY_DEFINED
 #else
-#define yyset_lineno Bencoding_set_lineno
+#define yyset_lineno M3U_set_lineno
 #endif
 
     
         
 #ifdef yyget_column
-#define Bencoding_get_column_ALREADY_DEFINED
+#define M3U_get_column_ALREADY_DEFINED
 #else
-#define yyget_column Bencoding_get_column
+#define yyget_column M3U_get_column
 #endif
 
         
 #ifdef yyset_column
-#define Bencoding_set_column_ALREADY_DEFINED
+#define M3U_set_column_ALREADY_DEFINED
 #else
-#define yyset_column Bencoding_set_column
+#define yyset_column M3U_set_column
 #endif
 
     
     
 #ifdef yywrap
-#define Bencoding_wrap_ALREADY_DEFINED
+#define M3U_wrap_ALREADY_DEFINED
 #else
-#define yywrap Bencoding_wrap
+#define yywrap M3U_wrap
 #endif
 
 
@@ -302,23 +301,23 @@ extern YY_DECL;
 
 
 #ifdef yyalloc
-#define Bencoding_alloc_ALREADY_DEFINED
+#define M3U_alloc_ALREADY_DEFINED
 #else
-#define yyalloc Bencoding_alloc
+#define yyalloc M3U_alloc
 #endif
 
     
 #ifdef yyrealloc
-#define Bencoding_realloc_ALREADY_DEFINED
+#define M3U_realloc_ALREADY_DEFINED
 #else
-#define yyrealloc Bencoding_realloc
+#define yyrealloc M3U_realloc
 #endif
 
     
 #ifdef yyfree
-#define Bencoding_free_ALREADY_DEFINED
+#define M3U_free_ALREADY_DEFINED
 #else
-#define yyfree Bencoding_free
+#define yyfree M3U_free
 #endif
 
 
@@ -621,9 +620,6 @@ void yyfree ( void * , yyscan_t yyscanner );
 /* %% [1.0] yytext/yyin/yyout/yy_state_type/yylineno etc. def's & init go here */
 /* Begin user sect3 */
 
-#define Bencoding_wrap(yyscanner) (/*CONSTCOND*/1)
-#define YY_SKIP_YYWRAP
-
 #define FLEX_DEBUG
 
 
@@ -642,11 +638,13 @@ void yyfree ( void * , yyscan_t yyscanner );
 
 #ifdef YY_HEADER_EXPORT_START_CONDITIONS
 #define INITIAL 0
-#define state_string 1
-#define state_integer 2
-#define state_list 3
-#define state_dictionary_key 4
-#define state_dictionary_value 5
+#define state_value 1
+#define state_ext_inf 2
+#define state_ext_inf_title 3
+#define state_ext_stream_inf_key_value 4
+#define state_ext_stream_inf_next_value 5
+#define state_ext_stream_inf_is_last_value 6
+#define state_url 7
 
 #endif
 
@@ -801,8 +799,6 @@ static int yy_flex_strlen ( const char * , yyscan_t yyscanner);
 
 
 
-
-
 /* %endif */
 
 /* Amount of stuff to slurp up with each read. */
@@ -891,152 +887,152 @@ extern int yylex (yyscan_t yyscanner);
 #undef YY_DECL
 #endif
 
-#ifndef Bencoding__create_buffer_ALREADY_DEFINED
+#ifndef M3U__create_buffer_ALREADY_DEFINED
 #undef yy_create_buffer
 #endif
-#ifndef Bencoding__delete_buffer_ALREADY_DEFINED
+#ifndef M3U__delete_buffer_ALREADY_DEFINED
 #undef yy_delete_buffer
 #endif
-#ifndef Bencoding__scan_buffer_ALREADY_DEFINED
+#ifndef M3U__scan_buffer_ALREADY_DEFINED
 #undef yy_scan_buffer
 #endif
-#ifndef Bencoding__scan_string_ALREADY_DEFINED
+#ifndef M3U__scan_string_ALREADY_DEFINED
 #undef yy_scan_string
 #endif
-#ifndef Bencoding__scan_bytes_ALREADY_DEFINED
+#ifndef M3U__scan_bytes_ALREADY_DEFINED
 #undef yy_scan_bytes
 #endif
-#ifndef Bencoding__init_buffer_ALREADY_DEFINED
+#ifndef M3U__init_buffer_ALREADY_DEFINED
 #undef yy_init_buffer
 #endif
-#ifndef Bencoding__flush_buffer_ALREADY_DEFINED
+#ifndef M3U__flush_buffer_ALREADY_DEFINED
 #undef yy_flush_buffer
 #endif
-#ifndef Bencoding__load_buffer_state_ALREADY_DEFINED
+#ifndef M3U__load_buffer_state_ALREADY_DEFINED
 #undef yy_load_buffer_state
 #endif
-#ifndef Bencoding__switch_to_buffer_ALREADY_DEFINED
+#ifndef M3U__switch_to_buffer_ALREADY_DEFINED
 #undef yy_switch_to_buffer
 #endif
-#ifndef Bencoding_push_buffer_state_ALREADY_DEFINED
+#ifndef M3U_push_buffer_state_ALREADY_DEFINED
 #undef yypush_buffer_state
 #endif
-#ifndef Bencoding_pop_buffer_state_ALREADY_DEFINED
+#ifndef M3U_pop_buffer_state_ALREADY_DEFINED
 #undef yypop_buffer_state
 #endif
-#ifndef Bencoding_ensure_buffer_stack_ALREADY_DEFINED
+#ifndef M3U_ensure_buffer_stack_ALREADY_DEFINED
 #undef yyensure_buffer_stack
 #endif
-#ifndef Bencoding_lex_ALREADY_DEFINED
+#ifndef M3U_lex_ALREADY_DEFINED
 #undef yylex
 #endif
-#ifndef Bencoding_restart_ALREADY_DEFINED
+#ifndef M3U_restart_ALREADY_DEFINED
 #undef yyrestart
 #endif
-#ifndef Bencoding_lex_init_ALREADY_DEFINED
+#ifndef M3U_lex_init_ALREADY_DEFINED
 #undef yylex_init
 #endif
-#ifndef Bencoding_lex_init_extra_ALREADY_DEFINED
+#ifndef M3U_lex_init_extra_ALREADY_DEFINED
 #undef yylex_init_extra
 #endif
-#ifndef Bencoding_lex_destroy_ALREADY_DEFINED
+#ifndef M3U_lex_destroy_ALREADY_DEFINED
 #undef yylex_destroy
 #endif
-#ifndef Bencoding_get_debug_ALREADY_DEFINED
+#ifndef M3U_get_debug_ALREADY_DEFINED
 #undef yyget_debug
 #endif
-#ifndef Bencoding_set_debug_ALREADY_DEFINED
+#ifndef M3U_set_debug_ALREADY_DEFINED
 #undef yyset_debug
 #endif
-#ifndef Bencoding_get_extra_ALREADY_DEFINED
+#ifndef M3U_get_extra_ALREADY_DEFINED
 #undef yyget_extra
 #endif
-#ifndef Bencoding_set_extra_ALREADY_DEFINED
+#ifndef M3U_set_extra_ALREADY_DEFINED
 #undef yyset_extra
 #endif
-#ifndef Bencoding_get_in_ALREADY_DEFINED
+#ifndef M3U_get_in_ALREADY_DEFINED
 #undef yyget_in
 #endif
-#ifndef Bencoding_set_in_ALREADY_DEFINED
+#ifndef M3U_set_in_ALREADY_DEFINED
 #undef yyset_in
 #endif
-#ifndef Bencoding_get_out_ALREADY_DEFINED
+#ifndef M3U_get_out_ALREADY_DEFINED
 #undef yyget_out
 #endif
-#ifndef Bencoding_set_out_ALREADY_DEFINED
+#ifndef M3U_set_out_ALREADY_DEFINED
 #undef yyset_out
 #endif
-#ifndef Bencoding_get_leng_ALREADY_DEFINED
+#ifndef M3U_get_leng_ALREADY_DEFINED
 #undef yyget_leng
 #endif
-#ifndef Bencoding_get_text_ALREADY_DEFINED
+#ifndef M3U_get_text_ALREADY_DEFINED
 #undef yyget_text
 #endif
-#ifndef Bencoding_get_lineno_ALREADY_DEFINED
+#ifndef M3U_get_lineno_ALREADY_DEFINED
 #undef yyget_lineno
 #endif
-#ifndef Bencoding_set_lineno_ALREADY_DEFINED
+#ifndef M3U_set_lineno_ALREADY_DEFINED
 #undef yyset_lineno
 #endif
-#ifndef Bencoding_get_column_ALREADY_DEFINED
+#ifndef M3U_get_column_ALREADY_DEFINED
 #undef yyget_column
 #endif
-#ifndef Bencoding_set_column_ALREADY_DEFINED
+#ifndef M3U_set_column_ALREADY_DEFINED
 #undef yyset_column
 #endif
-#ifndef Bencoding_wrap_ALREADY_DEFINED
+#ifndef M3U_wrap_ALREADY_DEFINED
 #undef yywrap
 #endif
-#ifndef Bencoding_get_lval_ALREADY_DEFINED
+#ifndef M3U_get_lval_ALREADY_DEFINED
 #undef yyget_lval
 #endif
-#ifndef Bencoding_set_lval_ALREADY_DEFINED
+#ifndef M3U_set_lval_ALREADY_DEFINED
 #undef yyset_lval
 #endif
-#ifndef Bencoding_get_lloc_ALREADY_DEFINED
+#ifndef M3U_get_lloc_ALREADY_DEFINED
 #undef yyget_lloc
 #endif
-#ifndef Bencoding_set_lloc_ALREADY_DEFINED
+#ifndef M3U_set_lloc_ALREADY_DEFINED
 #undef yyset_lloc
 #endif
-#ifndef Bencoding_alloc_ALREADY_DEFINED
+#ifndef M3U_alloc_ALREADY_DEFINED
 #undef yyalloc
 #endif
-#ifndef Bencoding_realloc_ALREADY_DEFINED
+#ifndef M3U_realloc_ALREADY_DEFINED
 #undef yyrealloc
 #endif
-#ifndef Bencoding_free_ALREADY_DEFINED
+#ifndef M3U_free_ALREADY_DEFINED
 #undef yyfree
 #endif
-#ifndef Bencoding_text_ALREADY_DEFINED
+#ifndef M3U_text_ALREADY_DEFINED
 #undef yytext
 #endif
-#ifndef Bencoding_leng_ALREADY_DEFINED
+#ifndef M3U_leng_ALREADY_DEFINED
 #undef yyleng
 #endif
-#ifndef Bencoding_in_ALREADY_DEFINED
+#ifndef M3U_in_ALREADY_DEFINED
 #undef yyin
 #endif
-#ifndef Bencoding_out_ALREADY_DEFINED
+#ifndef M3U_out_ALREADY_DEFINED
 #undef yyout
 #endif
-#ifndef Bencoding__flex_debug_ALREADY_DEFINED
+#ifndef M3U__flex_debug_ALREADY_DEFINED
 #undef yy_flex_debug
 #endif
-#ifndef Bencoding_lineno_ALREADY_DEFINED
+#ifndef M3U_lineno_ALREADY_DEFINED
 #undef yylineno
 #endif
-#ifndef Bencoding_tables_fload_ALREADY_DEFINED
+#ifndef M3U_tables_fload_ALREADY_DEFINED
 #undef yytables_fload
 #endif
-#ifndef Bencoding_tables_destroy_ALREADY_DEFINED
+#ifndef M3U_tables_destroy_ALREADY_DEFINED
 #undef yytables_destroy
 #endif
-#ifndef Bencoding_TABLES_NAME_ALREADY_DEFINED
+#ifndef M3U_TABLES_NAME_ALREADY_DEFINED
 #undef yyTABLES_NAME
 #endif
 
 
 
-#undef Bencoding_IN_HEADER
-#endif /* Bencoding_HEADER_H */
+#undef M3U_IN_HEADER
+#endif /* M3U_HEADER_H */

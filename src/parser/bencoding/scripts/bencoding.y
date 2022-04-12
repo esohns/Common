@@ -24,7 +24,6 @@
 %code top {
 #include "stdafx.h"
 
-//#include "ace/Synch.h"
 #include "bencoding_parser.h"
 }
 
@@ -67,7 +66,7 @@
 
 #include "common_parser_bencoding_common.h"
 
-#include "bencoding_iparser.h"
+#include "common_parser_bencoding_iparser.h"
 
 /* enum yytokentype
 {
@@ -109,10 +108,10 @@ typedef union YYSTYPE
 }
 
 // calling conventions / parameter passing
-%parse-param              { Bencoding_IParser* iparser }
+%parse-param              { Bencoding_IParser_t* iparser }
 %parse-param              { Bencoding_IScanner_t* iscanner }
 // *NOTE*: cannot use %initial-action, as it is scoped
-%lex-param                { Bencoding_IParser* iparser }
+%lex-param                { Bencoding_IParser_t* iparser }
 %lex-param                { yyscan_t iscanner->getR ().context }
 
 %initial-action
@@ -160,10 +159,9 @@ typedef union YYSTYPE
 
 #include "common_macros.h"
 
-#include "common_parser_bencoding_tools.h"
-
-#include "bencoding_parser_driver.h"
 #include "bencoding_scanner.h"
+#include "common_parser_bencoding_tools.h"
+#include "common_parser_bencoding_parser_driver.h"
 
 // *TODO*: this shouldn't be necessary
 #define yylex Bencoding_lex

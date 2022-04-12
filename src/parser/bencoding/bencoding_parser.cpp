@@ -82,10 +82,9 @@
 
 #include "common_macros.h"
 
-#include "common_parser_bencoding_tools.h"
-
-#include "bencoding_parser_driver.h"
 #include "bencoding_scanner.h"
+#include "common_parser_bencoding_tools.h"
+#include "common_parser_bencoding_parser_driver.h"
 
 // *TODO*: this shouldn't be necessary
 #define yylex Bencoding_lex
@@ -220,7 +219,7 @@ namespace yy {
 
 
   /// Build a parser object.
-  parser::parser (Bencoding_IParser* iparser_yyarg, Bencoding_IScanner_t* iscanner_yyarg)
+  parser::parser (Bencoding_IParser_t* iparser_yyarg, Bencoding_IScanner_t* iscanner_yyarg)
     :
 #if YYDEBUG
       yydebug_ (false),

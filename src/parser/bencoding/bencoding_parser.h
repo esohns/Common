@@ -54,7 +54,7 @@
 
 #include "common_parser_bencoding_common.h"
 
-#include "bencoding_iparser.h"
+#include "common_parser_bencoding_iparser.h"
 
 /* enum yytokentype
 {
@@ -314,7 +314,7 @@ namespace yy {
 
 
     /// Build a parser object.
-    parser (Bencoding_IParser* iparser_yyarg, Bencoding_IScanner_t* iscanner_yyarg);
+    parser (Bencoding_IParser_t* iparser_yyarg, Bencoding_IScanner_t* iscanner_yyarg);
     virtual ~parser ();
 
     /// Parse.
@@ -527,7 +527,7 @@ namespace yy {
 
 
     // User arguments.
-    Bencoding_IParser* iparser;
+    Bencoding_IParser_t* iparser;
     Bencoding_IScanner_t* iscanner;
   };
 

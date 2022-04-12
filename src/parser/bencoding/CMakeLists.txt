@@ -1,4 +1,4 @@
-set (LIBRARY ${PROJECT_NAME}Parser)
+set (LIBRARY ${PROJECT_NAME}Parser_Bencoding)
 add_library (${LIBRARY} STATIC "")
 
 target_include_directories (${LIBRARY} PUBLIC
@@ -8,25 +8,27 @@ target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
 if (WIN32)
  target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>)
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../include>)
 endif (WIN32)
 target_include_directories (${LIBRARY} PUBLIC
-                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../3rd_party/bison>)
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../3rd_party/bison>)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
+target_include_directories (${LIBRARY} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>)
 
 ############## next target ################
 set (source_files
-     common_iparser.h
-     common_iscanner.h
-     common_parser_base.cpp
-     common_parser_base.h
-     common_parser_base.inl
-     common_parser_common.h
-     common_parser_cpp_base.cpp
-     common_parser_cpp_base.h
-     common_parser_cpp_base.inl
-     common_parser_defines.h)
+     bencoding_parser.cpp
+     bencoding_parser.h
+     bencoding_scanner.cpp
+     bencoding_scanner.h
+     common_parser_bencoding_common.h
+     common_parser_bencoding_iparser.h
+     common_parser_bencoding_parser_driver.cpp
+     common_parser_bencoding_parser_driver.h
+     common_parser_bencoding_tools.cpp
+     common_parser_bencoding_tools.h)
 
 # Include dir for installed targets
 set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
@@ -45,12 +47,6 @@ target_sources (${LIBRARY}
 #                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 PRIVATE ${absolute_source_files})
-
-if (WIN32)
- if (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)
-  add_compile_options (-Wno-c++11-narrowing)
- endif (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)
-endif (WIN32)
 
 #*TODO*: use pkg-config instead
 if (WIN32)
@@ -73,21 +69,14 @@ export (TARGETS ${LIBRARY}
 
 ############### install files ################
 install (FILES
-         common_iparser.h
-         common_iscanner.h
-         common_parser_base.h
-         common_parser_base.inl
+         bencoding_parser.h
+         bencoding_scanner.h
          common_parser_bencoding_common.h
+         common_parser_bencoding_iparser.h
+         common_parser_bencoding_parser_driver.h
          common_parser_bencoding_tools.h
-         common_parser_common.h
-         common_parser_cpp_base.h
-         common_parser_cpp_base.inl
-         common_parser_defines.h
          DESTINATION include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
          COMPONENT lib)
-
-add_subdirectory (bencoding)
-add_subdirectory (m3u)

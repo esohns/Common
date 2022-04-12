@@ -1,16 +1,15 @@
 %top{
-//  #include "ace/Synch.h"
-  #include "common_iparser.h"
+#include "common_iparser.h"
 
-  #include "bencoding_parser.h"
+#include "bencoding_parser.h"
 
 #if defined (Bencoding_IN_HEADER)
 class Bencoding_IParser;
 #else
 #define YY_STRUCT_YY_BUFFER_STATE
-  #include "bencoding_scanner.h"
+#include "bencoding_scanner.h"
 
-  #include "bencoding_iparser.h"
+#include "common_parser_bencoding_iparser.h"
 #undef YY_STRUCT_YY_BUFFER_STATE
 #endif
 
@@ -18,7 +17,7 @@ class Bencoding_IParser;
 int                                                 \
 Bencoding_lex (yy::parser::semantic_type* yylval,   \
                yy::parser::location_type* location, \
-               Bencoding_IParser* parser,           \
+               Bencoding_IParser_t* parser,         \
                yyscan_t yyscanner)
 // ... and declare it for the parser's sake
 extern YY_DECL;
@@ -27,29 +26,28 @@ extern YY_DECL;
 }
 
 %{
-  // *WORKAROUND*
+// *WORKAROUND*
 //  #include <iostream>
-  #include <sstream>
-  //using namespace std;
-  //// *IMPORTANT NOTE*: several ACE headers inclue ace/iosfwd.h, which introduces
-  ////                   a problem in conjunction with the standard include headers
-  ////                   when ACE_USES_OLD_IOSTREAMS is defined
-  ////                   --> include the necessary headers manually (see above), and
-  ////                       prevent ace/iosfwd.h from causing any harm
-  //#define ACE_IOSFWD_H
+#include <sstream>
+//using namespace std;
+//// *IMPORTANT NOTE*: several ACE headers inclue ace/iosfwd.h, which introduces
+////                   a problem in conjunction with the standard include headers
+////                   when ACE_USES_OLD_IOSTREAMS is defined
+////                   --> include the necessary headers manually (see above), and
+////                       prevent ace/iosfwd.h from causing any harm
+//#define ACE_IOSFWD_H
 
-  #include "ace/Synch.h"
-  #include "bencoding_scanner.h"
-  #include "bencoding_parser.h"
-  #include "bencoding_parser_driver.h"
+#include "bencoding_scanner.h"
+#include "bencoding_parser.h"
+#include "common_parser_bencoding_parser_driver.h"
 
-  // the original yyterminate() macro returns int. Since this uses Bison 3
-  // variants as tokens, redefine it to change type to `Parser::semantic_type`
-  #define yyterminate() return yy::parser::token::END;
+// the original yyterminate() macro returns int. Since this uses Bison 3
+// variants as tokens, redefine it to change type to `Parser::semantic_type`
+#define yyterminate() return yy::parser::token::END;
 
-  // this tracks the current scanner location. Action is called when length of
-  // the token is known
-  #define YY_USER_ACTION location->columns (yyleng);
+// this tracks the current scanner location. Action is called when length of
+// the token is known
+#define YY_USER_ACTION location->columns (yyleng);
 %}
 
 %option backup

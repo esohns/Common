@@ -24,7 +24,7 @@
 
 #include "common_timer_tools.h"
 
-#include "bencoding_parser_driver.h"
+#include "common_parser_bencoding_parser_driver.h"
 
 void
 do_print_usage (const std::string& programName_in)
@@ -174,7 +174,7 @@ do_work (int argc_in,
   uint8_t* data_p = NULL, *data_2 = NULL;
   ACE_Message_Block* message_block_p = NULL, * message_block_2 = NULL;
   struct Common_FlexBisonParserConfiguration configuration;
-  Bencoding_ParserDriver parser_driver;
+  Common_Parser_Bencoding_ParserDriver parser_driver;
   std::string file_path_2 = ACE::dirname (sourceFilePath_in.c_str (), '\\');
   file_path_2 += ACE_DIRECTORY_SEPARATOR_STR;
   file_path_2 += ACE_TEXT ("test_2_2.txt");

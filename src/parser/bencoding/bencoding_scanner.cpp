@@ -10,7 +10,7 @@ class Bencoding_IParser;
 #define YY_STRUCT_YY_BUFFER_STATE
   #include "bencoding_scanner.h"
 
-  #include "bencoding_iparser.h"
+  #include "common_parser_bencoding_iparser.h"
 #undef YY_STRUCT_YY_BUFFER_STATE
 #endif
 
@@ -18,7 +18,7 @@ class Bencoding_IParser;
 int                                                 \
 Bencoding_lex (yy::parser::semantic_type* yylval,   \
                yy::parser::location_type* location, \
-               Bencoding_IParser* parser,           \
+               Bencoding_IParser_t* parser,         \
                yyscan_t yyscanner)
 // ... and declare it for the parser's sake
 extern YY_DECL;
@@ -1031,10 +1031,9 @@ static const flex_int32_t yy_rule_linenum[23] =
   ////                       prevent ace/iosfwd.h from causing any harm
   //#define ACE_IOSFWD_H
 
-  #include "ace/Synch.h"
   #include "bencoding_scanner.h"
   #include "bencoding_parser.h"
-  #include "bencoding_parser_driver.h"
+  #include "common_parser_bencoding_parser_driver.h"
 
   // the original yyterminate() macro returns int. Since this uses Bison 3
   // variants as tokens, redefine it to change type to `Parser::semantic_type`

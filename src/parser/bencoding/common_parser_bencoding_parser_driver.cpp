@@ -19,7 +19,7 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include "bencoding_parser_driver.h"
+#include "common_parser_bencoding_parser_driver.h"
 
 #include <sstream>
 
@@ -27,25 +27,24 @@
 
 #include "common_macros.h"
 
+#include "bencoding_scanner.h"
 #include "common_parser_bencoding_tools.h"
 
-#include "bencoding_scanner.h"
-
-Bencoding_ParserDriver::Bencoding_ParserDriver ()
+Common_Parser_Bencoding_ParserDriver::Common_Parser_Bencoding_ParserDriver ()
  : inherited ()
  , dictionaries_ ()
  , key_ (NULL)
  , lists_ ()
 {
-  COMMON_TRACE (ACE_TEXT ("Bencoding_ParserDriver::Bencoding_ParserDriver_T"));
+  COMMON_TRACE (ACE_TEXT ("Common_Parser_Bencoding_ParserDriver::Common_Parser_Bencoding_ParserDriver_T"));
 
 //  inherited::parser_.set (this);
 }
 
 //void
-//Bencoding_ParserDriver::error (const std::string& message_in)
+//Common_Parser_Bencoding_ParserDriver::error (const std::string& message_in)
 //{
-//  COMMON_TRACE (ACE_TEXT ("Bencoding_ParserDriver::error"));
+//  COMMON_TRACE (ACE_TEXT ("Common_Parser_Bencoding_ParserDriver::error"));
 
 //  // *NOTE*: the output format has been "adjusted" to fit in with bison error-reporting
 //  ACE_DEBUG ((LM_ERROR,
@@ -60,9 +59,9 @@ Bencoding_ParserDriver::Bencoding_ParserDriver ()
 //}
 
 void
-Bencoding_ParserDriver::record (Bencoding_Dictionary_t*& record_inout)
+Common_Parser_Bencoding_ParserDriver::record (Bencoding_Dictionary_t*& record_inout)
 {
-  COMMON_TRACE (ACE_TEXT ("Bencoding_ParserDriver_T::record"));
+  COMMON_TRACE (ACE_TEXT ("Common_Parser_Bencoding_ParserDriver_T::record"));
 
   // sanity check(s)
   ACE_ASSERT (record_inout);
@@ -76,9 +75,9 @@ Bencoding_ParserDriver::record (Bencoding_Dictionary_t*& record_inout)
 }
 
 void
-Bencoding_ParserDriver::record_2 (Bencoding_List_t*& record_inout)
+Common_Parser_Bencoding_ParserDriver::record_2 (Bencoding_List_t*& record_inout)
 {
-  COMMON_TRACE (ACE_TEXT ("Bencoding_ParserDriver_T::record_2"));
+  COMMON_TRACE (ACE_TEXT ("Common_Parser_Bencoding_ParserDriver_T::record_2"));
 
   // sanity check(s)
   ACE_ASSERT (record_inout);
@@ -92,9 +91,9 @@ Bencoding_ParserDriver::record_2 (Bencoding_List_t*& record_inout)
 }
 
 void
-Bencoding_ParserDriver::record_3 (std::string*& record_inout)
+Common_Parser_Bencoding_ParserDriver::record_3 (std::string*& record_inout)
 {
-  COMMON_TRACE (ACE_TEXT ("Bencoding_ParserDriver_T::record_3"));
+  COMMON_TRACE (ACE_TEXT ("Common_Parser_Bencoding_ParserDriver_T::record_3"));
 
   // sanity check(s)
   ACE_ASSERT (record_inout);
@@ -107,9 +106,9 @@ Bencoding_ParserDriver::record_3 (std::string*& record_inout)
 }
 
 void
-Bencoding_ParserDriver::record_4 (ACE_INT64 record_inout)
+Common_Parser_Bencoding_ParserDriver::record_4 (ACE_INT64 record_inout)
 {
-  COMMON_TRACE (ACE_TEXT ("Bencoding_ParserDriver_T::record_4"));
+  COMMON_TRACE (ACE_TEXT ("Common_Parser_Bencoding_ParserDriver_T::record_4"));
 
   // sanity check(s)
   ACE_ASSERT (record_inout);
@@ -120,11 +119,11 @@ Bencoding_ParserDriver::record_4 (ACE_INT64 record_inout)
 }
 
 yy_buffer_state*
-Bencoding_ParserDriver::create (yyscan_t state_in,
+Common_Parser_Bencoding_ParserDriver::create (yyscan_t state_in,
                                 char* buffer_in,
                                 size_t size_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Bencoding_ParserDriver_T::create"));
+  COMMON_TRACE (ACE_TEXT ("Common_Parser_Bencoding_ParserDriver_T::create"));
 
   // sanity check(s)
   ACE_ASSERT (inherited::configuration_);

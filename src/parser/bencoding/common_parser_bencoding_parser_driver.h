@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef BENCODING_PARSER_DRIVER_H
-#define BENCODING_PARSER_DRIVER_H
+#ifndef COMMON_PARSER_BENCODING_PARSER_DRIVER_H
+#define COMMON_PARSER_BENCODING_PARSER_DRIVER_H
 
 #include <stack>
 #include <string>
@@ -31,7 +31,7 @@
 #include "common_parser_base.h"
 #include "common_parser_common.h"
 
-#include "bencoding_iparser.h"
+#include "common_parser_bencoding_iparser.h"
 #include "bencoding_parser.h"
 #include "bencoding_scanner.h"
 
@@ -39,7 +39,7 @@
 typedef void* yyscan_t;
 struct yy_buffer_state;
 
-class Bencoding_ParserDriver
+class Common_Parser_Bencoding_ParserDriver
  : public Common_ParserBase_T<struct Common_FlexBisonParserConfiguration,
                               yy::parser,
                               Bencoding_IParser_t,
@@ -51,8 +51,8 @@ class Bencoding_ParserDriver
                               void> inherited;
 
  public:
-  Bencoding_ParserDriver ();
-  inline virtual ~Bencoding_ParserDriver () {}
+  Common_Parser_Bencoding_ParserDriver ();
+  inline virtual ~Common_Parser_Bencoding_ParserDriver () {}
 
   // convenient types
   typedef Common_ParserBase_T<struct Common_FlexBisonParserConfiguration,
@@ -93,8 +93,8 @@ class Bencoding_ParserDriver
   inline virtual void dump_state () const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Bencoding_ParserDriver (const Bencoding_ParserDriver&))
-  ACE_UNIMPLEMENTED_FUNC (Bencoding_ParserDriver& operator= (const Bencoding_ParserDriver&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Parser_Bencoding_ParserDriver (const Common_Parser_Bencoding_ParserDriver&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Parser_Bencoding_ParserDriver& operator= (const Common_Parser_Bencoding_ParserDriver&))
 
   // implement Common_ILexScanner_T
   inline virtual const Bencoding_IParser_t* const getP_2 () const { return this; }

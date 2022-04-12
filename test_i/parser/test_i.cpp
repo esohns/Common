@@ -24,7 +24,7 @@
 
 #include "common_timer_tools.h"
 
-#include "bencoding_parser_driver.h"
+#include "common_parser_bencoding_parser_driver.h"
 
 void
 do_print_usage (const std::string& programName_in)
@@ -208,7 +208,7 @@ do_work (int argc_in,
   configuration.messageQueue = NULL;
   configuration.useYYScanBuffer = COMMON_PARSER_DEFAULT_FLEX_USE_YY_SCAN_BUFFER;
 
-  Bencoding_ParserDriver parser_driver;
+  Common_Parser_Bencoding_ParserDriver parser_driver;
   if (!parser_driver.initialize (configuration))
   {
     ACE_DEBUG ((LM_ERROR,

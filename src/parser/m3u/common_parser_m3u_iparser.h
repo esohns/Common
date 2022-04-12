@@ -18,54 +18,64 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef BENCODING_IPARSER_T_H
-#define BENCODING_IPARSER_T_H
+#ifndef COMMON_PARSER_M3U_IPARSER_H
+#define COMMON_PARSER_M3U_IPARSER_H
 
 #include <string>
+#include <vector>
+
+#include "ace/Basic_Types.h"
 
 #include "common_configuration.h"
-//#include "common_iget.h"
 
 #include "common_iscanner.h"
 #include "common_iparser.h"
-#include "common_parser_bencoding_common.h"
 #include "common_parser_common.h"
 
-class Bencoding_IParser
+typedef std::vector<std::pair<std::string, std::string> > M3U_KeyValues_t;
+typedef M3U_KeyValues_t::const_iterator M3U_KeyValuesIterator_t;
+
+struct M3U_Element
+{
+  std::string Artist;
+  std::string Album;
+  ACE_INT32 Length;
+  std::string Title;
+  std::string URL;
+
+  std::string key; // temp
+  M3U_KeyValues_t keyValues;
+};
+typedef std::vector<struct M3U_Element> M3U_Playlist_t;
+typedef M3U_Playlist_t::const_iterator M3U_PlaylistIterator_t;
+
+class Common_Parser_M3U_IParser
  : public Common_IYaccRecordParser_T<struct Common_FlexBisonParserConfiguration,
-                                     Bencoding_Dictionary_t>
+                                     M3U_Playlist_t>
  , virtual public Common_ILexScanner_T<struct Common_FlexScannerState,
-                                       void>
-// , public Common_IGet_T<Bencoding_Dictionary_t>
-// , public Common_IGet_T<Bencoding_List_t>
+                                       Common_Parser_M3U_IParser>
+ , public Common_ISetP_T<M3U_Playlist_t>
+ , public Common_ISetP_2_T<struct M3U_Element>
 {
  public:
   // convenient types
   typedef Common_IYaccRecordParser_T<struct Common_FlexBisonParserConfiguration,
-                                     Bencoding_Dictionary_t> IPARSER_T;
+                                     M3U_Playlist_t> IPARSER_T;
   typedef Common_ILexScanner_T<struct Common_FlexScannerState,
-                               void> ISCANNER_T;
+                               Common_Parser_M3U_IParser> ISCANNER_T;
 
   using IPARSER_T::error;
 //  using Common_IScanner::error;
 
-  virtual std::string& getKey () = 0;
-  virtual void popDictionary () = 0;
-  virtual void popList () = 0;
-  virtual void pushDictionary (Bencoding_Dictionary_t*) = 0; // dictionary handle
-  virtual void pushKey (std::string*) = 0; // key handle
-  virtual void pushList (Bencoding_List_t*) = 0; // list handle
+  virtual struct M3U_Element& current_2 () = 0; // element handle
 
-  virtual void record_2 (Bencoding_List_t*&) = 0; // data record
-  virtual Bencoding_List_t& current_2 () = 0; // data record
-  virtual void record_3 (std::string*&) = 0; // data record
-  virtual void record_4 (ACE_INT64) = 0; // data record
+  virtual void record (M3U_Playlist_t*&) = 0; // data record
 };
 
 ////////////////////////////////////////////
 
-typedef Bencoding_IParser Bencoding_IParser_t;
+typedef Common_Parser_M3U_IParser M3U_IParser_t;
 typedef Common_ILexScanner_T<struct Common_FlexScannerState,
-                             void> Bencoding_IScanner_t;
+                             Common_Parser_M3U_IParser> M3U_IScanner_t;
 
 #endif

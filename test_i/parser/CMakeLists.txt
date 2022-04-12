@@ -16,6 +16,7 @@ endif ()
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/log)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/parser)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/parser/bencoding)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/timer)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
@@ -24,13 +25,6 @@ include_directories (${CMAKE_CURRENT_BINARY_DIR}/../..)
 
 ############## next target ###############
 set (parser_EXE_SRCS
-     bencoding_iparser.h
-     bencoding_parser.cpp
-     bencoding_parser.h
-     bencoding_parser_driver.cpp
-     bencoding_parser_driver.h
-     bencoding_scanner.cpp
-     bencoding_scanner.h
 #     stdafx.cpp
      stdafx.h
 #     ../test_i_common.h
@@ -38,13 +32,6 @@ set (parser_EXE_SRCS
      test_i.cpp)
 
 set (parser_2_EXE_SRCS
-     bencoding_iparser.h
-     bencoding_parser.cpp
-     bencoding_parser.h
-     bencoding_parser_driver.cpp
-     bencoding_parser_driver.h
-     bencoding_scanner.cpp
-     bencoding_scanner.h
 #     stdafx.cpp
      stdafx.h
 #     ../test_i_common.h
@@ -68,6 +55,7 @@ target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
 target_link_libraries (${EXECUTABLE} Common)
 target_link_libraries (${EXECUTABLE} CommonLog)
 target_link_libraries (${EXECUTABLE} CommonParser)
+target_link_libraries (${EXECUTABLE} CommonParser_Bencoding)
 target_link_libraries (${EXECUTABLE} CommonTimer)
 
 target_link_libraries (${EXECUTABLE_2} ${ACE_LIBRARY})
@@ -75,6 +63,7 @@ target_link_libraries (${EXECUTABLE_2} ${ACE_LIBRARY})
 target_link_libraries (${EXECUTABLE_2} Common)
 target_link_libraries (${EXECUTABLE_2} CommonLog)
 target_link_libraries (${EXECUTABLE_2} CommonParser)
+target_link_libraries (${EXECUTABLE_2} CommonParser_Bencoding)
 target_link_libraries (${EXECUTABLE_2} CommonTimer)
 
 # add PCH
