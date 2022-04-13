@@ -45,7 +45,9 @@ endforeach ()
 target_sources (${LIBRARY}
 #                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
-                PRIVATE ${absolute_source_files})
+                ${absolute_source_files}
+                scripts/m3u.l
+                scripts/m3u.y)
 
 #*TODO*: use pkg-config instead
 if (WIN32)

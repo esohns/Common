@@ -2,6 +2,7 @@
 #define M3U_HEADER_H 1
 #define M3U_IN_HEADER 1
 
+#line 2 "./../scripts/m3u.l"
   #include "common_iparser.h"
 
   #include "m3u_parser.h"
@@ -12,7 +13,7 @@ class M3U_IParser;
 #define YY_STRUCT_YY_BUFFER_STATE
   #include "m3u_scanner.h"
 
-  #include "m3u_iparser.h"
+  #include "common_parser_m3u_iparser.h"
 #undef YY_STRUCT_YY_BUFFER_STATE
 #endif
 
@@ -20,7 +21,7 @@ class M3U_IParser;
 int                                                 \
 M3U_lex (yy::parser::semantic_type* yylval,   \
          yy::parser::location_type* location, \
-         M3U_IParser_t* parser,                 \
+         M3U_IParser_t* parser,               \
          yyscan_t yyscanner)
 // ... and declare it for the parser's sake
 extern YY_DECL;
@@ -642,9 +643,10 @@ void yyfree ( void * , yyscan_t yyscanner );
 #define state_ext_inf 2
 #define state_ext_inf_title 3
 #define state_ext_stream_inf_key_value 4
-#define state_ext_stream_inf_next_value 5
-#define state_ext_stream_inf_is_last_value 6
-#define state_url 7
+#define state_ext_stream_inf_next_value_comma 5
+#define state_ext_stream_inf_next_value_quotation 6
+#define state_ext_stream_inf_is_last_value 7
+#define state_url 8
 
 #endif
 
