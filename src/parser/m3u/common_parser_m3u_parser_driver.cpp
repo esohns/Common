@@ -41,7 +41,7 @@ Common_Parser_M3U_ParserDriver::Common_Parser_M3U_ParserDriver ()
 }
 
 void
-Common_Parser_M3U_ParserDriver::record (M3U_Playlist_t*& record_inout)
+Common_Parser_M3U_ParserDriver::record (struct M3U_Playlist*& record_inout)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Parser_M3U_ParserDriver::record"));
 

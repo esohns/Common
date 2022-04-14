@@ -201,10 +201,10 @@ namespace yy {
     union semantic_type
     {
 
-  ACE_INT32       ival;
-  std::string*    sval;
-  M3U_Element*    eval;
-  M3U_Playlist_t* lval;
+  ACE_INT32            ival;
+  std::string*         sval;
+  struct M3U_Element*  eval;
+  struct M3U_Playlist* lval;
 
 
     };
@@ -242,14 +242,15 @@ namespace yy {
     YYerror = 256,                 // error
     YYUNDEF = 257,                 // "invalid token"
     END_OF_ELEMENT = 258,          // "element_end"
-    KEY = 259,                     // "key"
-    LENGTH = 260,                  // "length"
-    TITLE = 261,                   // "title"
-    URL = 262,                     // "URL"
-    VALUE = 263,                   // "value"
-    BEGIN_EXTINF = 264,            // "begin_ext_inf"
-    BEGIN_EXT_STREAM_INF = 265,    // "begin_ext_stream_inf"
-    BEGIN_ELEMS = 266              // "begin_elements"
+    DATETIME = 259,                // "date_time"
+    KEY = 260,                     // "key"
+    LENGTH = 261,                  // "length"
+    TITLE = 262,                   // "title"
+    URL = 263,                     // "URL"
+    VALUE = 264,                   // "value"
+    BEGIN_EXTINF = 265,            // "begin_ext_inf"
+    BEGIN_EXT_STREAM_INF = 266,    // "begin_ext_stream_inf"
+    EXT3MU = 267                   // "extm3u"
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -266,41 +267,46 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 12, ///< Number of tokens.
+        YYNTOKENS = 13, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end"
         S_YYerror = 1,                           // error
         S_YYUNDEF = 2,                           // "invalid token"
         S_END_OF_ELEMENT = 3,                    // "element_end"
-        S_KEY = 4,                               // "key"
-        S_LENGTH = 5,                            // "length"
-        S_TITLE = 6,                             // "title"
-        S_URL = 7,                               // "URL"
-        S_VALUE = 8,                             // "value"
-        S_BEGIN_EXTINF = 9,                      // "begin_ext_inf"
-        S_BEGIN_EXT_STREAM_INF = 10,             // "begin_ext_stream_inf"
-        S_BEGIN_ELEMS = 11,                      // "begin_elements"
-        S_YYACCEPT = 12,                         // $accept
-        S_playlist = 13,                         // playlist
-        S_14_1 = 14,                             // $@1
-        S_elements = 15,                         // elements
-        S_element = 16,                          // element
-        S_17_2 = 17,                             // $@2
-        S_18_3 = 18,                             // $@3
-        S_ext_inf_rest_1 = 19,                   // ext_inf_rest_1
-        S_20_4 = 20,                             // $@4
-        S_ext_inf_rest_2 = 21,                   // ext_inf_rest_2
-        S_22_5 = 22,                             // $@5
-        S_ext_inf_rest_3 = 23,                   // ext_inf_rest_3
-        S_24_6 = 24,                             // $@6
-        S_ext_inf_rest_4 = 25,                   // ext_inf_rest_4
-        S_ext_stream_inf_rest_1 = 26,            // ext_stream_inf_rest_1
-        S_key_values = 27,                       // key_values
-        S_key_value = 28,                        // key_value
+        S_DATETIME = 4,                          // "date_time"
+        S_KEY = 5,                               // "key"
+        S_LENGTH = 6,                            // "length"
+        S_TITLE = 7,                             // "title"
+        S_URL = 8,                               // "URL"
+        S_VALUE = 9,                             // "value"
+        S_BEGIN_EXTINF = 10,                     // "begin_ext_inf"
+        S_BEGIN_EXT_STREAM_INF = 11,             // "begin_ext_stream_inf"
+        S_EXT3MU = 12,                           // "extm3u"
+        S_YYACCEPT = 13,                         // $accept
+        S_playlist = 14,                         // playlist
+        S_15_1 = 15,                             // $@1
+        S_ext_x_key_values = 16,                 // ext_x_key_values
+        S_ext_x_key_value = 17,                  // ext_x_key_value
+        S_18_2 = 18,                             // $@2
+        S_elements = 19,                         // elements
+        S_element = 20,                          // element
+        S_21_3 = 21,                             // $@3
+        S_22_4 = 22,                             // $@4
+        S_program_date_time = 23,                // program_date_time
+        S_ext_inf_rest_1 = 24,                   // ext_inf_rest_1
+        S_25_5 = 25,                             // $@5
+        S_ext_inf_rest_2 = 26,                   // ext_inf_rest_2
+        S_27_6 = 27,                             // $@6
+        S_ext_inf_rest_3 = 28,                   // ext_inf_rest_3
         S_29_7 = 29,                             // $@7
-        S_ext_stream_inf_rest_3 = 30,            // ext_stream_inf_rest_3
-        S_31_8 = 31,                             // $@8
-        S_ext_stream_inf_rest_4 = 32             // ext_stream_inf_rest_4
+        S_ext_inf_rest_4 = 30,                   // ext_inf_rest_4
+        S_ext_stream_inf_rest_1 = 31,            // ext_stream_inf_rest_1
+        S_key_values = 32,                       // key_values
+        S_key_value = 33,                        // key_value
+        S_34_8 = 34,                             // $@8
+        S_ext_stream_inf_rest_3 = 35,            // ext_stream_inf_rest_3
+        S_36_9 = 36,                             // $@9
+        S_ext_stream_inf_rest_4 = 37             // ext_stream_inf_rest_4
       };
     };
 
@@ -581,7 +587,7 @@ namespace yy {
 
 #if YYDEBUG
     // YYRLINE[YYN] -- Source line where rule number YYN was defined.
-    static const unsigned char yyrline_[];
+    static const short yyrline_[];
     /// Report on the debug stream that the rule \a r is going to be reduced.
     virtual void yy_reduce_print_ (int r) const;
     /// Print the state stack on the debug stream.
@@ -808,8 +814,8 @@ namespace yy {
     /// Constants.
     enum
     {
-      yylast_ = 13,     ///< Last index in yytable_.
-      yynnts_ = 21,  ///< Number of nonterminal symbols.
+      yylast_ = 17,     ///< Last index in yytable_.
+      yynnts_ = 25,  ///< Number of nonterminal symbols.
       yyfinal_ = 4 ///< Termination state number.
     };
 

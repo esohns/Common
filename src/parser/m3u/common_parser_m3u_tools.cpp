@@ -36,7 +36,7 @@ Common_Parser_M3U_Tools::ElementToString (const struct M3U_Element& element_in)
 }
 
 std::string
-Common_Parser_M3U_Tools::PlaylistToString (const M3U_Playlist_t& playlist_in)
+Common_Parser_M3U_Tools::PlaylistToString (const struct M3U_Playlist& playlist_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Parser_M3U_Tools::PlaylistToString"));
 

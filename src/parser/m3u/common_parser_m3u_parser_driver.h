@@ -70,14 +70,14 @@ class Common_Parser_M3U_ParserDriver
   using PARSER_BASE_T::waitBuffer;
 
   // implement (part of) M3U_IParser_t
-  inline virtual M3U_Playlist_t& current () { ACE_ASSERT (playlist_); return *playlist_; }
+  inline virtual struct M3U_Playlist& current () { ACE_ASSERT (playlist_); return *playlist_; }
   inline virtual struct M3U_Element& current_2 () { ACE_ASSERT (element_); return *element_; }
   inline virtual bool hasFinished () const { return inherited::finished_; }
 
   ////////////////////////////////////////
   // callbacks
   // *IMPORTANT NOTE*: fire-and-forget API
-  virtual void record (M3U_Playlist_t*&); // data record
+  virtual void record (struct M3U_Playlist*&); // data record
 
   inline virtual void dump_state () const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
 
@@ -85,7 +85,7 @@ class Common_Parser_M3U_ParserDriver
   ACE_UNIMPLEMENTED_FUNC (Common_Parser_M3U_ParserDriver (const Common_Parser_M3U_ParserDriver&))
   ACE_UNIMPLEMENTED_FUNC (Common_Parser_M3U_ParserDriver& operator= (const Common_Parser_M3U_ParserDriver&))
 
-  inline virtual void setP (M3U_Playlist_t* playlist_in) { /*ACE_ASSERT (!playlist_);*/ playlist_ = playlist_in; }
+  inline virtual void setP (struct M3U_Playlist* playlist_in) { /*ACE_ASSERT (!playlist_);*/ playlist_ = playlist_in; }
   inline virtual void setP_2 (struct M3U_Element* element_in) { /*ACE_ASSERT (!element_);*/ element_ = element_in; }
 
   // implement Common_ILexScanner_T
@@ -100,8 +100,8 @@ class Common_Parser_M3U_ParserDriver
   inline virtual void destroy (yyscan_t state_in, struct yy_buffer_state*& buffer_inout) { M3U__delete_buffer (buffer_inout, state_in); buffer_inout = NULL; }
 //  inline virtual bool lex (yyscan_t state_in, yy::location* location_in) { ACE_ASSERT (false); return Bencoding_lex (NULL, location_in, this, state_in); }
 
-  M3U_Playlist_t*     playlist_;
-  struct M3U_Element* element_;
+  struct M3U_Playlist* playlist_;
+  struct M3U_Element*  element_;
 };
 
 #endif

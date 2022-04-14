@@ -85,10 +85,10 @@
 // symbols
 %union
 {
-  ACE_INT32       ival;
-  std::string*    sval;
-  M3U_Element*    eval;
-  M3U_Playlist_t* lval;
+  ACE_INT32            ival;
+  std::string*         sval;
+  struct M3U_Element*  eval;
+  struct M3U_Playlist* lval;
 }
 //%token <ACE_INT32>   INTEGER;
 //%token <std::string> STRING;
@@ -134,6 +134,7 @@
               END_OF_ELEMENT       "element_end"
               END 0                "end"
 ;
+%token <sval> DATETIME             "date_time"
 %token <sval> KEY                  "key"
 %token <ival> LENGTH               "length"
 %token <sval> TITLE                "title"
@@ -141,14 +142,14 @@
 %token <sval> VALUE                "value"
 %token <eval> BEGIN_EXTINF         "begin_ext_inf"
 %token <eval> BEGIN_EXT_STREAM_INF "begin_ext_stream_inf"
-%token <lval> BEGIN_ELEMS          "begin_elements"
+%token <lval> EXT3MU               "extm3u"
 
 // non-terminals
-%nterm  <ival> elements key_values key_value
+%nterm  <ival> elements ext_x_key_values ext_x_key_value key_values key_value program_date_time
 %nterm  <eval> element
-%nterm  <sval> ext_stream_inf_rest_1 ext_stream_inf_rest_3 ext_stream_inf_rest_4
-%nterm  <sval> ext_inf_rest_1 ext_inf_rest_2 ext_inf_rest_3 ext_inf_rest_4
-%nterm  <lval> playlist
+%nterm  <ival> ext_stream_inf_rest_1 ext_stream_inf_rest_3 ext_stream_inf_rest_4
+%nterm  <ival> ext_inf_rest_1 ext_inf_rest_2 ext_inf_rest_3 ext_inf_rest_4
+%nterm  <ival> playlist
 
 /*%precedence element inf_rest_1 inf_rest_2 inf_rest_3 inf_rest_4
 %precedence playlist elements*/
@@ -181,11 +182,11 @@ void yyprint (FILE*, yytokentype, YYSTYPE);*/
 
 %%
 %start            playlist;
-playlist:         "begin_elements" {
+playlist:         "extm3u" {
                     iparser->setP ($1);
-                  } elements {
-                    M3U_Playlist_t& playlist_r = iparser->current ();
-                    M3U_Playlist_t* playlist_p = &playlist_r;
+                  } ext_x_key_values elements {
+                    struct M3U_Playlist& playlist_r = iparser->current ();
+                    struct M3U_Playlist* playlist_p = &playlist_r;
                     try {
                       iparser->record (playlist_p);
                     } catch (...) {
@@ -194,16 +195,38 @@ playlist:         "begin_elements" {
                     }
                     YYACCEPT;
                   }
+ext_x_key_values: ext_x_key_values ext_x_key_value
+/*                |                    { }*/
+                  | %empty             { }
+ext_x_key_value:  "key" {
+                    struct M3U_Playlist& playlist_r = iparser->current ();
+                    playlist_r.key = *$1; } "value" {
+                    struct M3U_Playlist& playlist_r = iparser->current ();
+                    playlist_r.keyValues.push_back (std::make_pair (playlist_r.key, *$3));
+                    playlist_r.key.clear ();
+                  }
 
 elements:         elements element
 /*                  |                    { }*/
                   | %empty             { }
-element:          "begin_ext_inf" {
-                    iparser->setP_2 ($1);
+element:          program_date_time "begin_ext_inf" {
+                    iparser->setP_2 ($2);
+                    struct M3U_Playlist& playlist_r = iparser->current ();
+                    if (!playlist_r.key.empty ())
+                    {
+                      struct M3U_Element& element_r = iparser->current_2 ();
+                      element_r.keyValues.push_back (std::make_pair (ACE_TEXT_ALWAYS_CHAR ("PROGRAM-DATE-TIME"), playlist_r.key));
+                      playlist_r.key.clear ();
+                    } // end IF
                   } ext_inf_rest_1 { }
                   | "begin_ext_stream_inf" {
                     iparser->setP_2 ($1);
                   } ext_stream_inf_rest_1 { }
+program_date_time: "date_time" {
+                    struct M3U_Playlist& playlist_r = iparser->current ();
+                    playlist_r.key = *$1; }
+/*                  |                    { }*/
+                   | %empty             { }
 
 ext_inf_rest_1:   "length" {
                     struct M3U_Element& element_r = iparser->current_2 ();
@@ -216,9 +239,9 @@ ext_inf_rest_3:   "URL" {
                     struct M3U_Element& element_r = iparser->current_2 ();
                     element_r.URL = *$1; } ext_inf_rest_4 { }
 ext_inf_rest_4:   "element_end" {
-                    M3U_Playlist_t& playlist_r = iparser->current ();
+                    struct M3U_Playlist& playlist_r = iparser->current ();
                     struct M3U_Element& element_r = iparser->current_2 ();
-                    playlist_r.push_back (element_r); }
+                    playlist_r.elements.push_back (element_r); }
 /*                  |                    { }*/
                   | %empty             { }
 
@@ -235,9 +258,9 @@ ext_stream_inf_rest_3:   "URL" {
   struct M3U_Element& element_r = iparser->current_2 ();
   element_r.URL = *$1; } ext_stream_inf_rest_4 { }
 ext_stream_inf_rest_4:   "element_end" {
-  M3U_Playlist_t& playlist_r = iparser->current ();
+  struct M3U_Playlist& playlist_r = iparser->current ();
   struct M3U_Element& element_r = iparser->current_2 ();
-  playlist_r.push_back (element_r); }
+  playlist_r.elements.push_back (element_r); }
 /*                  |                    { }*/
 | %empty             { }
 %%

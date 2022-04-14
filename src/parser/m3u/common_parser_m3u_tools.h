@@ -29,7 +29,7 @@ class Common_Parser_M3U_Tools
 {
  public:
   static std::string ElementToString (const struct M3U_Element&);
-  static std::string PlaylistToString (const M3U_Playlist_t&);
+  static std::string PlaylistToString (const struct M3U_Playlist&);
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Parser_M3U_Tools ())

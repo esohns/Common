@@ -46,21 +46,29 @@ struct M3U_Element
   std::string key; // temp
   M3U_KeyValues_t keyValues;
 };
-typedef std::vector<struct M3U_Element> M3U_Playlist_t;
-typedef M3U_Playlist_t::const_iterator M3U_PlaylistIterator_t;
+typedef std::vector<struct M3U_Element> M3U_Elements_t;
+typedef M3U_Elements_t::const_iterator M3U_ElementsIterator_t;
+
+struct M3U_Playlist
+{
+  M3U_Elements_t elements;
+
+  std::string key; // temp
+  M3U_KeyValues_t keyValues;
+};
 
 class Common_Parser_M3U_IParser
  : public Common_IYaccRecordParser_T<struct Common_FlexBisonParserConfiguration,
-                                     M3U_Playlist_t>
+                                     struct M3U_Playlist>
  , virtual public Common_ILexScanner_T<struct Common_FlexScannerState,
                                        Common_Parser_M3U_IParser>
- , public Common_ISetP_T<M3U_Playlist_t>
+ , public Common_ISetP_T<struct M3U_Playlist>
  , public Common_ISetP_2_T<struct M3U_Element>
 {
  public:
   // convenient types
   typedef Common_IYaccRecordParser_T<struct Common_FlexBisonParserConfiguration,
-                                     M3U_Playlist_t> IPARSER_T;
+                                     struct M3U_Playlist> IPARSER_T;
   typedef Common_ILexScanner_T<struct Common_FlexScannerState,
                                Common_Parser_M3U_IParser> ISCANNER_T;
 
@@ -69,7 +77,7 @@ class Common_Parser_M3U_IParser
 
   virtual struct M3U_Element& current_2 () = 0; // element handle
 
-  virtual void record (M3U_Playlist_t*&) = 0; // data record
+  virtual void record (struct M3U_Playlist*&) = 0; // data record
 };
 
 ////////////////////////////////////////////
