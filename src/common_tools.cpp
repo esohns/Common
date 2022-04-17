@@ -150,7 +150,12 @@ common_locale_cb_function (LPWSTR name_in,
 //////////////////////////////////////////
 
 void
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+Common_Tools::initialize (bool initializeCOM_in,
+                          bool initializeRandomNumberGenerator_in)
+#else
 Common_Tools::initialize (bool initializeRandomNumberGenerator_in)
+#endif // ACE_WIN32 || ACE_WIN64
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::initialize"));
 
@@ -161,6 +166,16 @@ Common_Tools::initialize (bool initializeRandomNumberGenerator_in)
 #endif // VALGRIND_USE
 
   Common_Error_Tools::initialize ();
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  if (initializeCOM_in &&
+      !Common_Tools::initializeCOM ())
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_Tools::initializeCOM(): \"%s\", returning\n")));
+    return;
+  } // end IF
+#endif // ACE_WIN32 || ACE_WIN64
 
   //ACE_DEBUG ((LM_DEBUG,
   //            ACE_TEXT ("calibrating high-resolution timer...\n")));
@@ -241,6 +256,11 @@ Common_Tools::finalize ()
   COMMON_TRACE (ACE_TEXT ("Common_Tools::finalize"));
 
   Common_Error_Tools::finalize ();
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  if (Common_Tools::COMInitialized) // *NOTE*: should be thread-specific
+    Common_Tools::finalizeCOM ();
+#endif // ACE_WIN32 || ACE_WIN64
 }
 
 unsigned int

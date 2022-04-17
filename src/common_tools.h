@@ -52,7 +52,12 @@ class Common_Tools
  : public Common_SInitializeFinalize_T<Common_Tools>
 {
  public:
-  static void initialize (bool = false); // initialize random number generator ?
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static void initialize (bool,  // initialize COM ?
+                          bool); // initialize random number generator ?
+#else
+  static void initialize (bool); // initialize random number generator ?
+#endif // ACE_WIN32 || ACE_WIN64
   static void finalize ();
 
   // --- platform ---

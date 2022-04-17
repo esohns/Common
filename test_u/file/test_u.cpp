@@ -358,7 +358,12 @@ ACE_TMAIN (int argc_in,
 //  ACE_Profile_Timer process_profile;
 //  process_profile.start ();
 
-  Common_Tools::initialize ();
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  Common_Tools::initialize (false,  // COM ?
+                            false); // RNG ?
+#else
+  Common_Tools::initialize (false); // RNG ?
+#endif // ACE_WIN32 || ACE_WIN64
 
   enum Test_U_Common_File_ModeType mode_type_e =
     TEST_U_COMMON_FILE_MODE_INVALID;
