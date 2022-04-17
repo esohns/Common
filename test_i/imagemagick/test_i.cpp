@@ -4,9 +4,10 @@
 #include <string>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include "magick/api.h"
-#endif // ACE_WIN32 || ACE_WIN64
+#include "MagickWand/MagickWand.h"
+#else
 #include "wand/magick_wand.h"
+#endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/config-lite.h"
 #include "ace/ACE.h"
@@ -184,8 +185,8 @@ do_work (const std::string& sourceFilePath_in)
 //  result = MagickWriteImage (wand_p, "logo.rgb");
 //  ACE_ASSERT (result == MagickTrue);
 
-  data_p = MagickWriteImageBlob (wand_p,
-                                 &size_i);
+  data_p = MagickGetImageBlob (wand_p, // was: MagickWriteImageBlob
+                               &size_i);
   ACE_ASSERT (data_p);
 
   file_p = ACE_OS::fopen ("logo.rgb", "w");

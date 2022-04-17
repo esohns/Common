@@ -27,9 +27,10 @@
 
 #if defined (IMAGEMAGICK_SUPPORT)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include "magick/api.h"
-#endif // ACE_WIN32 || ACE_WIN64
+#include "MagickWand/MagickWand.h"
+#else
 #include "wand/magick_wand.h"
+#endif // ACE_WIN32 || ACE_WIN64
 #endif // IMAGEMAGICK_SUPPORT
 
 #include "ace/Log_Msg.h"
@@ -260,12 +261,12 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
                 ACE_TEXT (Common_Image_Tools::errorToString (context_p).c_str ())));
     goto error;
   } // end IF
-  blob_p = MagickWriteImageBlob (context_p,
-                                 &file_size_i);
+  blob_p = MagickGetImageBlob (context_p, // was: MagickWriteImageBlob
+                               &file_size_i);
   if (unlikely (!blob_p))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to MagickWriteImageBlob(): \"%s\", returning\n"),
+                ACE_TEXT ("failed to MagickGetImageBlob(): \"%s\", returning\n"),
                 ACE_TEXT (Common_Image_Tools::errorToString (context_p).c_str ())));
     goto error;
   } // end IF
