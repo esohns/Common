@@ -10,6 +10,7 @@
 #include "ace/Init_ACE.h"
 #include "ace/OS.h"
 #include "ace/Profile_Timer.h"
+#include "ace/Synch.h"
 #include "ace/Time_Value.h"
 
 #if defined (HAVE_CONFIG_H)
@@ -23,7 +24,7 @@
 
 #include "common_timer_tools.h"
 
-#include "common_parser_bencoding_parser_driver.h"
+#include "common_parser_m3u_parser_driver.h"
 
 void
 do_print_usage (const std::string& programName_in)
@@ -51,8 +52,8 @@ do_print_usage (const std::string& programName_in)
             << std::endl;
   std::string source_file_path = path_root;
   source_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  source_file_path += ACE_TEXT_ALWAYS_CHAR ("test.txt");
-  std::cout << ACE_TEXT_ALWAYS_CHAR ("-f [PATH]   : source (bencoded) file [")
+  source_file_path += ACE_TEXT_ALWAYS_CHAR ("test_2.txt");
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-f [PATH]   : source (m3u) file [")
             << source_file_path
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
@@ -83,7 +84,7 @@ do_process_arguments (int argc_in,
   debugParser_out = false;
   sourceFilePath_out = path_root;
   sourceFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  sourceFilePath_out += ACE_TEXT_ALWAYS_CHAR ("test.txt");
+  sourceFilePath_out += ACE_TEXT_ALWAYS_CHAR ("test_3.txt");
   logToFile_out = false;
   traceInformation_out = false;
 
@@ -170,18 +171,11 @@ do_work (int argc_in,
 {
   // step1: load data into a message block
   unsigned int file_size_i = Common_File_Tools::size (sourceFilePath_in);
-  ACE_Message_Block message_block (file_size_i + COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE,
-                                   ACE_Message_Block::MB_DATA,
-                                   NULL,
-                                   NULL,
-                                   NULL,
-                                   NULL,
-                                   ACE_DEFAULT_MESSAGE_BLOCK_PRIORITY,
-                                   ACE_Time_Value::zero,
-                                   ACE_Time_Value::max_time,
-                                   NULL,
-                                   NULL);
-  uint8_t* data_p = NULL;
+  uint8_t* data_p = NULL, *data_2 = NULL;
+  ACE_Message_Block* message_block_p = NULL, * message_block_2 = NULL;
+  struct Common_FlexBisonParserConfiguration configuration;
+  Common_Parser_M3U_ParserDriver parser_driver;
+
   if (!Common_File_Tools::load (sourceFilePath_in,
                                 data_p,
                                 file_size_i,
@@ -193,21 +187,22 @@ do_work (int argc_in,
     return;
   } // end IF
   ACE_ASSERT (data_p);
-  message_block.base (reinterpret_cast<char*> (data_p),
-                      file_size_i + COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE,
-                      ACE_Message_Block::DONT_DELETE);
-  message_block.size (file_size_i);
-  message_block.wr_ptr (file_size_i);
+
+  ACE_NEW_NORETURN (message_block_p,
+                    ACE_Message_Block (reinterpret_cast<char*> (data_p),
+                                       file_size_i + COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE,
+                                       ACE_DEFAULT_MESSAGE_BLOCK_PRIORITY));
+  ACE_ASSERT (message_block_p);
+  message_block_p->size (file_size_i);
+  message_block_p->wr_ptr (file_size_i);
 
   // step2: initialize parser
-  struct Common_FlexBisonParserConfiguration configuration;
-  configuration.block = false;
+  configuration.block = true;
   configuration.debugParser = debugParser_in;
   configuration.debugScanner = debugScanner_in;
   configuration.messageQueue = NULL;
   configuration.useYYScanBuffer = COMMON_PARSER_DEFAULT_FLEX_USE_YY_SCAN_BUFFER;
 
-  Common_Parser_Bencoding_ParserDriver parser_driver;
   if (!parser_driver.initialize (configuration))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -216,7 +211,7 @@ do_work (int argc_in,
   } // end IF
 
   // step3: parse data
-  if (!parser_driver.parse (&message_block))
+  if (!parser_driver.parse (message_block_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to parse data, returning\n")));
@@ -224,7 +219,22 @@ do_work (int argc_in,
   } // end IF
 
 clean:
-  delete [] data_p; data_p = NULL;
+  if (message_block_p)
+  {
+    message_block_p->release (); message_block_p = NULL;
+  } // end IF
+  if (data_p)
+  {
+    delete[] data_p; data_p = NULL;
+  } // end IF
+  if (message_block_2)
+  {
+    message_block_2->release (); message_block_2 = NULL;
+  } // end IF
+  if (data_2)
+  {
+    delete[] data_2; data_2 = NULL;
+  } // end IF
 }
 
 int
@@ -266,7 +276,7 @@ ACE_TMAIN (int argc_in,
   std::string path_root = Common_File_Tools::getWorkingDirectory ();
   std::string source_file_path = path_root;
   source_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  source_file_path += ACE_TEXT_ALWAYS_CHAR ("test.txt");
+  source_file_path += ACE_TEXT_ALWAYS_CHAR ("test_3.txt");
   bool log_to_file = false;
   std::string log_file_name;
   bool trace_information = false;
@@ -377,6 +387,7 @@ ACE_TMAIN (int argc_in,
 
 clean:
   Common_Log_Tools::finalizeLogging ();
+  Common_Tools::finalize ();
 
   // *PORTABILITY*: on Windows, finalize ACE
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

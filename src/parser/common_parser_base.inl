@@ -409,6 +409,9 @@ retry:
   {
     case ACE_Message_Block::MB_STOP:
     {
+      // keep retrying while there are other (potentially data-) messages
+      if (configuration_->messageQueue->is_empty ())
+        done = true;
       result = configuration_->messageQueue->enqueue_tail (message_block_p);
       if (result == -1)
       {
@@ -419,7 +422,8 @@ retry:
         message_block_p->release (); message_block_p = NULL;
         return;
       } // end IF
-      done = true;
+      if (!done)
+        goto retry;
       break;
     }
     case ACE_Message_Block::MB_EVENT:

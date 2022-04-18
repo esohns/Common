@@ -260,6 +260,8 @@ if (UNIX)
                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/gtk
                          ENVIRONMENT ${ENVIRONMENT})
 elseif (WIN32)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
+ string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
  file (TO_CMAKE_PATH "${ACE_LIB_DIR}" ACE_LIB_PATH)
  file (TO_CMAKE_PATH "${ffmpeg_LIB_DIR}" FFMPEG_LIB_PATH)
  file (TO_CMAKE_PATH "${ImageMagick_LIB_DIR}" IMAGEMAGICK_LIB_PATH)
@@ -267,6 +269,7 @@ elseif (WIN32)
  file (TO_CMAKE_PATH "${ASSIMP_LIB_DIR}" ASSIMP_LIB_PATH)
  file (TO_CMAKE_PATH "${GTK_LIB_DIRS}" GTK_LIB_PATH)
  create_target_launcher (${EXECUTABLE}
+                         COMMAND ${COMMAND}
                          ARGS ${ARGS}
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
@@ -279,6 +282,7 @@ elseif (WIN32)
                          ENVIRONMENT ${ENVIRONMENT})
 
  create_target_launcher (${EXECUTABLE_2}
+                         COMMAND ${COMMAND}
                          ARGS ${ARGS}
  #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
@@ -293,6 +297,7 @@ elseif (WIN32)
                          ENVIRONMENT ${ENVIRONMENT})
 
  create_target_launcher (${EXECUTABLE_3}
+                         COMMAND ${COMMAND}
                          ARGS ${ARGS}
  #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
