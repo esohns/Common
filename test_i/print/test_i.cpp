@@ -1,11 +1,11 @@
 #include "stdafx.h"
 
-#include <cairo.h>
-#include <cairo-ps.h>
-#include <cups/cups.h>
-
 #include <iostream>
 #include <string>
+
+#include "cairo.h"
+#include "cairo-ps.h"
+#include "cups/cups.h"
 
 #include "ace/config-lite.h"
 #include "ace/ACE.h"
@@ -188,7 +188,7 @@ ACE_TMAIN (int argc_in,
   ACE_Profile_Timer process_profile;
   process_profile.start ();
 
-  Common_Tools::initialize ();
+  Common_Tools::initialize (false); // RNG ?
 
   ACE_High_Res_Timer timer;
   ACE_Time_Value working_time;
