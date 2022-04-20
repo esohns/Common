@@ -317,19 +317,16 @@ Common_ParserBase_T<ConfigurationType,
   ACE_Message_Block* message_block_p = fragment_;
   if (!fragment_->cont ())
   {
-    if (finished_)
-      return false; // already finished
-
     // sanity check(s)
     if (!configuration_->block)
       return false; // not enough data, cannot proceed
 
     waitBuffer (); // <-- wait for data
     if (!fragment_->cont ())
-    {
-      // *NOTE*: most probable reason: received session end
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("no data after Common_IScannerBase::waitBuffer(), aborting\n")));
+    { // *NOTE*: most probable reason: received session end
+      if (!finished_)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("no data after Common_IScannerBase::waitBuffer(), aborting\n")));
       return false;
     } // end IF
   } // end IF
@@ -391,6 +388,9 @@ Common_ParserBase_T<ConfigurationType,
                 ACE_TEXT ("message queue not set - cannot wait, returning\n")));
     return;
   } // end IF
+  if (configuration_->messageQueue->is_empty () &&
+      finished_)
+    return; // already finished
 
   // 1. wait for data
 retry:
