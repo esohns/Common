@@ -223,8 +223,10 @@ do_work (int argc_in,
 
   // step2: initialize parser
   configuration.block = true;
+#if defined (_DEBUG)
   configuration.debugParser = debugParser_in;
   configuration.debugScanner = debugScanner_in;
+#endif // _DEBUG
   configuration.messageQueue = NULL;
   configuration.useYYScanBuffer = COMMON_PARSER_DEFAULT_FLEX_USE_YY_SCAN_BUFFER;
 

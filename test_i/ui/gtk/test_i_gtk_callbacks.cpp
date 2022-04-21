@@ -1026,11 +1026,11 @@ button_quit_clicked_cb (GtkWidget* widget_in,
                         gpointer userData_in)
 {
   ACE_UNUSED_ARG (widget_in);
-  struct Common_UI_GTK_CBData* ui_cb_data_p =
-    static_cast<struct Common_UI_GTK_CBData*> (userData_in);
 
   // sanity check(s)
-  ACE_ASSERT (ui_cb_data_p);
+//  struct Common_UI_GTK_CBData* ui_cb_data_p =
+//    static_cast<struct Common_UI_GTK_CBData*> (userData_in);
+//  ACE_ASSERT (ui_cb_data_p);
 
 #if GTK_CHECK_VERSION(4,0,0)
   COMMON_UI_GTK_MANAGER_SINGLETON::instance ()->stop (false, true);
@@ -1265,9 +1265,9 @@ drawingarea_expose_event_cb (GtkWidget* widget_in,
   ACE_UNUSED_ARG (event_in);
 
   // sanity check(s)
-  struct Common_UI_GTK_CBData* ui_cb_data_p =
-      static_cast<struct Common_UI_GTK_CBData*> (userData_in);
-  ACE_ASSERT (ui_cb_data_p);
+//  struct Common_UI_GTK_CBData* ui_cb_data_p =
+//      static_cast<struct Common_UI_GTK_CBData*> (userData_in);
+//  ACE_ASSERT (ui_cb_data_p);
 
   GtkAllocation allocation_s;
   gtk_widget_get_allocation (widget_in,
@@ -1774,9 +1774,9 @@ glarea_render_cb (GtkGLArea* area_in,
                   gpointer userData_in)
 {
   // sanity check(s)
-  struct Common_UI_GTK_CBData* ui_cb_data_p =
-    static_cast<struct Common_UI_GTK_CBData*> (userData_in);
-  ACE_ASSERT (ui_cb_data_p);
+//  struct Common_UI_GTK_CBData* ui_cb_data_p =
+//    static_cast<struct Common_UI_GTK_CBData*> (userData_in);
+//  ACE_ASSERT (ui_cb_data_p);
 
   static bool is_first = true;
   if (is_first)
@@ -1909,7 +1909,7 @@ glarea_resize_cb (GtkGLArea* GLArea_in,
   COMMON_GL_ASSERT;
 
   glMatrixMode (GL_MODELVIEW);
-  COMMON_GL_ASSERT
+  COMMON_GL_ASSERT;
 }
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION(x,0,0)
@@ -1929,13 +1929,12 @@ filechooserbutton_cb (GtkFileChooserButton* fileChooserButton_in,
 {
   // sanity check(s)
   ACE_ASSERT (fileChooserButton_in);
-  struct Common_UI_GTK_CBData* ui_cb_data_p =
-    static_cast<struct Common_UI_GTK_CBData*> (userData_in);
-  ACE_ASSERT (ui_cb_data_p);
-
-  Common_UI_GTK_BuildersIterator_t iterator =
-    ui_cb_data_p->UIState->builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
-  ACE_ASSERT (iterator != ui_cb_data_p->UIState->builders.end ());
+//  struct Common_UI_GTK_CBData* ui_cb_data_p =
+//    static_cast<struct Common_UI_GTK_CBData*> (userData_in);
+//  ACE_ASSERT (ui_cb_data_p);
+//  Common_UI_GTK_BuildersIterator_t iterator =
+//    ui_cb_data_p->UIState->builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
+//  ACE_ASSERT (iterator != ui_cb_data_p->UIState->builders.end ());
 
   GFile* file_p =
     gtk_file_chooser_get_file (GTK_FILE_CHOOSER (fileChooserButton_in));

@@ -221,14 +221,14 @@ Common_UI_GTK_Tools::initialize (int argc_in,
 
 #if defined (_DEBUG)
   if (!gtk_init_check (&argc_in, &argv_in))
-#else
-  if (!gtk_init (&argc_in, &argv_in))
-#endif // _DEBUG
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to gtk_init_check(): \"%m\", aborting\n")));
+               ACE_TEXT ("failed to gtk_init_check(): \"%m\", aborting\n")));
     return false;
   } // end IF
+#else
+  gtk_init (&argc_in, &argv_in);
+#endif // _DEBUG
 //  GOptionEntry entries_a[] = { {NULL} };
 //  if (unlikely (!gtk_init_with_args (&argc_,     // argc
 //                                     &argv_,     // argv

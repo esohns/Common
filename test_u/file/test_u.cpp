@@ -244,7 +244,13 @@ do_work (enum Test_U_Common_File_ModeType mode_in,
         return;
       } // end IF
       file_size_2 = Common_File_Tools::size (filePath_in);
-      ACE_ASSERT (file_size_i == file_size_2);
+      if (unlikely (file_size_i != file_size_2))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("test failed: %u != %u, returning\n"),
+                    file_size_i, file_size_2));
+        ACE_ASSERT (false);
+      } // end IF
 
       break;
     }

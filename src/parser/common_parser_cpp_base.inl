@@ -123,15 +123,20 @@ Common_CppParserBase_T<ConfigurationType,
   } // end IF
 
   configuration_ = &const_cast<ConfigurationType&> (configuration_in);
+
+#if defined (_DEBUG)
   trace_ = configuration_->debugParser;
+#endif // _DEBUG
 
   blockInParse_ = configuration_->block;
 
   messageQueue_ = configuration_->messageQueue;
 
+#if defined (_DEBUG)
   scanner_.set_debug (configuration_->debugScanner ? 1 : 0);
-#if defined (YYDEBUG)
   parser_.set_debug_level (configuration_->debugParser ? 1 : 0);
+#endif // _DEBUG
+#if defined (YYDEBUG)
 //  yydebug = (trace_ ? 1 : 0);
 //  yysetdebug (trace_ ? 1 : 0);
 #endif

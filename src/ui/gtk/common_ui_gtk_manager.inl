@@ -653,6 +653,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
               ACE_TEXT (locale_p)));
 
 #if GLIB_CHECK_VERSION (2,24,32)
+  ACE_UNUSED_ARG (process_priority_mask);
 #else
 #if defined (_DEBUG)
   GTypeDebugFlags debug_flags =
@@ -663,6 +664,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     debug_flags = G_TYPE_DEBUG_NONE;
   g_type_init_with_debug_flags (debug_flags);
 #else
+  ACE_UNUSED_ARG (process_priority_mask);
   g_type_init ();
 #endif // _DEBUG
 #endif // GLIB_CHECK_VERSION (2,24,32)
