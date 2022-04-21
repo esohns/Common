@@ -33,6 +33,7 @@
 
 #include "common_ui_common.h"
 #include "common_ui_idefinition.h"
+#include "common_ui_ifullscreen.h"
 
 #if defined (GTKGL_SUPPORT)
 #include "common_ui_gtk_gl_common.h"
