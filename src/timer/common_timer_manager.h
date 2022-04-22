@@ -80,10 +80,10 @@ class Common_Timer_Manager_T
                             int = 1);         // do not (!) call handle_close() ?
   virtual int reset_timer_interval (long,                   // timer id
                                     const ACE_Time_Value&); // interval
-//  inline virtual bool useReactor () const { ACE_ASSERT (configuration_); return (configuration_->mode != COMMON_TIMER_MODE_PROACTOR); }; // ? : uses proactor
+  // *NOTE*: when using reactor scheduling, the expiration time is relative (!)
   virtual long schedule_timer (Common_Timer_Handler*,                         // event handler handle
                                const void*,                                   // asynchronous completion token
-                               const ACE_Time_Value&,                         // expiration time (absolute)
+                               const ACE_Time_Value&,                         // expiration time (relative)
                                const ACE_Time_Value& = ACE_Time_Value::zero); // set periodic interval ?
 //  virtual long schedule_timer (ACE_Event_Handler*,                            // event handler handle
 //                               const void*,                                   // asynchronous completion token
