@@ -71,7 +71,9 @@ class Common_Parser_M3U_ParserDriver
 
   // implement (part of) M3U_IParser_t
   inline virtual struct M3U_Playlist& current () { ACE_ASSERT (playlist_); return *playlist_; }
-  inline virtual struct M3U_Element& current_2 () { ACE_ASSERT (element_); return *element_; }
+  inline virtual struct M3U_ExtInf_Element& current_2 () { ACE_ASSERT (extInfElement_); return *extInfElement_; }
+  inline virtual struct M3U_Media_Element& current_3 () { ACE_ASSERT (mediaElement_); return *mediaElement_; }
+  inline virtual struct M3U_StreamInf_Element& current_4 () { ACE_ASSERT (streamInfElement_); return *streamInfElement_; }
   inline virtual bool hasFinished () const { return inherited::finished_; }
 
   ////////////////////////////////////////
@@ -86,7 +88,9 @@ class Common_Parser_M3U_ParserDriver
   ACE_UNIMPLEMENTED_FUNC (Common_Parser_M3U_ParserDriver& operator= (const Common_Parser_M3U_ParserDriver&))
 
   inline virtual void setP (struct M3U_Playlist* playlist_in) { /*ACE_ASSERT (!playlist_);*/ playlist_ = playlist_in; }
-  inline virtual void setP_2 (struct M3U_Element* element_in) { /*ACE_ASSERT (!element_);*/ element_ = element_in; }
+  inline virtual void setP_2 (struct M3U_ExtInf_Element* element_in) { /*ACE_ASSERT (!element_);*/ extInfElement_ = element_in; }
+  inline virtual void setP_3 (struct M3U_Media_Element* element_in) { /*ACE_ASSERT (!element_);*/ mediaElement_ = element_in; }
+  inline virtual void setP_4 (struct M3U_StreamInf_Element* element_in) { /*ACE_ASSERT (!element_);*/ streamInfElement_ = element_in; }
 
   // implement Common_ILexScanner_T
   inline virtual const M3U_IParser_t* const getP_2 () const { return this; }
@@ -100,8 +104,10 @@ class Common_Parser_M3U_ParserDriver
   inline virtual void destroy (yyscan_t state_in, struct yy_buffer_state*& buffer_inout) { M3U__delete_buffer (buffer_inout, state_in); buffer_inout = NULL; }
 //  inline virtual bool lex (yyscan_t state_in, yy::location* location_in) { ACE_ASSERT (false); return Bencoding_lex (NULL, location_in, this, state_in); }
 
-  struct M3U_Playlist* playlist_;
-  struct M3U_Element*  element_;
+  struct M3U_Playlist*          playlist_;
+  struct M3U_ExtInf_Element*    extInfElement_;
+  struct M3U_Media_Element*     mediaElement_;
+  struct M3U_StreamInf_Element* streamInfElement_;
 };
 
 #endif

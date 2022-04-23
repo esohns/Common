@@ -418,11 +418,15 @@ namespace yy {
         break;
 
       case symbol_kind::S_BEGIN_EXTINF: // "begin_ext_inf"
-                    { if ((yysym.value.eval)) debug_stream () << Common_Parser_M3U_Tools::ElementToString (*(yysym.value.eval)); }
+                    { if ((yysym.value.eeval)) debug_stream () << Common_Parser_M3U_Tools::ElementToString (*(yysym.value.eeval)); }
+        break;
+
+      case symbol_kind::S_BEGIN_MEDIA: // "begin_media"
+                    { if ((yysym.value.emval)) debug_stream () << Common_Parser_M3U_Tools::ElementToString (*(yysym.value.emval)); }
         break;
 
       case symbol_kind::S_BEGIN_EXT_STREAM_INF: // "begin_ext_stream_inf"
-                    { if ((yysym.value.eval)) debug_stream () << Common_Parser_M3U_Tools::ElementToString (*(yysym.value.eval)); }
+                    { if ((yysym.value.esval)) debug_stream () << Common_Parser_M3U_Tools::ElementToString (*(yysym.value.esval)); }
         break;
 
       case symbol_kind::S_EXT3MU: // "extm3u"
@@ -445,10 +449,6 @@ namespace yy {
                     { debug_stream () << (yysym.value.ival); }
         break;
 
-      case symbol_kind::S_element: // element
-                    { if ((yysym.value.eval)) debug_stream () << Common_Parser_M3U_Tools::ElementToString (*(yysym.value.eval)); }
-        break;
-
       case symbol_kind::S_program_date_time: // program_date_time
                     { debug_stream () << (yysym.value.ival); }
         break;
@@ -469,15 +469,31 @@ namespace yy {
                     { debug_stream () << (yysym.value.ival); }
         break;
 
+      case symbol_kind::S_ext_media_rest_1: // ext_media_rest_1
+                    { debug_stream () << (yysym.value.ival); }
+        break;
+
+      case symbol_kind::S_ext_media_key_values: // ext_media_key_values
+                    { debug_stream () << (yysym.value.ival); }
+        break;
+
+      case symbol_kind::S_ext_media_key_value: // ext_media_key_value
+                    { debug_stream () << (yysym.value.ival); }
+        break;
+
+      case symbol_kind::S_ext_media_rest_4: // ext_media_rest_4
+                    { debug_stream () << (yysym.value.ival); }
+        break;
+
       case symbol_kind::S_ext_stream_inf_rest_1: // ext_stream_inf_rest_1
                     { debug_stream () << (yysym.value.ival); }
         break;
 
-      case symbol_kind::S_key_values: // key_values
+      case symbol_kind::S_ext_stream_inf_key_values: // ext_stream_inf_key_values
                     { debug_stream () << (yysym.value.ival); }
         break;
 
-      case symbol_kind::S_key_value: // key_value
+      case symbol_kind::S_ext_stream_inf_key_value: // ext_stream_inf_key_value
                     { debug_stream () << (yysym.value.ival); }
         break;
 
@@ -796,14 +812,7 @@ namespace yy {
 
   case 10: // $@3: %empty
                                                     {
-                    iparser->setP_2 ((yystack_[0].value.eval));
-                    struct M3U_Playlist& playlist_r = iparser->current ();
-                    if (!playlist_r.key.empty ())
-                    {
-                      struct M3U_Element& element_r = iparser->current_2 ();
-                      element_r.keyValues.push_back (std::make_pair (ACE_TEXT_ALWAYS_CHAR ("PROGRAM-DATE-TIME"), playlist_r.key));
-                      playlist_r.key.clear ();
-                    } // end IF
+                    iparser->setP_2 ((yystack_[0].value.eeval));
                   }
     break;
 
@@ -812,113 +821,153 @@ namespace yy {
     break;
 
   case 12: // $@4: %empty
-                                           {
-                    iparser->setP_2 ((yystack_[0].value.eval));
+                                  {
+                    iparser->setP_3 ((yystack_[0].value.emval));
                   }
     break;
 
-  case 13: // element: "begin_ext_stream_inf" $@4 ext_stream_inf_rest_1
+  case 13: // element: "begin_media" $@4 ext_media_rest_1
+                                     { }
+    break;
+
+  case 14: // $@5: %empty
+                                           {
+                    iparser->setP_4 ((yystack_[0].value.esval));
+                    struct M3U_Playlist& playlist_r = iparser->current ();
+                    if (!playlist_r.key.empty ())
+                    {
+                      struct M3U_StreamInf_Element& element_r = iparser->current_4 ();
+                      element_r.keyValues.push_back (std::make_pair (ACE_TEXT_ALWAYS_CHAR ("PROGRAM-DATE-TIME"), playlist_r.key));
+                      playlist_r.key.clear ();
+                    } // end IF
+                  }
+    break;
+
+  case 15: // element: "begin_ext_stream_inf" $@5 ext_stream_inf_rest_1
                                           { }
     break;
 
-  case 14: // program_date_time: "date_time"
+  case 16: // program_date_time: "date_time"
                                {
                     struct M3U_Playlist& playlist_r = iparser->current ();
                     playlist_r.key = *(yystack_[0].value.sval); }
     break;
 
-  case 15: // program_date_time: %empty
+  case 17: // program_date_time: %empty
                                         { }
     break;
 
-  case 16: // $@5: %empty
+  case 18: // $@6: %empty
                            {
-                    struct M3U_Element& element_r = iparser->current_2 ();
+                    struct M3U_ExtInf_Element& element_r = iparser->current_2 ();
                     element_r.Length = (yystack_[0].value.ival); }
     break;
 
-  case 17: // ext_inf_rest_1: "length" $@5 ext_inf_rest_2
+  case 19: // ext_inf_rest_1: "length" $@6 ext_inf_rest_2
                                                             { }
     break;
 
-  case 18: // $@6: %empty
+  case 20: // $@7: %empty
                           {
-                    struct M3U_Element& element_r = iparser->current_2 ();
+                    struct M3U_ExtInf_Element& element_r = iparser->current_2 ();
                     element_r.Title = *(yystack_[0].value.sval); }
     break;
 
-  case 19: // ext_inf_rest_2: "title" $@6 ext_inf_rest_3
+  case 21: // ext_inf_rest_2: "title" $@7 ext_inf_rest_3
                                                             { }
     break;
 
-  case 20: // ext_inf_rest_2: ext_inf_rest_3
+  case 22: // ext_inf_rest_2: ext_inf_rest_3
                                    { }
     break;
 
-  case 21: // $@7: %empty
+  case 23: // $@8: %empty
                         {
-                    struct M3U_Element& element_r = iparser->current_2 ();
+                    struct M3U_ExtInf_Element& element_r = iparser->current_2 ();
                     element_r.URL = *(yystack_[0].value.sval); }
     break;
 
-  case 22: // ext_inf_rest_3: "URL" $@7 ext_inf_rest_4
+  case 24: // ext_inf_rest_3: "URL" $@8 ext_inf_rest_4
                                                           { }
     break;
 
-  case 23: // ext_inf_rest_4: "element_end"
+  case 25: // ext_inf_rest_4: "element_end"
                                 {
                     struct M3U_Playlist& playlist_r = iparser->current ();
-                    struct M3U_Element& element_r = iparser->current_2 ();
-                    playlist_r.elements.push_back (element_r); }
+                    struct M3U_ExtInf_Element& element_r = iparser->current_2 ();
+                    playlist_r.ext_inf_elements.push_back (element_r); }
     break;
 
-  case 24: // ext_inf_rest_4: %empty
-                                       { }
-    break;
-
-  case 25: // ext_stream_inf_rest_1: key_values ext_stream_inf_rest_3
+  case 26: // ext_media_rest_1: ext_media_key_values ext_media_rest_4
                                                         { }
     break;
 
-  case 26: // key_values: key_values key_value
-            { (yylhs.value.ival) = (yystack_[1].value.ival); }
+  case 27: // ext_media_key_values: ext_media_key_values ext_media_key_value
+                      { (yylhs.value.ival) = (yystack_[1].value.ival); }
     break;
 
-  case 27: // key_values: %empty
+  case 28: // ext_media_key_values: %empty
+                                           { }
+    break;
+
+  case 29: // $@9: %empty
+                             {
+                    struct M3U_Media_Element& element_r = iparser->current_3 ();
+                    element_r.key = *(yystack_[0].value.sval); }
+    break;
+
+  case 30: // ext_media_key_value: "key" $@9 "value"
+                                                   {
+                    struct M3U_Media_Element& element_r = iparser->current_3 ();
+                    element_r.keyValues.push_back (std::make_pair (element_r.key, *(yystack_[0].value.sval))); element_r.key.clear (); }
+    break;
+
+  case 31: // ext_media_rest_4: "element_end"
+                                  {
+  struct M3U_Playlist& playlist_r = iparser->current ();
+  struct M3U_Media_Element& element_r = iparser->current_3 ();
+  playlist_r.media_elements.push_back (element_r); }
+    break;
+
+  case 32: // ext_stream_inf_rest_1: ext_stream_inf_key_values ext_stream_inf_rest_3
+                                                                       { }
+    break;
+
+  case 33: // ext_stream_inf_key_values: ext_stream_inf_key_values ext_stream_inf_key_value
+                           { (yylhs.value.ival) = (yystack_[1].value.ival); }
+    break;
+
+  case 34: // ext_stream_inf_key_values: %empty
                                  { }
     break;
 
-  case 28: // $@8: %empty
-                   {
-  struct M3U_Element& element_r = iparser->current_2 ();
+  case 35: // $@10: %empty
+                                  {
+  struct M3U_StreamInf_Element& element_r = iparser->current_4 ();
   element_r.key = *(yystack_[0].value.sval); }
     break;
 
-  case 29: // key_value: "key" $@8 "value"
+  case 36: // ext_stream_inf_key_value: "key" $@10 "value"
                                  {
-  struct M3U_Element& element_r = iparser->current_2 ();
+  struct M3U_StreamInf_Element& element_r = iparser->current_4 ();
   element_r.keyValues.push_back (std::make_pair (element_r.key, *(yystack_[0].value.sval))); element_r.key.clear (); }
     break;
 
-  case 30: // $@9: %empty
+  case 37: // $@11: %empty
                                {
-  struct M3U_Element& element_r = iparser->current_2 ();
+  struct M3U_StreamInf_Element& element_r = iparser->current_4 ();
   element_r.URL = *(yystack_[0].value.sval); }
     break;
 
-  case 31: // ext_stream_inf_rest_3: "URL" $@9 ext_stream_inf_rest_4
+  case 38: // ext_stream_inf_rest_3: "URL" $@11 ext_stream_inf_rest_4
                                                { }
     break;
 
-  case 32: // ext_stream_inf_rest_4: "element_end"
+  case 39: // ext_stream_inf_rest_4: "element_end"
                                        {
   struct M3U_Playlist& playlist_r = iparser->current ();
-  struct M3U_Element& element_r = iparser->current_2 ();
-  playlist_r.elements.push_back (element_r); }
-    break;
-
-  case 33: // ext_stream_inf_rest_4: %empty
-                     { }
+  struct M3U_StreamInf_Element& element_r = iparser->current_4 ();
+  playlist_r.stream_inf_elements.push_back (element_r); }
     break;
 
 
@@ -1270,86 +1319,93 @@ namespace yy {
   }
 
 
-  const signed char parser::yypact_ninf_ = -20;
+  const signed char parser::yypact_ninf_ = -26;
 
-  const signed char parser::yytable_ninf_ = -16;
+  const signed char parser::yytable_ninf_ = -18;
 
   const signed char
   parser::yypact_[] =
   {
-     -11,   -20,     3,   -20,   -20,    -1,   -20,   -20,    -4,     2,
-     -20,   -20,   -20,     0,   -20,   -20,   -20,   -20,    -3,     6,
-     -20,   -20,   -20,   -20,   -20,   -20,     4,    11,     1,   -20,
-     -20,   -20,   -20,   -20,   -20,   -20,     7,    13,   -20,   -20,
-     -20
+      -9,   -26,    11,   -26,   -26,     7,   -26,   -26,    -4,     4,
+     -26,   -26,   -26,   -26,     5,   -26,   -26,   -26,   -26,   -26,
+      -2,   -26,    -3,     8,   -26,   -26,   -26,   -26,   -26,   -26,
+     -26,   -26,   -26,   -26,     9,    10,    13,     2,   -26,   -26,
+     -26,   -26,   -26,   -26,   -26,   -26,    12,    14,   -26,   -26,
+     -26
   };
 
   const signed char
   parser::yydefact_[] =
   {
        0,     2,     0,     5,     1,     9,     6,     4,     3,     0,
-      14,    12,     8,     0,     7,    27,    10,    13,     0,     0,
-      28,    30,    26,    25,    16,    11,     0,    33,     0,    29,
-      32,    31,    18,    21,    17,    20,     0,    24,    19,    23,
-      22
+      16,    12,    14,     8,     0,     7,    28,    34,    10,    13,
+       0,    15,     0,     0,    31,    29,    27,    26,    35,    37,
+      33,    32,    18,    11,     0,     0,     0,     0,    30,    36,
+      39,    38,    20,    23,    19,    22,     0,     0,    21,    25,
+      24
   };
 
   const signed char
   parser::yypgoto_[] =
   {
-     -20,   -20,   -20,   -20,   -20,   -20,   -20,   -20,   -20,   -20,
-     -20,   -20,   -20,   -20,   -20,   -19,   -20,   -20,   -20,   -20,
-     -20,   -20,   -20,   -20,   -20
+     -26,   -26,   -26,   -26,   -26,   -26,   -26,   -26,   -26,   -26,
+     -26,   -26,   -26,   -26,   -26,   -26,   -25,   -26,   -26,   -26,
+     -26,   -26,   -26,   -26,   -26,   -26,   -26,   -26,   -26,   -26,
+     -26
   };
 
   const signed char
   parser::yydefgoto_[] =
   {
-       0,     2,     3,     5,     7,     9,     8,    12,    19,    15,
-      13,    25,    28,    34,    36,    35,    37,    40,    17,    18,
-      22,    26,    23,    27,    31
+       0,     2,     3,     5,     7,     9,     8,    13,    23,    16,
+      17,    14,    33,    37,    44,    46,    45,    47,    50,    19,
+      20,    26,    34,    27,    21,    22,    30,    35,    31,    36,
+      41
   };
 
   const signed char
   parser::yytable_[] =
   {
-      10,     1,    20,     4,     6,    21,   -15,    11,    32,    33,
-      16,    14,    24,    29,    30,    33,    39,    38
+      10,    24,    28,    25,     1,    29,   -17,    11,    12,    42,
+      43,     4,     6,    15,    32,    18,    40,    49,    38,    39,
+      43,    48
   };
 
   const signed char
   parser::yycheck_[] =
   {
-       4,    12,     5,     0,     5,     8,    10,    11,     7,     8,
-      10,     9,     6,     9,     3,     8,     3,    36
+       4,     3,     5,     5,    13,     8,    10,    11,    12,     7,
+       8,     0,     5,     9,     6,    10,     3,     3,     9,     9,
+       8,    46
   };
 
   const signed char
   parser::yystos_[] =
   {
-       0,    12,    14,    15,     0,    16,     5,    17,    19,    18,
-       4,    11,    20,    23,     9,    22,    10,    31,    32,    21,
-       5,     8,    33,    35,     6,    24,    34,    36,    25,     9,
-       3,    37,     7,     8,    26,    28,    27,    29,    28,     3,
-      30
+       0,    13,    15,    16,     0,    17,     5,    18,    20,    19,
+       4,    11,    12,    21,    25,     9,    23,    24,    10,    33,
+      34,    38,    39,    22,     3,     5,    35,    37,     5,     8,
+      40,    42,     6,    26,    36,    41,    43,    27,     9,     9,
+       3,    44,     7,     8,    28,    30,    29,    31,    30,     3,
+      32
   };
 
   const signed char
   parser::yyr1_[] =
   {
-       0,    13,    15,    14,    16,    16,    18,    17,    19,    19,
-      21,    20,    22,    20,    23,    23,    25,    24,    27,    26,
-      26,    29,    28,    30,    30,    31,    32,    32,    34,    33,
-      36,    35,    37,    37
+       0,    14,    16,    15,    17,    17,    19,    18,    20,    20,
+      22,    21,    23,    21,    24,    21,    25,    25,    27,    26,
+      29,    28,    28,    31,    30,    32,    33,    34,    34,    36,
+      35,    37,    38,    39,    39,    41,    40,    43,    42,    44
   };
 
   const signed char
   parser::yyr2_[] =
   {
        0,     2,     0,     4,     2,     0,     0,     3,     2,     0,
-       0,     4,     0,     3,     1,     0,     0,     3,     0,     3,
-       1,     0,     3,     1,     0,     2,     2,     0,     0,     3,
-       0,     3,     1,     0
+       0,     4,     0,     3,     0,     3,     1,     0,     0,     3,
+       0,     3,     1,     0,     3,     1,     2,     2,     0,     0,
+       3,     1,     2,     2,     0,     0,     3,     0,     3,     1
   };
 
 
@@ -1361,12 +1417,14 @@ namespace yy {
   {
   "\"end\"", "error", "\"invalid token\"", "\"element_end\"",
   "\"date_time\"", "\"key\"", "\"length\"", "\"title\"", "\"URL\"",
-  "\"value\"", "\"begin_ext_inf\"", "\"begin_ext_stream_inf\"",
-  "\"extm3u\"", "$accept", "playlist", "$@1", "ext_x_key_values",
-  "ext_x_key_value", "$@2", "elements", "element", "$@3", "$@4",
-  "program_date_time", "ext_inf_rest_1", "$@5", "ext_inf_rest_2", "$@6",
-  "ext_inf_rest_3", "$@7", "ext_inf_rest_4", "ext_stream_inf_rest_1",
-  "key_values", "key_value", "$@8", "ext_stream_inf_rest_3", "$@9",
+  "\"value\"", "\"begin_ext_inf\"", "\"begin_media\"",
+  "\"begin_ext_stream_inf\"", "\"extm3u\"", "$accept", "playlist", "$@1",
+  "ext_x_key_values", "ext_x_key_value", "$@2", "elements", "element",
+  "$@3", "$@4", "$@5", "program_date_time", "ext_inf_rest_1", "$@6",
+  "ext_inf_rest_2", "$@7", "ext_inf_rest_3", "$@8", "ext_inf_rest_4",
+  "ext_media_rest_1", "ext_media_key_values", "ext_media_key_value", "$@9",
+  "ext_media_rest_4", "ext_stream_inf_rest_1", "ext_stream_inf_key_values",
+  "ext_stream_inf_key_value", "$@10", "ext_stream_inf_rest_3", "$@11",
   "ext_stream_inf_rest_4", YY_NULLPTR
   };
 #endif
@@ -1376,10 +1434,10 @@ namespace yy {
   const short
   parser::yyrline_[] =
   {
-       0,   185,   185,   185,   198,   200,   201,   201,   209,   211,
-     212,   212,   222,   222,   225,   229,   231,   231,   234,   234,
-     237,   238,   238,   241,   246,   248,   249,   251,   252,   252,
-     257,   257,   260,   265
+       0,   193,   193,   193,   206,   208,   209,   209,   217,   219,
+     220,   220,   223,   223,   226,   226,   236,   240,   242,   242,
+     245,   245,   248,   249,   249,   252,   257,   258,   260,   261,
+     261,   266,   271,   272,   274,   275,   275,   280,   280,   283
   };
 
   void
@@ -1444,10 +1502,10 @@ namespace yy {
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9,    10,    11,    12
+       5,     6,     7,     8,     9,    10,    11,    12,    13
     };
     // Last valid token kind.
-    const int code_max = 267;
+    const int code_max = 268;
 
     if (t <= 0)
       return symbol_kind::S_YYEOF;

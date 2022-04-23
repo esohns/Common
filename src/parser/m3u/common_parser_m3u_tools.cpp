@@ -26,7 +26,27 @@
 #include "common_macros.h"
 
 std::string
-Common_Parser_M3U_Tools::ElementToString (const struct M3U_Element& element_in)
+Common_Parser_M3U_Tools::ElementToString (const struct M3U_ExtInf_Element& element_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Parser_M3U_Tools::ElementToString"));
+
+  std::string result;
+
+  return result;
+}
+
+std::string
+Common_Parser_M3U_Tools::ElementToString (const struct M3U_Media_Element& element_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Parser_M3U_Tools::ElementToString"));
+
+  std::string result;
+
+  return result;
+}
+
+std::string
+Common_Parser_M3U_Tools::ElementToString (const struct M3U_StreamInf_Element& element_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Parser_M3U_Tools::ElementToString"));
 

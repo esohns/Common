@@ -28,7 +28,9 @@
 class Common_Parser_M3U_Tools
 {
  public:
-  static std::string ElementToString (const struct M3U_Element&);
+  static std::string ElementToString (const struct M3U_ExtInf_Element&);
+  static std::string ElementToString (const struct M3U_Media_Element&);
+  static std::string ElementToString (const struct M3U_StreamInf_Element&);
   static std::string PlaylistToString (const struct M3U_Playlist&);
 
  private:

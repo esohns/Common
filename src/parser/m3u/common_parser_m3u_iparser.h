@@ -35,23 +35,43 @@
 typedef std::vector<std::pair<std::string, std::string> > M3U_KeyValues_t;
 typedef M3U_KeyValues_t::const_iterator M3U_KeyValuesIterator_t;
 
-struct M3U_Element
+struct M3U_ExtInf_Element
 {
   std::string Artist;
   std::string Album;
   ACE_INT32 Length;
   std::string Title;
   std::string URL;
+};
+typedef std::vector<struct M3U_ExtInf_Element> M3U_ExtInf_Elements_t;
+typedef M3U_ExtInf_Elements_t::const_iterator M3U_ExtInf_ElementsIterator_t;
+
+struct M3U_Media_Element
+{
+  std::string URL;
 
   std::string key; // temp
   M3U_KeyValues_t keyValues;
 };
-typedef std::vector<struct M3U_Element> M3U_Elements_t;
-typedef M3U_Elements_t::const_iterator M3U_ElementsIterator_t;
+typedef std::vector<struct M3U_Media_Element> M3U_Media_Elements_t;
+typedef M3U_Media_Elements_t::const_iterator M3U_Media_ElementsIterator_t;
+
+struct M3U_StreamInf_Element
+{
+  ACE_INT32 Length;
+  std::string URL;
+
+  std::string key; // temp
+  M3U_KeyValues_t keyValues;
+};
+typedef std::vector<struct M3U_StreamInf_Element> M3U_StreamInf_Elements_t;
+typedef M3U_StreamInf_Elements_t::const_iterator M3U_StreamInf_ElementsIterator_t;
 
 struct M3U_Playlist
 {
-  M3U_Elements_t elements;
+  M3U_ExtInf_Elements_t ext_inf_elements;
+  M3U_Media_Elements_t media_elements;
+  M3U_StreamInf_Elements_t stream_inf_elements;
 
   std::string key; // temp
   M3U_KeyValues_t keyValues;
@@ -63,7 +83,9 @@ class Common_Parser_M3U_IParser
  , virtual public Common_ILexScanner_T<struct Common_FlexScannerState,
                                        Common_Parser_M3U_IParser>
  , public Common_ISetP_T<struct M3U_Playlist>
- , public Common_ISetP_2_T<struct M3U_Element>
+ , public Common_ISetP_2_T<struct M3U_ExtInf_Element>
+ , public Common_ISetP_3_T<struct M3U_Media_Element>
+ , public Common_ISetP_4_T<struct M3U_StreamInf_Element>
 {
  public:
   // convenient types
@@ -75,7 +97,9 @@ class Common_Parser_M3U_IParser
   using IPARSER_T::error;
 //  using Common_IScanner::error;
 
-  virtual struct M3U_Element& current_2 () = 0; // element handle
+  virtual struct M3U_ExtInf_Element& current_2 () = 0; // element handle
+  virtual struct M3U_Media_Element& current_3 () = 0; // element handle
+  virtual struct M3U_StreamInf_Element& current_4 () = 0; // element handle
 
   virtual void record (struct M3U_Playlist*&) = 0; // data record
 };

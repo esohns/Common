@@ -159,6 +159,20 @@ class Common_ISetP_2_T
 };
 
 template <typename Type>
+class Common_ISetP_3_T
+{
+ public:
+  virtual void setP_3 (Type*) = 0;
+};
+
+template <typename Type>
+class Common_ISetP_4_T
+{
+ public:
+  virtual void setP_4 (Type*) = 0;
+};
+
+template <typename Type>
 class Common_IGetSetP_T
  : public Common_IGetP_T<Type>
  , public Common_ISetP_T<Type>

@@ -2059,7 +2059,7 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
 #endif // ACE_WIN32 || ACE_WIN64
 
   // sanity check(s)
-  ACE_ASSERT (Common_File_Tools::isDirectory (return_value));
+//  ACE_ASSERT (Common_File_Tools::isDirectory (return_value));
 
   return return_value;
 }

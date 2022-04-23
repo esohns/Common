@@ -33,7 +33,9 @@
 Common_Parser_M3U_ParserDriver::Common_Parser_M3U_ParserDriver ()
  : inherited ()
  , playlist_ (NULL)
- , element_ (NULL)
+ , extInfElement_ (NULL)
+ , mediaElement_ (NULL)
+ , streamInfElement_ (NULL)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Parser_M3U_ParserDriver::Common_Parser_M3U_ParserDriver"));
 

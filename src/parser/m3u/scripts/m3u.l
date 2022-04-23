@@ -103,6 +103,10 @@ TO_EQUALS                         [^=]
 %s state_ext_stream_inf_next_value_comma
 %s state_ext_stream_inf_next_value_quotation
 %s state_ext_stream_inf_is_last_value
+%s state_media_key_value
+%s state_media_next_value_comma
+%s state_media_next_value_quotation
+%s state_media_is_last_value
 %s state_url
 
 %{
@@ -173,6 +177,12 @@ TO_EQUALS                         [^=]
                                     *(yylval->sval) = ACE_TEXT_ALWAYS_CHAR ("MEDIA-SEQUENCE");
                                     BEGIN (state_value);
                                     return yy::parser::token::KEY; }
+"#EXT-X-MEDIA:"                   { parser->offset (yyleng);
+                                    BEGIN (state_media_key_value);
+                                    ACE_NEW_NORETURN (yylval->emval,
+                                                      struct M3U_Media_Element);
+                                    ACE_ASSERT (yylval->emval);
+                                    return yy::parser::token::BEGIN_MEDIA; }
 "#EXT-X-DISCONTINUITY-SEQUENCE:"  { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
                                                      std::string);
@@ -184,15 +194,15 @@ TO_EQUALS                         [^=]
                                     BEGIN (state_date_time); }
 "#EXT-X-STREAM-INF:"              { parser->offset (yyleng);
                                     BEGIN (state_ext_stream_inf_key_value);
-                                    ACE_NEW_NORETURN (yylval->eval,
-                                                     struct M3U_Element);
-                                    ACE_ASSERT (yylval->eval);
+                                    ACE_NEW_NORETURN (yylval->esval,
+                                                      struct M3U_StreamInf_Element);
+                                    ACE_ASSERT (yylval->esval);
                                     return yy::parser::token::BEGIN_EXT_STREAM_INF; }
 "#EXTINF:"                        { parser->offset (yyleng);
                                     BEGIN (state_ext_inf);
-                                    ACE_NEW_NORETURN (yylval->eval,
-                                                      struct M3U_Element);
-                                    ACE_ASSERT (yylval->eval);
+                                    ACE_NEW_NORETURN (yylval->eeval,
+                                                      struct M3U_ExtInf_Element);
+                                    ACE_ASSERT (yylval->eeval);
                                     return yy::parser::token::BEGIN_EXTINF; }
 \x0A                              { parser->offset (yyleng); }
 } // end <INITIAL>
@@ -305,6 +315,65 @@ TO_EQUALS                         [^=]
 "\","                              { parser->offset (yyleng);
                                      BEGIN (state_ext_stream_inf_key_value); }
 } // end <state_inf_next_value_quotation>
+
+<state_media_key_value>{
+{TO_EQUALS}+/=                    { parser->offset (yyleng);
+                                    ACE_NEW_NORETURN (yylval->sval,
+                                                      std::string);
+                                    ACE_ASSERT (yylval->sval);
+                                    *(yylval->sval) = yytext;
+                                    return yy::parser::token::KEY; }
+"="                               { parser->offset (yyleng);
+                                    BEGIN (state_media_is_last_value); }
+} // end <state_media_key_value>
+<state_media_is_last_value>{
+{TO_END_OF_LINE}+/\x0A            { std::string test_string = yytext;
+                                    // *TODO*: actually, need to test whether ','
+                                    // does NOT appear between '"'s
+                                    if (test_string.find_first_of (',') == std::string::npos)
+                                    {
+                                      ACE_NEW_NORETURN (yylval->sval,
+                                                       std::string);
+                                      ACE_ASSERT (yylval->sval);
+                                      *(yylval->sval) = yytext;
+                                      return yy::parser::token::VALUE;
+                                    } // end IF
+                                    if (test_string[0] == '"')
+                                    {
+                                      BEGIN (state_media_next_value_quotation);
+                                      yyless (1);
+                                    } // end IF
+                                    else
+                                    {
+                                      BEGIN (state_media_next_value_comma);
+                                      yyless (0);
+                                    } // end IF
+                                  }
+\x0A                              { parser->offset (yyleng);
+                                    BEGIN (INITIAL);
+                                    return yy::parser::token::END_OF_ELEMENT; }
+} // end <state_media_is_last_value>
+<state_media_next_value_comma>{
+{TO_COMMA}+/,                     { parser->offset (yyleng);
+                                    ACE_NEW_NORETURN (yylval->sval,
+                                                      std::string);
+                                    ACE_ASSERT (yylval->sval);
+                                    *(yylval->sval) = yytext;
+                                    return yy::parser::token::VALUE; }
+","                               { parser->offset (yyleng);
+                                    BEGIN (state_media_key_value); }
+} // end <state_media_next_value_comma>
+<state_media_next_value_quotation>{
+{TO_QUOTATION}+/\"                { parser->offset (yyleng);
+                                    ACE_NEW_NORETURN (yylval->sval,
+                                                      std::string);
+                                    ACE_ASSERT (yylval->sval);
+                                    *(yylval->sval) = yytext;
+                                    return yy::parser::token::VALUE; }
+"\","                             { parser->offset (yyleng);
+                                    BEGIN (state_media_key_value); }
+} // end <state_media_next_value_quotation>
+
 <state_url>{
 {TO_END_OF_LINE}+/\x0A            { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
