@@ -47,7 +47,7 @@ class Common_Timer_Handler
   inline virtual ~Common_Timer_Handler () {}
 
   // implement Common_ITimerHandler
-  inline virtual const long get () const { return id_; }
+  inline virtual const long get_2 () const { return id_; }
   inline virtual void handle (const void* act_in) { ACE_UNUSED_ARG (act_in); ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
 
   // implement Common_ISet_T

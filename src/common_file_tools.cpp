@@ -1998,19 +1998,7 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
 
   if (Common_Error_Tools::inDebugSession ())
   {
-    if (!is_test_b)
-    {
-      return_value = Common_File_Tools::getSourceDirectory (packageName_in,
-                                                            moduleName_in);
-      return_value += ACE_DIRECTORY_SEPARATOR_STR;
-      return_value +=
-        ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_PARENT_SUBDIRECTORY);
-      return_value += ACE_DIRECTORY_SEPARATOR_STR;
-      return_value +=
-          (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
-                              : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
-    } // end IF
-    else
+    if (is_test_b)
     {
       // sanity check(s)
       ACE_ASSERT (!Common_File_Tools::executable.empty ());
@@ -2030,6 +2018,18 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
       return_value +=
           (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
                               : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
+    } // end IF
+    else
+    {
+      return_value = Common_File_Tools::getSourceDirectory (packageName_in,
+                                                            moduleName_in);
+      return_value += ACE_DIRECTORY_SEPARATOR_STR;
+      return_value +=
+        ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_PARENT_SUBDIRECTORY);
+      return_value += ACE_DIRECTORY_SEPARATOR_STR;
+      return_value +=
+          (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
+                              : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
     } // end ELSE
     // sanity check(s)
     ACE_ASSERT (Common_File_Tools::isDirectory (return_value));
@@ -2040,17 +2040,35 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
   // not running in a debug session
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  return_value = Common_File_Tools::getWorkingDirectory ();
-  return_value += ACE_DIRECTORY_SEPARATOR_STR;
-  return_value +=
-    ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_PARENT_SUBDIRECTORY);
-  return_value += ACE_DIRECTORY_SEPARATOR_STR;
-  return_value +=
-      (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
-                          : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
-  return_value += ACE_DIRECTORY_SEPARATOR_STR;
-  return_value +=
-    Common_String_Tools::tolower (Common_File_Tools::basename (Common_File_Tools::executable, true));
+  if (is_test_b)
+  {
+    return_value = Common_File_Tools::getWorkingDirectory ();
+    return_value += ACE_DIRECTORY_SEPARATOR_STR;
+    //return_value +=
+    //  ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_PARENT_SUBDIRECTORY);
+    //return_value += ACE_DIRECTORY_SEPARATOR_STR;
+    return_value +=
+        (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
+                            : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
+    //return_value += ACE_DIRECTORY_SEPARATOR_STR;
+    //return_value +=
+    //  Common_String_Tools::tolower (Common_File_Tools::basename (Common_File_Tools::executable, true));
+  } // end IF
+  else
+  {
+    return_value = Common_File_Tools::getSourceDirectory (packageName_in,
+                                                          moduleName_in);
+    return_value += ACE_DIRECTORY_SEPARATOR_STR;
+    return_value +=
+      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_PARENT_SUBDIRECTORY);
+    return_value += ACE_DIRECTORY_SEPARATOR_STR;
+    return_value +=
+        (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
+                            : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
+    //return_value += ACE_DIRECTORY_SEPARATOR_STR;
+    //return_value +=
+    //  Common_String_Tools::tolower (Common_File_Tools::basename (Common_File_Tools::executable, true));
+  } // end ELSE
 #else
   return_value =
     Common_File_Tools::getSystemConfigurationDataDirectory (packageName_in,

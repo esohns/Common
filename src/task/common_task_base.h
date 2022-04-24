@@ -31,6 +31,7 @@
 #include "ace/Thread_Mutex.h"
 #include "ace/Time_Value.h"
 
+#include "common_iget.h"
 #include "common_time_common.h"
 
 #include "common_idumpstate.h"
@@ -52,6 +53,7 @@ class Common_TaskBase_T
  , public Common_IAsynchTask
  , public Common_ITaskControl
  , public Common_IDumpState
+ , public Common_IGet_T<unsigned int>
 {
   typedef TaskType inherited;
 
@@ -77,6 +79,9 @@ class Common_TaskBase_T
 
   // stub Common_IDumpState
   inline virtual void dump_state () const {}
+
+  // implement Common_IGet_T
+  inline virtual const unsigned int get () const { return threadCount_; }
 
  protected:
   // convenient types
