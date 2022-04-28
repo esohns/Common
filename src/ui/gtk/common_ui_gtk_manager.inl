@@ -191,8 +191,10 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
       guint event_source_id = 0;
       if (configuration_->eventHooks.finiHook)
       { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_.lock, -1);
-        event_source_id = g_idle_add (configuration_->eventHooks.finiHook,
-                                      CBData_);
+        event_source_id = g_idle_add_full (G_PRIORITY_DEFAULT, // same as timeout !
+                                           configuration_->eventHooks.finiHook,
+                                           CBData_,
+                                           NULL);
         if (unlikely (!event_source_id))
         {
           ACE_DEBUG ((LM_ERROR,
