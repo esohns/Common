@@ -11,6 +11,7 @@ extern "C"
 #include "libavformat/avformat.h"
 #include "libavutil/error.h"
 #include "libavutil/frame.h"
+#include "libavutil/hwcontext.h"
 #include "libavutil/imgutils.h"
 #include "libswscale/swscale.h"
 }
@@ -23,7 +24,6 @@ extern "C"
 #include "ace/Init_ACE.h"
 #include "ace/OS.h"
 #include "ace/Profile_Timer.h"
-#include "ace/Synch.h"
 #include "ace/Time_Value.h"
 
 #if defined (HAVE_CONFIG_H)
@@ -38,6 +38,15 @@ extern "C"
 #include "common_timer_tools.h"
 
 #include "common_log_tools.h"
+
+enum Test_I_ModeType
+{
+  TEST_I_MODE_IMAGE = 0,
+  TEST_I_MODE_HWACCEL,
+  ////////////////////////////////////////
+  TEST_I_MODE_MAX,
+  TEST_I_MODE_INVALID
+};
 
 void
 do_print_usage (const std::string& programName_in)
@@ -62,6 +71,10 @@ do_print_usage (const std::string& programName_in)
             << source_file_path
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-m          : program mode [")
+            << 0
+            << ACE_TEXT_ALWAYS_CHAR ("]")
+            << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-t          : trace information [")
             << false
             << ACE_TEXT_ALWAYS_CHAR ("]")
@@ -72,6 +85,7 @@ bool
 do_process_arguments (int argc_in,
                       ACE_TCHAR** argv_in, // cannot be const...
                       std::string& sourceFilePath_out,
+                      enum Test_I_ModeType& mode_out,
                       bool& traceInformation_out)
 {
   std::string path_root =
@@ -81,18 +95,18 @@ do_process_arguments (int argc_in,
   sourceFilePath_out = path_root;
   sourceFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   sourceFilePath_out += ACE_TEXT_ALWAYS_CHAR ("oak-tree.png");
+  mode_out = TEST_I_MODE_IMAGE;
   traceInformation_out = false;
 
   ACE_Get_Opt argument_parser (argc_in,
                                argv_in,
-                               ACE_TEXT ("f:t"),
+                               ACE_TEXT ("f:m:t"),
                                1,                         // skip command name
                                1,                         // report parsing errors
                                ACE_Get_Opt::PERMUTE_ARGS, // ordering
                                0);                        // for now, don't use long options
 
   int option = 0;
-  std::stringstream converter;
   while ((option = argument_parser ()) != EOF)
   {
     switch (option)
@@ -101,6 +115,15 @@ do_process_arguments (int argc_in,
       {
         sourceFilePath_out =
           ACE_TEXT_ALWAYS_CHAR (argument_parser.opt_arg ());
+        break;
+      }
+      case 'm':
+      {
+        std::istringstream converter (ACE_TEXT_ALWAYS_CHAR (argument_parser.opt_arg ()),
+                                      std::ios_base::in);
+        int i = 0;
+        converter >> i;
+        mode_out = static_cast<enum Test_I_ModeType> (i);
         break;
       }
       case 't':
@@ -145,103 +168,135 @@ do_process_arguments (int argc_in,
 void
 do_work (int argc_in,
          ACE_TCHAR* argv_in[],
-         const std::string& sourceFilePath_in)
+         const std::string& sourceFilePath_in,
+         enum Test_I_ModeType mode_in)
 {
-  Common_Image_Resolution_t resolution_s;
-  enum AVPixelFormat pixel_format_e = AV_PIX_FMT_NONE;
-  uint8_t* data_a[4], * data_2[4];
-  ACE_OS::memset (data_a, 0, sizeof (uint8_t*[4]));
-  ACE_OS::memset (data_2, 0, sizeof (uint8_t*[4]));
-  std::string out_filename = ACE_TEXT_ALWAYS_CHAR ("outfile.rgb");
-  std::ofstream file_stream;
-  std::string file_extension_string =
-      Common_File_Tools::fileExtension(sourceFilePath_in, false);
 
-  if (!Common_Image_Tools::load (sourceFilePath_in,
-                                 Common_Image_Tools::stringToCodecId (Common_String_Tools::toupper (file_extension_string)),
-                                 resolution_s,
-                                 pixel_format_e,
-                                 data_a))
+  switch (mode_in)
   {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_Image_Tools::load(\"%s\"), returning\n"),
-                ACE_TEXT (sourceFilePath_in.c_str ())));
-    return;
-  } // end IF
-  ACE_ASSERT (data_a[0]);
-  if (pixel_format_e != AV_PIX_FMT_RGB24)
-  {
-//    int line_sizes_a[AV_NUM_DATA_POINTERS];
-//    uint8_t* data_pointers_a[AV_NUM_DATA_POINTERS];
-//    ACE_OS::memset (line_sizes_a, 0, sizeof (int[AV_NUM_DATA_POINTERS]));
-//    ACE_OS::memset (data_pointers_a, 0, sizeof (uint8_t * [AV_NUM_DATA_POINTERS]));
-//
-//    int result = av_image_fill_linesizes (line_sizes_a,
-//                                          pixel_format_e,
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
-//                                          static_cast<int> (resolution_s.cx));
-//#else
-//                                          static_cast<int> (resolution_s.width));
-//#endif // ACE_WIN32 || ACE_WIN64
-//    ACE_ASSERT (result >= 0);
-//    result =
-//      av_image_fill_pointers (data_pointers_a,
-//                              pixel_format_e,
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
-//                              static_cast<int> (resolution_s.cy),
-//#else
-//                              static_cast<int> (resolution_s.height),
-//#endif // ACE_WIN32 || ACE_WIN64
-//                              data_a,
-//                              line_sizes_a);
-//    ACE_ASSERT (result >= 0);
-//    ACE_ASSERT (data_a[0] == data_pointers_a[0]);
-//    ACE_ASSERT (data_a[1] == data_pointers_a[1]);
-//    ACE_ASSERT (data_a[2] == data_pointers_a[2]);
-//    ACE_ASSERT (data_a[3] == data_pointers_a[3]);
-    Common_Image_Tools::convert (resolution_s,
-                                 pixel_format_e,
-                                 data_a,
-                                 resolution_s,
-                                 AV_PIX_FMT_RGB24,
-                                 data_2);
-    ACE_ASSERT (data_2[0]);
-    //delete [] data_a;
-    ACE_OS::memcpy (data_a, data_2, sizeof (uint8_t*[4]));
-  } // end IF
-  ACE_ASSERT (data_a);
-  file_stream.open (out_filename,
-                    std::ios::out | std::ios::binary);
-  if (unlikely (file_stream.fail ()))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to open file (was: \"%s\"): \"%m\", returning\n"),
-                ACE_TEXT (out_filename.c_str ())));
-    return;
-  } // end IF
-  int size_i =
-      av_image_get_buffer_size (AV_PIX_FMT_RGB24,
+    case TEST_I_MODE_IMAGE:
+    {
+      Common_Image_Resolution_t resolution_s;
+      enum AVPixelFormat pixel_format_e = AV_PIX_FMT_NONE;
+      uint8_t* data_a[4], * data_2[4];
+      ACE_OS::memset (data_a, 0, sizeof (uint8_t*[4]));
+      ACE_OS::memset (data_2, 0, sizeof (uint8_t*[4]));
+      std::string out_filename = ACE_TEXT_ALWAYS_CHAR ("outfile.rgb");
+      std::ofstream file_stream;
+      std::string file_extension_string =
+          Common_File_Tools::fileExtension(sourceFilePath_in, false);
+
+      if (!Common_Image_Tools::load (sourceFilePath_in,
+                                     Common_Image_Tools::stringToCodecId (Common_String_Tools::toupper (file_extension_string)),
+                                     resolution_s,
+                                     pixel_format_e,
+                                     data_a))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to Common_Image_Tools::load(\"%s\"), returning\n"),
+                    ACE_TEXT (sourceFilePath_in.c_str ())));
+        return;
+      } // end IF
+      ACE_ASSERT (data_a[0]);
+      if (pixel_format_e != AV_PIX_FMT_RGB24)
+      {
+    //    int line_sizes_a[AV_NUM_DATA_POINTERS];
+    //    uint8_t* data_pointers_a[AV_NUM_DATA_POINTERS];
+    //    ACE_OS::memset (line_sizes_a, 0, sizeof (int[AV_NUM_DATA_POINTERS]));
+    //    ACE_OS::memset (data_pointers_a, 0, sizeof (uint8_t * [AV_NUM_DATA_POINTERS]));
+    //
+    //    int result = av_image_fill_linesizes (line_sizes_a,
+    //                                          pixel_format_e,
+    //#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    //                                          static_cast<int> (resolution_s.cx));
+    //#else
+    //                                          static_cast<int> (resolution_s.width));
+    //#endif // ACE_WIN32 || ACE_WIN64
+    //    ACE_ASSERT (result >= 0);
+    //    result =
+    //      av_image_fill_pointers (data_pointers_a,
+    //                              pixel_format_e,
+    //#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    //                              static_cast<int> (resolution_s.cy),
+    //#else
+    //                              static_cast<int> (resolution_s.height),
+    //#endif // ACE_WIN32 || ACE_WIN64
+    //                              data_a,
+    //                              line_sizes_a);
+    //    ACE_ASSERT (result >= 0);
+    //    ACE_ASSERT (data_a[0] == data_pointers_a[0]);
+    //    ACE_ASSERT (data_a[1] == data_pointers_a[1]);
+    //    ACE_ASSERT (data_a[2] == data_pointers_a[2]);
+    //    ACE_ASSERT (data_a[3] == data_pointers_a[3]);
+        Common_Image_Tools::convert (resolution_s,
+                                     pixel_format_e,
+                                     data_a,
+                                     resolution_s,
+                                     AV_PIX_FMT_RGB24,
+                                     data_2);
+        ACE_ASSERT (data_2[0]);
+        //delete [] data_a;
+        ACE_OS::memcpy (data_a, data_2, sizeof (uint8_t*[4]));
+      } // end IF
+      ACE_ASSERT (data_a);
+      file_stream.open (out_filename,
+                        std::ios::out | std::ios::binary);
+      if (unlikely (file_stream.fail ()))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to open file (was: \"%s\"): \"%m\", returning\n"),
+                    ACE_TEXT (out_filename.c_str ())));
+        return;
+      } // end IF
+      int size_i =
+          av_image_get_buffer_size (AV_PIX_FMT_RGB24,
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-                                resolution_s.cx, resolution_s.cy,
+                                    resolution_s.cx, resolution_s.cy,
 #else
-                                resolution_s.width, resolution_s.height,
+                                    resolution_s.width, resolution_s.height,
 #endif // ACE_WIN32 || ACE_WIN64
-                                1); // *TODO*: linesize alignment
-  ACE_ASSERT (file_stream.is_open ());
-  file_stream.write (reinterpret_cast<char*> (data_a[0]),
-                     size_i);
-  if (unlikely (file_stream.fail ()))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to write file (%d byte(s)): \"%m\", returning\n"),
-                size_i));
-    return;
-  } // end IF
-  file_stream.close ();
-  if (unlikely (file_stream.fail ()))
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to close file (\"%s\"): \"%m\", continuing\n"),
-                ACE_TEXT (out_filename.c_str ())));
+                                    1); // *TODO*: linesize alignment
+      ACE_ASSERT (file_stream.is_open ());
+      file_stream.write (reinterpret_cast<char*> (data_a[0]),
+                         size_i);
+      if (unlikely (file_stream.fail ()))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to write file (%d byte(s)): \"%m\", returning\n"),
+                    size_i));
+        return;
+      } // end IF
+      file_stream.close ();
+      if (unlikely (file_stream.fail ()))
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to close file (\"%s\"): \"%m\", continuing\n"),
+                    ACE_TEXT (out_filename.c_str ())));
+      break;
+    }
+    case TEST_I_MODE_HWACCEL:
+    {
+      enum AVHWDeviceType device_type_e =
+        av_hwdevice_iterate_types (AV_HWDEVICE_TYPE_NONE);
+      while (device_type_e != AV_HWDEVICE_TYPE_NONE)
+      {
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("supported hw device type: %s\n"),
+                    ACE_TEXT (av_hwdevice_get_type_name (device_type_e))));
+        device_type_e = av_hwdevice_iterate_types (device_type_e);
+      } // end WHILE
+      break;
+    }
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown mode (was: %d), returning\n"),
+                  mode_in));
+      break;
+    }
+  } // end SWITCH
+
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("finished working\n")));
 }
 
 int
@@ -277,6 +332,7 @@ ACE_TMAIN (int argc_in,
   std::string source_file_path = path_root;
   source_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   source_file_path += ACE_TEXT_ALWAYS_CHAR ("oak-tree.png");
+  enum Test_I_ModeType mode_type_e = TEST_I_MODE_IMAGE;
   bool trace_information = false;
   std::string log_file_name;
 
@@ -284,6 +340,7 @@ ACE_TMAIN (int argc_in,
   if (!do_process_arguments (argc_in,
                              argv_in,
                              source_file_path,
+                             mode_type_e,
                              trace_information))
   {
     do_print_usage (ACE::basename (argv_in[0]));
@@ -318,7 +375,8 @@ ACE_TMAIN (int argc_in,
   // step2: do actual work
   do_work (argc_in,
            argv_in,
-           source_file_path);
+           source_file_path,
+           mode_type_e);
   timer.stop ();
 
   // debug info
