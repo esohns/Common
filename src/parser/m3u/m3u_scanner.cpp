@@ -1,4 +1,3 @@
-#line 2 "./../scripts/m3u.l"
   #include "common_iparser.h"
 
   #include "m3u_parser.h"

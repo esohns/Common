@@ -2,7 +2,6 @@
 #define M3U_HEADER_H 1
 #define M3U_IN_HEADER 1
 
-#line 2 "./../scripts/m3u.l"
   #include "common_iparser.h"
 
   #include "m3u_parser.h"
