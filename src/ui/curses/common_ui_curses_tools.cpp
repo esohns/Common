@@ -22,6 +22,22 @@
 #include "common_ui_curses_tools.h"
 
 #include "ace/Log_Msg.h"
-#include "ace/OS.h"
 
 #include "common_macros.h"
+
+bool
+Common_UI_Curses_Tools::initialize (int argc_in,
+                                    ACE_TCHAR* argv_in[])
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Curses_Tools::initialize"));
+
+  return true;
+}
+
+bool
+Common_UI_Curses_Tools::finalize ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Curses_Tools::finalize"));
+
+  return true;
+}

@@ -22,8 +22,6 @@
 
 #include "common_macros.h"
 
-#include "common_ui_curses_common.h"
-
 template <typename CallbackDataType>
 Common_UI_Curses_EventHandler_T<CallbackDataType>::Common_UI_Curses_EventHandler_T (CallbackDataType* CBData_in)
  : CBData_ (CBData_in)

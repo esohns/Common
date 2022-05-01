@@ -21,12 +21,8 @@
 #ifndef COMMON_UI_CURSES_TOOLS_H
 #define COMMON_UI_CURSES_TOOLS_H
 
-#include <limits>
-#include <string>
-
+#include "ace/ace_wchar.h"
 #include "ace/Global_Macros.h"
-
-#include "common_ui_common.h"
 
 class Common_UI_Curses_Tools
 // : public Common_SInitializeFinalize_T<Common_UI_Tools>
