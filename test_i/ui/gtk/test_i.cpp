@@ -57,10 +57,13 @@ do_print_usage (const std::string& programName_in)
   // enable verbatim boolean output
   std::cout.setf (std::ios::boolalpha);
 
+  std::string module_name = ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY);
+  module_name += ACE_DIRECTORY_SEPARATOR_STR;
+  module_name += ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_UI_SUBDIRECTORY);
   std::string path_root =
     Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
-                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
-                                                      true);
+                                                      module_name,
+                                                      true); // configuration
 
   std::cout << ACE_TEXT_ALWAYS_CHAR ("usage: ")
             << programName_in
@@ -88,10 +91,13 @@ do_process_arguments (int argc_in,
                       bool& traceInformation_out,
                       std::string& UIDefinitionFilePath_out)
 {
+  std::string module_name = ACE_TEXT_ALWAYS_CHAR(COMMON_LOCATION_TEST_I_SUBDIRECTORY);
+  module_name += ACE_DIRECTORY_SEPARATOR_STR;
+  module_name += ACE_TEXT_ALWAYS_CHAR(COMMON_LOCATION_UI_SUBDIRECTORY);
   std::string path_root =
     Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
-                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
-                                                      true);
+                                                      module_name,
+                                                      true); // configuration
 
   // initialize results
   traceInformation_out = false;
@@ -394,9 +400,12 @@ glarea_realize_cb (GtkWidget* widget_in,
   } // end IF
   if (!*texture_id_p)
   {
+    std::string module_name = ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY);
+    module_name += ACE_DIRECTORY_SEPARATOR_STR;
+    module_name += ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_UI_SUBDIRECTORY);
     std::string filename =
       Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
-                                                        ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                        module_name,
                                                         false); // data
     filename += ACE_DIRECTORY_SEPARATOR_CHAR;
     filename += ACE_TEXT_ALWAYS_CHAR ("opengl_logo.png");
@@ -1111,10 +1120,13 @@ ACE_TMAIN (int argc_in,
   ACE_Time_Value user_time, system_time;
 
   // step1a set defaults
+  std::string module_name = ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY);
+  module_name += ACE_DIRECTORY_SEPARATOR_STR;
+  module_name += ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_UI_SUBDIRECTORY);
   std::string path_root =
     Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
-                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
-                                                      true);
+                                                      module_name,
+                                                      true); // configuration
   bool trace_information = false;
   std::string ui_definition_file_path = path_root;
   ui_definition_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;

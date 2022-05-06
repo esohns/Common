@@ -25,17 +25,17 @@ include_directories (${CMAKE_CURRENT_BINARY_DIR}/../../..)
 link_directories (${GTK_LIB_DIRS})
 
 ############## next target ###############
-set (gtk_ui_EXE_SRCS
+set (EXECUTABLE gtk)
+set (${EXECUTABLE}_EXE_SRCS
 #     stdafx.cpp
      stdafx.h
      test_i.cpp
      test_i_gtk_defines.h)
 
 #cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
-set (EXECUTABLE gtk_ui)
 add_executable (${EXECUTABLE}
                 EXCLUDE_FROM_ALL
-                ${gtk_ui_EXE_SRCS})
+                ${${EXECUTABLE}_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
 if (UNIX)
@@ -65,7 +65,8 @@ target_precompile_headers (${EXECUTABLE}
                            PRIVATE stdafx.h)
 
 ############## next target ###############
-set (gtk_ui_2_EXE_SRCS
+set (EXECUTABLE_2 gtk_2)
+set (${EXECUTABLE_2}_EXE_SRCS
 #     stdafx.cpp
      stdafx.h
      test_i_2.cpp
@@ -74,10 +75,9 @@ set (gtk_ui_2_EXE_SRCS
      test_i_gtk_defines.h)
 
 #cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
-set (EXECUTABLE_2 gtk_ui_2)
 add_executable (${EXECUTABLE_2}
                 EXCLUDE_FROM_ALL
-                ${gtk_ui_2_EXE_SRCS})
+                ${${EXECUTABLE_2}_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE_2} PROPERTY FOLDER "test_i")
 
 if (UNIX)
@@ -102,7 +102,8 @@ target_precompile_headers (${EXECUTABLE_2}
                            PRIVATE stdafx.h)
 
 ############## next target ###############
-set (gtk_ui_3_EXE_SRCS
+set (EXECUTABLE_3 gtk_3)
+set (${EXECUTABLE_3}_EXE_SRCS
 #     stdafx.cpp
      stdafx.h
      test_i_3.cpp
@@ -111,10 +112,9 @@ set (gtk_ui_3_EXE_SRCS
      test_i_gtk_defines.h)
 
 #cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
-set (EXECUTABLE_3 gtk_ui_3)
 add_executable (${EXECUTABLE_3}
                 EXCLUDE_FROM_ALL
-                ${gtk_ui_3_EXE_SRCS})
+                ${${EXECUTABLE_3}_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE_3} PROPERTY FOLDER "test_i")
 
 if (UNIX)
@@ -227,6 +227,7 @@ endif ()
 if (UNIX)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}" COMMAND)
  create_target_launcher (${EXECUTABLE}
+                         COMMAND ${COMMAND}
                          ARGS ${ARGS}
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
@@ -281,8 +282,10 @@ elseif (WIN32)
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/gtk
                          ENVIRONMENT ${ENVIRONMENT})
 
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE_2}.exe" COMMAND_2)
+ string (REPLACE "\\" "\\\\" COMMAND_2 ${COMMAND_2})
  create_target_launcher (${EXECUTABLE_2}
-                         COMMAND ${COMMAND}
+                         COMMAND ${COMMAND_2}
                          ARGS ${ARGS}
  #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
@@ -296,8 +299,10 @@ elseif (WIN32)
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/gtk
                          ENVIRONMENT ${ENVIRONMENT})
 
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE_3}.exe" COMMAND_3)
+ string (REPLACE "\\" "\\\\" COMMAND_3 ${COMMAND_3})
  create_target_launcher (${EXECUTABLE_3}
-                         COMMAND ${COMMAND}
+                         COMMAND ${COMMAND_3}
                          ARGS ${ARGS}
  #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}

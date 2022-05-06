@@ -1993,8 +1993,10 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
   ACE_ASSERT (!packageName_in.empty ());
 
   bool is_test_b =
-    (!ACE_OS::strcmp (moduleName_in.c_str (), ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY)) ||
-     !ACE_OS::strcmp (moduleName_in.c_str (), ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_U_SUBDIRECTORY)));
+    (!ACE_OS::strncmp (moduleName_in.c_str (), ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                       ACE_OS::strlen (ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY))) ||
+     !ACE_OS::strncmp (moduleName_in.c_str (), ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_U_SUBDIRECTORY),
+                       ACE_OS::strlen (ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_U_SUBDIRECTORY))));
 
   if (Common_Error_Tools::inDebugSession ())
   {

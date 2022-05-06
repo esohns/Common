@@ -22,13 +22,13 @@
 #define TEST_I_GTK_DEFINES_H
 
 #if (GTK2_USE)
-#define TEST_U_UI_DEFINITION_FILE                      "gtk_ui.gtk2"
+#define TEST_U_UI_DEFINITION_FILE                      "gtk.gtk2"
 #elif (GTK3_USE)
-#define TEST_U_UI_DEFINITION_FILE                      "gtk_ui.gtk3"
+#define TEST_U_UI_DEFINITION_FILE                      "gtk.gtk3"
 #elif (GTK4_USE)
-#define TEST_U_UI_DEFINITION_FILE                      "gtk_ui.gtk4"
+#define TEST_U_UI_DEFINITION_FILE                      "gtk.gtk4"
 #else
-#define TEST_U_UI_DEFINITION_FILE                      "gtk_ui.glade"
+#define TEST_U_UI_DEFINITION_FILE                      "gtk.glade"
 #endif // GTKX_USE
 
 #define TEST_I_UI_GTK_BUTTON_ABOUT_NAME                "about"
