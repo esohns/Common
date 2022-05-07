@@ -61,7 +61,7 @@ elseif (WIN32)
  file (TO_CMAKE_PATH "${ACE_LIB_DIR}" ACE_LIB_PATH)
  set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                            ${IMAGEMAGICK_PATH}
-                           ${ACE_PATH})
+                           ${ACE_LIB_PATH})
  set (ENVIRONMENT_MAGICK "MAGICK_CODER_MODULE_PATH=${IMAGEMAGICK_LIB_PATH}\\\\modules\\\\coders")
 endif ()
 create_target_launcher (${EXECUTABLE}

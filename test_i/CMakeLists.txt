@@ -134,7 +134,7 @@ endif ()
 
 set (source_files
      common_test_i_common.h
-#     test_i_defines.h
+     common_test_i_defines.h
      common_test_i_tools.cpp
      common_test_i_tools.h
      common_test_i_tools.inl)
@@ -162,6 +162,7 @@ target_precompile_headers (${LIBRARY}
 
 install (FILES
          common_test_i_common.h
+         common_test_i_defines.h
          common_test_i_tools.h
          common_test_i_tools.inl
          DESTINATION include)

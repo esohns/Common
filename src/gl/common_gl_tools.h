@@ -55,6 +55,8 @@ class Common_GL_Tools
   //         format' GL_RGBA8
   // *TODO*: currently, only PNG files are supported
   static GLuint loadTexture (const std::string&); // path
+  // *NOTE*: invoke glTexImage2D() with 'target' GL_TEXTURE_2D and 'internal
+  //         format' GL_RGBA8, format GL_RGBA
   static void loadTexture (const uint8_t*, // data
                            unsigned int,   // width
                            unsigned int,   // height

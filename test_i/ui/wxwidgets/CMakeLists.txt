@@ -23,26 +23,23 @@ if (WIN32)
 endif (WIN32)
 
 ############## next target ###############
-set (wxwidgets_EXE_SRCS
+set (EXECUTABLE wxwidgets)
+set (${EXECUTABLE}_EXE_SRCS
 #     stdafx.cpp
      stdafx.h
-#     ../test_u_common.h
-#     ../test_u_defines.h
      test_u.cpp)
 
-set (wxwidgets_EXE_2_SRCS
+set (EXECUTABLE_2 wxwidgets_2)
+set (${EXECUTABLE_2}_EXE_SRCS
 #     stdafx.cpp
      stdafx.h
-#     ../test_u_common.h
-#     ../test_u_defines.h
      test_u_2.cpp
      test_u_2.h)
 
-set (wxwidgets_EXE_3_SRCS
+set (EXECUTABLE_3 wxwidgets_3)
+set (${EXECUTABLE_3}_EXE_SRCS
 #     stdafx.cpp
      stdafx.h
-#     ../test_u_common.h
-#     ../test_u_defines.h
      test_u_3.cpp
      test_u_3.h
      test_u_3_ui.cpp
@@ -52,29 +49,26 @@ set (wxwidgets_EXE_3_SRCS
      test_u_3_ui_base.h)
 
 #cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
-set (EXECUTABLE wxwidgets)
-set (EXECUTABLE_2 wxwidgets_2)
-set (EXECUTABLE_3 wxwidgets_3)
 if (WIN32)
  add_executable (${EXECUTABLE} WIN32
                  EXCLUDE_FROM_ALL
-                 ${wxwidgets_EXE_SRCS})
+                 ${${EXECUTABLE}_EXE_SRCS})
  add_executable (${EXECUTABLE_2} WIN32
                  EXCLUDE_FROM_ALL
-                 ${wxwidgets_EXE_2_SRCS})
+                 ${${EXECUTABLE_2}_EXE_SRCS})
  add_executable (${EXECUTABLE_3}
                  EXCLUDE_FROM_ALL
-                 ${wxwidgets_EXE_3_SRCS})
+                 ${${EXECUTABLE_3}_EXE_SRCS})
 else ()
  add_executable (${EXECUTABLE}
                  EXCLUDE_FROM_ALL
-                 ${wxwidgets_EXE_SRCS})
+                 ${${EXECUTABLE}_EXE_SRCS})
  add_executable (${EXECUTABLE_2}
                  EXCLUDE_FROM_ALL
-                 ${wxwidgets_EXE_2_SRCS})
+                 ${${EXECUTABLE_2}_EXE_SRCS})
  add_executable (${EXECUTABLE_3}
                  EXCLUDE_FROM_ALL
-                 ${wxwidgets_EXE_3_SRCS})
+                 ${${EXECUTABLE_3}_EXE_SRCS})
 endif (WIN32)
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 set_property (TARGET ${EXECUTABLE_2} PROPERTY FOLDER "test_i")
@@ -120,11 +114,7 @@ file (TO_CMAKE_PATH "${wxWidgets_LIB_DIR}" wxWidgets_LIB_DIR)
 if (UNIX)
 # file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
 elseif (WIN32)
- if (VCPKG_SUPPORT)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
- else ()
-  file (TO_CMAKE_PATH ${ACE_LIB_DIR} ACE_LIB_PATH)
- endif (VCPKG_SUPPORT)
+ file (TO_CMAKE_PATH ${ACE_LIB_DIR} ACE_LIB_PATH)
 endif ()
 set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                           ${ACE_LIB_PATH})
@@ -134,7 +124,7 @@ create_target_launcher (${EXECUTABLE}
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
                                              ${wxWidgets_LIB_DIR}
-                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/${EXECUTABLE}
+                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/wxwidgets
                         ENVIRONMENT foo=bar)
 
 create_target_launcher (${EXECUTABLE_2}
@@ -143,7 +133,7 @@ create_target_launcher (${EXECUTABLE_2}
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
                                              ${wxWidgets_LIB_DIR}
-                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/${EXECUTABLE}
+                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/wxwidgets
                         ENVIRONMENT foo=bar)
 
 create_target_launcher (${EXECUTABLE_3}
@@ -152,19 +142,19 @@ create_target_launcher (${EXECUTABLE_3}
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
                                              ${wxWidgets_LIB_DIR}
-                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/${EXECUTABLE}
+                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/wxwidgets
                         ENVIRONMENT foo=bar)
 
 ################ tests ###################
 add_test (NAME ${EXECUTABLE}_test
           COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE}
-          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/${EXECUTABLE})
+          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/wxwidgets)
 add_test (NAME ${EXECUTABLE_2}_test
           COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE_2}
-          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/${EXECUTABLE})
+          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/wxwidgets)
 add_test (NAME ${EXECUTABLE_3}_test
           COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE_3}
-          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/${EXECUTABLE})
+          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/wxwidgets)
 
 set_tests_properties (${EXECUTABLE}_test
                       PROPERTIES

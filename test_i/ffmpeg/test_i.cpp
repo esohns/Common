@@ -171,7 +171,6 @@ do_work (int argc_in,
          const std::string& sourceFilePath_in,
          enum Test_I_ModeType mode_in)
 {
-
   switch (mode_in)
   {
     case TEST_I_MODE_IMAGE:

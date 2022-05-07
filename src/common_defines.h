@@ -111,7 +111,6 @@
 
 #define COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY             "etc"
 #define COMMON_LOCATION_DATA_SUBDIRECTORY                      "share"
-#define COMMON_LOCATION_UI_SUBDIRECTORY                        "ui"
 #define COMMON_LOCATION_PARENT_SUBDIRECTORY                    ".."
 #define COMMON_LOCATION_SCRIPTS_SUBDIRECTORY                   "scripts"
 #define COMMON_LOCATION_SOURCE_SUBDIRECTORY                    "src"

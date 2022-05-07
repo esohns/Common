@@ -479,8 +479,8 @@ Common_Image_Tools::load (const std::string& path_in,
   if (!codec_p)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to avcodec_find_decoder(%d): \"%m\", aborting\n"),
-                codecId_in));
+                ACE_TEXT ("failed to avcodec_find_decoder(%s [%d]): \"%m\", aborting\n"),
+                ACE_TEXT (avcodec_get_name (codecId_in)), codecId_in));
     goto error;
   } // end IF
   // *NOTE*: fire-and-forget codec_p
