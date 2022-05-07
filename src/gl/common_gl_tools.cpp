@@ -313,10 +313,11 @@ Common_GL_Tools::loadTexture (const uint8_t* data_in,
                 GL_UNSIGNED_BYTE, data_in);
   COMMON_GL_ASSERT;
 
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   COMMON_GL_ASSERT;
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   COMMON_GL_ASSERT;
+
 #if defined (GL_VERSION_1_4)
   glTexParameteri (GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
   COMMON_GL_ASSERT;
@@ -326,7 +327,7 @@ Common_GL_Tools::loadTexture (const uint8_t* data_in,
   COMMON_GL_ASSERT;
 #endif // GL_VERSION_1_4
 
-  //glBindTexture (GL_TEXTURE_2D, 0);
+  glBindTexture (GL_TEXTURE_2D, 0);
 }
 
 void
