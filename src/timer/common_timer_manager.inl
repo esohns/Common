@@ -949,7 +949,11 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   {
     DWORD task_index_i = 0;
     task_h =
-      AvSetMmThreadCharacteristics (TEXT (configuration_->taskType.c_str ()), &task_index_i);
+#if defined (UNICODE)
+      AvSetMmThreadCharacteristics (ACE_TEXT_ALWAYS_WCHAR (configuration_->taskType.c_str ()), &task_index_i);
+#else
+      AvSetMmThreadCharacteristics (ACE_TEXT_ALWAYS_CHAR (configuration_->taskType.c_str ()), &task_index_i);
+#endif // UNICODE
     if (!task_h)
     {
       ACE_DEBUG ((LM_ERROR,
