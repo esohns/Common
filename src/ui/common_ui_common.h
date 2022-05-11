@@ -278,17 +278,17 @@ typedef ACE_Unbounded_Stack<enum Common_UI_EventType>::ITERATOR Common_UI_Events
 struct Common_UI_State
 {
   Common_UI_State ()
-   : condition (lock)
-   , eventStack (NULL)
+   : eventStack (NULL)
    , lock ()
+   , condition (lock)
    , logStack ()
    , logStackLock ()
    , subscribersLock ()
   {}
 
-  ACE_SYNCH_CONDITION       condition;
   Common_UI_Events_t        eventStack;
   ACE_SYNCH_MUTEX           lock;
+  ACE_SYNCH_CONDITION       condition;
   Common_MessageStack_t     logStack;
   ACE_SYNCH_MUTEX           logStackLock;
   ACE_SYNCH_RECURSIVE_MUTEX subscribersLock;
