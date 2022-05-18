@@ -52,18 +52,31 @@ typedef std::pair<struct Common_GL_VectorF3, struct Common_GL_VectorF3> Common_G
 struct Common_GL_Camera
 {
   Common_GL_Camera ()
+#if defined (GLUT_SUPPORT)
+   : position ()
+   , looking_at ()
+   , up ()
+   , zoom (0.0F)
+#else
    : zoom (0.0F)
+#endif // GLUT_SUPPORT
    , rotation ()
    , translation ()
   {
     ACE_OS::memset (last, 0, sizeof (int[2]));
   }
 
+#if defined (GLUT_SUPPORT)
 #if defined (GLM_SUPPORT)
-  //glm::vec3 position;
-  //glm::vec3 looking_at;
-  //glm::vec3 up;
+  glm::vec3 position;
+  glm::vec3 looking_at;
+  glm::vec3 up;
+#else
+  struct Common_GL_VectorF3 position;
+  struct Common_GL_VectorF3 looking_at;
+  struct Common_GL_VectorF3 up;
 #endif // GLM_SUPPORT
+#endif // GLUT_SUPPORT
 
   float zoom;
 #if defined (GLM_SUPPORT)

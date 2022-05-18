@@ -3,6 +3,7 @@ include (ImageMagick)
 set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts")
 include (assimp)
 include (glm)
+include (glut)
 include (png)
 
 set (LIBRARY ${PROJECT_NAME}OpenGL)

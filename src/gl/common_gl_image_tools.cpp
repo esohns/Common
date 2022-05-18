@@ -250,8 +250,8 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
                 ACE_TEXT (Common_Image_Tools::errorToString (context_p).c_str ())));
     goto error;
   } // end IF
-  width_out = MagickGetImageWidth (context_p);
-  height_out = MagickGetImageHeight (context_p);
+  width_out = static_cast<unsigned int> (MagickGetImageWidth (context_p));
+  height_out = static_cast<unsigned int> (MagickGetImageHeight (context_p));
 
   result = MagickSetImageFormat (context_p, "RGBA");
   if (unlikely (result != MagickTrue))
