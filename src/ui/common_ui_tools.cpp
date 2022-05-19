@@ -363,9 +363,7 @@ Common_UI_Tools::getAdapters ()
   ACE_OS::memset (&display_device_s, 0, sizeof (DISPLAY_DEVICE));
   display_device_s.cb = sizeof (DISPLAY_DEVICE);
   DWORD flags_i = EDD_GET_DEVICE_INTERFACE_NAME;
-#if defined (_DEBUG)
   std::string device_feature_string;
-#endif // _DEBUG
   do
   {
     if (!EnumDisplayDevices (NULL,              // lpDevice

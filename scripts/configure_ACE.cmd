@@ -15,7 +15,7 @@ pushd . >NUL 2>&1
 goto Begin
 
 :Print_Usage
-echo usage: %~n0 ^[win32^] ^[vs2017^]
+echo usage: %~n0 ^[win32^] ^[vs2022^]
 goto Clean_Up
 
 :Begin
@@ -42,7 +42,7 @@ if %ERRORLEVEL% NEQ 0 (
 :switch_case_end
 echo platform: "!PLATFORM_TYPE!"...
 
-set DEFAULT_PROJECT_TYPE=vs2019
+set DEFAULT_PROJECT_TYPE=vs2022
 call :switch_case_2_%PROJECT_TYPE% 2>nul
 if %ERRORLEVEL% NEQ 0 (
  set PROJECT_TYPE=%DEFAULT_PROJECT_TYPE%
@@ -55,6 +55,8 @@ if %ERRORLEVEL% NEQ 0 (
 :switch_case_2_vs2017
  goto switch_case_2_end
 :switch_case_2_vs2019
+ goto switch_case_2_end
+:switch_case_2_vs2022
  goto switch_case_2_end
 :switch_case_2_end
 echo project: "!PROJECT_TYPE!"...

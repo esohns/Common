@@ -1650,7 +1650,7 @@ glarea_resize_cb (GglaArea* GLArea_in,
   COMMON_GL_ASSERT;
 
   glMatrixMode (GL_MODELVIEW);
-  COMMON_GL_ASSERT
+  COMMON_GL_ASSERT;
 }
 #endif // GTKGLAREA_SUPPORT
 #elif GTK_CHECK_VERSION(2,0,0)
