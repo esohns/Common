@@ -41,8 +41,17 @@
 class Common_GL_Tools
 {
  public:
+  // debug
   static std::string errorToString (GLenum);
 
+  // color
+  static Common_GL_Color_t lerpRGB (const Common_GL_Color_t&, // color 1
+                                    const Common_GL_Color_t&, // color 2
+                                    float);                   // ratio [0.0..1.0]
+  // transitions between red --> green --> blue
+  static Common_GL_Color_t toRGBColor (float); // [0.0..1.0]
+
+  // model
   static GLuint loadModel (const std::string&,          // path
                            Common_GL_BoundingBox_t&,    // return value: bounding box
 #if defined (GLM_SUPPORT)
@@ -51,6 +60,7 @@ class Common_GL_Tools
                            struct Common_GL_VectorF3&); // return value: center
 #endif // GLM_SUPPORT
 
+  // texture
   // *NOTE*: invoke glTexImage2D() with 'target' GL_TEXTURE_2D and 'internal
   //         format' GL_RGBA8
   // *TODO*: currently, only PNG files are supported
@@ -62,6 +72,7 @@ class Common_GL_Tools
                            unsigned int,   // height
                            GLuint);        // texture id
 
+  // drawing
   // *NOTE*: includes glBegin()/glEnd() calls
   static void drawCube (bool = false); // set (2d-)texture coordinates ?
 

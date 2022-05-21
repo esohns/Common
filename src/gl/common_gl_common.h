@@ -49,6 +49,18 @@ struct Common_GL_VectorF3
 typedef std::pair<struct Common_GL_VectorF3, struct Common_GL_VectorF3> Common_GL_BoundingBox_t;
 #endif // GLM_SUPPORT
 
+#if defined (GLM_SUPPORT)
+typedef glm::u8vec3 Common_GL_Color_t;
+#else
+struct Common_GL_Color
+{
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+};
+typedef struct Common_GL_Color Common_GL_Color_t;
+#endif // GLM_SUPPORT
+
 struct Common_GL_Camera
 {
   Common_GL_Camera ()

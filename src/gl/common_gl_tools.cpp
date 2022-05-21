@@ -82,6 +82,53 @@ Common_GL_Tools::errorToString (GLenum error_in)
   return return_value;
 }
 
+Common_GL_Color_t
+Common_GL_Tools::lerpRGB (const Common_GL_Color_t& color1_in,
+                          const Common_GL_Color_t& color2_in,
+                          float ratio_in)
+{
+  Common_GL_Color_t result;
+
+  // sanity check(s)
+  ACE_ASSERT (ratio_in >= 0.0F && ratio_in <= 1.0F);
+
+  result.r =
+    color1_in.r + static_cast<uint8_t> ((color2_in.r - color1_in.r) * ratio_in);
+  result.g =
+    color1_in.g + static_cast<uint8_t> ((color2_in.g - color1_in.g) * ratio_in);
+  result.b =
+    color1_in.b + static_cast<uint8_t> ((color2_in.b - color1_in.b) * ratio_in);
+
+  return result;
+}
+
+Common_GL_Color_t
+Common_GL_Tools::toRGBColor (float color_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::toRGBColor"));
+
+  Common_GL_Color_t result;
+  ACE_OS::memset (&result, 0, sizeof (Common_GL_Color_t));
+
+  // sanity check(s)
+  if (color_in < 0.0F)
+    color_in = 0.0F;
+  else if (color_in > 1.0)
+    color_in = 1.0F;
+
+  static Common_GL_Color_t red = { 255, 0, 0 };
+  static Common_GL_Color_t green = { 0, 255, 0 };
+  static Common_GL_Color_t blue = { 0, 0, 255 };
+  if (color_in < 0.5)
+    result = Common_GL_Tools::lerpRGB (red, green, color_in * 2.0F);
+  else if (color_in == 0.5)
+    result = green;
+  else
+    result = Common_GL_Tools::lerpRGB (green, blue, (color_in - 0.5F) * 2.0F);
+
+  return result;
+}
+
 GLuint
 Common_GL_Tools::loadModel (const std::string& path_in,
                             Common_GL_BoundingBox_t& boundingBox_out,
