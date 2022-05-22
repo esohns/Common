@@ -41,10 +41,15 @@ class Common_Timer_Tools
   //// --- singleton ---
   //static Common_ITimer* getTimerManager ();
 
-  static ACE_Time_Value localToUTC (const ACE_Time_Value&); // local time
+  static ACE_Time_Value localToUTC (const ACE_Time_Value&, // local time
+                                    int = 0,               // timezone (UTC offset)
+                                    bool = false);         // apply timezone ?
+  static ACE_Time_Value UTCToLocal (const ACE_Time_Value&); // UTC time
   static std::string dateTimeToString (const ACE_Date_Time&); // date
 
   // --- parsers ---
+  static ACE_Time_Value ISO8601ToTimestamp (const std::string&,
+                                            int&);              // return value: UTC offset
   // *NOTE*: parses "YYYY/MM/DD HH:MM:SS"
   // *NOTE*: the dhclient lease file date format depends on the 'db-time-format'
   //         configuration parameter; this parses the 'default' setting
