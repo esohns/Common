@@ -155,7 +155,7 @@ Common_Timer_Tools::localToUTC (const ACE_Time_Value& localTime_in,
                 ACE_TEXT ("failed to ACE_OS::mktime(): \"%m\", aborting\n")));
     return return_value;
   } // end IF
-  return_value.set (time, 0);
+  return_value.set (time, localTime_in.usec ());
 
   return return_value;
 }
@@ -185,7 +185,7 @@ Common_Timer_Tools::UTCToLocal (const ACE_Time_Value& UTCTime_in)
                 ACE_TEXT ("failed to ACE_OS::mktime(): \"%m\", aborting\n")));
     return return_value;
   } // end IF
-  return_value.set (time, 0);
+  return_value.set (time, UTCTime_in.usec ());
 
   return return_value;
 }

@@ -26,6 +26,7 @@ set (source_files
      m3u_parser.h
      m3u_scanner.cpp
      m3u_scanner.h
+     common_parser_m3u_defines.h
      common_parser_m3u_parser_driver.cpp
      common_parser_m3u_parser_driver.h
      common_parser_m3u_tools.cpp
@@ -72,11 +73,12 @@ export (TARGETS ${LIBRARY}
 
 ############### install files ################
 install (FILES
+         common_parser_m3u_defines.h
          common_parser_m3u_iparser.h
-         m3u_parser.h
-         m3u_scanner.h
          common_parser_m3u_parser_driver.h
          common_parser_m3u_tools.h
+         m3u_parser.h
+         m3u_scanner.h
          DESTINATION include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets

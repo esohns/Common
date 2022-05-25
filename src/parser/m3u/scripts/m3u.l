@@ -53,11 +53,11 @@ extern YY_DECL;
 %option backup
 %option batch
 %option never-interactive
-/*%option stack*/
 %option pointer
 
 %option nodefault
 %option nomain
+%option nostack
 %option nostdinit
 %option nounput
 /*%option noyywrap*/
@@ -391,13 +391,13 @@ TO_EQUALS                         [^=]
                                     if (!parser->isBlocking ())
                                       return yy::parser::token::END;
                                     // wait for more data fragment(s)
-                                    if (!parser->switchBuffer ())
-                                    { // *NOTE*: most probable reason: connection
-                                      //         has been closed --> session end
-                                      ACE_DEBUG ((LM_DEBUG,
-                                                  ACE_TEXT ("failed to Common_IParser::switchBuffer(), returning\n")));
-                                      yyterminate(); // not enough data, cannot proceed
-                                    } // end IF
+//                                    if (!parser->switchBuffer ())
+//                                    { // *NOTE*: most probable reason: connection
+//                                      //         has been closed --> session end
+//                                      ACE_DEBUG ((LM_DEBUG,
+//                                                  ACE_TEXT ("failed to Common_IParser::switchBuffer(), returning\n")));
+//                                      yyterminate(); // not enough data, cannot proceed
+//                                    } // end IF
                                     yyless (0); }
 %% /* end of rules */
 

@@ -1,4 +1,4 @@
-// A Bison parser, made by GNU Bison 3.7.6.
+// A Bison parser, made by GNU Bison 3.8.2.
 
 // Skeleton implementation for Bison LALR(1) parsers in C++
 
@@ -72,6 +72,7 @@
 #include "common_macros.h"
 
 #include "m3u_scanner.h"
+#include "common_parser_m3u_defines.h"
 #include "common_parser_m3u_parser_driver.h"
 #include "common_parser_m3u_tools.h"
 
@@ -191,9 +192,9 @@ namespace yy {
   parser::syntax_error::~syntax_error () YY_NOEXCEPT YY_NOTHROW
   {}
 
-  /*---------------.
-  | symbol kinds.  |
-  `---------------*/
+  /*---------.
+  | symbol.  |
+  `---------*/
 
   // basic_symbol.
   template <typename Base>
@@ -213,11 +214,12 @@ namespace yy {
   {}
 
   template <typename Base>
-  parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, YY_RVREF (semantic_type) v, YY_RVREF (location_type) l)
+  parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, YY_RVREF (value_type) v, YY_RVREF (location_type) l)
     : Base (t)
     , value (YY_MOVE (v))
     , location (YY_MOVE (l))
   {}
+
 
   template <typename Base>
   parser::symbol_kind_type
@@ -225,6 +227,7 @@ namespace yy {
   {
     return this->kind ();
   }
+
 
   template <typename Base>
   bool
@@ -243,25 +246,27 @@ namespace yy {
   }
 
   // by_kind.
-  parser::by_kind::by_kind ()
+  parser::by_kind::by_kind () YY_NOEXCEPT
     : kind_ (symbol_kind::S_YYEMPTY)
   {}
 
 #if 201103L <= YY_CPLUSPLUS
-  parser::by_kind::by_kind (by_kind&& that)
+  parser::by_kind::by_kind (by_kind&& that) YY_NOEXCEPT
     : kind_ (that.kind_)
   {
     that.clear ();
   }
 #endif
 
-  parser::by_kind::by_kind (const by_kind& that)
+  parser::by_kind::by_kind (const by_kind& that) YY_NOEXCEPT
     : kind_ (that.kind_)
   {}
 
-  parser::by_kind::by_kind (token_kind_type t)
+  parser::by_kind::by_kind (token_kind_type t) YY_NOEXCEPT
     : kind_ (yytranslate_ (t))
   {}
+
+
 
   void
   parser::by_kind::clear () YY_NOEXCEPT
@@ -282,11 +287,13 @@ namespace yy {
     return kind_;
   }
 
+
   parser::symbol_kind_type
   parser::by_kind::type_get () const YY_NOEXCEPT
   {
     return this->kind ();
   }
+
 
 
   // by_state.
@@ -533,7 +540,7 @@ namespace yy {
   }
 
   void
-  parser::yypop_ (int n)
+  parser::yypop_ (int n) YY_NOEXCEPT
   {
     yystack_.pop (n);
   }
@@ -576,13 +583,13 @@ namespace yy {
   }
 
   bool
-  parser::yy_pact_value_is_default_ (int yyvalue)
+  parser::yy_pact_value_is_default_ (int yyvalue) YY_NOEXCEPT
   {
     return yyvalue == yypact_ninf_;
   }
 
   bool
-  parser::yy_table_value_is_error_ (int yyvalue)
+  parser::yy_table_value_is_error_ (int yyvalue) YY_NOEXCEPT
   {
     return yyvalue == yytable_ninf_;
   }
@@ -813,6 +820,13 @@ namespace yy {
   case 10: // $@3: %empty
                                                     {
                     iparser->setP_2 ((yystack_[0].value.eeval));
+                    struct M3U_Playlist& playlist_r = iparser->current ();
+                    if (!playlist_r.key.empty ())
+                    {
+                      struct M3U_ExtInf_Element& element_r = iparser->current_2 ();
+                      element_r.keyValues.push_back (std::make_pair (ACE_TEXT_ALWAYS_CHAR (COMMON_PARSER_M3U_EXT_X_PROGRAM_DATE_TIME), playlist_r.key));
+                      playlist_r.key.clear ();
+                    } // end IF
                   }
     break;
 
@@ -837,7 +851,7 @@ namespace yy {
                     if (!playlist_r.key.empty ())
                     {
                       struct M3U_StreamInf_Element& element_r = iparser->current_4 ();
-                      element_r.keyValues.push_back (std::make_pair (ACE_TEXT_ALWAYS_CHAR ("PROGRAM-DATE-TIME"), playlist_r.key));
+                      element_r.keyValues.push_back (std::make_pair (ACE_TEXT_ALWAYS_CHAR (COMMON_PARSER_M3U_EXT_X_PROGRAM_DATE_TIME), playlist_r.key));
                       playlist_r.key.clear ();
                     } // end IF
                   }
@@ -1208,16 +1222,16 @@ namespace yy {
     // Actual number of expected tokens
     int yycount = 0;
 
-    int yyn = yypact_[+yyparser_.yystack_[0].state];
+    const int yyn = yypact_[+yyparser_.yystack_[0].state];
     if (!yy_pact_value_is_default_ (yyn))
       {
         /* Start YYX at -YYN if negative to avoid negative indexes in
            YYCHECK.  In other words, skip the first -YYN actions for
            this state because they are default actions.  */
-        int yyxbegin = yyn < 0 ? -yyn : 0;
+        const int yyxbegin = yyn < 0 ? -yyn : 0;
         // Stay within bounds of both yycheck and yytname.
-        int yychecklim = yylast_ - yyn + 1;
-        int yyxend = yychecklim < YYNTOKENS ? yychecklim : YYNTOKENS;
+        const int yychecklim = yylast_ - yyn + 1;
+        const int yyxend = yychecklim < YYNTOKENS ? yychecklim : YYNTOKENS;
         for (int yyx = yyxbegin; yyx < yyxend; ++yyx)
           if (yycheck_[yyx + yyn] == yyx && yyx != symbol_kind::S_YYerror
               && !yy_table_value_is_error_ (yytable_[yyx + yyn]))
@@ -1235,6 +1249,9 @@ namespace yy {
       yyarg[0] = symbol_kind::S_YYEMPTY;
     return yycount;
   }
+
+
+
 
 
 
@@ -1434,10 +1451,10 @@ namespace yy {
   const short
   parser::yyrline_[] =
   {
-       0,   193,   193,   193,   206,   208,   209,   209,   217,   219,
-     220,   220,   223,   223,   226,   226,   236,   240,   242,   242,
-     245,   245,   248,   249,   249,   252,   257,   258,   260,   261,
-     261,   266,   271,   272,   274,   275,   275,   280,   280,   283
+       0,   194,   194,   194,   207,   209,   210,   210,   218,   220,
+     221,   221,   231,   231,   234,   234,   244,   248,   250,   250,
+     253,   253,   256,   257,   257,   260,   265,   266,   268,   269,
+     269,   274,   279,   280,   282,   283,   283,   288,   288,   291
   };
 
   void
@@ -1468,7 +1485,7 @@ namespace yy {
 #endif // YYDEBUG
 
   parser::symbol_kind_type
-  parser::yytranslate_ (int t)
+  parser::yytranslate_ (int t) YY_NOEXCEPT
   {
     // YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to
     // TOKEN-NUM as returned by yylex.
@@ -1510,7 +1527,7 @@ namespace yy {
     if (t <= 0)
       return symbol_kind::S_YYEOF;
     else if (t <= code_max)
-      return YY_CAST (symbol_kind_type, translate_table[t]);
+      return static_cast <symbol_kind_type> (translate_table[t]);
     else
       return symbol_kind::S_YYUNDEF;
   }

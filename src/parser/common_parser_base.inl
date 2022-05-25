@@ -99,10 +99,7 @@ Common_ParserBase_T<ConfigurationType,
 
   if (isInitialized_)
   {
-//    if (headFragment_)
-//    {
-//      headFragment_->release (); headFragment_ = NULL;
-//    } // end IF
+    finished_ = false;
     fragment_ = NULL;
 
     if (buffer_)
@@ -317,6 +314,10 @@ Common_ParserBase_T<ConfigurationType,
   ACE_Message_Block* message_block_p = fragment_;
   if (!fragment_->cont ())
   {
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("parsed %u byte(s), getting next fragment\n"),
+                fragment_->length ()));
+
     // sanity check(s)
     if (!configuration_->block)
       return false; // not enough data, cannot proceed
@@ -330,6 +331,9 @@ Common_ParserBase_T<ConfigurationType,
       return false;
     } // end IF
   } // end IF
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("parsed %u byte(s), using next fragment\n"),
+              fragment_->length ()));
   fragment_ = fragment_->cont ();
   scannerState_.offset = 0;
 

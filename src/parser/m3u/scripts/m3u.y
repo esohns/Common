@@ -121,6 +121,7 @@
 #include "common_macros.h"
 
 #include "m3u_scanner.h"
+#include "common_parser_m3u_defines.h"
 #include "common_parser_m3u_parser_driver.h"
 #include "common_parser_m3u_tools.h"
 
@@ -219,6 +220,13 @@ elements:         elements element
                   | %empty             { }
 element:          program_date_time "begin_ext_inf" {
                     iparser->setP_2 ($2);
+                    struct M3U_Playlist& playlist_r = iparser->current ();
+                    if (!playlist_r.key.empty ())
+                    {
+                      struct M3U_ExtInf_Element& element_r = iparser->current_2 ();
+                      element_r.keyValues.push_back (std::make_pair (ACE_TEXT_ALWAYS_CHAR (COMMON_PARSER_M3U_EXT_X_PROGRAM_DATE_TIME), playlist_r.key));
+                      playlist_r.key.clear ();
+                    } // end IF
                   } ext_inf_rest_1 { }
                   | "begin_media" {
                     iparser->setP_3 ($1);
@@ -229,7 +237,7 @@ element:          program_date_time "begin_ext_inf" {
                     if (!playlist_r.key.empty ())
                     {
                       struct M3U_StreamInf_Element& element_r = iparser->current_4 ();
-                      element_r.keyValues.push_back (std::make_pair (ACE_TEXT_ALWAYS_CHAR ("PROGRAM-DATE-TIME"), playlist_r.key));
+                      element_r.keyValues.push_back (std::make_pair (ACE_TEXT_ALWAYS_CHAR (COMMON_PARSER_M3U_EXT_X_PROGRAM_DATE_TIME), playlist_r.key));
                       playlist_r.key.clear ();
                     } // end IF
                   } ext_stream_inf_rest_1 { }

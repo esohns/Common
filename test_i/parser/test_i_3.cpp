@@ -26,6 +26,15 @@
 
 #include "common_parser_m3u_parser_driver.h"
 
+enum Test_I_ModeType
+{
+  TEST_I_MODE_DEFAULT = 0,
+  TEST_I_MODE_WRAP,
+////////////////////////////////////////
+  TEST_I_MODE_MAX,
+  TEST_I_MODE_INVALID
+};
+
 void
 do_print_usage (const std::string& programName_in)
 {
@@ -61,6 +70,10 @@ do_print_usage (const std::string& programName_in)
             << false
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-m          : program mode [")
+            << TEST_I_MODE_DEFAULT
+            << ACE_TEXT_ALWAYS_CHAR ("]")
+            << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-t          : trace information [")
             << false
             << ACE_TEXT_ALWAYS_CHAR ("]")
@@ -74,7 +87,8 @@ do_process_arguments (int argc_in,
                       bool& debugParser_out,
                       std::string& sourceFilePath_out,
                       bool& logToFile_out,
-                      bool& traceInformation_out)
+                     enum Test_I_ModeType& mode_out,
+                     bool& traceInformation_out)
 {
   std::string path_root =
     Common_File_Tools::getWorkingDirectory ();
@@ -86,11 +100,12 @@ do_process_arguments (int argc_in,
   sourceFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   sourceFilePath_out += ACE_TEXT_ALWAYS_CHAR ("test_3.txt");
   logToFile_out = false;
+  mode_out = TEST_I_MODE_DEFAULT;
   traceInformation_out = false;
 
   ACE_Get_Opt argument_parser (argc_in,
                                argv_in,
-                               ACE_TEXT ("def:lt"),
+                               ACE_TEXT ("def:lm:t"),
                                1,                         // skip command name
                                1,                         // report parsing errors
                                ACE_Get_Opt::PERMUTE_ARGS, // ordering
@@ -121,6 +136,15 @@ do_process_arguments (int argc_in,
       case 'l':
       {
         logToFile_out = true;
+        break;
+      }
+      case 'm':
+      {
+        std::istringstream converter (ACE_TEXT_ALWAYS_CHAR (argument_parser.opt_arg ()),
+                                     std::ios_base::in);
+        int i = 0;
+        converter >> i;
+        mode_out = static_cast<enum Test_I_ModeType> (i);
         break;
       }
       case 't':
@@ -167,12 +191,13 @@ do_work (int argc_in,
          ACE_TCHAR* argv_in[],
          bool debugScanner_in,
          bool debugParser_in,
-         const std::string& sourceFilePath_in)
+         const std::string& sourceFilePath_in,
+         enum Test_I_ModeType mode_in)
 {
-  // step1: load data into a message block
+  // step1: load data
   unsigned int file_size_i = Common_File_Tools::size (sourceFilePath_in);
   uint8_t* data_p = NULL, *data_2 = NULL;
-  ACE_Message_Block* message_block_p = NULL, * message_block_2 = NULL;
+  ACE_Message_Block* message_block_p = NULL, *message_block_2 = NULL, *message_block_3 = NULL;
   struct Common_FlexBisonParserConfiguration configuration;
   Common_Parser_M3U_ParserDriver parser_driver;
 
@@ -182,19 +207,11 @@ do_work (int argc_in,
                                 COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to slurp file (was: \"\"), returning\n"),
+                ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), returning\n"),
                 ACE_TEXT (sourceFilePath_in.c_str ())));
     return;
   } // end IF
   ACE_ASSERT (data_p);
-
-  ACE_NEW_NORETURN (message_block_p,
-                    ACE_Message_Block (reinterpret_cast<char*> (data_p),
-                                       file_size_i + COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE,
-                                       ACE_DEFAULT_MESSAGE_BLOCK_PRIORITY));
-  ACE_ASSERT (message_block_p);
-  message_block_p->size (file_size_i);
-  message_block_p->wr_ptr (file_size_i);
 
   // step2: initialize parser
   configuration.block = true;
@@ -208,17 +225,80 @@ do_work (int argc_in,
   if (!parser_driver.initialize (configuration))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to initialize parser, returning\n")));
+               ACE_TEXT ("failed to initialize parser, returning\n")));
     goto clean;
   } // end IF
 
-  // step3: parse data
-  if (!parser_driver.parse (message_block_p))
+  switch (mode_in)
   {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to parse data, returning\n")));
-    goto clean;
-  } // end IF
+    case TEST_I_MODE_DEFAULT:
+    {
+      ACE_NEW_NORETURN (message_block_p,
+                        ACE_Message_Block (reinterpret_cast<char*> (data_p),
+                                           file_size_i + COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE,
+                                           ACE_DEFAULT_MESSAGE_BLOCK_PRIORITY));
+      ACE_ASSERT (message_block_p);
+      message_block_p->size (file_size_i);
+      message_block_p->wr_ptr (file_size_i);
+
+      // step3: parse data
+      if (!parser_driver.parse (message_block_p))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                   ACE_TEXT ("failed to parse data, returning\n")));
+        goto clean;
+      } // end IF
+
+      break;
+    }
+    case TEST_I_MODE_WRAP:
+    {
+#define FRAGMENT_SIZE 16384
+      ACE_NEW_NORETURN (message_block_p,
+                        ACE_Message_Block (FRAGMENT_SIZE + COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE));
+      ACE_ASSERT (message_block_p);
+      message_block_p->copy (reinterpret_cast<char*> (data_p),
+                             FRAGMENT_SIZE);
+      data_2 = data_p;
+      data_2 += FRAGMENT_SIZE;
+      file_size_i -= FRAGMENT_SIZE;
+      message_block_2 = message_block_p;
+      while (file_size_i)
+      {
+        unsigned int size_i =
+            std::min (static_cast<unsigned int> (FRAGMENT_SIZE), file_size_i);
+        ACE_NEW_NORETURN (message_block_3,
+                          ACE_Message_Block (size_i + COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE));
+        ACE_ASSERT (message_block_3);
+        message_block_3->copy (reinterpret_cast<char*> (data_2),
+                               size_i);
+        data_2 += size_i;
+        file_size_i -= size_i;
+
+        message_block_2->cont (message_block_3);
+        message_block_2 = message_block_3;
+      } // end WHILE
+      data_2 = NULL;
+      message_block_2 = message_block_3 = NULL;
+
+      // step3: parse data
+      if (!parser_driver.parse (message_block_p))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                   ACE_TEXT ("failed to parse data, returning\n")));
+        goto clean;
+      } // end IF
+
+      break;
+    }
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown mode (was: %d), returning\n"),
+                  mode_in));
+      goto clean;
+    }
+  } // end SWITCH
 
 clean:
   if (message_block_p)
@@ -227,7 +307,7 @@ clean:
   } // end IF
   if (data_p)
   {
-    delete[] data_p; data_p = NULL;
+    delete [] data_p; data_p = NULL;
   } // end IF
   if (message_block_2)
   {
@@ -235,7 +315,7 @@ clean:
   } // end IF
   if (data_2)
   {
-    delete[] data_2; data_2 = NULL;
+    delete [] data_2; data_2 = NULL;
   } // end IF
 }
 
@@ -281,6 +361,7 @@ ACE_TMAIN (int argc_in,
   source_file_path += ACE_TEXT_ALWAYS_CHAR ("test_3.txt");
   bool log_to_file = false;
   std::string log_file_name;
+  enum Test_I_ModeType mode_type_e = TEST_I_MODE_DEFAULT;
   bool trace_information = false;
 
   // step1b: parse/process/validate configuration
@@ -290,6 +371,7 @@ ACE_TMAIN (int argc_in,
                              debug_parser,
                              source_file_path,
                              log_to_file,
+                             mode_type_e,
                              trace_information))
   {
     do_print_usage (ACE::basename (argv_in[0]));
@@ -327,7 +409,8 @@ ACE_TMAIN (int argc_in,
            argv_in,
            debug_scanner,
            debug_parser,
-           source_file_path);
+           source_file_path,
+           mode_type_e);
   timer.stop ();
 
   // debug info

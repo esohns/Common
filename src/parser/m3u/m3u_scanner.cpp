@@ -2584,7 +2584,6 @@ static const flex_int32_t yy_rule_linenum[41] =
   // this tracks the current scanner location. Action is called when length of
   // the token is known
   #define YY_USER_ACTION location->columns (yyleng);
-/*%option stack*/
 /*%option noyywrap*/
 /* *TODO*: find out why 'read' does not compile (on Linux, flex 2.5.39) */
 /*%option ansi-definitions ansi-prototypes*/
@@ -3588,13 +3587,13 @@ YY_RULE_SETUP
                                     if (!parser->isBlocking ())
                                       return yy::parser::token::END;
                                     // wait for more data fragment(s)
-                                    if (!parser->switchBuffer ())
-                                    { // *NOTE*: most probable reason: connection
-                                      //         has been closed --> session end
-                                      ACE_DEBUG ((LM_DEBUG,
-                                                  ACE_TEXT ("failed to Common_IParser::switchBuffer(), returning\n")));
-                                      yyterminate(); // not enough data, cannot proceed
-                                    } // end IF
+//                                    if (!parser->switchBuffer ())
+//                                    { // *NOTE*: most probable reason: connection
+//                                      //         has been closed --> session end
+//                                      ACE_DEBUG ((LM_DEBUG,
+//                                                  ACE_TEXT ("failed to Common_IParser::switchBuffer(), returning\n")));
+//                                      yyterminate(); // not enough data, cannot proceed
+//                                    } // end IF
                                     yyless (0); }
 	YY_BREAK
 case 41:
