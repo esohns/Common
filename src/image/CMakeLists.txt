@@ -1,7 +1,7 @@
 include (ffmpeg)
 include (ImageMagick)
 
-set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../gl/scripts")
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts")
 include (png)
 
 set (LIBRARY ${PROJECT_NAME}Image)

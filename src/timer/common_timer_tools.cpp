@@ -131,7 +131,31 @@ Common_Timer_Tools::localToUTC (const ACE_Time_Value& localTime_in,
                   ACE_TEXT ("failed to ACE_OS::localtime_r(): \"%m\", aborting\n")));
       return return_value;
     } // end IF
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    tm_s.tm_hour += tm_gmtoff_in;
+    if (tm_s.tm_hour < 0)
+    {
+      tm_s.tm_hour += 23;
+      tm_s.tm_yday--;
+      if (tm_s.tm_yday < 0)
+      {
+        tm_s.tm_yday += 365; // *TODO*: this doesn't work
+        tm_s.tm_year--;
+      } // end IF
+    } // end IF
+    else if (tm_s.tm_hour > 23)
+    {
+      tm_s.tm_hour -= 23;
+      tm_s.tm_yday++;
+      if (tm_s.tm_yday > 365) // *TODO*: this doesn't work
+      {
+        tm_s.tm_yday -= 365;
+        tm_s.tm_year++;
+      } // end IF
+    } // end ELSE IF
+#else
     tm_s.tm_gmtoff = tm_gmtoff_in;
+#endif // ACE_WIN32 || ACE_WIN64
     time = ACE_OS::mktime (&tm_s);
     if (unlikely (time == -1))
     {

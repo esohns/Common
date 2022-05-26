@@ -1,6 +1,7 @@
 if (GTKGL_SUPPORT)
  set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../../../src/gl/scripts")
  include (assimp)
+ set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../../../src/image/scripts")
  include (png)
 endif (GTKGL_SUPPORT)
 

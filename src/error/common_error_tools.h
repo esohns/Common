@@ -28,6 +28,9 @@
 #include "ace/Global_Macros.h"
 
 #include "common_iinitialize.h"
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "common_macros.h"
+#endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 LONG WINAPI

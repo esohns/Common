@@ -4,6 +4,7 @@ set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts
 include (assimp)
 include (glm)
 include (glut)
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../image/scripts")
 include (png)
 
 set (LIBRARY ${PROJECT_NAME}OpenGL)
