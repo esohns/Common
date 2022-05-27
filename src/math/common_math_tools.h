@@ -4,6 +4,7 @@
 #include <bitset>
 #include <cmath>
 #include <string>
+#include <vector>
 
 #include "ace/Basic_Types.h"
 #include "ace/Global_Macros.h"
@@ -23,6 +24,11 @@ class Common_Math_Tools
   static void rotate (ContainerType&); // data
   template <typename ContainerType>
   static ContainerType permute (ContainerType&); // data
+  template <typename ContainerType>
+  static void combine (ContainerType&,               // data
+                       std::vector<int>&,            // positions
+                       int,                          // depth
+                       std::vector<ContainerType>&); // result(s)
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Math_Tools ())

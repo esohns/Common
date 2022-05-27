@@ -5,8 +5,9 @@
 
 #include "common_math_tools.h"
 
+template <typename T>
 void
-print_vector (std::vector<int>& vector_in)
+print_vector (std::vector<T>& vector_in)
 {
   for (int i = 0;
        i < static_cast<int> (vector_in.size ());
@@ -15,9 +16,11 @@ print_vector (std::vector<int>& vector_in)
   std::cout << std::endl;
 }
 
+template <typename T>
 void
-print_vectors (std::vector<std::vector<int>>& vectors_in)
+print_vectors (std::vector<std::vector<T>>& vectors_in)
 {
+  std::cout << vectors_in.size () << ACE_TEXT_ALWAYS_CHAR (" result(s)") << std::endl;
   for (int i = 0;
        i < static_cast<int> (vectors_in.size ());
        ++i)
@@ -27,16 +30,25 @@ print_vectors (std::vector<std::vector<int>>& vectors_in)
 int
 main (int argc_in, char *argv_in[])
 {
-  std::vector<int> test_vector = {1, 2, 3, 4}, result;
+//  std::vector<int> test_vector = {1, 2, 3, 4, 5}, result;
+//  std::vector<std::vector<int>> results;
+//  results.push_back (test_vector);
+//  do
+//  {
+//    result = Common_Math_Tools::permute (test_vector);
+//    if (result.empty())
+//      break;
+//    results.push_back (result);
+//  } while (true);
+//  print_vectors (results);
+
+  std::vector<int> test_vector = {1, 2, 3, 4};
   std::vector<std::vector<int>> results;
-  results.push_back (test_vector);
-  do
-  {
-    result = Common_Math_Tools::permute (test_vector);
-    if (result.empty())
-      break;
-    results.push_back (result);
-  } while (true);
+  std::vector<int> positions_a (test_vector.size (), 0);
+  Common_Math_Tools::combine (test_vector,
+                              positions_a,
+                              0,
+                              results);
   print_vectors (results);
 
   return 0;
