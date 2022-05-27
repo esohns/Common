@@ -2,10 +2,6 @@
 
 #include "common_math_tools.h"
 
-#include "ace/Log_Msg.h"
-
-#include "common_macros.h"
-
 std::string
 Common_Math_Tools::encodeBase64 (const void* data_in,
                                  unsigned int length_in)

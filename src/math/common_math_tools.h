@@ -18,11 +18,19 @@ class Common_Math_Tools
   static std::string encodeBase64 (const void*,   // data
                                    unsigned int); // length
 
+  // permutations
+  template <typename ContainerType>
+  static void rotate (ContainerType&); // data
+  template <typename ContainerType>
+  static ContainerType permute (ContainerType&); // data
+
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Math_Tools ())
   ACE_UNIMPLEMENTED_FUNC (~Common_Math_Tools ())
   ACE_UNIMPLEMENTED_FUNC (Common_Math_Tools (const Common_Math_Tools&))
   ACE_UNIMPLEMENTED_FUNC (Common_Math_Tools& operator= (const Common_Math_Tools&))
 };
+
+#include "common_math_tools.inl"
 
 #endif

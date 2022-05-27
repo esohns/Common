@@ -36,7 +36,8 @@ set (source_files
      common_math_sample.h
      common_math_sample.inl
      common_math_tools.cpp
-     common_math_tools.h)
+     common_math_tools.h
+     common_math_tools.inl)
 
 # Include dir for installed targets
 set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
@@ -93,6 +94,7 @@ install (FILES
          common_math_sample.h
          common_math_sample.inl
          common_math_tools.h
+         common_math_tools.inl
          DESTINATION include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
