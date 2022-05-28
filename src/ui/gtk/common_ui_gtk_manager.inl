@@ -373,15 +373,15 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #if defined (GTKGL_SUPPORT)
   // step3: initialize OpenGL
   // sanity check(s)
-  ACE_ASSERT (!state_.builders.empty ());
-  iterator =
-    state_.builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
-  ACE_ASSERT (iterator != state_.builders.end ());
   ACE_ASSERT (state_.OpenGLContexts.empty ());
   if (configuration_->widgetName.empty ())
     goto continue_;
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("initializing OpenGL...\n")));
+             ACE_TEXT ("initializing OpenGL...\n")));
+  ACE_ASSERT (!state_.builders.empty ());
+  iterator =
+      state_.builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
+  ACE_ASSERT (iterator != state_.builders.end ());
   widget_p =
     GTK_WIDGET (gtk_builder_get_object ((*iterator).second.second,
                                         ACE_TEXT_ALWAYS_CHAR (configuration_->widgetName.c_str ())));

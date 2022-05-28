@@ -42,7 +42,7 @@ main (int argc_in, char *argv_in[])
 //  } while (true);
 //  print_vectors (results);
 
-  std::vector<int> test_vector = {1, 2, 3, 4};
+  std::vector<int> test_vector = {1, 2, 3, 4, 5, 6};
   std::vector<std::vector<int>> results;
   std::vector<int> positions_a (test_vector.size (), 0);
   Common_Math_Tools::combine (test_vector,

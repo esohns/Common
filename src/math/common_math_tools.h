@@ -22,6 +22,7 @@ class Common_Math_Tools
   // permutations
   template <typename ContainerType>
   static void rotate (ContainerType&); // data
+  // *IMPORTANT NOTE*: data must be '<'-sorted for this to work
   template <typename ContainerType>
   static ContainerType permute (ContainerType&); // data
   template <typename ContainerType>
