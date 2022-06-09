@@ -2786,6 +2786,25 @@ Common_Tools::isInstalled (const std::string& executableName_in,
   return result;
 }
 
+bool
+Common_Tools::testRandomProbability (float probability_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Tools::::testRandomProbability"));
+
+  // sanity checks
+  ACE_ASSERT ((probability_in >= 0.0F) && (probability_in <= 1.0F));
+
+  // step0: fast path ?
+  if (probability_in == 0.0F)
+    return false;
+  else if (probability_in == 1.0F)
+    return true;
+
+  float limit_f = probability_in * static_cast<float> (RAND_MAX);
+
+  return (ACE_OS::rand_r (&Common_Tools::randomSeed) <= static_cast<int> (limit_f));
+}
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 bool
