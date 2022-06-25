@@ -77,7 +77,7 @@ Common_Math_SampleIterator_T<ValueType>::initialize (unsigned int sampleSize_in,
   COMMON_TRACE (ACE_TEXT ("Common_Math_SampleIterator_T::initialize"));
 
   // sanity check(s)
-  ACE_ASSERT (sizeof (ValueType) >= sampleSize_in);
+  ACE_ASSERT (sizeof (ValueType) >= subSampleSize_in);
 
   sampleSize_ = sampleSize_in;
   subSampleSize_ = subSampleSize_in;

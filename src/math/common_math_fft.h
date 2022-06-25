@@ -86,7 +86,7 @@ class Common_Math_FFT_T
 
  protected:
   bool                      isInitialized_;
-  double**                  buffer_;        // sample data [/channel]
+  ValueType**               buffer_;        // sample data [/channel]
   std::complex<ValueType>** X_;             // 'in-place' working buffer [/channel]
 
   int*                      bitReverseMap_; // bit-reverse vector mapping
