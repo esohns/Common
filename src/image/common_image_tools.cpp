@@ -31,6 +31,7 @@
 #ifdef __cplusplus
 extern "C"
 {
+#include "libavformat/avformat.h"
 #include "libswscale/swscale.h"
 }
 #endif /* __cplusplus */
@@ -436,15 +437,94 @@ Common_Image_Tools::load (uint8_t* sourceBuffers_in[],
 
 bool
 Common_Image_Tools::load (const std::string& path_in,
+                          Common_Image_Resolution_t& resolution_out,
+                          enum AVPixelFormat& format_out,
+                          uint8_t* buffers_out[])
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::load"));
+
+  int result = -1;
+  int index_i = -1;
+  enum AVCodecID coded_id_e = AV_CODEC_ID_NONE;
+
+  AVFormatContext* format_context_p = avformat_alloc_context ();
+  if (unlikely (!format_context_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to avformat_alloc_context(): \"%m\", aborting\n")));
+    return false;
+  } // end IF
+
+  result = avformat_open_input (&format_context_p,
+                                path_in.c_str (),
+                                NULL,
+                                NULL);
+  if (unlikely (result < 0))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to avformat_open_input(\"%s\"): \"%s\", aborting\n"),
+                ACE_TEXT (path_in.c_str ()),
+                ACE_TEXT (Common_Image_Tools::errorToString (result).c_str ())));
+    goto error;
+  } // end IF
+
+  result = avformat_find_stream_info (format_context_p,
+                                      NULL);
+  if (unlikely (result < 0))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to avformat_find_stream_info(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Image_Tools::errorToString (result).c_str ())));
+    goto error;
+  } // end IF
+#if defined (_DEBUG)
+  av_dump_format (format_context_p, 0, path_in.c_str (), 0);
+#endif // _DEBUG
+
+  index_i = av_find_best_stream (format_context_p,
+                                 AVMEDIA_TYPE_VIDEO,
+                                 -1,
+                                 -1,
+                                 NULL,
+                                 0);
+  if (unlikely (index_i < 0))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to av_find_best_stream(AVMEDIA_TYPE_VIDEO): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Image_Tools::errorToString (index_i).c_str ())));
+    result = -1;
+    goto error;
+  } // end IF
+  coded_id_e = format_context_p->streams[index_i]->codecpar->codec_id;
+
+error:
+  if (likely (format_context_p))
+    avformat_close_input (&format_context_p);
+  avformat_free_context (format_context_p); format_context_p = NULL;
+
+  return ((result == 0) ? Common_Image_Tools::load (path_in,
+                                                    coded_id_e,
+                                                    resolution_out,
+                                                    format_out,
+                                                    buffers_out)
+                        : false);
+}
+
+bool
+Common_Image_Tools::load (const std::string& path_in,
                           enum AVCodecID codecId_in,
                           Common_Image_Resolution_t& resolution_out,
                           enum AVPixelFormat& format_out,
-                          uint8_t* targetBuffers_out[])
+                          uint8_t* buffers_out[])
 {
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::load"));
 
   // sanity check(s)
-  ACE_ASSERT (codecId_in != AV_CODEC_ID_NONE); // *TODO*
+  if (codecId_in == AV_CODEC_ID_NONE)
+    return Common_Image_Tools::load (path_in,
+                                     resolution_out,
+                                     format_out,
+                                     buffers_out);
 
   bool result = false;
   int result_2 = -1;
@@ -456,6 +536,7 @@ Common_Image_Tools::load (const std::string& path_in,
   unsigned int file_size_i = 0;
   Common_Image_Tools_GetFormatCBData cb_data_s;
   cb_data_s.formats.push_back (AV_PIX_FMT_RGB24);
+
   if (!Common_File_Tools::load (path_in,
                                 packet_s.data,
                                 file_size_i))
@@ -476,7 +557,7 @@ Common_Image_Tools::load (const std::string& path_in,
   //} // end IF
 
   codec_p = avcodec_find_decoder (codecId_in);
-  if (!codec_p)
+  if (unlikely (!codec_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to avcodec_find_decoder(%s [%d]): \"%m\", aborting\n"),
@@ -485,7 +566,7 @@ Common_Image_Tools::load (const std::string& path_in,
   } // end IF
   // *NOTE*: fire-and-forget codec_p
   codec_context_p = avcodec_alloc_context3 (codec_p);
-  if (!codec_context_p)
+  if (unlikely (!codec_context_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to avcodec_alloc_context3(): \"%m\", aborting\n")));
@@ -501,6 +582,8 @@ Common_Image_Tools::load (const std::string& path_in,
   codec_context_p->workaround_bugs = 0xFFFFFFFF;
   codec_context_p->strict_std_compliance = FF_COMPLIANCE_UNOFFICIAL;
   codec_context_p->error_concealment = 0xFFFFFFFF;
+  // *IMPORTANT NOTE*: apparently, this fixes some weird usecases
+  codec_context_p->thread_count = 1;
 #if defined (_DEBUG)
   codec_context_p->debug = 0xFFFFFFFF;
 #endif // _DEBUG
@@ -518,7 +601,7 @@ Common_Image_Tools::load (const std::string& path_in,
   result_2 = avcodec_open2 (codec_context_p,
                             codec_p,
                             NULL);
-  if (result_2 < 0)
+  if (unlikely (result_2 < 0))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to avcodec_open2(): \"%s\", aborting\n"),
@@ -528,7 +611,7 @@ Common_Image_Tools::load (const std::string& path_in,
 
   result_2 = avcodec_send_packet (codec_context_p,
                                   &packet_s);
-  if (result_2)
+  if (unlikely (result_2))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to avcodec_send_packet(): \"%s\", aborting\n"),
@@ -537,7 +620,7 @@ Common_Image_Tools::load (const std::string& path_in,
   } // end IF
   result_2 = avcodec_receive_frame (codec_context_p,
                                     frame_p);
-  if (result_2)
+  if (unlikely (result_2))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to avcodec_receive_frame(): \"%s\", aborting\n"),
@@ -560,17 +643,17 @@ Common_Image_Tools::load (const std::string& path_in,
 #endif // ACE_WIN32 || ACE_WIN64
   format_out = static_cast<enum AVPixelFormat> (frame_p->format);
   // *NOTE*: do not av_frame_unref the frame, keep the data
-  ACE_OS::memcpy (targetBuffers_out, frame_p->data, sizeof (uint8_t*[4]));
-  ACE_OS::memset (frame_p->data, 0, sizeof (uint8_t*[8]));
+  ACE_OS::memcpy (buffers_out, frame_p->data, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
+  ACE_OS::memset (frame_p->data, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
   av_frame_unref (frame_p);
 
   result = true;
 
 error:
   av_packet_unref (&packet_s);
-  if (frame_p)
+  if (likely (frame_p))
     av_frame_free (&frame_p);
-  if (codec_context_p)
+  if (likely (codec_context_p))
   {
     avcodec_close (codec_context_p); codec_context_p = NULL;
     av_free (codec_context_p); codec_context_p = NULL;
@@ -1379,11 +1462,12 @@ Common_Image_Tools::codecIdToString (enum AVCodecID codecId_in)
 
   const AVCodecDescriptor* descriptor_p =
       avcodec_descriptor_get (codecId_in);
-  if (!descriptor_p)
+  if (unlikely (!descriptor_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to avcodec_descriptor_get(%d): \"%m\", aborting\n"),
                 codecId_in));
+    result = avcodec_get_name (codecId_in);
     return result;
   } // end IF
   result = descriptor_p->name;

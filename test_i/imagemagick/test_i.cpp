@@ -51,7 +51,7 @@ do_print_usage (const std::string& programName_in)
             << std::endl;
   std::string source_file_path = path_root;
   source_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  source_file_path += ACE_TEXT_ALWAYS_CHAR ("test.png");
+  source_file_path += ACE_TEXT_ALWAYS_CHAR ("oak-tree.png");
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-f [PATH]   : source PNG file [")
             << source_file_path
             << ACE_TEXT_ALWAYS_CHAR ("]")
@@ -74,7 +74,7 @@ do_process_arguments (int argc_in,
   // initialize results
   sourceFilePath_out = path_root;
   sourceFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  sourceFilePath_out += ACE_TEXT_ALWAYS_CHAR ("test.png");
+  sourceFilePath_out += ACE_TEXT_ALWAYS_CHAR ("oak-tree.png");
   traceInformation_out = false;
 
   ACE_Get_Opt argument_parser (argc_in,
@@ -180,11 +180,17 @@ do_work (const std::string& sourceFilePath_in)
     return;
   } // end IF
 
-  MagickSetImageFormat (wand_p, "RGB");
+  result = MagickSetImageFormat (wand_p, "RGB");
+  ACE_ASSERT (result == MagickTrue);
+  //result = MagickSetImageUnits (wand_p, PixelsPerInchResolution);
+  //ACE_ASSERT (result == MagickTrue);
+  //result = MagickSetImageResolution (wand_p, 96.0, 96.0);
+  //ACE_ASSERT (result == MagickTrue);
 
-//  result = MagickWriteImage (wand_p, "logo.rgb");
-//  ACE_ASSERT (result == MagickTrue);
+  //result = MagickWriteImage (wand_p, "logo.bmp");
+  //ACE_ASSERT (result == MagickTrue);
 
+  //MagickResetIterator (wand_p);
   data_p = MagickGetImageBlob (wand_p, // was: MagickWriteImageBlob
                                &size_i);
   ACE_ASSERT (data_p);
@@ -192,14 +198,15 @@ do_work (const std::string& sourceFilePath_in)
   file_p = ACE_OS::fopen ("logo.rgb", "w");
   ACE_ASSERT (file_p);
 
-  size_2 = ACE_OS::fwrite (data_p,
+  size_2 = ACE_OS::fwrite (static_cast<void*> (data_p),
                            size_i,
                            1,
                            file_p);
   ACE_ASSERT (1 == size_2);
 
 //error:
-  ACE_OS::fclose (file_p);
+  MagickRelinquishMemory (data_p); data_p = NULL;
+  ACE_OS::fclose (file_p); file_p = NULL;
   if (wand_p)
   {
     DestroyMagickWand (wand_p); wand_p = NULL;
@@ -244,7 +251,7 @@ ACE_TMAIN (int argc_in,
   std::string path_root = Common_File_Tools::getWorkingDirectory ();
   std::string source_file_path = path_root;
   source_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  source_file_path += ACE_TEXT_ALWAYS_CHAR ("test.png");
+  source_file_path += ACE_TEXT_ALWAYS_CHAR ("oak-tree.png");
   bool trace_information = false;
 
   // step1b: parse/process/validate configuration

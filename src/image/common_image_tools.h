@@ -27,7 +27,7 @@
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #define __CGUID_H__ // *NOTE*: avoid compilation issue
-#include <d3d9.h>
+#include "d3d9.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (FFMPEG_SUPPORT)
@@ -99,13 +99,17 @@ class Common_Image_Tools
                     unsigned int,               // source buffer(s) size
                     enum AVCodecID,             // source format {AV_CODEC_ID_NONE: deduce}
                     enum AVPixelFormat,         // target pixel format
-                    Common_Image_Resolution_t&, // return value: target resolution
-                    uint8_t*[]);                // return value: target buffer(s)
+                    Common_Image_Resolution_t&, // return value: resolution
+                    uint8_t*[]);                // return value: buffer(s)
+  static bool load (const std::string&,         // source file path
+                    Common_Image_Resolution_t&, // return value: resolution
+                    enum AVPixelFormat&,        // return value: pixel format
+                    uint8_t*[]);                // return value: buffer(s)
   static bool load (const std::string&,         // source file path
                     enum AVCodecID,             // source format {AV_CODEC_ID_NONE: deduce}
-                    Common_Image_Resolution_t&, // return value: target resolution
-                    enum AVPixelFormat&,        // return value: target pixel format
-                    uint8_t*[]);                 // return value: target buffer(s)
+                    Common_Image_Resolution_t&, // return value: resolution
+                    enum AVPixelFormat&,        // return value: pixel format
+                    uint8_t*[]);                // return value: buffer(s)
   static bool save (const Common_Image_Resolution_t&, // source resolution
                     enum AVPixelFormat,               // source pixel format
                     uint8_t*[],                       // source buffer(s)

@@ -66,7 +66,7 @@ do_print_usage (const std::string& programName_in)
             << std::endl;
   std::string source_file_path = path_root;
   source_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  source_file_path += ACE_TEXT_ALWAYS_CHAR ("test.png");
+  source_file_path += ACE_TEXT_ALWAYS_CHAR ("oak-tree.png");
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-f [PATH]   : source PNG file [")
             << source_file_path
             << ACE_TEXT_ALWAYS_CHAR ("]")
@@ -177,16 +177,16 @@ do_work (int argc_in,
     {
       Common_Image_Resolution_t resolution_s;
       enum AVPixelFormat pixel_format_e = AV_PIX_FMT_NONE;
-      uint8_t* data_a[4], * data_2[4];
-      ACE_OS::memset (data_a, 0, sizeof (uint8_t*[4]));
-      ACE_OS::memset (data_2, 0, sizeof (uint8_t*[4]));
+      uint8_t* data_a[AV_NUM_DATA_POINTERS], *data_2[AV_NUM_DATA_POINTERS];
+      ACE_OS::memset (data_a, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
+      ACE_OS::memset (data_2, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
       std::string out_filename = ACE_TEXT_ALWAYS_CHAR ("outfile.rgb");
       std::ofstream file_stream;
-      std::string file_extension_string =
-          Common_File_Tools::fileExtension(sourceFilePath_in, false);
+      //std::string file_extension_string =
+      //    Common_File_Tools::fileExtension (sourceFilePath_in, false);
 
       if (!Common_Image_Tools::load (sourceFilePath_in,
-                                     Common_Image_Tools::stringToCodecId (Common_String_Tools::toupper (file_extension_string)),
+                                     //Common_Image_Tools::stringToCodecId (Common_String_Tools::toupper (file_extension_string)),
                                      resolution_s,
                                      pixel_format_e,
                                      data_a))
@@ -234,10 +234,10 @@ do_work (int argc_in,
                                      AV_PIX_FMT_RGB24,
                                      data_2);
         ACE_ASSERT (data_2[0]);
-        //delete [] data_a;
-        ACE_OS::memcpy (data_a, data_2, sizeof (uint8_t*[4]));
+        delete [] data_a[0]; data_a[0] = NULL;
+        ACE_OS::memcpy (data_a, data_2, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
+        ACE_ASSERT (data_a[0]);
       } // end IF
-      ACE_ASSERT (data_a);
       file_stream.open (out_filename,
                         std::ios::out | std::ios::binary);
       if (unlikely (file_stream.fail ()))
@@ -245,6 +245,7 @@ do_work (int argc_in,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to open file (was: \"%s\"): \"%m\", returning\n"),
                     ACE_TEXT (out_filename.c_str ())));
+        delete [] data_a[0]; data_a[0] = NULL;
         return;
       } // end IF
       int size_i =
@@ -263,8 +264,10 @@ do_work (int argc_in,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to write file (%d byte(s)): \"%m\", returning\n"),
                     size_i));
+        delete [] data_a[0]; data_a[0] = NULL;
         return;
       } // end IF
+      delete [] data_a[0]; data_a[0] = NULL;
       file_stream.close ();
       if (unlikely (file_stream.fail ()))
         ACE_DEBUG ((LM_ERROR,
@@ -278,7 +281,7 @@ do_work (int argc_in,
         av_hwdevice_iterate_types (AV_HWDEVICE_TYPE_NONE);
       while (device_type_e != AV_HWDEVICE_TYPE_NONE)
       {
-        ACE_DEBUG ((LM_DEBUG,
+        ACE_DEBUG ((LM_INFO,
                     ACE_TEXT ("supported hw device type: %s\n"),
                     ACE_TEXT (av_hwdevice_get_type_name (device_type_e))));
         device_type_e = av_hwdevice_iterate_types (device_type_e);
@@ -357,8 +360,8 @@ ACE_TMAIN (int argc_in,
   // step1c: initialize logging and/or tracing
   log_file_name =
     Common_Log_Tools::getLogFilename (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
-                                      ACE::basename (argv_in[0]));
-  if (!Common_Log_Tools::initializeLogging (ACE::basename (argv_in[0]), // program name
+                                      ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)));
+  if (!Common_Log_Tools::initializeLogging (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)), // program name
                                             log_file_name,              // log file name
                                             false,                      // log to syslog ?
                                             false,                      // trace messages ?
@@ -436,6 +439,7 @@ ACE_TMAIN (int argc_in,
   result = EXIT_SUCCESS;
 
 clean:
+  Common_Log_Tools::finalizeLogging ();
   // *PORTABILITY*: on Windows, finalize ACE
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   result = ACE::fini ();
