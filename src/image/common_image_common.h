@@ -22,10 +22,9 @@
 #define COMMON_IMAGE_COMMON_H
 
 #include <list>
-#include <vector>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include <windef.h>
+#include "windef.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 enum Common_Image_FileType
