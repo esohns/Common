@@ -19,6 +19,14 @@ class Common_Math_Tools
   static std::string encodeBase64 (const void*,   // data
                                    unsigned int); // length
 
+  template <typename ValueType>
+  static ValueType map (ValueType, // value
+                        ValueType, // from start
+                        ValueType, // from end
+                        ValueType, // to start
+                        ValueType, // to end
+                        int = -1); // decimal precision
+
   // permutations
   template <typename ContainerType>
   static void rotate (ContainerType&); // data

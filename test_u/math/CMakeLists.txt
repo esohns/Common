@@ -44,6 +44,8 @@ target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
 
 target_link_libraries (${EXECUTABLE} PUBLIC ${PROJECT_NAME})
 
+target_link_libraries (${EXECUTABLE} PUBLIC ${PROJECT_NAME}Log)
+target_link_libraries (${EXECUTABLE} PUBLIC ${PROJECT_NAME}Timer)
 target_link_libraries (${EXECUTABLE} PUBLIC ${PROJECT_NAME}Math)
 
 target_link_libraries (${EXECUTABLE} PUBLIC ${PROJECT_NAME}_Test_U)
@@ -64,18 +66,23 @@ if (UNIX)
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_u/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 elseif (WIN32)
- if (VCPKG_SUPPORT)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
- else ()
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
+ string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
+# if (VCPKG_SUPPORT)
+#  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
+# else ()
   file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
- endif (VCPKG_SUPPORT)
+# endif (VCPKG_SUPPORT)
+ file (TO_CMAKE_PATH ${wxWidgets_LIB_DIR} WXWIDGETS_LIB_PATH)
  set (RUNTIME_LIBRARY_DIRS_LIST "")
  #guess_runtime_library_dirs (RUNTIME_LIBRARY_DIRS_LIST)
  #message (STATUS "RUNTIME_LIBRARY_DIRS_LIST: ${RUNTIME_LIBRARY_DIRS_LIST}")
  create_target_launcher (${EXECUTABLE}
+                         COMMAND ${COMMAND}
                          ARGS "-l -t"
 #                        FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
+                                              ${WXWIDGETS_LIB_PATH}
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_u/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 endif ()

@@ -4,6 +4,48 @@
 
 #include "common_macros.h"
 
+template <typename ValueType>
+ValueType
+Common_Math_Tools::map (ValueType value_in,
+                        ValueType fromStart_in,
+                        ValueType fromEnd_in,
+                        ValueType toStart_in,
+                        ValueType toEnd_in,
+                        int decimalPrecision_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Math_Tools::map"));
+
+  // sanity check(s)
+  ACE_ASSERT (value_in >= fromStart_in);
+  ACE_ASSERT (value_in <= fromEnd_in);
+  ACE_ASSERT (toStart_in < toEnd_in);
+
+  ValueType delta_from = fromEnd_in - fromStart_in;
+  ValueType delta_to = toEnd_in - toStart_in;
+  ValueType result, offset;
+  if (std::is_integral<ValueType>::value)
+  {
+    double scale = delta_to / (double)delta_from;
+    offset = (-fromStart_in * scale) + toStart_in;
+    result = (value_in * scale) + offset;
+  } // end IF
+  else
+  {
+    ValueType scale = delta_to / delta_from;
+    offset = (-fromStart_in * scale) + toStart_in;
+    result = (value_in * scale) + offset;
+  } // end ELSE
+
+  if (std::is_floating_point<ValueType>::value &&
+      decimalPrecision_in >= 0)
+  {
+    int calc_scale = (int)std::pow (10, decimalPrecision_in);
+    return (ValueType)std::round (result * calc_scale) / calc_scale;
+  } // end IF
+
+  return result;
+}
+
 template <typename ContainerType>
 void
 Common_Math_Tools::rotate (ContainerType& container_in)
