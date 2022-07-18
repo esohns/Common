@@ -1,5 +1,3 @@
-//#include <sdkddkver.h>
-
 // *NOTE*: compile with large(r) file support
 #define _FILE_OFFSET_BITS 64
 
@@ -44,4 +42,9 @@
 // *NOTE*: MSVC complains about the generated code as well...
 // *TODO*: remove this define and add platform/compiler-specific #ifdefs to
 //         IOStream.h
-#define ACE_LACKS_SIGNED_CHAR
+//#define ACE_LACKS_SIGNED_CHAR
+
+// *NOTE*: make sure the ACE project files are generated with ipv6=1 (see local.features),
+//         otherwise there will be stack corruption around ACE_INET_Addr
+//         see also: https://stevehuston.wordpress.com/2010/07/02/trouble-with-ace-and-ipv6-make-sure-your-config-is-consistent/
+#define ACE_HAS_IPV6
