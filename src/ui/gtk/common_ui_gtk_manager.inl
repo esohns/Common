@@ -21,13 +21,13 @@
 #include "glib.h"
 
 #if defined (GTKGL_SUPPORT)
-#if GTK_CHECK_VERSION(3,0,0)
-#if GTK_CHECK_VERSION(3,16,0)
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gdkgl.h"
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION(3,16,0)
+#endif // GTK_CHECK_VERSION (3,16,0)
 #elif GTK_CHECK_VERSION(2,0,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
@@ -35,7 +35,7 @@
 #else
 #include "gtk/gtkgl.h" // gtkglext
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION(2/3,0,0)
+#endif // GTK_CHECK_VERSION (2/3,0,0)
 #endif // GTKGL_SUPPORT
 #include "gdk/gdk.h"
 
@@ -95,17 +95,6 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 
   configuration_ = &const_cast<ConfigurationType&> (configuration_in);
   CBData_ = configuration_in.CBData;
-
-//  if (likely (!GTKIsInitialized_))
-//  {
-//    GTKIsInitialized_ = initializeGTK ();
-//    if (unlikely (!GTKIsInitialized_))
-//    {
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("failed to Common_UI_GTK_Manager_T::initializeGTK(): \"%m\", aborting\n")));
-//      return false;
-//    } // end IF
-//  } // end IF
 
   return true;
 }
@@ -332,7 +321,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   ACE_NOTSUP_RETURN (false);
   ACE_NOTREACHED (return false;)
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION(3,0,0)
+#endif // GTK_CHECK_VERSION (3,0,0)
 
 #if defined (_DEBUG)
   Common_UI_GTK_GLContextsIterator_t iterator_2;
@@ -386,8 +375,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     GTK_WIDGET (gtk_builder_get_object ((*iterator).second.second,
                                         ACE_TEXT_ALWAYS_CHAR (configuration_->widgetName.c_str ())));
   ACE_ASSERT (widget_p);
-#if GTK_CHECK_VERSION(3,0,0)
-#if GTK_CHECK_VERSION(3,16,0)
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
   context_p =
       gdk_window_create_gl_context (gtk_widget_get_window (widget_p),
                                     &error_p);
@@ -481,8 +470,8 @@ clean_2:
   ACE_NOTSUP_RETURN (false);
   ACE_NOTREACHED (return false;)
 #endif /* GTKGLAREA_SUPPORT */
-#endif /* GTK_CHECK_VERSION(3,16,0) */
-#elif GTK_CHECK_VERSION(2,0,0)
+#endif /* GTK_CHECK_VERSION (3,16,0) */
+#elif GTK_CHECK_VERSION (2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
   // sanity check(s)
   ACE_ASSERT (state_.OpenGLContexts.empty ());
@@ -536,7 +525,7 @@ clean_2:
     result = -1;
     goto done;
   } // end IF
-#endif /* GTK_CHECK_VERSION(3,0,0) */
+#endif /* GTK_CHECK_VERSION (3,0,0) */
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("initializing OpenGL...DONE\n")));
 #endif // GTKGL_SUPPORT
@@ -591,7 +580,7 @@ continue_:
 #endif // GTK_CHECK_VERSION (3,6,0)
   } // end IF
 
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
   g_application_run (G_APPLICATION (configuration_->application),
                      configuration_->argc,
                      configuration_->argv);
@@ -757,7 +746,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 //  gdk_display_manager_set_default_display (gdk_display_manager_get (),
 //                                           display_p);
 
-#if GTK_CHECK_VERSION (4,0,0)
+#if GTK_CHECK_VERSION (3,0,0)
 #else
   // step3a: specify any .rc files
   for (Common_UI_GTK_RCFilesIterator_t iterator = configuration_->RCFiles.begin ();
@@ -770,7 +759,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                 ACE_TEXT ("#%u: added GTK .rc style file \"%s\"\n"),
                 i, ACE::basename ((*iterator).c_str (), ACE_DIRECTORY_SEPARATOR_CHAR)));
   } // end FOR
-#endif // GTK_CHECK_VERSION (4,0,0)
+#endif // GTK_CHECK_VERSION (3,0,0)
 
   if (unlikely (!Common_UI_GTK_Tools::initialize (configuration_->argc,
                                                   configuration_->argv)))
@@ -780,13 +769,13 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     goto error;
   } // end IF
 #if defined (_DEBUG)
-#if GTK_CHECK_VERSION(3,14,0)
+#if GTK_CHECK_VERSION (3,14,0)
   gtk_window_set_interactive_debugging (TRUE);
-#endif // GTK_CHECK_VERSION(3,14,0)
+#endif // GTK_CHECK_VERSION (3,14,0)
   Common_UI_GTK_Tools::dumpGtkLibraryInfo ();
 #endif // _DEBUG
 
-#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION (3,0,0)
   // step3b: specify any .css files
   i = 1;
   for (Common_UI_GTK_CSSProvidersIterator_t iterator = configuration_->CSSProviders.begin ();
@@ -801,7 +790,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
       goto error;
     } // end IF
 
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
     gtk_css_provider_load_from_path ((*iterator).second,
                                      (*iterator).first.c_str ());
 #else
@@ -817,12 +806,12 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
       g_object_unref ((*iterator).second); (*iterator).second = NULL;
       continue;
     } // end IF
-#endif // GTK_CHECK_VERSION(4,0,0)
+#endif // GTK_CHECK_VERSION (4,0,0)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("#%u: added GTK .css style file \"%s\"\n"),
                 i, ACE::basename ((*iterator).first.c_str ())));
 
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
     gtk_style_context_add_provider_for_display (gdk_display_get_default (),
                                                 GTK_STYLE_PROVIDER ((*iterator).second),
                                                 GTK_STYLE_PROVIDER_PRIORITY_USER);
@@ -830,12 +819,12 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     gtk_style_context_add_provider_for_screen (gdk_screen_get_default (),
                                                GTK_STYLE_PROVIDER ((*iterator).second),
                                                GTK_STYLE_PROVIDER_PRIORITY_USER);
-#endif // GTK_CHECK_VERSION(4,0,0)
+#endif // GTK_CHECK_VERSION (4,0,0)
   } // end FOR
-#endif // GTK_CHECK_VERSION(3,0,0)
+#endif // GTK_CHECK_VERSION (3,0,0)
 
   // step5: initialize GNOME
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
   ACE_ASSERT (!configuration_->application);
   configuration_->application =
     gtk_application_new (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_GTK_APPLICATION_ID_DEFAULT),
