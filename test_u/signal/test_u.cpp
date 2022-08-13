@@ -72,8 +72,8 @@ class Test_U_SignalHandler
       int result = -1;
       { ACE_GUARD (ACE_Thread_Mutex, aGuard, inherited::configuration_->condition->mutex ());
         result = inherited::configuration_->condition->broadcast ();
-        ACE_ASSERT (result == 0);
       } // end lock scope
+      ACE_ASSERT (result == 0);
     } // end IF
   }
 
