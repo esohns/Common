@@ -50,6 +50,8 @@
 #include "common_defines.h"
 #include "common_macros.h"
 
+#include "common_error_tools.h"
+
 #include "common_signal_tools.h"
 
 #include "common_event_defines.h"
