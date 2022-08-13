@@ -17,29 +17,19 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#include "stdafx.h"
 
-#ifndef COMMON_EVENTHANDLER_H
-#define COMMON_EVENTHANDLER_H
+#include "common_event_handler_base.h"
 
-#include "ace/Asynch_IO.h"
-#include "ace/Event_Handler.h"
-#include "ace/Global_Macros.h"
+#include "ace/Log_Msg.h"
 
-class Common_EventHandlerBase
- : virtual public ACE_Event_Handler
- , virtual public ACE_Handler
+#include "common_macros.h"
+
+Common_EventHandlerBase::Common_EventHandlerBase ()
+ : inherited (NULL,                           // --> default reactor
+              ACE_Event_Handler::LO_PRIORITY) // priority
+ , inherited2 (NULL) // 'lazy' proactor instantiation
 {
-  typedef ACE_Event_Handler inherited;
-  typedef ACE_Handler inherited2;
+  COMMON_TRACE (ACE_TEXT ("Common_EventHandlerBase::Common_EventHandlerBase"));
 
- public:
-  Common_EventHandlerBase ();
-  inline virtual ~Common_EventHandlerBase () {}
-
- private:
-//  ACE_UNIMPLEMENTED_FUNC (Common_EventHandlerBase ())
-  ACE_UNIMPLEMENTED_FUNC (Common_EventHandlerBase (const Common_EventHandlerBase&))
-  ACE_UNIMPLEMENTED_FUNC (Common_EventHandlerBase& operator= (const Common_EventHandlerBase&))
-};
-
-#endif
+}

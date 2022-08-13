@@ -23,7 +23,7 @@
 
 #include "ace/config-lite.h"
 
-#include "common_configuration.h"
+#include "common_event_common.h"
 
 #include "common_signal_common.h"
 

@@ -26,7 +26,9 @@
 #include "ace/Thread_Mutex.h"
 
 #include "common_macros.h"
-#include "common_tools.h"
+
+#include "common_event_common.h"
+#include "common_event_tools.h"
 
 #include "common_input_defines.h"
 
@@ -183,10 +185,10 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
   { ACE_ASSERT (configuration_in.eventDispatchConfiguration);
     ACE_ASSERT (configuration_in.eventDispatchConfiguration->numberOfProactorThreads == 0);
     ACE_ASSERT (configuration_in.eventDispatchConfiguration->numberOfReactorThreads == 0);
-    if (unlikely (!Common_Tools::initializeEventDispatch (*configuration_in.eventDispatchConfiguration)))
+    if (unlikely (!Common_Event_Tools::initializeEventDispatch (*configuration_in.eventDispatchConfiguration)))
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to Common_Tools::initializeEventDispatch(), aborting\n")));
+                  ACE_TEXT ("failed to Common_Event_Tools::initializeEventDispatch(), aborting\n")));
       return false;
     } // end IF
   } // end IF
@@ -228,8 +230,8 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
         if (unlikely (inherited::thr_count_ == 0))
           goto continue_; // nothing to do
         ACE_ASSERT (configuration_->eventDispatchState);
-        Common_Tools::finalizeEventDispatch (*configuration_->eventDispatchState,
-                                             false); // wait ?
+        Common_Event_Tools::finalizeEventDispatch (*configuration_->eventDispatchState,
+                                                   false); // wait ?
       } // end IF
 
 continue_:
@@ -297,10 +299,10 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
   ACE_ASSERT (configuration_->eventDispatchConfiguration);
   ACE_ASSERT (configuration_->eventDispatchState);
 
-  if (unlikely (!Common_Tools::startEventDispatch (*configuration_->eventDispatchState)))
+  if (unlikely (!Common_Event_Tools::startEventDispatch (*configuration_->eventDispatchState)))
   {
     ACE_DEBUG ((LM_ERROR,
-               ACE_TEXT ("failed to Common_Tools::startEventDispatch(), aborting\n")));
+               ACE_TEXT ("failed to Common_Event_Tools::startEventDispatch(), aborting\n")));
     return -1;
   } // end IF
   switch (configuration_->eventDispatchConfiguration->dispatch)
@@ -336,7 +338,7 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
     }
   } // end SWITCH
 
-  Common_Tools::dispatchEvents (*configuration_->eventDispatchState);
+  Common_Event_Tools::dispatchEvents (*configuration_->eventDispatchState);
 
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("(%s): worker thread (id: %t) leaving\n"),

@@ -1,4 +1,4 @@
-set (LIBRARY ${PROJECT_NAME}Signal)
+set (LIBRARY ${PROJECT_NAME}Event)
 add_library (${LIBRARY} STATIC "")
 
 target_include_directories (${LIBRARY} PUBLIC
@@ -19,14 +19,18 @@ endif (UNIX)
 
 ############## next target ################
 set (source_files
-     common_isignal.h
-     common_signal_common.h
-     common_signal_defines.h
-     common_signal_handler.cpp
-     common_signal_handler.h
-     common_signal_handler.inl
-     common_signal_tools.cpp
-     common_signal_tools.h)
+     common_event_common.h
+     common_event_defines.h
+     common_event_handler_base.cpp
+     common_event_handler_base.h
+     common_event_tools.cpp
+     common_event_tools.h)
+if (WIN32)
+ set (source_files
+      ${source_files}
+      common_event.cpp
+      common_event.h)
+endif (WIN32)
 
 # Include dir for installed targets
 set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
@@ -68,13 +72,16 @@ export (TARGETS ${LIBRARY}
 
 ############### install files ################
 install (FILES
-         common_isignal.h
-         common_signal_common.h
-         common_signal_defines.h
-         common_signal_handler.h
-         common_signal_handler.inl
-         common_signal_tools.h
+         common_event_common.h
+         common_event_defines.h
+         common_event_handler_base.h
+         common_event_tools.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
+if (WIN32)
+ install (FILES
+          common_event.h
+          DESTINATION ${INSTALL_INCLUDE_DIR})
+endif (WIN32)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
          ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"

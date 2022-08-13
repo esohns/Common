@@ -24,8 +24,9 @@
 #include "ace/Reactor.h"
 #include "ace/Thread_Manager.h"
 
-#include "common_defines.h"
 #include "common_macros.h"
+
+#include "common_event_common.h"
 
 template <typename ConfigurationType>
 Common_InputHandler_Base_T<ConfigurationType>::Common_InputHandler_Base_T ()

@@ -17,19 +17,10 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "stdafx.h"
 
-#include "common_event_handler.h"
+#ifndef COMMON_SIGNAL_DEFINES_H
+#define COMMON_SIGNAL_DEFINES_H
 
-#include "ace/Log_Msg.h"
+#define COMMON_SIGNAL_DEFAULT_DISPATCH_MODE COMMON_SIGNAL_DISPATCH_SIGNAL
 
-#include "common_macros.h"
-
-Common_EventHandlerBase::Common_EventHandlerBase ()
- : inherited (NULL,                           // --> default reactor
-              ACE_Event_Handler::LO_PRIORITY) // priority
- , inherited2 (NULL) // 'lazy' proactor instantiation
-{
-  COMMON_TRACE (ACE_TEXT ("Common_EventHandlerBase::Common_EventHandlerBase"));
-
-}
+#endif

@@ -13,6 +13,8 @@ endif (WIN32)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 target_include_directories (${LIBRARY} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../event>)
+target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../task>)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../timer>)
@@ -58,6 +60,7 @@ endif (WIN32)
 if (WIN32)
  target_link_libraries (${LIBRARY} PUBLIC ${ACE_LIBRARY})
 endif (WIN32)
+target_link_libraries (${LIBRARY} PUBLIC ${PROJECT_NAME}Event)
 target_link_libraries (${LIBRARY} PUBLIC ${PROJECT_NAME}Task)
 
 #set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_PARSER_BUILD_DLL)

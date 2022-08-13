@@ -45,9 +45,6 @@
 // forward declaration(s)
 class ACE_Event_Handler;
 
-ACE_THR_FUNC_RETURN
-common_event_dispatch_function (void*);
-
 class Common_Tools
  : public Common_SInitializeFinalize_T<Common_Tools>
 {
@@ -184,20 +181,6 @@ class Common_Tools
                               const std::string&); // value
 #endif // ACE_WIN32 || ACE_WIN64
 
-  // --- event loop ---
-  // *WARNING*: the configuration may (!) be updated with platform-specific
-  //            settings; hence the non-const argument
-  static bool initializeEventDispatch (struct Common_EventDispatchConfiguration&); // configuration (i/o)
-  // *NOTE*: the state handle is updated with the thread group ids (if any);
-  //         hence the non-const argument
-  // *WARNING*: iff any worker thread(s) is/are spawned, a handle to the first
-  //            argument is passed to the dispatch thread function as argument
-  //            --> ensure it does not fall off the stack prematurely
-  static bool startEventDispatch (struct Common_EventDispatchState&); // thread data (i/o)
-  static void dispatchEvents (struct Common_EventDispatchState&); // thread data (i/o)
-  static void finalizeEventDispatch (struct Common_EventDispatchState&, // thread data (i/o)
-                                     bool = false); // wait for completion ?
-
   // --- (locally installed-) (UNIX) commands / programs ---
   // *NOTE*: the Linux implementation relies on 'locate', 'xargs' and 'find'
   //         (and 'which' to locate 'locate' itself)
@@ -244,11 +227,6 @@ class Common_Tools
 #else
   static char                          randomStateBuffer[BUFSIZ];
 #endif // ACE_WIN32 || ACE_WIN64
-
-  // --- event loop ---
-  // *IMPORTANT NOTE*: -in the sense of what COMMON_REACTOR_ACE_DEFAULT maps to
-  //                   on this (!) platform (check ACE source code)
-  static bool defaultPlatformReactorIsSelectBased ();
 
   // --- (locally installed-) (UNIX) commands / programs ---
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

@@ -149,9 +149,6 @@
 #define COMMON_LOG_FILENAME_SUFFIX                             ".log"
 #define COMMON_LOG_VERBOSE                                     false
 
-// *** signals ***
-#define COMMON_SIGNAL_DEFAULT_DISPATCH_MODE                    COMMON_SIGNAL_DISPATCH_SIGNAL
-
 // *** threads ***
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
@@ -164,55 +161,6 @@
 #else
 #define COMMON_TIMEOUT_DEFAULT_THREAD_SPAWN                    100 // ms
 #endif // _DEBUG
-
-// *** event loop ***
-#define COMMON_EVENT_MAXIMUM_HANDLES                           ACE::max_handles ()
-#define COMMON_EVENT_THREAD_NAME                               "event dispatch"
-
-#define COMMON_EVENT_DEFAULT_DISPATCH                          COMMON_EVENT_DISPATCH_PROACTOR
-
-// "proactor"-based
-#define COMMON_EVENT_PROACTOR_THREAD_GROUP_ID                  101
-#define COMMON_EVENT_PROACTOR_TYPE                             COMMON_PROACTOR_ACE_DEFAULT
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define COMMON_EVENT_PROACTOR_DEFAULT_TYPE                     COMMON_PROACTOR_WIN32
-#endif // ACE_WIN32 || ACE_WIN64
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#elif defined (ACE_LINUX)
-// *NOTE*: currently, on Linux systems, the ACE default proactor implementation
-//         is COMMON_PROACTOR_POSIX_SIG
-//#define COMMON_EVENT_PROACTOR_DEFAULT_TYPE                   COMMON_PROACTOR_POSIX_CB
-
-// *IMPORTANT NOTE*: on Linux, this proactor implementation has a
-//                   (long-standing, see below) issue when used in multi-
-//                   threaded applications. Apparently, current (2.19) versions
-//                   of glibcs' implementation of aio_suspend are not (very)
-//                   reentrant.
-// "../sysdeps/pthread/aio_suspend.c:218: aio_suspend: Assertion `requestlist[cnt] != ((void *)0)' failed."
-//                   This is a known issue (see also:
-// https://groups.yahoo.com/neo/groups/ace-users/conversations/topics/37756).
-//                   A (proper) solution would involve attention and changes to
-//                   either (both) glibc (and) or ACE
-//#define COMMON_EVENT_PROACTOR_DEFAULT_TYPE                   COMMON_PROACTOR_POSIX_AIOCB
-#endif // (ACE_WIN32 || ACE_WIN64) || ACE_LINUX
-
-// proactor options
-// *NOTE*: parallel (!) (in-flight) operations
-#define COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS             ACE_AIO_MAX_SIZE
-// *IMPORTANT NOTE*: "...NPTL makes internal use of the first two real-time
-//                   signals (see also signal(7)); these signals cannot be
-//                   used in applications. ..." (see 'man 7 pthreads')
-// --> on POSIX platforms, ensure that ACE_SIGRTMIN == 34 (!?)
-#define COMMON_EVENT_PROACTOR_SIG_RT_SIGNAL                    ACE_SIGRTMIN
-
-// "reactor"-based
-#define COMMON_EVENT_REACTOR_THREAD_GROUP_ID                   102
-#define COMMON_EVENT_REACTOR_TYPE                              COMMON_REACTOR_ACE_DEFAULT
-
-// reactor options
-//#define COMMON_EVENT_REACTOR_DEFAULT_USE_THREADPOOL            false
-#define COMMON_EVENT_REACTOR_DEFAULT_THREADPOOL_THREADS        3
 
 // *** (miscellaneous) environment ***
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

@@ -30,6 +30,8 @@
 #include "ace/Signal.h"
 #include "ace/Synch_Traits.h"
 
+#include "common_signal_defines.h"
+
 // forward declaration(s)
 struct Common_EventDispatchState;
 template <typename ConfigurationType>

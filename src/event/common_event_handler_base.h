@@ -18,24 +18,28 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_CONFIGURATION_H
-#define COMMON_CONFIGURATION_H
+#ifndef COMMON_EVENT_HANDLER_BASE_H
+#define COMMON_EVENT_HANDLER_BASE_H
 
-#include "common.h"
-#include "common_defines.h"
+#include "ace/Asynch_IO.h"
+#include "ace/Event_Handler.h"
+#include "ace/Global_Macros.h"
 
-struct Common_AllocatorConfiguration
+class Common_EventHandlerBase
+ : virtual public ACE_Event_Handler
+ , virtual public ACE_Handler
 {
-  Common_AllocatorConfiguration ()
-   : defaultBufferSize (BUFSIZ)
-   , paddingBytes (0)
-  {}
+  typedef ACE_Event_Handler inherited;
+  typedef ACE_Handler inherited2;
 
-  unsigned int defaultBufferSize;
-  // *NOTE*: add x bytes to each malloc(), override as needed
-  //         (e.g. flex requires additional 2 YY_END_OF_BUFFER_CHARs). Note that
-  //         this affects the ACE_Data_Block capacity, not its allotted size
-  unsigned int paddingBytes;
+ public:
+  Common_EventHandlerBase ();
+  inline virtual ~Common_EventHandlerBase () {}
+
+ private:
+//  ACE_UNIMPLEMENTED_FUNC (Common_EventHandlerBase ())
+  ACE_UNIMPLEMENTED_FUNC (Common_EventHandlerBase (const Common_EventHandlerBase&))
+  ACE_UNIMPLEMENTED_FUNC (Common_EventHandlerBase& operator= (const Common_EventHandlerBase&))
 };
 
 #endif

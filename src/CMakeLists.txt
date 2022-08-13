@@ -72,8 +72,6 @@ set (source_files
      common_counter.h
      common_counter.inl
      common_defines.h
-     common_event_handler.cpp
-     common_event_handler.h
      common_file_common.h
      common_file_tools.cpp
      common_file_tools.h
@@ -118,9 +116,7 @@ set (source_files
 if (WIN32)
  set (source_files
       ../include/targetver.h
-      ${source_files}
-      common_event.cpp
-      common_event.h)
+      ${source_files})
 endif (WIN32)
 
 # Include dir for installed targets
@@ -180,6 +176,7 @@ elseif (WIN32)
  target_link_libraries (${PROJECT_NAME} PUBLIC ${ACE_LIBRARY})
 endif ()
 target_link_libraries (${PROJECT_NAME} PUBLIC ${PROJECT_NAME}Error)
+target_link_libraries (${PROJECT_NAME} PUBLIC ${PROJECT_NAME}Signal)
 
 ##########################################
 
@@ -194,7 +191,6 @@ install (FILES
          common_counter.h
          common_counter.inl
          common_defines.h
-         common_event_handler.h
          common_file_common.h
          common_file_tools.h
          common_iclone.h
@@ -243,6 +239,7 @@ if (DBUS_SUPPORT)
  add_subdirectory (dbus)
 endif (DBUS_SUPPORT)
 add_subdirectory (error)
+add_subdirectory (event)
 if (OPENGL_SUPPORT)
  add_subdirectory (gl)
 endif (OPENGL_SUPPORT)
