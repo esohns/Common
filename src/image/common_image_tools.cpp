@@ -147,6 +147,71 @@ Common_Image_Tools::save (const std::string& path_in,
 
   return true;
 }
+
+#if defined (FFMPEG_SUPPORT)
+bool
+Common_Image_Tools::saveBMP (const Common_Image_Resolution_t& resolution_in,
+                             enum AVPixelFormat format_in,
+                             uint8_t* sourceBuffers_in[],
+                             const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::saveBMP"));
+
+  // sanity check(s)
+  ACE_ASSERT (format_in == AV_PIX_FMT_RGB24);
+
+  FILE* file_p = ACE_OS::fopen (path_in.c_str (),
+                                ACE_TEXT_ALWAYS_CHAR ("wb"));
+  if (unlikely (!file_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::fopen(\"%s\",wb): \"%m\", aborting\n"),
+                ACE_TEXT (path_in.c_str())));
+    return false;
+  } // end IF
+
+  BITMAPINFOHEADER bitmap_info_header_s;
+  ACE_OS::memset (&bitmap_info_header_s, 0, sizeof (BITMAPINFOHEADER));
+  bitmap_info_header_s.biSize = sizeof (BITMAPINFOHEADER);
+  bitmap_info_header_s.biWidth = resolution_in.cx;
+  bitmap_info_header_s.biHeight =
+    (resolution_in.cy > 0 ? -resolution_in.cy : resolution_in.cy);
+  bitmap_info_header_s.biPlanes = 1;
+  bitmap_info_header_s.biBitCount = 24;
+  bitmap_info_header_s.biCompression = BI_RGB;
+  bitmap_info_header_s.biSizeImage = resolution_in.cx * resolution_in.cy * 3;
+
+  BITMAPFILEHEADER bitmap_file_header_s;
+  ACE_OS::memset (&bitmap_file_header_s, 0, sizeof (BITMAPFILEHEADER));
+  bitmap_file_header_s.bfType = 'B' + ('M' << 8);
+  bitmap_file_header_s.bfSize =
+    sizeof (BITMAPFILEHEADER) + sizeof (BITMAPINFOHEADER) + bitmap_info_header_s.biSizeImage;
+  bitmap_file_header_s.bfOffBits =
+    sizeof (BITMAPFILEHEADER) + sizeof (BITMAPINFOHEADER);
+
+  // write the bitmap file header
+  size_t bytes_written = ACE_OS::fwrite (&bitmap_file_header_s,
+                                         sizeof (BITMAPFILEHEADER),
+                                         1,
+                                         file_p);
+
+  // ...and then the bitmap info header
+  bytes_written += ACE_OS::fwrite (&bitmap_info_header_s,
+                                   sizeof (BITMAPINFOHEADER),
+                                   1,
+                                   file_p);
+
+  // finally, write the image data itself
+  bytes_written += ACE_OS::fwrite (sourceBuffers_in[0],
+                                   bitmap_info_header_s.biSizeImage,
+                                   1,
+                                   file_p);
+
+  ACE_OS::fclose (file_p);
+
+  return true;
+}
+#endif // FFMPEG_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (FFMPEG_SUPPORT)

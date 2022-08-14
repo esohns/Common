@@ -79,6 +79,12 @@ class Common_Image_Tools
   static bool save (const std::string&,         // target file path
                     enum _D3DXIMAGE_FILEFORMAT, // file format
                     const IDirect3DSurface9*);  // data
+#if defined (FFMPEG_SUPPORT)
+  static bool saveBMP (const Common_Image_Resolution_t&, // source resolution
+                       enum AVPixelFormat,               // source pixel format
+                       uint8_t*[],                       // source buffer(s)
+                       const std::string&);              // target file path
+#endif // FFMPEG_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
   // --- libav/ffmpeg ---
