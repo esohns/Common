@@ -199,7 +199,7 @@ create_target_launcher (${EXECUTABLE_3}
                         ENVIRONMENT foo=bar)
 create_target_launcher (${EXECUTABLE_4}
                         COMMAND ${COMMAND_4}
-                        ARGS "-f test_4.txt -l -t"
+                        ARGS "-f test_4.xml -l -t"
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}

@@ -87,7 +87,7 @@ do_process_arguments (int argc_in,
   // initialize results
   sourceFilePath_out = path_root;
   sourceFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  sourceFilePath_out += ACE_TEXT_ALWAYS_CHAR ("test_4.txt");
+  sourceFilePath_out += ACE_TEXT_ALWAYS_CHAR ("test_4.xml");
   logToFile_out = false;
   mode_out = TEST_I_MODE_DEFAULT;
   traceInformation_out = false;
@@ -276,7 +276,7 @@ ACE_TMAIN (int argc_in,
   std::string path_root = Common_File_Tools::getWorkingDirectory ();
   std::string source_file_path = path_root;
   source_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  source_file_path += ACE_TEXT_ALWAYS_CHAR ("test_3.txt");
+  source_file_path += ACE_TEXT_ALWAYS_CHAR ("test_4.xml");
   bool log_to_file = false;
   std::string log_file_name;
   enum Test_I_ModeType mode_type_e = TEST_I_MODE_DEFAULT;
