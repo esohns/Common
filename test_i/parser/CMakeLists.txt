@@ -2,6 +2,10 @@ if (UNIX)
  pkg_check_modules (PKG_FLEX_BISON QUIET flex bison)
 endif (UNIX)
 
+include (iconv)
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../../src/xml/scripts")
+include (libxml2)
+
 string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
 string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 
@@ -10,9 +14,13 @@ string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 ############## includes ###############
 if (UNIX)
  include_directories (${PKG_FLEX_BISON_INCLUDE_DIRS})
-elseif (WIN32)
+endif (UNIX)
+if (LIBXML2_SUPPORT)
+ include_directories (${LIBXML2_INCLUDE_DIRS})
+endif (LIBXML2_SUPPORT)
+if (WIN32)
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../3rd_party/msvc)
-endif ()
+endif (WIN32)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/log)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/parser)
@@ -46,10 +54,18 @@ set (parser_3_EXE_SRCS
 #     ../test_i_defines.h
      test_i_3.cpp)
 
+set (parser_4_EXE_SRCS
+#     stdafx.cpp
+     stdafx.h
+#     ../test_i_common.h
+#     ../test_i_defines.h
+     test_i_4.cpp)
+
 #cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
 set (EXECUTABLE parser)
 set (EXECUTABLE_2 parser_2)
 set (EXECUTABLE_3 parser_3)
+set (EXECUTABLE_4 parser_4)
 add_executable (${EXECUTABLE}
                 EXCLUDE_FROM_ALL
                 ${parser_EXE_SRCS})
@@ -59,9 +75,13 @@ add_executable (${EXECUTABLE_2}
 add_executable (${EXECUTABLE_3}
                 EXCLUDE_FROM_ALL
                 ${parser_3_EXE_SRCS})
+add_executable (${EXECUTABLE_4}
+                EXCLUDE_FROM_ALL
+                ${parser_4_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 set_property (TARGET ${EXECUTABLE_2} PROPERTY FOLDER "test_i")
 set_property (TARGET ${EXECUTABLE_3} PROPERTY FOLDER "test_i")
+set_property (TARGET ${EXECUTABLE_4} PROPERTY FOLDER "test_i")
 
 target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
 
@@ -87,12 +107,24 @@ target_link_libraries (${EXECUTABLE_3} CommonParser)
 target_link_libraries (${EXECUTABLE_3} CommonParser_M3U)
 target_link_libraries (${EXECUTABLE_3} CommonTimer)
 
+if (LIBXML2_SUPPORT)
+ target_link_libraries (${EXECUTABLE_4} "${LIBXML2_LIBRARIES}")
+endif (LIBXML2_SUPPORT)
+
+target_link_libraries (${EXECUTABLE_4} ${ACE_LIBRARY})
+
+target_link_libraries (${EXECUTABLE_4} Common)
+target_link_libraries (${EXECUTABLE_4} CommonLog)
+target_link_libraries (${EXECUTABLE_4} CommonTimer)
+
 # add PCH
 target_precompile_headers (${EXECUTABLE}
                            PRIVATE stdafx.h)
 target_precompile_headers (${EXECUTABLE_2}
                            REUSE_FROM ${EXECUTABLE})
 target_precompile_headers (${EXECUTABLE_3}
+                           REUSE_FROM ${EXECUTABLE})
+target_precompile_headers (${EXECUTABLE_4}
                            REUSE_FROM ${EXECUTABLE})
 
 ############### installation #############
@@ -105,19 +137,32 @@ install (TARGETS ${EXECUTABLE_2}
 install (TARGETS ${EXECUTABLE_3}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+install (TARGETS ${EXECUTABLE_4}
+         EXPORT ${PROJECT_NAME}Targets
+         RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 
 ################ launchers ###############
 if (UNIX)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}" COMMAND)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE_2}" COMMAND_2)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE_3}" COMMAND_3)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE_4}" COMMAND_4)
 elseif (WIN32)
 # if (VCPKG_SUPPORT)
 #  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
 # else ()
-  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
+ file (TO_CMAKE_PATH "${LIBICONV_LIB_DIR}" LIBICONV_LIB_PATH)
+ file (TO_CMAKE_PATH "${LIBXML2_LIB_DIR}" LIBXML2_LIB_PATH)
+ if (GTK_SUPPORT)
+  file (TO_CMAKE_PATH "${GTK_LIB_DIRS}" GTK_LIB_PATH)
+ endif (GTK_SUPPORT)
+ file (TO_CMAKE_PATH "${ACE_LIB_DIR}" ACE_LIB_PATH)
+
 # endif (VCPKG_SUPPORT)
  set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
+                           ${LIBICONV_LIB_PATH}
+                           ${LIBXML2_LIB_PATH}
+                           ${GTK_LIB_PATH}
                            ${ACE_LIB_PATH})
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
  string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
@@ -125,6 +170,8 @@ elseif (WIN32)
  string (REPLACE "\\" "\\\\" COMMAND_2 ${COMMAND_2})
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE_3}.exe" COMMAND_3)
  string (REPLACE "\\" "\\\\" COMMAND_3 ${COMMAND_3})
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE_4}.exe" COMMAND_4)
+ string (REPLACE "\\" "\\\\" COMMAND_4 ${COMMAND_4})
 endif ()
 create_target_launcher (${EXECUTABLE}
                         COMMAND ${COMMAND}
@@ -150,6 +197,14 @@ create_target_launcher (${EXECUTABLE_3}
                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
                         ENVIRONMENT foo=bar)
+create_target_launcher (${EXECUTABLE_4}
+                        COMMAND ${COMMAND_4}
+                        ARGS "-f test_4.txt -l -t"
+#                         FORWARD_ARGS
+                        RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
+                                             ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
+                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
+                        ENVIRONMENT foo=bar)
 
 ################ tests ###################
 add_test (NAME ${EXECUTABLE}_test
@@ -170,6 +225,13 @@ add_test (NAME ${EXECUTABLE_3}_test
           COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE_3}
           WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE})
 set_tests_properties (${EXECUTABLE_3}_test
+                      PROPERTIES
+                      ENVIRONMENT "PATH=D:\\projects\\ATCD\\ACE\\lib;D:\\projects\\gtk\\bin;D:\\projects\\libglade\\bin;D:\\projects\\libxml2-2.9.1\\.libs;G:\\software\\Development\\dll;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\ui\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\modules\\dev\\Debug;${PROJECT_SOURCE_DIR}\\..\\libACENetwork\\cmake\\src\\Debug;%PATH%")
+
+add_test (NAME ${EXECUTABLE_4}_test
+          COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE_4}
+          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE})
+set_tests_properties (${EXECUTABLE_4}_test
                       PROPERTIES
                       ENVIRONMENT "PATH=D:\\projects\\ATCD\\ACE\\lib;D:\\projects\\gtk\\bin;D:\\projects\\libglade\\bin;D:\\projects\\libxml2-2.9.1\\.libs;G:\\software\\Development\\dll;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\ui\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\modules\\dev\\Debug;${PROJECT_SOURCE_DIR}\\..\\libACENetwork\\cmake\\src\\Debug;%PATH%")
 
