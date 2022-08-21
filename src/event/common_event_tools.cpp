@@ -69,7 +69,7 @@ Common_Event_Tools::defaultPlatformReactorIsSelectBased ()
   ACE_ASSERT (false);
   ACE_NOTSUP_RETURN (false);
   ACE_NOTREACHED (return false;)
-#endif
+#endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
 }
 
 bool
@@ -425,8 +425,8 @@ common_event_dispatch_function (void* arg_in)
 
 //    // unblock [SIGRTMIN,SIGRTMAX] IFF on POSIX AND using the
 //    // ACE_POSIX_SIG_Proactor (the default)
-//    // *IMPORTANT NOTE*: the proactor implementation dispatches the signals in
-//    //                   worker thread(s)
+//    // *IMPORTANT NOTE*: this proactor implementation dispatches the signals
+//    //                   in thread(s) that have not blocked rt signals
 //    //                   (see also: Asynch_Pseudo_Task.cpp:56)
     ACE_Proactor* proactor_p = ACE_Proactor::instance ();
     ACE_ASSERT (proactor_p);
