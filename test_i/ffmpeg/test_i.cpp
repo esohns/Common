@@ -178,8 +178,8 @@ do_work (int argc_in,
       Common_Image_Resolution_t resolution_s;
       enum AVPixelFormat pixel_format_e = AV_PIX_FMT_NONE;
       uint8_t* data_a[AV_NUM_DATA_POINTERS], *data_2[AV_NUM_DATA_POINTERS];
-      ACE_OS::memset (data_a, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
-      ACE_OS::memset (data_2, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
+      ACE_OS::memset (&data_a, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
+      ACE_OS::memset (&data_2, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
       std::string out_filename = ACE_TEXT_ALWAYS_CHAR ("outfile.rgb");
       std::ofstream file_stream;
       //std::string file_extension_string =
@@ -199,34 +199,6 @@ do_work (int argc_in,
       ACE_ASSERT (data_a[0]);
       if (pixel_format_e != AV_PIX_FMT_RGB24)
       {
-    //    int line_sizes_a[AV_NUM_DATA_POINTERS];
-    //    uint8_t* data_pointers_a[AV_NUM_DATA_POINTERS];
-    //    ACE_OS::memset (line_sizes_a, 0, sizeof (int[AV_NUM_DATA_POINTERS]));
-    //    ACE_OS::memset (data_pointers_a, 0, sizeof (uint8_t * [AV_NUM_DATA_POINTERS]));
-    //
-    //    int result = av_image_fill_linesizes (line_sizes_a,
-    //                                          pixel_format_e,
-    //#if defined (ACE_WIN32) || defined (ACE_WIN64)
-    //                                          static_cast<int> (resolution_s.cx));
-    //#else
-    //                                          static_cast<int> (resolution_s.width));
-    //#endif // ACE_WIN32 || ACE_WIN64
-    //    ACE_ASSERT (result >= 0);
-    //    result =
-    //      av_image_fill_pointers (data_pointers_a,
-    //                              pixel_format_e,
-    //#if defined (ACE_WIN32) || defined (ACE_WIN64)
-    //                              static_cast<int> (resolution_s.cy),
-    //#else
-    //                              static_cast<int> (resolution_s.height),
-    //#endif // ACE_WIN32 || ACE_WIN64
-    //                              data_a,
-    //                              line_sizes_a);
-    //    ACE_ASSERT (result >= 0);
-    //    ACE_ASSERT (data_a[0] == data_pointers_a[0]);
-    //    ACE_ASSERT (data_a[1] == data_pointers_a[1]);
-    //    ACE_ASSERT (data_a[2] == data_pointers_a[2]);
-    //    ACE_ASSERT (data_a[3] == data_pointers_a[3]);
         Common_Image_Tools::convert (resolution_s,
                                      pixel_format_e,
                                      data_a,
@@ -234,7 +206,7 @@ do_work (int argc_in,
                                      AV_PIX_FMT_RGB24,
                                      data_2);
         ACE_ASSERT (data_2[0]);
-        delete [] data_a[0]; data_a[0] = NULL;
+//        delete [] data_a[0]; data_a[0] = NULL;
         ACE_OS::memcpy (data_a, data_2, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
         ACE_ASSERT (data_a[0]);
       } // end IF

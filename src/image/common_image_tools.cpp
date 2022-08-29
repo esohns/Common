@@ -613,13 +613,13 @@ Common_Image_Tools::load (const std::string& path_in,
   } // end IF
   packet_s.size = static_cast<int> (file_size_i);
 
-  //frame_p = av_frame_alloc ();
-  //if (!frame_p)
-  //{
-  //  ACE_DEBUG ((LM_ERROR,
-  //              ACE_TEXT ("failed to av_frame_alloc(): \"%m\", aborting\n")));
-  //  goto error;
-  //} // end IF
+  frame_p = av_frame_alloc ();
+  if (!frame_p)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to av_frame_alloc(): \"%m\", aborting\n")));
+    goto error;
+  } // end IF
 
   codec_p = avcodec_find_decoder (codecId_in);
   if (unlikely (!codec_p))
@@ -1049,34 +1049,6 @@ Common_Image_Tools::convert (const Common_Image_Resolution_t& sourceResolution_i
   // initialize return value(s)
   ACE_ASSERT (!targetBuffers_out[0]);
 
-//  int line_sizes_a[4];
-//  uint8_t* data_pointers_a[4];
-//  ACE_OS::memset (line_sizes_a, 0, sizeof (int[4]));
-//  ACE_OS::memset (data_pointers_a, 0, sizeof (uint8_t*[4]));
-//
-//  int result = av_image_fill_linesizes (line_sizes_a,
-//                                        sourcePixelFormat_in,
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
-//                                        static_cast<int> (sourceResolution_in.cx));
-//#else
-//                                        static_cast<int> (sourceResolution_in.width));
-//#endif // ACE_WIN32 || ACE_WIN64
-//  ACE_ASSERT (result >= 0);
-//  result =
-//      av_image_fill_pointers (data_pointers_a,
-//                              sourcePixelFormat_in,
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
-//                              static_cast<int> (sourceResolution_in.cy),
-//#else
-//                              static_cast<int> (sourceResolution_in.height),
-//#endif // ACE_WIN32 || ACE_WIN64
-//                              sourceBuffers_in[0], // *TODO*: this is probably wrong !!!
-//                              line_sizes_a);
-//  ACE_ASSERT (result >= 0);
-//  ACE_ASSERT (data_pointers_a[0] == sourceBuffers_in[0]);
-//  ACE_ASSERT (data_pointers_a[1] == sourceBuffers_in[1]);
-//  ACE_ASSERT (data_pointers_a[2] == sourceBuffers_in[2]);
-//  ACE_ASSERT (data_pointers_a[3] == sourceBuffers_in[3]);
   if (unlikely (!Common_Image_Tools::convert (NULL,
                                               sourceResolution_in, sourcePixelFormat_in,
                                               sourceBuffers_in,
@@ -1179,16 +1151,15 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
 
   // *TODO*: define a balanced scaler parametrization that suits most
   //         applications, or expose this as a parameter
-  int flags = (//SWS_BILINEAR | SWS_FAST_BILINEAR | // interpolation
-               SWS_BICUBIC);
+  int flags = (SWS_FAST_BILINEAR);
   struct SwsContext* context_p = NULL;
   int result_2 = -1;
-  int in_linesize[4];
-  int out_linesize[4];
-  uint8_t* out_data[4];
-  ACE_OS::memset (in_linesize, 0, sizeof (int[4]));
-  ACE_OS::memset (out_linesize, 0, sizeof (int[4]));
-  ACE_OS::memset (out_data, 0, sizeof (uint8_t*[4]));
+  int in_linesize[AV_NUM_DATA_POINTERS];
+  int out_linesize[AV_NUM_DATA_POINTERS];
+  uint8_t* out_data[AV_NUM_DATA_POINTERS];
+  ACE_OS::memset (&in_linesize, 0, sizeof (int[AV_NUM_DATA_POINTERS]));
+  ACE_OS::memset (&out_linesize, 0, sizeof (int[AV_NUM_DATA_POINTERS]));
+  ACE_OS::memset (&out_data, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
   int size_i =
       av_image_get_buffer_size (targetPixelFormat_in,
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -1200,7 +1171,7 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
 
   ACE_NEW_NORETURN (targetBuffers_out[0],
                     uint8_t[size_i]);
-  if (unlikely (!targetBuffers_out))
+  if (unlikely (!targetBuffers_out[0]))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory: %m, aborting\n")));
@@ -1297,7 +1268,7 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
 error:
   if (targetBuffers_out)
   {
-    delete [] targetBuffers_out;   ACE_OS::memset (targetBuffers_out, 0, sizeof (uint8_t * [4]));
+    delete [] targetBuffers_out; ACE_OS::memset (targetBuffers_out, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
   } // end IF
   if (unlikely (!context_in))
   {
