@@ -1100,9 +1100,9 @@ Common_UI_Tools::getDisplays ()
       std::istringstream converter, converter_2;
       char buffer_a [BUFSIZ];
       std::string regex_string_display_id =
-          ACE_TEXT_ALWAYS_CHAR ("^([[:digit:]]+): (?:[[:alnum:]]+)$");
+          ACE_TEXT_ALWAYS_CHAR ("^([[:digit:]]+): (?:.+)$");
       std::string regex_string_display_model =
-          ACE_TEXT_ALWAYS_CHAR ("^(?:[[:space:]]+)Model: \"([[:alnum:]]+)\"$");
+          ACE_TEXT_ALWAYS_CHAR ("^(?:[[:space:]]+)Model: \"(.+)\"$");
       std::string regex_string_display_primary =
           ACE_TEXT_ALWAYS_CHAR ("^Primary display adapter: #([[:digit:]]+)$");
       std::regex regex (regex_string_display_id);
@@ -1197,7 +1197,6 @@ next:
         result.push_back ((*iterator).second);
     } // end IF
   } // end ELSE
-
 #endif // ACE_WIN32 || ACE_WIN64
 
   return result;
