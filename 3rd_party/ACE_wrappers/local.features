@@ -1,7 +1,7 @@
 debug=1
 
 exceptions=0
-//inline=1
+inline=1
 rtti=1
 threads=1
 buildbits=64
@@ -48,5 +48,5 @@ gtk=1
 //athena=0
 //motif=0
 
-//acetest=0
-//examples=0
+acetest=0
+examples=0
