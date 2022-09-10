@@ -133,12 +133,12 @@ class Common_File_Tools
                      const uint8_t*,     // buffer handle
                      unsigned int,       // buffer size
                      bool = false);      // append if file exists ?
-  static unsigned int size (const ACE_FILE_Addr&); // file name
-  static unsigned int size (const std::string&); // (FQ) path
+  static ACE_UINT64 size (const ACE_FILE_Addr&); // file name
+  static ACE_UINT64 size (const std::string&); // (FQ) path
 
   static Common_File_IdentifierList_t files (const std::string&,    // directory
                                              ACE_SCANDIR_SELECTOR); // selector
-  static unsigned int size (const Common_File_IdentifierList_t&); // file(s)
+  static ACE_UINT64 size (const Common_File_IdentifierList_t&); // file(s)
 
   static std::string linkTarget (const std::string&); // path
   static std::string realPath (const std::string&); // path

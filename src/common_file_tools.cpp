@@ -1627,7 +1627,7 @@ clean:
   return result;
 }
 
-unsigned int
+ACE_UINT64
 Common_File_Tools::size (const ACE_FILE_Addr& address_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::size"));
@@ -1687,9 +1687,10 @@ Common_File_Tools::size (const ACE_FILE_Addr& address_in)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_IO::close(): \"%m\", continuing\n")));
 
-  return static_cast<unsigned int> (file_info.size_);
+  return static_cast<ACE_UINT64> (file_info.size_);
 }
-unsigned int
+
+ACE_UINT64
 Common_File_Tools::size (const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::size"));
@@ -1706,7 +1707,7 @@ Common_File_Tools::size (const std::string& path_in)
     return 0;
   } // end IF
 
-  return static_cast<unsigned int> (stat_s.st_size);
+  return static_cast<ACE_UINT64> (stat_s.st_size);
 }
 
 Common_File_IdentifierList_t
@@ -1749,12 +1750,12 @@ Common_File_Tools::files (const std::string& directory_in,
   return return_value;
 }
 
-unsigned int
+ACE_UINT64
 Common_File_Tools::size (const Common_File_IdentifierList_t& identifiers_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::size"));
 
-  unsigned int result = 0;
+  ACE_UINT64 result = 0;
 
   for (Common_File_IdentifierListIterator_t iterator = identifiers_in.begin ();
        iterator != identifiers_in.end ();
