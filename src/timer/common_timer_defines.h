@@ -40,4 +40,8 @@
 #define COMMON_TIMER_THREAD_DEFAULT_TASKNAME "" // --> not set
 #endif // ACE_WIN32 || ACE_WIN64
 
+#define COMMON_TIMER_STRFTIME_FORMAT         "%Y_%m_%d_%H_%M_%S"
+// *NOTE*: '\0' doesn't count: 4 + 2 + 2 + 2 + 2 + 2 + 5 whitespaces
+#define COMMON_TIMER_STRFTIME_SIZE           19
+
 #endif

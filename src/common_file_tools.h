@@ -123,7 +123,7 @@ class Common_File_Tools
   // *NOTE*: users need to free (delete[]) the returned buffer
   static bool load (const std::string&, // (FQ) path
                     uint8_t*&,          // return value: file data
-                    unsigned int&,      // return value: file size
+                    ACE_UINT64&,        // return value: file size
                     unsigned int = 0);  // padding byte(s)
   static bool open (const std::string&, // (FQ) path
                     int,                // flags

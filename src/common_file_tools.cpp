@@ -1383,7 +1383,7 @@ Common_File_Tools::deleteFiles (const Common_File_IdentifierList_t& identifiers_
 bool
 Common_File_Tools::load (const std::string& path_in,
                          uint8_t*& file_out,
-                         unsigned int& fileSize_out,
+                         ACE_UINT64& fileSize_out,
                          unsigned int padding_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::load"));
@@ -1434,7 +1434,7 @@ Common_File_Tools::load (const std::string& path_in,
                 ACE_TEXT (path_in.c_str ())));
     goto error;
   } // end IF
-  fileSize_out = static_cast<unsigned int> (file_size_i);
+  fileSize_out = static_cast<ACE_UINT64> (file_size_i);
   result_2 = ACE_OS::fseek (file_p, 0, SEEK_SET);
   if (unlikely (result_2))
   {

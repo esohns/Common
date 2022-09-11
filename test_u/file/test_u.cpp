@@ -233,10 +233,11 @@ do_work (enum Test_U_Common_File_ModeType mode_in,
 #endif // ACE_WIN32 || ACE_WIN64
 
       unsigned char* data_p = NULL;
-      unsigned int file_size_i = 0, file_size_2 = 0;
+      ACE_UINT64 file_size_i = 0, file_size_2 = 0;
       if (unlikely (!Common_File_Tools::load (filePath_in,
                                               data_p,
-                                              file_size_i)))
+                                              file_size_i,
+                                              0)))
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), returning\n"),

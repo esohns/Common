@@ -195,7 +195,7 @@ do_work (int argc_in,
          enum Test_I_ModeType mode_in)
 {
   // step1: load data
-  unsigned int file_size_i = Common_File_Tools::size (sourceFilePath_in);
+  ACE_UINT64 file_size_i = Common_File_Tools::size (sourceFilePath_in);
   uint8_t* data_p = NULL, *data_2 = NULL;
   ACE_Message_Block* message_block_p = NULL, *message_block_2 = NULL, *message_block_3 = NULL;
   struct Common_FlexBisonParserConfiguration configuration;
@@ -265,8 +265,8 @@ do_work (int argc_in,
       message_block_2 = message_block_p;
       while (file_size_i)
       {
-        unsigned int size_i =
-            std::min (static_cast<unsigned int> (FRAGMENT_SIZE), file_size_i);
+        ACE_UINT64 size_i =
+            std::min (static_cast<ACE_UINT64> (FRAGMENT_SIZE), file_size_i);
         ACE_NEW_NORETURN (message_block_3,
                           ACE_Message_Block (size_i + COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE));
         ACE_ASSERT (message_block_3);

@@ -169,7 +169,7 @@ do_work (int argc_in,
          const std::string& sourceFilePath_in)
 {
   // step1: load data into a message block
-  unsigned int file_size_i = Common_File_Tools::size (sourceFilePath_in);
+  ACE_UINT64 file_size_i = Common_File_Tools::size (sourceFilePath_in);
   ACE_Message_Block message_block (file_size_i + COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE,
                                    ACE_Message_Block::MB_DATA,
                                    NULL,

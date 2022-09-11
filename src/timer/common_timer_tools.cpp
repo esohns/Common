@@ -66,6 +66,71 @@ Common_Timer_Tools::finalize ()
 }
 
 std::string
+Common_Timer_Tools::timeStampToLocalString (const ACE_Time_Value& timeStamp_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Timer_Tools::::timeStampToLocalString"));
+
+  // initialize return value(s)
+  std::string result;
+
+  //ACE_Date_Time time_local(timestamp_in);
+  tm time_local;
+  // init structure
+  time_local.tm_sec = -1;
+  time_local.tm_min = -1;
+  time_local.tm_hour = -1;
+  time_local.tm_mday = -1;
+  time_local.tm_mon = -1;
+  time_local.tm_year = -1;
+  time_local.tm_wday = -1;
+  time_local.tm_yday = -1;
+  time_local.tm_isdst = -1; // expect localtime !!!
+  // *PORTABILITY*: this isn't entirely portable so do an ugly hack
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  time_local.tm_gmtoff = 0;
+  time_local.tm_zone = NULL;
+#endif // ACE_WIN32 || ACE_WIN64
+
+  // step1: compute UTC representation
+  time_t time_seconds = timeStamp_in.sec ();
+  // *PORTABILITY*: man page says call this before...
+  ACE_OS::tzset ();
+  if (!ACE_OS::localtime_r (&time_seconds,
+                            &time_local))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::localtime_r(): \"%m\", aborting\n")));
+    return result;
+  } // end IF
+
+  // step2: create string
+  // *TODO*: rewrite this in C++
+  char buffer_a[BUFSIZ];
+  if (ACE_OS::strftime (buffer_a,
+                        sizeof (char[BUFSIZ]),
+                        ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_STRFTIME_FORMAT),
+                        &time_local) != COMMON_TIMER_STRFTIME_SIZE)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::strftime(): \"%m\", aborting\n")));
+    return result;
+  } // end IF
+  result = buffer_a;
+
+  // OK: append any usecs
+  if (timeStamp_in.usec ())
+  {
+    std::ostringstream converter;
+    converter << timeStamp_in.usec ();
+    result += ACE_TEXT_ALWAYS_CHAR (".");
+    result += converter.str ();
+  } // end IF
+
+  return result;
+}
+
+std::string
 Common_Timer_Tools::dateTimeToString (const ACE_Date_Time& date_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Tools::dateTimeToString"));

@@ -598,13 +598,14 @@ Common_Image_Tools::load (const std::string& path_in,
   struct AVFrame* frame_p = NULL;
   struct AVPacket packet_s;
   av_init_packet (&packet_s);
-  unsigned int file_size_i = 0;
+  ACE_UINT64 file_size_i = 0;
   Common_Image_Tools_GetFormatCBData cb_data_s;
   cb_data_s.formats.push_back (AV_PIX_FMT_RGB24);
 
   if (!Common_File_Tools::load (path_in,
                                 packet_s.data,
-                                file_size_i))
+                                file_size_i,
+                                0))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), aborting\n"),

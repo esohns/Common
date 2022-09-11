@@ -41,11 +41,15 @@ class Common_Timer_Tools
   //// --- singleton ---
   //static Common_ITimer* getTimerManager ();
 
+  // --- time ---
   static ACE_Time_Value localToUTC (const ACE_Time_Value&, // local time
                                     int = 0,               // timezone (UTC offset)
                                     bool = false);         // apply timezone ?
   static ACE_Time_Value UTCToLocal (const ACE_Time_Value&); // UTC time
-  static std::string dateTimeToString (const ACE_Date_Time&); // date
+  // *WARNING*: this uses localtime_r internally --> pass in a local time
+  //            - uses strftime() internally (see man page, format)
+  static std::string timeStampToLocalString (const ACE_Time_Value&); // timestamp
+  static std::string dateTimeToString(const ACE_Date_Time&); // date
 
   // --- parsers ---
   static ACE_Time_Value ISO8601ToTimestamp (const std::string&,
