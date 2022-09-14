@@ -502,7 +502,7 @@ continue_:
   std::string command_line_string = ACE_TEXT_ALWAYS_CHAR ("lspci");
   int exit_status_i = 0;
   uint8_t* buffer_p = NULL;
-  unsigned int file_size = 0;
+  ACE_UINT64 file_size_i = 0;
   for (int i = entries.length () - 1;
        i >= 0;
        i--)
@@ -538,7 +538,8 @@ continue_:
     ACE_ASSERT (Common_File_Tools::isReadable (uevent_file));
     if (!Common_File_Tools::load (uevent_file,
                                   buffer_p,
-                                  file_size))
+                                  file_size_i,
+                                  0))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), aborting\n"),
@@ -730,7 +731,7 @@ Common_UI_Tools::getDisplays (const struct Common_UI_DisplayAdapter& adapter_in)
   std::cmatch match_results;
   std::string status_file;
   uint8_t* buffer_p = NULL;
-  unsigned int file_size = 0;
+  ACE_UINT64 file_size_i = 0;
   for (int i = entries.length () - 1;
        i >= 0;
        i--)
@@ -756,7 +757,8 @@ Common_UI_Tools::getDisplays (const struct Common_UI_DisplayAdapter& adapter_in)
     ACE_ASSERT (Common_File_Tools::isReadable (status_file));
     if (!Common_File_Tools::load (status_file,
                                   buffer_p,
-                                  file_size))
+                                  file_size_i,
+                                  0))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), aborting\n"),
@@ -1015,9 +1017,9 @@ Common_UI_Tools::getDisplays ()
       ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
       ACE_ASSERT (match_results[4].matched && !match_results[4].str ().empty ());
       ACE_ASSERT (match_results[5].matched && !match_results[5].str ().empty ());
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("found screen %s\n"),
-                  ACE_TEXT (match_results[1].str ().c_str ())));
+//      ACE_DEBUG ((LM_DEBUG,
+//                  ACE_TEXT ("found screen %s\n"),
+//                  ACE_TEXT (match_results[1].str ().c_str ())));
       converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter_2.clear ();
       converter_2.str (match_results[4].str ());
@@ -1056,6 +1058,7 @@ Common_UI_Tools::getDisplays ()
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("found display device \"%s\"\n"),
                   ACE_TEXT (match_results_2[1].str ().c_str ())));
+      device_s.description = match_results_2[1].str ();
       device_s.device = match_results_2[1].str ();
       converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter_2.clear ();
@@ -1103,11 +1106,11 @@ Common_UI_Tools::getDisplays ()
           ACE_TEXT_ALWAYS_CHAR ("^([[:digit:]]+): (?:.+)$");
       std::string regex_string_display_model =
           ACE_TEXT_ALWAYS_CHAR ("^(?:[[:space:]]+)Model: \"(.+)\"$");
+      std::string regex_string_display_device =
+          ACE_TEXT_ALWAYS_CHAR ("^(?:[[:space:]]+)Device: (?:.+)\"(.+)\"$");
       std::string regex_string_display_primary =
           ACE_TEXT_ALWAYS_CHAR ("^Primary display adapter: #([[:digit:]]+)$");
       std::regex regex (regex_string_display_id);
-      std::regex regex_2 (regex_string_display_model);
-      std::regex regex_3 (regex_string_display_primary);
       std::smatch match_results;
       std::string buffer_string;
       // *NOTE*: (qtcreator) gdb fails to debug this (hangs) unless you disable the
@@ -1149,27 +1152,45 @@ next:
         converter_2 >> device_id;
         break;
       } // end WHILE
+      regex.assign (regex_string_display_model);
       while (!converter.fail ())
       {
         converter.getline (buffer_a, sizeof (char[BUFSIZ]));
         buffer_string = buffer_a;
         if (!std::regex_match (buffer_string,
                                match_results,
-                               regex_2,
+                               regex,
                                std::regex_constants::match_default))
           continue;
         ACE_ASSERT (match_results.ready () && !match_results.empty ());
         ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
-        ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("%u: found display device \"%s\"\n"),
-                    device_id,
-                    ACE_TEXT (match_results[1].str ().c_str ())));
+//        ACE_DEBUG ((LM_DEBUG,
+//                    ACE_TEXT ("%u: found display device \"%s\"\n"),
+//                    device_id,
+//                    ACE_TEXT (match_results[1].str ().c_str ())));
         device_s.description = match_results[1].str ();
+        break;
+      } // end WHILE
+      regex.assign (regex_string_display_device);
+      while (!converter.fail ())
+      {
+        converter.getline (buffer_a, sizeof (char[BUFSIZ]));
+        buffer_string = buffer_a;
+        if (!std::regex_match (buffer_string,
+                               match_results,
+                               regex,
+                               std::regex_constants::match_default))
+          continue;
+        ACE_ASSERT (match_results.ready () && !match_results.empty ());
+        ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
+        device_s.device = match_results[1].str ();
         devices_a.insert (std::make_pair (device_id, device_s));
         break;
       } // end WHILE
       if (!converter.fail ())
         goto next;
+
+      regex.assign (regex_string_display_primary);
       converter.clear ();
       converter.str (display_records_string);
       while (!converter.fail ())
@@ -1178,7 +1199,7 @@ next:
         buffer_string = buffer_a;
         if (!std::regex_match (buffer_string,
                                match_results,
-                               regex_3,
+                               regex,
                                std::regex_constants::match_default))
           continue;
         ACE_ASSERT (match_results.ready () && !match_results.empty ());
@@ -1733,7 +1754,7 @@ Common_UI_Tools::get (const std::string& deviceIdentifier_in)
   std::istringstream converter, converter_2;
   uint8_t* buffer_p = NULL;
   char buffer_a[BUFSIZ];
-  unsigned int file_size = 0;
+  ACE_UINT64 file_size_i = 0;
   modes_file = device_name_string;
   modes_file += ACE_DIRECTORY_SEPARATOR_STR;
   std::string::size_type position =
@@ -1747,7 +1768,8 @@ Common_UI_Tools::get (const std::string& deviceIdentifier_in)
   ACE_ASSERT (Common_File_Tools::isReadable (modes_file));
   if (unlikely (!Common_File_Tools::load (modes_file,
                                           buffer_p,
-                                          file_size)))
+                                          file_size_i,
+                                          0)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), aborting\n"),

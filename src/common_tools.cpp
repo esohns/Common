@@ -532,10 +532,11 @@ Common_Tools::printLocales ()
     return;
   } // end IF
   unsigned char* data_p = NULL;
-  unsigned int file_size_i = 0;
+  ACE_UINT64 file_size_i = 0;
   if (unlikely (!Common_File_Tools::load (filename_string,
                                           data_p,
-                                          file_size_i)))
+                                          file_size_i,
+                                          0)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), returning\n"),
