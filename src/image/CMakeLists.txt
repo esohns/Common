@@ -12,7 +12,7 @@ if (LIBPNG_SUPPORT)
                              "$<BUILD_INTERFACE:${PNG_INCLUDE_DIRS}>")
 endif (LIBPNG_SUPPORT)
 if (FFMPEG_SUPPORT)
-# message (STATUS "ffmpeg_INCLUDE_DIRS: ${ffmpeg_INCLUDE_DIRS}")
+ message (STATUS "ffmpeg_INCLUDE_DIRS: ${ffmpeg_INCLUDE_DIRS}")
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${ffmpeg_INCLUDE_DIRS}>)
 endif (FFMPEG_SUPPORT)
