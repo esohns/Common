@@ -36,7 +36,7 @@
 #include "physicalmonitorenumerationapi.h"
 #endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0600)
 #else
-//#include "X11/Xlib.h"
+#include "X11/Xlib.h"
 #include "X11/extensions/Xrandr.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
@@ -961,6 +961,75 @@ Common_UI_Tools::getDisplays ()
     return result;
   } // end IF
 #else
+  int result_2 = -1;
+  std::string command_line_string, tool_path_string;
+
+  int monitor_count_i = 0;
+  XRROutputInfo* output_info_p = NULL;
+  XRRMonitorInfo* monitor_info_p = NULL, *monitor_info_2 = NULL;
+  XRRScreenResources* screen_resources_p = NULL;
+  Display* display_p = XOpenDisplay (NULL);
+  if (unlikely (!display_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+               ACE_TEXT ("failed to XOpenDisplay(): \"%m\", falling back\n")));
+    goto fallback;
+  } // end IF
+
+   // 0 = active, 1 = inactive, call it twice to get a full list, if there are
+   // inactive monitors
+  monitor_info_p = XRRGetMonitors (display_p,
+                                   DefaultRootWindow (display_p),
+                                   0,
+                                   &monitor_count_i);
+  if (unlikely (!monitor_info_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+               ACE_TEXT ("failed to XRRGetMonitors(): \"%m\", falling back\n")));
+    goto fallback;
+  } // end IF
+
+  screen_resources_p =
+      XRRGetScreenResources (display_p,
+                             DefaultRootWindow (display_p));
+  ACE_ASSERT (screen_resources_p);
+
+  monitor_info_2 = monitor_info_p;
+  for (int i = 0;
+       i < monitor_count_i;
+       ++i)
+  {
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("found monitor: \"%s\"\n"),
+                ACE_TEXT (XGetAtomName (display_p, monitor_info_2->name))));
+    ACE_ASSERT (monitor_info_2->noutput == 1);
+
+    output_info_p = XRRGetOutputInfo (display_p,
+                                      screen_resources_p,
+                                      monitor_info_2->outputs[0]);
+    ACE_ASSERT (output_info_p);
+    ACE_ASSERT (output_info_p->connection == RR_Connected);
+    display_device_s.description = output_info_p->name;
+    XRRFreeOutputInfo (output_info_p); output_info_p = NULL;
+    display_device_s.device = XGetAtomName (display_p, monitor_info_2->name);
+    display_device_s.primary = (monitor_info_2->primary == 1);
+    display_device_s.clippingArea.x = monitor_info_2->x;
+    display_device_s.clippingArea.y = monitor_info_2->y;
+    display_device_s.clippingArea.width = monitor_info_2->width;
+    display_device_s.clippingArea.height = monitor_info_2->height;
+    result.push_back (display_device_s);
+
+    monitor_info_2++;
+  } // end FOR
+
+  XRRFreeScreenResources (screen_resources_p); screen_resources_p = NULL;
+  XRRFreeMonitors (monitor_info_p); monitor_info_p = NULL;
+  result_2 = XCloseDisplay (display_p);
+  ACE_ASSERT (result_2 == 0);
+
+  goto continue_;
+
+fallback:
   // *TODO*: this should work on most systems running Xorg X (and compatible
   //         derivates), but is in fact really a bad idea due to these
   //         dependencies:
@@ -968,9 +1037,7 @@ Common_UI_Tools::getDisplays ()
   //         - temporary files
   //         - system(3) call
   //         --> very inefficient; replace ASAP
-  std::string command_line_string =
-      ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_XRANDR);
-  std::string tool_path_string;
+  command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_XRANDR);
   if (Common_Tools::isInstalled (command_line_string,
                                  tool_path_string))
   {
@@ -997,11 +1064,10 @@ Common_UI_Tools::getDisplays ()
                   ACE_TEXT (command_line_string.c_str ())));
       return result;
     } // end IF
-  //  ACE_DEBUG ((LM_DEBUG,
-  //              ACE_TEXT ("xrandr output: \"%s\"\n"),
-  //              ACE_TEXT (display_record_string.c_str ())));
+//  ACE_DEBUG ((LM_DEBUG,
+//              ACE_TEXT ("xrandr output: \"%s\"\n"),
+//              ACE_TEXT (display_record_string.c_str ())));
 
-    struct Common_UI_DisplayDevice device_s;
     converter.str (display_records_string);
     // parse screen entries
     do
@@ -1023,11 +1089,11 @@ Common_UI_Tools::getDisplays ()
       converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter_2.clear ();
       converter_2.str (match_results[4].str ());
-      converter_2 >> device_s.clippingArea.width;
+      converter_2 >> display_device_s.clippingArea.width;
       converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter_2.clear ();
       converter_2.str (match_results[5].str ());
-      converter_2 >> device_s.clippingArea.height;
+      converter_2 >> display_device_s.clippingArea.height;
     } while (!converter.fail ());
 
     // parse display entries
@@ -1058,33 +1124,33 @@ Common_UI_Tools::getDisplays ()
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("found display device \"%s\"\n"),
                   ACE_TEXT (match_results_2[1].str ().c_str ())));
-      device_s.description = match_results_2[1].str ();
-      device_s.device = match_results_2[1].str ();
+      display_device_s.description = match_results_2[1].str ();
+      display_device_s.device = match_results_2[1].str ();
       converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter_2.clear ();
       if (match_results_2[3].matched)
       { ACE_ASSERT (!ACE_OS::strcmp (match_results_2[3].str ().c_str (), ACE_TEXT_ALWAYS_CHAR ("primary")));
-        device_s.primary = true;
+        display_device_s.primary = true;
       } // end IF
       converter_2.str (match_results[4].str ());
-      converter_2 >> device_s.clippingArea.width;
+      converter_2 >> display_device_s.clippingArea.width;
       converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter_2.clear ();
       converter_2.str (match_results[5].str ());
-      converter_2 >> device_s.clippingArea.height;
+      converter_2 >> display_device_s.clippingArea.height;
       converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter_2.clear ();
       converter_2.str (match_results[7].str ());
-      converter_2 >> device_s.clippingArea.x;
+      converter_2 >> display_device_s.clippingArea.x;
       if (match_results[6].str ()[0] == '-')
-        device_s.clippingArea.x = -device_s.clippingArea.x;
+        display_device_s.clippingArea.x = -display_device_s.clippingArea.x;
       converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
       converter_2.clear ();
       converter_2.str (match_results[9].str ());
-      converter_2 >> device_s.clippingArea.y;
+      converter_2 >> display_device_s.clippingArea.y;
       if (match_results[8].str ()[0] == '-')
-        device_s.clippingArea.y = -device_s.clippingArea.y;
-      result.push_back (device_s);
+        display_device_s.clippingArea.y = -display_device_s.clippingArea.y;
+      result.push_back (display_device_s);
     } while (!converter.fail ());
   } // end IF
   else
@@ -1129,7 +1195,6 @@ Common_UI_Tools::getDisplays ()
       //              ACE_TEXT ("hwinfo output: \"%s\"\n"),
       //              ACE_TEXT (display_record_string.c_str ())));
 
-      struct Common_UI_DisplayDevice device_s;
       converter.str (display_records_string);
       unsigned int device_id = 0;
       std::map<unsigned int, struct Common_UI_DisplayDevice> devices_a;
@@ -1168,7 +1233,7 @@ next:
 //                    ACE_TEXT ("%u: found display device \"%s\"\n"),
 //                    device_id,
 //                    ACE_TEXT (match_results[1].str ().c_str ())));
-        device_s.description = match_results[1].str ();
+        display_device_s.description = match_results[1].str ();
         break;
       } // end WHILE
       regex.assign (regex_string_display_device);
@@ -1183,8 +1248,8 @@ next:
           continue;
         ACE_ASSERT (match_results.ready () && !match_results.empty ());
         ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
-        device_s.device = match_results[1].str ();
-        devices_a.insert (std::make_pair (device_id, device_s));
+        display_device_s.device = match_results[1].str ();
+        devices_a.insert (std::make_pair (device_id, display_device_s));
         break;
       } // end WHILE
       if (!converter.fail ())
@@ -1218,6 +1283,7 @@ next:
         result.push_back ((*iterator).second);
     } // end IF
   } // end ELSE
+continue_:
 #endif // ACE_WIN32 || ACE_WIN64
 
   return result;
@@ -1450,11 +1516,9 @@ Common_UI_Tools::getDesktopDisplays ()
     ACE_ASSERT (match_results.ready () && !match_results.empty ());
     ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
 
-#if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("found display device \"%s\"...\n"),
                 ACE_TEXT (match_results[1].str ().c_str ())));
-#endif // _DEBUG
     device_s.device = match_results[1].str ();
     result.push_back (device_s);
   } while (!converter.fail ());

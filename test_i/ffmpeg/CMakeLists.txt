@@ -36,6 +36,7 @@ if (UNIX)
  target_link_libraries (${EXECUTABLE} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 endif (UNIX)
 target_link_libraries (${EXECUTABLE} PUBLIC ${ffmpeg_LIBRARIES})
+#target_link_libraries (${EXECUTABLE} PUBLIC ${ffmpeg_2_LIBRARIES})
 
 target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
 
