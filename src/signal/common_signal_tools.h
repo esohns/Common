@@ -38,6 +38,7 @@ class Common_Signal_Tools
  public:
   // *NOTE*: this does the following:
   //         - ignore SIGPIPE iff using networking (3rd argument)
+   //        - on non-Win32 systems, remove SIGALRM iff using asynch timers (4th argument)
   //         - on non-Win32 systems, iff the proactor framework is used with the
   //           ACE_POSIX_Proactor::PROACTOR_SIG, block RT signals
   //         - on non-Win32 systems, remove SIGSEGV to enable core dumps
@@ -46,6 +47,7 @@ class Common_Signal_Tools
   static bool preInitialize (ACE_Sig_Set&,                   // signal set (to handle) (*NOTE*: IN/OUT)
                              enum Common_SignalDispatchType, // dispatch type
                              bool,                           // using networking ? --> ignore SIGPIPE
+                             bool,                           // using asynch timers ? --> remove SIGALRM
                              Common_SignalActions_t&,        // return value: previous action(s)
                              ACE_Sig_Set&);                  // return value: previous mask
   static bool initialize (enum Common_SignalDispatchType, // dispatch mode

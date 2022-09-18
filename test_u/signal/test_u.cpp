@@ -249,7 +249,8 @@ do_work (enum Test_U_Common_Signal_ModeType mode_in,
   Common_SignalActions_t previous_signal_actions;
   if (!Common_Signal_Tools::preInitialize (signals_in,
                                            COMMON_SIGNAL_DISPATCH_SIGNAL,
-                                           false, // do not use networking
+                                           false, // using networking ?
+                                           false, // using asynch timers ?
                                            previous_signal_actions,
                                            previous_signal_mask))
   {

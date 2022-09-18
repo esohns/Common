@@ -635,12 +635,6 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
   Common_Timer_Manager_t* timer_manager_p =
     COMMON_TIMERMANAGER_SINGLETON::instance ();
   ACE_ASSERT (timer_manager_p);
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-  Common_Timer_Manager_Asynch_t* timer_manager_2 =
-    COMMON_ASYNCHTIMERMANAGER_SINGLETON::instance ();
-  ACE_ASSERT (timer_manager_2);
-#endif // ACE_WIN32 || ACE_WIN64
 
   switch (configuration_in.dispatch)
   {
@@ -688,6 +682,10 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
     {
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
+      Common_Timer_Manager_Asynch_t* timer_manager_2 =
+          COMMON_ASYNCHTIMERMANAGER_SINGLETON::instance ();
+      ACE_ASSERT (timer_manager_2);
+
       if (!timer_manager_2->initialize (configuration_in))
       {
         ACE_DEBUG ((LM_ERROR,

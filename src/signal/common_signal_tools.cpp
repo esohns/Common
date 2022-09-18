@@ -49,6 +49,7 @@ bool
 Common_Signal_Tools::preInitialize (ACE_Sig_Set& signals_inout,
                                     enum Common_SignalDispatchType dispatchType_in,
                                     bool useNetworking_in,
+                                    bool useAsynchTimers_in,
                                     Common_SignalActions_t& previousActions_out,
                                     ACE_Sig_Set& previousMask_out)
 {
@@ -333,6 +334,23 @@ continue_3:
     } // end IF
   } // end IF
 #endif // VALGRIND_USE
+
+  // *NOTE*: remove SIGALRM to enable (asynch) timers on non-Win32 systems
+  if (useAsynchTimers_in &&
+      signals_inout.is_member (SIGALRM) > 0)
+  {
+    result = signals_inout.sig_del (SIGALRM);
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%d: \"%S\"): \"%m\", aborting\n"),
+                  SIGALRM, SIGALRM));
+      return false;
+    } // end iF
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("%t: removed %d: \"%S\" from handled signals\n"),
+                SIGALRM, SIGALRM));
+  } // end IF
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -444,7 +462,6 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
     case COMMON_SIGNAL_DISPATCH_SIGNAL:
     {
       ACE_Event_Handler* event_handler_p = NULL;
-      ACE_Sig_Action previous_action;
       for (int i = 1;
            i < ACE_NSIG;
            ++i)

@@ -165,7 +165,8 @@ do_work (int argc_in,
   Common_SignalActions_t previous_signal_actions_a;
   if (unlikely (!Common_Signal_Tools::preInitialize (signals_a,
                                                      COMMON_SIGNAL_DISPATCH_SIGNAL,
-                                                     false,
+                                                     false, // using networking ?
+                                                     false, // using asynch timers ?
                                                      previous_signal_actions_a,
                                                      previous_signal_mask_a)))
   {
