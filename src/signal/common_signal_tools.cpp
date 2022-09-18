@@ -43,6 +43,19 @@
 // initialize statics
 ACE_Sig_Handler Common_Signal_Tools::signalHandler_;
 
+extern "C"
+void
+common_default_rt_sig_handler_cb (int signum_in)
+//                                  siginfo_t* info_in,
+//                                  ucontext_t* context_in)
+{
+//  COMMON_TRACE (ACE_TEXT ("common_rt_sig_handler_cb"));
+
+  ACE_UNUSED_ARG (signum_in);
+//  ACE_UNUSED_ARG (info_in);
+//  ACE_UNUSED_ARG (context_in);
+}
+
 //////////////////////////////////////////
 
 bool
@@ -128,6 +141,11 @@ continue_:
 #else
   // *IMPORTANT NOTE*: child threads inherit the signal mask of their parent
   //                   --> make sure this is the main thread context
+
+  // *IMPORTANT NOTE*: "...The default action for an unhandled real-time signal
+  //                   is to terminate the receiving process. ..."
+  //                   --> establish a default handler
+  handleRealtimeSignals ();
 
   // step2a: block [SIGRTMIN,SIGRTMAX] iff the default[/current (!)] proactor
   // implementation happens to be ACE_POSIX_Proactor::PROACTOR_SIG (i.e. Linux,
@@ -1099,5 +1117,43 @@ Common_Signal_Tools::unblockRealtimeSignals (sigset_t& originalMask_out)
                 ACE_TEXT ("failed to ACE_OS::thr_sigsetmask(SIG_UNBLOCK): \"%m\", returning\n")));
     return;
   } // end IF
+}
+
+void
+Common_Signal_Tools::handleRealtimeSignals ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Signal_Tools::handleRealtimeSignals"));
+
+  int result = -1;
+
+  ACE_Sig_Set signal_set (false);
+  for (int i = ACE_SIGRTMIN;
+       i <= ACE_SIGRTMAX;
+       i++)
+  {
+    result = signal_set.sig_add (i);
+    if (result == -1)
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Sig_Set::sig_add(): \"%m\", returning\n")));
+      return;
+    } // end IF
+  } // end FOR
+
+  int flags_i = //SA_SIGINFO   |
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                SA_RESTART;
+#else
+                SA_RESTART   |
+                SA_NOCLDSTOP |
+// *WARNING*: this makes system() fail (errno: ECHILD)
+//                SA_NOCLDWAIT |
+                SA_NODEFER;
+#endif // ACE_WIN32 || ACE_WIN64
+  ACE_Sig_Action signal_action (signal_set,
+                                common_default_rt_sig_handler_cb,
+//                                ACE_SIGNAL_C_FUNC (common_default_rt_sig_handler_cb),
+                                NULL,
+                                flags_i);
 }
 #endif // ACE_WIN32 || ACE_WIN64

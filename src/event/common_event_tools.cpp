@@ -418,8 +418,8 @@ common_event_dispatch_function (void* arg_in)
   } // end IF
   else if (group_id_i == state_p->proactorGroupId)
   {
-    // *IMPORTANT NOTE*: "The signal disposition is a per-process attribute: in a
-    //                   multithreaded application, the disposition of a
+    // *IMPORTANT NOTE*: "The signal disposition is a per-process attribute: in
+    //                   a multithreaded application, the disposition of a
     //                   particular signal is the same for all threads."
     //                   (see man 7 signal)
 
@@ -569,13 +569,13 @@ spawn:
       return false;
     } // end IF
     ACE_OS::memset (thread_name_p, 0, sizeof (char[BUFSIZ]));
+//    buffer = (!!loop_i ? ACE_TEXT_ALWAYS_CHAR ("proactor ")
+//                       : ACE_TEXT_ALWAYS_CHAR ("reactor "));
+    buffer = ACE_TEXT_ALWAYS_CHAR (COMMON_EVENT_THREAD_NAME);
+    buffer += ACE_TEXT_ALWAYS_CHAR (" #");
     converter.clear ();
     converter.str (ACE_TEXT_ALWAYS_CHAR (""));
     converter << (i + 1);
-//    buffer = (!!loop_i ? ACE_TEXT_ALWAYS_CHAR ("proactor ")
-//                       : ACE_TEXT_ALWAYS_CHAR ("reactor "));
-    buffer += ACE_TEXT_ALWAYS_CHAR (COMMON_EVENT_THREAD_NAME);
-    buffer += ACE_TEXT_ALWAYS_CHAR (" #");
     buffer += converter.str ();
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
     ACE_OS::strcpy (thread_name_p, buffer.c_str ());
@@ -744,17 +744,10 @@ Common_Event_Tools::dispatchEvents (struct Common_EventDispatchState& dispatchSt
   int group_id_i = -1;
   ACE_Thread_Manager *thread_manager_p = NULL;
   enum Common_EventDispatchType dispatch_e = COMMON_EVENT_DISPATCH_PROACTOR;
-  //std::vector<unsigned int> number_of_threads;
-  //number_of_threads.push_back (dispatchState_inout.configuration->numberOfProactorThreads);
-  //number_of_threads.push_back (dispatchState_inout.configuration->numberOfReactorThreads);
-  //bool do_not_iterate_b = false;
 
-  if (!dispatchState_inout.configuration->numberOfProactorThreads &&
+  if (!dispatchState_inout.configuration->numberOfProactorThreads ||
       !dispatchState_inout.configuration->numberOfReactorThreads)
-  {
-    //do_not_iterate_b = true;
     dispatch_e = dispatchState_inout.configuration->dispatch;
-  } // end IF
 
 next:
   switch (dispatch_e)

@@ -28,7 +28,7 @@
 
 template <typename ConfigurationType>
 Common_SignalHandler_T<ConfigurationType>::Common_SignalHandler_T (Common_ISignal* callback_in)
- : inherited (ACE_Proactor::instance ()) // -->  default proactor
+ : inherited (ACE_Proactor::instance ())       // -->  default proactor
  , inherited2 (ACE_Reactor::instance (),       // -->  default reactor
                ACE_Event_Handler::LO_PRIORITY) // priority
  , configuration_ (NULL)

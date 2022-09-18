@@ -54,15 +54,16 @@ Common_Timer_Tools::initialize ()
     publisher_p->start (NULL);
   } // end IF
 }
+
 void
 Common_Timer_Tools::finalize ()
 {
-  Common_Timer_Tools::finalizeTimers (Common_Timer_Tools::configuration_.dispatch,
-                                      true);
-
   if (Common_Timer_Tools::configuration_.publishSeconds)
     COMMON_TIMER_SECONDPUBLISHER_SINGLETON::instance ()->stop (true,  // N/A
                                                                true); // N/A
+
+  Common_Timer_Tools::finalizeTimers (Common_Timer_Tools::configuration_.dispatch,
+                                      true); // wait ?
 }
 
 std::string
@@ -717,12 +718,6 @@ Common_Timer_Tools::finalizeTimers (enum Common_TimerDispatchType dispatchType_i
   Common_Timer_Manager_t* timer_manager_p =
     COMMON_TIMERMANAGER_SINGLETON::instance ();
   ACE_ASSERT (timer_manager_p);
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-  Common_Timer_Manager_Asynch_t* timer_manager_2 =
-    COMMON_ASYNCHTIMERMANAGER_SINGLETON::instance ();
-  ACE_ASSERT (timer_manager_2);
-#endif // ACE_WIN32 || ACE_WIN64
 
   switch (dispatchType_in)
   {
@@ -748,6 +743,10 @@ Common_Timer_Tools::finalizeTimers (enum Common_TimerDispatchType dispatchType_i
     {
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
+      Common_Timer_Manager_Asynch_t* timer_manager_2 =
+          COMMON_ASYNCHTIMERMANAGER_SINGLETON::instance ();
+      ACE_ASSERT (timer_manager_2);
+
       timer_manager_2->stop (waitForCompletion_in,
                              true);
 #endif // ACE_WIN32 || ACE_WIN64
