@@ -324,8 +324,11 @@ do_work (enum Test_U_Common_Signal_ModeType mode_in,
     case TEST_U_COMMON_SIGNAL_MODE_HANDLE_RT:
     {
       // *IMPORTANT NOTE*: on UNIX systems, unblock RT signals (see above)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
       sigset_t original_mask;
       Common_Signal_Tools::unblockRealtimeSignals (original_mask);
+#endif // ACE_WIN32 || ACE_WIN64
 
       if (!Common_Signal_Tools::preInitialize (signals_in,
                                                COMMON_SIGNAL_DISPATCH_SIGNAL,
