@@ -761,11 +761,32 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   {
     case COMMON_TIMER_DISPATCH_PROACTOR:
     case COMMON_TIMER_DISPATCH_REACTOR:
-    case COMMON_TIMER_DISPATCH_SIGNAL:
-    {
+    { // *TODO*
       ACE_ASSERT (false);
       ACE_NOTSUP_RETURN (-1);
       ACE_NOTREACHED (return -1;)
+    }
+    case COMMON_TIMER_DISPATCH_SIGNAL:
+    {
+      // sanity check(s)
+      ASYNCH_TIMER_QUEUE_T* timer_queue_p =
+          dynamic_cast<ASYNCH_TIMER_QUEUE_T*> (this);
+      ACE_ASSERT (timer_queue_p);
+
+      ACE_SYNCH_RECURSIVE_MUTEX& mutex_r =
+          const_cast<ACE_SYNCH_RECURSIVE_MUTEX&> (getR_3 ());
+      { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, mutex_r, -1);
+        Common_ITimerQueue_t* timer_queue_2 = &timer_queue_p->timer_queue ();
+        ACE_ASSERT (timer_queue_2);
+        result = timer_queue_2->reset_interval (timerId_in, interval_in);
+      } // end lock scope
+      if (unlikely (result == -1))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                   ACE_TEXT ("failed to ACE_Abstract_Timer_Queue::reset_interval() (timer ID was: %d): \"%m\", aborting\n"),
+                   timerId_in));
+        return -1;
+      } // end IF
     }
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
@@ -1090,43 +1111,6 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   ACE_NOTSUP_RETURN (dummy);
   ACE_NOTREACHED (return dummy;)
 }
-
-//template <ACE_SYNCH_DECL,
-//          typename ConfigurationType,
-//          typename TimerQueueAdapterType>
-//const typename TimerQueueAdapterType::TIMER_QUEUE&
-//Common_Timer_Manager_T<ACE_SYNCH_USE,
-//                       ConfigurationType,
-//                       TimerQueueAdapterType>::getR_4 () const
-//{
-//  COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::getR_4"));
-//
-//  // sanity check(s)
-//  switch (dispatch_)
-//  {
-//    case COMMON_TIMER_DISPATCH_PROACTOR:
-//    case COMMON_TIMER_DISPATCH_REACTOR:
-//    {
-//      ACE_ASSERT (false);
-//      ACE_NOTSUP_RETURN (typename TimerQueueAdapterType::TIMER_QUEUE ());
-//
-//      ACE_NOTREACHED (return typename TimerQueueAdapterType::TIMER_QUEUE ();)
-//    }
-//    case COMMON_TIMER_DISPATCH_QUEUE:
-//      return *(inherited::timer_queue ());
-//    case COMMON_TIMER_DISPATCH_SIGNAL:
-//      return inherited::timer_queue ();
-//    default:
-//    {
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("invalid/unknown mode (was: %d), aborting\n"),
-//                  dispatch_));
-//      break;
-//    }
-//  } // end SWITCH
-//
-//  return typename TimerQueueAdapterType::TIMER_QUEUE ();
-//}
 
 template <ACE_SYNCH_DECL,
           typename ConfigurationType,
