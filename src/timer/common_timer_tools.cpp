@@ -291,9 +291,9 @@ Common_Timer_Tools::ISO8601ToTimestamp (const std::string& timestamp_in,
   ACE_Time_Value return_value = ACE_Time_Value::zero;
 
   // sanity check(s)
-  ACE_ASSERT (timestamp_in.size () >= 23);
+  ACE_ASSERT (timestamp_in.size () >= 20);
 
-  std::regex regex (ACE_TEXT_ALWAYS_CHAR ("^([[:digit:]]{4})-([[:digit:]]{2})-([[:digit:]]{2})T([[:digit:]]{2}):([[:digit:]]{2}):([[:digit:]]{2}).([[:digit:]]{3})(Z|.+)$"));
+  std::regex regex (ACE_TEXT_ALWAYS_CHAR ("^([[:digit:]]{4})-([[:digit:]]{2})-([[:digit:]]{2})T([[:digit:]]{2}):([[:digit:]]{2}):([[:digit:]]{2})(.([[:digit:]]{3})?)(Z|.+)$"));
   std::smatch match_results;
   if (!std::regex_match (timestamp_in,
                          match_results,
@@ -311,8 +311,9 @@ Common_Timer_Tools::ISO8601ToTimestamp (const std::string& timestamp_in,
   ACE_ASSERT (match_results[4].matched);
   ACE_ASSERT (match_results[5].matched);
   ACE_ASSERT (match_results[6].matched);
-  ACE_ASSERT (match_results[7].matched);
-  ACE_ASSERT (match_results[8].matched);
+  //ACE_ASSERT (match_results[7].matched);
+  //ACE_ASSERT (match_results[8].matched);
+  ACE_ASSERT (match_results[9].matched);
 
   struct tm tm_s;
   ACE_OS::memset (&tm_s, 0, sizeof (struct tm));
@@ -338,7 +339,7 @@ Common_Timer_Tools::ISO8601ToTimestamp (const std::string& timestamp_in,
 
   // process timezone
   converter.clear ();
-  converter.str (match_results[8].str ());
+  converter.str (match_results[9].str ());
   char char_c = 0;
   converter >> char_c;
   if (char_c == 'Z')
@@ -359,10 +360,14 @@ Common_Timer_Tools::ISO8601ToTimestamp (const std::string& timestamp_in,
                ACE_TEXT (timestamp_in.c_str ())));
     return return_value;
   } // end IF
-  converter.clear ();
-  converter.str (match_results[7].str ());
-  converter >> tm_s.tm_sec;
-  return_value.set (time, static_cast<suseconds_t> (1000 * tm_s.tm_sec));
+  unsigned int milli_seconds_i = 0;
+  if (match_results[8].matched)
+  {
+    converter.clear ();
+    converter.str (match_results[8].str ());
+    converter >> milli_seconds_i;
+  } // end IF
+  return_value.set (time, static_cast<suseconds_t> (1000 * milli_seconds_i));
 
   return return_value;
 }
