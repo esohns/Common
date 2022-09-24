@@ -13,6 +13,15 @@ include_directories (${ACE_INCLUDE_DIR})
 include_directories (${CMAKE_BINARY_DIR})
 
 if (WIN32)
+ include_directories (${Qt5Core_INCLUDE_DIRS})
+ include_directories (${Qt5Widgets_INCLUDE_DIRS})
+
+ include_directories ("H:/lib/qt/5.15.2/msvc2019_64/include;H:/lib/qt/5.15.2/msvc2019_64/include/QtCore;H:/lib/qt/5.15.2/msvc2019_64/include/QtWidgets;H:/lib/qt/5.15.2/msvc2019_64/include/QtGui")
+
+ set (AUTOGEN_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
+# message (STATUS "AUTOGEN_BUILD_DIR: ${AUTOGEN_BUILD_DIR}")
+ include_directories (${AUTOGEN_BUILD_DIR}/include_${CMAKE_BUILD_TYPE})
+
  include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../include)
 endif (WIN32)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src)

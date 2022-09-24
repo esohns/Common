@@ -1,5 +1,3 @@
-include (SetUIFramework)
-
 if (WIN32)
  cmake_policy (SET CMP0020 OLD)
 endif (WIN32)
@@ -11,10 +9,16 @@ if (UNIX)
  target_compile_options (${LIBRARY} PRIVATE -fPIC)
 endif (UNIX)
 
+#message (STATUS "QT_INCLUDES_DIRS: ${QT_INCLUDES_DIRS}")
 target_include_directories (${LIBRARY} PUBLIC
-                            "$<BUILD_INTERFACE:${Qt5Core_INCLUDE_DIRS}>")
-target_include_directories (${LIBRARY} PUBLIC
-                            "$<BUILD_INTERFACE:${Qt5Widgets_INCLUDE_DIRS}>")
+                            "$<BUILD_INTERFACE:${QT_INCLUDES_DIRS}>")
+
+if (WIN32)
+# message (STATUS "ENV{QT5_DIR}: $ENV{QT5_DIR}")
+# set (INCLUDE_DIR "$ENV{QT5_DIR}/../../../include")
+ target_include_directories (${LIBRARY} PUBLIC
+                             "$<BUILD_INTERFACE:H:/lib/qt/5.15.2/msvc2019_64/include;H:/lib/qt/5.15.2/msvc2019_64/include/QtCore;H:/lib/qt/5.15.2/msvc2019_64/include/QtWidgets;H:/lib/qt/5.15.2/msvc2019_64/include/QtGui>")
+endif (WIN32)
 
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)

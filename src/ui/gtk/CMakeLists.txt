@@ -7,26 +7,6 @@ get_filename_component (BUILD_PATH_SUFFIX ${BUILD_PATH} NAME)
 # *NOTE*: a bug in cmake (3.12.1) requires the additional comment
 target_include_directories (${LIBRARY} PUBLIC
                             "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
-#if (GTKGLAREA_SUPPORT)
-# *NOTE*: check out the 'master' branch for gtk3-based applications
-# *NOTE*: check out the 'gtkglarea-2' branch for gtk2-based applications
-# *TODO*: verify automatically
-# target_include_directories (${LIBRARY} PUBLIC
-#                             $<BUILD_INTERFACE:$ENV{LIB_ROOT}/gtkglarea>)
-#endif (GTKGLAREA_SUPPORT)
-
-#if (UNIX)
-# if (LIBGLADE_SUPPORT)
-#  target_include_directories (${LIBRARY} PUBLIC
-#                              $<BUILD_INTERFACE:${PKG_GLADE_INCLUDE_DIRS}>)
-# endif (LIBGLADE_SUPPORT)
-#elseif (WIN32)
-# if (LIBGLADE_SUPPORT)
-# libglade
-#  target_include_directories (${LIBRARY} PUBLIC
-#                              $<BUILD_INTERFACE:${LIBGLADE_INCLUDES}>)
-# endif (LIBGLADE_SUPPORT)
-#endif ()
 
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)

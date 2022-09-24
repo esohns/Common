@@ -14,7 +14,7 @@ class MainWindow_T
   typedef MainWindowClassType inherited;
 
   public:
-    explicit MainWindow_T(QWidget *parent = nullptr);
+    explicit MainWindow_T (QWidget *parent = nullptr);
     inline virtual ~MainWindow_T() {}
 
     inline virtual bool initialize (const ApplicationInterfaceType* application_in) { application_ = const_cast<ApplicationInterfaceType*> (application_in); return true; }
