@@ -314,9 +314,9 @@ Common_ParserBase_T<ConfigurationType,
   ACE_Message_Block* message_block_p = fragment_;
   if (!fragment_->cont ())
   {
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("parsed %u byte(s), getting next fragment\n"),
-                fragment_->length ()));
+    //ACE_DEBUG ((LM_DEBUG,
+    //            ACE_TEXT ("parsed %B byte(s), getting next fragment\n"),
+    //            fragment_->length ()));
 
     // sanity check(s)
     if (!configuration_->block)
@@ -331,9 +331,9 @@ Common_ParserBase_T<ConfigurationType,
       return false;
     } // end IF
   } // end IF
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("parsed %u byte(s), using next fragment\n"),
-              fragment_->length ()));
+  //ACE_DEBUG ((LM_DEBUG,
+  //            ACE_TEXT ("parsed %B byte(s), using next fragment\n"),
+  //            fragment_->length ()));
   fragment_ = fragment_->cont ();
   scannerState_.offset = 0;
 

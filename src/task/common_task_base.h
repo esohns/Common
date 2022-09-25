@@ -88,8 +88,6 @@ class Common_TaskBase_T
   typedef MessageType MESSAGE_T;
   typedef QueueType MESSAGE_QUEUE_T;
   typedef TaskType TASK_T;
-  typedef ACE_Module<ACE_SYNCH_USE,
-                     TimePolicyType> MODULE_T;
 
   Common_TaskBase_T (const std::string&,       // thread name
                      int,                      // (thread) group id
