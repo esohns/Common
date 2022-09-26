@@ -560,13 +560,13 @@ Common_Tools::printLocales ()
   } while (!converter.fail ());
 #endif // ACE_WIN32 || ACE_WIN64
 
-  int index = 1;
+  int index_i = 1;
   for (std::vector<std::string>::const_iterator iterator = locales.begin ();
        iterator != locales.end ();
-       ++iterator, ++index)
-    ACE_DEBUG ((LM_DEBUG,
+       ++iterator, ++index_i)
+    ACE_DEBUG ((LM_INFO,
                 ACE_TEXT ("%d: \"%s\"\n"),
-                index,
+                index_i,
                 ACE_TEXT ((*iterator).c_str ())));
 }
 

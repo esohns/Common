@@ -66,7 +66,9 @@
 //         throws...
 #define COMMON_LOCALE_EN_US_ASCII_STRING                       "C"
 #else
-#define COMMON_LOCALE_EN_US_ASCII_STRING                       "en_US.US-ASCII" // ASCII
+// *TODO*: this is probably wrong, but "en-US" isn't ASCII, and "en-US.US-ASCII"
+//         throws...
+#define COMMON_LOCALE_EN_US_ASCII_STRING                       "C"
 #endif // ACE_WIN32 || ACE_WIN64
 
 // *** default (storage) 'locations' ***
