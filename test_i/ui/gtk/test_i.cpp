@@ -702,7 +702,7 @@ glarea_realize_cb (GtkWidget* widget_in,
   {
     std::string filename = Common_File_Tools::getWorkingDirectory ();
     filename += ACE_DIRECTORY_SEPARATOR_CHAR;
-    filename += ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY);
+    filename += ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY);
     filename += ACE_DIRECTORY_SEPARATOR_CHAR;
     filename += ACE_TEXT_ALWAYS_CHAR ("opengl_logo.png");
     *texture_id_p = Common_GL_Tools::loadTexture (filename);
@@ -921,7 +921,8 @@ do_work (int argc_in,
     g_error_free (error_p); error_p = NULL;
     return;
   } // end IF
-  GtkWidget* mainwin = GTK_WIDGET (gtk_builder_get_object (gtkBuilder, "dialog_main"));
+  GtkWidget* mainwin =
+      GTK_WIDGET (gtk_builder_get_object (gtkBuilder, "dialog_main"));
 
 #if GTK_CHECK_VERSION(4,0,0)
   GtkApplication* app_p =
@@ -1072,17 +1073,68 @@ do_work (int argc_in,
 #else
 #endif // GTK_CHECK_VERSION(2,0,0)
   GtkVBox* box_p = GTK_VBOX (gtk_builder_get_object (gtkBuilder, "vbox3"));
+  ACE_ASSERT (box_p);
   gtk_container_foreach (GTK_CONTAINER (box_p), (GtkCallback)gtk_widget_destroy, NULL);
   gtk_box_pack_start (GTK_BOX (box_p), GTK_WIDGET (gl_area_p), TRUE, TRUE, 0);
 #endif // GTKGL_SUPPORT
+
+#if defined (GTK2_USE)
+  GtkTable* table_p =
+    GTK_TABLE (gtk_builder_get_object (gtkBuilder,
+                                       ACE_TEXT_ALWAYS_CHAR ("table1")));
+  ACE_ASSERT (table_p);
+#elif defined (GTK3_USE)
+  GtkGrid* grid_p =
+    GTK_GRID (gtk_builder_get_object (gtkBuilder,
+                                      ACE_TEXT_ALWAYS_CHAR ("grid1")));
+  ACE_ASSERT (grid_p);
+#endif // GTK2_USE || GTK3_USE
+  unsigned int number_of_pieces_i = 100;
+  unsigned int number_of_colummns_and_rows_i =
+      static_cast<unsigned int> (std::ceil (std::sqrt (static_cast<float> (number_of_pieces_i))));
+#if defined (GTK2_USE)
+  gtk_table_resize (table_p,
+                    number_of_colummns_and_rows_i,
+                    number_of_colummns_and_rows_i);
+#endif // GTK2_USE || GTK3_USE
+  int x, y;
+  GtkButton* button_p = NULL;
+  GdkColor black = {0, 0x0000, 0x0000, 0x0000};
+  GdkColor red = {0, 0xffff, 0x0000, 0x0000};
+  for (unsigned int i = 0;
+       i < number_of_pieces_i;
+       ++i)
+  {
+    button_p = GTK_BUTTON (gtk_button_new ());
+    ACE_ASSERT (button_p);
+    gtk_widget_modify_bg (GTK_WIDGET (button_p), GTK_STATE_NORMAL, &black);
+    gtk_widget_modify_bg (GTK_WIDGET (button_p), GTK_STATE_PRELIGHT, &black);
+    gtk_widget_modify_bg (GTK_WIDGET (button_p), GTK_STATE_ACTIVE, &black);
+    gtk_widget_modify_fg (GTK_WIDGET (button_p), GTK_STATE_NORMAL, &red);
+    gtk_widget_modify_fg (GTK_WIDGET (button_p), GTK_STATE_PRELIGHT, &red);
+    gtk_widget_modify_fg (GTK_WIDGET (button_p), GTK_STATE_ACTIVE, &red);
+    x = i % number_of_colummns_and_rows_i;
+    y = i / number_of_colummns_and_rows_i;
+#if defined (GTK2_USE)
+    gtk_table_attach_defaults (table_p,
+                               GTK_WIDGET (button_p),
+                               x, x + 1,
+                               y, y + 1);
+#elif defined (GTK3_USE)
+    gtk_grid_attach (grid_p,
+                     GTK_WIDGET (button_p),
+                     x, y,
+                     1, 1);
+#endif // GTK2_USE || GTK3_USE
+  } // end FOR
   //g_object_unref (G_OBJECT (gtkBuilder));
 
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
 #else
   gtk_widget_show_all (mainwin);
 #endif // GTK_CHECK_VERSION(4,0,0)
 
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
   g_application_run (G_APPLICATION (app_p), 0, NULL);
   g_object_unref (app_p);
 #else

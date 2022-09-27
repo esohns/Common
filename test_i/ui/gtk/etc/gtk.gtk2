@@ -39,6 +39,7 @@
       <object class="GtkBox" id="dialog-vbox1">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
+        <property name="orientation">vertical</property>
         <child internal-child="action_area">
           <object class="GtkButtonBox" id="dialog-action_area1">
             <property name="visible">True</property>
@@ -141,7 +142,6 @@
                     <property name="events">GDK_EXPOSURE_MASK | GDK_STRUCTURE_MASK</property>
                     <property name="double-buffered">False</property>
                     <signal name="configure-event" handler="drawingarea_configure_event_cb" swapped="no"/>
-                    <signal name="expose-event" handler="drawingarea_expose_event_cb" swapped="no"/>
                     <signal name="key-press-event" handler="drawingarea_key_press_event_cb" swapped="no"/>
                   </object>
                   <packing>
@@ -212,7 +212,43 @@
                   </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <!-- n-columns=3 n-rows=3 -->
+                  <object class="GtkTable" id="table1">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
                 <child>
                   <placeholder/>

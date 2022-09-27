@@ -1,3 +1,5 @@
+include (ffmpeg)
+include (ImageMagick)
 if (GTKGL_SUPPORT)
  set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../../../src/gl/scripts")
  include (assimp)
