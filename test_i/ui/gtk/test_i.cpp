@@ -1099,20 +1099,45 @@ do_work (int argc_in,
 #endif // GTK2_USE || GTK3_USE
   int x, y;
   GtkButton* button_p = NULL;
+#if defined (GTK2_USE)
   GdkColor black = {0, 0x0000, 0x0000, 0x0000};
   GdkColor red = {0, 0xffff, 0x0000, 0x0000};
+#elif defined (GTK3_USE)
+  GdkRGBA black = { 0.0, 0.0, 0.0, 1.0 };
+
+  GtkCssProvider* css_provider_p = gtk_css_provider_new ();
+  ACE_ASSERT (css_provider_p);
+  // Load CSS into the object ("-1" says, that the css string is \0-terminated)
+  gtk_css_provider_load_from_data (css_provider_p,
+                                   ACE_TEXT ("* { background-image:none; background-color:black; }"), -1,
+                                   NULL);
+#endif // GTK2_USE || GTK3_USE
   for (unsigned int i = 0;
        i < number_of_pieces_i;
        ++i)
   {
     button_p = GTK_BUTTON (gtk_button_new ());
     ACE_ASSERT (button_p);
+#if defined (GTK2_USE)
     gtk_widget_modify_bg (GTK_WIDGET (button_p), GTK_STATE_NORMAL, &black);
     gtk_widget_modify_bg (GTK_WIDGET (button_p), GTK_STATE_PRELIGHT, &black);
     gtk_widget_modify_bg (GTK_WIDGET (button_p), GTK_STATE_ACTIVE, &black);
-    gtk_widget_modify_fg (GTK_WIDGET (button_p), GTK_STATE_NORMAL, &red);
-    gtk_widget_modify_fg (GTK_WIDGET (button_p), GTK_STATE_PRELIGHT, &red);
-    gtk_widget_modify_fg (GTK_WIDGET (button_p), GTK_STATE_ACTIVE, &red);
+    //gtk_widget_modify_fg (GTK_WIDGET (button_p), GTK_STATE_NORMAL, &red);
+    //gtk_widget_modify_fg (GTK_WIDGET (button_p), GTK_STATE_PRELIGHT, &red);
+    //gtk_widget_modify_fg (GTK_WIDGET (button_p), GTK_STATE_ACTIVE, &red);
+#elif defined (GTK3_USE)
+    //gtk_widget_override_background_color (GTK_WIDGET (button_p), GTK_STATE_FLAG_NORMAL, &black);
+    //gtk_widget_override_background_color (GTK_WIDGET (button_p), GTK_STATE_FLAG_PRELIGHT, &black);
+    //gtk_widget_override_background_color (GTK_WIDGET (button_p), GTK_STATE_FLAG_ACTIVE, &black);
+    //gtk_widget_override_color (GTK_WIDGET (button_p), GTK_STATE_FLAG_NORMAL, &black);
+    //gtk_widget_override_color (GTK_WIDGET (button_p), GTK_STATE_FLAG_PRELIGHT, &black);
+    //gtk_widget_override_color (GTK_WIDGET (button_p), GTK_STATE_FLAG_ACTIVE, &black);
+
+    gtk_style_context_add_provider (gtk_widget_get_style_context (GTK_WIDGET (button_p)),
+                                    GTK_STYLE_PROVIDER (css_provider_p),
+                                    GTK_STYLE_PROVIDER_PRIORITY_USER);
+#endif // GTK2_USE || GTK3_USE
+
     x = i % number_of_colummns_and_rows_i;
     y = i / number_of_colummns_and_rows_i;
 #if defined (GTK2_USE)
@@ -1127,6 +1152,10 @@ do_work (int argc_in,
                      1, 1);
 #endif // GTK2_USE || GTK3_USE
   } // end FOR
+#if defined (GTK3_USE)
+  g_object_unref (css_provider_p); css_provider_p = NULL;
+#endif // GTK3_USE
+
   //g_object_unref (G_OBJECT (gtkBuilder));
 
 #if GTK_CHECK_VERSION (4,0,0)
