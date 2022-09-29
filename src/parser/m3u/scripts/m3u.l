@@ -204,7 +204,8 @@ TO_EQUALS                         [^=]
                                                       struct M3U_ExtInf_Element);
                                     ACE_ASSERT (yylval->eeval);
                                     return yy::parser::token::BEGIN_EXTINF; }
-\x0A                              { parser->offset (yyleng); }
+\x0A                              { parser->offset (yyleng);
+                                    return yy::parser::token::END; }
 } // end <INITIAL>
 
 <state_no_value>{
@@ -389,7 +390,7 @@ TO_EQUALS                         [^=]
 <<EOF>>                           { return yy::parser::token::END; }
 <*>{OCTET}                        { /* *TODO*: use (?s:.) ? */
                                     if (!parser->isBlocking ())
-                                      return yy::parser::token::END;
+                                      yyterminate();
                                     // wait for more data fragment(s)
 //                                    if (!parser->switchBuffer ())
 //                                    { // *NOTE*: most probable reason: connection
@@ -398,7 +399,8 @@ TO_EQUALS                         [^=]
 //                                                  ACE_TEXT ("failed to Common_IParser::switchBuffer(), returning\n")));
 //                                      yyterminate(); // not enough data, cannot proceed
 //                                    } // end IF
-                                    yyless (0); }
+//                                    yyless (0);
+                                    yyterminate(); }
 %% /* end of rules */
 
 #include "common_macros.h"

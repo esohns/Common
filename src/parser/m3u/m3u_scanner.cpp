@@ -2549,9 +2549,9 @@ static const flex_int32_t yy_rule_can_match_eol[42] =
 static const flex_int32_t yy_rule_linenum[41] =
     {   0,
       141,  146,  153,  160,  167,  174,  181,  187,  194,  196,
-      202,  208,  212,  221,  227,  231,  237,  242,  248,  253,
-      259,  264,  270,  274,  296,  300,  306,  310,  316,  321,
-      327,  331,  353,  358,  364,  368,  374,  379,  385,  391
+      202,  208,  213,  222,  228,  232,  238,  243,  249,  254,
+      260,  265,  271,  275,  297,  301,  307,  311,  317,  322,
+      328,  332,  354,  359,  365,  369,  375,  380,  386,  392
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -3233,7 +3233,8 @@ YY_RULE_SETUP
 case 12:
 /* rule 12 can match eol */
 YY_RULE_SETUP
-{ parser->offset (yyleng); }
+{ parser->offset (yyleng);
+                                    return yy::parser::token::END; }
 	YY_BREAK
 // end <INITIAL>
 
@@ -3585,7 +3586,7 @@ case 40:
 YY_RULE_SETUP
 { /* *TODO*: use (?s:.) ? */
                                     if (!parser->isBlocking ())
-                                      return yy::parser::token::END;
+                                      yyterminate();
                                     // wait for more data fragment(s)
 //                                    if (!parser->switchBuffer ())
 //                                    { // *NOTE*: most probable reason: connection
@@ -3594,7 +3595,8 @@ YY_RULE_SETUP
 //                                                  ACE_TEXT ("failed to Common_IParser::switchBuffer(), returning\n")));
 //                                      yyterminate(); // not enough data, cannot proceed
 //                                    } // end IF
-                                    yyless (0); }
+//                                    yyless (0);
+                                    yyterminate(); }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
