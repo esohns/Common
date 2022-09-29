@@ -204,8 +204,7 @@ TO_EQUALS                         [^=]
                                                       struct M3U_ExtInf_Element);
                                     ACE_ASSERT (yylval->eeval);
                                     return yy::parser::token::BEGIN_EXTINF; }
-\x0A                              { parser->offset (yyleng);
-                                    return yy::parser::token::END; }
+\x0A                              { parser->offset (yyleng); }
 } // end <INITIAL>
 
 <state_no_value>{

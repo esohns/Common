@@ -193,7 +193,7 @@ void yyprint (FILE*, yytokentype, YYSTYPE);*/
 %start            playlist;
 playlist:         "extm3u" {
                     iparser->setP ($1);
-                  } ext_x_key_values elements "end" {
+                  } ext_x_key_values elements {
                     struct M3U_Playlist& playlist_r = iparser->current ();
                     struct M3U_Playlist* playlist_p = &playlist_r;
                     try {
