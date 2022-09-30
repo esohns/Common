@@ -42,18 +42,23 @@ class Common_String_Tools
   static BSTR to_2 (const std::string&); // string
 #endif // ACE_WIN32 || ACE_WIN64
 
+  // *TODO*: move to ACE_Network::HTTP_Tools
   static std::string sanitizeURI (const std::string&); // URI
+
   // replace ' ' with '_'
   static std::string sanitize (const std::string&);
   // remove leading and trailing whitespace
   static std::string strip (const std::string&);
+  // remove leading and trailing '"'
+  static std::string uncomment (const std::string&);
+
   static bool isspace (const std::string&);
 
   static std::string toupper (const std::string&);
   static std::string tolower (const std::string&);
 
-  static bool endswith (const std::string &,
-                        const std::string &);
+  static bool endswith (const std::string&,
+                        const std::string&);
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_String_Tools ())

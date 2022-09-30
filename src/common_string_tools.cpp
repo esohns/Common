@@ -314,12 +314,35 @@ Common_String_Tools::strip (const std::string& string_in)
   return result;
 }
 
+std::string
+Common_String_Tools::uncomment (const std::string& string_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_String_Tools::uncomment"));
+
+  std::string result = string_in;
+
+  // sanity check(s)
+  ACE_ASSERT (!result.empty ());
+
+  if (result[0] == '"')
+    result.erase (0, 1);
+
+  // sanity check(s)
+  ACE_ASSERT (!result.empty ());
+
+  if (Common_String_Tools::endswith (result,
+                                     ACE_TEXT_ALWAYS_CHAR ("\"")))
+    result.erase (--result.end ());
+
+  return result;
+}
+
 bool
 Common_String_Tools::isspace (const std::string& string_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_String_Tools::isspace"));
 
-  for (unsigned int i = 0;
+  for (std::string::size_type i = 0;
        i < string_in.size ();
        ++i)
     if (!::isspace (static_cast<int> (string_in[i])))
@@ -338,7 +361,7 @@ Common_String_Tools::toupper (const std::string& string_in)
 
   std::locale locale;
   for (std::string::size_type i = 0;
-       i < string_in.length ();
+       i < string_in.size ();
        ++i)
     return_value += std::toupper (string_in[i], locale);
 
@@ -355,7 +378,7 @@ Common_String_Tools::tolower (const std::string& string_in)
 
   std::locale locale;
   for (std::string::size_type i = 0;
-       i < string_in.length ();
+       i < string_in.size ();
        ++i)
     return_value += std::tolower (string_in[i], locale);
 
