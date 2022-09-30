@@ -293,7 +293,7 @@ Common_Timer_Tools::ISO8601ToTimestamp (const std::string& timestamp_in,
   // sanity check(s)
   ACE_ASSERT (timestamp_in.size () >= 20);
 
-  std::regex regex (ACE_TEXT_ALWAYS_CHAR ("^([[:digit:]]{4})-([[:digit:]]{2})-([[:digit:]]{2})T([[:digit:]]{2}):([[:digit:]]{2}):([[:digit:]]{2})(.([[:digit:]]{3})?)(Z|.+)$"));
+  std::regex regex (ACE_TEXT_ALWAYS_CHAR ("^([[:digit:]]{4})-([[:digit:]]{2})-([[:digit:]]{2})T([[:digit:]]{2}):([[:digit:]]{2}):([[:digit:]]{2})(?:\\.([[:digit:]]{3}))?(Z|.+)$"));
   std::smatch match_results;
   if (!std::regex_match (timestamp_in,
                          match_results,
@@ -312,8 +312,7 @@ Common_Timer_Tools::ISO8601ToTimestamp (const std::string& timestamp_in,
   ACE_ASSERT (match_results[5].matched);
   ACE_ASSERT (match_results[6].matched);
   //ACE_ASSERT (match_results[7].matched);
-  //ACE_ASSERT (match_results[8].matched);
-  ACE_ASSERT (match_results[9].matched);
+  ACE_ASSERT (match_results[8].matched);
 
   struct tm tm_s;
   ACE_OS::memset (&tm_s, 0, sizeof (struct tm));
@@ -339,7 +338,7 @@ Common_Timer_Tools::ISO8601ToTimestamp (const std::string& timestamp_in,
 
   // process timezone
   converter.clear ();
-  converter.str (match_results[9].str ());
+  converter.str (match_results[8].str ());
   char char_c = 0;
   converter >> char_c;
   if (char_c == 'Z')
@@ -361,10 +360,10 @@ Common_Timer_Tools::ISO8601ToTimestamp (const std::string& timestamp_in,
     return return_value;
   } // end IF
   unsigned int milli_seconds_i = 0;
-  if (match_results[8].matched)
+  if (match_results[7].matched)
   {
     converter.clear ();
-    converter.str (match_results[8].str ());
+    converter.str (match_results[7].str ());
     converter >> milli_seconds_i;
   } // end IF
   return_value.set (time, static_cast<suseconds_t> (1000 * milli_seconds_i));
