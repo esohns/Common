@@ -18,6 +18,7 @@ class Common_Math_Tools
 
   static std::string encodeBase64 (const void*,   // data
                                    unsigned int); // length
+  static std::string decodeBase64 (const std::string&); // data
 
   template <typename ValueType>
   static ValueType map (ValueType, // value

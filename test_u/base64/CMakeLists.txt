@@ -64,6 +64,8 @@ if (UNIX)
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_u/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 elseif (WIN32)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
+ string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
  if (VCPKG_SUPPORT)
   file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
  else ()
@@ -72,10 +74,12 @@ elseif (WIN32)
  set (RUNTIME_LIBRARY_DIRS_LIST "")
  #guess_runtime_library_dirs (RUNTIME_LIBRARY_DIRS_LIST)
  #message (STATUS "RUNTIME_LIBRARY_DIRS_LIST: ${RUNTIME_LIBRARY_DIRS_LIST}")
+ file (TO_CMAKE_PATH ${wxWidgets_LIB_DIR} WXWIDGETS_LIB_PATH)
  create_target_launcher (${EXECUTABLE}
+                         COMMAND ${COMMAND}
                          ARGS "-l -t"
 #                        FORWARD_ARGS
-                         RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
+                         RUNTIME_LIBRARY_DIRS ${WXWIDGETS_LIB_PATH} ${ACE_LIB_PATH}
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_u/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 endif ()

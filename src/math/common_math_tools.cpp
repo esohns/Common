@@ -15,14 +15,14 @@ Common_Math_Tools::encodeBase64 (const void* data_in,
 
   union
   {
-    ACE_UINT32 big_endian; // !
+    ACE_UINT32 integer;
 #if defined (_MSC_VER)
 #pragma pack (push, 1)
 #endif // _MSC_VER
     struct
     {
       ACE_UINT32 fourth : 6;
-      ACE_UINT32 third : 6;
+      ACE_UINT32 third  : 6;
       ACE_UINT32 second : 6;
       ACE_UINT32 first  : 6;
 #if defined (__GNUC__)
@@ -34,29 +34,25 @@ Common_Math_Tools::encodeBase64 (const void* data_in,
 #pragma pack (pop)
 #endif // _MSC_VER
   } converter;
-  const unsigned char* data_p =
-    reinterpret_cast<const unsigned char*> (data_in);
+  const ACE_UINT8* data_p =
+    reinterpret_cast<const ACE_UINT8*> (data_in);
 
   // sanity check
   if ((length_in == 1) || (length_in == 2))
     goto continue_;
 
   // process any byte-triplets
-  for (;
-       data_p < (reinterpret_cast<const unsigned char*> (data_in) + length_in);
-       data_p += 3)
+  for (unsigned int i = length_in;
+       i >= 3;
+       i -= 3, data_p += 3)
   {
-    converter.big_endian =
+    converter.integer =
       ((*data_p) << 16) | (*(data_p + 1) << 8) | *(data_p + 2);
-    //if (ACE_BYTE_ORDER == ACE_LITTLE_ENDIAN)
-    //  converter.big_endian = ACE_SWAP_LONG (converter.big_endian);
-    //ACE_ASSERT (!converter.zero);
     result += alphabet_a[converter.first];
     result += alphabet_a[converter.second];
     result += alphabet_a[converter.third];
     result += alphabet_a[converter.fourth];
   } // end FOR
-  data_p -= (3 - (length_in % 3));
 
 continue_:
   // process any leftover byte(s)
@@ -80,6 +76,56 @@ continue_:
     default:
       break;
   } // end SWITCH
+
+  return result;
+}
+
+std::string
+Common_Math_Tools::decodeBase64 (const std::string& data_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Math_Tools::decodeBase64"));
+
+  std::string result;
+
+  static std::string alphabet_a =
+    ACE_TEXT_ALWAYS_CHAR ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+
+  union
+  {
+    ACE_UINT32 integer;
+#if defined (_MSC_VER)
+#pragma pack (push, 1)
+#endif // _MSC_VER
+    struct
+    {
+      ACE_UINT32 fourth : 6;
+      ACE_UINT32 third  : 6;
+      ACE_UINT32 second : 6;
+      ACE_UINT32 first  : 6;
+#if defined (__GNUC__)
+    } __attribute__ ((__packed__));
+#else
+    };
+#endif // __GNUC__
+#if defined (_MSC_VER)
+#pragma pack (pop)
+#endif // _MSC_VER
+  } converter;
+
+  // process byte-quads
+  for (size_t i = 0;
+       i < data_in.size ();
+       i += 4)
+  {
+    converter.first  = data_in[i]     == '=' ? 0 : alphabet_a.find (data_in[i]    , 0);
+    converter.second = data_in[i + 1] == '=' ? 0 : alphabet_a.find (data_in[i + 1], 0);
+    converter.third  = data_in[i + 2] == '=' ? 0 : alphabet_a.find (data_in[i + 2], 0);
+    converter.fourth = data_in[i + 3] == '=' ? 0 : alphabet_a.find (data_in[i + 3], 0);
+
+    result += (converter.integer >> 16) & 0xFF;
+    result += (converter.integer >> 8)  & 0xFF;
+    result += converter.integer         & 0xFF;
+  } // end FOR
 
   return result;
 }
