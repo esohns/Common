@@ -48,7 +48,9 @@ endforeach ()
 target_sources (${LIBRARY}
 #                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
-                PRIVATE ${absolute_source_files})
+                PRIVATE ${absolute_source_files}
+                scripts/bencoding.l
+                scripts/bencoding.y)
 
 #*TODO*: use pkg-config instead
 if (WIN32)
