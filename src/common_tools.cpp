@@ -1367,6 +1367,25 @@ Common_Tools::printUserIds ()
 #endif // ACE_WIN32 || ACE_WIN64
 }
 
+std::string
+Common_Tools::environment (const std::string& variable_in)
+{
+  std::string result;
+
+  // sanity check(s)
+  ACE_ASSERT (!variable_in.empty ());
+
+  char* string_p = ACE_OS::getenv (variable_in.c_str ());
+  if (string_p)
+    result.assign (string_p);
+  else
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("\"%s\" environment variable not set, returning\n"),
+                ACE_TEXT (variable_in.c_str ())));
+
+  return result;
+}
+
 bool
 Common_Tools::setResourceLimits (bool fileDescriptors_in,
                                  bool stackTraces_in,

@@ -159,6 +159,9 @@ class Common_Tools
 #endif // ACE_WIN32 || ACE_WIN64
   static void printUserIds ();
 
+  // --- environment ---
+  static std::string environment (const std::string&); // environment variable
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   // --- COM ---
   // *IMPORTANT NOTE*: iff this returns 'true', invoke finalizeCOM()
