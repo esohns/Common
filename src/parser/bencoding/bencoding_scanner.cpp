@@ -1,16 +1,14 @@
+#include "common_iparser.h"
 
-//  #include "ace/Synch.h"
-  #include "common_iparser.h"
-
-  #include "bencoding_parser.h"
+#include "bencoding_parser.h"
 
 #if defined (Bencoding_IN_HEADER)
 class Bencoding_IParser;
 #else
 #define YY_STRUCT_YY_BUFFER_STATE
-  #include "bencoding_scanner.h"
+#include "bencoding_scanner.h"
 
-  #include "common_parser_bencoding_iparser.h"
+#include "common_parser_bencoding_iparser.h"
 #undef YY_STRUCT_YY_BUFFER_STATE
 #endif
 
@@ -751,9 +749,6 @@ void yyfree ( void * , yyscan_t yyscanner );
 /* %% [1.0] yytext/yyin/yyout/yy_state_type/yylineno etc. def's & init go here */
 /* Begin user sect3 */
 
-#define Bencoding_wrap(yyscanner) (/*CONSTCOND*/1)
-#define YY_SKIP_YYWRAP
-
 #define FLEX_DEBUG
 typedef flex_uint8_t YY_CHAR;
 
@@ -771,154 +766,167 @@ static const flex_int32_t yy_nxt[][8] =
     },
 
     {
-       13,   14,   15,   14,   16,   14,   17,   18
+       15,   16,   17,   16,   18,   16,   19,   20
     },
 
     {
-       13,   14,   15,   14,   16,   14,   17,   18
+       15,   16,   17,   16,   18,   16,   19,   20
     },
 
     {
-       13,   19,   20,   21,   19,   19,   19,   19
+       15,   21,   22,   23,   21,   21,   21,   21
     },
 
     {
-       13,   19,   20,   21,   19,   19,   19,   19
+       15,   21,   22,   23,   21,   21,   21,   21
     },
 
     {
-       13,   14,   22,   14,   14,   23,   24,   14
+       15,   16,   24,   16,   16,   25,   26,   16
     },
 
     {
-       13,   14,   22,   14,   14,   23,   24,   14
+       15,   16,   24,   16,   16,   25,   26,   16
     },
 
     {
-       13,   14,   25,   14,   26,   27,   28,   29
+       15,   16,   27,   16,   28,   29,   30,   31
     },
 
     {
-       13,   14,   25,   14,   26,   27,   28,   29
+       15,   16,   27,   16,   28,   29,   30,   31
     },
 
     {
-       13,   14,   30,   14,   14,   31,   14,   14
-
-    },
-
-    {
-       13,   14,   30,   14,   14,   31,   14,   14
-    },
-
-    {
-       13,   14,   32,   14,   33,   14,   34,   35
-    },
-
-    {
-       13,   14,   32,   14,   33,   14,   34,   35
-    },
-
-    {
-      -13,  -13,  -13,  -13,  -13,  -13,  -13,  -13
-    },
-
-    {
-       13,  -14,  -14,  -14,  -14,  -14,  -14,  -14
-    },
-
-    {
-       13,  -15,  -15,  -15,  -15,  -15,  -15,  -15
-    },
-
-    {
-       13,  -16,  -16,  -16,  -16,  -16,  -16,  -16
-    },
-
-    {
-       13,  -17,  -17,  -17,  -17,  -17,  -17,  -17
-    },
-
-    {
-       13,  -18,  -18,  -18,  -18,  -18,  -18,  -18
-    },
-
-    {
-       13,  -19,  -19,  -19,  -19,  -19,  -19,  -19
+       15,   32,   32,   32,   32,   33,   32,   32
 
     },
 
     {
-       13,  -20,   36,  -20,  -20,  -20,  -20,  -20
+       15,   32,   32,   32,   32,   33,   32,   32
     },
 
     {
-       13,  -21,  -21,  -21,  -21,  -21,  -21,  -21
+       15,   16,   34,   16,   16,   16,   16,   16
     },
 
     {
-       13,  -22,   37,  -22,  -22,  -22,  -22,  -22
+       15,   16,   34,   16,   16,   16,   16,   16
     },
 
     {
-       13,  -23,  -23,  -23,  -23,  -23,  -23,  -23
+       15,   16,   35,   16,   36,   16,   37,   38
     },
 
     {
-       13,  -24,  -24,  -24,  -24,  -24,  -24,  -24
+       15,   16,   35,   16,   36,   16,   37,   38
     },
 
     {
-       13,  -25,  -25,  -25,  -25,  -25,  -25,  -25
+      -15,  -15,  -15,  -15,  -15,  -15,  -15,  -15
     },
 
     {
-       13,  -26,  -26,  -26,  -26,  -26,  -26,  -26
+       15,  -16,  -16,  -16,  -16,  -16,  -16,  -16
     },
 
     {
-       13,  -27,  -27,  -27,  -27,  -27,  -27,  -27
+       15,  -17,  -17,  -17,  -17,  -17,  -17,  -17
     },
 
     {
-       13,  -28,  -28,  -28,  -28,  -28,  -28,  -28
+       15,  -18,  -18,  -18,  -18,  -18,  -18,  -18
     },
 
     {
-       13,  -29,  -29,  -29,  -29,  -29,  -29,  -29
+       15,  -19,  -19,  -19,  -19,  -19,  -19,  -19
 
     },
 
     {
-       13,  -30,  -30,  -30,  -30,  -30,  -30,  -30
+       15,  -20,  -20,  -20,  -20,  -20,  -20,  -20
     },
 
     {
-       13,  -31,  -31,  -31,  -31,  -31,  -31,  -31
+       15,  -21,  -21,  -21,  -21,  -21,  -21,  -21
     },
 
     {
-       13,  -32,  -32,  -32,  -32,  -32,  -32,  -32
+       15,  -22,   39,  -22,  -22,  -22,  -22,  -22
     },
 
     {
-       13,  -33,  -33,  -33,  -33,  -33,  -33,  -33
+       15,  -23,  -23,  -23,  -23,  -23,  -23,  -23
     },
 
     {
-       13,  -34,  -34,  -34,  -34,  -34,  -34,  -34
+       15,  -24,   40,  -24,  -24,  -24,  -24,  -24
     },
 
     {
-       13,  -35,  -35,  -35,  -35,  -35,  -35,  -35
+       15,  -25,  -25,  -25,  -25,  -25,  -25,  -25
     },
 
     {
-       13,  -36,   36,  -36,  -36,  -36,  -36,  -36
+       15,  -26,  -26,  -26,  -26,  -26,  -26,  -26
     },
 
     {
-       13,  -37,   37,  -37,  -37,  -37,  -37,  -37
+       15,  -27,  -27,  -27,  -27,  -27,  -27,  -27
+    },
+
+    {
+       15,  -28,  -28,  -28,  -28,  -28,  -28,  -28
+    },
+
+    {
+       15,  -29,  -29,  -29,  -29,  -29,  -29,  -29
+
+    },
+
+    {
+       15,  -30,  -30,  -30,  -30,  -30,  -30,  -30
+    },
+
+    {
+       15,  -31,  -31,  -31,  -31,  -31,  -31,  -31
+    },
+
+    {
+       15,  -32,  -32,  -32,  -32,  -32,  -32,  -32
+    },
+
+    {
+       15,  -33,  -33,  -33,  -33,  -33,  -33,  -33
+    },
+
+    {
+       15,  -34,  -34,  -34,  -34,  -34,  -34,  -34
+    },
+
+    {
+       15,  -35,  -35,  -35,  -35,  -35,  -35,  -35
+    },
+
+    {
+       15,  -36,  -36,  -36,  -36,  -36,  -36,  -36
+    },
+
+    {
+       15,  -37,  -37,  -37,  -37,  -37,  -37,  -37
+    },
+
+    {
+       15,  -38,  -38,  -38,  -38,  -38,  -38,  -38
+    },
+
+    {
+       15,  -39,   39,  -39,  -39,  -39,  -39,  -39
+
+    },
+
+    {
+       15,  -40,   40,  -40,  -40,  -40,  -40,  -40
     },
 
     } ;
@@ -949,8 +957,8 @@ static void yynoreturn yy_fatal_error ( const char* msg , yyscan_t yyscanner );
 /* %% [3.0] code to copy yytext_ptr to yytext[] goes here, if %array \ */\
 	yyg->yy_c_buf_p = yy_cp;
 /* %% [4.0] data tables for the DFA and the user's section 1 definitions go here */
-#define YY_NUM_RULES 23
-#define YY_END_OF_BUFFER 24
+#define YY_NUM_RULES 24
+#define YY_END_OF_BUFFER 25
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -958,12 +966,12 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int32_t yy_accept[38] =
+static const flex_int32_t yy_accept[41] =
     {   0,
         0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-        0,    0,   24,   22,    1,    4,    2,    3,    7,    5,
-        6,    9,    8,   10,   12,   15,   11,   13,   14,   17,
-       16,   18,   21,   19,   20,    5,    9
+        0,    0,    0,    0,   25,   23,    1,    4,    2,    3,
+        7,    5,    6,   10,    8,    9,   12,   15,   11,   13,
+       14,   17,   16,   18,   19,   22,   20,   21,    5,   10
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -1000,16 +1008,16 @@ static const YY_CHAR yy_ec[256] =
 
 
 /* Table of booleans, true if rule could match eol. */
-static const flex_int32_t yy_rule_can_match_eol[24] =
+static const flex_int32_t yy_rule_can_match_eol[25] =
     {   0,
-0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 1, 0,     };
+0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 
+    0, 0, 0, 1, 0,     };
 
-static const flex_int32_t yy_rule_linenum[23] =
+static const flex_int32_t yy_rule_linenum[24] =
     {   0,
-      139,  141,  143,  150,  159,  168,  183,  200,  205,  211,
-      215,  219,  222,  225,  232,  242,  246,  251,  254,  257,
-      260,  270
+      136,  138,  140,  146,  154,  162,  174,  189,  196,  197,
+      204,  211,  214,  217,  224,  233,  240,  248,  254,  258,
+      262,  269,  279
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -1020,28 +1028,28 @@ static const flex_int32_t yy_rule_linenum[23] =
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 
-  // *WORKAROUND*
+// *WORKAROUND*
 //  #include <iostream>
-  #include <sstream>
-  //using namespace std;
-  //// *IMPORTANT NOTE*: several ACE headers inclue ace/iosfwd.h, which introduces
-  ////                   a problem in conjunction with the standard include headers
-  ////                   when ACE_USES_OLD_IOSTREAMS is defined
-  ////                   --> include the necessary headers manually (see above), and
-  ////                       prevent ace/iosfwd.h from causing any harm
-  //#define ACE_IOSFWD_H
+#include <sstream>
+//using namespace std;
+//// *IMPORTANT NOTE*: several ACE headers inclue ace/iosfwd.h, which introduces
+////                   a problem in conjunction with the standard include headers
+////                   when ACE_USES_OLD_IOSTREAMS is defined
+////                   --> include the necessary headers manually (see above), and
+////                       prevent ace/iosfwd.h from causing any harm
+//#define ACE_IOSFWD_H
 
-  #include "bencoding_scanner.h"
-  #include "bencoding_parser.h"
-  #include "common_parser_bencoding_parser_driver.h"
+#include "bencoding_scanner.h"
+#include "bencoding_parser.h"
+#include "common_parser_bencoding_parser_driver.h"
 
-  // the original yyterminate() macro returns int. Since this uses Bison 3
-  // variants as tokens, redefine it to change type to `Parser::semantic_type`
-  #define yyterminate() return yy::parser::token::END;
+// the original yyterminate() macro returns int. Since this uses Bison 3
+// variants as tokens, redefine it to change type to `Parser::semantic_type`
+#define yyterminate() return yy::parser::token::END;
 
-  // this tracks the current scanner location. Action is called when length of
-  // the token is known
-  #define YY_USER_ACTION location->columns (yyleng);
+// this tracks the current scanner location. Action is called when length of
+// the token is known
+#define YY_USER_ACTION location->columns (yyleng);
 /* *TODO*: find out why 'read' does not compile (on Linux, flex 2.5.39) */
 /*%option ansi-definitions ansi-prototypes*/
 /*%option c++*/
@@ -1050,6 +1058,7 @@ static const flex_int32_t yy_rule_linenum[23] =
            - http://bittorrent.org/beps/bep_0003.html
            - https://wiki.theory.org/BitTorrentSpecification */
 /* this is called 'bencoding' in BitTorrent lingo */
+
 
 
 
@@ -1067,8 +1076,9 @@ static const flex_int32_t yy_rule_linenum[23] =
 #define state_string 1
 #define state_integer 2
 #define state_list 3
-#define state_dictionary_key 4
-#define state_dictionary_value 5
+#define state_dictionary 4
+#define state_dictionary_key 5
+#define state_dictionary_value 6
 
 
 
@@ -1490,8 +1500,6 @@ YY_DECL
   location->step ();
 
   unsigned int      string_length = 0;
-  bool              in_structure = false;
-  bool              string_is_key = false;
   std::stringstream converter;
 
   // sanity check(s)
@@ -1553,13 +1561,13 @@ do_action:	/* This label is used only to access EOF actions. */
 			{
 			if ( yy_act == 0 )
 				fprintf( stderr, "--scanner backing up\n" );
-			else if ( yy_act < 23 )
+			else if ( yy_act < 24 )
 				fprintf( stderr, "--accepting rule at line %ld (\"%s\")\n",
 				         (long)yy_rule_linenum[yy_act], yytext );
-			else if ( yy_act == 23 )
+			else if ( yy_act == 24 )
 				fprintf( stderr, "--accepting default rule (\"%s\")\n",
 				         yytext );
-			else if ( yy_act == 24 )
+			else if ( yy_act == 25 )
 				fprintf( stderr, "--(end of buffer or a NUL)\n" );
 			else
 				fprintf( stderr, "--EOF (start condition %d)\n", YY_START );
@@ -1581,8 +1589,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-{ ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
+{ parser->offset (1);
                          BEGIN(state_list);
                          ACE_NEW_NORETURN (yylval->lval,
                                            Bencoding_List_t);
@@ -1591,9 +1598,8 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-{ ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
-                         BEGIN(state_dictionary_key);
+{ parser->offset (1);
+                         BEGIN(state_dictionary);
                          ACE_NEW_NORETURN (yylval->dval,
                                            Bencoding_Dictionary_t);
                          ACE_ASSERT (yylval->dval);
@@ -1603,8 +1609,7 @@ YY_RULE_SETUP
 
 case 5:
 YY_RULE_SETUP
-{
-                         parser->offset (yyleng);
+{ parser->offset (yyleng);
                          converter.str (ACE_TEXT_ALWAYS_CHAR (""));
                          converter.clear ();
                          converter << yytext;
@@ -1615,18 +1620,15 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-{ ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
+{ parser->offset (1);
                          if (!string_length)
                          { // --> found an empty string
                            ACE_ASSERT (yylval->sval);
-                           if (string_is_key)
+                           if (parser->level ())
                            {
-                             string_is_key = false;
-                             BEGIN(state_dictionary_value);
-                           } // end IF
-                           else if (in_structure)
+                             parser->removeLevel ();
                              yy_pop_state (yyscanner); // return to structure
+                           }
                            return yy::parser::token::STRING;
                          } // END IF
                        }
@@ -1640,66 +1642,67 @@ YY_RULE_SETUP
                          yylval->sval->push_back (yytext[0]);
                          for (unsigned int i = 0; i < (string_length - 1); ++i)
                            yylval->sval->push_back (static_cast<char> (yyinput (yyscanner)));
-                         if (string_is_key)
-                         {
-                           string_is_key = false;
-                           BEGIN(state_dictionary_value);
-                         } // end IF
-                         else if (in_structure)
-                           yy_pop_state (yyscanner); // return to structure
                          string_length = 0;
+                         if (parser->level ())
+                         {
+                           parser->removeLevel ();
+                           yy_pop_state (yyscanner); // return to structure
+                         }
                          return yy::parser::token::STRING; }
 	YY_BREAK
 // end <state_string>
 
 case 8:
 YY_RULE_SETUP
-{ ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
-                         if (in_structure)
+{ parser->offset (1);
+                         if (parser->level ())
+                         {
+                           parser->removeLevel ();
                            yy_pop_state (yyscanner); // return to structure
+                         }
                          return yy::parser::token::INTEGER; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-{
-                         parser->offset (yyleng);
+{ parser->offset (1); }
+	YY_BREAK
+case 10:
+YY_RULE_SETUP
+{ parser->offset (yyleng);
                          converter.str (ACE_TEXT_ALWAYS_CHAR (""));
                          converter.clear ();
                          converter << yytext;
                          converter >> yylval->ival; }
 	YY_BREAK
-case 10:
-YY_RULE_SETUP
-{ ACE_ASSERT (yyleng == 1);
-                         parser->offset (1); }
-	YY_BREAK
 // end <state_integer>
 
 case 11:
 YY_RULE_SETUP
-{ ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
-                         if (in_structure)
-                           yy_pop_state (yyscanner); } // return to structure
+{ parser->offset (1);
+                         if (parser->level ())
+                         {
+                           parser->removeLevel ();
+                           yy_pop_state (yyscanner); // return to structure
+                         }
+                         return yy::parser::token::LIST_END; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 { yyless (0);
-                         in_structure = true;
+                         parser->addLevel ();
                          yy_push_state (state_string, yyscanner); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 { yyless (0);
-                         in_structure = true;
+                         parser->addLevel ();
                          yy_push_state (state_integer, yyscanner); }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-{ ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
-                         in_structure = true;
+{ parser->offset (1);
+                         parser->addLevel ();
+                         yy_push_state (state_list, yyscanner);
                          ACE_NEW_NORETURN (yylval->lval,
                                            Bencoding_List_t);
                          ACE_ASSERT (yylval->lval);
@@ -1707,10 +1710,9 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-{ ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
-                         in_structure = true;
-                         yy_push_state (state_dictionary_key, yyscanner);
+{ parser->offset (1);
+                         parser->addLevel ();
+                         yy_push_state (state_dictionary, yyscanner);
                          ACE_NEW_NORETURN (yylval->dval,
                                            Bencoding_Dictionary_t);
                          ACE_ASSERT (yylval->dval);
@@ -1720,43 +1722,65 @@ YY_RULE_SETUP
 
 case 16:
 YY_RULE_SETUP
-{ ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
-                         if (in_structure)
-                           yy_pop_state (yyscanner); } // return to structure
+{ parser->offset (1);
+                         if (parser->level ())
+                         {
+                           parser->removeLevel ();
+                           yy_pop_state (yyscanner); // return to structure
+                         }
+                         return yy::parser::token::DICTIONARY_END; }
 	YY_BREAK
 case 17:
+/* rule 17 can match eol */
 YY_RULE_SETUP
 { yyless (0);
-                         string_is_key = true;
-                         BEGIN(state_string); }
+                         if (parser->toggleKeyValue ())
+                           BEGIN(state_dictionary_key);
+                         else
+                           BEGIN(state_dictionary_value);
+                       }
 	YY_BREAK
-// end <state_dictionary_key>
+// end <state_dictionary>
 
 case 18:
 YY_RULE_SETUP
 { yyless (0);
-                         in_structure = true;
+                         BEGIN(state_dictionary);
+                         parser->addLevel ();
                          yy_push_state (state_string, yyscanner); }
 	YY_BREAK
+// end <state_dictionary_key>
+
 case 19:
 YY_RULE_SETUP
 { yyless (0);
-                         in_structure = true;
-                         yy_push_state (state_integer, yyscanner); }
+                         BEGIN(state_dictionary);
+                         parser->addLevel ();
+                         yy_push_state (state_string, yyscanner); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 { yyless (0);
-                         in_structure = true;
-                         yy_push_state (state_list, yyscanner); }
+                         BEGIN(state_dictionary);
+                         parser->addLevel ();
+                         yy_push_state (state_integer, yyscanner); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-{ ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
-                         in_structure = true;
-                         yy_push_state (state_dictionary_key, yyscanner);
+{ parser->offset (1);
+                         BEGIN(state_dictionary);
+                         parser->addLevel ();
+                         yy_push_state (state_list, yyscanner);
+                         ACE_NEW_NORETURN (yylval->lval,
+                                           Bencoding_List_t);
+                         return yy::parser::token::LIST; }
+	YY_BREAK
+case 22:
+YY_RULE_SETUP
+{ parser->offset (1);
+                         BEGIN(state_dictionary);
+                         parser->addLevel ();
+                         yy_push_state (state_dictionary, yyscanner);
                          ACE_NEW_NORETURN (yylval->dval,
                                            Bencoding_Dictionary_t);
                          ACE_ASSERT (yylval->dval);
@@ -1767,12 +1791,13 @@ case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(state_string):
 case YY_STATE_EOF(state_integer):
 case YY_STATE_EOF(state_list):
+case YY_STATE_EOF(state_dictionary):
 case YY_STATE_EOF(state_dictionary_key):
 case YY_STATE_EOF(state_dictionary_value):
 { return yy::parser::token::END; }
 	YY_BREAK
-case 22:
-/* rule 22 can match eol */
+case 23:
+/* rule 23 can match eol */
 YY_RULE_SETUP
 { /* *TODO*: use (?s:.) ? */
                          if (!parser->isBlocking ())
@@ -1787,7 +1812,7 @@ YY_RULE_SETUP
                          } // end IF
                          yyless (0); }
 	YY_BREAK
-case 23:
+case 24:
 YY_RULE_SETUP
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
@@ -3194,4 +3219,43 @@ void yyfree (void * ptr , yyscan_t yyscanner)
 
 
 
+
+#include "common_macros.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif /* __cplusplus */
+int
+Bencoding_wrap (yyscan_t yyscanner)
+{
+  COMMON_TRACE (ACE_TEXT ("::Bencoding_wrap"));
+
+  // sanity check(s)
+//  struct yyguts_t* yyg = static_cast<struct yyguts_t*> (yyscanner);
+  Common_Parser_Bencoding_ParserDriver* driver =
+    static_cast<Common_Parser_Bencoding_ParserDriver*> (Bencoding_get_extra (yyscanner));
+  ACE_ASSERT (driver);
+//  if (driver->hasFinished ())
+//    return 1; // done
+//  ACE_ASSERT (driver->fragment_);
+
+  // *NOTE*: there is more data
+  // 1. switch buffers
+  // 2. continue scanning
+
+  // step1
+  if (!driver->switchBuffer ())
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_ParserBase_T::switchBuffer(), aborting\n")));
+    return 1;
+  } // end IF
+
+  // step2
+  return 0;
+}
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 

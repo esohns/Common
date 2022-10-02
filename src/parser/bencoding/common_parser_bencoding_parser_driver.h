@@ -71,6 +71,11 @@ class Common_Parser_Bencoding_ParserDriver
   using PARSER_BASE_T::waitBuffer;
 
   // implement (part of) Bencoding_IParser_t
+  inline virtual void addLevel () { ++level_; }
+  inline virtual void removeLevel () { --level_; }
+  inline virtual unsigned int level () { return level_; }
+  inline virtual bool toggleKeyValue () { bool is_key_b = isKey_; isKey_ = !isKey_; return is_key_b; }
+
   inline virtual Bencoding_Dictionary_t& current () { ACE_ASSERT (!dictionaries_.empty ()); return *dictionaries_.top (); }
   inline virtual Bencoding_List_t& current_2 () { ACE_ASSERT (!lists_.empty ()); return *lists_.top (); }
   inline virtual bool hasFinished () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
@@ -83,11 +88,11 @@ class Common_Parser_Bencoding_ParserDriver
   virtual void record_3 (std::string*&); // data record
   virtual void record_4 (ACE_INT64); // data record
 
-  inline virtual std::string& getKey () { ACE_ASSERT (key_); return *key_; }
+  inline virtual std::string* popKey () { std::string* result_p = keys_.top (); keys_.pop (); return result_p; }
   inline virtual void popDictionary () { dictionaries_.pop (); }
   inline virtual void popList () { lists_.pop (); }
   inline virtual void pushDictionary (Bencoding_Dictionary_t* dictionary_in) { dictionaries_.push (dictionary_in); }
-  inline virtual void pushKey (std::string* key_in) { key_ = key_in; }
+  inline virtual void pushKey (std::string* key_in) { keys_.push (key_in); }
   inline virtual void pushList (Bencoding_List_t* list_in) { lists_.push (list_in); }
 
   inline virtual void dump_state () const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
@@ -109,8 +114,10 @@ class Common_Parser_Bencoding_ParserDriver
   inline virtual void destroy (yyscan_t state_in, struct yy_buffer_state*& buffer_inout) { Bencoding__delete_buffer (buffer_inout, state_in); buffer_inout = NULL; }
 //  inline virtual bool lex (yyscan_t state_in, yy::location* location_in) { ACE_ASSERT (false); return Bencoding_lex (NULL, location_in, this, state_in); }
 
+  unsigned int                        level_;
+  bool                                isKey_;
   std::stack<Bencoding_Dictionary_t*> dictionaries_;
-  std::string*                        key_;
+  std::stack<std::string*>            keys_;
   std::stack<Bencoding_List_t*>       lists_;
 };
 

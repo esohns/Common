@@ -49,7 +49,14 @@ class Common_Parser_Bencoding_IParser
   using IPARSER_T::error;
 //  using Common_IScanner::error;
 
-  virtual std::string& getKey () = 0;
+  // nesting-
+  virtual void addLevel () = 0;
+  virtual void removeLevel () = 0;
+  virtual unsigned int level () = 0;
+  // key/value
+  virtual bool toggleKeyValue () = 0;
+
+  virtual std::string* popKey () = 0;
   virtual void popDictionary () = 0;
   virtual void popList () = 0;
   virtual void pushDictionary (Bencoding_Dictionary_t*) = 0; // dictionary handle

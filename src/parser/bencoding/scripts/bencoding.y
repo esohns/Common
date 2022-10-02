@@ -68,37 +68,6 @@
 
 #include "common_parser_bencoding_iparser.h"
 
-/* enum yytokentype
-{
-  END = 0,
-  HANDSHAKE = 258,
-  MESSAGE_BITFIELD = 260,
-  MESSAGE_CANCEL = 262,
-  MESSAGE_HAVE = 259,
-  MESSAGE_PIECE = 263,
-  MESSAGE_PORT = 263,
-  MESSAGE_REQUEST = 261,
-}; */
-//#define YYTOKENTYPE
-/*#undef YYTOKENTYPE*/
-/* enum yytokentype; */
-//struct YYLTYPE;
-//class Bencoding_Scanner;
-
-/* #define YYSTYPE
-typedef union YYSTYPE
-{
-  ACE_INT64               ival;
-  std::string*            sval;
-  Bencoding_Element*      eval;
-  Bencoding_List_t*       lval;
-  Bencoding_Dictionary_t* dval;
-} YYSTYPE; */
-/*#undef YYSTYPE*/
-//union YYSTYPE;
-
-/*typedef void* yyscan_t;*/
-
 // *NOTE*: on current versions of bison, this needs to be inserted into the
 //         header manually; apparently, there is no easy way to add the export
 //         symbol to the declaration
@@ -175,10 +144,12 @@ typedef union YYSTYPE
 // END_OF_FRAGMENT   "end_of_fragment"
  END 0             "end"
 ;
-%token <ival> INTEGER    "integer"
-%token <sval> STRING     "string"
-%token <lval> LIST       "list"
-%token <dval> DICTIONARY "dictionary"
+%token <ival> INTEGER        "integer"
+%token <sval> STRING         "string"
+%token <lval> LIST           "list"
+%token <ival> LIST_END       "list_end"
+%token <dval> DICTIONARY     "dictionary"
+%token <ival> DICTIONARY_END "dictionary_end"
 // non-terminals
 %type  <dval> dictionary_items
 %type  <lval> list_items
@@ -215,7 +186,7 @@ void BitTorrent_Export yyprint (FILE*, yytokentype, YYSTYPE);*/
 %start            bencoding;
 bencoding:        "dictionary" {
                     iparser->pushDictionary ($1); }
-                  dictionary_items {
+                  dictionary_items "dictionary_end" {
                     Bencoding_Dictionary_t& dictionary_r = iparser->current ();
                     Bencoding_Dictionary_t* dictionary_p = &dictionary_r;
                     try {
@@ -227,7 +198,7 @@ bencoding:        "dictionary" {
                     YYACCEPT; }
                   | "list" {
                     iparser->pushList ($1); }
-                  list_items {
+                  list_items "list_end" {
                     Bencoding_List_t& list_r = iparser->current_2 ();
                     Bencoding_List_t* list_p = &list_r;
                     try {
@@ -277,7 +248,7 @@ list_item:        "string" {
                     list_r.push_back (element_p); }
                   | "list" {
                     iparser->pushList ($1); }
-                  list_items {
+                  list_items "list_end" {
                     Bencoding_Element* element_p = NULL;
                     ACE_NEW_NORETURN (element_p,
                                       Bencoding_Element ());
@@ -289,7 +260,7 @@ list_item:        "string" {
                     list_r.push_back (element_p); }
                   | "dictionary"  {
                     iparser->pushDictionary ($1); }
-                  dictionary_items {
+                  dictionary_items "dictionary_end" {
                     Bencoding_Element* element_p = NULL;
                     ACE_NEW_NORETURN (element_p,
                                       Bencoding_Element ());
@@ -300,16 +271,14 @@ list_item:        "string" {
                     iparser->popDictionary ();
                     Bencoding_List_t& list_r = iparser->current_2 ();
                     list_r.push_back (element_p); }
-                  | %empty             { }
 dictionary_items: dictionary_items dictionary_item { }
 /*                  |                                { }*/
                   | %empty { }
 dictionary_item:  "string" {
                     iparser->pushKey ($1); }
                   dictionary_value { }
-                  | %empty { }
 dictionary_value: "string" {
-                    std::string* key_string_p = &iparser->getKey ();
+                    std::string* key_string_p = iparser->popKey ();
                     Bencoding_Element* element_p = NULL;
                     ACE_NEW_NORETURN (element_p,
                                       Bencoding_Element ());
@@ -328,7 +297,7 @@ dictionary_value: "string" {
                                 ACE_TEXT (key_string_p->c_str ()),
                                 ACE_TEXT ($1->c_str ()))); }*/
                   | "integer" {
-                    std::string* key_string_p = &iparser->getKey ();
+                    std::string* key_string_p = iparser->popKey ();
                     Bencoding_Element* element_p = NULL;
                     ACE_NEW_NORETURN (element_p,
                                       Bencoding_Element ());
@@ -348,8 +317,8 @@ dictionary_value: "string" {
                                 $1)); }*/
                   | "list" {
                     iparser->pushList ($1); }
-                  list_items {
-                    std::string* key_string_p = &iparser->getKey ();
+                  list_items "list_end" {
+                    std::string* key_string_p = iparser->popKey ();
                     Bencoding_Element* element_p = NULL;
                     ACE_NEW_NORETURN (element_p,
                                       Bencoding_Element ());
@@ -370,8 +339,8 @@ dictionary_value: "string" {
                                 ACE_TEXT (BitTorrent_Tools::ListToString (*$3).c_str ()))); }*/
                   | "dictionary"  {
                     iparser->pushDictionary ($1); }
-                  dictionary_items {
-                    std::string* key_string_p = &iparser->getKey ();
+                  dictionary_items "dictionary_end" {
+                    std::string* key_string_p = iparser->popKey ();
                     Bencoding_Element* element_p = NULL;
                     ACE_NEW_NORETURN (element_p,
                                       Bencoding_Element ());

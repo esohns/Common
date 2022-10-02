@@ -2,18 +2,17 @@
 #define Bencoding_HEADER_H 1
 #define Bencoding_IN_HEADER 1
 
-//  #include "ace/Synch.h"
-  #include "common_iparser.h"
+#include "common_iparser.h"
 
-  #include "bencoding_parser.h"
+#include "bencoding_parser.h"
 
 #if defined (Bencoding_IN_HEADER)
 class Bencoding_IParser;
 #else
 #define YY_STRUCT_YY_BUFFER_STATE
-  #include "bencoding_scanner.h"
+#include "bencoding_scanner.h"
 
-  #include "bencoding_iparser.h"
+#include "common_parser_bencoding_iparser.h"
 #undef YY_STRUCT_YY_BUFFER_STATE
 #endif
 
@@ -621,9 +620,6 @@ void yyfree ( void * , yyscan_t yyscanner );
 /* %% [1.0] yytext/yyin/yyout/yy_state_type/yylineno etc. def's & init go here */
 /* Begin user sect3 */
 
-#define Bencoding_wrap(yyscanner) (/*CONSTCOND*/1)
-#define YY_SKIP_YYWRAP
-
 #define FLEX_DEBUG
 
 
@@ -645,8 +641,9 @@ void yyfree ( void * , yyscan_t yyscanner );
 #define state_string 1
 #define state_integer 2
 #define state_list 3
-#define state_dictionary_key 4
-#define state_dictionary_value 5
+#define state_dictionary 4
+#define state_dictionary_key 5
+#define state_dictionary_value 6
 
 #endif
 

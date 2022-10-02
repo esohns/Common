@@ -32,8 +32,10 @@
 
 Common_Parser_Bencoding_ParserDriver::Common_Parser_Bencoding_ParserDriver ()
  : inherited ()
+ , level_ (0)
+ , isKey_ (true)
  , dictionaries_ ()
- , key_ (NULL)
+ , keys_ ()
  , lists_ ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Parser_Bencoding_ParserDriver::Common_Parser_Bencoding_ParserDriver_T"));

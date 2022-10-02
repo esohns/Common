@@ -60,8 +60,8 @@ extern YY_DECL;
 %option nomain
 %option nostdinit
 %option nounput
-%option noyywrap
 
+%option yywrap
 %option 8bit
 %option align
 /* *TODO*: find out why 'read' does not compile (on Linux, flex 2.5.39) */
@@ -99,6 +99,7 @@ DICTIONARY                        (d({STRING}({INTEGER}|{STRING}|{LIST}|{DICTION
 %s state_string
 %s state_integer
 %s state_list
+%s state_dictionary
 %s state_dictionary_key
 %s state_dictionary_value
 
@@ -119,8 +120,6 @@ DICTIONARY                        (d({STRING}({INTEGER}|{STRING}|{LIST}|{DICTION
   location->step ();
 
   unsigned int      string_length = 0;
-  bool              in_structure = false;
-  bool              string_is_key = false;
   std::stringstream converter;
 
   // sanity check(s)
@@ -137,24 +136,21 @@ DICTIONARY                        (d({STRING}({INTEGER}|{STRING}|{LIST}|{DICTION
                          BEGIN(state_string); }
 "i"                    { yyless (0);
                          BEGIN(state_integer); }
-"l"                    { ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
+"l"                    { parser->offset (1);
                          BEGIN(state_list);
                          ACE_NEW_NORETURN (yylval->lval,
                                            Bencoding_List_t);
                          ACE_ASSERT (yylval->lval);
                          return yy::parser::token::LIST; }
-"d"                    { ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
-                         BEGIN(state_dictionary_key);
+"d"                    { parser->offset (1);
+                         BEGIN(state_dictionary);
                          ACE_NEW_NORETURN (yylval->dval,
                                            Bencoding_Dictionary_t);
                          ACE_ASSERT (yylval->dval);
                          return yy::parser::token::DICTIONARY; }
 } // end <INITIAL>
 <state_string>{
-{DIGIT}+               {
-                         parser->offset (yyleng);
+{DIGIT}+               { parser->offset (yyleng);
                          converter.str (ACE_TEXT_ALWAYS_CHAR (""));
                          converter.clear ();
                          converter << yytext;
@@ -162,18 +158,15 @@ DICTIONARY                        (d({STRING}({INTEGER}|{STRING}|{LIST}|{DICTION
                          ACE_NEW_NORETURN (yylval->sval,
                                            std::string);
                          ACE_ASSERT (yylval->sval); }
-":"                    { ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
+":"                    { parser->offset (1);
                          if (!string_length)
                          { // --> found an empty string
                            ACE_ASSERT (yylval->sval);
-                           if (string_is_key)
+                           if (parser->level ())
                            {
-                             string_is_key = false;
-                             BEGIN(state_dictionary_value);
-                           } // end IF
-                           else if (in_structure)
+                             parser->removeLevel ();
                              yy_pop_state (yyscanner); // return to structure
+                           }
                            return yy::parser::token::STRING;
                          } // END IF
                        }
@@ -183,81 +176,99 @@ DICTIONARY                        (d({STRING}({INTEGER}|{STRING}|{LIST}|{DICTION
                          yylval->sval->push_back (yytext[0]);
                          for (unsigned int i = 0; i < (string_length - 1); ++i)
                            yylval->sval->push_back (static_cast<char> (yyinput (yyscanner)));
-                         if (string_is_key)
-                         {
-                           string_is_key = false;
-                           BEGIN(state_dictionary_value);
-                         } // end IF
-                         else if (in_structure)
-                           yy_pop_state (yyscanner); // return to structure
                          string_length = 0;
+                         if (parser->level ())
+                         {
+                           parser->removeLevel ();
+                           yy_pop_state (yyscanner); // return to structure
+                         }
                          return yy::parser::token::STRING; }
 } // end <state_string>
 <state_integer>{
-"e"                    { ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
-                         if (in_structure)
+"e"                    { parser->offset (1);
+                         if (parser->level ())
+                         {
+                           parser->removeLevel ();
                            yy_pop_state (yyscanner); // return to structure
+                         }
                          return yy::parser::token::INTEGER; }
-{DIGIT}+               {
-                         parser->offset (yyleng);
+"i"                    { parser->offset (1); }
+{DIGIT}+               { parser->offset (yyleng);
                          converter.str (ACE_TEXT_ALWAYS_CHAR (""));
                          converter.clear ();
                          converter << yytext;
                          converter >> yylval->ival; }
-"i"                    { ACE_ASSERT (yyleng == 1);
-                         parser->offset (1); }
 } // end <state_integer>
 <state_list>{
-"e"                    { ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
-                         if (in_structure)
-                           yy_pop_state (yyscanner); } // return to structure
+"e"                    { parser->offset (1);
+                         if (parser->level ())
+                         {
+                           parser->removeLevel ();
+                           yy_pop_state (yyscanner); // return to structure
+                         }
+                         return yy::parser::token::LIST_END; }
 {DIGIT}{1}             { yyless (0);
-                         in_structure = true;
+                         parser->addLevel ();
                          yy_push_state (state_string, yyscanner); }
 "i"                    { yyless (0);
-                         in_structure = true;
+                         parser->addLevel ();
                          yy_push_state (state_integer, yyscanner); }
-"l"                    { ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
-                         in_structure = true;
+"l"                    { parser->offset (1);
+                         parser->addLevel ();
+                         yy_push_state (state_list, yyscanner);
                          ACE_NEW_NORETURN (yylval->lval,
                                            Bencoding_List_t);
                          ACE_ASSERT (yylval->lval);
                          return yy::parser::token::LIST; }
-"d"                    { ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
-                         in_structure = true;
-                         yy_push_state (state_dictionary_key, yyscanner);
+"d"                    { parser->offset (1);
+                         parser->addLevel ();
+                         yy_push_state (state_dictionary, yyscanner);
                          ACE_NEW_NORETURN (yylval->dval,
                                            Bencoding_Dictionary_t);
                          ACE_ASSERT (yylval->dval);
                          return yy::parser::token::DICTIONARY; }
 } // end <state_list>
+<state_dictionary>{
+"e"                    { parser->offset (1);
+                         if (parser->level ())
+                         {
+                           parser->removeLevel ();
+                           yy_pop_state (yyscanner); // return to structure
+                         }
+                         return yy::parser::token::DICTIONARY_END; }
+{OCTET}{1}             { yyless (0);
+                         if (parser->toggleKeyValue ())
+                           BEGIN(state_dictionary_key);
+                         else
+                           BEGIN(state_dictionary_value);
+                       }
+} // end <state_dictionary>
 <state_dictionary_key>{
-"e"                    { ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
-                         if (in_structure)
-                           yy_pop_state (yyscanner); } // return to structure
 {DIGIT}{1}             { yyless (0);
-                         string_is_key = true;
-                         BEGIN(state_string); }
+                         BEGIN(state_dictionary);
+                         parser->addLevel ();
+                         yy_push_state (state_string, yyscanner); }
 } // end <state_dictionary_key>
 <state_dictionary_value>{
 {DIGIT}{1}             { yyless (0);
-                         in_structure = true;
+                         BEGIN(state_dictionary);
+                         parser->addLevel ();
                          yy_push_state (state_string, yyscanner); }
 "i"                    { yyless (0);
-                         in_structure = true;
+                         BEGIN(state_dictionary);
+                         parser->addLevel ();
                          yy_push_state (state_integer, yyscanner); }
-"l"                    { yyless (0);
-                         in_structure = true;
-                         yy_push_state (state_list, yyscanner); }
-"d"                    { ACE_ASSERT (yyleng == 1);
-                         parser->offset (1);
-                         in_structure = true;
-                         yy_push_state (state_dictionary_key, yyscanner);
+"l"                    { parser->offset (1);
+                         BEGIN(state_dictionary);
+                         parser->addLevel ();
+                         yy_push_state (state_list, yyscanner);
+                         ACE_NEW_NORETURN (yylval->lval,
+                                           Bencoding_List_t);
+                         return yy::parser::token::LIST; }
+"d"                    { parser->offset (1);
+                         BEGIN(state_dictionary);
+                         parser->addLevel ();
+                         yy_push_state (state_dictionary, yyscanner);
                          ACE_NEW_NORETURN (yylval->dval,
                                            Bencoding_Dictionary_t);
                          ACE_ASSERT (yylval->dval);
@@ -277,3 +288,42 @@ DICTIONARY                        (d({STRING}({INTEGER}|{STRING}|{LIST}|{DICTION
                          } // end IF
                          yyless (0); }
 %% /* end of rules */
+
+#include "common_macros.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif /* __cplusplus */
+int
+Bencoding_wrap (yyscan_t yyscanner)
+{
+  COMMON_TRACE (ACE_TEXT ("::Bencoding_wrap"));
+
+  // sanity check(s)
+//  struct yyguts_t* yyg = static_cast<struct yyguts_t*> (yyscanner);
+  Common_Parser_Bencoding_ParserDriver* driver =
+    static_cast<Common_Parser_Bencoding_ParserDriver*> (Bencoding_get_extra (yyscanner));
+  ACE_ASSERT (driver);
+//  if (driver->hasFinished ())
+//    return 1; // done
+//  ACE_ASSERT (driver->fragment_);
+
+  // *NOTE*: there is more data
+  // 1. switch buffers
+  // 2. continue scanning
+
+  // step1
+  if (!driver->switchBuffer ())
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_ParserBase_T::switchBuffer(), aborting\n")));
+    return 1;
+  } // end IF
+
+  // step2
+  return 0;
+}
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
