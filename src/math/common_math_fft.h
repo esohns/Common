@@ -61,7 +61,8 @@ class Common_Math_FFT_T
   inline double       Magnitude (unsigned int slot_in,
                                  unsigned int channel_in,
                                  bool normalize_in = true) const
-  { ACE_ASSERT (slot_in < slots_); ACE_ASSERT (channel_in < channels_);
+  { ACE_ASSERT (slot_in < slots_);
+    ACE_ASSERT (channel_in < channels_);
     return (normalize_in ? (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in])) 
                                     : 0.0) * (2.0 / static_cast<double> (slots_))
                          : (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in]))
