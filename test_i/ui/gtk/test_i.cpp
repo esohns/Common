@@ -1101,7 +1101,7 @@ do_work (int argc_in,
   GtkButton* button_p = NULL;
 #if defined (GTK2_USE)
   GdkColor black = {0, 0x0000, 0x0000, 0x0000};
-  GdkColor red = {0, 0xffff, 0x0000, 0x0000};
+//  GdkColor red = {0, 0xffff, 0x0000, 0x0000};
 #elif defined (GTK3_USE)
   GdkRGBA black = { 0.0, 0.0, 0.0, 1.0 };
 
