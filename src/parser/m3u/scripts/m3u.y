@@ -134,6 +134,7 @@
 
 // terminals
 %token
+               LF                   "lf"
                END_OF_ELEMENT       "element_end"
                END 0                "end"
 ;
@@ -193,7 +194,7 @@ void yyprint (FILE*, yytokentype, YYSTYPE);*/
 %start            playlist;
 playlist:         "extm3u" {
                     iparser->setP ($1);
-                  } ext_x_key_values elements {
+                  } ext_x_key_values elements "lf" {
                     struct M3U_Playlist& playlist_r = iparser->current ();
                     struct M3U_Playlist* playlist_p = &playlist_r;
                     try {

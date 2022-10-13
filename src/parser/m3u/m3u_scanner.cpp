@@ -2549,9 +2549,9 @@ static const flex_int32_t yy_rule_can_match_eol[42] =
 static const flex_int32_t yy_rule_linenum[41] =
     {   0,
       141,  146,  153,  160,  167,  174,  181,  187,  194,  196,
-      202,  208,  212,  221,  227,  231,  237,  242,  248,  253,
-      259,  264,  270,  274,  296,  300,  306,  310,  316,  321,
-      327,  331,  353,  358,  364,  368,  374,  379,  385,  391
+      202,  208,  215,  224,  230,  234,  240,  245,  251,  255,
+      261,  266,  272,  276,  299,  303,  309,  313,  319,  324,
+      330,  334,  356,  361,  367,  371,  377,  382,  388,  394
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -2584,7 +2584,6 @@ static const flex_int32_t yy_rule_linenum[41] =
   // this tracks the current scanner location. Action is called when length of
   // the token is known
   #define YY_USER_ACTION location->columns (yyleng);
-/*%option noyywrap*/
 /* *TODO*: find out why 'read' does not compile (on Linux, flex 2.5.39) */
 /*%option ansi-definitions ansi-prototypes*/
 /*%option c++*/
@@ -3233,7 +3232,10 @@ YY_RULE_SETUP
 case 12:
 /* rule 12 can match eol */
 YY_RULE_SETUP
-{ parser->offset (yyleng); }
+{ parser->offset (yyleng);
+                                    if (parser->hasFinished ()) // ignore spurious LFs
+                                      return yy::parser::token::LF;
+                                  }
 	YY_BREAK
 // end <INITIAL>
 
@@ -3310,8 +3312,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-{ ACE_ASSERT (yyleng == 1);
-                                    parser->offset (1);
+{ parser->offset (yyleng);
                                     BEGIN (state_ext_inf_title); }
 	YY_BREAK
 // end <state_ext_inf>
@@ -3366,11 +3367,12 @@ YY_LINENO_REWIND_TO(yy_cp - 1);
 yyg->yy_c_buf_p = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-{ std::string test_string = yytext;
+{
+                                    std::string test_string = yytext;
                                     // *TODO*: actually, need to test whether ','
                                     // does NOT appear between '"'s
                                     if (test_string.find_first_of (',') == std::string::npos)
-                                    {
+                                    { parser->offset (yyleng);
                                       ACE_NEW_NORETURN (yylval->sval,
                                                         std::string);
                                       ACE_ASSERT (yylval->sval);
@@ -3378,7 +3380,7 @@ YY_RULE_SETUP
                                       return yy::parser::token::VALUE;
                                     } // end IF
                                     if (test_string[0] == '"')
-                                    {
+                                    { parser->offset (1);
                                       BEGIN (state_ext_stream_inf_next_value_quotation);
                                       yyless (1);
                                     } // end IF
@@ -3471,7 +3473,7 @@ YY_RULE_SETUP
                                     // *TODO*: actually, need to test whether ','
                                     // does NOT appear between '"'s
                                     if (test_string.find_first_of (',') == std::string::npos)
-                                    {
+                                    { parser->offset (yyleng);
                                       ACE_NEW_NORETURN (yylval->sval,
                                                        std::string);
                                       ACE_ASSERT (yylval->sval);
@@ -3479,7 +3481,7 @@ YY_RULE_SETUP
                                       return yy::parser::token::VALUE;
                                     } // end IF
                                     if (test_string[0] == '"')
-                                    {
+                                    { parser->offset (1);
                                       BEGIN (state_media_next_value_quotation);
                                       yyless (1);
                                     } // end IF

@@ -255,17 +255,18 @@ namespace yy {
     END = 0,                       // "end"
     YYerror = 256,                 // error
     YYUNDEF = 257,                 // "invalid token"
-    END_OF_ELEMENT = 258,          // "element_end"
-    DATETIME = 259,                // "date_time"
-    KEY = 260,                     // "key"
-    LENGTH = 261,                  // "length"
-    TITLE = 262,                   // "title"
-    URL = 263,                     // "URL"
-    VALUE = 264,                   // "value"
-    BEGIN_EXTINF = 265,            // "begin_ext_inf"
-    BEGIN_MEDIA = 266,             // "begin_media"
-    BEGIN_EXT_STREAM_INF = 267,    // "begin_ext_stream_inf"
-    EXT3MU = 268                   // "extm3u"
+    LF = 258,                      // "lf"
+    END_OF_ELEMENT = 259,          // "element_end"
+    DATETIME = 260,                // "date_time"
+    KEY = 261,                     // "key"
+    LENGTH = 262,                  // "length"
+    TITLE = 263,                   // "title"
+    URL = 264,                     // "URL"
+    VALUE = 265,                   // "value"
+    BEGIN_EXTINF = 266,            // "begin_ext_inf"
+    BEGIN_MEDIA = 267,             // "begin_media"
+    BEGIN_EXT_STREAM_INF = 268,    // "begin_ext_stream_inf"
+    EXT3MU = 269                   // "extm3u"
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -282,53 +283,54 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 14, ///< Number of tokens.
+        YYNTOKENS = 15, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end"
         S_YYerror = 1,                           // error
         S_YYUNDEF = 2,                           // "invalid token"
-        S_END_OF_ELEMENT = 3,                    // "element_end"
-        S_DATETIME = 4,                          // "date_time"
-        S_KEY = 5,                               // "key"
-        S_LENGTH = 6,                            // "length"
-        S_TITLE = 7,                             // "title"
-        S_URL = 8,                               // "URL"
-        S_VALUE = 9,                             // "value"
-        S_BEGIN_EXTINF = 10,                     // "begin_ext_inf"
-        S_BEGIN_MEDIA = 11,                      // "begin_media"
-        S_BEGIN_EXT_STREAM_INF = 12,             // "begin_ext_stream_inf"
-        S_EXT3MU = 13,                           // "extm3u"
-        S_YYACCEPT = 14,                         // $accept
-        S_playlist = 15,                         // playlist
-        S_16_1 = 16,                             // $@1
-        S_ext_x_key_values = 17,                 // ext_x_key_values
-        S_ext_x_key_value = 18,                  // ext_x_key_value
-        S_19_2 = 19,                             // $@2
-        S_elements = 20,                         // elements
-        S_element = 21,                          // element
-        S_22_3 = 22,                             // $@3
-        S_23_4 = 23,                             // $@4
-        S_24_5 = 24,                             // $@5
-        S_program_date_time = 25,                // program_date_time
-        S_ext_inf_rest_1 = 26,                   // ext_inf_rest_1
-        S_27_6 = 27,                             // $@6
-        S_ext_inf_rest_2 = 28,                   // ext_inf_rest_2
-        S_29_7 = 29,                             // $@7
-        S_ext_inf_rest_3 = 30,                   // ext_inf_rest_3
-        S_31_8 = 31,                             // $@8
-        S_ext_inf_rest_4 = 32,                   // ext_inf_rest_4
-        S_ext_media_rest_1 = 33,                 // ext_media_rest_1
-        S_ext_media_key_values = 34,             // ext_media_key_values
-        S_ext_media_key_value = 35,              // ext_media_key_value
-        S_36_9 = 36,                             // $@9
-        S_ext_media_rest_4 = 37,                 // ext_media_rest_4
-        S_ext_stream_inf_rest_1 = 38,            // ext_stream_inf_rest_1
-        S_ext_stream_inf_key_values = 39,        // ext_stream_inf_key_values
-        S_ext_stream_inf_key_value = 40,         // ext_stream_inf_key_value
-        S_41_10 = 41,                            // $@10
-        S_ext_stream_inf_rest_3 = 42,            // ext_stream_inf_rest_3
-        S_43_11 = 43,                            // $@11
-        S_ext_stream_inf_rest_4 = 44             // ext_stream_inf_rest_4
+        S_LF = 3,                                // "lf"
+        S_END_OF_ELEMENT = 4,                    // "element_end"
+        S_DATETIME = 5,                          // "date_time"
+        S_KEY = 6,                               // "key"
+        S_LENGTH = 7,                            // "length"
+        S_TITLE = 8,                             // "title"
+        S_URL = 9,                               // "URL"
+        S_VALUE = 10,                            // "value"
+        S_BEGIN_EXTINF = 11,                     // "begin_ext_inf"
+        S_BEGIN_MEDIA = 12,                      // "begin_media"
+        S_BEGIN_EXT_STREAM_INF = 13,             // "begin_ext_stream_inf"
+        S_EXT3MU = 14,                           // "extm3u"
+        S_YYACCEPT = 15,                         // $accept
+        S_playlist = 16,                         // playlist
+        S_17_1 = 17,                             // $@1
+        S_ext_x_key_values = 18,                 // ext_x_key_values
+        S_ext_x_key_value = 19,                  // ext_x_key_value
+        S_20_2 = 20,                             // $@2
+        S_elements = 21,                         // elements
+        S_element = 22,                          // element
+        S_23_3 = 23,                             // $@3
+        S_24_4 = 24,                             // $@4
+        S_25_5 = 25,                             // $@5
+        S_program_date_time = 26,                // program_date_time
+        S_ext_inf_rest_1 = 27,                   // ext_inf_rest_1
+        S_28_6 = 28,                             // $@6
+        S_ext_inf_rest_2 = 29,                   // ext_inf_rest_2
+        S_30_7 = 30,                             // $@7
+        S_ext_inf_rest_3 = 31,                   // ext_inf_rest_3
+        S_32_8 = 32,                             // $@8
+        S_ext_inf_rest_4 = 33,                   // ext_inf_rest_4
+        S_ext_media_rest_1 = 34,                 // ext_media_rest_1
+        S_ext_media_key_values = 35,             // ext_media_key_values
+        S_ext_media_key_value = 36,              // ext_media_key_value
+        S_37_9 = 37,                             // $@9
+        S_ext_media_rest_4 = 38,                 // ext_media_rest_4
+        S_ext_stream_inf_rest_1 = 39,            // ext_stream_inf_rest_1
+        S_ext_stream_inf_key_values = 40,        // ext_stream_inf_key_values
+        S_ext_stream_inf_key_value = 41,         // ext_stream_inf_key_value
+        S_42_10 = 42,                            // $@10
+        S_ext_stream_inf_rest_3 = 43,            // ext_stream_inf_rest_3
+        S_44_11 = 44,                            // $@11
+        S_ext_stream_inf_rest_4 = 45             // ext_stream_inf_rest_4
       };
     };
 
@@ -840,7 +842,7 @@ namespace yy {
     /// Constants.
     enum
     {
-      yylast_ = 21,     ///< Last index in yytable_.
+      yylast_ = 22,     ///< Last index in yytable_.
       yynnts_ = 31,  ///< Number of nonterminal symbols.
       yyfinal_ = 4 ///< Termination state number.
     };
