@@ -222,6 +222,7 @@ Common_Timer_Tools::localToUTC (const ACE_Time_Value& localTime_in,
 #else
     tm_s.tm_gmtoff = tm_gmtoff_in;
 #endif // ACE_WIN32 || ACE_WIN64
+    // *IMPORTANT NOTE*: mktime returns local time !
     time = ACE_OS::mktime (&tm_s);
     if (unlikely (time == -1))
     {
@@ -268,6 +269,7 @@ Common_Timer_Tools::UTCToLocal (const ACE_Time_Value& UTCTime_in)
     return return_value;
   } // end IF
 
+  // *IMPORTANT NOTE*: mktime returns local time !
   time = ACE_OS::mktime (&tm_s);
   if (unlikely (time == -1))
   {
@@ -276,6 +278,61 @@ Common_Timer_Tools::UTCToLocal (const ACE_Time_Value& UTCTime_in)
     return return_value;
   } // end IF
   return_value.set (time, UTCTime_in.usec ());
+
+  return return_value;
+}
+
+ACE_Time_Value
+Common_Timer_Tools::YYYYMMDDToTimestamp (const std::string& timestamp_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Timer_Tools::YYYYMMDDToTimestamp"));
+
+  // initialize return value(s)
+  ACE_Time_Value return_value = ACE_Time_Value::zero;
+
+  // sanity check(s)
+  ACE_ASSERT (timestamp_in.size () == 4 + 2 + 2);
+
+  std::regex regex (ACE_TEXT_ALWAYS_CHAR ("^([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})$"));
+  std::smatch match_results;
+  if (!std::regex_match (timestamp_in,
+                         match_results,
+                         regex,
+                         std::regex_constants::match_default))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to match string (was: \"%s\"), aborting\n"),
+                ACE_TEXT (timestamp_in.c_str ())));
+    return return_value;
+  } // end IF
+  ACE_ASSERT (match_results.ready () && !match_results.empty ());
+  ACE_ASSERT (match_results[1].matched);
+  ACE_ASSERT (match_results[2].matched);
+  ACE_ASSERT (match_results[3].matched);
+
+  struct tm tm_s;
+  ACE_OS::memset (&tm_s, 0, sizeof (struct tm));
+  std::istringstream converter (match_results[1].str ());
+  converter >> tm_s.tm_year;
+  tm_s.tm_year -= 1900;
+  converter.clear ();
+  converter.str (match_results[2].str ());
+  converter >> tm_s.tm_mon;
+  --tm_s.tm_mon;
+  converter.clear ();
+  converter.str (match_results[3].str ());
+  converter >> tm_s.tm_mday;
+
+  // *IMPORTANT NOTE*: mktime returns local time !
+  time_t time = ACE_OS::mktime (&tm_s);
+  if (unlikely (time == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+               ACE_TEXT ("failed to ACE_OS::mktime(\"%s\"): \"%m\", aborting\n"),
+               ACE_TEXT (timestamp_in.c_str ())));
+    return return_value;
+  } // end IF
+  return_value.set (time, 0);
 
   return return_value;
 }
@@ -351,6 +408,7 @@ Common_Timer_Tools::ISO8601ToTimestamp (const std::string& timestamp_in,
     ACE_ASSERT (false);
   } // end ELSE
 
+  // *IMPORTANT NOTE*: mktime returns local time !
   time_t time = ACE_OS::mktime (&tm_s);
   if (unlikely (time == -1))
   {
@@ -406,6 +464,8 @@ Common_Timer_Tools::stringToTimestamp (const std::string& timestamp_in)
   ACE_ASSERT (char_c == ':');
   converter >> tm_s.tm_sec;
   tm_s.tm_isdst = 0; // input is UTC
+
+  // *IMPORTANT NOTE*: mktime returns local time !
   time_t time = ACE_OS::mktime (&tm_s);
   if (unlikely (time == -1))
   {

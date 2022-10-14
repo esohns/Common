@@ -52,6 +52,7 @@ class Common_Timer_Tools
   static std::string dateTimeToString(const ACE_Date_Time&); // date
 
   // --- parsers ---
+  static ACE_Time_Value YYYYMMDDToTimestamp (const std::string&);
   static ACE_Time_Value ISO8601ToTimestamp (const std::string&,
                                             int&);              // return value: UTC offset
   // *NOTE*: parses "YYYY/MM/DD HH:MM:SS"
