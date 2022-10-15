@@ -797,13 +797,12 @@ Common_UI_Tools::getDisplays ()
 
   struct Common_UI_DisplayDevice display_device_s;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  Common_UI_DisplayAdapters_t display_adapters_a =
-    Common_UI_Tools::getAdapters ();
-  //DWORD index_i = 0;
+  DWORD index_i = 0, index_2 = 0;
   DISPLAY_DEVICE display_device_2;
   ACE_OS::memset (&display_device_2, 0, sizeof (DISPLAY_DEVICE));
   display_device_2.cb = sizeof (DISPLAY_DEVICE);
   DWORD flags_i = EDD_GET_DEVICE_INTERFACE_NAME;
+  std::string device_name_string;
   //HDC device_context_p = NULL;
   //DEVMODE device_mode_s;
   //ACE_OS::memset (&device_mode_s, 0, sizeof (DEVMODE));
@@ -811,75 +810,62 @@ Common_UI_Tools::getDisplays ()
   ////device_mode_s.dmDriverExtra = 0;
   //DWORD dwFlags = (EDS_RAWMODE |
   //                 EDS_ROTATEDMODE);
-  for (Common_UI_DisplayAdaptersIterator_t iterator = display_adapters_a.begin ();
-       iterator != display_adapters_a.end ();
-       ++iterator)
-    for (Common_UI_DisplayAdapterHeadsConstIterator_t iterator_2 = (*iterator).heads.begin ();
-         iterator_2 != (*iterator).heads.end ();
-         ++iterator_2)
-    {
-      //index_i = 0;
-      //do
-      //{
-#if defined (UNICODE)
-        if (!EnumDisplayDevices (ACE_TEXT_ALWAYS_WCHAR ((*iterator_2).device.c_str ()), // lpDevice
-#else
-        if (!EnumDisplayDevices ((*iterator_2).device.c_str (),                         // lpDevice
-#endif // UNICODE
-                                 //index_i,                                               // iDevNum
-                                 (*iterator_2).index,
-                                 &display_device_2,                                     // lpDisplayDevice
-                                 flags_i))                                              // dwFlags
-          break;
-#if defined (UNICODE)
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("\"%s\" [%s]: found display device #%d: \"%s\" [%s]\n"),
-                  ACE_TEXT ((*iterator).description.c_str ()),
-                  ACE_TEXT ((*iterator_2).device.c_str ()),
-                  //index_i,
-                  (*iterator_2).index,
-                  ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceString),
-                  ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceName)));
+  do
+  {
+    if (!EnumDisplayDevices (NULL,                                                  // lpDevice
+                             index_i++,                                             // iDevNum
+                             &display_device_2,                                     // lpDisplayDevice
+                             flags_i))                                              // dwFlags
+      break;
+    device_name_string = ACE_TEXT_ALWAYS_CHAR (display_device_2.DeviceName);
 
+    index_2 = 0;
+    do
+    {
+#if defined (UNICODE)
+      if (!EnumDisplayDevices (ACE_TEXT_ALWAYS_WCHAR (device_name_string.c_str ()),   // lpDevice
 #else
+      if (!EnumDisplayDevices (device_name_string.c_str (),                           // lpDevice
+#endif // UNICODE
+                               index_2++,                                             // iDevNum
+                               &display_device_2,                                     // lpDisplayDevice
+                               flags_i))                                              // dwFlags
+        break;
       ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("\"%s\" [%s]: found display device #%d: \"%s\" [%s]\n"),
-                  ACE_TEXT ((*iterator).description.c_str ()),
-                  ACE_TEXT ((*iterator_2).device.c_str ()),
-                  //index_i,
-                  (*iterator_2).index,
+                  ACE_TEXT ("found display device #%d: \"%s\" [%s]\n"),
+                  index_i,
                   ACE_TEXT (display_device_2.DeviceString),
                   ACE_TEXT (display_device_2.DeviceName)));
-#endif // UNICODE
-        display_device_s.id =
+
+      display_device_s.id =
 #if defined (UNICODE)
-          ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceID));
+        ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceID));
 #else
-          display_device_2.DeviceID;
+        display_device_2.DeviceID;
 #endif // UNICODE
-        display_device_s.key =
+      display_device_s.key =
 #if defined (UNICODE)
-          ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceKey));
+        ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceKey));
 #else
-          display_device_2.DeviceKey;
+        display_device_2.DeviceKey;
 #endif // UNICODE
-        display_device_s.device =
+      display_device_s.device =
 #if defined (UNICODE)
-          ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceName));
+        ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceName));
 #else
-          display_device_2.DeviceName;
+        display_device_2.DeviceName;
 #endif // UNICODE
-        display_device_s.description =
+      display_device_s.description =
 #if defined (UNICODE)
-          ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceString));
+        ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceString));
 #else
-          display_device_2.DeviceString;
+        display_device_2.DeviceString;
 #endif // UNICODE
-        // *IMPORTANT NOTE*: EnumDisplayMonitors() appears to be partially broken;
-        //                   it will not accept device contexts
-        //                   --> update any found device entries manually
-        // *TODO*: this workaround probably works for desktop devices only
-        result.push_back (display_device_s);
+    // *IMPORTANT NOTE*: EnumDisplayMonitors() appears to be partially broken;
+    //                   it will not accept device contexts
+    //                   --> update any found device entries manually
+    // *TODO*: this workaround probably works for desktop devices only
+      result.push_back (display_device_s);
 //#if defined (UNICODE)
 //      if !EnumDisplaySettingsEx (ACE_TEXT_ALWAYS_WCHAR ((*iterator).device.c_str ()), // lpszDeviceName
 //#else
@@ -946,9 +932,8 @@ Common_UI_Tools::getDisplays ()
 //                    ACE_TEXT ("failed to DeleteDC(): \"%s\", continuing\n"),
 //                    ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
 //      device_context_p = NULL;
-      //  ++index_i;
-      //} while (true);
-    } // end FOR
+    } while (true);
+  } while (true);
   if (!EnumDisplayMonitors (NULL,                                // hdc
                             NULL,                                // lprcClip
                             common_ui_monitor_enum_cb,           // lpfnEnum
