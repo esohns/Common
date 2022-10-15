@@ -65,7 +65,7 @@ extern YY_DECL;
 %option align
 /* *TODO*: find out why 'read' does not compile (on Linux, flex 2.5.39) */
 %option read
-%option full
+/* %option full */
 %option ecs
 %option reentrant
 
@@ -73,7 +73,7 @@ extern YY_DECL;
 %option perf-report
 %option verbose
 %option warn
-%option yylineno
+/* %option yylineno */
 
 /*%option ansi-definitions ansi-prototypes*/
 /*%option c++*/
@@ -92,7 +92,7 @@ TO_COMMA                          [^,]
 TO_QUOTATION                      [^\"]
 TO_END_OF_LINE                    [^\x0A]
 TO_EQUALS                         [^=]
-LF                                \x0A
+LF                                \x0A|\x0D\x0A
 
 %s state_no_value
 %s state_value

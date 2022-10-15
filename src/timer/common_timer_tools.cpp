@@ -350,8 +350,11 @@ Common_Timer_Tools::ISO8601ToTimestamp (const std::string& timestamp_in,
   // sanity check(s)
   ACE_ASSERT (timestamp_in.size () >= 20);
 
-  std::regex regex (ACE_TEXT_ALWAYS_CHAR ("^([[:digit:]]{4})-([[:digit:]]{2})-([[:digit:]]{2})T([[:digit:]]{2}):([[:digit:]]{2}):([[:digit:]]{2})(?:\\.([[:digit:]]{3}))?(Z|.+)$"));
+  std::regex regex;
   std::smatch match_results;
+  std::string regex_string =
+    ACE_TEXT_ALWAYS_CHAR ("^([[:digit:]]{4})-([[:digit:]]{2})-([[:digit:]]{2})T([[:digit:]]{2}):([[:digit:]]{2}):([[:digit:]]{2})(?:\\.([[:digit:]]{3}))?(Z|.+)$");
+  regex.assign (regex_string);
   if (!std::regex_match (timestamp_in,
                          match_results,
                          regex,
@@ -394,18 +397,41 @@ Common_Timer_Tools::ISO8601ToTimestamp (const std::string& timestamp_in,
   converter >> tm_s.tm_sec;
 
   // process timezone
-  converter.clear ();
-  converter.str (match_results[8].str ());
+  std::string input_string = match_results[8].str ();
   char char_c = 0;
+  converter.clear ();
+  converter.str (input_string);
   converter >> char_c;
-  if (char_c == 'Z')
-  {
-//    tm_s.tm_isdst = 0; // input is UTC
-  } // end IF
+  if (char_c == 'Z'); // Zulu time ?
   else
   {
-    // *TODO*: parse time zone
-    ACE_ASSERT (false);
+    regex_string =
+      ACE_TEXT_ALWAYS_CHAR ("^(\\+|\\-)([[:digit:]]{1,2}):([[:digit:]]{2})$");
+    regex.assign (regex_string);
+    std::smatch match_results_2;
+    if (!std::regex_match (input_string,
+                           match_results_2,
+                           regex,
+                           std::regex_constants::match_default))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to match string (was: \"%s\"), aborting\n"),
+                  ACE_TEXT (match_results[8].str ().c_str ())));
+      return return_value;
+    } // end IF
+    ACE_ASSERT (match_results_2[1].matched);
+    ACE_ASSERT (match_results_2[2].matched);
+    ACE_ASSERT (match_results_2[3].matched);
+
+    converter.clear ();
+    converter.str (match_results_2[1].str ());
+    converter >> char_c;
+
+    converter.clear ();
+    converter.str (match_results_2[2].str ());
+    converter >> tm_gmtoff_out;
+    if (char_c == '-')
+      tm_gmtoff_out = -tm_gmtoff_out;
   } // end ELSE
 
   // *IMPORTANT NOTE*: mktime returns local time !
