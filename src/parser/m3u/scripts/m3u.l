@@ -137,7 +137,7 @@ LF                                \x0A|\x0D\x0A
 %}
 
 <INITIAL>{
-"#EXTM3U\x0A"                     { parser->offset (yyleng);
+"#EXTM3U"                         { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->lval,
                                                       struct M3U_Playlist);
                                     ACE_ASSERT (yylval->lval);
@@ -183,6 +183,13 @@ LF                                \x0A|\x0D\x0A
                                                       struct M3U_Media_Element);
                                     ACE_ASSERT (yylval->emval);
                                     return yy::parser::token::BEGIN_MEDIA; }
+"#EXT-X-DISCONTINUITY"            { parser->offset (yyleng);
+                                    ACE_NEW_NORETURN (yylval->sval,
+                                                     std::string);
+                                    ACE_ASSERT (yylval->sval);
+                                    *(yylval->sval) = ACE_TEXT_ALWAYS_CHAR ("DISCONTINUITY");
+                                    BEGIN (state_no_value);
+                                    return yy::parser::token::KEY; }
 "#EXT-X-DISCONTINUITY-SEQUENCE:"  { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
                                                      std::string);

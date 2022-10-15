@@ -306,31 +306,32 @@ namespace yy {
         S_ext_x_key_values = 18,                 // ext_x_key_values
         S_ext_x_key_value = 19,                  // ext_x_key_value
         S_20_2 = 20,                             // $@2
-        S_elements = 21,                         // elements
-        S_element = 22,                          // element
-        S_23_3 = 23,                             // $@3
-        S_24_4 = 24,                             // $@4
-        S_25_5 = 25,                             // $@5
-        S_program_date_time = 26,                // program_date_time
-        S_ext_inf_rest_1 = 27,                   // ext_inf_rest_1
-        S_28_6 = 28,                             // $@6
-        S_ext_inf_rest_2 = 29,                   // ext_inf_rest_2
-        S_30_7 = 30,                             // $@7
-        S_ext_inf_rest_3 = 31,                   // ext_inf_rest_3
-        S_32_8 = 32,                             // $@8
-        S_ext_inf_rest_4 = 33,                   // ext_inf_rest_4
-        S_ext_media_rest_1 = 34,                 // ext_media_rest_1
-        S_ext_media_key_values = 35,             // ext_media_key_values
-        S_ext_media_key_value = 36,              // ext_media_key_value
-        S_37_9 = 37,                             // $@9
-        S_ext_media_rest_4 = 38,                 // ext_media_rest_4
-        S_ext_stream_inf_rest_1 = 39,            // ext_stream_inf_rest_1
-        S_ext_stream_inf_key_values = 40,        // ext_stream_inf_key_values
-        S_ext_stream_inf_key_value = 41,         // ext_stream_inf_key_value
-        S_42_10 = 42,                            // $@10
-        S_ext_stream_inf_rest_3 = 43,            // ext_stream_inf_rest_3
-        S_44_11 = 44,                            // $@11
-        S_ext_stream_inf_rest_4 = 45             // ext_stream_inf_rest_4
+        S_ext_x_key_value_2 = 21,                // ext_x_key_value_2
+        S_elements = 22,                         // elements
+        S_element = 23,                          // element
+        S_24_3 = 24,                             // $@3
+        S_25_4 = 25,                             // $@4
+        S_26_5 = 26,                             // $@5
+        S_program_date_time = 27,                // program_date_time
+        S_ext_inf_rest_1 = 28,                   // ext_inf_rest_1
+        S_29_6 = 29,                             // $@6
+        S_ext_inf_rest_2 = 30,                   // ext_inf_rest_2
+        S_31_7 = 31,                             // $@7
+        S_ext_inf_rest_3 = 32,                   // ext_inf_rest_3
+        S_33_8 = 33,                             // $@8
+        S_ext_inf_rest_4 = 34,                   // ext_inf_rest_4
+        S_ext_media_rest_1 = 35,                 // ext_media_rest_1
+        S_ext_media_key_values = 36,             // ext_media_key_values
+        S_ext_media_key_value = 37,              // ext_media_key_value
+        S_38_9 = 38,                             // $@9
+        S_ext_media_rest_4 = 39,                 // ext_media_rest_4
+        S_ext_stream_inf_rest_1 = 40,            // ext_stream_inf_rest_1
+        S_ext_stream_inf_key_values = 41,        // ext_stream_inf_key_values
+        S_ext_stream_inf_key_value = 42,         // ext_stream_inf_key_value
+        S_43_10 = 43,                            // $@10
+        S_ext_stream_inf_rest_3 = 44,            // ext_stream_inf_rest_3
+        S_45_11 = 45,                            // $@11
+        S_ext_stream_inf_rest_4 = 46             // ext_stream_inf_rest_4
       };
     };
 
@@ -843,7 +844,7 @@ namespace yy {
     enum
     {
       yylast_ = 22,     ///< Last index in yytable_.
-      yynnts_ = 31,  ///< Number of nonterminal symbols.
+      yynnts_ = 32,  ///< Number of nonterminal symbols.
       yyfinal_ = 4 ///< Termination state number.
     };
 

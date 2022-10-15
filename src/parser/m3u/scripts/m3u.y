@@ -150,7 +150,7 @@
 %token <lval>  EXT3MU               "extm3u"
 
 // non-terminals
-%nterm  <ival> elements ext_x_key_values ext_x_key_value program_date_time
+%nterm  <ival> elements ext_x_key_values ext_x_key_value ext_x_key_value_2 program_date_time
 %nterm  <ival> ext_media_key_values ext_media_key_value
 %nterm  <ival> ext_stream_inf_key_values ext_stream_inf_key_value
 %nterm  <eval> element
@@ -215,12 +215,15 @@ ext_x_key_value:  "key" {
                     playlist_r.keyValues.push_back (std::make_pair (playlist_r.key, *$3));
                     playlist_r.key.clear ();
                   }
+ext_x_key_value_2: ext_x_key_value
+/*                 |                    { }*/
+                   | %empty             { }
 
 elements:         elements element
 /*                  |                    { }*/
                   | %empty             { }
-element:          program_date_time "begin_ext_inf" {
-                    iparser->setP_2 ($2);
+element:          program_date_time ext_x_key_value_2 "begin_ext_inf" {
+                    iparser->setP_2 ($3);
                     struct M3U_Playlist& playlist_r = iparser->current ();
                     if (!playlist_r.key.empty ())
                     {
