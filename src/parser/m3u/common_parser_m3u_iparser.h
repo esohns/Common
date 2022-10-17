@@ -97,6 +97,8 @@ class Common_Parser_M3U_IParser
 
   using IPARSER_T::error;
 //  using Common_IScanner::error;
+  virtual void pop_next () = 0;
+  virtual bool pop_state () = 0;
 
   virtual struct M3U_ExtInf_Element& current_2 () = 0; // element handle
   virtual struct M3U_Media_Element& current_3 () = 0; // element handle

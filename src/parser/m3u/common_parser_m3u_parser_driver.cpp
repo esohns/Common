@@ -32,6 +32,7 @@
 
 Common_Parser_M3U_ParserDriver::Common_Parser_M3U_ParserDriver ()
  : inherited ()
+ , popState_ (false)
  , playlist_ (NULL)
  , extInfElement_ (NULL)
  , mediaElement_ (NULL)

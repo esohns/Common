@@ -258,9 +258,16 @@ ext_inf_rest_2:   "title" {
                     struct M3U_ExtInf_Element& element_r = iparser->current_2 ();
                     element_r.Title = *$1; } ext_inf_rest_3 { }
                   | ext_inf_rest_3 { }
-ext_inf_rest_3:   "URL" {
+ext_inf_rest_3:   program_date_time "URL" {
                     struct M3U_ExtInf_Element& element_r = iparser->current_2 ();
-                    element_r.URL = *$1; } ext_inf_rest_4 { }
+                    element_r.URL = *$2;
+                    struct M3U_Playlist& playlist_r = iparser->current ();
+                    if (!playlist_r.key.empty ())
+                    {
+                      element_r.keyValues.push_back (std::make_pair (ACE_TEXT_ALWAYS_CHAR (COMMON_PARSER_M3U_EXT_X_PROGRAM_DATE_TIME), playlist_r.key));
+                      playlist_r.key.clear ();
+                    } // end IF
+                  } ext_inf_rest_4 { }
 ext_inf_rest_4:   "element_end" {
                     struct M3U_Playlist& playlist_r = iparser->current ();
                     struct M3U_ExtInf_Element& element_r = iparser->current_2 ();

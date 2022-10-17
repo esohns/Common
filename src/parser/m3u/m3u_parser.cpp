@@ -677,7 +677,7 @@ namespace yy {
         try
 #endif // YY_EXCEPTIONS
           {
-            yyla.kind_ = yytranslate_ (yylex (&yyla.value, &yyla.location, iparser, iscanner->getR().context));
+            yyla.kind_ = yytranslate_ (yylex (&yyla.value, &yyla.location, iparser, iscanner->getR ().context));
           }
 #if YY_EXCEPTIONS
         catch (const syntax_error& yyexc)
@@ -908,13 +908,20 @@ namespace yy {
     break;
 
   case 25: // $@8: %empty
-                        {
+                                          {
                     struct M3U_ExtInf_Element& element_r = iparser->current_2 ();
-                    element_r.URL = *(yystack_[0].value.sval); }
+                    element_r.URL = *(yystack_[0].value.sval);
+                    struct M3U_Playlist& playlist_r = iparser->current ();
+                    if (!playlist_r.key.empty ())
+                    {
+                      element_r.keyValues.push_back (std::make_pair (ACE_TEXT_ALWAYS_CHAR (COMMON_PARSER_M3U_EXT_X_PROGRAM_DATE_TIME), playlist_r.key));
+                      playlist_r.key.clear ();
+                    } // end IF
+                  }
     break;
 
-  case 26: // ext_inf_rest_3: "URL" $@8 ext_inf_rest_4
-                                                          { }
+  case 26: // ext_inf_rest_3: program_date_time "URL" $@8 ext_inf_rest_4
+                                   { }
     break;
 
   case 27: // ext_inf_rest_4: "element_end"
@@ -1348,19 +1355,19 @@ namespace yy {
   }
 
 
-  const signed char parser::yypact_ninf_ = -29;
+  const signed char parser::yypact_ninf_ = -27;
 
   const signed char parser::yytable_ninf_ = -1;
 
   const signed char
   parser::yypact_[] =
   {
-      -6,   -29,    11,   -29,   -29,     6,   -29,   -29,    -3,     3,
-     -29,   -29,   -29,   -29,   -29,     6,   -29,   -29,   -29,   -29,
-       4,   -29,    -1,   -29,    -5,   -29,   -29,   -29,   -29,   -29,
-     -29,   -29,   -29,   -29,     7,     8,     9,    12,   -29,   -29,
-     -29,   -29,   -29,   -29,    -2,   -29,   -29,   -29,   -29,    13,
-      16,   -29,   -29,   -29
+      -6,   -27,    11,   -27,   -27,     6,   -27,   -27,    -3,     3,
+     -27,   -27,   -27,   -27,   -27,     6,   -27,   -27,   -27,   -27,
+       4,   -27,     1,   -27,    -5,   -27,   -27,   -27,   -27,   -27,
+     -27,   -27,   -27,   -27,     7,     8,     9,    12,   -27,   -27,
+     -27,   -27,   -27,   -27,    -2,   -27,    13,   -27,   -27,    15,
+     -27,   -27,    17,   -27,   -27
   };
 
   const signed char
@@ -1370,24 +1377,24 @@ namespace yy {
        3,    18,    14,    16,    10,     9,     7,    30,    36,     8,
        0,    15,     0,    17,     0,    12,    33,    31,    29,    28,
       37,    39,    35,    34,     0,     0,     0,     0,    20,    13,
-      32,    38,    41,    40,     0,    22,    25,    21,    24,     0,
-       0,    23,    27,    26
+      32,    38,    41,    40,    19,    22,     0,    21,    24,    19,
+      25,    23,     0,    27,    26
   };
 
   const signed char
   parser::yypgoto_[] =
   {
-     -29,   -29,   -29,   -29,     2,   -29,   -29,   -29,   -29,   -29,
-     -29,   -29,   -29,   -29,   -29,   -29,   -29,   -28,   -29,   -29,
-     -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,
-     -29,   -29
+     -27,   -27,   -27,   -27,     2,   -27,   -27,   -27,   -27,   -27,
+     -27,   -27,    16,   -27,   -27,   -27,   -27,   -26,   -27,   -27,
+     -27,   -27,   -27,   -27,   -27,   -27,   -27,   -27,   -27,   -27,
+     -27,   -27
   };
 
   const signed char
   parser::yydefgoto_[] =
   {
        0,     2,     3,     5,     7,     9,    20,     8,    14,    34,
-      17,    18,    15,    39,    44,    47,    49,    48,    50,    53,
+      17,    18,    46,    39,    44,    47,    49,    48,    52,    54,
       21,    22,    28,    35,    29,    23,    24,    32,    36,    33,
       37,    43
   };
@@ -1395,17 +1402,17 @@ namespace yy {
   const signed char
   parser::yytable_[] =
   {
-      10,    30,    11,    26,    31,    27,    45,    46,     1,    12,
+      10,    30,    11,    11,    31,    26,    45,    27,     1,    12,
       13,     4,     6,    16,    38,    25,    42,    19,    40,    41,
-      52,    51,    46
+      11,    53,    50,    51,    15
   };
 
   const signed char
   parser::yycheck_[] =
   {
-       3,     6,     5,     4,     9,     6,     8,     9,    14,    12,
+       3,     6,     5,     5,     9,     4,     8,     6,    14,    12,
       13,     0,     6,    10,     7,    11,     4,    15,    10,    10,
-       4,    49,     9
+       5,     4,     9,    49,     8
   };
 
   const signed char
@@ -1415,8 +1422,8 @@ namespace yy {
        3,     5,    12,    13,    23,    27,    10,    25,    26,    19,
       21,    35,    36,    40,    41,    11,     4,     6,    37,    39,
        6,     9,    42,    44,    24,    38,    43,    45,     7,    28,
-      10,    10,     4,    46,    29,     8,     9,    30,    32,    31,
-      33,    32,     4,    34
+      10,    10,     4,    46,    29,     8,    27,    30,    32,    31,
+       9,    32,    33,     4,    34
   };
 
   const signed char
@@ -1434,7 +1441,7 @@ namespace yy {
   {
        0,     2,     0,     5,     2,     0,     0,     3,     1,     0,
        2,     0,     0,     5,     0,     3,     0,     3,     1,     0,
-       0,     3,     0,     3,     1,     0,     3,     1,     2,     2,
+       0,     3,     0,     3,     1,     0,     4,     1,     2,     2,
        0,     0,     3,     1,     2,     2,     0,     0,     3,     0,
        3,     1
   };
@@ -1468,9 +1475,9 @@ namespace yy {
   {
        0,   195,   195,   195,   208,   210,   211,   211,   218,   220,
      222,   224,   225,   225,   235,   235,   238,   238,   248,   252,
-     254,   254,   257,   257,   260,   261,   261,   264,   269,   270,
-     272,   273,   273,   278,   283,   284,   286,   287,   287,   292,
-     292,   295
+     254,   254,   257,   257,   260,   261,   261,   271,   276,   277,
+     279,   280,   280,   285,   290,   291,   293,   294,   294,   299,
+     299,   302
   };
 
   void

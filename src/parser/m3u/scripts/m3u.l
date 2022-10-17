@@ -54,10 +54,10 @@ extern YY_DECL;
 %option batch
 %option never-interactive
 %option pointer
+%option stack
 
 %option nodefault
 %option nomain
-%option nostack
 %option nostdinit
 %option nounput
 
@@ -107,7 +107,7 @@ LF                                \x0A|\x0D\x0A
 %s state_media_next_value_comma
 %s state_media_next_value_quotation
 %s state_media_is_last_value
-%s state_url
+%s state_url_1 state_url_2
 
 %{
 /* handle locations */
@@ -244,7 +244,10 @@ LF                                \x0A|\x0D\x0A
                                     *(yylval->sval) = yytext;
                                     return yy::parser::token::DATETIME; }
 {LF}                              { parser->offset (yyleng);
-                                    BEGIN (INITIAL); }
+                                    if (parser->pop_state ())
+                                      yy_pop_state (yyscanner);
+                                    else
+                                      BEGIN (INITIAL); }
 } // end <state_date_time>
 
 <state_ext_inf>{
@@ -265,7 +268,7 @@ LF                                \x0A|\x0D\x0A
                                     *(yylval->sval) = yytext;
                                     return yy::parser::token::TITLE; }
 {LF}                              { parser->offset (yyleng);
-                                    BEGIN (state_url); }
+                                    BEGIN (state_url_1); }
 } // end <state_key_value>
 
 <state_ext_stream_inf_key_value>{
@@ -303,7 +306,7 @@ LF                                \x0A|\x0D\x0A
                                     } // end IF
                                   }
 {LF}                              { parser->offset (yyleng);
-                                    BEGIN (state_url); }
+                                    BEGIN (state_url_1); }
 } // end <state_ext_stream_inf_is_last_value>
 <state_ext_stream_inf_next_value_comma>{
 {TO_COMMA}+/,                     { parser->offset (yyleng);
@@ -384,17 +387,24 @@ LF                                \x0A|\x0D\x0A
                                     BEGIN (state_media_key_value); }
 } // end <state_media_next_value_quotation>
 
-<state_url>{
+<state_url_1>{
+"#EXT-X-PROGRAM-DATE-TIME:"       { parser->offset (yyleng);
+                                    parser->pop_next ();
+                                    yy_push_state (state_date_time, yyscanner); }
+{TO_END_OF_LINE}{1}               { yyless (0);
+                                    BEGIN (state_url_2); }
+} // end <state_url_1>
+<state_url_2>{
 {TO_END_OF_LINE}+/{LF}            { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
-                                                      std::string);
+                                                     std::string);
                                     ACE_ASSERT (yylval->sval);
                                     *(yylval->sval) = yytext;
                                     return yy::parser::token::URL; }
 {LF}                              { parser->offset (yyleng);
                                     BEGIN (INITIAL);
                                     return yy::parser::token::END_OF_ELEMENT; }
-} // end <state_url>
+} // end <state_url_2>
 
 <<EOF>>                           { return yy::parser::token::END; }
 <*>{OCTET}                        { /* *TODO*: use (?s:.) ? */

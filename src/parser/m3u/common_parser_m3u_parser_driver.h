@@ -70,6 +70,9 @@ class Common_Parser_M3U_ParserDriver
   using PARSER_BASE_T::waitBuffer;
 
   // implement (part of) M3U_IParser_t
+  inline virtual void pop_next () { popState_ = true; }
+  inline virtual bool pop_state () { bool pop_state_b = popState_; popState_ = false; return pop_state_b; }
+
   inline virtual struct M3U_Playlist& current () { ACE_ASSERT (playlist_); return *playlist_; }
   inline virtual struct M3U_ExtInf_Element& current_2 () { ACE_ASSERT (extInfElement_); return *extInfElement_; }
   inline virtual struct M3U_Media_Element& current_3 () { ACE_ASSERT (mediaElement_); return *mediaElement_; }
@@ -104,6 +107,7 @@ class Common_Parser_M3U_ParserDriver
   inline virtual void destroy (yyscan_t state_in, struct yy_buffer_state*& buffer_inout) { M3U__delete_buffer (buffer_inout, state_in); buffer_inout = NULL; }
 //  inline virtual bool lex (yyscan_t state_in, yy::location* location_in) { ACE_ASSERT (false); return Bencoding_lex (NULL, location_in, this, state_in); }
 
+  bool                          popState_;
   struct M3U_Playlist*          playlist_;
   struct M3U_ExtInf_Element*    extInfElement_;
   struct M3U_Media_Element*     mediaElement_;
