@@ -52,6 +52,7 @@ class Common_UI_Curses_Manager_T
                                      Common_TimePolicy_t> >
  , public Common_IInitialize_T<ConfigurationType>
  , public Common_IGetR_T<StateType>
+ , public Common_IGetR_2_T<ConfigurationType>
 {
   typedef Common_TaskBase_T<ACE_SYNCH_USE,
                             Common_TimePolicy_t,
@@ -83,6 +84,7 @@ class Common_UI_Curses_Manager_T
   virtual bool initialize (const ConfigurationType&);
 
   inline virtual const StateType& getR () const { return state_; }
+  inline virtual const ConfigurationType& getR_2 () const { ACE_ASSERT (configuration_); return *configuration_; }
 
  private:
   // convenient types

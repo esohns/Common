@@ -2118,3 +2118,76 @@ Common_UI_Tools::nearest (const Common_UI_Resolutions_t& resolutions_in,
   ACE_NOTSUP_RETURN (return_value);
   ACE_NOTREACHED (return return_value;)
 }
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+bool
+Common_UI_Tools::setConsoleFontSize (const struct _COORD& size_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::setConsoleFontSize"));
+
+  HANDLE console_h = GetStdHandle (STD_OUTPUT_HANDLE);
+  ACE_ASSERT (console_h != ACE_INVALID_HANDLE);
+
+  struct _CONSOLE_FONT_INFOEX console_font_info_ex_s;
+  ACE_OS::memset (&console_font_info_ex_s, 0, sizeof (struct _CONSOLE_FONT_INFOEX));
+  console_font_info_ex_s.cbSize = sizeof (struct _CONSOLE_FONT_INFOEX);
+  if (GetCurrentConsoleFontEx (console_h,
+                               FALSE,
+                               &console_font_info_ex_s) == FALSE)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to GetCurrentConsoleFontEx(%@): \"%s\", aborting\n"),
+                console_h,
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
+    return false;
+  } // end IF
+
+  console_font_info_ex_s.dwFontSize = size_in;
+  if (SetCurrentConsoleFontEx (console_h,
+                               FALSE,
+                               &console_font_info_ex_s) == FALSE)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to SetCurrentConsoleFontEx(%@): \"%s\", aborting\n"),
+                console_h,
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
+    return false;
+  } // end IF
+
+  return true;
+}
+
+struct _SMALL_RECT
+Common_UI_Tools::setConsoleMaxWindowSize ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::setConsoleMaxWindowSize"));
+
+  HANDLE console_h = GetStdHandle (STD_OUTPUT_HANDLE);
+  ACE_ASSERT (console_h != ACE_INVALID_HANDLE);
+
+  struct _CONSOLE_SCREEN_BUFFER_INFOEX console_screen_buffer_info_ex_s;
+  ACE_OS::memset (&console_screen_buffer_info_ex_s, 0, sizeof (struct _CONSOLE_SCREEN_BUFFER_INFOEX));
+  console_screen_buffer_info_ex_s.cbSize = sizeof (struct _CONSOLE_SCREEN_BUFFER_INFOEX);
+  BOOL result = GetConsoleScreenBufferInfoEx (console_h,
+                                              &console_screen_buffer_info_ex_s);
+  ACE_ASSERT (result == TRUE);
+
+  struct _SMALL_RECT small_rect_s = {0, 0, 0, 0};
+  small_rect_s.Right =
+    console_screen_buffer_info_ex_s.dwMaximumWindowSize.X - 1;
+  small_rect_s.Bottom =
+    console_screen_buffer_info_ex_s.dwMaximumWindowSize.Y - 1;
+  if (SetConsoleWindowInfo (console_h,
+                            TRUE,
+                            &small_rect_s) == FALSE)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to SetConsoleWindowInfo(%@): \"%s\", returning\n"),
+                console_h,
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
+    return { 0, 0, 0, 0 };
+  } // end IF
+
+  return small_rect_s;
+}
+#endif // ACE_WIN32 || ACE_WIN64

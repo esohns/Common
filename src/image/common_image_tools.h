@@ -87,6 +87,14 @@ class Common_Image_Tools
 #endif // FFMPEG_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
+  // color conversion
+  static void RGBToHSV (const float&, // r - normalized
+                        const float&, // g - normalized
+                        const float&, // b - normalized
+                        float&,       // return value: h
+                        float&,       // return value: s
+                        float&);      // return value: v
+
   // --- libav/ffmpeg ---
 #if defined (FFMPEG_SUPPORT)
   // *TODO*: currently supports AV_PIX_FMT_YUV420P only

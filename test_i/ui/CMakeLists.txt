@@ -1,3 +1,4 @@
+add_subdirectory (console)
 if (GTK_SUPPORT)
  add_subdirectory (gtk)
 endif (GTK_SUPPORT)

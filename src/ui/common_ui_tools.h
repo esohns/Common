@@ -111,6 +111,12 @@ class Common_UI_Tools
   static Common_UI_Resolution_t nearest (const Common_UI_Resolutions_t&, // resolutions
                                          const Common_UI_Resolution_t&); // resolution
 
+  // console
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static bool setConsoleFontSize (const struct _COORD&); // x/y
+  static struct _SMALL_RECT setConsoleMaxWindowSize (); // return value: x/y
+#endif // ACE_WIN32 || ACE_WIN64
+
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Tools ())
   ACE_UNIMPLEMENTED_FUNC (~Common_UI_Tools ())

@@ -214,6 +214,55 @@ Common_Image_Tools::saveBMP (const Common_Image_Resolution_t& resolution_in,
 #endif // FFMPEG_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
+void
+Common_Image_Tools::RGBToHSV (const float& red_in,
+                              const float& green_in,
+                              const float& blue_in,
+                              float& hue_out,
+                              float& saturation_out,
+                              float& value_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::RGBToHSV"));
+
+  float min_f, max_f, delta_f;
+
+  min_f = red_in < green_in ? red_in : green_in;
+  min_f = min_f  < blue_in  ? min_f  : blue_in;
+  max_f = red_in > green_in ? red_in : green_in;
+  max_f = max_f  > blue_in  ? max_f  : blue_in;
+
+  value_out = max_f;                              // v
+  delta_f = max_f - min_f;
+  if (delta_f < 0.00001F)
+  {
+    saturation_out = 0.0F;
+    hue_out = 0.0F; // undefined, maybe nan?
+    return;
+  } // end IF
+
+  ACE_ASSERT (max_f >= 0.0F);
+  if (max_f > 0.0F) // NOTE: if Max is == 0, this divide would cause a crash
+    saturation_out = (delta_f / max_f);           // s
+  else
+  {
+    // if max is 0, then r = g = b = 0
+    // s = 0, h is undefined
+    saturation_out = 0.0F;
+    hue_out = NAN; // its now undefined
+    return;
+  } // end ELSE
+
+  if (red_in >= max_f) // > is bogus, just keeps compilor happy
+    hue_out = (green_in - blue_in) / delta_f;      // between yellow & magenta
+  else if (green_in >= max_f)
+    hue_out = 2.0F + (blue_in - red_in) / delta_f;  // between cyan & yellow
+  else
+    hue_out = 4.0F + (red_in - green_in) / delta_f; // between magenta & cyan
+  hue_out *= 60.0F; // degrees
+  if (hue_out < 0.0F)
+    hue_out += 360.0F;
+}
+
 #if defined (FFMPEG_SUPPORT)
 bool
 Common_Image_Tools::save (const Common_Image_Resolution_t& resolution_in,

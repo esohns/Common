@@ -32,11 +32,21 @@ class Common_UI_Curses_Tools
                           ACE_TCHAR*[]); // argv
   static bool finalize ();
 
+  static void init_colorpairs ();
+  static void setcolor (int,  // foreground
+                        int); // background
+  static void unsetcolor (int,  // foreground
+                          int); // background
+
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Curses_Tools ())
   ACE_UNIMPLEMENTED_FUNC (~Common_UI_Curses_Tools ())
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Curses_Tools (const Common_UI_Curses_Tools&))
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Curses_Tools& operator= (const Common_UI_Curses_Tools&))
+
+  static int colornum (int, int);
+  static short curs_color (int);
+  static int is_bold (int);
 };
 
 #endif

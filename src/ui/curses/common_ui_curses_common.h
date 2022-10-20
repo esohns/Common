@@ -38,6 +38,8 @@
 
 #include "common_ui_common.h"
 
+#include "common_ui_curses_defines.h"
+
 typedef std::map<std::string, struct panel*> Common_UI_Curses_Panels_t;
 typedef Common_UI_Curses_Panels_t::iterator Common_UI_Curses_PanelsIterator_t;
 
@@ -90,9 +92,14 @@ struct Common_UI_Curses_Configuration
 {
   Common_UI_Curses_Configuration ()
    : hooks ()
+   , height (COMMON_UI_CURSES_WINDOW_ROWS)
+   , width (COMMON_UI_CURSES_WINDOW_COLUMNS)
   {}
 
   struct Common_UI_Curses_EventHookConfiguration hooks;
+
+  int                                            height;
+  int                                            width;
 };
 
 //////////////////////////////////////////
