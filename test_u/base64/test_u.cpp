@@ -14,7 +14,7 @@ main (int argc, char *argv[])
 
   std::string base64_encoded =
     Common_Math_Tools::encodeBase64 (test_string.c_str (),
-                                     test_string.size ());
+                                     static_cast<unsigned int> (test_string.size ()));
   std::cout << "\"" << test_string << "\" --> \"" << base64_encoded << "\"" << std::endl;
 
   ACE_ASSERT (!ACE_OS::strcmp (base64_encoded.c_str (),

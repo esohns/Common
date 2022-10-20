@@ -26,8 +26,8 @@ Common_Math_Tools::map (ValueType value_in,
   if (std::is_integral<ValueType>::value)
   {
     double scale = delta_to / (double)delta_from;
-    offset = (-fromStart_in * scale) + toStart_in;
-    result = (value_in * scale) + offset;
+    offset = (-fromStart_in * static_cast<ValueType> (scale)) + toStart_in;
+    result = (value_in * static_cast<ValueType> (scale)) + offset;
   } // end IF
   else
   {

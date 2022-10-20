@@ -26,38 +26,17 @@
 #include <string>
 #include <utility>
 
-//#undef DrawText
-//#undef SIZEOF_SIZE_T
-//#undef wxHAS_MODE_T
-//#include "wx/wx.h"
-//#define ACE_HAS_SSIZE_T
-
 #include "ace/config-lite.h"
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
-//#undef ACE_LACKS_MODE_T
-//#endif // ACE_WIN32 || ACE_WIN64
-#include "ace/Synch_Traits.h"
+#include "ace/OS_NS_Thread.h"
+
+#include "common_itask.h"
 
 #include "common_ui_common.h"
 #include "common_ui_idefinition.h"
 
 #include "common_ui_wxwidgets_iapplication.h"
-#include "common_ui_wxwidgets_manager.h"
 
 // forward declarations
-#if !wxUSE_UNICODE
-typedef char wxChar;
-typedef signed char wxSChar;
-typedef unsigned char wxUChar;
-#else
-    /* VZ: note that VC++ defines _T[SU]CHAR simply as wchar_t and not as    */
-    /*     signed/unsigned version of it which (a) makes sense to me (unlike */
-    /*     char wchar_t is always unsigned) and (b) was how the previous     */
-    /*     definitions worked so keep it like this                           */
-typedef wchar_t wxChar;
-typedef wchar_t wxSChar;
-typedef wchar_t wxUChar;
-#endif /* ASCII/Unicode */
 class wxObject;
 
 typedef std::pair<std::string, wxObject*> Common_UI_wxWidgets_XmlResource_t;
@@ -77,7 +56,7 @@ struct Common_UI_wxWidgets_State
   {}
 
   int                                argc;
-  wxChar**                           argv;
+  ACE_TCHAR**                        argv;
   wxObject*                          instance;
   Common_UI_wxWidgets_XmlResources_t resources;
 };
