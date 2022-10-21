@@ -33,6 +33,9 @@ class Common_UI_Curses_Tools
   static bool finalize ();
 
   static void init_colorpairs ();
+  static int colornum (int,  // foreground
+                       int); // background
+  static bool is_bold (int); // foreground
   static void setcolor (int,  // foreground
                         int); // background
   static void unsetcolor (int,  // foreground
@@ -44,9 +47,7 @@ class Common_UI_Curses_Tools
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Curses_Tools (const Common_UI_Curses_Tools&))
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Curses_Tools& operator= (const Common_UI_Curses_Tools&))
 
-  static int colornum (int, int);
   static short curs_color (int);
-  static int is_bold (int);
 };
 
 #endif

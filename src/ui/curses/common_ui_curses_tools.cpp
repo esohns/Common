@@ -119,17 +119,15 @@ Common_UI_Curses_Tools::init_colorpairs ()
     } // end FOR
 }
 
-int
-Common_UI_Curses_Tools::is_bold (int fg)
+bool
+Common_UI_Curses_Tools::is_bold (int color)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Curses_Tools::is_bold"));
 
   /* return the intensity bit */
 
-  int i;
-
-  i = 1 << 3;
-  return (i & fg);
+  int i = 1 << 3;
+  return (i & color);
 }
 
 void
