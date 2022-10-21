@@ -2157,10 +2157,50 @@ Common_UI_Tools::setConsoleFontSize (const struct _COORD& size_in)
   return true;
 }
 
+bool
+Common_UI_Tools::setConsoleSize (const struct _COORD& size_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::setConsoleSize"));
+
+  HANDLE console_h = GetStdHandle (STD_OUTPUT_HANDLE);
+  ACE_ASSERT (console_h != ACE_INVALID_HANDLE);
+
+  BOOL result = SetConsoleScreenBufferSize (console_h,
+                                            size_in);
+  if (unlikely (result == FALSE))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to SetConsoleScreenBufferSize(%d,%d): \"%s\", returning\n"),
+                size_in.X, size_in.Y,
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
+    return false;
+  } // end IF
+
+  struct _SMALL_RECT small_rect_s = {0, 0, 0, 0};
+  small_rect_s.Right = size_in.X - 1;
+  small_rect_s.Bottom = size_in.Y - 1;
+  result = SetConsoleWindowInfo (console_h,
+                                 TRUE,
+                                 &small_rect_s);
+  if (unlikely (result == FALSE))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to SetConsoleWindowInfo(%@): \"%s\", returning\n"),
+                console_h,
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
+    return false;
+  } // end IF
+
+  return true;
+}
+
 struct _SMALL_RECT
-Common_UI_Tools::setConsoleMaxWindowSize ()
+Common_UI_Tools::setConsoleMaxWindowSize (ACE_INT16 requestedWidth_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::setConsoleMaxWindowSize"));
+
+  // sanity check(s)
+  ACE_ASSERT (requestedWidth_in >= 0);
 
   HANDLE console_h = GetStdHandle (STD_OUTPUT_HANDLE);
   ACE_ASSERT (console_h != ACE_INVALID_HANDLE);
@@ -2172,9 +2212,22 @@ Common_UI_Tools::setConsoleMaxWindowSize ()
                                               &console_screen_buffer_info_ex_s);
   ACE_ASSERT (result == TRUE);
 
+  if (unlikely (requestedWidth_in))
+  {
+    struct _COORD coord_s;
+    coord_s.X = requestedWidth_in;
+    coord_s.Y = console_screen_buffer_info_ex_s.dwSize.Y;
+    result = SetConsoleScreenBufferSize (console_h,
+                                         coord_s);
+    ACE_ASSERT (result == TRUE);
+    result = GetConsoleScreenBufferInfoEx (console_h,
+                                           &console_screen_buffer_info_ex_s);
+    ACE_ASSERT (result == TRUE);
+  } // end IF
+
   struct _SMALL_RECT small_rect_s = {0, 0, 0, 0};
   small_rect_s.Right =
-    console_screen_buffer_info_ex_s.dwMaximumWindowSize.X - 1;
+    (requestedWidth_in ? requestedWidth_in - 1 : console_screen_buffer_info_ex_s.dwMaximumWindowSize.X - 1);
   small_rect_s.Bottom =
     console_screen_buffer_info_ex_s.dwMaximumWindowSize.Y - 1;
   if (SetConsoleWindowInfo (console_h,

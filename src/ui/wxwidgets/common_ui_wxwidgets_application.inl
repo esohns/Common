@@ -23,7 +23,7 @@
 
 #include "common_macros.h"
 
-//#include "common_ui_defines.h"
+#include "common_ui_defines.h"
 
 #include "common_ui_wxwidgets_common.h"
 
