@@ -116,6 +116,9 @@ class Common_UI_Tools
   static bool setConsoleFontSize (const struct _COORD&); // x/y
   static bool setConsoleSize (const struct _COORD&); // x/y
   static struct _SMALL_RECT setConsoleMaxWindowSize (ACE_INT16 = 0); // requested width ? : max (as per dwMaximumWindowSize)
+#else
+  static bool setConsoleFontSize (int); // factor
+  static bool setConsoleSize (int, int); // x/y
 #endif // ACE_WIN32 || ACE_WIN64
 
  private:

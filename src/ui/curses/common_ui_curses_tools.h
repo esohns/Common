@@ -22,6 +22,7 @@
 #define COMMON_UI_CURSES_TOOLS_H
 
 #include "ace/ace_wchar.h"
+#include "ace/Basic_Types.h"
 #include "ace/Global_Macros.h"
 
 class Common_UI_Curses_Tools
@@ -33,21 +34,20 @@ class Common_UI_Curses_Tools
   static bool finalize ();
 
   static void init_colorpairs ();
-  static int colornum (int,  // foreground
-                       int); // background
-  static bool is_bold (int); // foreground
-  static void setcolor (int,  // foreground
-                        int); // background
-  static void unsetcolor (int,  // foreground
-                          int); // background
+  inline static short curs_color (ACE_UINT8 color) { return (7 & color); }
+  static ACE_UINT8 colornum (ACE_UINT8,  // foreground
+                             ACE_UINT8); // background
+  static bool is_bold (ACE_UINT8); // color
+  static void setcolor (ACE_UINT8,  // foreground
+                        ACE_UINT8); // background
+  static void unsetcolor (ACE_UINT8,  // foreground
+                          ACE_UINT8); // background
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Curses_Tools ())
   ACE_UNIMPLEMENTED_FUNC (~Common_UI_Curses_Tools ())
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Curses_Tools (const Common_UI_Curses_Tools&))
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Curses_Tools& operator= (const Common_UI_Curses_Tools&))
-
-  static short curs_color (int);
 };
 
 #endif

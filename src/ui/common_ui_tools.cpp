@@ -2243,4 +2243,52 @@ Common_UI_Tools::setConsoleMaxWindowSize (ACE_INT16 requestedWidth_in)
 
   return small_rect_s;
 }
+#else
+bool
+Common_UI_Tools::setConsoleFontSize (int factor_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::setConsoleFontSize"));
+
+  std::string commandline_string = ACE_TEXT_ALWAYS_CHAR(COMMON_COMMAND_XDOTOOL);
+  commandline_string += ACE_TEXT_ALWAYS_CHAR(" key ");
+  for (int i = 0;
+       i < std::abs (factor_in);
+       ++i)
+    commandline_string +=
+      (factor_in < 0 ? ACE_TEXT_ALWAYS_CHAR (" ctrl+minus")
+                     : ACE_TEXT_ALWAYS_CHAR (" ctrl+plus"));
+
+  int exit_status = -1;
+  std::string stdout_string;
+  return Common_Process_Tools::command (commandline_string,
+                                       exit_status,
+                                       stdout_string,
+                                       false);
+}
+
+bool
+Common_UI_Tools::setConsoleSize (int width_in,
+                                 int height_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::setConsoleSize"));
+
+  std::string commandline_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_RESIZE);
+  COMMON_COMMAND_ADD_SWITCH (commandline_string, COMMON_COMMAND_SWITCH_RESIZE_SUN_SET);
+  commandline_string += ACE_TEXT_ALWAYS_CHAR (" ");
+  std::ostringstream converter;
+  converter << height_in;
+  commandline_string += converter.str ();
+  commandline_string += ACE_TEXT_ALWAYS_CHAR (" ");
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter.clear ();
+  converter << width_in;
+  commandline_string += converter.str ();
+  int exit_status = -1;
+  std::string stdout_string;
+
+  return Common_Process_Tools::command (commandline_string,
+                                        exit_status,
+                                        stdout_string,
+                                        false);
+}
 #endif // ACE_WIN32 || ACE_WIN64

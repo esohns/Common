@@ -56,49 +56,18 @@ Common_UI_Curses_Tools::finalize ()
   return true;
 }
 
-int
-Common_UI_Curses_Tools::colornum (int fg, int bg)
+ACE_UINT8
+Common_UI_Curses_Tools::colornum (ACE_UINT8 fg,
+                                  ACE_UINT8 bg)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Curses_Tools::colornum"));
 
-  int B, bbb, ffff;
+  ACE_UINT8 bbbb, ffff;
 
-  B = 1 << 7;
-  bbb = (7 & bg) << 4;
-  ffff = 7 & fg;
+  bbbb = (0xF & bg) << 4;
+  ffff = 0xF & fg;
 
-  return (B | bbb | ffff);
-}
-
-short
-Common_UI_Curses_Tools::curs_color (int fg)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_UI_Curses_Tools::curs_color"));
-
-  switch (7 & fg)
-  {                             /* RGB */
-    case 0:                     /* 000 */
-      return COLOR_BLACK;
-    case 1:                     /* 001 */
-      return COLOR_BLUE;
-    case 2:                     /* 010 */
-      return COLOR_GREEN;
-    case 3:                     /* 011 */
-      return COLOR_CYAN;
-    case 4:                     /* 100 */
-      return COLOR_RED;
-    case 5:                     /* 101 */
-      return COLOR_MAGENTA;
-    case 6:                     /* 110 */
-      return COLOR_YELLOW;
-    case 7:                     /* 111 */
-      return COLOR_WHITE;
-    default:
-      break;
-  } // end SWITCH
-
-  ACE_ASSERT (false);
-  ACE_NOTREACHED (return 0);
+  return (bbbb | ffff);
 }
 
 void
@@ -106,21 +75,23 @@ Common_UI_Curses_Tools::init_colorpairs ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Curses_Tools::init_colorpairs"));
 
-  int fg, bg;
-  int colorpair;
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("(# curses-) COLORS: %d\n"),
+              COLORS));
 
-  for (bg = 0; bg <= 7; bg++)
-    for (fg = 0; fg <= 7; fg++)
+  int result = ERR;
+  for (ACE_UINT8 bg = 0; bg <= 15; bg++)
+    for (ACE_UINT8 fg = 0; fg <= 15; fg++)
     {
-      colorpair = Common_UI_Curses_Tools::colornum (fg, bg);
-      init_pair (colorpair,
-                 Common_UI_Curses_Tools::curs_color (fg),
-                 Common_UI_Curses_Tools::curs_color (bg));
+      if (bg == 0 && fg == 0) continue; // cannot set color-pair 0
+      result = init_pair (Common_UI_Curses_Tools::colornum (fg, bg),
+                          fg, bg);
+      ACE_ASSERT (result == OK);
     } // end FOR
 }
 
 bool
-Common_UI_Curses_Tools::is_bold (int color)
+Common_UI_Curses_Tools::is_bold (ACE_UINT8 color)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Curses_Tools::is_bold"));
 
@@ -131,26 +102,25 @@ Common_UI_Curses_Tools::is_bold (int color)
 }
 
 void
-Common_UI_Curses_Tools::setcolor (int fg, int bg)
+Common_UI_Curses_Tools::setcolor (ACE_UINT8 fg, ACE_UINT8 bg)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Curses_Tools::setcolor"));
 
   /* set the color pair (colornum) and bold/bright (A_BOLD) */
 
   attron (COLOR_PAIR (Common_UI_Curses_Tools::colornum (fg, bg)));
-  if (Common_UI_Curses_Tools::is_bold (fg))
+  if (Common_UI_Curses_Tools::is_bold (bg) || Common_UI_Curses_Tools::is_bold (fg))
     attron (A_BOLD);
 }
 
 void
-Common_UI_Curses_Tools::unsetcolor (int fg, int bg)
+Common_UI_Curses_Tools::unsetcolor (ACE_UINT8 fg, ACE_UINT8 bg)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Curses_Tools::unsetcolor"));
 
-  /* unset the color pair (colornum) and
-     bold/bright (A_BOLD) */
+  /* unset the color pair (colornum) and bold/bright (A_BOLD) */
 
   attroff (COLOR_PAIR (Common_UI_Curses_Tools::colornum (fg, bg)));
-  if (Common_UI_Curses_Tools::is_bold (fg))
+  if (Common_UI_Curses_Tools::is_bold (fg) || Common_UI_Curses_Tools::is_bold (bg))
     attroff (A_BOLD);
 }

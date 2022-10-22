@@ -196,9 +196,12 @@
 #define COMMON_COMMAND_SWITCH_LSB_RELEASE_RELEASE              "r"
 #define COMMON_COMMAND_PIDOF                                   "pidof"
 #define COMMON_COMMAND_PIDOFPROC                               "pidofproc"
+#define COMMON_COMMAND_RESIZE                                  "resize"
+#define COMMON_COMMAND_SWITCH_RESIZE_SUN_SET                   "s"
 #define COMMON_COMMAND_USERMOD                                 "usermod"
 #define COMMON_COMMAND_WHICH                                   "which"
 #define COMMON_COMMAND_XARGS                                   "xargs"
+#define COMMON_COMMAND_XDOTOOL                                 "xdotool"
 #define COMMON_COMMAND_XRANDR                                  "xrandr"
 #endif // ACE_WIN32 || ACE_WIN64
 
