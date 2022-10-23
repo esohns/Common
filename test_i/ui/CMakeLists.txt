@@ -1,4 +1,7 @@
 add_subdirectory (console)
+if (CURSES_SUPPORT)
+ add_subdirectory (curses)
+endif (CURSES_SUPPORT)
 if (GTK_SUPPORT)
  add_subdirectory (gtk)
 endif (GTK_SUPPORT)
