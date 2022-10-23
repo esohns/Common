@@ -89,6 +89,24 @@ Common_File_Tools::addressToString (const ACE_FILE_Addr& address_in)
 }
 
 std::string
+Common_File_Tools::cropExtension (const std::string& filename_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::fileExtension"));
+
+  std::string return_value;
+
+  std::string::size_type position =
+    filename_in.rfind ('.', std::string::npos);
+  if (position != std::string::npos)
+  {
+    return_value = filename_in;
+    return_value.erase (position);
+  } // end IF
+
+  return return_value;
+}
+
+std::string
 Common_File_Tools::fileExtension (const std::string& path_in,
                                   bool returnLeadingDot_in)
 {
@@ -97,7 +115,7 @@ Common_File_Tools::fileExtension (const std::string& path_in,
   std::string return_value;
 
   std::string::size_type position =
-      path_in.find_last_of ('.', std::string::npos);
+      path_in.rfind ('.', std::string::npos);
   if (position != std::string::npos)
     return_value =
         path_in.substr ((returnLeadingDot_in ? position : position + 1),

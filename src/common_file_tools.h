@@ -52,6 +52,7 @@ class Common_File_Tools
   static bool deleteFile (const std::string&); // (FQ) path
   static bool deleteFiles (const Common_File_IdentifierList_t&); // file(s)
   inline static std::string directory (const std::string& path_in) { return ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (path_in.c_str ()), ACE_DIRECTORY_SEPARATOR_CHAR)); }
+  static std::string cropExtension (const std::string&); // filename
   // *NOTE*: this doesn't do any sanity checking --> use with care
   static std::string fileExtension (const std::string&, // (FQ) path
                                     bool = false);      // return leading '.' (if any) ?
