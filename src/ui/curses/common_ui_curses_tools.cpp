@@ -62,11 +62,14 @@ Common_UI_Curses_Tools::colornum (ACE_UINT8 fg,
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Curses_Tools::colornum"));
 
+  if (bg == COMMON_UI_CURSES_BLACK && fg == COMMON_UI_CURSES_WHITE)
+    return 0; // --> color-pair 0
   ACE_UINT8 bbbb, ffff;
-
   bbbb = (0xF & bg) << 4;
-  ffff = 0xF & fg;
-
+  if (bg == COMMON_UI_CURSES_BLACK && fg == COMMON_UI_CURSES_BLACK)
+    ffff = 0xF & COMMON_UI_CURSES_WHITE; // 'slot' of color-pair 0
+  else
+    ffff = 0xF & fg;
   return (bbbb | ffff);
 }
 
@@ -83,9 +86,15 @@ Common_UI_Curses_Tools::init_colorpairs ()
   for (ACE_UINT8 bg = 0; bg <= 15; bg++)
     for (ACE_UINT8 fg = 0; fg <= 15; fg++)
     {
-      if (bg == 0 && fg == 0) continue; // cannot set color-pair 0
-      result = init_pair (Common_UI_Curses_Tools::colornum (fg, bg),
-                          fg, bg);
+      if (bg == COMMON_UI_CURSES_BLACK && fg == COMMON_UI_CURSES_WHITE)
+        continue; // --> color-pair 0
+      if (bg == COMMON_UI_CURSES_BLACK && fg == COMMON_UI_CURSES_BLACK)
+        result =
+            init_pair (Common_UI_Curses_Tools::colornum (COMMON_UI_CURSES_BLACK, COMMON_UI_CURSES_WHITE),
+                       fg, bg); // --> use the 'slot' of color-pair 0
+      else
+        result = init_pair (Common_UI_Curses_Tools::colornum (fg, bg),
+                            fg, bg);
       ACE_ASSERT (result == OK);
     } // end FOR
 }

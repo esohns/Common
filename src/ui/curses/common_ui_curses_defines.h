@@ -35,7 +35,7 @@
 
 // colors (use common_ui_curses_tools::init_colors() first)
 #define COMMON_UI_CURSES_BLACK                 0x00
-#define COMMON_UI_CURSES_DARK_GREY             0x10
+#define COMMON_UI_CURSES_DARK_GREY             0x08
 #define COMMON_UI_CURSES_GREY                  0x07
 #define COMMON_UI_CURSES_WHITE                 0x0F
 
