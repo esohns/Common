@@ -2090,14 +2090,20 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
     //  Common_String_Tools::tolower (Common_File_Tools::basename (Common_File_Tools::executable, true));
   } // end ELSE
 #else
+  std::string module_name_string =
+      (moduleName_in.empty () ? ACE_TEXT_ALWAYS_CHAR ("")
+                              : Common_String_Tools::tolower (Common_File_Tools::basename (Common_File_Tools::executable, true)));
   return_value =
     Common_File_Tools::getSystemConfigurationDataDirectory (packageName_in,
-                                                            moduleName_in,
+                                                            module_name_string,
                                                             isConfiguration_in);
 #endif // ACE_WIN32 || ACE_WIN64
 
   // sanity check(s)
-//  ACE_ASSERT (Common_File_Tools::isDirectory (return_value));
+//  ACE_DEBUG ((LM_DEBUG,
+//              ACE_TEXT ("directory: \"%s\"\n"),
+//              ACE_TEXT (return_value.c_str ())));
+  ACE_ASSERT (Common_File_Tools::isDirectory (return_value));
 
   return return_value;
 }
