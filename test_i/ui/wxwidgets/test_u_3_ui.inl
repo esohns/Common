@@ -2,6 +2,7 @@
 #include "wx/xrc/xmlres.h"
 
 #include "ace/Log_Msg.h"
+#include "ace/OS.h"
 
 #include "common_macros.h"
 

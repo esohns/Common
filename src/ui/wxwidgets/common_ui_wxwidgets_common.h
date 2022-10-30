@@ -37,6 +37,11 @@
 #include "common_ui_wxwidgets_iapplication.h"
 
 // forward declarations
+#if (wxUSE_UNICODE == 1)
+typedef wchar_t wxChar;
+#else
+typedef char wxChar;
+#endif // wxUSE_UNICODE == 1
 class wxObject;
 
 typedef std::pair<std::string, wxObject*> Common_UI_wxWidgets_XmlResource_t;
@@ -56,7 +61,7 @@ struct Common_UI_wxWidgets_State
   {}
 
   int                                argc;
-  ACE_TCHAR**                        argv;
+  wxChar**                           argv;
   wxObject*                          instance;
   Common_UI_wxWidgets_XmlResources_t resources;
 };

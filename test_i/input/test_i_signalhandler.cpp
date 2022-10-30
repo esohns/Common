@@ -21,13 +21,13 @@
 
 #include "test_i_signalhandler.h"
 
-#if defined (GUI_SUPPORT)
-#if defined (WXWIDGETS_SUPPORT)
-#undef DrawText
-#undef SIZEOF_SIZE_T
-#include "wx/wx.h"
-#endif // WXWIDGETS_SUPPORT
-#endif // GUI_SUPPORT
+//#if defined (GUI_SUPPORT)
+//#if defined (WXWIDGETS_SUPPORT)
+//#undef DrawText
+//#undef SIZEOF_SIZE_T
+//#include "wx/wx.h"
+//#endif // WXWIDGETS_SUPPORT
+//#endif // GUI_SUPPORT
 
 #include "ace/Log_Msg.h"
 

@@ -69,7 +69,7 @@ class Comon_UI_WxWidgets_Application_T
    Comon_UI_WxWidgets_Application_T (const std::string&, // (top-level-) widget name
                                      int,                // argc
                                      wxChar**,           // argv
-                                     bool = COMMON_UI_WXWIDGETS_APP_CMDLINE_DEFAULT_PARSE);
+                                     bool = COMMON_UI_WXWIDGETS_APP_DEFAULT_CMDLINE_PARSE);
   inline virtual ~Comon_UI_WxWidgets_Application_T () {}
 
   // override (part of) wxAppConsole

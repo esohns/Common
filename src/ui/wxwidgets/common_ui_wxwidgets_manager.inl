@@ -48,7 +48,7 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::Common_UI_WxWidgets_Manager_T (c
                                      argc_in,
                                      Common_UI_WxWidgets_Tools::convertArgV (argc_in,
                                                                              argv_in),
-                                     COMMON_UI_WXWIDGETS_APP_CMDLINE_DEFAULT_PARSE));
+                                     COMMON_UI_WXWIDGETS_APP_DEFAULT_CMDLINE_PARSE));
   if (unlikely (!application_))
   {
     ACE_DEBUG ((LM_CRITICAL,
@@ -107,7 +107,7 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::~Common_UI_WxWidgets_Manager_T (
 }
 
 template <typename ApplicationType>
-void
+bool
 Common_UI_WxWidgets_Manager_T<ApplicationType>::start (ACE_Time_Value* timeout_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgets_Manager_T::start"));
@@ -116,9 +116,14 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::start (ACE_Time_Value* timeout_i
 
   wxThreadError result = inherited::Run ();
   if (unlikely (result != wxTHREAD_NO_ERROR))
+  {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to wxThread::Run(): %d, returning\n"),
+                ACE_TEXT ("failed to wxThread::Run(): %d, aborting\n"),
                 result));
+    return false;
+  } // end IF
+
+  return true;
 }
 
 template <typename ApplicationType>
@@ -129,7 +134,6 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::stop (bool waitForCompletion_in,
   COMMON_TRACE (ACE_TEXT ("Common_UI_WxWidgets_Manager_T::stop"));
 
   ACE_UNUSED_ARG (highPriority_in);
-  ACE_UNUSED_ARG (lockedAccess_in);
 
   wxThread::ExitCode exit_code = NULL;
   wxThreadError result = wxTHREAD_NO_ERROR;
@@ -146,7 +150,7 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::stop (bool waitForCompletion_in,
                   result));
   } // end IF
 
-  if (waitForCompletion_in)
+  if (likely (waitForCompletion_in))
   {
     exit_code = inherited::Wait (
 #if wxCHECK_VERSION(3,0,0)

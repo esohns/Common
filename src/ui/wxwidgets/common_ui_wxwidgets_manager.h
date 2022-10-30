@@ -67,7 +67,7 @@ class Common_UI_WxWidgets_Manager_T
   inline virtual bool isRunning () const { return inherited::IsAlive (); }
   inline virtual void idle () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
   inline virtual bool isShuttingDown () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
-  virtual void start (ACE_Time_Value* = NULL);
+  virtual bool start (ACE_Time_Value* = NULL);
   virtual void stop (bool = true,   // wait for completion ?
                      bool = false); // high priority ?
 #if wxCHECK_VERSION(3,0,0)
