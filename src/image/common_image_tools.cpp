@@ -1531,6 +1531,8 @@ Common_Image_Tools::stringToCodecId (const std::string& format_in)
     return_value = AV_CODEC_ID_PNG;
   else if (format_in == ACE_TEXT_ALWAYS_CHAR ("JPG"))
     return_value = AV_CODEC_ID_MJPEG;
+  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("XC"))
+    return_value = AV_CODEC_ID_NONE;
   else
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("invalid/unknown format (was: \"%s\"), aborting\n"),
