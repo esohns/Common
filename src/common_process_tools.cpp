@@ -24,14 +24,17 @@
 #include <regex>
 #include <sstream>
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+#include "signal.h"
+#endif // ACE_WIN32 || ACE_WIN64
+
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
 
 #include "common_defines.h"
-#if defined (ACE_LINUX)
-#include "common_tools.h"
-#endif // ACE_LINUX
 #include "common_file_tools.h"
+#include "common_tools.h"
 
 std::string
 Common_Process_Tools::toString (int argc_in,
@@ -306,11 +309,7 @@ Common_Process_Tools::kill (pid_t processId_in)
   // sanity check(s)
   ACE_ASSERT (processId_in != 0);
 
-#if defined (ACE_LINUX)
-  ACE_ASSERT (false);
-  ACE_NOTSUP_RETURN (false);
-  ACE_NOTREACHED (return false;)
-#else
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   std::string command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_TASKKILL);
   command_line_string += ACE_TEXT_ALWAYS_CHAR (" /PID ");
   std::ostringstream converter;
@@ -320,15 +319,26 @@ Common_Process_Tools::kill (pid_t processId_in)
   int exit_status = 0;
   std::string stdout_string;
   if (!Common_Process_Tools::command (command_line_string,
-                                      exit_status,
-                                      stdout_string,
-                                      false))
+                                     exit_status,
+                                     stdout_string,
+                                     false))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_Process_Tools::command(\"%s\"), aborting\n")));
+               ACE_TEXT ("failed to Common_Process_Tools::command(\"%s\"): \"%m\", aborting\n"),
+               ACE_TEXT (command_line_string.c_str ())));
     return false;
   } // end IF
-#endif // ACE_LINUX
+#else
+  int result_2 = ::kill (processId_in, SIGKILL);
+  if (unlikely (result_2 == -1))
+  {
+    ACE_DEBUG ((LM_ERROR,
+               ACE_TEXT ("failed to kill(%u,%S): \"%m\", aborting\n"),
+               processId_in,
+               SIGKILL));
+    return false;
+  } // end IF
+#endif // ACE_WIN32 || ACE_WIN64
 
   return result;
 }

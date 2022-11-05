@@ -190,6 +190,7 @@
 #define COMMON_COMMAND_SWITCH_HWINFO_DISPLAY                   "display"
 #define COMMON_COMMAND_SWITCH_HWINFO_MONITOR                   "monitor"
 #define COMMON_COMMAND_SWITCH_HWINFO_SHORT                     "short"
+#define COMMON_COMMAND_KILL                                    "kill"
 #define COMMON_COMMAND_LOCATE                                  "locate"
 #define COMMON_COMMAND_LSB_RELEASE                             "lsb_release"
 #define COMMON_COMMAND_SWITCH_LSB_RELEASE_DISTRIBUTOR          "i"
