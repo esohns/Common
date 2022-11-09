@@ -214,10 +214,10 @@ do_work (int argc_in,
       buffer_p->length = size_i;
       buffer_p->data_deallocator = free_buffer;
 
-      TF_Graph* graph_p = TF_NewGraph ();
-      ACE_ASSERT (graph_p);
       TF_Status* status_p = TF_NewStatus ();
       ACE_ASSERT (status_p);
+      TF_Graph* graph_p = TF_NewGraph ();
+      ACE_ASSERT (graph_p);
       TF_ImportGraphDefOptions* options_p = TF_NewImportGraphDefOptions ();
       ACE_ASSERT (options_p);
       TF_GraphImportGraphDef (graph_p, buffer_p, options_p, status_p);
@@ -229,8 +229,10 @@ do_work (int argc_in,
                     ACE_TEXT ("slopemodel.pb")));
         TF_DeleteGraph (graph_p);
         TF_DeleteStatus (status_p);
+        TF_DeleteBuffer (buffer_p); buffer_p = NULL;
         return;
       } // end IF
+      TF_DeleteBuffer (buffer_p); buffer_p = NULL;
 
       // create session
       TF_SessionOptions* options_2 = TF_NewSessionOptions ();
@@ -246,34 +248,6 @@ do_work (int argc_in,
         TF_DeleteStatus (status_p);
         return;
       } // end IF
-
-      //// run restore
-      //TF_Operation* checkpoint_operation_p = TF_GraphOperationByName (graph_p, "save/Const");
-      //ACE_ASSERT (checkpoint_operation_p);
-      //TF_Operation* restore_operation_p = TF_GraphOperationByName (graph_p, "save/restore_all");
-      //ACE_ASSERT (restore_operation_p);
-      //const char* checkpoint_path_str = "./exported/my_model";
-      //size_t checkpoint_path_str_len = ACE_OS::strlen (checkpoint_path_str);
-      //struct TF_TString string_s;
-      //TF_StringInit (&string_s);
-      //TF_StringCopy (&string_s, checkpoint_path_str, ACE_OS::strlen (checkpoint_path_str));
-      //size_t encoded_size = TF_StringGetSize (&string_s);
-      //// The format for TF_STRING tensors is:
-      ////   start_offset: array[uint64]
-      ////   data:         byte[...]
-      ////size_t total_size = sizeof (uint64_t) + encoded_size;
-      ////char* input_encoded = (char*)malloc (total_size);
-      ////ACE_OS::memset (input_encoded, 0, total_size);
-      ////TF_StringEncode (checkpoint_path_str, checkpoint_path_str_len,
-      ////                 input_encoded + sizeof(int64_t),
-      ////                 encoded_size,
-      ////                 status);
-      ////if (TF_GetCode(status) != TF_OK) {
-      ////fprintf(stderr, "ERROR: something wrong with encoding: %s",
-      ////TF_Message(status));
-      ////return 1;
-      ////}
-      //TF_StringDealloc (&string_s);
 
       // First two samples, normalized values
       int SEQ_LENGTH = 21;
@@ -291,58 +265,54 @@ do_work (int argc_in,
       // generate input
       TF_Operation* input_operation_p = TF_GraphOperationByName (graph_p, "dense_1_input");
       ACE_ASSERT (input_operation_p);
-      ::printf ("input_op has %i inputs\n", TF_OperationNumOutputs (input_operation_p));
-      float* raw_input_data = (float*)malloc (SEQ_LENGTH * sizeof (float));
-      for (int i = 0; i < 21; i++)
-        raw_input_data[i] = sampledata1[i];
+      ::printf ("input_operation_p has %i inputs\n", TF_OperationNumInputs (input_operation_p));
+      int64_t raw_input_dims_a[2];
+      raw_input_dims_a[0] = 1;
+      raw_input_dims_a[1] = 21;
+      float* raw_input_data_p = (float*)malloc (SEQ_LENGTH * sizeof (float));
+      for (int i = 0; i < SEQ_LENGTH; i++)
+        raw_input_data_p[i] = sampledata1[i];
       //raw_input_data[1] = 1.f;
-      int64_t* raw_input_dims = (int64_t*)malloc (2 * sizeof (int64_t));
-      raw_input_dims[0] = 1;
-      raw_input_dims[1] = 21;
 
       // prepare inputs
-      TF_Output* input_p = (TF_Output*)malloc (sizeof (TF_Output));
-      ACE_ASSERT (input_p);
-      input_p->oper = input_operation_p;
-      input_p->index = 0;
-      TF_Tensor* input_tensor_p = TF_NewTensor (TF_FLOAT, raw_input_dims, 2, raw_input_data,
+      struct TF_Output input_s;
+      input_s.oper = input_operation_p;
+      input_s.index = 0;
+      TF_Tensor* input_tensor_p = TF_NewTensor (TF_FLOAT, raw_input_dims_a, 2, raw_input_data_p,
                                                 SEQ_LENGTH * sizeof (float),
                                                 &deallocator,
                                                 NULL);
       ACE_ASSERT (input_tensor_p);
-      TF_Tensor** run_inputs_tensors_p = (TF_Tensor**)malloc (sizeof (TF_Tensor*));
-      ACE_ASSERT (run_inputs_tensors_p);
-      run_inputs_tensors_p[0] = input_tensor_p;
+      TF_Tensor* run_input_tensors_a[1];
+      run_input_tensors_a[0] = input_tensor_p;
 
       // prepare outputs
       TF_Operation* output_operation_p = TF_GraphOperationByName (graph_p, "dense_2/Sigmoid");
       ACE_ASSERT (output_operation_p);
-      TF_Output* output_p = (TF_Output*)malloc (sizeof (TF_Output));
-      output_p->oper = output_operation_p;
-      output_p->index = 0;
-
-      float* raw_output_data = (float*)malloc (1 * sizeof (float));
-      raw_output_data[0] = 1.f;
-      int64_t* raw_output_dims = (int64_t*)malloc (1 * sizeof (int64_t));
-      raw_output_dims[0] = 1;
-
-      TF_Tensor* output_tensor_p = TF_NewTensor (TF_FLOAT, raw_output_dims, 1, raw_output_data,
+      struct TF_Output output_s;
+      output_s.oper = output_operation_p;
+      output_s.index = 0;
+      
+      int64_t raw_output_dims_a[1];
+      raw_output_dims_a[0] = 1;
+      float* raw_output_data_p = (float*)malloc (1 * sizeof (float));
+      raw_output_data_p[0] = 1.f;
+      TF_Tensor* output_tensor_p = TF_NewTensor (TF_FLOAT, raw_output_dims_a, 1, raw_output_data_p,
                                                  1 * sizeof (float),
                                                  &deallocator,
                                                  NULL);
       ACE_ASSERT (output_tensor_p);
-      TF_Tensor** run_output_tensors_p = (TF_Tensor**)malloc (sizeof (TF_Tensor*));
-      ACE_ASSERT (run_output_tensors_p);
-      run_output_tensors_p[0] = output_tensor_p;
+      TF_Tensor* run_output_tensors_a[1];
+      run_output_tensors_a[0] = output_tensor_p;
 
       // run network
       TF_SessionRun (session_p,
-      /* RunOptions */ NULL,
-      /* Input tensors */ input_p, run_inputs_tensors_p, 1,
-      /* Output tensors */ output_p, run_output_tensors_p, 1,
-      /* Target operations */ NULL, 0,
-      /* RunMetadata */ NULL,
-      /* Output status */ status_p);
+                     /* RunOptions */ NULL,
+                     /* Input tensors */ &input_s, run_input_tensors_a, 1,
+                     /* Output tensors */ &output_s, run_output_tensors_a, 1,
+                     /* Target operations */ NULL, 0,
+                     /* RunMetadata */ NULL,
+                     /* Output status */ status_p);
       if (TF_GetCode (status_p) != TF_OK)
       {
         ACE_DEBUG ((LM_ERROR,
@@ -351,19 +321,19 @@ do_work (int argc_in,
         TF_DeleteSession (session_p, status_p);
         TF_DeleteGraph (graph_p);
         TF_DeleteStatus (status_p);
-        TF_DeleteBuffer (buffer_p);
         return;
       } // end IF
 
-      void* output_data_p = TF_TensorData (run_output_tensors_p[0]);
+      void* output_data_p = TF_TensorData (run_output_tensors_a[0]);
       float data1 = ((float*)output_data_p)[0];
-      printf ("Prediction: %.4f\n", data1);
+      ::printf ("Prediction: %.4f\n", data1);
 
+      TF_DeleteTensor (input_tensor_p);
+      TF_DeleteTensor (output_tensor_p);
       TF_CloseSession (session_p, status_p);
       TF_DeleteSession (session_p, status_p);
       TF_DeleteGraph (graph_p);
       TF_DeleteStatus (status_p);
-      TF_DeleteBuffer (buffer_p);
       break;
     }
     default:
