@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -7,6 +8,12 @@
 
 #include "tensorflow/c/c_api.h"
 #include "tensorflow/c/tf_tstring.h"
+#if defined (TENSORFLOW_CC_SUPPORT)
+#include "tensorflow/cc/client/client_session.h"
+#include "tensorflow/cc/ops/standard_ops.h"
+#include "tensorflow/core/framework/tensor.h"
+#undef mutex_lock
+#endif // TENSORFLOW_CC_SUPPORT
 
 #include "ace/config-lite.h"
 #include "ace/ACE.h"
@@ -30,8 +37,10 @@
 
 enum Test_I_ModeType
 {
-  TEST_I_MODE_DEFAULT = 0,
-  TEST_I_MODE_GRAPH_INFERENCE,
+  TEST_I_MODE_C_DEFAULT = 0,
+  TEST_I_MODE_C_GRAPH_INFERENCE,
+  TEST_I_MODE_CPP_DEFAULT,
+  TEST_I_MODE_CPP_GRAPH_INFERENCE,
   ////////////////////////////////////////
   TEST_I_MODE_MAX,
   TEST_I_MODE_INVALID
@@ -54,7 +63,7 @@ do_print_usage (const std::string& programName_in)
   std::cout << ACE_TEXT_ALWAYS_CHAR ("currently available options:")
             << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-m          : program mode [")
-            << TEST_I_MODE_DEFAULT
+            << TEST_I_MODE_C_DEFAULT
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-t          : trace information [")
@@ -73,7 +82,7 @@ do_process_arguments (int argc_in,
     Common_File_Tools::getWorkingDirectory ();
 
   // initialize results
-  mode_out = TEST_I_MODE_DEFAULT;
+  mode_out = TEST_I_MODE_C_DEFAULT;
   traceInformation_out = false;
 
   ACE_Get_Opt argument_parser (argc_in,
@@ -137,20 +146,22 @@ do_process_arguments (int argc_in,
   return true;
 }
 
-inline void free_buffer (void* data_in, size_t length_in) { delete [] data_in; }
-inline void deallocator (void* data_in, size_t length_in, void* arg_in) { ::free ((void*)data_in); }
+inline void free_buffer (void* data_in, size_t length_in) { delete [] (uint8_t*)data_in; }
+inline void deallocator (void* data_in, size_t length_in, void* arg_in) { ::free (data_in); }
 
 void
 do_work (int argc_in,
          ACE_TCHAR* argv_in[],
          enum Test_I_ModeType mode_in)
 {
-  ::printf ("Hello from TensorFlow C library version %s\n", TF_Version ());
-
   switch (mode_in)
   {
-    case TEST_I_MODE_DEFAULT:
+    case TEST_I_MODE_C_DEFAULT:
     {
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("TensorFlow C library version %s\n"),
+                  ACE_TEXT (TF_Version ())));
+
       TF_Graph* graph_p = TF_NewGraph ();
       TF_SessionOptions* options_p = TF_NewSessionOptions ();
       TF_Status* status_p = TF_NewStatus ();
@@ -180,10 +191,14 @@ do_work (int argc_in,
                      &operation_p, 1,                // Operations
                      0, status_p);
 
-      ::printf ("status code: %i\n", TF_GetCode (status_p));
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("status code: %d\n"),
+                  TF_GetCode (status_p)));
       struct TF_TString* string_p =
         (struct TF_TString*)TF_TensorData (tensor_output_p);
-      ::printf ("%s\n", TF_StringGetDataPointer (string_p));
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("%s\n"),
+                  ACE_TEXT (TF_StringGetDataPointer (string_p))));
 
       TF_CloseSession (session_p, status_p);
       TF_DeleteSession (session_p, status_p);
@@ -192,8 +207,12 @@ do_work (int argc_in,
 
       break;
     }
-    case TEST_I_MODE_GRAPH_INFERENCE:
+    case TEST_I_MODE_C_GRAPH_INFERENCE:
     {
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("TensorFlow C library version %s\n"),
+                  ACE_TEXT (TF_Version ())));
+
       // load 'frozen' graph (aka 'model')
       uint8_t* data_p = NULL;
       ACE_UINT64 size_i = 0;
@@ -265,7 +284,9 @@ do_work (int argc_in,
       // generate input
       TF_Operation* input_operation_p = TF_GraphOperationByName (graph_p, "dense_1_input");
       ACE_ASSERT (input_operation_p);
-      ::printf ("input_operation_p has %i inputs\n", TF_OperationNumInputs (input_operation_p));
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("input_operation_p has %d input(s)\n"),
+                  TF_OperationNumInputs (input_operation_p)));
       int64_t raw_input_dims_a[2];
       raw_input_dims_a[0] = 1;
       raw_input_dims_a[1] = 21;
@@ -326,7 +347,9 @@ do_work (int argc_in,
 
       void* output_data_p = TF_TensorData (run_output_tensors_a[0]);
       float data1 = ((float*)output_data_p)[0];
-      ::printf ("Prediction: %.4f\n", data1);
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("Prediction: %.4f\n"),
+                  data1));
 
       TF_DeleteTensor (input_tensor_p);
       TF_DeleteTensor (output_tensor_p);
@@ -334,6 +357,36 @@ do_work (int argc_in,
       TF_DeleteSession (session_p, status_p);
       TF_DeleteGraph (graph_p);
       TF_DeleteStatus (status_p);
+      break;
+    }
+    case TEST_I_MODE_CPP_DEFAULT:
+    {
+#if defined (TENSORFLOW_CC_SUPPORT)
+      using namespace tensorflow;
+      Scope root = Scope::NewRootScope ();
+      // Matrix A = [3 2; -1 0]
+      Output A = ops::Const (root, {{3.f, 2.f}, {-1.f, 0.f}});
+      // Vector b = [3 5]
+      Output b = ops::Const (root, {{3.f, 5.f}});
+      // v = Ab^T
+      Output v =
+          ops::MatMul (root.WithOpName ("v"),
+                       A, b,
+                       ops::MatMul::TransposeB (true));
+      std::vector<Tensor> outputs;
+      ClientSession session (root);
+      // Run and fetch v
+      TF_CHECK_OK (session.Run ({v}, &outputs));
+      // Expect outputs[0] == [19; -3]
+      typename TTypes<float>::Matrix matrix = outputs[0].matrix<float> ();
+      LOG (INFO) << matrix;
+#endif // TENSORFLOW_CC_SUPPORT
+      break;
+    }
+    case TEST_I_MODE_CPP_GRAPH_INFERENCE:
+    {
+#if defined (TENSORFLOW_CC_SUPPORT)
+#endif // TENSORFLOW_CC_SUPPORT
       break;
     }
     default:
@@ -379,7 +432,7 @@ ACE_TMAIN (int argc_in,
 
   // step1a set defaults
   std::string path_root = Common_File_Tools::getWorkingDirectory ();
-  enum Test_I_ModeType mode_type_e = TEST_I_MODE_DEFAULT;
+  enum Test_I_ModeType mode_type_e = TEST_I_MODE_C_DEFAULT;
   bool trace_information = false;
   std::string log_file_name;
 

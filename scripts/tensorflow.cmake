@@ -6,6 +6,50 @@ if (UNIX)
   set (TENSORFLOW_FOUND TRUE)
   set (tensorflow_INCLUDE_DIRS "${PKG_TENSORFLOW_INCLUDE_DIRS}")
   set (tensorflow_LIBRARIES "${PKG_TENSORFLOW_LIBRARIES}")
+ else ()
+  find_library (TENSORFLOW_LIBRARY libtensorflow.so
+                PATHS /usr/local
+                PATH_SUFFIXES lib
+                DOC "searching for libtensorflow.so"
+                NO_DEFAULT_PATH)
+  if (NOT TENSORFLOW_LIBRARY)
+   message (WARNING "could not find libtensorflow.so, continuing")
+  else ()
+   message (STATUS "Found libtensorflow.so library \"${TENSORFLOW_LIBRARY}\"")
+  endif (NOT TENSORFLOW_LIBRARY)
+  if (TENSORFLOW_LIBRARY)
+   set (TENSORFLOW_FOUND TRUE)
+   set (tensorflow_LIBRARIES "${TENSORFLOW_LIBRARY}")
+   set (tensorflow_INCLUDE_DIRS "/usr/local/include")
+   set (tensorflow_LIB_DIR "/usr/local/lib")
+  endif (TENSORFLOW_LIBRARY)
+
+  find_library (TENSORFLOW_CC_LIBRARY libtensorflow_cc.so
+                PATHS /usr/local
+                PATH_SUFFIXES lib
+                DOC "searching for libtensorflow_cc.so"
+                NO_DEFAULT_PATH)
+  if (NOT TENSORFLOW_CC_LIBRARY)
+   message (WARNING "could not find libtensorflow_cc.so, continuing")
+  else ()
+   message (STATUS "Found libtensorflow_cc.so library \"${TENSORFLOW_CC_LIBRARY}\"")
+  endif (NOT TENSORFLOW_CC_LIBRARY)
+  find_library (TENSORFLOW_FRAMEWORK_LIBRARY libtensorflow_framework.so.2
+                PATHS /usr/local
+                PATH_SUFFIXES lib
+                DOC "searching for libtensorflow_framework.so.2"
+                NO_DEFAULT_PATH)
+  if (NOT TENSORFLOW_FRAMEWORK_LIBRARY)
+   message (WARNING "could not find libtensorflow_framework.so.2, continuing")
+  else ()
+   message (STATUS "Found libtensorflow_framework.so.2 library \"${TENSORFLOW_FRAMEWORK_LIBRARY}\"")
+  endif (NOT TENSORFLOW_FRAMEWORK_LIBRARY)
+  if (TENSORFLOW_CC_LIBRARY AND TENSORFLOW_FRAMEWORK_LIBRARY)
+   set (TENSORFLOW_CC_FOUND TRUE)
+   set (tensorflow_cc_LIBRARIES "${TENSORFLOW_CC_LIBRARY};${TENSORFLOW_FRAMEWORK_LIBRARY}")
+   set (tensorflow_cc_INCLUDE_DIRS "/usr/local/include")
+   set (tensorflow_cc_LIB_DIR "/usr/local/lib")
+  endif (TENSORFLOW_CC_LIBRARY AND TENSORFLOW_FRAMEWORK_LIBRARY)
  endif (PKG_TENSORFLOW_FOUND)
 elseif (WIN32)
  if (VCPKG_SUPPORT)
@@ -52,3 +96,10 @@ if (TENSORFLOW_FOUND)
 #  include_directories (${tensorflow_INCLUDE_DIRS})
  endif (TENSORFLOW_SUPPORT)
 endif (TENSORFLOW_FOUND)
+if (TENSORFLOW_CC_FOUND)
+ option (TENSORFLOW_CC_SUPPORT "enable tensorflow C++ support" ${TENSORFLOW_SUPPORT_DEFAULT})
+ if (TENSORFLOW_CC_SUPPORT)
+  add_definitions (-DTENSORFLOW_CC_SUPPORT)
+#  include_directories (${tensorflow_cc_INCLUDE_DIRS})
+ endif (TENSORFLOW_CC_SUPPORT)
+endif (TENSORFLOW_CC_FOUND)

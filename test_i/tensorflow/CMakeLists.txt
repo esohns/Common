@@ -27,7 +27,11 @@ add_executable (${EXECUTABLE}
                 ${${EXECUTABLE}_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
-target_link_libraries (${EXECUTABLE} PUBLIC ${tensorflow_LIBRARIES})
+if (TENSORFLOW_CC_SUPPORT)
+ target_link_libraries (${EXECUTABLE} PUBLIC ${tensorflow_cc_LIBRARIES})
+elseif (TENSORFLOW_SUPPORT)
+ target_link_libraries (${EXECUTABLE} PUBLIC ${tensorflow_LIBRARIES})
+endif ()
 
 target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
 
