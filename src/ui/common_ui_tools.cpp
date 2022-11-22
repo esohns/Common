@@ -2121,6 +2121,30 @@ Common_UI_Tools::nearest (const Common_UI_Resolutions_t& resolutions_in,
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 bool
+Common_UI_Tools::isMaximized (HWND window_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::isMaximized"));
+
+  struct tagWINDOWPLACEMENT window_placement_s;
+  ACE_OS::memset (&window_placement_s, 0, sizeof (struct tagWINDOWPLACEMENT));
+
+  window_placement_s.length = sizeof(struct tagWINDOWPLACEMENT);
+  if (unlikely (!GetWindowPlacement (window_in,
+                                     &window_placement_s)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to GetWindowPlacement(%@): \"%s\", aborting\n"),
+                window_in,
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
+    return false; // *TODO*: false negative
+  } // end IF
+
+  return (window_placement_s.showCmd == SW_SHOWMAXIMIZED);
+}
+#endif // ACE_WIN32 || ACE_WIN64
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+bool
 Common_UI_Tools::setConsoleFontSize (const struct _COORD& size_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::setConsoleFontSize"));

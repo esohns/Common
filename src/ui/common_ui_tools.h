@@ -111,6 +111,11 @@ class Common_UI_Tools
   static Common_UI_Resolution_t nearest (const Common_UI_Resolutions_t&, // resolutions
                                          const Common_UI_Resolution_t&); // resolution
 
+  // window
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static bool isMaximized (HWND);
+#endif // ACE_WIN32 || ACE_WIN64
+
   // console
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   static bool setConsoleFontSize (const struct _COORD&); // x/y
