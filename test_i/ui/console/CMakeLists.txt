@@ -3,7 +3,9 @@ string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
 string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 
 ############## includes ###############
-
+if (WIN32)
+ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../3rd_party/msvc)
+endif (WIN32)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/ui)
 
