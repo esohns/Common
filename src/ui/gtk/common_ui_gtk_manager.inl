@@ -599,7 +599,8 @@ continue_:
 
 done:
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  if (COM_initialized) Common_Tools::finalizeCOM ();
+  if (COM_initialized)
+    Common_Tools::finalizeCOM ();
 #endif // ACE_WIN32 || ACE_WIN64
 
   ACE_DEBUG ((LM_DEBUG,

@@ -40,7 +40,8 @@ class Common_Event_Tools
   static bool startEventDispatch (struct Common_EventDispatchState&); // thread data (i/o)
   static void dispatchEvents (struct Common_EventDispatchState&); // thread data (i/o)
   static void finalizeEventDispatch (struct Common_EventDispatchState&, // thread data (i/o)
-                                     bool = false); // wait for completion ?
+                                     bool = false, // wait for completion ?
+                                     bool = true); // release reactor/proactor singletons ?
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Event_Tools ())

@@ -673,7 +673,8 @@ continue_:
 
 void
 Common_Event_Tools::finalizeEventDispatch (struct Common_EventDispatchState& dispatchState_inout,
-                                           bool waitForCompletion_in)
+                                           bool waitForCompletion_in,
+                                           bool releaseSingletons_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Event_Tools::finalizeEventDispatch"));
 
@@ -682,17 +683,17 @@ Common_Event_Tools::finalizeEventDispatch (struct Common_EventDispatchState& dis
   // step1: stop default reactor/proactor
   ACE_Proactor* proactor_p = ACE_Proactor::instance ();
   ACE_ASSERT (proactor_p != NULL);
-  result = proactor_p->end_event_loop ();
+  result = proactor_p->proactor_end_event_loop ();
   if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_Proactor::end_event_loop: \"%m\", continuing\n")));
+                ACE_TEXT ("failed to ACE_Proactor::proactor_end_event_loop: \"%m\", continuing\n")));
 
   ACE_Reactor* reactor_p = ACE_Reactor::instance ();
   ACE_ASSERT (reactor_p != NULL);
-  result = reactor_p->end_event_loop ();
+  result = reactor_p->end_reactor_event_loop ();
   if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_Reactor::end_event_loop: \"%m\", continuing\n")));
+                ACE_TEXT ("failed to ACE_Reactor::end_reactor_event_loop: \"%m\", continuing\n")));
 
   // step2: wait for any worker thread(s) ?
   ACE_Thread_Manager* thread_manager_p = NULL;
@@ -724,9 +725,11 @@ Common_Event_Tools::finalizeEventDispatch (struct Common_EventDispatchState& dis
   } // end IF
 
 continue_:
-  // *WARNING*: on UNIX; this could prevent proper signal reactivation (see
-  //            finalizeSignals())
-  ACE_Proactor::close_singleton ();
+  if (likely (releaseSingletons_in))
+  {
+    ACE_Proactor::close_singleton ();
+    ACE_Reactor::close_singleton ();
+  } // end IF
 
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("stopped event dispatch\n")));
