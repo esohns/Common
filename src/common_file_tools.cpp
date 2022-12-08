@@ -1743,7 +1743,8 @@ Common_File_Tools::files (const std::string& directory_in,
                          NULL);
   if (unlikely (result == -1))
   {
-    ACE_DEBUG ((LM_DEBUG,
+    int error_i = ACE_OS::last_error ();
+    ACE_DEBUG (((error_i == ENOENT ? LM_DEBUG : LM_ERROR),
                 ACE_TEXT ("failed to ACE_Dirent_Selector::open(\"%s\"): \"%m\", aborting\n"),
                 ACE_TEXT (directory_in.c_str ())));
     return return_value;

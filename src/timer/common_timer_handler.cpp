@@ -30,9 +30,9 @@
 
 Common_Timer_Handler::Common_Timer_Handler (Common_ITimerHandler* handler_in,
                                             bool isOneShot_in)
- : inherited (ACE_Reactor::instance (),    // reactor
+ : inherited (ACE_Reactor::instance (),       // reactor
               ACE_Event_Handler::LO_PRIORITY) // priority
- , inherited2 (ACE_Proactor::instance ()) // proactor
+ , inherited2 (ACE_Proactor::instance ())     // proactor
  , id_ (-1)
  , isOneShot_ (isOneShot_in)
  , handler_ (handler_in)
@@ -53,7 +53,6 @@ Common_Timer_Handler::handle_close (ACE_HANDLE handle_in,
   ACE_ASSERT (handle_in == ACE_INVALID_HANDLE);
   ACE_ASSERT (mask_in == ACE_Event_Handler::TIMER_MASK);
 
-#if defined (_DEBUG)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("%d: cancelled timer (handle was: 0x%@, mask: %u), continuing\n"),
@@ -67,7 +66,6 @@ Common_Timer_Handler::handle_close (ACE_HANDLE handle_in,
               handle_in,
               mask_in));
 #endif // ACE_WIN32 || ACE_WIN64
-#endif // _DEBUG
 
   return 0;
 }
