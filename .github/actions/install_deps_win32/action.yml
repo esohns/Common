@@ -9,7 +9,7 @@ runs:
  steps:
 #  - uses: lukka/run-vcpkg@v7.4
   - uses: lukka/run-vcpkg@latest
-   with:
+    with:
      setupOnly: true
 #     vcpkgGitCommitId: '63e935d967a3410e26bf4a708efa39d8384d2bbb'
   - run: |
