@@ -7,12 +7,12 @@ inputs:
 runs:
  using: "composite"
  steps:
-  - uses: lukka/run-vcpkg@v7.4
-    with:
+#  - uses: lukka/run-vcpkg@v7.4
+  - uses: lukka/run-vcpkg@latest
+   with:
      setupOnly: true
-     vcpkgGitCommitId: '63e935d967a3410e26bf4a708efa39d8384d2bbb'
+#     vcpkgGitCommitId: '63e935d967a3410e26bf4a708efa39d8384d2bbb'
   - run: |
          vcpkg update
          vcpkg install assimp directxsdk ffmpeg freeglut glm graphicsmagick gtk
     shell: cmd
-
