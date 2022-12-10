@@ -385,10 +385,25 @@ Common_String_Tools::tolower (const std::string& string_in)
   return return_value;
 }
 
-bool Common_String_Tools::endswith (const std::string& string_in,
-                                    const std::string& end_in)
+bool
+Common_String_Tools::startswith (const std::string& string_in,
+                                 const std::string& start_in)
 {
-  COMMON_TRACE(ACE_TEXT("Common_String_Tools::endswith"));
+  COMMON_TRACE (ACE_TEXT ("Common_String_Tools::startswith"));
+
+  // sanity check(s)
+  ACE_ASSERT (!start_in.empty ());
+
+  size_t position = string_in.find (start_in);
+
+  return (position == 0);
+}
+
+bool
+Common_String_Tools::endswith (const std::string& string_in,
+                               const std::string& end_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_String_Tools::endswith"));
 
   // sanity check(s)
   ACE_ASSERT (!end_in.empty ());

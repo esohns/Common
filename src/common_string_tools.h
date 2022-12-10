@@ -57,6 +57,8 @@ class Common_String_Tools
   static std::string toupper (const std::string&);
   static std::string tolower (const std::string&);
 
+  static bool startswith (const std::string&,
+                          const std::string&);
   static bool endswith (const std::string&,
                         const std::string&);
 

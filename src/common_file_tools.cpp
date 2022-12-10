@@ -938,6 +938,17 @@ Common_File_Tools::isValidPath (const std::string& string_in)
   return Common_File_Tools::isDirectory (directory);
 }
 
+bool
+Common_File_Tools::isRelativePath (const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isRelativePath"));
+
+  std::string dot_slash_string = ACE_TEXT_ALWAYS_CHAR (".");
+  dot_slash_string += ACE_DIRECTORY_SEPARATOR_CHAR;
+
+  return Common_String_Tools::startswith (path_in, dot_slash_string);
+}
+
 std::string
 Common_File_Tools::basename (const std::string& path_in,
                              bool stripSuffix_in)
