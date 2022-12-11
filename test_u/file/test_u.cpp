@@ -105,6 +105,7 @@ class INotify_Event_Handler
 
 enum Test_U_Common_File_ModeType
 {
+  TEST_U_COMMON_FILE_MODE_PATH,    // <-- verify path (absolute/relative)
   TEST_U_COMMON_FILE_MODE_SIZE,    // <-- determine file size using f[open|seek|tell|close] vs fstat
   TEST_U_COMMON_FILE_MODE_WATCH,   // <-- watch directory (inotify)
   ////////////////////////////////////////
@@ -147,13 +148,13 @@ do_processArguments (int argc_in,
   COMMON_TRACE (ACE_TEXT ("::do_processArguments"));
 
   // initialize results
-  mode_out = TEST_U_COMMON_FILE_MODE_INVALID;
+  mode_out = TEST_U_COMMON_FILE_MODE_PATH;
   filePath_out.clear ();
   traceInformation_out = false;
 
   ACE_Get_Opt argument_parser (argc_in,
                                argv_in,
-                               ACE_TEXT ("d:s:t"),
+                               ACE_TEXT ("f:m:t"),
                                1,                         // skip command name
                                1,                         // report parsing errors
                                ACE_Get_Opt::PERMUTE_ARGS, // ordering
@@ -164,16 +165,18 @@ do_processArguments (int argc_in,
   {
     switch (option_i)
     {
-      case 'd':
+      case 'f':
       {
-        mode_out = TEST_U_COMMON_FILE_MODE_WATCH;
         filePath_out = ACE_TEXT_ALWAYS_CHAR (argument_parser.opt_arg ());
         break;
       }
-      case 's':
+      case 'm':
       {
-        mode_out = TEST_U_COMMON_FILE_MODE_SIZE;
-        filePath_out = ACE_TEXT_ALWAYS_CHAR (argument_parser.opt_arg ());
+        std::istringstream converter (ACE_TEXT_ALWAYS_CHAR (argument_parser.opt_arg ()),
+                                      std::ios_base::in);
+        int i = 0;
+        converter >> i;
+        mode_out = static_cast<enum Test_U_Common_File_ModeType> (i);
         break;
       }
       case 't':
@@ -223,6 +226,14 @@ do_work (enum Test_U_Common_File_ModeType mode_in,
 
   switch (mode_in)
   {
+    case TEST_U_COMMON_FILE_MODE_PATH:
+    {
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("\"%s\" is a%s path\n"),
+                  ACE_TEXT (filePath_in.c_str ()),
+                  Common_File_Tools::isAbsolutePath (filePath_in) ? ACE_TEXT ("n absolute") : ACE_TEXT (" relative")));
+      break;
+    }
     case TEST_U_COMMON_FILE_MODE_SIZE:
     {
       // sanity check(s)
@@ -373,7 +384,7 @@ ACE_TMAIN (int argc_in,
 #endif // ACE_WIN32 || ACE_WIN64
 
   enum Test_U_Common_File_ModeType mode_type_e =
-    TEST_U_COMMON_FILE_MODE_INVALID;
+    TEST_U_COMMON_FILE_MODE_PATH;
   std::string file_path_string;
   bool trace_information_b = false;
 

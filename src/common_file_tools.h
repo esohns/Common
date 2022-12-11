@@ -120,7 +120,7 @@ class Common_File_Tools
   static bool isEmptyDirectory (const std::string&); // directory
   static bool isValidFilename (const std::string&); // (FQ) path
   static bool isValidPath (const std::string&); // (FQ) path
-  // *NOTE*: starts with "./" || ".\\"
+  static bool isAbsolutePath (const std::string&); // (FQ) path
   static bool isRelativePath (const std::string&); // (FQ) path
 
   // *NOTE*: users need to free (delete[]) the returned buffer

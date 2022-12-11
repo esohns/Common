@@ -77,19 +77,24 @@ install (TARGETS ${EXECUTABLE}
 
 if (UNIX)
  create_target_launcher (${EXECUTABLE}
-                         ARGS ""
+                         ARGS "-t"
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_u/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 elseif (WIN32)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
+ string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
  if (VCPKG_SUPPORT)
   file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
  else ()
   file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
  endif (VCPKG_SUPPORT)
+ file (TO_NATIVE_PATH "${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" FILE_PATH)
+ string (REPLACE "\\" "\\\\" FILE_PATH ${FILE_PATH})
  create_target_launcher (${EXECUTABLE}
-                         ARGS "-t"
+                         COMMAND ${COMMAND}
+                         ARGS "-f ${FILE_PATH} -m 0 -t"
 #                        FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
                                               G:/software/Development/dll

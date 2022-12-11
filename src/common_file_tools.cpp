@@ -21,6 +21,8 @@
 
 #include "common_file_tools.h"
 
+#include <regex>
+
 #include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "Shlobj.h"
@@ -939,14 +941,38 @@ Common_File_Tools::isValidPath (const std::string& string_in)
 }
 
 bool
+Common_File_Tools::isAbsolutePath (const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isAbsolutePath"));
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  std::regex regex (ACE_TEXT_ALWAYS_CHAR ("^([A-Z])(?::\\\\)(?:([^\\\\]+)(?:\\\\))*([^\\\\]+)?$"));
+#else
+  std::regex regex (ACE_TEXT_ALWAYS_CHAR ("^(?:\\/)(?:([^\\/]+)(?:\\/))*([^\\/]+)?$"));
+#endif // ACE_WIN32 || ACE_WIN64
+  std::smatch match_results;
+
+  if (!std::regex_match (path_in,
+                         match_results,
+                         regex,
+                         std::regex_constants::match_default))
+    return false;
+
+  return true;
+}
+
+bool
 Common_File_Tools::isRelativePath (const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::isRelativePath"));
 
-  std::string dot_slash_string = ACE_TEXT_ALWAYS_CHAR (".");
-  dot_slash_string += ACE_DIRECTORY_SEPARATOR_CHAR;
+  //std::string dot_slash_string;
+  //dot_slash_string += '.';
+  //dot_slash_string += ACE_TEXT_ALWAYS_CHAR (ACE_DIRECTORY_SEPARATOR_CHAR);
 
-  return Common_String_Tools::startswith (path_in, dot_slash_string);
+  //return Common_String_Tools::startswith (path_in, dot_slash_string);
+
+  return !Common_File_Tools::isAbsolutePath (path_in);
 }
 
 std::string
@@ -960,7 +986,7 @@ Common_File_Tools::basename (const std::string& path_in,
                                            ACE_DIRECTORY_SEPARATOR_CHAR));
   if (stripSuffix_in)
   {
-    std::string::size_type position = return_value.find_last_of ('.');
+    std::string::size_type position = return_value.rfind ('.');
     if (position != std::string::npos)
       return_value.erase (position, std::string::npos);
   } // end IF
