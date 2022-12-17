@@ -9,9 +9,8 @@ runs:
  steps:
   - uses: lukka/run-vcpkg@v10
     with:
-     setupOnly: true
      vcpkgGitCommitId: '30a20e8f15ff26eec665205dea52f4ffc6f0814b'
   - run: |
          vcpkg update
-         vcpkg install assimp directxsdk ffmpeg freeglut glm graphicsmagick gtk
+         vcpkg install assimp:x64-windows directxsdk:x64-windows ffmpeg:x64-windows freeglut:x64-windows glm:x64-windows graphicsmagick:x64-windows gtk:x64-windows
     shell: cmd
