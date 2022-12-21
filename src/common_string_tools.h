@@ -24,7 +24,9 @@
 #include <string>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "winnt.h"
 #include "wtypes.h"
+#include "WinNls.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/Global_Macros.h"

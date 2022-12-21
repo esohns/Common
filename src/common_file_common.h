@@ -21,11 +21,11 @@
 #ifndef COMMON_FILE_COMMON_H
 #define COMMON_FILE_COMMON_H
 
-#include <vector>
 #include <string>
-#include <utility>
+//#include <utility>
+#include <vector>
 
-#include "ace/config-lite.h"
+#include "ace/Assert.h"
 #include "ace/OS_NS_dirent.h"
 
 // *** file ***

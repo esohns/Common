@@ -20,20 +20,3 @@
 #include "stdafx.h"
 
 #include "common_test_i_tools.h"
-
-#include "ace/Log_Msg.h"
-
-#include "common_macros.h"
-#include "common_tools.h"
-
-//std::string
-//Common_Test_I_Tools::version (const std::string& programName_in)
-//{
-//  COMMON_TRACE (ACE_TEXT ("Common_Test_I_Tools::version"));
-//
-//  std::string result = programName_in;
-//  result += ACE_TEXT_ALWAYS_CHAR ("");
-//
-//
-//  return result;
-//}

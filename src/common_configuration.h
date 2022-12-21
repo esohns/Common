@@ -21,8 +21,7 @@
 #ifndef COMMON_CONFIGURATION_H
 #define COMMON_CONFIGURATION_H
 
-#include "common.h"
-#include "common_defines.h"
+#include <cstdio>
 
 struct Common_AllocatorConfiguration
 {

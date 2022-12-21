@@ -37,8 +37,6 @@ class Common_Test_I_Tools
                      const CallbackDataType&, // callback data
                      ACE_Thread_ID&);         // return value: thread id
 
-  //static std::string version ();
-
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Test_I_Tools ())
   ACE_UNIMPLEMENTED_FUNC (Common_Test_I_Tools (const Common_Test_I_Tools&))

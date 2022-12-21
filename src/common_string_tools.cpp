@@ -19,6 +19,8 @@
  ***************************************************************************/
 #include "stdafx.h"
 
+#include "common_string_tools.h"
+
 #include <algorithm>
 #include <locale>
 
@@ -27,8 +29,6 @@
 #include "stringapiset.h"
 #include "WinNls.h"
 #endif // ACE_WIN32 || ACE_WIN64
-
-#include "common_string_tools.h"
 
 #include "ace/Log_Msg.h"
 #include "ace/OS_Memory.h"

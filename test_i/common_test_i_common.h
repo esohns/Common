@@ -107,15 +107,15 @@ struct Common_Test_I_UI_CBData
 #endif // GUI_SUPPORT
   }
 
-  bool                                  allowUserRuntimeStatistic;
-  struct Common_Test_I_UI_ProgressData  progressData;
+  bool                                 allowUserRuntimeStatistic;
+  struct Common_Test_I_UI_ProgressData progressData;
 #if defined (GUI_SUPPORT)
 #if defined (GTK_USE)
-  Common_UI_GTK_State_t*                UIState;
+  Common_UI_GTK_State_t*               UIState;
 #elif defined (QT_USE)
-  struct Common_UI_Qt_State*            UIState;
+  struct Common_UI_Qt_State*           UIState;
 #elif defined (WXWIDGETS_USE)
-  Common_UI_wxWidgets_State*            UIState;
+  Common_UI_wxWidgets_State*           UIState;
 #endif
 #endif // GUI_SUPPORT
 };

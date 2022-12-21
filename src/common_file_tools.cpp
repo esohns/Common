@@ -1670,14 +1670,12 @@ clean:
     } // end IF
   } // end IF
 
-#if defined (_DEBUG)
   if (likely (result))
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("%s file \"%s\" (%u byte(s))\n"),
                 ((file_exists && appendIfExists_in) ? ACE_TEXT ("appended") : ACE_TEXT ("wrote")),
                 ACE_TEXT (path_in.c_str ()),
                 size_in));
-#endif // _DEBUG
 
   return result;
 }
@@ -1872,7 +1870,12 @@ Common_File_Tools::setWorkingDirectory (const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::setWorkingDirectory"));
 
-  int result = chdir (path_in.c_str ());
+  int result =
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+    _chdir (path_in.c_str ());
+#else
+    chdir (path_in.c_str ());
+#endif // ACE_WIN32 || ACE_WIN64
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,

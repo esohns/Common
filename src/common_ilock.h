@@ -58,11 +58,18 @@ class Common_IRecursiveLock_T
 
 //////////////////////////////////////////
 
-#define COMMON_ILOCK_ACQUIRE_N(ilock, count) \
-  do { \
-    ACE_ASSERT (ilock); \
-    for (int i = 0; i < count; ++i) \
-      ilock->lock (true); \
+#define COMMON_ILOCK_ACQUIRE_N (ilock, count) \
+  do                                          \
+  { ACE_ASSERT (ilock);                       \
+    for (int i = 0; i < count; ++i)           \
+      ilock->lock (true);                     \
+  } while (0)
+
+#define COMMON_ILOCK_RELEASE_N (ilock, count) \
+  do                                          \
+  { ACE_ASSERT (ilock);                       \
+    for (int i = 0; i < count; ++i)           \
+      ilock->unlock (false);                  \
   } while (0)
 
 #endif

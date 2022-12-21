@@ -37,7 +37,7 @@ Common_ReferenceCounter_T<ACE_SYNCH_USE>::Common_ReferenceCounter_T (unsigned in
   COMMON_TRACE (ACE_TEXT ("Common_ReferenceCounter_T::Common_ReferenceCounter_T"));
 
   // sanity check(s)
-  ACE_ASSERT (initialCount_in);
+  ACE_ASSERT (initialCount_in > 0);
 }
 
 template <ACE_SYNCH_DECL>

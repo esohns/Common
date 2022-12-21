@@ -26,8 +26,8 @@
 // branch prediction //
 
 #if defined (__GNUC__)
-#define likely(X) __builtin_expect (!!(X), 1)
-#define unlikely(X) __builtin_expect (!!(X), 0)
+#define likely (X) __builtin_expect (!!(X), 1)
+#define unlikely (X) __builtin_expect (!!(X), 0)
 #else
 #define likely(X) X
 #define unlikely(X) X
@@ -48,12 +48,12 @@
 #define COMMON_TRY try
 #define COMMON_CATCH(X) catch (X)
 #elif defined (EXCEPTION_SEH_USE)
-#define COMMON_DEFAULT_SEH(X) common_win32_seh_filter(X)
-#define COMMON_DEFAULT_SEH_ARG_1 GetExceptionCode()
-#define COMMON_DEFAULT_SEH_ARG_2 GetExceptionInformation()
+#define COMMON_DEFAULT_SEH(X) common_win32_seh_filter (X)
+#define COMMON_DEFAULT_SEH_ARG_1 GetExceptionCode ()
+#define COMMON_DEFAULT_SEH_ARG_2 GetExceptionInformation ()
 #define COMMON_TRY ACE_SEH_TRY
-#define COMMON_SEH_CATCH(X) ACE_SEH_EXCEPT(X)
-#define COMMON_CATCH(X) COMMON_SEH_CATCH(COMMON_DEFAULT_SEH (COMMON_DEFAULT_SEH_ARG_1, COMMON_DEFAULT_SEH_ARG_2))
+#define COMMON_SEH_CATCH(X) ACE_SEH_EXCEPT (X)
+#define COMMON_CATCH(X) COMMON_SEH_CATCH (COMMON_DEFAULT_SEH(COMMON_DEFAULT_SEH_ARG_1, COMMON_DEFAULT_SEH_ARG_2))
 #else
 #define COMMON_TRY if (1)
 #define COMMON_CATCH(X) while (0)
@@ -65,8 +65,8 @@
 // platform (OS) //
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define COMMON_OS_WIN32_SDK_VERSION(version)                   (_WIN32_WINNT && (_WIN32_WINNT >= version))
-#define COMMON_OS_WIN32_TARGET_PLATFORM(version)               (WINVER && (WINVER >= version))
+#define COMMON_OS_WIN32_SDK_VERSION(version)                  (_WIN32_WINNT && (_WIN32_WINNT >= version))
+#define COMMON_OS_WIN32_TARGET_PLATFORM(version)              (WINVER && (WINVER >= version))
 #elif defined (ACE_LINUX)
 #define COMMON_OS_LINUX_IF_DISTRIBUTION_AT_LEAST(distribution, major,minor,micro)    \
   unsigned int major_i, minor_i, micro_i;                                            \
@@ -109,20 +109,20 @@
 #define COMMON_XSTRINGIZE(X) #X
 #define COMMON_STRINGIZE(X) COMMON_XSTRINGIZE(X)
 
-#define COMMON_MAKESTRING(M,L) M(L)
+#define COMMON_MAKESTRING(M,L) M (L)
 
 #define COMMON_STRING_APPEND(string,string_2) \
   string += ACE_TEXT_ALWAYS_CHAR (string_2)
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #if defined (UNICODE)
-#define COMMON_TEXT(x) ACE_TEXT_WCHAR_TO_TCHAR (x)
+#define COMMON_TEXT(X) ACE_TEXT_WCHAR_TO_TCHAR (X)
 #else
-#define COMMON_TEXT(x) ACE_TEXT (x)
+#define COMMON_TEXT(X) ACE_TEXT (X)
 #endif // UNICODE
 #else
-#define COMMON_COMMAND_ADD_SWITCH(command,switch_) \
-  COMMON_STRING_APPEND(command," -");              \
+#define COMMON_COMMAND_ADD_SWITCH(command,switch_)  \
+  COMMON_STRING_APPEND(command," -");               \
   command += ACE_TEXT_ALWAYS_CHAR (switch_);
 #define COMMON_COMMAND_START_IN_BACKGROUND(command) \
   command += COMMON_STRING_APPEND(command, &);

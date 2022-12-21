@@ -21,7 +21,6 @@
 #ifndef COMMON_ISTATISTIC_H
 #define COMMON_ISTATISTIC_H
 
-#include "ace/config-lite.h"
 #include "ace/Time_Value.h"
 
 template <typename StatisticContainerType>

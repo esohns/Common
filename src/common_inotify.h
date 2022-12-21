@@ -34,6 +34,8 @@ class Common_IDispatch_T
   virtual void dispatch (const EventType&) = 0; // event (state/status change, ...)
 };
 
+//////////////////////////////////////////
+
 template <typename IdType,
           typename EventType>
 class Common_INotify_T
