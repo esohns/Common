@@ -26,8 +26,8 @@
 // branch prediction //
 
 #if defined (__GNUC__)
-#define likely (X) __builtin_expect (!!(X), 1)
-#define unlikely (X) __builtin_expect (!!(X), 0)
+#define likely(X) __builtin_expect (!!(X), 1)
+#define unlikely(X) __builtin_expect (!!(X), 0)
 #else
 #define likely(X) X
 #define unlikely(X) X
