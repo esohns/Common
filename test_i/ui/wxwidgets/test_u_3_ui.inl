@@ -87,6 +87,7 @@ Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
 
   typename InterfaceType::CBDATA_T& CBData_r =
     const_cast<typename InterfaceType::CBDATA_T&> (application_->getR_2 ());
+  ACE_UNUSED_ARG (CBData_r);
 
 //  inherited::gauge_progress->Pulse ();
 }
@@ -104,6 +105,7 @@ Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
 
   typename InterfaceType::CBDATA_T& CBData_r =
     const_cast<typename InterfaceType::CBDATA_T&> (application_->getR_2 ());
+  ACE_UNUSED_ARG (CBData_r);
 }
 
 //////////////////////////////////////////
@@ -132,6 +134,7 @@ Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
 
   typename InterfaceType::CBDATA_T& CBData_r =
     const_cast<typename InterfaceType::CBDATA_T&> (application_->getR_2 ());
+  ACE_UNUSED_ARG (CBData_r);
 
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("button_2, clicked\n")));

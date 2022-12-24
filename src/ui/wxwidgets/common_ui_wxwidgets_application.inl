@@ -73,7 +73,9 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
   COMMON_TRACE (ACE_TEXT ("Comon_UI_WxWidgets_Application_T::FilterEvent"));
 
   wxEventType event_type_i = event_in.GetEventType ();
+  ACE_UNUSED_ARG (event_type_i);
   wxObject* object_p = event_in.GetEventObject ();
+  ACE_UNUSED_ARG (object_p);
 
   // Continue processing the event normally as well.
   return Event_Skip;

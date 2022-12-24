@@ -12,7 +12,6 @@ if (LIBPNG_SUPPORT)
                              "$<BUILD_INTERFACE:${PNG_INCLUDE_DIRS}>")
 endif (LIBPNG_SUPPORT)
 if (FFMPEG_SUPPORT)
- message (STATUS "ffmpeg_INCLUDE_DIRS: ${ffmpeg_INCLUDE_DIRS}")
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${ffmpeg_INCLUDE_DIRS}>)
 endif (FFMPEG_SUPPORT)
@@ -26,7 +25,6 @@ elseif (WIN32)
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{DXSDK_DIR}/Include>)
  elseif (VCPKG_SUPPORT)
-#  message (STATUS "DXSDK include dir: ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include>)
  else ()
