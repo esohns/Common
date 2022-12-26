@@ -69,13 +69,13 @@ class Common_TaskBase_T
   // implement Common_IAsynchTask
   virtual void idle () const;
   inline virtual bool isRunning () const { return (threadCount_ ? (inherited::thr_count_ > 0) : false); }
-  virtual bool start (ACE_Time_Value* = NULL); // duration ? relative timeout : run until finished
+  virtual bool start (ACE_Time_Value* = NULL); // duration ? (relative !) timeout : run until finished
   virtual void wait (bool = true) const; // wait for the message queue ? : worker thread(s) only
   virtual void pause () const;
   virtual void resume () const;
 
   // implement Common_ITaskControl
-  inline virtual void execute (ACE_Time_Value* timeout_in = NULL) { start (timeout_in); }
+  inline virtual void execute (ACE_Time_Value* timeout_in = NULL) { start (timeout_in); } // duration ? (relative !) timeout : run until finished
 
   // stub Common_IDumpState
   inline virtual void dump_state () const {}

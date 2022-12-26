@@ -18,50 +18,22 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_ITASK_H
-#define COMMON_ITASK_H
+#ifndef COMMON_TASK_COMMON_H
+#define COMMON_TASK_COMMON_H
 
-#include "ace/Message_Block.h"
+#include "ace/Time_Value.h"
 
-// forward declarations
-class ACE_Time_Value;
+#include "common_task_defines.h"
 
-class Common_ITask
+struct Common_Task_ManagerConfiguration
 {
- public:
-  virtual void idle () const = 0;
-  virtual bool isRunning () const = 0;
-  virtual bool isShuttingDown () const = 0; // stop() has been called ?
+  Common_Task_ManagerConfiguration ()
+   : maximumNumberOfConcurrentTasks (COMMON_TASK_DEFAULT_NUMBER_OF_CONCURRENT_TASKS)
+   , visitInterval (0, COMMON_TASK_DEFAULT_VISIT_INTERVAL_MS * 1000)
+  {}
 
-  virtual bool start (ACE_Time_Value* = NULL) = 0; // duration ? (relative !) timeout : run until finished
-  virtual void stop (bool = true,       // wait for completion ?
-                     bool = false) = 0; // high priority ? (i.e. do not wait for other queued messages)
-  virtual void wait (bool = true) const = 0; // wait for the message queue ? : worker thread(s) only
-
-  virtual void pause () const = 0;
-  virtual void resume () const = 0;
-};
-
-//////////////////////////////////////////
-
-class Common_IAsynchTask
- : virtual public Common_ITask
-{
- public:
-  ////////////////////////////////////////
-  // callbacks
-  // *NOTE*: signal asynchronous completion
-  virtual void finished () = 0;
-};
-
-//////////////////////////////////////////
-
-template <typename MessageType = ACE_Message_Block>
-class Common_ITaskHandler_T
-{
- public:
-  // *IMPORTANT NOTE*: fire-and-forget API
-  virtual void handle (MessageType*&) = 0; // message handle
+  unsigned int   maximumNumberOfConcurrentTasks;
+  ACE_Time_Value visitInterval;
 };
 
 #endif

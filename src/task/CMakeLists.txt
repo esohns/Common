@@ -27,9 +27,14 @@ set (source_files
      common_task_base.cpp
      common_task_base.h
      common_task_base.inl
+     common_task_common.h
+     common_task_defines.h
      common_task_ex.cpp
      common_task_ex.h
      common_task_ex.inl
+     common_task_manager.cpp
+     common_task_manager.h
+     common_task_manager.inl
      common_task_tools.cpp
      common_task_tools.h)
 
@@ -82,8 +87,12 @@ install (FILES
          common_task_base.cpp
          common_task_base.h
          common_task_base.inl
+         common_task_common.h
+         common_task_defines.h
          common_task_ex.h
          common_task_ex.inl
+         common_task_manager.h
+         common_task_manager.inl
          common_task_tools.h
          DESTINATION ${INSTALL_INCLUDE_DIR})
 install (TARGETS ${LIBRARY}
