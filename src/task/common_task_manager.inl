@@ -28,10 +28,12 @@
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
+                      StatisticContainerType,
                       ConfigurationType,
                       UserDataType>::Common_Task_Manager_T ()
  : configuration_(NULL)
@@ -49,10 +51,12 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
+                      StatisticContainerType,
                       ConfigurationType,
                       UserDataType>::~Common_Task_Manager_T ()
 {
@@ -73,11 +77,11 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 
   bool do_abort = false;
   { ACE_GUARD (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, lock_);
-    if (!unlikely (connections_.is_empty ()))
+    if (!unlikely (tasks_.is_empty ()))
     {
       ACE_DEBUG ((LM_WARNING,
-                  ACE_TEXT ("%u remaining connection(s) in dtor, continuing\n"),
-                  connections_.size ()));
+                  ACE_TEXT ("%u remaining tasks(s) in dtor, continuing\n"),
+                  tasks_.size ()));
       do_abort = true;
     } // end IF
   } // end lock scope
@@ -87,28 +91,32 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
 bool
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
+                      StatisticContainerType,
                       ConfigurationType,
                       UserDataType>::initialize (const ConfigurationType& configuration_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Task_Manager_T::initialize"));
 
-  configuration_ = &configuration_in;
+  configuration_ = &const_cast<ConfigurationType&> (configuration_in);
 
   return true;
 }
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
 bool
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
+                      StatisticContainerType,
                       ConfigurationType,
                       UserDataType>::lock (bool block_in)
 {
@@ -125,11 +133,13 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 }
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
 int
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
+                      StatisticContainerType,
                       ConfigurationType,
                       UserDataType>::unlock (bool unblock_in)
 {
@@ -150,12 +160,15 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
-Common_Task_T<ACE_SYNCH_USE,
-              TimePolicyType>*
+Common_Task_2<ACE_SYNCH_USE,
+              TimePolicyType,
+              StatisticContainerType>*
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
+                      StatisticContainerType,
                       ConfigurationType,
                       UserDataType>::operator[] (unsigned int index_in) const
 {
@@ -179,11 +192,13 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
 bool
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
+                      StatisticContainerType,
                       ConfigurationType,
                       UserDataType>::register_ (TASK_T* task_in)
 {
@@ -194,8 +209,8 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 
   { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, lock_, false);
     if (unlikely (!isActive_ || // --> (currently) rejecting new tasks
-                  (configuration_->maximumNumberOfConcurrentTasks_ && // 0 ? --> no limit
-                   (tasks_.size () >= configuration_->maximumNumberOfConcurrentTasks_))))
+                  (configuration_->maximumNumberOfConcurrentTasks && // 0 ? --> no limit
+                   (tasks_.size () >= configuration_->maximumNumberOfConcurrentTasks))))
       return false;
 
     if (!unlikely (tasks_.insert_tail (task_in)))
@@ -211,11 +226,13 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
 void
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
+                      StatisticContainerType,
                       ConfigurationType,
                       UserDataType>::deregister (TASK_T* task_in)
 {
@@ -259,11 +276,13 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
 unsigned int
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
+                      StatisticContainerType,
                       ConfigurationType,
                       UserDataType>::count () const
 {
@@ -280,11 +299,13 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
 bool
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
+                      StatisticContainerType,
                       ConfigurationType,
                       UserDataType>::start (ACE_Time_Value* timeout_in)
 {
@@ -337,11 +358,13 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
 void
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
+                      StatisticContainerType,
                       ConfigurationType,
                       UserDataType>::stop (bool waitForCompletion_in,
                                            bool highPriority_in)
@@ -374,11 +397,13 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
 void
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
+                      StatisticContainerType,
                       ConfigurationType,
                       UserDataType>::abort (bool waitForCompletion_in)
 {
@@ -404,11 +429,13 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
 void
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
+                      StatisticContainerType,
                       ConfigurationType,
                       UserDataType>::wait (bool) const
 {
@@ -432,11 +459,13 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
 void
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
+                      StatisticContainerType,
                       ConfigurationType,
                       UserDataType>::abortLeastRecent ()
 {
@@ -470,11 +499,13 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
 void
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
+                      StatisticContainerType,
                       ConfigurationType,
                       UserDataType>::abortMostRecent ()
 {
@@ -509,11 +540,13 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
 void
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
+                      StatisticContainerType,
                       ConfigurationType,
                       UserDataType>::reset ()
 {
@@ -526,8 +559,8 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
          iterator.next (task_p);
          iterator.advance ())
     { ACE_ASSERT (task_p);
-      try { // dump connection information
-        task_p->update (resetTimeoutInterval_);
+      try {
+        task_p->update (configuration_->visitInterval);
       } catch (...) {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("caught exception in Common_IStatistic_T::update(), continuing\n")));
@@ -539,11 +572,13 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
 void
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
+                      StatisticContainerType,
                       ConfigurationType,
                       UserDataType>::dump_state () const
 {

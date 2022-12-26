@@ -28,6 +28,7 @@
 #include "ace/Synch_Traits.h"
 
 #include "common_icounter.h"
+#include "common_isubscribe.h"
 #include "common_itaskcontrol.h"
 #include "common_task.h"
 
@@ -38,16 +39,21 @@ class ACE_Time_Value;
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
+          typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
 class Common_Task_Manager_T
  : public Common_ITaskManager
  , public Common_IInitialize_T<ConfigurationType>
+ , public Common_IRegister_T<Common_Task_2<ACE_SYNCH_USE,
+                                           TimePolicyType,
+                                           StatisticContainerType> >
  , public Common_ICounter
 {
   // singleton has access to the ctor/dtors
   friend class ACE_Singleton<Common_Task_Manager_T<ACE_SYNCH_USE,
                                                    TimePolicyType,
+                                                   StatisticContainerType,
                                                    ConfigurationType,
                                                    UserDataType>,
                              ACE_SYNCH_MUTEX_T>;
@@ -55,10 +61,12 @@ class Common_Task_Manager_T
  public:
   // convenience types
   typedef Common_ITaskManager INTERFACE_T;
-  typedef Common_Task_T<ACE_SYNCH_USE,
-                        TimePolicyType> TASK_T;
+  typedef Common_Task_2<ACE_SYNCH_USE,
+                        TimePolicyType,
+                        StatisticContainerType> TASK_T;
   typedef ACE_Singleton<Common_Task_Manager_T<ACE_SYNCH_USE,
                                               TimePolicyType,
+                                              StatisticContainerType,
                                               ConfigurationType,
                                               UserDataType>,
                         ACE_SYNCH_MUTEX_T> SINGLETON_T;
@@ -82,6 +90,8 @@ class Common_Task_Manager_T
                                        // *IMPORTANT NOTE*: this API really makes sense only AFTER stop() has been
                                        //                   invoked, i.e. when new tasks will be rejected;
                                        //                   otherwise this may block indefinetly
+
+  // implement Common_IRegister_T<TASK_T>
   virtual bool register_ (TASK_T*); // task handle
   virtual void deregister (TASK_T*); // task handle
 
@@ -96,6 +106,7 @@ class Common_Task_Manager_T
   // convenient types
   typedef Common_Task_Manager_T<ACE_SYNCH_USE,
                                 TimePolicyType,
+                                StatisticContainerType,
                                 ConfigurationType,
                                 UserDataType> OWN_TYPE_T;
 

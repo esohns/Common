@@ -21,11 +21,15 @@
 #ifndef COMMON_TASK_H
 #define COMMON_TASK_H
 
+#include <string>
+
 #include "ace/Global_Macros.h"
 #include "ace/Message_Block.h"
 #include "ace/Message_Queue_T.h"
 #include "ace/Task_T.h"
 
+#include "common_istatistic.h"
+#include "common_isubscribe.h"
 #include "common_message_queue_iterator.h"
 
 #include "common_task_base.h"
@@ -52,7 +56,7 @@ class Common_Task_T
 
  public:
   // convenient types
-  typedef Common_ITaskHandler_T<ACE_Message_Block> ITASKHANDLER_T;
+  typedef Common_ITaskHandler_T<ACE_Message_Block> IHANDLER_T;
 
   inline virtual ~Common_Task_T () {}
 
@@ -66,7 +70,7 @@ class Common_Task_T
   //         happens in lockstep, which is both inefficient and yields
   //         unpredictable results
   //         --> use Common_MessageQueueIterator_T and lock the queue manually
-  virtual bool isShuttingDown ();
+  virtual bool isShuttingDown () const;
   // enqueue MB_STOP --> stop worker thread(s)
   virtual void stop (bool = true,   // wait for completion ?
                      bool = false); // high priority ? (i.e. do not wait for queued messages)
@@ -143,6 +147,51 @@ class Common_Task_T<ACE_NULL_SYNCH,
   ACE_UNIMPLEMENTED_FUNC (Common_Task_T ())
   ACE_UNIMPLEMENTED_FUNC (Common_Task_T (const Common_Task_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_Task_T& operator= (const Common_Task_T&))
+};
+
+//////////////////////////////////////////
+
+// this version supports statistics and the task manager
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType,
+          typename StatisticContainerType>
+class Common_Task_2
+ : public Common_Task_T<ACE_SYNCH_USE,
+                        TimePolicyType>
+ , public Common_IStatistic_T<StatisticContainerType>
+{
+  typedef Common_Task_T<ACE_SYNCH_USE,
+                        TimePolicyType> inherited;
+
+ public:
+  virtual ~Common_Task_2 ();
+
+  // implement (part of) Common_IStatistic_T
+  inline virtual bool collect (StatisticContainerType& container_inout) { ACE_UNUSED_ARG (container_inout); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
+  inline virtual void update (const ACE_Time_Value& interval_in) { ACE_UNUSED_ARG (interval_in); ACE_NOTSUP; }
+  inline virtual void report () const { ACE_NOTSUP; }
+
+ protected:
+  // convenient types
+  typedef Common_Task_2<ACE_SYNCH_USE,
+                        TimePolicyType,
+                        StatisticContainerType> OWN_TYPE_T;
+  typedef Common_IRegister_T<OWN_TYPE_T> IREGISTER_T;
+
+  Common_Task_2 (const std::string&,                          // thread name
+                 int,                                         // (thread) group id
+                 unsigned int = 1,                            // # thread(s)
+                 bool = true,                                 // auto-start ?
+                 typename inherited::MESSAGE_QUEUE_T* = NULL, // queue handle
+                 /////////////////////////
+                 typename IREGISTER_T* = NULL);               // manager handle
+
+  IREGISTER_T* manager_; // handle to manager (if any)
+
+ private:
+  ACE_UNIMPLEMENTED_FUNC (Common_Task_2 ())
+  ACE_UNIMPLEMENTED_FUNC (Common_Task_2 (const Common_Task_2&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Task_2& operator= (const Common_Task_2&))
 };
 
 // include template definition

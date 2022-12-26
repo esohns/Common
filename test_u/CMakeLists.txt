@@ -173,6 +173,7 @@ add_subdirectory (regex)
 add_subdirectory (signal)
 add_subdirectory (string)
 add_subdirectory (system)
+add_subdirectory (task)
 
 # phonies
 add_custom_target (test_u ALL
@@ -180,7 +181,7 @@ add_custom_target (test_u ALL
 if (UNIX)
  add_dependencies (test_u capabilities capabilities_2 debug_wrapper features)
 endif (UNIX)
-add_dependencies (test_u base64 count file locale math regex signal string system)
+add_dependencies (test_u base64 count file locale math regex signal string system task)
 
 if (NOT BUILD_TEST_U)
  set_target_properties (test_u PROPERTIES EXCLUDE_FROM_ALL 1)

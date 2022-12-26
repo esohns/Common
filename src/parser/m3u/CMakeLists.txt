@@ -65,7 +65,7 @@ endif (WIN32)
 target_precompile_headers (${LIBRARY}
                            PRIVATE stdafx.h)
 
-set_property (TARGET ${LIBRARY} PROPERTY FOLDER "modules")
+set_property (TARGET ${LIBRARY} PROPERTY FOLDER "modules/parsers")
 
 # add all targets to the build-tree export set
 export (TARGETS ${LIBRARY}

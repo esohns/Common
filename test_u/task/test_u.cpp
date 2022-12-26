@@ -23,16 +23,12 @@
 #include <sstream>
 #include <string>
 
-#include "ace/ACE.h"
-#include "ace/Condition_T.h"
 #include "ace/Get_Opt.h"
 #include "ace/High_Res_Timer.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "ace/Init_ACE.h"
 #endif // ACE_WIN32 || ACE_WIN64
 #include "ace/Log_Msg.h"
-#include "ace/Signal.h"
-#include "ace/Thread_Mutex.h"
 #include "ace/Time_Value.h"
 
 #include "common_defines.h"
@@ -40,57 +36,73 @@
 
 #include "common_log_tools.h"
 
-#include "common_signal_common.h"
-#include "common_signal_handler.h"
-#include "common_signal_tools.h"
-
+#include "common_time_common.h"
+#include "common_timer_manager_common.h"
 #include "common_timer_tools.h"
+
+#include "common_task.h"
+#include "common_task_common.h"
+#include "common_task_defines.h"
 
 #include "common_test_u_common.h"
 
 //////////////////////////////////////////
 
-class Test_U_SignalHandler
- : public Common_SignalHandler_T<struct Test_U_SignalHandlerConfiguration>
+class Test_U_Task
+ : public Common_Task_2<ACE_MT_SYNCH,
+                        Common_TimePolicy_t,
+                        struct Common_Task_Statistic>
 {
-  typedef Common_SignalHandler_T<struct Test_U_SignalHandlerConfiguration> inherited;
+  typedef Common_Task_2<ACE_MT_SYNCH,
+                        Common_TimePolicy_t,
+                        struct Common_Task_Statistic> inherited;
 
  public:
-  Test_U_SignalHandler() : inherited (this) {}
-  inline virtual ~Test_U_SignalHandler () {}
+  Test_U_Task (Common_IRegister_T<inherited::OWN_TYPE_T>* manager_in)
+   : inherited (ACE_TEXT_ALWAYS_CHAR (COMMON_TASK_THREAD_NAME),
+                COMMON_TASK_THREAD_GROUP_ID,
+                1U,
+                true,
+                NULL,
+                manager_in)
+  {}
+  inline virtual ~Test_U_Task () {}
 
-  // implement Common_ISignal
-  virtual void handle (const struct Common_Signal& signal_in)
+  virtual void handle (ACE_Message_Block*& message_inout)
   {
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("received signal: [%d] \"%S\"\n"),
-                signal_in.signal, signal_in.signal));
+    // sanity check(s)
+    ACE_ASSERT (message_inout);
 
-    if (signal_in.signal == SIGINT)
+    // *TODO*: do some meaningful work here
+    message_inout->release (); message_inout = NULL;
+
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("%s[%t]: work done, shutting down...\n"),
+                ACE_TEXT (inherited::threadName_.c_str ())));
+    inherited::stop (false, // *WARNING*: cannot wait here
+                     true); // high priority ?
+
+    if (inherited::manager_)
     {
-      int result = -1;
-      { ACE_GUARD (ACE_Thread_Mutex, aGuard, inherited::configuration_->condition->mutex ());
-        result = inherited::configuration_->condition->broadcast ();
-      } // end lock scope
-      ACE_ASSERT (result == 0);
+      inherited::manager_->deregister (this);
+      inherited::manager_ = NULL; // do not deregister in dtor (again)
     } // end IF
   }
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Test_U_SignalHandler (const Test_U_SignalHandler&))
-  ACE_UNIMPLEMENTED_FUNC (Test_U_SignalHandler& operator= (const Test_U_SignalHandler&))
+  ACE_UNIMPLEMENTED_FUNC (Test_U_Task ())
+  ACE_UNIMPLEMENTED_FUNC (Test_U_Task (const Test_U_Task&))
+  ACE_UNIMPLEMENTED_FUNC (Test_U_Task& operator= (const Test_U_Task&))
 };
 
 //////////////////////////////////////////
 
-enum Test_U_Common_Signal_ModeType
+enum Test_U_ModeType
 {
-  TEST_U_COMMON_SIGNAL_MODE_DEFAULT = 0,
-  TEST_U_COMMON_SIGNAL_MODE_IGNORE_SIGINT,
-  TEST_U_COMMON_SIGNAL_MODE_HANDLE_RT,
+  TEST_U_MODE_DEFAULT = 0,
   ////////////////////////////////////////
-  TEST_U_COMMON_SIGNAL_MODE_MAX,
-  TEST_U_COMMON_SIGNAL_MODE_INVALID
+  TEST_U_MODE_MAX,
+  TEST_U_MODE_INVALID
 };
 
 void
@@ -108,7 +120,7 @@ do_printUsage (const std::string& programName_in)
   std::cout << ACE_TEXT_ALWAYS_CHAR ("currently available options:")
             << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-m [INTEGER]: mode [")
-            << TEST_U_COMMON_SIGNAL_MODE_DEFAULT
+            << TEST_U_MODE_DEFAULT
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-t          : trace information [")
@@ -120,13 +132,13 @@ do_printUsage (const std::string& programName_in)
 bool
 do_processArguments (int argc_in,
                      ACE_TCHAR* argv_in[], // cannot be const...
-                     enum Test_U_Common_Signal_ModeType& mode_out,
+                     enum Test_U_ModeType& mode_out,
                      bool& traceInformation_out)
 {
   COMMON_TRACE (ACE_TEXT ("::do_processArguments"));
 
   // initialize results
-  mode_out = TEST_U_COMMON_SIGNAL_MODE_DEFAULT;
+  mode_out = TEST_U_MODE_DEFAULT;
   traceInformation_out = false;
 
   ACE_Get_Opt argument_parser (argc_in,
@@ -148,7 +160,7 @@ do_processArguments (int argc_in,
         converter.str (ACE_TEXT_ALWAYS_CHAR (argument_parser.opt_arg ()));
         int mode_i = 0;
         converter >> mode_i;
-        mode_out = static_cast<enum Test_U_Common_Signal_ModeType> (mode_i);
+        mode_out = static_cast<enum Test_U_ModeType> (mode_i);
         break;
       }
       case 't':
@@ -237,7 +249,7 @@ do_initializeSignals (ACE_Sig_Set& signals_out,
 }
 
 void
-do_work (enum Test_U_Common_Signal_ModeType mode_in,
+do_work (enum Test_U_ModeType mode_in,
          ACE_Sig_Set& signals_in,
          ACE_Sig_Set& ignoredSignals_in)
 {
@@ -245,110 +257,85 @@ do_work (enum Test_U_Common_Signal_ModeType mode_in,
 
   ACE_Sig_Set previous_signal_mask (false); // fill ?
   Common_SignalActions_t previous_signal_actions;
+  struct Common_TimerConfiguration timer_configuration;
+  struct Common_Task_ManagerConfiguration task_configuration;
 
-  ACE_Thread_Mutex lock;
-  ACE_Thread_Condition<ACE_Thread_Mutex> condition (lock, NULL, NULL);
-  struct Test_U_SignalHandlerConfiguration configuration;
-  configuration.condition = &condition;
-  // *IMPORTANT NOTE*: on UNIX systems, this invokes the Proactor ctor, which
-  //                   blocks RT signals (the default proactor on UNIX is
-  //                   ACE_POSIX_SIG_Proactor)
-  Test_U_SignalHandler signal_handler;
-  if (!signal_handler.initialize (configuration))
-  {
-    ACE_DEBUG ((LM_ERROR,
-               ACE_TEXT ("failed to Common_SignalHandler_T::initialize(), returning\n")));
-    goto error;
-  } // end IF
+  //Test_U_SignalHandler signal_handler;
+  //if (!signal_handler.initialize (configuration))
+  //{
+  //  ACE_DEBUG ((LM_ERROR,
+  //             ACE_TEXT ("failed to Common_SignalHandler_T::initialize(), returning\n")));
+  //  goto error;
+  //} // end IF
 
   switch (mode_in)
   {
-    case TEST_U_COMMON_SIGNAL_MODE_DEFAULT:
+    case TEST_U_MODE_DEFAULT:
     {
-      if (!Common_Signal_Tools::preInitialize (signals_in,
-                                               COMMON_SIGNAL_DISPATCH_SIGNAL,
-                                               false, // using networking ?
-                                               false, // using asynch timers ?
-                                               previous_signal_actions,
-                                               previous_signal_mask))
-      {
-        ACE_DEBUG ((LM_ERROR,
-                   ACE_TEXT ("failed to Common_Signal_Tools::preInitialize(), returning\n")));
-        return;
-      } // end IF
+      //if (!Common_Signal_Tools::preInitialize (signals_in,
+      //                                         COMMON_SIGNAL_DISPATCH_SIGNAL,
+      //                                         false, // using networking ?
+      //                                         false, // using asynch timers ?
+      //                                         previous_signal_actions,
+      //                                         previous_signal_mask))
+      //{
+      //  ACE_DEBUG ((LM_ERROR,
+      //             ACE_TEXT ("failed to Common_Signal_Tools::preInitialize(), returning\n")));
+      //  return;
+      //} // end IF
+      //if (!Common_Signal_Tools::initialize (COMMON_SIGNAL_DISPATCH_SIGNAL,
+      //                                      signals_in,
+      //                                      ignoredSignals_in,
+      //                                      &signal_handler,
+      //                                      previous_signal_actions))
+      //{
+      //  ACE_DEBUG ((LM_ERROR,
+      //             ACE_TEXT ("failed to Common_Signal_Tools::initialize(), returning\n")));
+      //  goto error;
+      //} // end IF
 
-      if (!Common_Signal_Tools::initialize (COMMON_SIGNAL_DISPATCH_SIGNAL,
-                                            signals_in,
-                                            ignoredSignals_in,
-                                            &signal_handler,
-                                            previous_signal_actions))
-      {
-        ACE_DEBUG ((LM_ERROR,
-                   ACE_TEXT ("failed to Common_Signal_Tools::initialize(), returning\n")));
-        goto error;
-      } // end IF
+      Common_Timer_Manager_t* timer_manager_p =
+        COMMON_TIMERMANAGER_SINGLETON::instance ();
+      ACE_ASSERT (timer_manager_p);
+      bool result = timer_manager_p->initialize (timer_configuration);
+      ACE_ASSERT (result);
+      result = timer_manager_p->start (NULL);
+      ACE_ASSERT (result);
 
-      break;
-    }
-    case TEST_U_COMMON_SIGNAL_MODE_IGNORE_SIGINT:
-    {
-      if (!Common_Signal_Tools::preInitialize (signals_in,
-                                               COMMON_SIGNAL_DISPATCH_SIGNAL,
-                                               false, // using networking ?
-                                               false, // using asynch timers ?
-                                               previous_signal_actions,
-                                               previous_signal_mask))
-      {
-        ACE_DEBUG ((LM_ERROR,
-                   ACE_TEXT ("failed to Common_Signal_Tools::preInitialize(), returning\n")));
-        return;
-      } // end IF
+      Common_Task_Manager_t* task_manager_p =
+        COMMON_TASK_MANAGER_SINGLETON::instance ();
+      ACE_ASSERT (task_manager_p);
+      result = task_manager_p->initialize (task_configuration);
+      ACE_ASSERT (result);
+      result = task_manager_p->start (NULL);
+      ACE_ASSERT (result);
 
-      ignoredSignals_in.sig_add (SIGINT);
-      if (!Common_Signal_Tools::initialize (COMMON_SIGNAL_DISPATCH_SIGNAL,
-                                            signals_in,
-                                            ignoredSignals_in,
-                                            &signal_handler,
-                                            previous_signal_actions))
-      {
-        ACE_DEBUG ((LM_ERROR,
-                   ACE_TEXT ("failed to Common_Signal_Tools::initialize(), returning\n")));
-        goto error;
-      } // end IF
+      Test_U_Task task (task_manager_p);
 
-      break;
-    }
-    case TEST_U_COMMON_SIGNAL_MODE_HANDLE_RT:
-    {
-      // *IMPORTANT NOTE*: on UNIX systems, unblock RT signals (see above)
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-      sigset_t original_mask;
-      Common_Signal_Tools::unblockRealtimeSignals (original_mask);
-#endif // ACE_WIN32 || ACE_WIN64
+      ACE_Message_Block* message_block_p = NULL;
+      ACE_NEW_NORETURN (message_block_p,
+                        ACE_Message_Block (100,
+                                           ACE_Message_Block::MB_DATA,
+                                           NULL,
+                                           NULL,
+                                           NULL,
+                                           NULL,
+                                           ACE_DEFAULT_MESSAGE_BLOCK_PRIORITY,
+                                           ACE_Time_Value::zero,
+                                           ACE_Time_Value::max_time,
+                                           NULL,
+                                           NULL));
+      ACE_ASSERT (message_block_p);
+      int result_2 = task.put (message_block_p, NULL);
+      ACE_ASSERT (result_2 > 0);
+      message_block_p = NULL;
 
-      if (!Common_Signal_Tools::preInitialize (signals_in,
-                                               COMMON_SIGNAL_DISPATCH_SIGNAL,
-                                               true,  // using networking ?
-                                               false, // using asynch timers ?
-                                               previous_signal_actions,
-                                               previous_signal_mask))
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to Common_Signal_Tools::preInitialize(), returning\n")));
-        return;
-      } // end IF
+      task_manager_p->wait (true); // N/A
+      task_manager_p->stop (true,   // wait for completion
+                            false); // high priority ?
 
-      if (!Common_Signal_Tools::initialize (COMMON_SIGNAL_DISPATCH_SIGNAL,
-                                            signals_in,
-                                            ignoredSignals_in,
-                                            &signal_handler,
-                                            previous_signal_actions))
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to Common_Signal_Tools::initialize(), returning\n")));
-        goto error;
-      } // end IF
+      timer_manager_p->stop (true,   // wait for completion
+                             false); // high priority ?
 
       break;
     }
@@ -361,20 +348,13 @@ do_work (enum Test_U_Common_Signal_ModeType mode_in,
     }
   } // end SWITCH
 
-  { ACE_GUARD (ACE_Thread_Mutex, aGuard, lock);
-    int result = configuration.condition->wait (NULL);
-    if (result == -1)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Thread_Condition::wait(): \"%m\", continuing\n")));
-  } // end lock scope
-
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("finished working\n")));
 
-error:
-  Common_Signal_Tools::finalize (COMMON_SIGNAL_DISPATCH_SIGNAL,
-                                 previous_signal_actions,
-                                 previous_signal_mask);
+//error:
+  //Common_Signal_Tools::finalize (COMMON_SIGNAL_DISPATCH_SIGNAL,
+  //                               previous_signal_actions,
+  //                               previous_signal_mask);
 }
 
 int
@@ -399,8 +379,7 @@ ACE_TMAIN (int argc_in,
 //  ACE_Profile_Timer process_profile;
 //  process_profile.start ();
 
-  enum Test_U_Common_Signal_ModeType mode_type_e =
-    TEST_U_COMMON_SIGNAL_MODE_DEFAULT;
+  enum Test_U_ModeType mode_type_e = TEST_U_MODE_DEFAULT;
   bool trace_information_b = false;
   std::string log_file_name;
   ACE_High_Res_Timer timer;

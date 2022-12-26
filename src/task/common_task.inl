@@ -142,7 +142,7 @@ template <ACE_SYNCH_DECL,
           typename TimePolicyType>
 bool
 Common_Task_T<ACE_SYNCH_USE,
-              TimePolicyType>::isShuttingDown ()
+              TimePolicyType>::isShuttingDown () const
 {
   COMMON_TRACE (ACE_TEXT ("Common_Task_T::isShuttingDown"));
 
@@ -252,4 +252,64 @@ Common_Task_T<ACE_SYNCH_USE,
               ACE_TEXT (inherited::threadName_.c_str ())));
 
   return result;
+}
+
+//////////////////////////////////////////
+
+template <typename TimePolicyType>
+Common_Task_T<ACE_NULL_SYNCH,
+              TimePolicyType>::Common_Task_T (const std::string& threadName_in,
+                                              int threadGroupId_in,
+                                              unsigned int threadCount_in,
+                                              bool autoStart_in,
+                                              typename inherited::MESSAGE_QUEUE_T* messageQueue_in)
+ : inherited (threadName_in,
+              threadGroupId_in,
+              threadCount_in,
+              autoStart_in,
+              messageQueue_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Task_T::Common_Task_T"));
+
+  // sanity check(s)
+  ACE_ASSERT (threadCount_in == 0);
+}
+
+//////////////////////////////////////////
+
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType,
+          typename StatisticContainerType>
+Common_Task_2<ACE_SYNCH_USE,
+              TimePolicyType,
+              StatisticContainerType>::Common_Task_2 (const std::string& threadName_in,
+                                                      int threadGroupId_in,
+                                                      unsigned int threadCount_in,
+                                                      bool autoStart_in,
+                                                      typename inherited::MESSAGE_QUEUE_T* messageQueue_in,
+                                                      Common_IRegister_T<OWN_TYPE_T>* manager_in)
+ : inherited (threadName_in,
+              threadGroupId_in,
+              threadCount_in,
+              autoStart_in,
+              messageQueue_in)
+ , manager_ (manager_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Task_2::Common_Task_2"));
+
+  if (manager_)
+    manager_->register_ (this);
+}
+
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType,
+          typename StatisticContainerType>
+Common_Task_2<ACE_SYNCH_USE,
+              TimePolicyType,
+              StatisticContainerType>::~Common_Task_2 ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Task_2::~Common_Task_2"));
+
+  if (manager_)
+    manager_->deregister (this);
 }
