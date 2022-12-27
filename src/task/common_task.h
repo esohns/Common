@@ -29,7 +29,7 @@
 #include "ace/Task_T.h"
 
 #include "common_istatistic.h"
-#include "common_isubscribe.h"
+#include "common_itaskcontrol.h"
 #include "common_message_queue_iterator.h"
 
 #include "common_task_base.h"
@@ -176,25 +176,23 @@ class Common_Task_2
   inline virtual void update (const ACE_Time_Value& interval_in) { ACE_UNUSED_ARG (interval_in); ACE_NOTSUP; }
   inline virtual void report () const { ACE_NOTSUP; }
 
- protected:
-  // convenient types
-  typedef Common_Task_2<ACE_SYNCH_USE,
-                        TimePolicyType,
-                        StatisticContainerType> TASK_2;
-  typedef Common_IRegister_T<TASK_2> IREGISTER_T;
+  // override Common_IAsynchTask
+  virtual void finished ();
 
+ protected:
   Common_Task_2 (const std::string&,                          // thread name
                  int,                                         // (thread) group id
                  unsigned int = 1,                            // # thread(s)
                  bool = false,                                // auto-start ?
                  typename inherited::MESSAGE_QUEUE_T* = NULL, // queue handle
                  /////////////////////////
-                 typename IREGISTER_T* = NULL);               // manager handle
+                 Common_ITaskManager* = NULL);                // manager handle
 
   // override ACE_Task_Base members
-  virtual int svc ();
+  //virtual int svc ();
 
-  IREGISTER_T* manager_; // handle to manager (if any)
+  bool                 deregisterInDtor_;
+  Common_ITaskManager* manager_; // handle to manager (if any)
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Task_2 ())

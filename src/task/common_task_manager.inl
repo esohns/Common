@@ -200,12 +200,14 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
                       StatisticContainerType,
                       ConfigurationType,
-                      UserDataType>::register_ (TASK_T* task_in)
+                      UserDataType>::register_ (ACE_Task_Base* task_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Task_Manager_T::register_"));
 
   // sanity check(s)
   ACE_ASSERT (configuration_);
+  TASK_T* task_p = static_cast<TASK_T*> (task_in);
+  ACE_ASSERT (task_p);
 
   { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, lock_, false);
     if (unlikely (!isActive_ || // --> (currently) rejecting new tasks
@@ -213,12 +215,15 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
                    (tasks_.size () >= configuration_->maximumNumberOfConcurrentTasks))))
       return false;
 
-    if (!unlikely (tasks_.insert_tail (task_in)))
+    if (!unlikely (tasks_.insert_tail (task_p)))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_DLList::insert_tail(): \"%m\", aborting\n")));
       return false;
     } // end IF
+
+    if (likely (!task_p->isRunning ()))
+      task_p->start (NULL);
   } // end lock scope
 
   return true;
@@ -234,19 +239,23 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
                       StatisticContainerType,
                       ConfigurationType,
-                      UserDataType>::deregister (TASK_T* task_in)
+                      UserDataType>::deregister (ACE_Task_Base* task_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Task_Manager_T::deregister"));
 
-  TASK_T* task_p = NULL;
+  // sanity check(s)
+  TASK_T* task_p = static_cast<TASK_T*> (task_in);
+  ACE_ASSERT (task_p);
+
+  TASK_T* task_2 = NULL;
   bool found = false;
   int result = -1;
 
   { ACE_GUARD (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, lock_);
     for (CONTAINER_ITERATOR_T iterator (tasks_);
-         iterator.next (task_p);
+         iterator.next (task_2);
          iterator.advance ())
-      if (unlikely (task_p == task_in))
+      if (unlikely (task_2 == task_p))
       {
         found = true;
         result = iterator.remove ();
@@ -261,10 +270,15 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
       //         implementation !)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("task handle (was: 0x%@) not found, returning\n"),
-                  task_in));
+                  task_p));
       return;
     } // end IF
-    ACE_ASSERT (task_p);
+    ACE_ASSERT (task_2);
+
+    // sanity check(s)
+    if (unlikely (task_2->isRunning () && !task_2->isShuttingDown ()))
+      task_2->stop (false,  // wait ?
+                    false); // high priority ?
 
     // signal any waiters
     result = condition_.broadcast ();
@@ -272,6 +286,102 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Condition::broadcast(): \"%m\", continuing\n")));
   } // end lock scope
+}
+
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType,
+          typename StatisticContainerType,
+          typename ConfigurationType,
+          typename UserDataType>
+void
+Common_Task_Manager_T<ACE_SYNCH_USE,
+                      TimePolicyType,
+                      StatisticContainerType,
+                      ConfigurationType,
+                      UserDataType>::execute (ACE_Task_Base* task_in,
+                                              ACE_Time_Value* timeout_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Task_Manager_T::execute"));
+
+  ACE_UNUSED_ARG (timeout_in);
+
+  // sanity check(s)
+  TASK_T* task_p = static_cast<TASK_T*> (task_in);
+  ACE_ASSERT (task_p);
+
+  TASK_T* task_2 = NULL;
+  bool register_b = true;
+
+  { ACE_GUARD (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, lock_);
+    for (CONTAINER_ITERATOR_T iterator (tasks_);
+         iterator.next (task_2);
+         iterator.advance ())
+      if (unlikely (task_2 == task_p))
+      {
+        register_b = false;
+        break;
+      } // end IF
+    if (unlikely (!register_b))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("task handle (was: 0x%@) already registered, returning\n"),
+                  task_p));
+      return;
+    } // end IF
+  } // end lock scope
+  ACE_ASSERT (register_b);
+
+  if (!register_ (task_in))
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to register task (handle was: 0x%@), returning\n"),
+                task_in));
+}
+
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType,
+          typename StatisticContainerType,
+          typename ConfigurationType,
+          typename UserDataType>
+void
+Common_Task_Manager_T<ACE_SYNCH_USE,
+                      TimePolicyType,
+                      StatisticContainerType,
+                      ConfigurationType,
+                      UserDataType>::finished (ACE_Task_Base* task_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Task_Manager_T::finished"));
+
+  // sanity check(s)
+  TASK_T* task_p = static_cast<TASK_T*> (task_in);
+  ACE_ASSERT (task_p);
+
+  TASK_T* task_2 = NULL;
+  bool found_b = false;
+
+  { ACE_GUARD (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, lock_);
+    for (CONTAINER_ITERATOR_T iterator (tasks_);
+         iterator.next (task_2);
+         iterator.advance ())
+      if (unlikely (task_2 == task_p))
+      {
+        found_b = true;
+        break;
+      } // end IF
+    if (unlikely (!found_b))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("task handle (was: 0x%@) not registered, returning\n"),
+                  task_p));
+      return;
+    } // end IF
+  } // end lock scope
+  ACE_ASSERT (found_b);
+
+  deregister (task_in);
+
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("task (handle was: 0x%@) finished...\n"),
+              task_in));
 }
 
 template <ACE_SYNCH_DECL,

@@ -64,10 +64,10 @@ Common_TaskBase_T<ACE_SYNCH_USE,
  , closeHandles_ (false)
 #endif // ACE_WIN32 || ACE_WIN64
  , deadline_ (ACE_Time_Value::zero)
+ , finished_ (false)
  , lockActivate_ (true)
  , threadCount_ (threadCount_in)
  , threadName_ (threadName_in)
- //, lock_ ()
  , threadIds_ ()
  , condition_ (inherited::lock_)
 {
@@ -419,6 +419,8 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::finished"));
 
+  finished_ = true;
+
   int result = close (1);
   if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,
@@ -618,6 +620,8 @@ Common_TaskBase_T<ACE_SYNCH_USE,
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::open"));
 
   ACE_UNUSED_ARG (args_in);
+
+  finished_ = false;
 
   // sanity check(s)
   // *NOTE*: when 'this' is part of an ACE_Module, control may (!) reach here in
@@ -930,11 +934,10 @@ Common_TaskBase_T<ACE_NULL_SYNCH,
 #endif /* ACE_THREAD_MANAGER_LACKS_STATICS */
               messageQueue_in)                           // message queue handle
  , deadline_ (ACE_Time_Value::zero)
+ , finished_ (false)
  , stopped_ (false)
  , threadId_ ()
  , condition_ (inherited::lock_, NULL, NULL)
- , finished_ (false)
- //, lock_ ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_TaskBase_T::Common_TaskBase_T"));
 

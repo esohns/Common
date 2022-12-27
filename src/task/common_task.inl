@@ -287,12 +287,13 @@ Common_Task_2<ACE_SYNCH_USE,
                                                       unsigned int threadCount_in,
                                                       bool autoStart_in,
                                                       typename inherited::MESSAGE_QUEUE_T* messageQueue_in,
-                                                      Common_IRegister_T<TASK_2>* manager_in)
+                                                      Common_ITaskManager* manager_in)
  : inherited (threadName_in,
               threadGroupId_in,
               threadCount_in,
               autoStart_in,
               messageQueue_in)
+ , deregisterInDtor_ (manager_in != NULL)
  , manager_ (manager_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Task_2::Common_Task_2"));
@@ -310,27 +311,43 @@ Common_Task_2<ACE_SYNCH_USE,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Task_2::~Common_Task_2"));
 
-  if (unlikely (manager_))
+  if (unlikely (manager_ && deregisterInDtor_))
     manager_->deregister (this);
 }
 
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
           typename StatisticContainerType>
-int
+void
 Common_Task_2<ACE_SYNCH_USE,
               TimePolicyType,
-              StatisticContainerType>::svc ()
+              StatisticContainerType>::finished ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Task_2::svc"));
 
-  int result = inherited::svc ();
+  inherited::stop (false,  // *WARNING*: (probably) cannot wait here
+                   false); // high priority ?
 
   if (unlikely (manager_))
   {
-    manager_->deregister (this);
-    manager_ = NULL; // do not deregister again in dtor
+    manager_->finished (this);
+    deregisterInDtor_ = false;
   } // end IF
-
-  return result;
 }
+
+//template <ACE_SYNCH_DECL,
+//          typename TimePolicyType,
+//          typename StatisticContainerType>
+//int
+//Common_Task_2<ACE_SYNCH_USE,
+//              TimePolicyType,
+//              StatisticContainerType>::svc ()
+//{
+//  COMMON_TRACE (ACE_TEXT ("Common_Task_2::svc"));
+//
+//  int result = inherited::svc ();
+//
+//  finished ();
+//
+//  return result;
+//}

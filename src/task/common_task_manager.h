@@ -45,9 +45,6 @@ template <ACE_SYNCH_DECL,
 class Common_Task_Manager_T
  : public Common_ITaskManager
  , public Common_IInitialize_T<ConfigurationType>
- , public Common_IRegister_T<Common_Task_2<ACE_SYNCH_USE,
-                                           TimePolicyType,
-                                           StatisticContainerType> >
  , public Common_ICounter
 {
   // singleton has access to the ctor/dtors
@@ -60,7 +57,6 @@ class Common_Task_Manager_T
 
  public:
   // convenience types
-  typedef Common_ITaskManager INTERFACE_T;
   typedef Common_Task_2<ACE_SYNCH_USE,
                         TimePolicyType,
                         StatisticContainerType> TASK_T;
@@ -84,13 +80,14 @@ class Common_Task_Manager_T
   virtual void stop (bool = true,   // wait for completion ?
                      bool = false); // N/A
   virtual void wait (bool = true) const; // N/A
+  virtual bool register_ (ACE_Task_Base*); // task handle
+  virtual void deregister (ACE_Task_Base*); // task handle
+  virtual void execute (ACE_Task_Base*,          // task handle
+                        ACE_Time_Value* = NULL); // duration ? (relative !) timeout : run until finished
+  virtual void finished (ACE_Task_Base*); // task handle
   virtual void dump_state () const;
   virtual void abort (bool = false); // wait for completion ?
   virtual unsigned int count () const; // return value: # of tasks
-
-  // implement Common_IRegister_T<TASK_T>
-  virtual bool register_ (TASK_T*); // task handle
-  virtual void deregister (TASK_T*); // task handle
 
   virtual TASK_T* operator[] (unsigned int) const; // index
 

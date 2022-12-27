@@ -257,9 +257,17 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
         if (unlikely (result == -1))
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to ACE_Task_Base::wait(): \"%m\", continuing\n")));
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
         ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("(%s) joined worker thread\n"),
-                    ACE_TEXT (COMMON_TIMER_THREAD_NAME)));
+                    ACE_TEXT ("(%s): joined worker thread (id was: %u)\n"),
+                    ACE_TEXT (COMMON_TIMER_THREAD_NAME),
+                    task_base_r.last_thread ()));
+#else
+        ACE_DEBUG ((LM_DEBUG,
+                    ACE_TEXT ("(%s): joined worker thread (id was: %d)\n"),
+                    ACE_TEXT (COMMON_TIMER_THREAD_NAME),
+                    task_base_r.last_thread ()));
+#endif // ACE_WIN32 || ACE_WIN64
       } // end IF
       break;
     }
@@ -958,7 +966,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 #endif // _WIN32_WINNT_WIN10
 #endif // ACE_WIN32 || ACE_WIN64
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("%s: spawned thread (id: %t, group id: %d)\n"),
+              ACE_TEXT ("(%s): spawned thread (id: %t, group id: %d)\n"),
               ACE_TEXT (COMMON_TIMER_THREAD_NAME),
               COMMON_TIMER_THREAD_GROUP_ID));
 
@@ -971,14 +979,16 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     DWORD task_index_i = 0;
     task_h =
 #if defined (UNICODE)
-      AvSetMmThreadCharacteristics (ACE_TEXT_ALWAYS_WCHAR (configuration_->taskType.c_str ()), &task_index_i);
+      AvSetMmThreadCharacteristics (ACE_TEXT_ALWAYS_WCHAR (configuration_->taskType.c_str ()),
 #else
-      AvSetMmThreadCharacteristics (ACE_TEXT_ALWAYS_CHAR (configuration_->taskType.c_str ()), &task_index_i);
+      AvSetMmThreadCharacteristics (ACE_TEXT_ALWAYS_CHAR (configuration_->taskType.c_str ()),
 #endif // UNICODE
+                                    &task_index_i);
     if (!task_h)
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("%s: failed to AvSetMmThreadCharacteristics(): \"%m\", aborting\n"),
+                  ACE_TEXT ("(%s): failed to AvSetMmThreadCharacteristics(\"%s\"): \"%m\", aborting\n"),
+                  ACE_TEXT (configuration_->taskType.c_str ()),
                   ACE_TEXT (COMMON_TIMER_THREAD_NAME)));
       return -1;
     } // end IF

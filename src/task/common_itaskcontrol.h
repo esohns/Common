@@ -21,32 +21,40 @@
 #ifndef COMMON_ITASKCONTROL_H
 #define COMMON_ITASKCONTROL_H
 
+#include "ace/Global_Macros.h"
+
 #include "common_idumpstate.h"
+#include "common_isubscribe.h"
 #include "common_itask.h"
 
 // forward declarations
 class ACE_Time_Value;
+class ACE_Task_Base;
 
 class Common_ITaskControl
 {
  public:
-  virtual void execute (ACE_Time_Value* = NULL) = 0; // duration ? (relative !) timeout : run until finished
+  virtual void execute (ACE_Task_Base*,              // task handle
+                        ACE_Time_Value* = NULL) = 0; // duration ? (relative !) timeout : run until finished
+
+  ////////////////////////////////////////
+  // callbacks
+  // *NOTE*: signal asynchronous completion
+  virtual void finished (ACE_Task_Base*) = 0;
 };
 
 //////////////////////////////////////////
 
 class Common_ITaskManager
  : public Common_ITask
+ , public Common_IRegister_T<ACE_Task_Base>
+ , public Common_ITaskControl
  , public Common_IDumpState
 {
  public:
   virtual void abort (bool = false) = 0; // wait for completion ? (see wait())
 
   virtual unsigned int count () const = 0; // return value: # of tasks
-
-  // *NOTE*: the inherited wait() API really makes sense only AFTER stop() has
-  //         been invoked, i.e. when new tasks will be rejected; otherwise
-  //         this may block indefinitely
 };
 
 #endif

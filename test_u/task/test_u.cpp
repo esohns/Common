@@ -58,7 +58,7 @@ class Test_U_Task
                         struct Common_Task_Statistic> inherited;
 
  public:
-  Test_U_Task (Common_IRegister_T<inherited::TASK_2>* manager_in)
+  Test_U_Task (Common_ITaskManager* manager_in)
    : inherited (ACE_TEXT_ALWAYS_CHAR (COMMON_TASK_THREAD_NAME),
                 COMMON_TASK_THREAD_GROUP_ID,
                 1U,
@@ -79,8 +79,7 @@ class Test_U_Task
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("(%s):[%t]: work done, shutting down...\n"),
                 ACE_TEXT (inherited::threadName_.c_str ())));
-    inherited::stop (false, // *WARNING*: cannot wait here
-                     true); // high priority ?
+    inherited::finished ();
   }
 
  private:
@@ -99,7 +98,7 @@ class Test_U_Task_2
                         struct Common_Task_Statistic> inherited;
 
  public:
-  Test_U_Task_2 (Common_IRegister_T<inherited::TASK_2>* manager_in)
+  Test_U_Task_2 (Common_ITaskManager* manager_in)
    : inherited (ACE_TEXT_ALWAYS_CHAR (COMMON_TASK_THREAD_NAME),
                 COMMON_TASK_THREAD_GROUP_ID,
                 1U,
@@ -116,13 +115,12 @@ class Test_U_Task_2
 
     // *TODO*: do some meaningful work here
     message_inout->release (); message_inout = NULL;
-    ACE_OS::sleep (ACE_Time_Value (5, 0)); // sleep 3 seconds
+    ACE_OS::sleep (ACE_Time_Value (5, 0)); // sleep some seconds
 
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("(%s):[%t]: work done, shutting down...\n"),
                 ACE_TEXT (inherited::threadName_.c_str ())));
-    inherited::stop (false, // *WARNING*: cannot wait here
-                     true); // high priority ?
+    inherited::finished ();
   }
 
  private:
@@ -357,11 +355,7 @@ do_work (enum Test_U_ModeType mode_in,
       ACE_ASSERT (result);
 
       Test_U_Task task (task_manager_p);
-      result = task.start (NULL);
-      ACE_ASSERT (result);
       Test_U_Task_2 task_2 (task_manager_p);
-      result = task_2.start (NULL);
-      ACE_ASSERT (result);
 
       ACE_Message_Block* message_block_p = NULL;
       ACE_NEW_NORETURN (message_block_p,

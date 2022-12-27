@@ -51,7 +51,6 @@ template <ACE_SYNCH_DECL,
 class Common_TaskBase_T
  : public TaskType
  , public Common_IAsynchTask
- , public Common_ITaskControl
  , public Common_IDumpState
  , public Common_IGet_T<unsigned int>
 {
@@ -68,14 +67,11 @@ class Common_TaskBase_T
 
   // implement Common_IAsynchTask
   virtual void idle () const;
-  inline virtual bool isRunning () const { return (threadCount_ ? (inherited::thr_count_ > 0) : false); }
+  inline virtual bool isRunning () const { return (threadCount_ ? (inherited::thr_count_ > 0) && !finished_ : false); }
   virtual bool start (ACE_Time_Value* = NULL); // duration ? (relative !) timeout : run until finished
   virtual void wait (bool = true) const; // wait for the message queue ? : worker thread(s) only
   virtual void pause () const;
   virtual void resume () const;
-
-  // implement Common_ITaskControl
-  inline virtual void execute (ACE_Time_Value* timeout_in = NULL) { start (timeout_in); } // duration ? (relative !) timeout : run until finished
 
   // stub Common_IDumpState
   inline virtual void dump_state () const {}
@@ -108,6 +104,7 @@ class Common_TaskBase_T
   bool                 closeHandles_;
 #endif // ACE_WIN32 || ACE_WIN64
   ACE_Time_Value       deadline_;
+  bool                 finished_;
   bool                 lockActivate_; // grab inherited::lock_ in open() ?
   // *NOTE*: this is the 'configured' (not the 'current') thread count
   //         --> see ACE_Task::thr_count_ for that
@@ -180,17 +177,14 @@ class Common_TaskBase_T<ACE_NULL_SYNCH,
 
   // implement Common_ITask
   inline virtual void idle () const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
-  inline virtual bool isRunning () const { return (!stopped_ && (threadId_.handle () != ACE_INVALID_HANDLE)); }
+  inline virtual bool isRunning () const { return (!stopped_ && (threadId_.handle () != ACE_INVALID_HANDLE) && !finished_); }
   inline virtual bool isShuttingDown () const { return stopped_; }
-  virtual bool start (ACE_Time_Value* timeout_in = NULL);
+  virtual bool start (ACE_Time_Value* timeout_in = NULL); // *WARNING*: runs 'in-line', timeout must be NULL !
   virtual void stop (bool = true,   // wait for completion ?
                      bool = false); // N/A
   virtual void wait (bool = true) const; // N/A
   virtual void pause () const;
   virtual void resume () const;
-
-  // implement Common_ITaskControl
-  inline virtual void execute (ACE_Time_Value* timeout_in = NULL) { start (timeout_in); }
 
   // stub Common_IDumpState
   inline virtual void dump_state () const {}
@@ -210,6 +204,7 @@ class Common_TaskBase_T<ACE_NULL_SYNCH,
                      MESSAGE_QUEUE_T* = NULL); // queue handle
 
   ACE_Time_Value                     deadline_;
+  bool                               finished_;
   bool                               stopped_;
   ACE_Thread_ID                      threadId_;
 
@@ -229,7 +224,6 @@ class Common_TaskBase_T<ACE_NULL_SYNCH,
   inline virtual int module_closed (void) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (-1); ACE_NOTREACHED (return -1;) }
 
   mutable ACE_Condition_Thread_Mutex condition_;
-  bool                               finished_;
 };
 
 //////////////////////////////////////////
