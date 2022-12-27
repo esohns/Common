@@ -172,7 +172,7 @@ template <ACE_SYNCH_DECL,
           typename TimePolicyType>
 int
 Common_Task_T<ACE_SYNCH_USE,
-              TimePolicyType>::svc (void)
+              TimePolicyType>::svc ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Task_T::svc"));
 
@@ -287,7 +287,7 @@ Common_Task_2<ACE_SYNCH_USE,
                                                       unsigned int threadCount_in,
                                                       bool autoStart_in,
                                                       typename inherited::MESSAGE_QUEUE_T* messageQueue_in,
-                                                      Common_IRegister_T<OWN_TYPE_T>* manager_in)
+                                                      Common_IRegister_T<TASK_2>* manager_in)
  : inherited (threadName_in,
               threadGroupId_in,
               threadCount_in,
@@ -297,7 +297,7 @@ Common_Task_2<ACE_SYNCH_USE,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Task_2::Common_Task_2"));
 
-  if (manager_)
+  if (unlikely (manager_))
     manager_->register_ (this);
 }
 
@@ -310,6 +310,27 @@ Common_Task_2<ACE_SYNCH_USE,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Task_2::~Common_Task_2"));
 
-  if (manager_)
+  if (unlikely (manager_))
     manager_->deregister (this);
+}
+
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType,
+          typename StatisticContainerType>
+int
+Common_Task_2<ACE_SYNCH_USE,
+              TimePolicyType,
+              StatisticContainerType>::svc ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Task_2::svc"));
+
+  int result = inherited::svc ();
+
+  if (unlikely (manager_))
+  {
+    manager_->deregister (this);
+    manager_ = NULL; // do not deregister again in dtor
+  } // end IF
+
+  return result;
 }

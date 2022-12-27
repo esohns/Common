@@ -58,11 +58,11 @@ class Test_U_Task
                         struct Common_Task_Statistic> inherited;
 
  public:
-  Test_U_Task (Common_IRegister_T<inherited::OWN_TYPE_T>* manager_in)
+  Test_U_Task (Common_IRegister_T<inherited::TASK_2>* manager_in)
    : inherited (ACE_TEXT_ALWAYS_CHAR (COMMON_TASK_THREAD_NAME),
                 COMMON_TASK_THREAD_GROUP_ID,
                 1U,
-                true,
+                false,
                 NULL,
                 manager_in)
   {}
@@ -77,22 +77,58 @@ class Test_U_Task
     message_inout->release (); message_inout = NULL;
 
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("%s[%t]: work done, shutting down...\n"),
+                ACE_TEXT ("(%s):[%t]: work done, shutting down...\n"),
                 ACE_TEXT (inherited::threadName_.c_str ())));
     inherited::stop (false, // *WARNING*: cannot wait here
                      true); // high priority ?
-
-    if (inherited::manager_)
-    {
-      inherited::manager_->deregister (this);
-      inherited::manager_ = NULL; // do not deregister in dtor (again)
-    } // end IF
   }
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Test_U_Task ())
   ACE_UNIMPLEMENTED_FUNC (Test_U_Task (const Test_U_Task&))
   ACE_UNIMPLEMENTED_FUNC (Test_U_Task& operator= (const Test_U_Task&))
+};
+
+class Test_U_Task_2
+ : public Common_Task_2<ACE_MT_SYNCH,
+                        Common_TimePolicy_t,
+                        struct Common_Task_Statistic>
+{
+  typedef Common_Task_2<ACE_MT_SYNCH,
+                        Common_TimePolicy_t,
+                        struct Common_Task_Statistic> inherited;
+
+ public:
+  Test_U_Task_2 (Common_IRegister_T<inherited::TASK_2>* manager_in)
+   : inherited (ACE_TEXT_ALWAYS_CHAR (COMMON_TASK_THREAD_NAME),
+                COMMON_TASK_THREAD_GROUP_ID,
+                1U,
+                false,
+                NULL,
+                manager_in)
+  {}
+  inline virtual ~Test_U_Task_2 () {}
+
+  virtual void handle (ACE_Message_Block*& message_inout)
+  {
+    // sanity check(s)
+    ACE_ASSERT (message_inout);
+
+    // *TODO*: do some meaningful work here
+    message_inout->release (); message_inout = NULL;
+    ACE_OS::sleep (ACE_Time_Value (5, 0)); // sleep 3 seconds
+
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("(%s):[%t]: work done, shutting down...\n"),
+                ACE_TEXT (inherited::threadName_.c_str ())));
+    inherited::stop (false, // *WARNING*: cannot wait here
+                     true); // high priority ?
+  }
+
+ private:
+  ACE_UNIMPLEMENTED_FUNC (Test_U_Task_2 ())
+  ACE_UNIMPLEMENTED_FUNC (Test_U_Task_2 (const Test_U_Task_2&))
+  ACE_UNIMPLEMENTED_FUNC (Test_U_Task_2& operator= (const Test_U_Task_2&))
 };
 
 //////////////////////////////////////////
@@ -119,6 +155,10 @@ do_printUsage (const std::string& programName_in)
             << std::endl << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("currently available options:")
             << std::endl;
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-l          : log to a file [")
+            << false
+            << ACE_TEXT_ALWAYS_CHAR ("]")
+            << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-m [INTEGER]: mode [")
             << TEST_U_MODE_DEFAULT
             << ACE_TEXT_ALWAYS_CHAR ("]")
@@ -132,6 +172,7 @@ do_printUsage (const std::string& programName_in)
 bool
 do_processArguments (int argc_in,
                      ACE_TCHAR* argv_in[], // cannot be const...
+                     bool& logToFile_out,
                      enum Test_U_ModeType& mode_out,
                      bool& traceInformation_out)
 {
@@ -143,7 +184,7 @@ do_processArguments (int argc_in,
 
   ACE_Get_Opt argument_parser (argc_in,
                                argv_in,
-                               ACE_TEXT ("m:t"),
+                               ACE_TEXT ("lm:t"),
                                1,                         // skip command name
                                1,                         // report parsing errors
                                ACE_Get_Opt::PERMUTE_ARGS, // ordering
@@ -154,6 +195,11 @@ do_processArguments (int argc_in,
   {
     switch (option_i)
     {
+      case 'l':
+      {
+        logToFile_out = true;
+        break;
+      }
       case 'm':
       {
         std::istringstream converter;
@@ -311,6 +357,11 @@ do_work (enum Test_U_ModeType mode_in,
       ACE_ASSERT (result);
 
       Test_U_Task task (task_manager_p);
+      result = task.start (NULL);
+      ACE_ASSERT (result);
+      Test_U_Task_2 task_2 (task_manager_p);
+      result = task_2.start (NULL);
+      ACE_ASSERT (result);
 
       ACE_Message_Block* message_block_p = NULL;
       ACE_NEW_NORETURN (message_block_p,
@@ -327,6 +378,23 @@ do_work (enum Test_U_ModeType mode_in,
                                            NULL));
       ACE_ASSERT (message_block_p);
       int result_2 = task.put (message_block_p, NULL);
+      ACE_ASSERT (result_2 > 0);
+      message_block_p = NULL;
+
+      ACE_NEW_NORETURN (message_block_p,
+                        ACE_Message_Block (100,
+                                           ACE_Message_Block::MB_DATA,
+                                           NULL,
+                                           NULL,
+                                           NULL,
+                                           NULL,
+                                           ACE_DEFAULT_MESSAGE_BLOCK_PRIORITY,
+                                           ACE_Time_Value::zero,
+                                           ACE_Time_Value::max_time,
+                                           NULL,
+                                           NULL));
+      ACE_ASSERT (message_block_p);
+      result_2 = task_2.put (message_block_p, NULL);
       ACE_ASSERT (result_2 > 0);
       message_block_p = NULL;
 
@@ -378,7 +446,9 @@ ACE_TMAIN (int argc_in,
 #endif // ACE_WIN32 || ACE_WIN64
 //  ACE_Profile_Timer process_profile;
 //  process_profile.start ();
+  Common_File_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (argv_in[0]));
 
+  bool log_to_file = false;
   enum Test_U_ModeType mode_type_e = TEST_U_MODE_DEFAULT;
   bool trace_information_b = false;
   std::string log_file_name;
@@ -389,6 +459,7 @@ ACE_TMAIN (int argc_in,
 
   if (!do_processArguments (argc_in,
                             argv_in,
+                            log_to_file,
                             mode_type_e,
                             trace_information_b))
   {
@@ -397,12 +468,16 @@ ACE_TMAIN (int argc_in,
   } // end IF
 
   // step1d: initialize logging and/or tracing
-  if (!Common_Log_Tools::initializeLogging (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])), // program name
-                                            log_file_name,                                     // log file name
-                                            false,                                             // log to syslog ?
-                                            false,                                             // trace messages ?
-                                            trace_information_b,                               // debug messages ?
-                                            NULL))                                             // logger ?
+  if (log_to_file)
+    log_file_name =
+      Common_Log_Tools::getLogFilename (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                        Common_File_Tools::executable);
+  if (!Common_Log_Tools::initializeLogging (Common_File_Tools::executable, // program name
+                                            log_file_name,                 // log file name
+                                            false,                         // log to syslog ?
+                                            false,                         // trace messages ?
+                                            trace_information_b,           // debug messages ?
+                                            NULL))                         // logger ?
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Log_Tools::initializeLogging(), aborting\n")));

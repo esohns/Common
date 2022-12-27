@@ -1238,12 +1238,13 @@ ACE_TMAIN (int argc_in,
   } // end IF
 
   // step1c: initialize logging and/or tracing
-  if (!Common_Log_Tools::initializeLogging (ACE::basename (argv_in[0]),           // program name
-                                            ACE_TEXT_ALWAYS_CHAR (""),            // log file name
-                                            false,                                // log to syslog ?
-                                            false,                                // trace messages ?
-                                            trace_information,                    // debug messages ?
-                                            NULL))                                // logger ?
+  if (!Common_Log_Tools::initializeLogging (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])),                            // program name
+                                            Common_Log_Tools::getLogFilename (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                                              Common_File_Tools::executable),             // log file name
+                                            false,                                                                        // log to syslog ?
+                                            false,                                                                        // trace messages ?
+                                            trace_information,                                                            // debug messages ?
+                                            NULL))                                                                        // logger ?
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Log_Tools::initializeLogging(), aborting\n")));

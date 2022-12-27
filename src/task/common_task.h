@@ -87,7 +87,12 @@ class Common_Task_T
   Common_Task_T (const std::string&,                           // thread name
                  int,                                          // (thread) group id
                  unsigned int = 1,                             // # thread(s)
-                 bool = true,                                  // auto-start ?
+                 // *WARNING*: auto-starting in the ctor is dangerous, as
+                 //            (overridden) svc() may not be available until the
+                 //            instance is fully constructed. In this case, the
+                 //            thread will execute ACE_Task_Base::svc() which
+                 //            does nothing and returns immediately
+                 bool = false,                                 // auto-start ?
                  typename inherited::MESSAGE_QUEUE_T* = NULL); // queue handle
 
   // helper methods
@@ -98,7 +103,7 @@ class Common_Task_T
                 bool = false); // high-priority ?
 
   // override ACE_Task_Base members
-  virtual int svc (void);
+  virtual int svc ();
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Task_T ())
@@ -135,7 +140,7 @@ class Common_Task_T<ACE_NULL_SYNCH,
   Common_Task_T (const std::string&,                           // thread name
                  int,                                          // (thread) group id
                  unsigned int = 1,                             // # thread(s)
-                 bool = true,                                  // auto-start ?
+                 bool = false,                                 // auto-start ?
                  typename inherited::MESSAGE_QUEUE_T* = NULL); // queue handle
 
   // override ACE_Task_Base members
@@ -175,16 +180,19 @@ class Common_Task_2
   // convenient types
   typedef Common_Task_2<ACE_SYNCH_USE,
                         TimePolicyType,
-                        StatisticContainerType> OWN_TYPE_T;
-  typedef Common_IRegister_T<OWN_TYPE_T> IREGISTER_T;
+                        StatisticContainerType> TASK_2;
+  typedef Common_IRegister_T<TASK_2> IREGISTER_T;
 
   Common_Task_2 (const std::string&,                          // thread name
                  int,                                         // (thread) group id
                  unsigned int = 1,                            // # thread(s)
-                 bool = true,                                 // auto-start ?
+                 bool = false,                                // auto-start ?
                  typename inherited::MESSAGE_QUEUE_T* = NULL, // queue handle
                  /////////////////////////
                  typename IREGISTER_T* = NULL);               // manager handle
+
+  // override ACE_Task_Base members
+  virtual int svc ();
 
   IREGISTER_T* manager_; // handle to manager (if any)
 

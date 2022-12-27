@@ -83,13 +83,16 @@ if (UNIX)
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_u/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 elseif (WIN32)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
+ string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
  if (VCPKG_SUPPORT)
   file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
  else ()
   file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
  endif (VCPKG_SUPPORT)
  create_target_launcher (${EXECUTABLE}
-                         ARGS "-m 0 -t"
+                         COMMAND ${COMMAND}
+                         ARGS "-l -m 0 -t"
 #                        FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
                                               G:/software/Development/dll

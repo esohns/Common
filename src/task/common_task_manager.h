@@ -86,10 +86,7 @@ class Common_Task_Manager_T
   virtual void wait (bool = true) const; // N/A
   virtual void dump_state () const;
   virtual void abort (bool = false); // wait for completion ?
-  virtual unsigned int count () const; // return value: # of connections
-                                       // *IMPORTANT NOTE*: this API really makes sense only AFTER stop() has been
-                                       //                   invoked, i.e. when new tasks will be rejected;
-                                       //                   otherwise this may block indefinetly
+  virtual unsigned int count () const; // return value: # of tasks
 
   // implement Common_IRegister_T<TASK_T>
   virtual bool register_ (TASK_T*); // task handle
