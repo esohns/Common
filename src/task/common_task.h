@@ -159,7 +159,7 @@ class Common_Task_T<ACE_NULL_SYNCH,
 // this version supports statistics and the task manager
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
-          typename StatisticContainerType>
+          typename StatisticContainerType> // inherits struct Common_Task_Statistic
 class Common_Task_2
  : public Common_Task_T<ACE_SYNCH_USE,
                         TimePolicyType>
@@ -174,7 +174,7 @@ class Common_Task_2
   // implement (part of) Common_IStatistic_T
   inline virtual bool collect (StatisticContainerType& container_inout) { ACE_UNUSED_ARG (container_inout); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
   inline virtual void update (const ACE_Time_Value& interval_in) { ACE_UNUSED_ARG (interval_in); ACE_NOTSUP; }
-  inline virtual void report () const { ACE_NOTSUP; }
+  virtual void report () const;
 
   // override Common_IAsynchTask
   virtual void finished ();
@@ -188,11 +188,10 @@ class Common_Task_2
                  /////////////////////////
                  Common_ITaskManager* = NULL);                // manager handle
 
-  // override ACE_Task_Base members
-  //virtual int svc ();
-
-  bool                 deregisterInDtor_;
-  Common_ITaskManager* manager_; // handle to manager (if any)
+  bool                   deregisterInDtor_;
+  Common_ITaskManager*   manager_; // handle to manager (if any)
+  bool                   reportOnFinished_;
+  StatisticContainerType statistic_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Task_2 ())

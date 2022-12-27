@@ -379,9 +379,15 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 
   deregister (task_in);
 
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("task (handle was: 0x%@) finished...\n"),
-              task_in));
+//#if defined (ACE_WIN32) || defined (ACE_WIN64)
+//  ACE_DEBUG ((LM_DEBUG,
+//              ACE_TEXT ("task ((last) thread: %u) finished...\n"),
+//              task_in->last_thread ()));
+//#else
+//  ACE_DEBUG ((LM_DEBUG,
+//              ACE_TEXT ("task ((last) thread: %d) finished...\n"),
+//              task_in->last_thread ()));
+//#endif // ACE_WIN32 || ACE_WIN64
 }
 
 template <ACE_SYNCH_DECL,

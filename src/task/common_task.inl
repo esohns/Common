@@ -295,8 +295,12 @@ Common_Task_2<ACE_SYNCH_USE,
               messageQueue_in)
  , deregisterInDtor_ (manager_in != NULL)
  , manager_ (manager_in)
+ , reportOnFinished_ (COMMON_TASK_DEFAULT_REPORT_ON_FINISH)
+ , statistic_ ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Task_2::Common_Task_2"));
+
+  ACE_OS::memset (&statistic_, 0, sizeof (StatisticContainerType));
 
   if (unlikely (manager_))
     manager_->register_ (this);
@@ -321,6 +325,25 @@ template <ACE_SYNCH_DECL,
 void
 Common_Task_2<ACE_SYNCH_USE,
               TimePolicyType,
+              StatisticContainerType>::report () const
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Task_2::report"));
+
+  { ACE_GUARD (ACE_SYNCH_MUTEX_T, aGuard, inherited::lock_);
+    ACE_DEBUG ((LM_INFO,
+                ACE_TEXT ("(%s)[%t]: processed %Q byte(s) in %u message(s)\n"),
+                ACE_TEXT (inherited::threadName_.c_str ()),
+                statistic_.bytes,
+                statistic_.messages));
+  } // end lock scope
+}
+
+template <ACE_SYNCH_DECL,
+          typename TimePolicyType,
+          typename StatisticContainerType>
+void
+Common_Task_2<ACE_SYNCH_USE,
+              TimePolicyType,
               StatisticContainerType>::finished ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Task_2::svc"));
@@ -334,21 +357,7 @@ Common_Task_2<ACE_SYNCH_USE,
     manager_->finished (this);
     deregisterInDtor_ = false;
   } // end IF
-}
 
-//template <ACE_SYNCH_DECL,
-//          typename TimePolicyType,
-//          typename StatisticContainerType>
-//int
-//Common_Task_2<ACE_SYNCH_USE,
-//              TimePolicyType,
-//              StatisticContainerType>::svc ()
-//{
-//  COMMON_TRACE (ACE_TEXT ("Common_Task_2::svc"));
-//
-//  int result = inherited::svc ();
-//
-//  finished ();
-//
-//  return result;
-//}
+  if (reportOnFinished_)
+    report ();
+}

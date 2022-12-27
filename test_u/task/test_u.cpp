@@ -74,6 +74,12 @@ class Test_U_Task
     ACE_ASSERT (message_inout);
 
     // *TODO*: do some meaningful work here
+    ACE_OS::sleep (ACE_Time_Value (3, 0)); // sleep some seconds
+
+    { ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, inherited::lock_);
+      inherited::statistic_.bytes += message_inout->total_length ();
+      inherited::statistic_.messages += 1;
+    } // end lock scope
     message_inout->release (); message_inout = NULL;
 
     ACE_DEBUG ((LM_DEBUG,
@@ -114,8 +120,13 @@ class Test_U_Task_2
     ACE_ASSERT (message_inout);
 
     // *TODO*: do some meaningful work here
-    message_inout->release (); message_inout = NULL;
     ACE_OS::sleep (ACE_Time_Value (5, 0)); // sleep some seconds
+
+    { ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, inherited::lock_);
+      inherited::statistic_.bytes += message_inout->total_length ();
+      inherited::statistic_.messages += 1;
+    } // end lock scope
+    message_inout->release (); message_inout = NULL;
 
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("(%s):[%t]: work done, shutting down...\n"),
@@ -376,7 +387,7 @@ do_work (enum Test_U_ModeType mode_in,
       message_block_p = NULL;
 
       ACE_NEW_NORETURN (message_block_p,
-                        ACE_Message_Block (100,
+                        ACE_Message_Block (200,
                                            ACE_Message_Block::MB_DATA,
                                            NULL,
                                            NULL,

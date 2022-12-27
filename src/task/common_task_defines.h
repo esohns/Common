@@ -25,6 +25,8 @@
 #define COMMON_TASK_THREAD_GROUP_ID                              1
 #define COMMON_TASK_THREAD_NAME                                  "common task"
 
+#define COMMON_TASK_DEFAULT_REPORT_ON_FINISH                     true
+
 // manager
 #define COMMON_TASK_MANAGER_DEFAULT_NUMBER_OF_CONCURRENT_TASKS   0 // --> no limit
 #define COMMON_TASK_MANAGER_DEFAULT_VISIT_INTERVAL_MS            500 // ms
