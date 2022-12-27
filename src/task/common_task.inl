@@ -325,6 +325,7 @@ Common_Task_2<ACE_SYNCH_USE,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Task_2::svc"));
 
+  inherited::finished_ = true;
   inherited::stop (false,  // *WARNING*: (probably) cannot wait here
                    false); // high priority ?
 
