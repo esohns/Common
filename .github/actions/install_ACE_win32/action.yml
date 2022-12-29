@@ -7,11 +7,11 @@ inputs:
 runs:
  using: "composite"
  steps:
-  - uses: lukka/run-vcpkg@v7.4
+  - uses: lukka/run-vcpkg@v10
     with:
      setupOnly: true
      vcpkgGitCommitId: '973a7d517c09c8cfb7e6a548fcc260ca34ba7b60'
-  - run: vcpkg install ace[xml]
+  - run: vcpkg install ace[xml]:x64-windows
     shell: cmd
 #    if: inputs.os == 'ubuntu-latest'
 #  - run:
