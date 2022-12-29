@@ -1524,8 +1524,8 @@ YY_DECL
         /* Create the reject buffer large enough to save one state per allowed character. */
         if ( ! yyg->yy_state_buf )
             yyg->yy_state_buf = (yy_state_type *)yyalloc(YY_STATE_BUF_SIZE  , yyscanner);
-            if ( ! yyg->yy_state_buf )
-                YY_FATAL_ERROR( "out of dynamic memory in yylex()" );
+        if ( ! yyg->yy_state_buf )
+            YY_FATAL_ERROR( "out of dynamic memory in yylex()" );
 
 
 		if ( ! yyg->yy_start )

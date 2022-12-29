@@ -28,7 +28,7 @@
 #include "ace/Synch_Traits.h"
 
 #include "common_icounter.h"
-#include "common_isubscribe.h"
+#include "common_iinitialize.h"
 #include "common_itaskcontrol.h"
 #include "common_task.h"
 
@@ -120,19 +120,19 @@ class Common_Task_Manager_T
   void abortLeastRecent ();
   void abortMostRecent ();
 
-  ConfigurationType*                           configuration_;
-  bool                                         isActive_;
+  ConfigurationType*                    configuration_;
+  bool                                  isActive_;
 
   // timer
-  Common_Timer_ResetCounterHandler             resetTimeoutHandler_;
-  long                                         resetTimeoutHandlerId_;
+  Common_Timer_ResetCounterHandler      resetTimeoutHandler_;
+  long                                  resetTimeoutHandlerId_;
 
-  CONTAINER_T                                  tasks_;
+  CONTAINER_T                           tasks_;
   // *NOTE*: MUST be recursive, otherwise asynchronous abort is not feasible
-  mutable ACE_SYNCH_RECURSIVE_MUTEX            lock_;
-  mutable ACE_Condition_Recursive_Thread_Mutex condition_;
+  mutable ACE_SYNCH_RECURSIVE_MUTEX     lock_;
+  mutable ACE_SYNCH_RECURSIVE_CONDITION condition_;
 
-  UserDataType*                                userData_;
+  UserDataType*                         userData_;
 };
 
 // include template definition

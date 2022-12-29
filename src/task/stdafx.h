@@ -45,3 +45,5 @@
 #include "common.h"
 #include "common_macros.h"
 #include "common_pragmas.h"
+
+#include "common_task_common.h"

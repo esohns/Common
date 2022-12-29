@@ -21,8 +21,6 @@
 #ifndef COMMON_ITASKCONTROL_H
 #define COMMON_ITASKCONTROL_H
 
-#include "ace/Global_Macros.h"
-
 #include "common_idumpstate.h"
 #include "common_isubscribe.h"
 #include "common_itask.h"

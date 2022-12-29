@@ -22,6 +22,8 @@
 
 #include "common_macros.h"
 
+#include "common_task_defines.h"
+
 template <ACE_SYNCH_DECL,
           typename TimePolicyType>
 Common_Task_T<ACE_SYNCH_USE,
