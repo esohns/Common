@@ -11,7 +11,7 @@ runs:
     with:
      setupOnly: true
      vcpkgGitCommitId: '973a7d517c09c8cfb7e6a548fcc260ca34ba7b60'
-  - run: vcpkg install ace[xml]:x64-windows
+  - run: vcpkg --vcpkg-root=${{env.VCPKG_ROOT}} install ace[xml]:x64-windows
     shell: cmd
 #    if: inputs.os == 'ubuntu-latest'
 #  - run:
