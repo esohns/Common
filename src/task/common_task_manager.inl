@@ -86,7 +86,7 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
     } // end IF
   } // end lock scope
   if (unlikely (do_abort))
-    abort ();
+    abort (false); // do not wait
 }
 
 template <ACE_SYNCH_DECL,
@@ -163,9 +163,8 @@ template <ACE_SYNCH_DECL,
           typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
-Common_Task_2<ACE_SYNCH_USE,
-              TimePolicyType,
-              StatisticContainerType>*
+Common_Task_T<ACE_SYNCH_USE,
+              TimePolicyType>*
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
                       StatisticContainerType,
@@ -175,16 +174,14 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
   COMMON_TRACE (ACE_TEXT ("Common_Task_Manager_T::operator[]"));
 
   TASK_T* task_p = NULL;
+  unsigned int index = 0;
 
   { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, lock_, NULL);
-    unsigned int index = 0;
     for (CONTAINER_ITERATOR_T iterator (const_cast<CONTAINER_T&> (tasks_));
          iterator.next (task_p);
-         iterator.advance (), index++)
+         iterator.advance (), ++index)
       if (index == index_in)
         break;
-    if (unlikely (!task_p))
-      return NULL;
   } // end lock scope
 
   return task_p;
@@ -269,7 +266,7 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
       // *NOTE*: most probably cause: handle already deregistered (--> check
       //         implementation !)
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("task handle (was: 0x%@) not found, returning\n"),
+                  ACE_TEXT ("task (handle was: 0x%@) not found, returning\n"),
                   task_p));
       return;
     } // end IF
@@ -324,7 +321,7 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
     if (unlikely (!register_b))
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("task handle (was: 0x%@) already registered, returning\n"),
+                  ACE_TEXT ("task (handle was: 0x%@) already registered, returning\n"),
                   task_p));
       return;
     } // end IF
@@ -342,59 +339,6 @@ template <ACE_SYNCH_DECL,
           typename StatisticContainerType,
           typename ConfigurationType,
           typename UserDataType>
-void
-Common_Task_Manager_T<ACE_SYNCH_USE,
-                      TimePolicyType,
-                      StatisticContainerType,
-                      ConfigurationType,
-                      UserDataType>::finished (ACE_Task_Base* task_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Task_Manager_T::finished"));
-
-  // sanity check(s)
-  TASK_T* task_p = static_cast<TASK_T*> (task_in);
-  ACE_ASSERT (task_p);
-
-  TASK_T* task_2 = NULL;
-  bool found_b = false;
-
-  { ACE_GUARD (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, lock_);
-    for (CONTAINER_ITERATOR_T iterator (tasks_);
-         iterator.next (task_2);
-         iterator.advance ())
-      if (unlikely (task_2 == task_p))
-      {
-        found_b = true;
-        break;
-      } // end IF
-    if (unlikely (!found_b))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("task handle (was: 0x%@) not registered, returning\n"),
-                  task_p));
-      return;
-    } // end IF
-  } // end lock scope
-  ACE_ASSERT (found_b);
-
-  deregister (task_in);
-
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
-//  ACE_DEBUG ((LM_DEBUG,
-//              ACE_TEXT ("task ((last) thread: %u) finished...\n"),
-//              task_in->last_thread ()));
-//#else
-//  ACE_DEBUG ((LM_DEBUG,
-//              ACE_TEXT ("task ((last) thread: %d) finished...\n"),
-//              task_in->last_thread ()));
-//#endif // ACE_WIN32 || ACE_WIN64
-}
-
-template <ACE_SYNCH_DECL,
-          typename TimePolicyType,
-          typename StatisticContainerType,
-          typename ConfigurationType,
-          typename UserDataType>
 unsigned int
 Common_Task_Manager_T<ACE_SYNCH_USE,
                       TimePolicyType,
@@ -404,13 +348,13 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Task_Manager_T::count"));
 
-  unsigned int result = 0;
+  size_t result = 0;
 
   { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, lock_, 0);
-    result = static_cast<unsigned int> (tasks_.size ());
+    result = tasks_.size ();
   } // end lock scope
 
-  return result;
+  return static_cast<unsigned int> (result);
 }
 
 template <ACE_SYNCH_DECL,
@@ -448,22 +392,25 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
                   resetTimeoutHandlerId_));
     resetTimeoutHandlerId_ = -1;
   } // end IF
-  resetTimeoutHandlerId_ =
-    timer_interface_p->schedule_timer (&resetTimeoutHandler_,          // event handler handle
-                                       NULL,                           // asynchronous completion token
-                                       ACE_Time_Value::zero,           // first wakeup time
-                                       configuration_->visitInterval); // interval
-  if (unlikely (resetTimeoutHandlerId_ == -1))
+  if (configuration_->visitInterval != ACE_Time_Value::zero)
   {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_ITimer::schedule_timer(%#T): \"%m\", aborting\n"),
-                &configuration_->visitInterval));
-    return false;
+    resetTimeoutHandlerId_ =
+      timer_interface_p->schedule_timer (&resetTimeoutHandler_,          // event handler handle
+                                         NULL,                           // asynchronous completion token
+                                         ACE_Time_Value::zero,           // first wakeup time
+                                         configuration_->visitInterval); // interval
+    if (unlikely (resetTimeoutHandlerId_ == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_ITimer::schedule_timer(%#T): \"%m\", aborting\n"),
+                  &configuration_->visitInterval));
+      return false;
+    } // end IF
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("scheduled visitor interval timer (id: %d, interval: %#T)\n"),
+                resetTimeoutHandlerId_,
+                configuration_->visitInterval));
   } // end IF
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("scheduled visitor interval timer (id: %d, interval: %#T)\n"),
-              resetTimeoutHandlerId_,
-              configuration_->visitInterval));
 
   { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, lock_, false);
     isActive_ = true;
@@ -563,7 +510,7 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
     while (!tasks_.is_empty ())
     {
       ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("waiting for %u task(s)...\n"),
+                  ACE_TEXT ("waiting for %Q task(s)...\n"),
                   tasks_.size ()));
       result = condition_.wait ();
       if (unlikely (result == -1))
@@ -604,8 +551,8 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
     } // end IF
     ACE_ASSERT (task_p);
     try {
-      task_p->stop (false,
-                    false);
+      task_p->stop (false,  // do not wait
+                    false); // high priority ?
     } catch (...) {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("caught exception in Common_ITask::stop(), continuing\n")));
@@ -645,8 +592,8 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
     } // end IF
     ACE_ASSERT (task_p);
     try {
-      task_p->stop (false,
-                    false);
+      task_p->stop (false,  // do not wait
+                    false); // high priority ?
     } catch (...) {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("caught exception in Common_ITask::stop(), continuing\n")));
@@ -669,19 +616,24 @@ Common_Task_Manager_T<ACE_SYNCH_USE,
   COMMON_TRACE (ACE_TEXT ("Common_Task_Manager_T::reset"));
 
   TASK_T* task_p = NULL;
+  TASK_2* task_2 = NULL;
 
   { ACE_GUARD (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, lock_);
     for (CONTAINER_ITERATOR_T iterator (const_cast<CONTAINER_T&> (tasks_));
          iterator.next (task_p);
          iterator.advance ())
     { ACE_ASSERT (task_p);
-      try {
-        task_p->update (configuration_->visitInterval);
-      } catch (...) {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("caught exception in Common_IStatistic_T::update(), continuing\n")));
-      }
-      task_p = NULL;
+      task_2 = dynamic_cast<TASK_2*> (task_p); // *NOTE*: try runtime-cast here
+      if (task_2)
+      {
+        try {
+          task_2->update (configuration_->visitInterval);
+        } catch (...) {
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("caught exception in Common_IStatistic_T::update(), continuing\n")));
+        }
+      } // end IF
+      task_p = NULL; task_2 = NULL;
     } // end FOR
   } // end lock scope
 }

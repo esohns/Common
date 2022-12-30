@@ -57,9 +57,11 @@ class Common_Task_Manager_T
 
  public:
   // convenience types
+  typedef Common_Task_T<ACE_SYNCH_USE,
+                        TimePolicyType> TASK_T;
   typedef Common_Task_2<ACE_SYNCH_USE,
                         TimePolicyType,
-                        StatisticContainerType> TASK_T;
+                        StatisticContainerType> TASK_2;
   typedef ACE_Singleton<Common_Task_Manager_T<ACE_SYNCH_USE,
                                               TimePolicyType,
                                               StatisticContainerType,
@@ -84,12 +86,12 @@ class Common_Task_Manager_T
   virtual void deregister (ACE_Task_Base*); // task handle
   virtual void execute (ACE_Task_Base*,          // task handle
                         ACE_Time_Value* = NULL); // duration ? (relative !) timeout : run until finished
-  virtual void finished (ACE_Task_Base*); // task handle
+  inline virtual void finished (ACE_Task_Base* task_in) { deregister (task_in); } // task handle
   virtual void dump_state () const;
   virtual void abort (bool = false); // wait for completion ?
-  virtual unsigned int count () const; // return value: # of tasks
+  virtual unsigned int count () const; // return value: # current tasks
 
-  virtual TASK_T* operator[] (unsigned int) const; // index
+  virtual TASK_T* operator[] (unsigned int) const; // index (0-based)
 
  private:
   Common_Task_Manager_T ();

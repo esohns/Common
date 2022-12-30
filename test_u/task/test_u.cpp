@@ -140,6 +140,60 @@ class Test_U_Task_2
   ACE_UNIMPLEMENTED_FUNC (Test_U_Task_2& operator= (const Test_U_Task_2&))
 };
 
+class Test_U_Task_3
+ : public Common_Task_T<ACE_MT_SYNCH,
+                        Common_TimePolicy_t>
+{
+  typedef Common_Task_T<ACE_MT_SYNCH,
+                        Common_TimePolicy_t> inherited;
+
+ public:
+  Test_U_Task_3 (Common_ITaskManager* manager_in)
+   : inherited (ACE_TEXT_ALWAYS_CHAR (COMMON_TASK_THREAD_NAME),
+                COMMON_TASK_THREAD_GROUP_ID,
+                1U,
+                false,
+                NULL)
+   , manager_ (manager_in)
+  { ACE_ASSERT (manager_);
+    manager_->register_ (this);
+  }
+  inline virtual ~Test_U_Task_3 () {}
+
+  virtual void finished ()
+  {
+    inherited::finished_ = true;
+    inherited::stop (false,  // *WARNING*: (probably) cannot wait here
+                     false); // high priority ?
+
+    if (likely (manager_))
+      manager_->finished (this);
+  }
+
+  virtual void handle (ACE_Message_Block*& message_inout)
+  {
+    // sanity check(s)
+    ACE_ASSERT (message_inout);
+
+    // *TODO*: do some meaningful work here
+    ACE_OS::sleep (ACE_Time_Value (7, 0)); // sleep some seconds
+
+    message_inout->release (); message_inout = NULL;
+
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("(%s):[%t]: work done, shutting down...\n"),
+                ACE_TEXT (inherited::threadName_.c_str ())));
+    finished ();
+  }
+
+ private:
+  ACE_UNIMPLEMENTED_FUNC (Test_U_Task_3 ())
+  ACE_UNIMPLEMENTED_FUNC (Test_U_Task_3 (const Test_U_Task_3&))
+  ACE_UNIMPLEMENTED_FUNC (Test_U_Task_3& operator= (const Test_U_Task_3&))
+
+  Common_ITaskManager* manager_;
+};
+
 //////////////////////////////////////////
 
 enum Test_U_ModeType
@@ -367,6 +421,7 @@ do_work (enum Test_U_ModeType mode_in,
 
       Test_U_Task task (task_manager_p);
       Test_U_Task_2 task_2 (task_manager_p);
+      Test_U_Task_3 task_3 (task_manager_p);
 
       ACE_Message_Block* message_block_p = NULL;
       ACE_NEW_NORETURN (message_block_p,
@@ -400,6 +455,23 @@ do_work (enum Test_U_ModeType mode_in,
                                            NULL));
       ACE_ASSERT (message_block_p);
       result_2 = task_2.put (message_block_p, NULL);
+      ACE_ASSERT (result_2 > 0);
+      message_block_p = NULL;
+
+      ACE_NEW_NORETURN (message_block_p,
+                        ACE_Message_Block (300,
+                                           ACE_Message_Block::MB_DATA,
+                                           NULL,
+                                           NULL,
+                                           NULL,
+                                           NULL,
+                                           ACE_DEFAULT_MESSAGE_BLOCK_PRIORITY,
+                                           ACE_Time_Value::zero,
+                                           ACE_Time_Value::max_time,
+                                           NULL,
+                                           NULL));
+      ACE_ASSERT (message_block_p);
+      result_2 = task_3.put (message_block_p, NULL);
       ACE_ASSERT (result_2 > 0);
       message_block_p = NULL;
 
