@@ -15,15 +15,28 @@ elseif (WIN32)
  endif ()
  set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
  if (VCPKG_SUPPORT AND NOT DEFINED ENV{ACE_ROOT})
-  find_package (ACE
-                COMPONENTS core
-                OPTIONAL_COMPONENTS ssl)
-#  find_path (ACE_INCLUDE_DIR ace/ACE.h)
-#  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-#                PATHS $ENV{ACE_ROOT}
-#                PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
-#                DOC "searching for ${ACE_LIB_FILE}"
-#                REQUIRED)
+#  find_package (ACE
+#                COMPONENTS core
+#                OPTIONAL_COMPONENTS ssl)
+  find_path (ACE_INCLUDE_DIR ace/ACE.h
+             PATHS ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}
+             PATH_SUFFIXES include
+             DOC "searching for ACE.h"
+             REQUIRED
+             NO_DEFAULT_PATH)
+  if ($<CONFIG> STREQUAL "Debug" OR
+      $<CONFIG> STREQUAL "RelWithDebInfo")
+   set (ACE_LIB_VCPKG_DIR ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/debug)
+  else ()
+   set (ACE_LIB_VCPKG_DIR ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET})
+  endif ($<CONFIG> STREQUAL "Debug" OR
+         $<CONFIG> STREQUAL "RelWithDebInfo")
+  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
+                PATHS ${ACE_LIB_VCPKG_DIR}
+                PATH_SUFFIXES bin
+                DOC "searching for ${ACE_LIB_FILE}"
+                REQUIRED
+                NO_DEFAULT_PATH)
  else ()
   find_library (ACE_LIBRARY ${ACE_LIB_FILE}
                 PATHS $ENV{ACE_ROOT} $ENV{LIB_ROOT}/ACE_TAO/ACE
