@@ -33,7 +33,7 @@ elseif (WIN32)
          $<CONFIG> STREQUAL "RelWithDebInfo")
   find_library (ACE_LIBRARY ${ACE_LIB_FILE}
                 PATHS ${ACE_LIB_VCPKG_DIR}
-                PATH_SUFFIXES bin
+                PATH_SUFFIXES lib
                 DOC "searching for ${ACE_LIB_FILE}"
                 REQUIRED
                 NO_DEFAULT_PATH)
