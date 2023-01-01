@@ -24,13 +24,14 @@ elseif (WIN32)
  if (DEFINED ENV{DXSDK_DIR})
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{DXSDK_DIR}/Include>)
- elseif (VCPKG_SUPPORT)
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include>)
  else ()
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{LIB_ROOT}/DXSDK/Include>)
- endif ()
+ endif (DEFINED ENV{DXSDK_DIR})
+ if (VCPKG_SUPPORT)
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include>)
+ endif (VCPKG_SUPPORT)
 endif ()
 
 target_include_directories (${LIBRARY} PUBLIC

@@ -1,3 +1,6 @@
+# configure C/C++ exceptions
+include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/SetCppExceptions.cmake)
+
 include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/Threads.cmake)
 
 include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/ACE.cmake)

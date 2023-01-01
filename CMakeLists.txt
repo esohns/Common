@@ -169,11 +169,12 @@ elseif (WIN32)
   set (MSVC_INCREMENTAL_YES_FLAG "/INCREMENTAL:NO")
   foreach (FLAG_TYPE EXE MODULE SHARED STATIC)
    string (REGEX REPLACE "/INCREMENTAL* " "/INCREMENTAL:NO " CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG "${CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG}")
-#  message (STATUS "flag: ${FLAG_TYPE}: ${CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG}")
    string (REPLACE "/EDITANDCONTINUE"     ""                 CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG "${CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG}")
    set (CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG "${CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG}"
         CACHE STRING "Overriding default debug ${FLAG_TYPE} linker flags." FORCE)
    mark_as_advanced (CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG)
+   string (REGEX REPLACE "/INCREMENTAL* " "/INCREMENTAL:NO " CMAKE_${FLAG_TYPE}_LINKER_FLAGS_RELEASE "${CMAKE_${FLAG_TYPE}_LINKER_FLAGS_RELEASE}")
+   mark_as_advanced (CMAKE_${FLAG_TYPE}_LINKER_FLAGS_RELEASE)
   endforeach ()
  endif (MSVC)
 endif ()
@@ -246,6 +247,8 @@ configure_file (${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake.in
 #                       PUBLIC_HEADER "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_config.h")
 add_definitions (-DHAVE_CONFIG_H)
 #set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
+
+include (libraries_init)
 
 ################################################################################
 
