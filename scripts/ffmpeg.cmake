@@ -16,7 +16,8 @@ if (UNIX)
 elseif (WIN32)
  if (VCPKG_SUPPORT)
 #  cmake_policy (SET CMP0074 OLD)
-  find_package (ffmpeg CONFIG)
+  find_package (ffmpeg
+                COMPONENTS core)
   if (ffmpeg_FOUND)
    set (FFMPEG_FOUND TRUE)
    if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR

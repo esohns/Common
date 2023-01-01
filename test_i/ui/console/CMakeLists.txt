@@ -47,8 +47,6 @@ if (WIN32)
  get_filename_component (ACE_LIB_PATH ${ACE_LIBRARY} DIRECTORY)
  set (ACE_DLL_FILE ACE${LIB_FILE_SUFFIX}.dll)
  set (ACE_DLL_FQPATH ${ACE_LIB_PATH}/${ACE_DLL_FILE})
- file (TO_NATIVE_PATH $ENV{LIB_ROOT} LIB_ROOT)
- string (REPLACE "\\" "\\\\" LIB_ROOT ${LIB_ROOT})
  install (FILES ${ACE_DLL_FQPATH}
           DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 endif (WIN32)
@@ -64,7 +62,7 @@ if (UNIX)
                          ARGS ${ARGS}
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
-                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/console
+                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/console
                          ENVIRONMENT ${ENVIRONMENT})
 elseif (WIN32)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
