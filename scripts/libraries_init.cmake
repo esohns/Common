@@ -6,3 +6,7 @@ if ($<CONFIG> STREQUAL "Debug" OR
 else ()
  set (LIB_FILE_SUFFIX "" CACHE STRING "lib file suffix" FORCE)
 endif ()
+
+if (WIN32)
+ set (CMAKE_FIND_LIBRARY_SUFFIXES .lib .dll.a)
+endif (WIN32)

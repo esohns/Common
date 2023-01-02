@@ -9,35 +9,30 @@ if (UNIX)
  endif (Iconv_FOUND)
 # pkg_check_modules (PKG_LIBICONV libiconv)
 elseif (WIN32)
- if (VCPKG_SUPPORT)
-  find_package (libiconv MODULE)
-  find_path (LIBICONV_INCLUDE_DIR NAMES iconv.h
-             HINTS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}"
-             PATH_SUFFIXES include
-             NO_DEFAULT_PATH)
+ if (VCPKG_SUPPORT AND NOT DEFINED ENV{LIB_ROOT})
+  find_package (libiconv)
   if (libiconv_FOUND)
    message (STATUS "found libiconv")
    set (LIBICONV_FOUND TRUE)
+   find_path (LIBICONV_INCLUDE_DIR NAMES iconv.h
+              HINTS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}"
+              PATH_SUFFIXES include
+              NO_DEFAULT_PATH)
    set (LIBICONV_INCLUDE_DIRS "${LIBICONV_INCLUDE_DIR}")
-   if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
-       CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-    set (LIBICONV_LIB_DIR "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/debug/bin")
-   else ()
-    set (LIBICONV_LIB_DIR "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin")
-   endif (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
-          CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+   set (LIBICONV_LIB_DIR "${VCPKG_LIB_DIR}/bin")
   endif (libiconv_FOUND)
- endif (VCPKG_SUPPORT)
+ endif (VCPKG_SUPPORT AND NOT DEFINED ENV{LIB_ROOT})
  if (NOT LIBICONV_FOUND)
   find_path (LIBICONV_INCLUDE_DIR NAMES iconv.h
              PATHS "$ENV{LIB_ROOT}/libiconv"
              PATH_SUFFIXES include)
   set (LIBICONV_LIB "libiconv")
-  if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
+  if ($<CONFIG> STREQUAL "Debug" OR
+      $<CONFIG> STREQUAL "RelWithDebInfo" OR
+      CMAKE_BUILD_TYPE STREQUAL "Debug" OR
       CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
    set (LIBICONV_LIB "${LIBICONV_LIB}D")
-  endif (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
-         CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+  endif ()
 #  set (LIBICONV_LIB "${LIBICONV_LIB}.lib")
   set (LIB_PATH_SUFFIX "lib")
   if (${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE} STREQUAL "x64")
