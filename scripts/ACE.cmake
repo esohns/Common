@@ -3,7 +3,7 @@ if (UNIX)
  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
                PATHS $ENV{ACE_ROOT} ${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE
                PATH_SUFFIXES lib
-               DOC "searching for ${ACE_LIB_FILE} (system paths)")
+               DOC "searching for ${ACE_LIB_FILE}")
 elseif (WIN32)
  set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
 
@@ -11,7 +11,6 @@ elseif (WIN32)
 #  find_package (ACE
 #                COMPONENTS core
 #                OPTIONAL_COMPONENTS ssl)
-  set (VCPKG_LIB_DIR_BASE ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET})
 
   find_path (ACE_INCLUDE_DIR ace/ACE.h
              PATHS ${VCPKG_LIB_DIR_BASE}
@@ -19,13 +18,6 @@ elseif (WIN32)
              DOC "searching for ACE.h"
              REQUIRED
              NO_DEFAULT_PATH)
-  if ($<CONFIG> STREQUAL "Debug" OR
-      $<CONFIG> STREQUAL "RelWithDebInfo")
-   set (VCPKG_LIB_DIR ${VCPKG_LIB_DIR_BASE}/debug)
-  else ()
-   set (VCPKG_LIB_DIR ${VCPKG_LIB_DIR_BASE})
-  endif ($<CONFIG> STREQUAL "Debug" OR
-         $<CONFIG> STREQUAL "RelWithDebInfo")
   find_library (ACE_LIBRARY ${ACE_LIB_FILE}
                 PATHS ${VCPKG_LIB_DIR}
                 PATH_SUFFIXES lib
@@ -45,11 +37,11 @@ endif ()
 if (NOT ACE_LIBRARY)
  message (FATAL_ERROR "could not find ${ACE_LIB_FILE}, aborting")
 else ()
- message (STATUS "Found ACE library \"${ACE_LIBRARY}\"")
+ message (STATUS "found ACE library \"${ACE_LIBRARY}\"")
 #add_definitions (-DACE_HAS_DLL)
 endif ()
 
-# add ACE include directory
+# set ACE include[/dll] directory
 if (DEFINED ENV{ACE_ROOT})
  file (TO_CMAKE_PATH $ENV{ACE_ROOT} ACE_ROOT_CMAKE)
  set (ACE_INCLUDE_DIR ${ACE_ROOT_CMAKE})
@@ -61,12 +53,14 @@ if (UNIX)
  endif (NOT DEFINED ENV{ACE_ROOT})
 elseif (WIN32)
  if (NOT DEFINED ENV{ACE_ROOT})
-  if (VCPKG_SUPPORT)
-   set (ACE_INCLUDE_DIR ${VCPKG_LIB_DIR_BASE}/include)
-   set (ACE_LIB_DIR ${VCPKG_LIB_DIR}/bin)
-  else ()
+  if (DEFINED ENV{LIB_ROOT})
    set (ACE_INCLUDE_DIR $ENV{LIB_ROOT}/ACE_TAO/ACE)
    set (ACE_LIB_DIR $ENV{LIB_ROOT}/ACE_TAO/ACE/lib)
-  endif (VCPKG_SUPPORT)
+  elseif (VCPKG_SUPPORT)
+   set (ACE_INCLUDE_DIR ${VCPKG_INCLUDE_DIR_BASE})
+   set (ACE_LIB_DIR ${VCPKG_LIB_DIR}/bin)
+  else ()
+   message (FATAL_ERROR "ACE library not available, aborting")
+  endif ()
  endif (NOT DEFINED ENV{ACE_ROOT})
 endif ()

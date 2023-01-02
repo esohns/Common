@@ -1,0 +1,37 @@
+set (VCPKG_SUPPORT OFF)
+if (WIN32)
+ if (NOT DEFINED ENV{VCPKG_ROOT})
+# try to find vcpkg
+  file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/vcpkg" VCPKG_ROOT)
+ else ()
+  file (TO_CMAKE_PATH "$ENV{VCPKG_ROOT}" VCPKG_ROOT)
+  message (STATUS "VCPKG_ROOT set to \"${VCPKG_ROOT}\"")
+ endif (NOT DEFINED ENV{VCPKG_ROOT})
+ message (STATUS "using vcpkg in ${VCPKG_ROOT}")
+
+ set (VCPKG_TARGET_TRIPLET "${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE}-windows")
+ message (STATUS "vcpkg triplet \"${VCPKG_TARGET_TRIPLET}\"")
+
+ set (VCPKG_SCRIPT "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+ if (EXISTS ${VCPKG_SCRIPT})
+  set (CMAKE_TOOLCHAIN_FILE ${VCPKG_SCRIPT} CACHE STRING "vcpkg.cmake")
+  message (STATUS "including vcpkg.cmake from \"${VCPKG_SCRIPT}\"")
+  set (VCPKG_APPLOCAL_DEPS OFF CACHE BOOL "" FORCE)
+  include (${VCPKG_SCRIPT})
+  set (VCPKG_SUPPORT ON)
+ else ()
+  message (WARNING "vcpkg toolchain script not found (was: \"${VCPKG_SCRIPT}\"), continuing")
+ endif (EXISTS ${VCPKG_SCRIPT})
+endif (WIN32)
+if (VCPKG_SUPPORT)
+ set (VCPKG_LIB_DIR_BASE ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET})
+ set (VCPKG_INCLUDE_DIR_BASE ${VCPKG_LIB_DIR_BASE}/include)
+ if ($<CONFIG> STREQUAL "Debug" OR
+     $<CONFIG> STREQUAL "RelWithDebInfo" OR
+     ${CMAKE_BUILD_TYPE} STREQUAL "Debug" OR
+     ${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo")
+  set (VCPKG_LIB_DIR ${VCPKG_LIB_DIR_BASE}/debug)
+ else ()
+  set (VCPKG_LIB_DIR ${VCPKG_LIB_DIR_BASE})
+ endif ()
+endif (VCPKG_SUPPORT)
