@@ -1,9 +1,5 @@
 {
   "name": "Common",
-  "version": "0.0.2",
-  "port-version": 0,
-  "homepage": "https://github.com/esohns/Common/",
-  "description": "(wrapper) library of common functions (*NOTE*: uses ACE, see: http://www.dre.vanderbilt.edu/~schmidt/ACE.html)",
   "dependencies": [
     "ace",
     "assimp",
