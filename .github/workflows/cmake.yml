@@ -55,11 +55,11 @@ jobs:
      with:
       os: ${{matrix.os}}
 
-   - name: Install dependencies (ACE) [Win32]
-     if: ${{ matrix.os=='windows-latest' }}
-     uses: ./.github/actions/install_ACE_win32
-     with:
-      os: ${{matrix.os}}
+#   - name: Install dependencies (ACE) [Win32]
+#     if: ${{ matrix.os=='windows-latest' }}
+#     uses: ./.github/actions/install_ACE_win32
+#     with:
+#      os: ${{matrix.os}}
 
 #   - name: Set environment variables [UNIX]
 #     if: ${{ matrix.os=='ubuntu-latest' }}
