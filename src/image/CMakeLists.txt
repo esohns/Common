@@ -21,15 +21,16 @@ if (IMAGEMAGICK_SUPPORT)
 endif (IMAGEMAGICK_SUPPORT)
 if (UNIX)
 elseif (WIN32)
+ # *TODO*: move this to directxsdk.cmake
  if (DEFINED ENV{DXSDK_DIR})
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{DXSDK_DIR}/Include>)
+ elseif (VCPKG_USE)
+  target_include_directories (${LIBRARY} PUBLIC
+                              $<BUILD_INTERFACE:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/directxsdk>)
  elseif (DEFINED ENV{LIB_ROOT})
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{LIB_ROOT}/DXSDK/Include>)
- elseif (VCPKG_SUPPORT)
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/directxsdk>)
  else ()
   message (FATAL_ERROR "DirectX SDK not available, aborting")
  endif ()

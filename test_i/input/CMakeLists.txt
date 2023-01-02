@@ -57,14 +57,13 @@ install (TARGETS ${EXECUTABLE}
 
 ################ launchers ###############
 if (WIN32)
- if (VCPKG_SUPPORT)
-  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
- else ()
+# if (VCPKG_USE)
+#  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
+# else ()
   file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
- endif (VCPKG_SUPPORT)
+# endif (VCPKG_USE)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/${EXECUTABLE}.exe" COMMAND)
  string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
- file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
  set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                            ${ACE_LIB_PATH}
                            ${wxWidgets_LIB_DIR})
@@ -74,7 +73,6 @@ create_target_launcher (${EXECUTABLE}
                         ARGS "-l -t"
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
-                                             ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
                         ENVIRONMENT foo=bar)
 

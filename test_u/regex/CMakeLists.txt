@@ -51,11 +51,11 @@ if (UNIX)
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_u/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 elseif (WIN32)
-# if (VCPKG_SUPPORT)
+# if (VCPKG_USE)
 #  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
 # else ()
   file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
-# endif (VCPKG_SUPPORT)
+# endif (VCPKG_USE)
  create_target_launcher (${EXECUTABLE}
                          ARGS "-l -t"
 #                        FORWARD_ARGS

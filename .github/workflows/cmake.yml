@@ -69,10 +69,10 @@ jobs:
 #     run: |
 #          echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
 
-   - name: Set environment variables [Win32]
-     if: ${{ matrix.os=='windows-latest' }}
-     run: |
-          echo "VCPKG_ROOT=$Env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+#   - name: Set environment variables [Win32]
+#     if: ${{ matrix.os=='windows-latest' }}
+#     run: |
+#          echo "VCPKG_ROOT=$Env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
 
    - name: Configure CMake [UNIX]
      if: ${{ matrix.os=='ubuntu-latest' }}
@@ -80,9 +80,7 @@ jobs:
 
    - name: Configure CMake [Win32]
      if: ${{ matrix.os=='windows-latest' }}
-     run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-     env:
-      VCPKG_ROOT: ${{env.VCPKG_ROOT}}
+     run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE} -DVCPKG_USE=ON
 
    - name: Build
      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
@@ -92,7 +90,7 @@ jobs:
      uses: actions/upload-artifact@v2
      with:
       name: vcpkg-logs-${{ matrix.os }}
-      path: ${{ github.workspace }}/vcpkg/buildtrees/**/*.log
+      path: ${{env.VCPKG_ROOT}}/buildtrees/**/*.log
       if-no-files-found: ignore
 
    - name: Test
