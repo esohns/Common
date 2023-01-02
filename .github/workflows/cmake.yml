@@ -9,8 +9,9 @@ on:
 env:
  # set CMake build type here (Release, Debug, RelWithDebInfo, etc.)
  BUILD_TYPE: Release
- # set vcpkg root directory
+ # set vcpkg root/installed directories
  VCPKG_ROOT: C:/vcpkg
+ VCPKG_INSTALLED_DIR: C:/vcpkg/installed
 
 jobs:
 

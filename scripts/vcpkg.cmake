@@ -13,6 +13,13 @@ if (WIN32)
   set (VCPKG_TARGET_TRIPLET "${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE}-windows")
   message (STATUS "vcpkg triplet \"${VCPKG_TARGET_TRIPLET}\"")
 
+  if (DEFINED ENV{VCPKG_INSTALLED_DIR})
+   set (VCPKG_INSTALLED_DIR "$ENV{VCPKG_INSTALLED_DIR}")
+  else ()
+   set (VCPKG_INSTALLED_DIR "${VCPKG_ROOT}/installed")
+  endif (DEFINED ENV{VCPKG_INSTALLED_DIR})
+  message (STATUS "vcpkg installed directory \"${VCPKG_INSTALLED_DIR}\"")
+
   set (VCPKG_SCRIPT "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
   if (EXISTS ${VCPKG_SCRIPT})
    set (CMAKE_TOOLCHAIN_FILE ${VCPKG_SCRIPT} CACHE STRING "vcpkg.cmake")
