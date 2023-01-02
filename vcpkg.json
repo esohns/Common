@@ -3,7 +3,7 @@
   "dependencies": [
     {
       "name": "ace",
-      "features": [ "core", "xml" ]
+      "features": [ "xml" ]
     },
     "assimp",
     "directxsdk",
