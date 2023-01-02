@@ -7,8 +7,10 @@ on:
   branches: [ master ]
 
 env:
- # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+ # set CMake build type here (Release, Debug, RelWithDebInfo, etc.)
  BUILD_TYPE: Release
+ # set vcpkg root directory
+ VCPKG_ROOT: C:/vcpkg
 
 jobs:
 
