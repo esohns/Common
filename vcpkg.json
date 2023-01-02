@@ -1,5 +1,5 @@
 {
-  "name": "Common",
+  "name": "esohns_common",
   "dependencies": [
     "ace",
     "assimp",
