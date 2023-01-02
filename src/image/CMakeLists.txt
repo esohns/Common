@@ -24,14 +24,15 @@ elseif (WIN32)
  if (DEFINED ENV{DXSDK_DIR})
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{DXSDK_DIR}/Include>)
- else ()
+ elseif (DEFINED ENV{LIB_ROOT})
   target_include_directories (${LIBRARY} PUBLIC
                               $<BUILD_INTERFACE:$ENV{LIB_ROOT}/DXSDK/Include>)
- endif (DEFINED ENV{DXSDK_DIR})
- if (VCPKG_SUPPORT)
+ elseif (VCPKG_SUPPORT)
   target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include>)
- endif (VCPKG_SUPPORT)
+                              $<BUILD_INTERFACE:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/directxsdk>)
+ else ()
+  message (FATAL_ERROR "DirectX SDK not available, aborting")
+ endif ()
 endif ()
 
 target_include_directories (${LIBRARY} PUBLIC
