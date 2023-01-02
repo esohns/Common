@@ -35,14 +35,14 @@ if NOT exist "%ProjectsDirectory%" (
 )
 @rem echo set projects directory: %ProjectsDirectory%
 
- set CMakePath=D:\cmake\bin\cmake.exe
- if NOT exist "!CMakePath!" (
-  echo cmake.exe not found ^(was: "!CMakePath!"^)^, exiting
-  goto Failed
- )
+set CMakePath="C:\Program Files\CMake\bin\cmake.exe"
+if NOT exist "!CMakePath!" (
+ echo cmake.exe not found ^(was: "!CMakePath!"^)^, exiting
+ goto Failed
+)
 
-@rem set CMakeParameters=-DCMAKE_SYSTEM_VERSION=10.0.10586.0 -G "Visual Studio 14 2015" -T v140 -Wdev
-set CMakeParameters=-G "Visual Studio 14 2015" -Wdev
+@rem set CMakeParameters=-DCMAKE_SYSTEM_VERSION=10.0.10586.0 -G "Visual Studio 14 2015" -T v140 -Wdev --trace-source=CMakeLists.txt
+set CMakeParameters=-G "Visual Studio 17 2022" -DUI_FRAMEWORK=gtk -DBUILD_TEST_U=ON -DBUILD_TEST_I=ON
 set Projects=Common ACEStream ACENetwork
 for %%a in (%Projects%) do (
  set ProjectPath=%ProjectsDirectory%\%%a
@@ -51,7 +51,7 @@ for %%a in (%Projects%) do (
   goto Failed
  )
 
- set BuildPath=!ProjectPath!\build
+ set BuildPath=!ProjectPath!\build\msvc
  if NOT exist "!BuildPath!" (
   echo invalid build directory ^(was: "!BuildPath!"^)^, exiting
   goto Failed
@@ -75,7 +75,7 @@ for %%a in (%Projects%) do (
  )
  
  set CMakeSourcePath=!ProjectPath!
- %CMakePath% !CMakeParameters! !CMakeSourcePath!
+@rem  %CMakePath% !CMakeParameters! !CMakeSourcePath!
  %CMakePath% !CMakeParameters! !CMakeSourcePath!
  if %ERRORLEVEL% NEQ 0 (
   echo failed to configure project ^(source path was: "!CMakeSourcePath!"^)^, exiting

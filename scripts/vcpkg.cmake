@@ -7,8 +7,6 @@ if (WIN32)
   file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/vcpkg" VCPKG_ROOT)
  endif (DEFINED ENV{VCPKG_ROOT})
  if (EXISTS ${VCPKG_ROOT})
-  message (STATUS "using vcpkg in ${VCPKG_ROOT}")
-
   set (VCPKG_SCRIPT "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
   if (EXISTS ${VCPKG_SCRIPT})
    set (VCPKG_SUPPORT ON)
@@ -20,6 +18,8 @@ endif (WIN32)
 if (VCPKG_SUPPORT)
  option (VCPKG_USE "use vcpgk" OFF)
  if (VCPKG_USE)
+  message (STATUS "using vcpkg in ${VCPKG_ROOT}")
+
   set (CMAKE_TOOLCHAIN_FILE ${VCPKG_SCRIPT} CACHE STRING "vcpkg.cmake")
   message (STATUS "including vcpkg.cmake from \"${VCPKG_SCRIPT}\"")
 
