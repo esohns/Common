@@ -5,7 +5,10 @@
   "homepage": "https://github.com/esohns/Common/",
   "description": "(wrapper) library of common functions (*NOTE*: uses ACE, see: http://www.dre.vanderbilt.edu/~schmidt/ACE.html)",
   "dependencies": [
-    "ace[xml]",
+    {
+      "name": "ace",
+      "features": [ "xml" ]
+    },
     "assimp",
     "directxsdk",
     "ffmpeg",
