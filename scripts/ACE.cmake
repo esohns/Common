@@ -13,8 +13,7 @@ elseif (WIN32)
 #                OPTIONAL_COMPONENTS ssl)
 
   find_path (ACE_INCLUDE_DIR ace/ACE.h
-             PATHS ${VCPKG_LIB_DIR_BASE}
-             PATH_SUFFIXES include
+             PATHS ${VCPKG_INCLUDE_DIR_BASE}
              DOC "searching for ACE.h"
              REQUIRED
              NO_DEFAULT_PATH)
