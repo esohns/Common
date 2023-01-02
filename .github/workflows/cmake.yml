@@ -80,7 +80,7 @@ jobs:
 
    - name: Configure CMake [Win32]
      if: ${{ matrix.os=='windows-latest' }}
-     run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE} -DVCPKG_USE=ON
+     run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DVCPKG_USE=ON
 
    - name: Build
      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
