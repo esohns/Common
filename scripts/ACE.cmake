@@ -11,11 +11,12 @@ elseif (WIN32)
 #  find_package (ACE
 #                COMPONENTS core
 #                OPTIONAL_COMPONENTS ssl)
-
+  
+  message (STATUS "VCPKG_INCLUDE_DIR_BASE: ${VCPKG_INCLUDE_DIR_BASE}")
+  set (ACE_INCLUDE_DIR ${VCPKG_INCLUDE_DIR_BASE})
   find_path (ACE_INCLUDE_DIR ace/ACE.h
              PATHS ${VCPKG_INCLUDE_DIR_BASE}
              DOC "searching for ACE.h"
-             REQUIRED
              NO_DEFAULT_PATH)
   find_library (ACE_LIBRARY ${ACE_LIB_FILE}
                 PATHS ${VCPKG_LIB_DIR}
