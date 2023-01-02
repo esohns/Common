@@ -5,15 +5,15 @@
   "homepage": "https://github.com/esohns/Common/",
   "description": "(wrapper) library of common functions (*NOTE*: uses ACE, see: http://www.dre.vanderbilt.edu/~schmidt/ACE.html)",
   "dependencies": [
-    "ace[xml]:x64-windows",
-    "assimp:x64-windows",
-    "directxsdk:x64-windows",
-    "ffmpeg:x64-windows",
-    "freeglut:x64-windows",
-    "glm:x64-windows",
-    "gtk:x64-windows",
-    "libiconv:x64-windows",
-    "libxml2:x64-windows",
-    "pdcurses:x64-windows"
+    "ace[xml]",
+    "assimp",
+    "directxsdk",
+    "ffmpeg",
+    "freeglut",
+    "glm",
+    "gtk",
+    "libiconv",
+    "libxml2",
+    "pdcurses"
   ]
 }
