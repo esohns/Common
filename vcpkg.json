@@ -1,7 +1,10 @@
 {
   "name": "esohns-common",
   "dependencies": [
-    "ace",
+    {
+      "name": "ace",
+      "features": [ "core", "xml" ]
+    },
     "assimp",
     "directxsdk",
     "ffmpeg",
