@@ -26,6 +26,8 @@ if (WIN32)
  endif (EXISTS ${VCPKG_ROOT})
 endif (WIN32)
 if (VCPKG_SUPPORT)
+ # remove the next line for non-github-action builds
+ set (VCPKG_ROOT "D:/a/Common/Common/vcpkg")
  set (VCPKG_LIB_DIR_BASE ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET} CACHE STRING "vcpkg library path (base)" FORCE)
  set (VCPKG_INCLUDE_DIR_BASE ${VCPKG_LIB_DIR_BASE}/include CACHE STRING "vcpkg include path (base)" FORCE)
  if ($<CONFIG> STREQUAL "Debug" OR
