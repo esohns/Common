@@ -202,24 +202,22 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                       ACE_TEXT ("caught exception in Common_UI_IGTK_T::finalize, continuing\n")));
         }
       } // end IF
-      else
-      {
+
 #if GTK_CHECK_VERSION (3,6,0)
 #else
-        gdk_threads_enter ();
+      gdk_threads_enter ();
 #endif // GTK_CHECK_VERSION (3,6,0)
 #if GTK_CHECK_VERSION(4,0,0)
-        g_application_quit (G_APPLICATION (configuration_->application));
+      g_application_quit (G_APPLICATION (configuration_->application));
 #else
-        guint level = gtk_main_level ();
-        if (level > 0)
-          gtk_main_quit ();
+      guint level = gtk_main_level ();
+      if (level > 0)
+        gtk_main_quit ();
 #endif // GTK_CHECK_VERSION(4,0,0)
 #if GTK_CHECK_VERSION (3,6,0)
 #else
-        gdk_threads_leave ();
+      gdk_threads_leave ();
 #endif // GTK_CHECK_VERSION (3,6,0)
-      } // end ELSE
 
       break;
     }
