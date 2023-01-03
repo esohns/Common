@@ -859,7 +859,9 @@ on_delete_event_cb (GtkWidget* widget,
               ACE_TEXT ("delete-event event\n")));
   return FALSE; // emit 'detroy'
 }
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
+GtkApplication* app_p = NULL;
+
 G_MODULE_EXPORT void
 on_activate_cb (GtkWidget* widget,
                 gpointer data)
@@ -879,7 +881,20 @@ on_destroy_event_cb (GtkWidget* widget,
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("destroy-event event\n")));
 
-  gtk_main_quit ();
+#if GTK_CHECK_VERSION (3,6,0)
+#else
+  gdk_threads_enter();
+#endif // GTK_CHECK_VERSION (3,6,0)
+#if GTK_CHECK_VERSION (4,0,0)
+  ACE_ASSERT (app_p);
+  g_application_quit (app_p);
+#else
+  gtk_main_quit();
+#endif // GTK_CHECK_VERSION (4,0,0)
+#if GTK_CHECK_VERSION (3,6,0)
+#else
+  gdk_threads_leave();
+#endif // GTK_CHECK_VERSION (3,6,0)
 
   return TRUE;
 }
@@ -890,7 +905,21 @@ on_destroy_cb (GtkWidget* widget,
 {
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("destroy event\n")));
+
+#if GTK_CHECK_VERSION (3,6,0)
+#else
+  gdk_threads_enter();
+#endif // GTK_CHECK_VERSION (3,6,0)
+#if GTK_CHECK_VERSION (4,0,0)
+  ACE_ASSERT (app_p);
+  g_application_quit (app_p);
+#else
   gtk_main_quit ();
+#endif // GTK_CHECK_VERSION (4,0,0)
+#if GTK_CHECK_VERSION (3,6,0)
+#else
+  gdk_threads_leave();
+#endif // GTK_CHECK_VERSION (3,6,0)
 }
 #ifdef __cplusplus
 }
@@ -901,12 +930,12 @@ do_work (int argc_in,
          ACE_TCHAR* argv_in[],
          const std::string& UIDefinitionFilePath_in)
 {
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
 #undef gtk_init
   gtk_init ();
 #else
   gtk_init (&argc_in, &argv_in);
-#endif // GTK_CHECK_VERSION(4,0,0)
+#endif // GTK_CHECK_VERSION (4,0,0)
 
   GError* error_p = NULL;
   GtkBuilder* gtkBuilder= gtk_builder_new ();
@@ -924,20 +953,19 @@ do_work (int argc_in,
   GtkWidget* mainwin =
       GTK_WIDGET (gtk_builder_get_object (gtkBuilder, "dialog_main"));
 
-#if GTK_CHECK_VERSION(4,0,0)
-  GtkApplication* app_p =
-    gtk_application_new ("org.gnome.example", G_APPLICATION_FLAGS_NONE);
+#if GTK_CHECK_VERSION (4,0,0)
+  app_p = gtk_application_new ("org.gnome.example", G_APPLICATION_FLAGS_NONE);
   g_signal_connect (app_p, "activate", G_CALLBACK (on_activate_cb), mainwin);
 #else
   //g_signal_handlers_block_matched (mainwin, G_SIGNAL_MATCH_DATA,
   //                                 g_signal_lookup ("delete-event", GTK_TYPE_WIDGET),
   //                                 0, NULL, NULL, NULL);
   gtk_builder_connect_signals (gtkBuilder, NULL);
-#endif // GTK_CHECK_VERSION(4,0,0)
+#endif // GTK_CHECK_VERSION (4,0,0)
 
 #if defined (GTKGL_SUPPORT)
-#if GTK_CHECK_VERSION(3,0,0)
-#if GTK_CHECK_VERSION(3,16,0)
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
   GtkGLArea* gl_area_p =
     GTK_GL_AREA (gtk_builder_get_object ((*iterator).second.second,
       ACE_TEXT_ALWAYS_CHAR (TEST_U_STREAM_UI_GTK_GLAREA_NAME)));
@@ -1007,8 +1035,8 @@ do_work (int argc_in,
                     G_CALLBACK (glarea_destroy_cb), &texture_id);
   gtk_widget_set_size_request (GTK_WIDGET (gl_area_p), 256, 256);
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION(3,16,0)
-#elif GTK_CHECK_VERSION(2,0,0)
+#endif // GTK_CHECK_VERSION (3,16,0)
+#elif GTK_CHECK_VERSION (2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
   /* Attribute list for gtkglarea widget. Specifies a
      list of Boolean attributes and enum/integer
@@ -1071,7 +1099,7 @@ do_work (int argc_in,
   gtk_widget_set_size_request (GTK_WIDGET (gl_area_p), 256, 256);
 #endif // GTKGLAREA_SUPPORT
 #else
-#endif // GTK_CHECK_VERSION(2,0,0)
+#endif // GTK_CHECK_VERSION (2,0,0)
   GtkVBox* box_p = GTK_VBOX (gtk_builder_get_object (gtkBuilder, "vbox3"));
   ACE_ASSERT (box_p);
   gtk_container_foreach (GTK_CONTAINER (box_p), (GtkCallback)gtk_widget_destroy, NULL);

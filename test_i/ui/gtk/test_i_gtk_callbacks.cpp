@@ -1996,13 +1996,13 @@ key_cb (GtkWidget* widget_in,
   // sanity check(s)
   ACE_ASSERT (iterator != ui_cb_data_p->UIState->builders.end ());
 
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
   switch (gdk_key_event_get_keyval (event_in))
 #else
   switch (event_in->key.keyval)
-#endif // GTK_CHECK_VERSION(4,0,0)
+#endif // GTK_CHECK_VERSION (4,0,0)
   {
-#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION (3,0,0)
     case GDK_KEY_Escape:
     case GDK_KEY_f:
     case GDK_KEY_F:
@@ -2010,7 +2010,7 @@ key_cb (GtkWidget* widget_in,
     case GDK_Escape:
     case GDK_f:
     case GDK_F:
-#endif // GTK_CHECK_VERSION(3,0,0)
+#endif // GTK_CHECK_VERSION (3,0,0)
     {
       bool is_active_b = false;
       GtkToggleButton* toggle_button_p =
@@ -2020,13 +2020,13 @@ key_cb (GtkWidget* widget_in,
       is_active_b = gtk_toggle_button_get_active (toggle_button_p);
 
       // sanity check(s)
-#if GTK_CHECK_VERSION(4,0,0)
-      if ((gdk_key_event_get_keyval (eventKey_in) == GDK_KEY_Escape) &&
-#elif GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
+      if ((gdk_key_event_get_keyval (event_in) == GDK_KEY_Escape) &&
+#elif GTK_CHECK_VERSION (3,0,0)
       if ((event_in->key.keyval == GDK_KEY_Escape) &&
 #else
       if ((event_in->key.keyval == GDK_Escape) &&
-#endif // GTK_CHECK_VERSION(3/4,0,0)
+#endif // GTK_CHECK_VERSION (3/4,0,0)
           !is_active_b)
         break; // <-- not in fullscreen mode, nothing to do
 

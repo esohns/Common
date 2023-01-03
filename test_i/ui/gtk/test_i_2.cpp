@@ -52,9 +52,13 @@ idle_mode_0_cb (gpointer userData_in)
                                               ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_DRAWINGAREA_NAME)));
   ACE_ASSERT (drawing_area_p);
 
+#if GTK_CHECK_VERSION (4,0,0)
+  ACE_ASSERT (false); // *TODO*
+#else
   gdk_window_invalidate_rect (gtk_widget_get_window (GTK_WIDGET (drawing_area_p)),
                               NULL,   // whole window
                               FALSE); // invalidate children ?
+#endif // GTK_CHECK_VERSION (4,0,0)
 
   return G_SOURCE_CONTINUE;
 }

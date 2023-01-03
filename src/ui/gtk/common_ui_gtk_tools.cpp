@@ -25,7 +25,7 @@
 #include <sstream>
 #include <string>
 
-#if GTK_CHECK_VERSION(2,3,0)
+#if GTK_CHECK_VERSION (2,3,0)
 #include "glib-object.h"
 #endif // GTK_CHECK_VERSION (2,3,0)
 
@@ -219,6 +219,10 @@ Common_UI_GTK_Tools::initialize (int argc_in,
   if (Common_UI_GTK_Tools::GTKInitialized)
     return true;
 
+#if GTK_CHECK_VERSION (4,0,0)
+#undef gtk_init
+  gtk_init ();
+#else
 #if defined (_DEBUG)
   if (!gtk_init_check (&argc_in, &argv_in))
   {
@@ -229,6 +233,7 @@ Common_UI_GTK_Tools::initialize (int argc_in,
 #else
   gtk_init (&argc_in, &argv_in);
 #endif // _DEBUG
+#endif // GTK_CHECK_VERSION (4,0,0)
 //  GOptionEntry entries_a[] = { {NULL} };
 //  if (unlikely (!gtk_init_with_args (&argc_,     // argc
 //                                     &argv_,     // argv
@@ -244,7 +249,7 @@ Common_UI_GTK_Tools::initialize (int argc_in,
 //    goto error;
 //  } // end IF
 
-#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION (3,0,0)
 #else
   /* gdk_rgb_init() is a function which I can only guess sets up the
    * true colour colour map. It returns void so we can't check its

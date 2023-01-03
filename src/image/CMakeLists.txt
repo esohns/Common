@@ -1,12 +1,20 @@
-include (ffmpeg)
-include (ImageMagick)
+if (WIN32)
+ include (directxsdk)
+endif (WIN32)
 
 set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts")
 include (png)
 
+include (ffmpeg)
+include (ImageMagick)
+
 set (LIBRARY ${PROJECT_NAME}Image)
 add_library (${LIBRARY} STATIC "")
 
+if (WIN32 AND DIRECTXSDK_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             "$<BUILD_INTERFACE:${DIRECTXSDK_INCLUDE_DIR}>")
+endif (WIN32 AND DIRECTXSDK_SUPPORT)
 if (LIBPNG_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
                              "$<BUILD_INTERFACE:${PNG_INCLUDE_DIRS}>")
@@ -19,22 +27,6 @@ if (IMAGEMAGICK_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
                              ${ImageMagick_INCLUDE_DIRS})
 endif (IMAGEMAGICK_SUPPORT)
-if (UNIX)
-elseif (WIN32)
- # *TODO*: move this to directxsdk.cmake
- if (DEFINED ENV{DXSDK_DIR})
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:$ENV{DXSDK_DIR}/Include>)
- elseif (VCPKG_USE)
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include/directxsdk>)
- elseif (DEFINED ENV{LIB_ROOT})
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:$ENV{LIB_ROOT}/DXSDK/Include>)
- else ()
-  message (FATAL_ERROR "DirectX SDK not available, aborting")
- endif ()
-endif ()
 
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)
@@ -75,6 +67,9 @@ target_sources (${LIBRARY}
                 PRIVATE stdafx.h
                 ${absolute_source_files})
 
+if (WIN32 AND DIRECTXSDK_SUPPORT)
+ target_link_libraries (${LIBRARY} PUBLIC ${DIRECTXSDK_LIBRARIES})
+endif (WIN32 AND DIRECTXSDK_SUPPORT)
 if (LIBPNG_SUPPORT)
  target_link_libraries (${LIBRARY} PUBLIC ${PNG_LIBRARIES})
 endif (LIBPNG_SUPPORT)
@@ -85,10 +80,6 @@ endif (FFMPEG_SUPPORT)
 if (IMAGEMAGICK_SUPPORT)
  target_link_libraries (${LIBRARY} PUBLIC ${ImageMagick_LIBRARIES})
 endif (IMAGEMAGICK_SUPPORT)
-if (UNIX)
-elseif (WIN32)
- target_link_libraries (${LIBRARY} PUBLIC $ENV{LIB_ROOT}/DXSDK/Lib/${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE}/d3dx9.lib)
-endif ()
 
 #set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_IMAGE_BUILD_DLL)
 #set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
