@@ -1,3 +1,7 @@
+#if (WIN32)
+# set (CMAKE_BUILD_TYPE $<CONFIG> CACHE STRING "build type" FORCE)
+#endif (WIN32)
+
 if ($<CONFIG> STREQUAL "Debug" OR
     $<CONFIG> STREQUAL "RelWithDebInfo" OR
     ${CMAKE_BUILD_TYPE} STREQUAL "Debug" OR

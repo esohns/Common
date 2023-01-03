@@ -1,5 +1,8 @@
 if (UNIX)
+ set (CMAKE_THREAD_PREFER_PTHREAD ON)
  set (THREADS_PREFER_PTHREAD_FLAG ON)
+# include (CheckLibraryExists)
+# check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
 endif (UNIX)
 find_package (Threads)
 if (Threads_FOUND)

@@ -297,11 +297,7 @@ add_subdirectory (test_i)
 ################################################################################
 
 if (UNIX)
-# include (CheckLibraryExists)
-# check_library_exists (pthread pthread_create "" HAVE_LIB_PTHREAD)
  include (GNUInstallDirs)
-
- set (CMAKE_THREAD_PREFER_PTHREAD ON)
 elseif (WIN32)
  if (MSVC)
 #  set (CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION "10.0.16299.0") # set Windows SDK version
