@@ -131,13 +131,6 @@ elseif ($<CONFIG> STREQUAL Release)
 #  set_property (SOURCE PROPERTY COMPILE_DEFINITIONS ACE_NDEBUG)
 endif ()
 
-if (UNIX)
- include (FindPkgConfig)
- if (NOT PKG_CONFIG_FOUND)
-  message (FATAL_ERROR "pkg-config not found, aborting")
- endif (NOT PKG_CONFIG_FOUND)
-endif (UNIX)
-
 option (TRACING "enable tracing" OFF)
 if (TRACING)
  add_definitions (-DCOMMON_NTRACE=0)
