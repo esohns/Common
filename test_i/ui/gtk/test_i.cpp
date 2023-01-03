@@ -887,7 +887,7 @@ on_destroy_event_cb (GtkWidget* widget,
 #endif // GTK_CHECK_VERSION (3,6,0)
 #if GTK_CHECK_VERSION (4,0,0)
   ACE_ASSERT (app_p);
-  g_application_quit (app_p);
+  g_application_quit (G_APPLICATION (app_p));
 #else
   gtk_main_quit();
 #endif // GTK_CHECK_VERSION (4,0,0)
@@ -912,7 +912,7 @@ on_destroy_cb (GtkWidget* widget,
 #endif // GTK_CHECK_VERSION (3,6,0)
 #if GTK_CHECK_VERSION (4,0,0)
   ACE_ASSERT (app_p);
-  g_application_quit (app_p);
+  g_application_quit (G_APPLICATION (app_p));
 #else
   gtk_main_quit ();
 #endif // GTK_CHECK_VERSION (4,0,0)
