@@ -10,23 +10,26 @@ if (UNIX)
 # pkg_check_modules (PKG_LIBICONV libiconv)
 elseif (WIN32)
  if (VCPKG_USE)
-  find_package (libiconv)
-  if (libiconv_FOUND)
-   message (STATUS "found libiconv")
+  find_package (Iconv)
+  if (Iconv_FOUND)
+   message (STATUS "found iconv")
    set (LIBICONV_FOUND TRUE)
    find_path (LIBICONV_INCLUDE_DIR NAMES iconv.h
-              HINTS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}"
+              HINTS ${VCPKG_LIB_DIR_BASE}
               PATH_SUFFIXES include
+              DOC "searching for iconv.h"
               NO_DEFAULT_PATH)
-   set (LIBICONV_INCLUDE_DIRS "${LIBICONV_INCLUDE_DIR}")
+   set (LIBICONV_INCLUDE_DIRS ${LIBICONV_INCLUDE_DIR})
    set (LIBICONV_LIBRARIES "${VCPKG_LIB_DIR}/lib/iconv.lib")
    set (LIBICONV_LIB_DIR "${VCPKG_LIB_DIR}/bin")
-  endif (libiconv_FOUND)
+  endif (Iconv_FOUND)
  endif (VCPKG_USE)
  if (NOT LIBICONV_FOUND)
   find_path (LIBICONV_INCLUDE_DIR NAMES iconv.h
              PATHS "$ENV{LIB_ROOT}/libiconv"
-             PATH_SUFFIXES include)
+             PATH_SUFFIXES include
+             DOC "searching for iconv.h"
+             NO_DEFAULT_PATH)
   set (LIBICONV_LIB "libiconv")
   if ($<CONFIG> STREQUAL "Debug" OR
       $<CONFIG> STREQUAL "RelWithDebInfo" OR
