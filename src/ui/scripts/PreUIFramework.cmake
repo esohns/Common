@@ -390,12 +390,16 @@ else ()
  elseif (WIN32)
   if (VCPKG_USE)
 #   find_package (PDCURSES)
-#   if (PDCURSES_FOUND)
+   find_library (CURSES_LIBRARY pdcurses.lib
+                 PATHS ${VCPKG_LIB_DIR}
+                 PATH_SUFFIXES lib
+                 DOC "searching for pdcurses.lib")
+   if (CURSES_LIBRARY)
     set (CURSES_FOUND TRUE)
     set (CURSES_INCLUDE_DIRS ${VCPKG_INCLUDE_DIR_BASE})
-    set (CURSES_LIBRARIES "${VCPKG_LIB_DIR}/lib/pdcurses.lib")
+    set (CURSES_LIBRARIES ${CURSES_LIBRARY})
     set (CURSES_LIB_DIR "${VCPKG_LIB_DIR}/bin")
-#   endif (PDCURSES_FOUND)
+   endif (CURSES_LIBRARY)
   endif (VCPKG_USE)
   if (NOT CURSES_FOUND)
    find_library (CURSES_LIBRARY pdcurses.lib
