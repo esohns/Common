@@ -24,7 +24,6 @@
 #include <deque>
 #include <string>
 
-//#include "ace/Global_Macros.h"
 //#include "ace/Log_Msg.h"
 
 typedef std::deque<std::string> Common_MessageStack_t;
