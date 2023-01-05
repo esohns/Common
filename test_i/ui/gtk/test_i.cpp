@@ -5,7 +5,7 @@
 #include <string>
 
 #include "gtk/gtk.h"
-#if GTK_CHECK_VERSION(3,16,0)
+#if GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGL_SUPPORT)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

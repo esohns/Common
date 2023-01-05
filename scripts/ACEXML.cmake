@@ -11,17 +11,9 @@ if (UNIX)
                PATH_SUFFIXES lib parser
                DOC "searching for ${ACEXML_PARSER_LIB_FILE}")
 elseif (WIN32)
-# *TODO*: this does not work
- set (LIB_FILE_SUFFIX "")
-# message (STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
- if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
-     CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-  set (LIB_FILE_SUFFIX "d")
- endif ()
-
  set (ACEXML_LIB_FILE ACEXML${LIB_FILE_SUFFIX}.lib) 
  set (ACEXML_PARSER_LIB_FILE ACEXML_Parser${LIB_FILE_SUFFIX}.lib) 
- if (VCPKG_SUPPORT AND NOT DEFINED ENV{ACE_ROOT})
+ if (VCPKG_USE AND NOT DEFINED ENV{ACE_ROOT})
 #  find_package (ACE
 #                COMPONENTS xml)
 #  find_path (ACEXML_INCLUDE_DIR ace/ACE.h)
@@ -38,7 +30,7 @@ elseif (WIN32)
                 PATH_SUFFIXES lib lib\\${CMAKE_BUILD_TYPE}\\Win32
                 DOC "searching for ${ACEXML_PARSER_LIB_FILE}"
                 NO_DEFAULT_PATH)
- endif (VCPKG_SUPPORT AND NOT DEFINED ENV{ACE_ROOT})
+ endif (VCPKG_USE AND NOT DEFINED ENV{ACE_ROOT})
 endif ()
 #if (NOT EXISTS ACEXML_LIBRARY)
 if (NOT ACEXML_LIBRARY)

@@ -1,22 +1,18 @@
 if (WIN32)
  if (VCPKG_USE)
 #  find_package (DIRECTXSDK CONFIG)
-#  if (DIRECTXSDK_FOUND)
+  find_library (D3DX9_LIBRARY d3dx9${LIB_FILE_SUFFIX}.lib
+                PATHS ${VCPKG_LIB_DIR_BASE}
+                PATH_SUFFIXES lib
+                DOC "searching for d3dx9${LIB_FILE_SUFFIX}.lib"
+                NO_DEFAULT_PATH)
+  if (D3DX9_LIBRARY)
+   message (STATUS "found d3dx9${LIB_FILE_SUFFIX}.lib library \"${D3DX9_LIBRARY}\"")
    set (DIRECTXSDK_FOUND TRUE)
    set (DIRECTXSDK_INCLUDE_DIR ${VCPKG_INCLUDE_DIR_BASE}/directxsdk)
-   find_library (D3DX9_LIBRARY d3dx9.lib
-                 PATHS ${VCPKG_LIB_DIR_BASE}
-                 PATH_SUFFIXES lib
-                 DOC "searching for d3dx9.lib"
-                 NO_DEFAULT_PATH)
-  if (NOT D3DX9_LIBRARY)
-   message (FATAL_ERROR "could not find d3dx9.lib, continuing")
-  else ()
-   message (STATUS "found d3dx9.lib library \"${D3DX9_LIBRARY}\"")
-  endif (NOT D3DX9_LIBRARY)
-  set (DIRECTXSDK_LIBRARIES ${D3DX9_LIBRARY})
-  set (DIRECTXSDK_LIB_DIR "${VCPKG_LIB_DIR}/bin")
-#  endif (DIRECTXSDK_FOUND)
+   set (DIRECTXSDK_LIBRARIES ${D3DX9_LIBRARY})
+   set (DIRECTXSDK_LIB_DIR "${VCPKG_LIB_DIR}/bin")
+  endif (D3DX9_LIBRARY)
  endif (VCPKG_USE)
  if (NOT DIRECTXSDK_FOUND)
   if (DEFINED ENV{DXSDK_DIR})
