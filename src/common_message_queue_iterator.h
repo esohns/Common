@@ -29,6 +29,9 @@
 // forward declarations
 class ACE_Message_Block;
 
+// *IMPORTANT NOTE*: this implementation does not grab the queues' lock in every
+//                   member function call; should be faster, but needs outside
+//                   lock management
 template <ACE_SYNCH_DECL,
           class TIME_POLICY = ACE_System_Time_Policy>
 class Common_MessageQueueIterator_T
@@ -40,8 +43,8 @@ class Common_MessageQueueIterator_T
 
  public:
   // convenient types
-  typedef ACE_Message_Queue <ACE_SYNCH_USE,
-                             TIME_POLICY> MESSAGE_QUEUE_T;
+  typedef ACE_Message_Queue<ACE_SYNCH_USE,
+                            TIME_POLICY> MESSAGE_QUEUE_T;
 
   Common_MessageQueueIterator_T (MESSAGE_QUEUE_T&);
   inline virtual ~Common_MessageQueueIterator_T () {}
@@ -63,24 +66,30 @@ template <typename MessageType,
           ACE_SYNCH_DECL,
           class TIME_POLICY = ACE_System_Time_Policy>
 class Common_MessageQueueExIterator_T
- : public ACE_Message_Queue_Iterator<ACE_SYNCH_USE,
-                                     TIME_POLICY>
+ : public ACE_Message_Queue_Ex_Iterator<MessageType,
+                                        ACE_SYNCH_USE,
+                                        TIME_POLICY>
 {
- typedef ACE_Message_Queue_Iterator<ACE_SYNCH_USE,
-                                    TIME_POLICY> inherited;
+ typedef ACE_Message_Queue_Ex_Iterator<MessageType,
+                                       ACE_SYNCH_USE,
+                                       TIME_POLICY> inherited;
 
  public:
   // convenient types
-  typedef ACE_Message_Queue_Ex <MessageType,
-                                ACE_SYNCH_USE,
-                                TIME_POLICY> MESSAGE_QUEUE_T;
+  typedef ACE_Message_Queue_Ex<MessageType,
+                               ACE_SYNCH_USE,
+                               TIME_POLICY> MESSAGE_QUEUE_T;
 
   Common_MessageQueueExIterator_T (MESSAGE_QUEUE_T&);
   inline virtual ~Common_MessageQueueExIterator_T () {}
 
-  int next (MessageType*&);
-  inline int done (void) const { return (!inherited::curr_ ? 1 : 0); }
-  int advance (void);
+  // *TODO*: implement these without grabbing the lock in inherited::iter_.
+  //         --> requires access to the underlying ACE_Message_Queue<>.
+  //             (maybe add a member function ACE_Message_Queue_Ex::queue()
+  //              returning a reference ?)
+  //int next (MessageType*&);
+  //inline int done (void) const { return (!inherited::curr_ ? 1 : 0); }
+  //int advance (void);
 //  void dump (void) const;
 
  private:
