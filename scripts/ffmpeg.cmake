@@ -36,6 +36,11 @@ elseif (WIN32)
                 PATH_SUFFIXES libavcodec lib
                 DOC "searching for avcodec.lib"
                 NO_DEFAULT_PATH)
+  find_library (FFMPEG_LIBRARY_AVFILTER avfilter.lib
+                PATHS ${FFMPEG_ROOT}
+                PATH_SUFFIXES libavfilter lib
+                DOC "searching for avfilter.lib"
+                NO_DEFAULT_PATH)
   find_library (FFMPEG_LIBRARY_AVFORMAT avformat.lib
                 PATHS ${FFMPEG_ROOT}
                 PATH_SUFFIXES libavformat lib
@@ -61,6 +66,11 @@ elseif (WIN32)
   else ()
    message (STATUS "Found avcodec.lib library \"${FFMPEG_LIBRARY_AVCODEC}\"")
   endif (NOT FFMPEG_LIBRARY_AVCODEC)
+  if (NOT FFMPEG_LIBRARY_AVFILTER)
+   message (WARNING "could not find avfilter.lib, continuing")
+  else ()
+   message (STATUS "Found avfilter.lib library \"${FFMPEG_LIBRARY_AVFILTER}\"")
+  endif (NOT FFMPEG_LIBRARY_AVFILTER)
   if (NOT FFMPEG_LIBRARY_AVFORMAT)
    message (WARNING "could not find avformat.lib, continuing")
   else ()
@@ -81,14 +91,14 @@ elseif (WIN32)
   else ()
    message (STATUS "Found swresample.lib library \"${FFMPEG_LIBRARY_SWRESAMPLE}\"")
   endif (NOT FFMPEG_LIBRARY_SWRESAMPLE)
-  if (FFMPEG_LIBRARY_AVCODEC AND FFMPEG_LIBRARY_AVFORMAT AND FFMPEG_LIBRARY_SWSCALE AND FFMPEG_LIBRARY_AVUTIL)
+  if (FFMPEG_LIBRARY_AVCODEC AND FFMPEG_LIBRARY_AVFILTER AND FFMPEG_LIBRARY_AVFORMAT AND FFMPEG_LIBRARY_SWSCALE AND FFMPEG_LIBRARY_AVUTIL)
    set (FFMPEG_FOUND TRUE)
-   set (ffmpeg_LIBRARIES "${FFMPEG_LIBRARY_AVCODEC};${FFMPEG_LIBRARY_AVFORMAT};${FFMPEG_LIBRARY_SWSCALE};${FFMPEG_LIBRARY_AVUTIL}")
+   set (ffmpeg_LIBRARIES "${FFMPEG_LIBRARY_AVCODEC};${FFMPEG_LIBRARY_AVFILTER};${FFMPEG_LIBRARY_AVFORMAT};${FFMPEG_LIBRARY_SWSCALE};${FFMPEG_LIBRARY_AVUTIL}")
     set (ffmpeg_INCLUDE_DIRS "${FFMPEG_ROOT}")
-    set (ffmpeg_LIB_DIR "${FFMPEG_ROOT}/libavcodec;${FFMPEG_ROOT}/libavformat;${FFMPEG_ROOT}/libswscale;${FFMPEG_ROOT}/libswresample;${FFMPEG_ROOT}/libavutil" CACHE INTERNAL "")
+    set (ffmpeg_LIB_DIR "${FFMPEG_ROOT}/libavcodec;${FFMPEG_ROOT}/libavfilter;${FFMPEG_ROOT}/libavformat;${FFMPEG_ROOT}/libswscale;${FFMPEG_ROOT}/libswresample;${FFMPEG_ROOT}/libavutil" CACHE INTERNAL "")
 #   set (ffmpeg_INCLUDE_DIRS "${FFMPEG_ROOT}/include")
 #   set (ffmpeg_LIB_DIR "${FFMPEG_ROOT}/bin")
-  endif (FFMPEG_LIBRARY_AVCODEC AND FFMPEG_LIBRARY_AVFORMAT AND FFMPEG_LIBRARY_SWSCALE AND FFMPEG_LIBRARY_AVUTIL)
+  endif (FFMPEG_LIBRARY_AVCODEC AND FFMPEG_LIBRARY_AVFILTER AND FFMPEG_LIBRARY_AVFORMAT AND FFMPEG_LIBRARY_SWSCALE AND FFMPEG_LIBRARY_AVUTIL)
   if (FFMPEG_LIBRARY_SWRESAMPLE)
    set (FFMPEG_2_FOUND TRUE)
    set (ffmpeg_2_LIBRARIES "${FFMPEG_LIBRARY_SWRESAMPLE}")
