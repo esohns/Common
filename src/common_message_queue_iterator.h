@@ -66,13 +66,11 @@ template <typename MessageType,
           ACE_SYNCH_DECL,
           class TIME_POLICY = ACE_System_Time_Policy>
 class Common_MessageQueueExIterator_T
- : public ACE_Message_Queue_Ex_Iterator<MessageType,
-                                        ACE_SYNCH_USE,
-                                        TIME_POLICY>
+ : public ACE_Message_Queue_Iterator<ACE_SYNCH_USE,
+                                     TIME_POLICY>
 {
- typedef ACE_Message_Queue_Ex_Iterator<MessageType,
-                                       ACE_SYNCH_USE,
-                                       TIME_POLICY> inherited;
+ typedef ACE_Message_Queue_Iterator<ACE_SYNCH_USE,
+                                    TIME_POLICY> inherited;
 
  public:
   // convenient types
@@ -83,13 +81,9 @@ class Common_MessageQueueExIterator_T
   Common_MessageQueueExIterator_T (MESSAGE_QUEUE_T&);
   inline virtual ~Common_MessageQueueExIterator_T () {}
 
-  // *TODO*: implement these without grabbing the lock in inherited::iter_.
-  //         --> requires access to the underlying ACE_Message_Queue<>.
-  //             (maybe add a member function ACE_Message_Queue_Ex::queue()
-  //              returning a reference ?)
-  //int next (MessageType*&);
-  //inline int done (void) const { return (!inherited::curr_ ? 1 : 0); }
-  //int advance (void);
+  int next (MessageType*&);
+  inline int done (void) const { return (!inherited::curr_ ? 1 : 0); }
+  int advance (void);
 //  void dump (void) const;
 
  private:
