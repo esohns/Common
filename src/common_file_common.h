@@ -28,7 +28,33 @@
 #include "ace/Assert.h"
 #include "ace/OS_NS_dirent.h"
 
-// *** file ***
+struct Common_File_Entry
+{
+  Common_File_Entry ()
+   : type (Common_File_Entry::INVALID)
+   , owner ()
+   , group ()
+   , size (0)
+   , name ()
+  {}
+
+  enum Type
+  {
+    FILE = 0,
+    DIRECTORY,
+    LINK,
+    INVALID
+  };
+
+  enum Type   type;
+  std::string group;
+  std::string owner;
+  ACE_UINT64  size;
+  std::string name;
+};
+typedef std::vector<struct Common_File_Entry> Common_File_Entries_t;
+typedef Common_File_Entries_t::const_iterator Common_File_EntriesIterator_t;
+
 struct Common_File_Identifier
 {
   Common_File_Identifier ()

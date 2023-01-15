@@ -91,8 +91,9 @@ if NOT exist "%MPC_ROOT%" (
 @rem step1: apply patches
 set PATCH_EXE=%BIN_ROOT%\patch.exe
 if NOT exist "%PATCH_EXE%" (
- echo invalid executable ^(was: "%PATCH_EXE%"^)^, exiting
- goto Failed
+ echo invalid executable ^(was: "%PATCH_EXE%"^)^, falling back
+ set PATCH_EXE="git.exe apply"
+@rem goto Failed
 )
 cd !ACE_ROOT!
 if %ERRORLEVEL% NEQ 0 (

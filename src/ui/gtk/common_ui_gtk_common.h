@@ -237,7 +237,7 @@ struct Common_UI_GTK_ProgressData
 
   Common_UI_GTK_CompletedActions_t completedActions;
 //  GdkCursorType                      cursorType;
-  guint                            eventSourceId;
+  guint                            eventSourceId; // progress bar widget update-
   Common_UI_GTK_PendingActions_t   pendingActions;
   Common_UI_GTK_State_t*           state;
 };

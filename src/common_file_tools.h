@@ -172,6 +172,8 @@ class Common_File_Tools
   static std::string getTempFilename (const std::string&, // prefix
                                       bool = true);       // return full path ?
 
+  static struct Common_File_Entry parseFileEntry (const std::string&);
+
   static std::string executable; // executable base name + extension
   static std::string executableBase; // executables' base directory
 

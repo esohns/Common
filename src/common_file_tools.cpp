@@ -2596,3 +2596,68 @@ Common_File_Tools::getTempFilename (const std::string& prefix_in,
 
   return result;
 }
+
+struct Common_File_Entry
+Common_File_Tools::parseFileEntry (const std::string& entry_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_File_Tools::parseFileEntry"));
+
+  struct Common_File_Entry result;
+
+  // *NOTE*: e.g. "drwxrwxr-x   6 ftpfau   ftpfau       4096 Jan 15 16:35 almalinux"
+  //              "drwxr-xr-x  11 ftpfau   ftpfau       4096 Apr 30  2021 cdn.media.ccc.de"
+  std::string regex_string = // drwxrwxr-x                    6                  ftpfau                 ftpfau                 4096               Jan                             15                               16            :    35                                   almalinux
+    ACE_TEXT_ALWAYS_CHAR ("^([[:alpha:]-]{10})(?:[[:space:]]+)([[:digit:]]+)(?: )([^ ]+)(?:[[:space:]]+)([^ ]+)(?:[[:space:]]+)([[:digit:]]+)(?: )([[:alpha:]]{3})(?:[[:space:]]+)([[:digit:]]+)(?:[[:space:]]+)(?:([[:digit:]]+)(?::)([[:digit:]]+)|([[:digit:]]{4}))(?: )(.+)$");
+  std::regex regex;
+  std::regex::flag_type flags = std::regex_constants::ECMAScript;
+  regex.assign (regex_string, flags);
+  std::smatch match_results;
+
+  if (!std::regex_match (entry_in,
+                         match_results,
+                         regex,
+                         std::regex_constants::match_default))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to parse file entry string (was: \"%s\"), aborting\n"),
+                ACE_TEXT (entry_in.c_str ())));
+    return result;
+  } // end IF
+  ACE_ASSERT (match_results.ready () && !match_results.empty ());
+
+  ACE_ASSERT (match_results[1].matched);
+  switch (match_results[1].str ()[0])
+  {
+    case 'd':
+      result.type = Common_File_Entry::DIRECTORY; break;
+    case 'f':
+      result.type = Common_File_Entry::FILE; break;
+    case 'l':
+      result.type = Common_File_Entry::LINK; break;
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown file entry type (was: \"%s\"), aborting\n"),
+                  ACE_TEXT (match_results[1].str()[0])));
+      return result;
+    }
+  } // end SWITCH
+
+  ACE_ASSERT (match_results[3].matched);
+  result.owner = match_results[3].str ();
+
+  ACE_ASSERT (match_results[4].matched);
+  result.group = match_results[4].str ();
+
+  ACE_ASSERT (match_results[5].matched);
+  std::istringstream converter (match_results[5].str ());
+  converter >> result.size;
+
+  // *TODO*: process date
+  bool has_year_b = !match_results[6].matched;
+
+  ACE_ASSERT (match_results[11].matched);
+  result.name = match_results[11].str ();
+
+  return result;
+}
