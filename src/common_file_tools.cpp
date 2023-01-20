@@ -2630,6 +2630,7 @@ Common_File_Tools::parseFileEntry (const std::string& entry_in)
   {
     case 'd':
       result.type = Common_File_Entry::DIRECTORY; break;
+    case '-':
     case 'f':
       result.type = Common_File_Entry::FILE; break;
     case 'l':
@@ -2638,7 +2639,7 @@ Common_File_Tools::parseFileEntry (const std::string& entry_in)
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("invalid/unknown file entry type (was: \"%s\"), aborting\n"),
-                  ACE_TEXT (match_results[1].str()[0])));
+                  ACE_TEXT (match_results[1].str ().c_str ())));
       return result;
     }
   } // end SWITCH
