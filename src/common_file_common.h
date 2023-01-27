@@ -32,8 +32,8 @@ struct Common_File_Entry
 {
   Common_File_Entry ()
    : type (Common_File_Entry::INVALID)
-   , owner ()
    , group ()
+   , owner ()
    , size (0)
    , name ()
   {}

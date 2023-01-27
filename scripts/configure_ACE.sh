@@ -201,7 +201,7 @@ fi
 # step3: generate Makefiles
 if [ ! -f ${ACE_BUILD_DIRECTORY}/GNUmakefile ]
 then
- FEATURES_FILE_DIRECTORY=${PROJECT_DIRECTORY}/3rd_party/ACE_wrappers
+ FEATURES_FILE_DIRECTORY=${PROJECT_DIRECTORY}/Common/3rd_party/ACE_wrappers
  [ ! -d ${FEATURES_FILE_DIRECTORY} ] && echo "ERROR: invalid directory (was: \"${FEATURES_FILE_DIRECTORY}\"), aborting" && exit 1
  LOCAL_FEATURES_FILE=${FEATURES_FILE_DIRECTORY}/local.features
  [ ! -r ${LOCAL_FEATURES_FILE} ] && echo "ERROR: invalid file (was: \"${LOCAL_FEATURES_FILE}\"): not readable, aborting" && exit 1

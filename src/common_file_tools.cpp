@@ -2631,7 +2631,7 @@ Common_File_Tools::parseFileEntry (const std::string& entry_in)
     case 'd':
       result.type = Common_File_Entry::DIRECTORY; break;
     case '-':
-    case 'f':
+    //case 'f':
       result.type = Common_File_Entry::FILE; break;
     case 'l':
       result.type = Common_File_Entry::LINK; break;
