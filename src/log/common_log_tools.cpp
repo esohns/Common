@@ -130,6 +130,8 @@ Common_Log_Tools::finalizeLogging ()
   // *NOTE*: this may be necessary in case the backend sits on the stack.
   //         In that case, ACE::fini() closes the backend too late
   ACE_LOG_MSG->msg_backend (NULL);
+
+  ACE_LOG_MSG->msg_ostream (NULL, false);
 }
 
 std::string
