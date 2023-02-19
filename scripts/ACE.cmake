@@ -1,5 +1,6 @@
 if (UNIX)
- set (ACE_LIB_FILE libACE${LIB_FILE_SUFFIX}.so)
+# set (ACE_LIB_FILE libACE${LIB_FILE_SUFFIX}.so)
+ set (ACE_LIB_FILE libACE.so)
  find_library (ACE_LIBRARY ${ACE_LIB_FILE}
                PATHS $ENV{ACE_ROOT} ${CMAKE_CURRENT_SOURCE_DIR}/../modules/ACE
                PATH_SUFFIXES lib

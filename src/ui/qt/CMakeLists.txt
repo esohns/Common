@@ -17,7 +17,7 @@ if (WIN32)
 # message (STATUS "ENV{QT5_DIR}: $ENV{QT5_DIR}")
 # set (INCLUDE_DIR "$ENV{QT5_DIR}/../../../include")
  target_include_directories (${LIBRARY} PUBLIC
-                             "$<BUILD_INTERFACE:H:/lib/qt/5.15.2/msvc2019_64/include;H:/lib/qt/5.15.2/msvc2019_64/include/QtCore;H:/lib/qt/5.15.2/msvc2019_64/include/QtWidgets;H:/lib/qt/5.15.2/msvc2019_64/include/QtGui>")
+                             "$<BUILD_INTERFACE:$ENV{LIB_ROOT}/qt/5.15.2/msvc2019_64/include;$ENV{LIB_ROOT}/qt/5.15.2/msvc2019_64/include/QtCore;$ENV{LIB_ROOT}/qt/5.15.2/msvc2019_64/include/QtWidgets;$ENV{LIB_ROOT}/qt/5.15.2/msvc2019_64/include/QtGui>")
 endif (WIN32)
 
 target_include_directories (${LIBRARY} PUBLIC
