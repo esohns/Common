@@ -34,6 +34,7 @@
 
 #include "common_defines.h"
 #include "common_file_tools.h"
+#include "common_os_tools.h"
 #include "common_tools.h"
 
 std::string
@@ -162,8 +163,8 @@ Common_Process_Tools::id (const std::string& executableName_in)
     case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_SUSE:
     {
       // sanity check(s)
-      if (unlikely (!Common_Tools::isInstalled (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_PIDOFPROC),
-                                                command_line_string)))
+      if (unlikely (!Common_OS_Tools::isInstalled (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_PIDOFPROC),
+                                                   command_line_string)))
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("command (was: \"%s\") is not installed: cannot proceed, aborting\n"),
@@ -177,8 +178,8 @@ Common_Process_Tools::id (const std::string& executableName_in)
     case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_UBUNTU:
     {
       // sanity check(s)
-      if (unlikely (!Common_Tools::isInstalled (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_PIDOF),
-                                                command_line_string)))
+      if (unlikely (!Common_OS_Tools::isInstalled (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_PIDOF),
+                                                   command_line_string)))
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("command (was: \"%s\") is not installed: cannot proceed, aborting\n"),

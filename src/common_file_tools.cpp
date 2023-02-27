@@ -42,10 +42,11 @@
 #if defined (HAVE_CONFIG_H)
 #include "Common_config.h"
 #endif // HAVE_CONFIG_H
+
 #include "common_defines.h"
 #include "common_macros.h"
+#include "common_os_tools.h"
 #include "common_string_tools.h"
-#include "common_tools.h"
 
 #include "common_error_tools.h"
 
@@ -665,7 +666,7 @@ clean:
 
   if (stat_s.st_uid == user_id)
     return (stat_s.st_mode & S_IRUSR);
-  if (Common_Tools::isGroupMember (user_id, stat_s.st_gid))
+  if (Common_OS_Tools::isGroupMember (user_id, stat_s.st_gid))
     return (stat_s.st_mode & S_IRGRP);
   result = (stat_s.st_mode & S_IROTH);
 #endif // ACE_WIN32 || ACE_WIN64
@@ -705,7 +706,7 @@ Common_File_Tools::canWrite (const std::string& path_in,
 
   if (stat_s.st_uid == user_id)
     return (stat_s.st_mode & S_IWUSR);
-  if (Common_Tools::isGroupMember (user_id, stat_s.st_gid))
+  if (Common_OS_Tools::isGroupMember (user_id, stat_s.st_gid))
     return (stat_s.st_mode & S_IWGRP);
   return (stat_s.st_mode & S_IWOTH);
 #endif // ACE_WIN32 || ACE_WIN64
@@ -743,7 +744,7 @@ Common_File_Tools::canExecute (const std::string& path_in,
 
   if (stat_s.st_uid == user_id)
     return (stat_s.st_mode & S_IXUSR);
-  if (Common_Tools::isGroupMember (user_id, stat_s.st_gid))
+  if (Common_OS_Tools::isGroupMember (user_id, stat_s.st_gid))
     return (stat_s.st_mode & S_IXGRP);
   return (stat_s.st_mode & S_IXOTH);
 #endif // ACE_WIN32 || ACE_WIN64
@@ -2177,13 +2178,13 @@ Common_File_Tools::getHomeDirectory (const std::string& userName_in)
   {
     // fallback --> use current user
     std::string real_username_string;
-    Common_Tools::getUserName (static_cast<uid_t> (-1),
-                               username_string,
-                               real_username_string);
+    Common_OS_Tools::getUserName (static_cast<uid_t> (-1),
+                                  username_string,
+                                  real_username_string);
     if (username_string.empty ())
     {
       ACE_DEBUG ((LM_WARNING,
-                  ACE_TEXT ("failed to Common_Tools::getUserName(), falling back\n")));
+                  ACE_TEXT ("failed to Common_OS_Tools::getUserName(), falling back\n")));
       goto fallback;
     } // end IF
   } // end IF
@@ -2302,13 +2303,13 @@ Common_File_Tools::getUserConfigurationDirectory ()
 #else
   std::string username_string;
   std::string real_username_string;
-  Common_Tools::getUserName (static_cast<uid_t> (-1),
-                             username_string,
-                             real_username_string);
+  Common_OS_Tools::getUserName (static_cast<uid_t> (-1),
+                                username_string,
+                                real_username_string);
   if (unlikely (username_string.empty ()))
   {
     ACE_DEBUG ((LM_WARNING,
-                ACE_TEXT ("failed to Common_Tools::getUserName(), falling back\n")));
+                ACE_TEXT ("failed to Common_OS_Tools::getUserName(), falling back\n")));
     goto fallback;
   } // end IF
 
@@ -2392,13 +2393,13 @@ Common_File_Tools::getUserDownloadDirectory (const std::string& userName_in)
   {
     // fallback --> use current user
     std::string real_username_string;
-    Common_Tools::getUserName (static_cast<uid_t> (-1),
-                               username_string,
-                               real_username_string);
+    Common_OS_Tools::getUserName (static_cast<uid_t> (-1),
+                                  username_string,
+                                  real_username_string);
     if (username_string.empty ())
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to Common_Tools::getUserName(), aborting\n")));
+                  ACE_TEXT ("failed to Common_OS_Tools::getUserName(), aborting\n")));
       return result;
     } // end IF
   } // end IF

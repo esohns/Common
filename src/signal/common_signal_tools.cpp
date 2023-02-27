@@ -31,9 +31,8 @@
 #include "ace/Proactor.h"
 #include "ace/Reactor.h"
 
-#include "common_defines.h"
 #include "common_macros.h"
-#include "common_tools.h"
+#include "common_os_tools.h"
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
@@ -742,9 +741,9 @@ Common_Signal_Tools::signalToString (const Common_Signal& signal_in)
   converter << signal_in.siginfo.si_uid;
   result += converter.str ();
   std::string user_name_string, real_name_string;
-  Common_Tools::getUserName (signal_in.siginfo.si_uid,
-                             user_name_string,
-                             real_name_string);
+  Common_OS_Tools::getUserName (signal_in.siginfo.si_uid,
+                                user_name_string,
+                                real_name_string);
   result += ACE_TEXT_ALWAYS_CHAR ("[\"");
   result += user_name_string;
   result += ACE_TEXT_ALWAYS_CHAR ("\"]");

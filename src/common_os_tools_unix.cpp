@@ -32,24 +32,20 @@
 #if defined (ACE_LINUX)
 #include "sys/capability.h"
 #include "sys/prctl.h"
-#include "sys/utsname.h"
 
 #include "linux/capability.h"
 #include "linux/prctl.h"
 #include "linux/securebits.h"
 
-#include "aio.h"
 #include "grp.h"
 #elif defined (__sun) && defined (__SVR4)
 #include "rctl.h"
 #endif // ACE_LINUX || SUN_SOLARIS_11
 
 #include "ace/Log_Msg.h"
-#include "ace/OS.h"
 #if defined (__sun) && defined (__SVR4)
 #include "ace/OS_Memory.h"
 #endif // SUN_SOLARIS_11
-#include "ace/Time_Value.h"
 
 #if defined (HAVE_CONFIG_H)
 #include "Common_config.h"
@@ -58,16 +54,9 @@
 #include "common_defines.h"
 #include "common_file_tools.h"
 #include "common_macros.h"
-#if defined (ACE_LINUX)
 #include "common_process_tools.h"
 #include "common_string_tools.h"
-#endif // ACE_LINUX
-
-#include "common_error_tools.h"
-
-#include "common_signal_tools.h"
-
-#include "common_time_common.h"
+#include "common_tools.h"
 
 //////////////////////////////////////////
 
@@ -183,7 +172,7 @@ Common_OS_Tools::hasCapability (unsigned long capability_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("capability (was: %s (%u)) not supported: \"%m\", aborting\n"),
-                ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ()), capability_in));
+                ACE_TEXT (Common_OS_Tools::capabilityToString (capability_in).c_str ()), capability_in));
     return false;
   } // end IF
 
@@ -205,7 +194,7 @@ Common_OS_Tools::hasCapability (unsigned long capability_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::cap_get_flag(%s,%d): \"%m\", aborting\n"),
-                ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ()),
+                ACE_TEXT (Common_OS_Tools::capabilityToString (capability_in).c_str ()),
                 set_in));
     goto clean;
   } // end IF
@@ -284,7 +273,7 @@ Common_OS_Tools::printCapabilities ()
     if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ::prctl(PR_CAP_AMBIENT,PR_CAP_AMBIENT_IS_SET,%s): \"%m\", continuing\n"),
-                  ACE_TEXT (Common_Tools::capabilityToString (capability).c_str ())));
+                  ACE_TEXT (Common_OS_Tools::capabilityToString (capability).c_str ())));
     in_ambient_set = (result == 1);
 
     result = ::prctl (PR_CAPBSET_READ,
@@ -292,7 +281,7 @@ Common_OS_Tools::printCapabilities ()
     if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ::prctl(PR_CAPBSET_READ,%s): \"%m\", continuing\n"),
-                  ACE_TEXT (Common_Tools::capabilityToString (capability).c_str ())));
+                  ACE_TEXT (Common_OS_Tools::capabilityToString (capability).c_str ())));
     in_bounding_set = (result == 1);
 
     result = ::cap_get_flag (capabilities_p, capability,
@@ -300,23 +289,23 @@ Common_OS_Tools::printCapabilities ()
     if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ::cap_get_flag(CAP_EFFECTIVE,%s): \"%m\", continuing\n"),
-                  ACE_TEXT (Common_Tools::capabilityToString (capability).c_str ())));
+                  ACE_TEXT (Common_OS_Tools::capabilityToString (capability).c_str ())));
     result = ::cap_get_flag (capabilities_p, capability,
                              CAP_INHERITABLE, &in_inheritable_set);
     if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ::cap_get_flag(CAP_INHERITABLE,%s): \"%m\", continuing\n"),
-                  ACE_TEXT (Common_Tools::capabilityToString (capability).c_str ())));
+                  ACE_TEXT (Common_OS_Tools::capabilityToString (capability).c_str ())));
     result = ::cap_get_flag (capabilities_p, capability,
                              CAP_PERMITTED, &in_permitted_set);
     if (unlikely (result == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ::cap_get_flag(CAP_PERMITTED,%s): \"%m\", continuing\n"),
-                  ACE_TEXT (Common_Tools::capabilityToString (capability).c_str ())));
+                  ACE_TEXT (Common_OS_Tools::capabilityToString (capability).c_str ())));
 
     ACE_DEBUG ((LM_INFO,
                 ACE_TEXT ("%s (%d):\t\t%s/%s\t\t%s/%s/%s\n"),
-                ACE_TEXT (Common_Tools::capabilityToString (capability).c_str ()), capability,
+                ACE_TEXT (Common_OS_Tools::capabilityToString (capability).c_str ()), capability,
                 (in_ambient_set ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
                 (in_bounding_set ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
                 ((in_effective_set == CAP_SET) ? ACE_TEXT ("yes") : ACE_TEXT ("no")),
@@ -356,7 +345,7 @@ Common_OS_Tools::setCapability (unsigned long capability_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("capability (was: %s (%u)) not supported: \"%m\", aborting\n"),
-                ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ()), capability_in));
+                ACE_TEXT (Common_OS_Tools::capabilityToString (capability_in).c_str ()), capability_in));
     return false;
   } // end IF
 
@@ -375,10 +364,10 @@ Common_OS_Tools::setCapability (unsigned long capability_in,
   if (likely (set_in == CAP_EFFECTIVE))
   {
     // verify that the capability is in the 'permitted' set
-    if (!Common_Tools::hasCapability (capability_in, CAP_PERMITTED))
+    if (!Common_OS_Tools::hasCapability (capability_in, CAP_PERMITTED))
       ACE_DEBUG ((LM_WARNING,
                   ACE_TEXT ("%P/%t: capability (was: %s (%u)) not in 'permitted' set: cannot enable, continuing\n"),
-                  ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ()), capability_in));
+                  ACE_TEXT (Common_OS_Tools::capabilityToString (capability_in).c_str ()), capability_in));
   } // end IF
 
   cap_value_t capabilities_a[CAP_LAST_CAP + 1];
@@ -391,7 +380,7 @@ Common_OS_Tools::setCapability (unsigned long capability_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::cap_set_flag(%s,%d,CAP_SET): \"%m\", aborting\n"),
-                ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ()),
+                ACE_TEXT (Common_OS_Tools::capabilityToString (capability_in).c_str ()),
                 set_in));
     goto clean;
   } // end IF
@@ -401,10 +390,10 @@ Common_OS_Tools::setCapability (unsigned long capability_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::cap_set_proc(%s)): \"%m\", aborting\n"),
-                ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ())));
+                ACE_TEXT (Common_OS_Tools::capabilityToString (capability_in).c_str ())));
     goto clean;
   } // end IF
-  if (likely (Common_Tools::hasCapability (capability_in, set_in)))
+  if (likely (Common_OS_Tools::hasCapability (capability_in, set_in)))
     result = true;
 
 clean:
@@ -429,7 +418,7 @@ Common_OS_Tools::dropCapability (unsigned long capability_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("capability (was: %s (%u)) not supported: \"%m\", aborting\n"),
-                ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ()), capability_in));
+                ACE_TEXT (Common_OS_Tools::capabilityToString (capability_in).c_str ()), capability_in));
     return false;
   } // end IF
 
@@ -453,7 +442,7 @@ Common_OS_Tools::dropCapability (unsigned long capability_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::cap_set_flag(%s,%d,CAP_CLEAR): \"%m\", aborting\n"),
-                ACE_TEXT (Common_Tools::capabilityToString (capability_in).c_str ()),
+                ACE_TEXT (Common_OS_Tools::capabilityToString (capability_in).c_str ()),
                 set_in));
     goto clean;
   } // end IF
@@ -502,9 +491,9 @@ Common_OS_Tools::getUserGroups (uid_t userId_in)
   uid_t user_id =
       ((static_cast<int>(userId_in) == -1) ? ACE_OS::geteuid () : userId_in);
   std::string username_string, realname_string;
-  Common_Tools::getUserName (user_id,
-                             username_string,
-                             realname_string);
+  Common_OS_Tools::getUserName (user_id,
+                                username_string,
+                                realname_string);
   struct passwd passwd_s, *passwd_p = NULL;
   ACE_OS::memset (&passwd_s, 0, sizeof (struct passwd));
   char buffer_a[BUFSIZ];
@@ -524,7 +513,7 @@ Common_OS_Tools::getUserGroups (uid_t userId_in)
                 user_id));
     return return_value;
   } // end IF
-  return_value.push_back (Common_Tools::groupIdToString (passwd_s.pw_gid));
+  return_value.push_back (Common_OS_Tools::groupIdToString (passwd_s.pw_gid));
 
   setgrent ();
   do
@@ -562,7 +551,7 @@ Common_OS_Tools::addGroupMember (uid_t userId_in,
   COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::addGroupMember"));
 
 #if defined (_DEBUG)
-  Common_Tools::printCapabilities ();
+  Common_OS_Tools::printCapabilities ();
 #endif // _DEBUG
 
   bool result = false;
@@ -570,12 +559,12 @@ Common_OS_Tools::addGroupMember (uid_t userId_in,
   uid_t user_id =
       ((static_cast<int>(userId_in) == -1) ? ACE_OS::geteuid () : userId_in);
   std::string username_string, realname_string;
-  Common_Tools::getUserName (user_id,
-                             username_string,
-                             realname_string);
+  Common_OS_Tools::getUserName (user_id,
+                                username_string,
+                                realname_string);
 
   // sanity check(s)
-  if (unlikely (Common_Tools::isGroupMember (userId_in, groupId_in)))
+  if (unlikely (Common_OS_Tools::isGroupMember (userId_in, groupId_in)))
     return true; // nothing to do
 
   if (likely (persist_in))
@@ -589,7 +578,7 @@ Common_OS_Tools::addGroupMember (uid_t userId_in,
     command_line_string += username_string;
 //    command_line_string += ACE_TEXT_ALWAYS_CHAR (" -a -G ");
     command_line_string += ACE_TEXT_ALWAYS_CHAR (" ");
-    command_line_string += Common_Tools::groupIdToString (groupId_in);
+    command_line_string += Common_OS_Tools::groupIdToString (groupId_in);
 //    command_line_string += ACE_TEXT_ALWAYS_CHAR (" ");
 //    command_line_string += username_string;
     int exit_status_i = 0;
@@ -617,7 +606,7 @@ Common_OS_Tools::addGroupMember (uid_t userId_in,
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("added user \"%s\" (uid: %u) to group \"%s\" (gid: %u)...\n"),
               ACE_TEXT (username_string.c_str ()), user_id,
-              ACE_TEXT (Common_Tools::groupIdToString (groupId_in).c_str ()), groupId_in));
+              ACE_TEXT (Common_OS_Tools::groupIdToString (groupId_in).c_str ()), groupId_in));
 
   return result;
 }
@@ -631,9 +620,9 @@ Common_OS_Tools::isGroupMember (uid_t userId_in,
   uid_t user_id =
       ((static_cast<int>(userId_in) == -1) ? ACE_OS::geteuid () : userId_in);
   std::string username_string, realname_string;
-  Common_Tools::getUserName (user_id,
-                             username_string,
-                             realname_string);
+  Common_OS_Tools::getUserName (user_id,
+                                username_string,
+                                realname_string);
   char buffer_a[BUFSIZ];
   ACE_OS::memset (buffer_a, 0, sizeof (char[BUFSIZ]));
   struct passwd passwd_s;
@@ -1089,9 +1078,9 @@ Common_OS_Tools::isInstalled (const std::string& executableName_in,
     case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_UBUNTU:
     {
       // sanity check(s)
-      ACE_ASSERT (Common_Tools::findProgram (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_FIND)));
-      ACE_ASSERT (Common_Tools::findProgram (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LOCATE)));
-      ACE_ASSERT (Common_Tools::findProgram (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_XARGS)));
+      ACE_ASSERT (Common_OS_Tools::findProgram (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_FIND)));
+      ACE_ASSERT (Common_OS_Tools::findProgram (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LOCATE)));
+      ACE_ASSERT (Common_OS_Tools::findProgram (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_XARGS)));
       break;
     }
     default:

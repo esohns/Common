@@ -30,15 +30,10 @@
 #include "ace/Get_Opt.h"
 #include "ace/High_Res_Timer.h"
 #include "ace/Log_Msg.h"
-#include "ace/OS.h"
-//#include "ace/Profile_Timer.h"
-#include "ace/Synch.h"
 #include "ace/Time_Value.h"
 #include "ace/Version.h"
 
-#include "common_file_tools.h"
-#include "common_logger.h"
-#include "common_tools.h"
+#include "common_os_tools.h"
 
 #include "common_log_tools.h"
 
@@ -370,7 +365,7 @@ do_work (unsigned long ambientCapability_in,
     {
       // sanity check(s)
       // *NOTE*: see also: man capabilities(7)
-      if (!Common_Tools::hasCapability (CAP_SETPCAP))
+      if (!Common_OS_Tools::hasCapability (CAP_SETPCAP))
         ACE_DEBUG ((LM_WARNING,
                     ACE_TEXT ("%P/%t: does not have CAP_SETPCAP capability, cannot clear SECBIT_NO_CAP_AMBIENT_RAISE, continuing\n")));
 
@@ -386,8 +381,8 @@ do_work (unsigned long ambientCapability_in,
                     ACE_TEXT ("%P/%t: cleared SECURE_NO_CAP_AMBIENT_RAISE, continuing\n")));
     } // end IF
     // *NOTE*: see also: man prctl(2)
-    if (!Common_Tools::hasCapability (ambientCapability_in, CAP_PERMITTED) ||
-        !Common_Tools::hasCapability (ambientCapability_in, CAP_INHERITABLE))
+    if (!Common_OS_Tools::hasCapability (ambientCapability_in, CAP_PERMITTED) ||
+        !Common_OS_Tools::hasCapability (ambientCapability_in, CAP_INHERITABLE))
       ACE_DEBUG ((LM_WARNING,
                   ACE_TEXT ("%P/%t: does not have capability (was: %s) in 'permitted' and 'inheritable' sets, cannot add it to 'ambient' set, continuing\n")));
 
@@ -397,7 +392,7 @@ do_work (unsigned long ambientCapability_in,
     if (result == -1)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("%P/%t: failed to prctl(PR_CAP_AMBIENT,PR_CAP_AMBIENT_RAISE,%s): \"%m\", continuing\n"),
-                  ACE_TEXT (Common_Tools::capabilityToString (ambientCapability_in).c_str ())));
+                  ACE_TEXT (Common_OS_Tools::capabilityToString (ambientCapability_in).c_str ())));
   } // end IF
 
   if (boundingCapability_in)
@@ -431,7 +426,7 @@ do_work (unsigned long ambientCapability_in,
   } // end IF
 
   if (printCapabilities_in)
-    Common_Tools::printCapabilities ();
+    Common_OS_Tools::printCapabilities ();
 }
 
 int
@@ -475,12 +470,12 @@ ACE_TMAIN (int argc_in,
   // step1c: validate arguments
   bool invalid_arguments_b = false;
   if (ambient_capability &&
-      (!Common_Tools::hasCapability (ambient_capability, CAP_PERMITTED) ||
-       !Common_Tools::hasCapability (ambient_capability, CAP_INHERITABLE)))
+      (!Common_OS_Tools::hasCapability (ambient_capability, CAP_PERMITTED) ||
+       !Common_OS_Tools::hasCapability (ambient_capability, CAP_INHERITABLE)))
   { // *NOTE*: see also: man prctl(2)
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("ambient capability (was: %s) cannot be set unless it is in the 'permitted' and 'inheritable' sets, continuing\n"),
-                ACE_TEXT (Common_Tools::capabilityToString (ambient_capability).c_str ())));
+                ACE_TEXT (Common_OS_Tools::capabilityToString (ambient_capability).c_str ())));
 //    invalid_arguments_b = true;
   } // end IF
   if (invalid_arguments_b)

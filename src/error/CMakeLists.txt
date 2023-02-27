@@ -51,10 +51,11 @@ if (WIN32)
  endif (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)
 endif (WIN32)
 
-#*TODO*: use pkg-config instead
-if (WIN32)
+if (UNIX)
+ target_link_libraries (${LIBRARY} Common)
+elseif (WIN32)
  target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
-endif (WIN32)
+endif ()
 
 #set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_ERR_BUILD_DLL)
 #set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)

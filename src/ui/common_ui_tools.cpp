@@ -47,7 +47,7 @@
 #include "common_file_tools.h"
 #include "common_macros.h"
 #include "common_process_tools.h"
-#include "common_tools.h"
+#include "common_os_tools.h"
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "common_error_tools.h"
@@ -1023,8 +1023,8 @@ fallback:
   //         - system(3) call
   //         --> very inefficient; replace ASAP
   command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_XRANDR);
-  if (Common_Tools::isInstalled (command_line_string,
-                                 tool_path_string))
+  if (Common_OS_Tools::isInstalled (command_line_string,
+                                    tool_path_string))
   {
     std::string display_records_string;
     std::istringstream converter, converter_2;
@@ -1144,8 +1144,8 @@ fallback:
                 ACE_TEXT ("%s not installed, falling back\n"),
                 ACE_TEXT (command_line_string.c_str ())));
     command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_HWINFO);
-    if (Common_Tools::isInstalled (command_line_string,
-                                   tool_path_string))
+    if (Common_OS_Tools::isInstalled (command_line_string,
+                                      tool_path_string))
     {
       command_line_string += ACE_TEXT_ALWAYS_CHAR (" --");
       command_line_string +=

@@ -17,6 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#include "common_os_tools.h"
 #include "stdafx.h"
 
 #include "common_error_tools.h"
@@ -39,7 +40,7 @@
 #include "common_macros.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-#include "common_tools.h"
+#include "common_os_tools.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "common_log_tools.h"
@@ -459,14 +460,14 @@ Common_Error_Tools::enableCoreDump (bool enable_in)
 #endif // _DEBUG
 continue_:
 #else
-  if (unlikely (!Common_Tools::setResourceLimits (false,
-                                                  enable_in,
-                                                  false)))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_Tools::setResourceLimits(), aborting\n")));
-    return false;
-  } // end IF
+//  if (unlikely (!Common_OS_Tools::setResourceLimits (false,
+//                                                     enable_in,
+//                                                     false)))
+//  {
+//    ACE_DEBUG ((LM_ERROR,
+//                ACE_TEXT ("failed to Common_Tools::setResourceLimits(), aborting\n")));
+//    return false;
+//  } // end IF
 
   int result =
       ::prctl (PR_SET_DUMPABLE,
