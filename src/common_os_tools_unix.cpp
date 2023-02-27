@@ -19,14 +19,17 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include "common_tools.h"
+#include "common_os_tools.h"
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include "Security.h"
-#if COMMON_OS_WIN32_TARGET_PLATFORM (0x0602) // _WIN32_WINNT_WIN8
-#include "processthreadsapi.h"
-#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0602)
-#elif defined (ACE_LINUX)
+#include <fstream>
+#include <iostream>
+#include <limits>
+#include <regex>
+#include <sstream>
+#include <utility>
+#include <vector>
+
+#if defined (ACE_LINUX)
 #include "sys/capability.h"
 #include "sys/prctl.h"
 #include "sys/utsname.h"
@@ -35,14 +38,17 @@
 #include "linux/prctl.h"
 #include "linux/securebits.h"
 
+#include "aio.h"
 #include "grp.h"
 #elif defined (__sun) && defined (__SVR4)
-// *NOTE*: Solaris (11)-specific
 #include "rctl.h"
-#endif // ACE_WIN32 || ACE_WIN64
+#endif // ACE_LINUX || SUN_SOLARIS_11
 
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
+#if defined (__sun) && defined (__SVR4)
+#include "ace/OS_Memory.h"
+#endif // SUN_SOLARIS_11
 #include "ace/Time_Value.h"
 
 #if defined (HAVE_CONFIG_H)
@@ -59,503 +65,82 @@
 
 #include "common_error_tools.h"
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
 #include "common_signal_tools.h"
-#endif // ACE_WIN32 || ACE_WIN64
 
 #include "common_time_common.h"
-
-// initialize statics
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-bool Common_Tools::COMInitialized = false;
-#endif // ACE_WIN32 || ACE_WIN64
-COMMON_APPLICATION_RNG_ENGINE Common_Tools::randomEngine;
-unsigned int Common_Tools::randomSeed = 0;
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-char Common_Tools::randomStateBuffer[BUFSIZ];
-#endif // ACE_WIN32 || ACE_WIN64
 
 //////////////////////////////////////////
 
 void
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-Common_Tools::initialize (bool initializeCOM_in,
-                          bool initializeRandomNumberGenerator_in)
-#else
-Common_Tools::initialize (bool initializeRandomNumberGenerator_in)
-#endif // ACE_WIN32 || ACE_WIN64
+Common_OS_Tools::printLocales ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::initialize"));
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::printLocales"));
 
-#if defined (VALGRIND_USE)
-  if (RUNNING_ON_VALGRIND)
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("running under valgrind\n")));
-#endif // VALGRIND_USE
+  std::vector<std::string> locales;
+  // *TODO*: this should work on most Linux systems, but is really a bad idea:
+  //         - relies on local 'locale'
+  //         - temporary files
+  //         - system(3) call
+  //         --> extremely inefficient; remove ASAP
+  std::string filename_string =
+      Common_File_Tools::getTempFilename (ACE_TEXT_ALWAYS_CHAR (""));
+  std::string command_line_string =
+      ACE_TEXT_ALWAYS_CHAR ("locale -a >> ");
+  command_line_string += filename_string;
 
-  Common_Error_Tools::initialize ();
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  if (initializeCOM_in &&
-      !Common_Tools::initializeCOM ())
+  int result = ACE_OS::system (ACE_TEXT (command_line_string.c_str ()));
+  if (unlikely ((result == -1)      ||
+                !WIFEXITED (result) ||
+                WEXITSTATUS (result)))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_Tools::initializeCOM(): \"%s\", returning\n")));
+                ACE_TEXT ("failed to ACE_OS::system(\"%s\"): \"%m\" (result was: %d), aborting\n"),
+                ACE_TEXT (command_line_string.c_str ()),
+                WEXITSTATUS (result)));
     return;
   } // end IF
-#endif // ACE_WIN32 || ACE_WIN64
-
-  //ACE_DEBUG ((LM_DEBUG,
-  //            ACE_TEXT ("calibrating high-resolution timer...\n")));
-  //ACE_High_Res_Timer::calibrate (500000, 10);
-  //ACE_DEBUG ((LM_DEBUG,
-  //            ACE_TEXT ("calibrating high-resolution timer...done\n")));
-
-  if (unlikely (initializeRandomNumberGenerator_in))
-  {
-    // *TODO*: use randomSeed to seed std::random_device ?
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("initializing C++-style random seed\n")));
-    std::random_device prng_device;
-    //PRNG_SEED_ARRAY_T seed_a;
-    //COMMON_APPLICATION_RNG_ENGINE::result_type seed_a[COMMON_APPLICATION_RNG_ENGINE::state_size];
-    COMMON_APPLICATION_RNG_ENGINE::result_type seed_a[COMMON_APPLICATION_RNG_ENGINE_DEFAULT_STATE_SIZE];
-    std::chrono::time_point<std::chrono::system_clock> time_point;
-    //for (PRNG_SEED_ARRAY_ITERATOR_T iterator = seed_a.cbegin ();
-    //     iterator != seed_a.cend ();
-    for (COMMON_APPLICATION_RNG_ENGINE::result_type* iterator = std::begin (seed_a);
-         iterator != std::end (seed_a);
-         ++iterator)
-    {
-      // read from std::random_device
-      *iterator = prng_device ();
-
-      // mix with a C++ equivalent of time(NULL) - UNIX time in seconds
-      time_point = std::chrono::system_clock::now ();
-      *iterator ^=
-        std::chrono::duration_cast<std::chrono::seconds> (time_point.time_since_epoch ()).count ();
-
-      // mix with a high precision time in microseconds
-      *iterator ^=
-        std::chrono::duration_cast<std::chrono::microseconds> (time_point.time_since_epoch ()).count ();
-
-      //*iterator ^= more_external_random_stuff;
-    } // end FOR
-    std::seed_seq seed_sequence (std::begin (seed_a), std::end (seed_a));
-    //Common_Tools::randomEngine.seed (prng_device);
-    Common_Tools::randomEngine.seed (seed_sequence);
-
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("initializing C-style random seed (RAND_MAX: %d)\n"),
-                RAND_MAX));
-    Common_Tools::randomSeed = COMMON_TIME_NOW.usec ();
-    // *PORTABILITY*: outside glibc, this is not very portable
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-    ACE_OS::srand (static_cast<u_int> (randomSeed));
-#else
-    ACE_OS::memset (&Common_Tools::randomStateBuffer, 0, sizeof (char[BUFSIZ]));
-    struct random_data random_data_s;
-    ACE_OS::memset (&random_data_s, 0, sizeof (struct random_data));
-    int result = ::initstate_r (Common_Tools::randomSeed,
-                                Common_Tools::randomStateBuffer, sizeof (char[BUFSIZ]),
-                                &random_data_s);
-    if (unlikely (result == -1))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to initstate_r(): \"%s\", returning\n")));
-      return;
-    } // end IF
-    result = ::srandom_r (Common_Tools::randomSeed, &random_data_s);
-    if (unlikely (result == -1))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to initialize random seed: \"%s\", returning\n")));
-      return;
-    } // end IF
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("initializing random seed...DONE\n")));
-#endif // ACE_WIN32 || ACE_WIN64
-  } // end IF
-}
-
-void
-Common_Tools::finalize ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::finalize"));
-
-  Common_Error_Tools::finalize ();
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  if (Common_Tools::COMInitialized) // *NOTE*: should be thread-specific
-    Common_Tools::finalizeCOM ();
-#endif // ACE_WIN32 || ACE_WIN64
-}
-
-unsigned int
-Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::getNumberOfCPUs"));
-
-  unsigned int result = 1;
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  if (logicalProcessors_in)
-  {
-    struct _SYSTEM_INFO system_info_s;
-    GetSystemInfo (&system_info_s);
-    result = system_info_s.dwNumberOfProcessors;
-  } // end IF
-  else
-  {
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0601) // _WIN32_WINNT_WIN7
-    DWORD size = 0;
-    DWORD error = 0;
-    BYTE* byte_p = NULL;
-    struct _SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX* processor_information_p =
-      NULL;
-    GetLogicalProcessorInformationEx (RelationProcessorCore,
-                                      NULL,
-                                      &size);
-    error = GetLastError ();
-    if (unlikely (error != ERROR_INSUFFICIENT_BUFFER))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to GetLogicalProcessorInformationEx(): \"%s\", returning\n"),
-                  ACE_TEXT (Common_Error_Tools::errorToString (error).c_str ())));
-      return 1;
-    } // end IF
-    ACE_NEW_NORETURN (byte_p,
-                      BYTE[size]);
-    if (unlikely (!byte_p))
-    {
-      ACE_DEBUG ((LM_CRITICAL,
-                  ACE_TEXT ("failed to allocate memory: \"%m\", returning\n")));
-      return 1;
-    } // end IF
-    processor_information_p =
-      reinterpret_cast<struct _SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX*> (byte_p);
-    if (unlikely (!GetLogicalProcessorInformationEx (RelationProcessorCore,
-                                                     processor_information_p,
-                                                     &size)))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to GetLogicalProcessorInformationEx(): \"%s\", returning\n"),
-                  ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
-      delete [] byte_p; byte_p = NULL;
-      return 1;
-    } // end IF
-    for (DWORD offset = 0;
-         offset < (size / sizeof (struct _SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX));
-         ++offset, ++processor_information_p)
-    { ACE_ASSERT (processor_information_p);
-      switch (processor_information_p->Relationship)
-      {
-        case RelationProcessorCore:
-          ++result; break;
-        default:
-          break;
-      } // end SWITCH
-    } // end FOR
-    delete [] byte_p; byte_p = NULL;
-#else
-    ACE_ASSERT (false);
-    ACE_NOTSUP_RETURN (1);
-    ACE_NOTREACHED (return 1;)
-#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0601)
-  } // end ELSE
-#else
-  ACE_UNUSED_ARG (logicalProcessors_in);
-  long result_2 = ACE_OS::sysconf (_SC_NPROCESSORS_ONLN);
-  if (unlikely (result_2 == -1))
+  unsigned char* data_p = NULL;
+  ACE_UINT64 file_size_i = 0;
+  if (unlikely (!Common_File_Tools::load (filename_string,
+                                          data_p,
+                                          file_size_i,
+                                          0)))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::sysconf(_SC_NPROCESSORS_ONLN): \"%m\", returning\n")));
-    return 1;
+                ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), returning\n"),
+                ACE_TEXT (filename_string.c_str ())));
+    return;
   } // end IF
-  result = static_cast<unsigned int> (result_2);
-#endif // ACE_WIN32 || ACE_WIN64
-
-  return result;
-}
-
-std::string
-Common_Tools::getPlatformName ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::getPlatformName"));
-
-  std::string return_value;
-
-  // get system information
-  int result = -1;
-  ACE_utsname utsname_s;
-  result = ACE_OS::uname (&utsname_s);
-  if (unlikely (result == -1))
-  {
+  if (unlikely (!Common_File_Tools::deleteFile (filename_string)))
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::uname(): \"%m\", aborting\n")));
-    return return_value;
-  } // end IF
-#if defined (_DEBUG)
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("'uname' output: %s (%s), %s %s, %s\n"),
-              ACE_TEXT (utsname_s.nodename),
-              ACE_TEXT (utsname_s.machine),
-              ACE_TEXT (utsname_s.sysname),
-              ACE_TEXT (utsname_s.release),
-              ACE_TEXT (utsname_s.version)));
-#endif // _DEBUG
-  return_value += utsname_s.sysname;
-  return_value += ACE_TEXT_ALWAYS_CHAR (" ");
-  return_value += utsname_s.release;
-  return_value += ACE_TEXT_ALWAYS_CHAR (" ");
-  return_value += utsname_s.version;
-  return_value += ACE_TEXT_ALWAYS_CHAR (" on ");
-  return_value += utsname_s.machine;
+                ACE_TEXT ("failed to Common_File_Tools::deleteFile(\"%s\"), continuing\n"),
+                ACE_TEXT (filename_string.c_str ())));
 
-  return return_value;
-}
+  std::string locales_string = reinterpret_cast<char*> (data_p);
+  delete [] data_p;
 
-enum Common_OperatingSystemType
-Common_Tools::getOperatingSystem ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::getOperatingSystem"));
-
-  // get system information
-  int result_2 = -1;
-  ACE_utsname utsname_s;
-  result_2 = ACE_OS::uname (&utsname_s);
-  if (unlikely (result_2 == -1))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::uname(): \"%m\", aborting\n")));
-    return COMMON_OPERATINGSYSTEM_INVALID;
-  } // end IF
-//#if defined (_DEBUG)
-//  ACE_DEBUG ((LM_DEBUG,
-//              ACE_TEXT ("'uname' output: %s (%s), %s %s, %s\n"),
-//              ACE_TEXT (utsname_s.nodename),
-//              ACE_TEXT (utsname_s.machine),
-//              ACE_TEXT (utsname_s.sysname),
-//              ACE_TEXT (utsname_s.release),
-//              ACE_TEXT (utsname_s.version)));
-//#endif // _DEBUG
-
-  std::string sysname_string (utsname_s.sysname);
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  if (sysname_string.find (ACE_TEXT_ALWAYS_CHAR (COMMON_OS_WIN32_UNAME_STRING),
-                           0) == 0)
-    return COMMON_OPERATINGSYSTEM_WIN32;
-#elif defined (ACE_LINUX)
-  if (sysname_string.find (ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LINUX_UNAME_STRING),
-                           0) == 0)
-    return COMMON_OPERATINGSYSTEM_GNU_LINUX;
-#else
-  ACE_ASSERT (false); // *TODO*
-  ACE_NOTSUP_RETURN (COMMON_OPERATINGSYSTEM_INVALID);
-  ACE_NOTREACHED (return COMMON_OPERATINGSYSTEM_INVALID;)
-#endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
-
-  return COMMON_OPERATINGSYSTEM_INVALID;
-}
-
-std::string
-Common_Tools::compilerName ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::compilerName"));
-
-  // *TODO*: maintain proprietary information in a separate file and generate
-  //         this method with a macro instead
-#if defined (__BORLANDC__)
-  return ACE_TEXT_ALWAYS_CHAR ("Embarcadero C++ Builder (TM)");
-#elif defined (__GNUG__)
-  return ACE_TEXT_ALWAYS_CHAR ("GNU g++");
-#elif defined (_MSC_VER)
-  return ACE_TEXT_ALWAYS_CHAR ("Microsoft VisualC++ (TM)");
-#else
-#error invalid/unknown C++ compiler; not supported, check implementation
-#endif
-
-  return ACE_TEXT_ALWAYS_CHAR ("");
-}
-std::string
-Common_Tools::compilerPlatformName ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::compilerPlatformName"));
-
-  // *TODO*: maintain proprietary information in a separate file and generate
-  //         this method with a macro instead
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if defined (ACE_WIN64)
-  return ACE_TEXT_ALWAYS_CHAR ("x64");
-#else
-  return ACE_TEXT_ALWAYS_CHAR ("Win32 (x86)");
-#endif // ACE_WIN64
-#elif defined (ACE_LINUX)
-  return ACE_TEXT_ALWAYS_CHAR ("Linux");
-#else
-#error invalid/unknown platform; not supported, check implementation
-#endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
-
-  return ACE_TEXT_ALWAYS_CHAR ("");
-}
-std::string
-Common_Tools::compilerVersion ()
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::compilerVersion"));
-
-  std::ostringstream converter;
-  converter << ACE::compiler_major_version ();
-  converter << ACE_TEXT_ALWAYS_CHAR (".");
-  converter << ACE::compiler_minor_version ();
-  converter << ACE_TEXT_ALWAYS_CHAR (".");
-  converter << ACE::compiler_beta_version ();
-
-  return converter.str ();
-}
-
-#if defined (ACE_LINUX)
-enum Common_OperatingSystemDistributionType
-Common_Tools::getDistribution (unsigned int& majorVersion_out,
-                               unsigned int& minorVersion_out,
-                               unsigned int& microVersion_out)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::getDistribution"));
-
-  // initialize return value(s)
-  enum Common_OperatingSystemDistributionType result =
-      COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID;
-  majorVersion_out = 0;
-  minorVersion_out = 0;
-  microVersion_out = 0;
-
-  // sanity check(s)
-  if (unlikely (!Common_Tools::is (COMMON_OPERATINGSYSTEM_GNU_LINUX)))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("this is not a (GNU-) Linux system, aborting\n")));
-    return result;
-  } // end IF
-
-  // step1: retrieve distributor id
-  std::string command_line_string =
-      ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LSB_RELEASE);
-  COMMON_COMMAND_ADD_SWITCH (command_line_string,COMMON_COMMAND_SWITCH_LSB_RELEASE_DISTRIBUTOR)
-  int exit_status_i = 0;
-  std::string command_output_string, distribution_id_string, release_string;
-  std::string buffer_string;
+  char buffer_a[BUFSIZ];
   std::istringstream converter;
-  char buffer_a [BUFSIZ];
-  std::regex regex (ACE_TEXT_ALWAYS_CHAR ("^(Distributor ID:\t)(.+)$"));
-  std::smatch match_results;
-  if (unlikely (!Common_Process_Tools::command (command_line_string,
-                                                exit_status_i,
-                                                command_output_string)))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
-                ACE_TEXT (command_line_string.c_str ())));
-    return result;
-  } // end IF
-  ACE_ASSERT (!command_output_string.empty ());
-  converter.str (command_output_string);
-  do
-  {
+  converter.str (locales_string);
+  do {
     converter.getline (buffer_a, sizeof (char[BUFSIZ]));
-    buffer_string = buffer_a;
-    if (!std::regex_match (buffer_string,
-                           match_results,
-                           regex,
-                           std::regex_constants::match_default))
-      continue;
-    ACE_ASSERT (match_results.ready () && !match_results.empty ());
-    ACE_ASSERT (match_results[2].matched);
-
-    distribution_id_string = match_results[2];
-    break;
+    locales.push_back (buffer_a);
   } while (!converter.fail ());
-  if (unlikely (distribution_id_string.empty ()))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to retrieve (GNU-) Linux distributor id (command output was: \"%s\"), aborting\n"),
-                ACE_TEXT (command_output_string.c_str ())));
-    return result;
-  } // end IF
 
-  if (!ACE_OS::strcmp (distribution_id_string.c_str (),
-                       ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LSB_DEBIAN_STRING)))
-    result = COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_DEBIAN;
-  else if (!ACE_OS::strcmp (distribution_id_string.c_str (),
-                            ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LSB_OPENSUSE_STRING)))
-    result = COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_SUSE;
-  else if (!ACE_OS::strcmp (distribution_id_string.c_str (),
-                            ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LSB_FEDORA_STRING)))
-    result = COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_REDHAT;
-  else if (!ACE_OS::strcmp (distribution_id_string.c_str (),
-                            ACE_TEXT_ALWAYS_CHAR (COMMON_OS_LSB_UBUNTU_STRING)))
-    result = COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_UBUNTU;
-  else
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to determine Linux distribution (command output was: \"%s\"), aborting\n"),
-                ACE_TEXT (command_output_string.c_str ())));
-    return result;
-  } // end ELSE
-
-  // step2: retrieve release version
-  command_line_string =
-      ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LSB_RELEASE);
-  COMMON_COMMAND_ADD_SWITCH (command_line_string,COMMON_COMMAND_SWITCH_LSB_RELEASE_RELEASE)
-  std::regex regex_2 (ACE_TEXT_ALWAYS_CHAR ("^(Release:\t)(.+)$"));
-  if (unlikely (!Common_Process_Tools::command (command_line_string,
-                                                exit_status_i,
-                                                command_output_string)))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
-                ACE_TEXT (command_line_string.c_str ())));
-    return result;
-  } // end IF
-  ACE_ASSERT (!command_output_string.empty ());
-  converter.str (command_output_string);
-  do
-  {
-    converter.getline (buffer_a, sizeof (char[BUFSIZ]));
-    buffer_string = buffer_a;
-    if (!std::regex_match (buffer_string,
-                           match_results,
-                           regex_2,
-                           std::regex_constants::match_default))
-      continue;
-    ACE_ASSERT (match_results.ready () && !match_results.empty ());
-    ACE_ASSERT (match_results[2].matched);
-
-    release_string = match_results[2];
-    break;
-  } while (!converter.fail ());
-  if (unlikely (release_string.empty ()))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to retrieve (GNU-) Linux release version (command output was: \"%s\"), aborting\n"),
-                ACE_TEXT (command_output_string.c_str ())));
-    return result;
-  } // end IF
-  converter.str (release_string);
-  converter >> majorVersion_out;
-  converter >> minorVersion_out;
-  converter >> microVersion_out;
-
-  return result;
+  int index_i = 1;
+  for (std::vector<std::string>::const_iterator iterator = locales.begin ();
+       iterator != locales.end ();
+       ++iterator, ++index_i)
+    ACE_DEBUG ((LM_INFO,
+                ACE_TEXT ("%d: \"%s\"\n"),
+                index_i,
+                ACE_TEXT ((*iterator).c_str ())));
 }
-#endif // ACE_LINUX
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
 std::string
-Common_Tools::capabilityToString (unsigned long capability_in)
+Common_OS_Tools::capabilityToString (unsigned long capability_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::capabilityToString"));
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::capabilityToString"));
 
   std::string return_value;
 
@@ -588,10 +173,10 @@ Common_Tools::capabilityToString (unsigned long capability_in)
 }
 
 bool
-Common_Tools::hasCapability (unsigned long capability_in,
-                             cap_flag_t set_in)
+Common_OS_Tools::hasCapability (unsigned long capability_in,
+                                cap_flag_t set_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::hasCapability"));
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::hasCapability"));
 
   // sanity check(s)
   if (unlikely (!CAP_IS_SUPPORTED (capability_in)))
@@ -635,9 +220,9 @@ clean:
 }
 
 void
-Common_Tools::printCapabilities ()
+Common_OS_Tools::printCapabilities ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::printCapabilities"));
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::printCapabilities"));
 
   int result = -1;
 
@@ -759,10 +344,10 @@ Common_Tools::printCapabilities ()
 }
 
 bool
-Common_Tools::setCapability (unsigned long capability_in,
-                             cap_flag_t set_in)
+Common_OS_Tools::setCapability (unsigned long capability_in,
+                                cap_flag_t set_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::setCapability"));
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::setCapability"));
 
   bool result = false;
 
@@ -830,11 +415,12 @@ clean:
 
   return result;
 }
+
 bool
-Common_Tools::dropCapability (unsigned long capability_in,
-                              cap_flag_t set_in)
+Common_OS_Tools::dropCapability (unsigned long capability_in,
+                                 cap_flag_t set_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::dropCapability"));
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::dropCapability"));
 
   bool result = false;
 
@@ -881,14 +467,11 @@ clean:
 
   return result;
 }
-#endif // ACE_WIN32 || ACE_WIN64
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
 bool
-Common_Tools::switchUser (uid_t userId_in)
+Common_OS_Tools::switchUser (uid_t userId_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::switchUser"));
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::switchUser"));
 
   uid_t  user_id =
       (userId_in == static_cast<uid_t> (-1) ? ACE_OS::getuid () : userId_in);
@@ -909,9 +492,9 @@ Common_Tools::switchUser (uid_t userId_in)
 }
 
 Common_UserGroups_t
-Common_Tools::getUserGroups (uid_t userId_in)
+Common_OS_Tools::getUserGroups (uid_t userId_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::getUserGroups"));
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::getUserGroups"));
 
   // initialize return value(s)
   Common_UserGroups_t return_value;
@@ -972,11 +555,11 @@ Common_Tools::getUserGroups (uid_t userId_in)
 }
 
 bool
-Common_Tools::addGroupMember (uid_t userId_in,
-                              gid_t groupId_in,
-                              bool persist_in)
+Common_OS_Tools::addGroupMember (uid_t userId_in,
+                                 gid_t groupId_in,
+                                 bool persist_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::addGroupMember"));
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::addGroupMember"));
 
 #if defined (_DEBUG)
   Common_Tools::printCapabilities ();
@@ -1031,21 +614,19 @@ Common_Tools::addGroupMember (uid_t userId_in,
     ACE_NOTREACHED (return false;)
   } // end ELSE
 
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("added user \"%s\" (uid: %u) to group \"%s\" (gid: %u)...\n"),
               ACE_TEXT (username_string.c_str ()), user_id,
               ACE_TEXT (Common_Tools::groupIdToString (groupId_in).c_str ()), groupId_in));
-#endif // _DEBUG
 
   return result;
 }
 
 bool
-Common_Tools::isGroupMember (uid_t userId_in,
-                             gid_t groupId_in)
+Common_OS_Tools::isGroupMember (uid_t userId_in,
+                                gid_t groupId_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::isGroupMember"));
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::isGroupMember"));
 
   uid_t user_id =
       ((static_cast<int>(userId_in) == -1) ? ACE_OS::geteuid () : userId_in);
@@ -1109,9 +690,9 @@ Common_Tools::isGroupMember (uid_t userId_in,
 }
 
 std::string
-Common_Tools::groupIdToString (gid_t groupId_in)
+Common_OS_Tools::groupIdToString (gid_t groupId_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::groupIdToString"));
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::groupIdToString"));
 
   // initialize return value(s)
   std::string return_value;
@@ -1147,10 +728,11 @@ Common_Tools::groupIdToString (gid_t groupId_in)
 
   return return_value;
 }
+
 gid_t
-Common_Tools::stringToGroupId (const std::string& groupName_in)
+Common_OS_Tools::stringToGroupId (const std::string& groupName_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::stringToGroupId"));
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::stringToGroupId"));
 
   // initialize return value(s)
   gid_t return_value = 0;
@@ -1187,67 +769,420 @@ Common_Tools::stringToGroupId (const std::string& groupName_in)
 
   return return_value;
 }
-#endif // ACE_WIN32 || ACE_WIN64
+
+void
+Common_OS_Tools::printUserIds ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::printUserIds"));
+
+  uid_t user_id = ACE_OS::getuid ();
+  uid_t effective_user_id = ACE_OS::geteuid ();
+  gid_t user_group = ACE_OS::getgid ();
+  gid_t effective_user_group = ACE_OS::getegid ();
+
+  ACE_DEBUG ((LM_INFO,
+              ACE_TEXT ("%P:%t: real/effective user id/group: %u/%u\t%u/%u\n"),
+              user_id, effective_user_id,
+              user_group, effective_user_group));
+}
 
 std::string
-Common_Tools::getHostName ()
+Common_OS_Tools::environment (const std::string& variable_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::getHostName"));
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::environment"));
 
-  // initialize return value(s)
-  std::string return_value;
+  std::string result;
+
+  // sanity check(s)
+  ACE_ASSERT (!variable_in.empty ());
+
+  char* string_p = ACE_OS::getenv (variable_in.c_str ());
+  if (string_p)
+    result.assign (string_p);
+  else
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("\"%s\" environment variable not set, returning\n"),
+                ACE_TEXT (variable_in.c_str ())));
+
+  return result;
+}
+
+bool
+Common_OS_Tools::setResourceLimits (bool fileDescriptors_in,
+                                    bool stackTraces_in,
+                                    bool pendingSignals_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::setResourceLimits"));
 
   int result = -1;
-  ACE_TCHAR host_name[MAXHOSTNAMELEN + 1];
-  ACE_OS::memset (host_name, 0, sizeof (host_name));
-  result = ACE_OS::hostname (host_name, sizeof (host_name));
-  if (unlikely (result == -1))
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::hostname(): \"%m\", aborting\n")));
+  rlimit resource_limit;
+
+  if (fileDescriptors_in)
+  {
+    result = ACE_OS::getrlimit (RLIMIT_NOFILE,
+                                &resource_limit);
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_NOFILE): \"%m\", aborting\n")));
+      return false;
+    } // end IF
+
+    //      ACE_DEBUG ((LM_DEBUG,
+    //                  ACE_TEXT ("file descriptor limits (before) [soft: \"%u\", hard: \"%u\"]...\n"),
+    //                  resource_limit.rlim_cur,
+    //                  resource_limit.rlim_max));
+
+    // *TODO*: really unset these limits; note that this probably requires
+    // patching/recompiling the kernel...
+    // *NOTE*: setting/raising the max limit probably requires CAP_SYS_RESOURCE
+    resource_limit.rlim_cur = resource_limit.rlim_max;
+    //      resource_limit.rlim_cur = RLIM_INFINITY;
+    //      resource_limit.rlim_max = RLIM_INFINITY;
+    result = ACE_OS::setrlimit (RLIMIT_NOFILE,
+                                &resource_limit);
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::setrlimit(RLIMIT_NOFILE): \"%m\", aborting\n")));
+      return false;
+    } // end IF
+
+    // verify...
+    result = ACE_OS::getrlimit (RLIMIT_NOFILE,
+                                &resource_limit);
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_NOFILE): \"%m\", aborting\n")));
+      return false;
+    } // end IF
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("unset file descriptor limits, now: [soft: %u, hard: %u]\n"),
+                resource_limit.rlim_cur,
+                resource_limit.rlim_max));
+  } // end IF
+
+// -----------------------------------------------------------------------------
+
+  if (stackTraces_in)
+  {
+    //  result = ACE_OS::getrlimit (RLIMIT_CORE,
+    //                              &resource_limit);
+    //  if (result == -1)
+    //  {
+    //    ACE_DEBUG ((LM_ERROR,
+    //                ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_CORE): \"%m\", aborting\n")));
+    //    return false;
+    //  } // end IF
+    //   ACE_DEBUG ((LM_DEBUG,
+    //               ACE_TEXT ("corefile limits (before) [soft: \"%u\", hard: \"%u\"]...\n"),
+    //               core_limit.rlim_cur,
+    //               core_limit.rlim_max));
+
+    // set soft/hard limits to unlimited...
+    resource_limit.rlim_cur = RLIM_INFINITY;
+    resource_limit.rlim_max = RLIM_INFINITY;
+    result = ACE_OS::setrlimit (RLIMIT_CORE,
+                                &resource_limit);
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::setrlimit(RLIMIT_CORE): \"%m\", aborting\n")));
+      return false;
+    } // end IF
+
+    // verify...
+    result = ACE_OS::getrlimit (RLIMIT_CORE,
+                                &resource_limit);
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_CORE): \"%m\", aborting\n")));
+      return false;
+    } // end IF
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("unset corefile limits, now: [soft: %u, hard: %u]\n"),
+                resource_limit.rlim_cur,
+                resource_limit.rlim_max));
+  } // end IF
+
+  if (pendingSignals_in)
+  {
+    //  result = ACE_OS::getrlimit (RLIMIT_SIGPENDING,
+    //                              &resource_limit);
+    //  if (result == -1)
+    //  {
+    //    ACE_DEBUG ((LM_ERROR,
+    //                ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_SIGPENDING): \"%m\", aborting\n")));
+    //    return false;
+    //  } // end IF
+
+    //   ACE_DEBUG ((LM_DEBUG,
+    //               ACE_TEXT ("pending signals limit (before) [soft: \"%u\", hard: \"%u\"]...\n"),
+    //               signal_pending_limit.rlim_cur,
+    //               signal_pending_limit.rlim_max));
+
+    // set soft/hard limits to unlimited...
+    // *NOTE*: setting/raising the max limit probably requires CAP_SYS_RESOURCE
+//    resource_limit.rlim_cur = RLIM_INFINITY;
+//    resource_limit.rlim_max = RLIM_INFINITY;
+//    resource_limit.rlim_cur = resource_limit.rlim_max;
+//    result = ACE_OS::setrlimit (RLIMIT_SIGPENDING,
+//                                &resource_limit);
+//    if (result == -1)
+//    {
+//      ACE_DEBUG ((LM_ERROR,
+//                  ACE_TEXT ("failed to ACE_OS::setrlimit(RLIMIT_SIGPENDING): \"%m\", aborting\n")));
+//      return false;
+//    } // end IF
+
+    // verify...
+// *NOTE*: Solaris (11)-specific
+#if defined (__sun) && defined (__SVR4)
+    rctlblk_t* block_p =
+      static_cast<rctlblk_t*> (ACE_CALLOC_FUNC (1, rctlblk_size ()));
+    if (unlikely (!block_p))
+    {
+      ACE_DEBUG ((LM_CRITICAL,
+                  ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
+      return false;
+    } // end IF
+    result = ::getrctl (ACE_TEXT_ALWAYS_CHAR ("process.max-sigqueue-size"),
+                        NULL, block_p,
+                        RCTL_USAGE);
+    if (result == 0)
+    {
+      resource_limit.rlim_cur = rctlblk_get_value (block_p);
+      resource_limit.rlim_max = rctlblk_get_value (block_p);
+    } // end IF
+    ACE_FREE_FUNC (block_p);
+#else
+    result = ACE_OS::getrlimit (RLIMIT_SIGPENDING,
+                                &resource_limit);
+#endif // __sun && __SVR4
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::getrlimit(RLIMIT_SIGPENDING): \"%m\", aborting\n")));
+      return false;
+    } // end IF
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("unset pending signal limits, now: [soft: %u, hard: %u]\n"),
+                resource_limit.rlim_cur,
+                resource_limit.rlim_max));
+  } // end IF
+
+  return true;
+}
+
+void
+Common_OS_Tools::getUserName (uid_t userId_in,
+                              std::string& username_out,
+                              std::string& realname_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::getUserName"));
+
+  // initialize return value(s)
+  username_out.clear ();
+  realname_out.clear ();
+
+  int            result = -1;
+  struct passwd  passwd_s;
+  struct passwd* passwd_p = NULL;
+  char           buffer_a[BUFSIZ];
+  ACE_OS::memset (buffer_a, 0, sizeof (char[BUFSIZ]));
+//  size_t         bufsize = 0;
+//  bufsize = sysconf (_SC_GETPW_R_SIZE_MAX);
+//  if (bufsize == -1)        /* Value was indeterminate */
+//    bufsize = 16384;        /* Should be more than enough */
+
+  uid_t user_id =
+      ((static_cast<int>(userId_in) == -1) ? ACE_OS::geteuid () : userId_in);
+  result = ::getpwuid_r (user_id,               // user id
+                         &passwd_s,             // passwd entry
+                         buffer_a,              // buffer
+                         sizeof (char[BUFSIZ]), // buffer size
+                         &passwd_p);            // result (handle)
+  if (unlikely (!passwd_p))
+  {
+    if (result == 0)
+      ACE_DEBUG ((LM_WARNING,
+                  ACE_TEXT ("user \"%u\" not found, %s\n"),
+                  user_id,
+                  ((user_id == ACE_OS::geteuid ()) ? ACE_TEXT_ALWAYS_CHAR ("falling back") : ACE_TEXT_ALWAYS_CHAR ("returning"))));
+    else
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::getpwuid_r(%u): \"%m\", %s\n"),
+                  ((user_id == ACE_OS::geteuid ()) ? ACE_TEXT_ALWAYS_CHAR ("falling back") : ACE_TEXT_ALWAYS_CHAR ("returning"))));
+    if (user_id == ACE_OS::geteuid ())
+      username_out =
+          ACE_TEXT_ALWAYS_CHAR (ACE_OS::getenv (ACE_TEXT (COMMON_ENVIRONMENT_USER_LOGIN_BASE)));
+  } // end IF
   else
-    return_value = ACE_TEXT_ALWAYS_CHAR (host_name);
+  {
+    username_out = passwd_s.pw_name;
+    if (ACE_OS::strlen (passwd_s.pw_gecos))
+    {
+      realname_out = passwd_s.pw_gecos;
+      std::string::size_type position = realname_out.find (',');
+      if (position != std::string::npos)
+        realname_out.substr (0, position);
+    } // end IF
+  } // end ELSE
+}
+
+std::string
+Common_OS_Tools::getUserName ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::getUserName"));
+
+  std::string return_value;
+
+  ACE_TCHAR buffer_a[L_cuserid];
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[L_cuserid]));
+  char* result_p = ACE_OS::cuserid (buffer_a);
+  if (unlikely (!result_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::cuserid() : \"%m\", returning\n")));
+    return ACE_TEXT_ALWAYS_CHAR ("");
+  } // end IF
+  return_value = buffer_a;
 
   return return_value;
 }
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
 bool
-Common_Tools::initializeCOM ()
+Common_OS_Tools::isInstalled (const std::string& executableName_in,
+                              std::string& executablePath_out)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::initializeCOM"));
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::isInstalled"));
 
-  HRESULT result =
-    CoInitializeEx (NULL,
-                    COMMON_WIN32_COM_INITIALIZATION_DEFAULT_FLAGS);
-  if (FAILED (result)) // RPC_E_CHANGED_MODE : 0x80010106L
+  // initialize return value(s)
+  executablePath_out.clear ();
+  bool result = false;
+
+  // sanity check(s)
+  ACE_ASSERT (!executableName_in.empty ());
+
+#if defined (ACE_LINUX)
+  // sanity check(s)
+  unsigned int major_i = 0, minor_i = 0, micro_i = 0;
+  enum Common_OperatingSystemDistributionType linux_distribution_e =
+      Common_Tools::getDistribution (major_i, minor_i, micro_i);
+  ACE_UNUSED_ARG (major_i); ACE_UNUSED_ARG (minor_i); ACE_UNUSED_ARG (micro_i);
+  if (unlikely (linux_distribution_e == COMMON_OPERATINGSYSTEM_DISTRIBUTION_INVALID))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to CoInitializeEx(NULL,0x%x): \"%s\", aborting\n"),
-                COMMON_WIN32_COM_INITIALIZATION_DEFAULT_FLAGS,
-                ACE_TEXT (Common_Error_Tools::errorToString (result).c_str ())));
-    return false;
+                ACE_TEXT ("failed to Common_Tools::getDistribution(), aborting\n")));
+    return result; // *TODO*: avoid false negatives
   } // end IF
-  Common_Tools::COMInitialized = true;
 
-  return true;
+  std::string command_line_string;
+  std::string command_output_string;
+  switch (linux_distribution_e)
+  {
+    case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_DEBIAN:
+    case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_REDHAT:
+    case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_SUSE:
+    case COMMON_OPERATINGSYSTEM_DISTRIBUTION_LINUX_UBUNTU:
+    {
+      // sanity check(s)
+      ACE_ASSERT (Common_Tools::findProgram (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_FIND)));
+      ACE_ASSERT (Common_Tools::findProgram (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LOCATE)));
+      ACE_ASSERT (Common_Tools::findProgram (ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_XARGS)));
+      break;
+    }
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unsupported linux distribution (was: %d), aborting\n"),
+                  linux_distribution_e));
+      return result; // *TODO*: avoid false negatives
+    }
+  } // end SWITCH
+
+  command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LOCATE);
+  command_line_string += ACE_TEXT_ALWAYS_CHAR (" -b '\\");
+  command_line_string +=
+      ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (executableName_in.c_str ()),
+                                           ACE_DIRECTORY_SEPARATOR_CHAR));
+  command_line_string += ACE_TEXT_ALWAYS_CHAR ("' -e | ");
+  command_line_string += ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_XARGS);
+  command_line_string += ACE_TEXT_ALWAYS_CHAR (" -ri ");
+  command_line_string += ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_FIND);
+  command_line_string += ACE_TEXT_ALWAYS_CHAR (" {} -prune -type f -executable");
+  int exit_status_i = 0;
+  if (unlikely (!Common_Process_Tools::command (command_line_string,
+                                                exit_status_i,
+                                                command_output_string)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
+                ACE_TEXT (command_line_string.c_str ())));
+    return result; // *TODO*: avoid false negatives
+  } // end IF
+  if (command_output_string.empty())
+    return result;
+
+  std::istringstream converter;
+  converter.str (command_output_string);
+  char buffer_a [BUFSIZ];
+  do
+  {
+    converter.getline (buffer_a, sizeof (char[BUFSIZ]));
+    if (converter.eof ())
+      break; // done
+    if (executablePath_out.empty ())
+      executablePath_out = buffer_a;
+#if defined (_DEBUG)
+    ACE_DEBUG ((LM_DEBUG,
+                ACE_TEXT ("found executable (was: \"%s\"): \"%s\"\n"),
+                ACE_TEXT (executableName_in.c_str ()),
+                ACE_TEXT (buffer_a)));
+#endif // _DEBUG
+  } while (true);
+
+  result = !executablePath_out.empty ();
+#else
+  ACE_ASSERT (false);
+  ACE_NOTSUP_RETURN (result);
+  ACE_NOTREACHED (return result;)
+#endif // ACE_LINUX
+
+  return result;
 }
-#endif // ACE_WIN32 || ACE_WIN64
 
 bool
-Common_Tools::testRandomProbability (float probability_in)
+Common_OS_Tools::findProgram (const std::string& executableName_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Tools::::testRandomProbability"));
+  COMMON_TRACE (ACE_TEXT ("Common_OS_Tools::findProgram"));
 
-  // sanity checks
-  ACE_ASSERT ((probability_in >= 0.0F) && (probability_in <= 1.0F));
+  std::string command_line_string;
+  command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_WHICH);
+  command_line_string += ACE_TEXT_ALWAYS_CHAR (" ");
+  command_line_string += executableName_in;
+  int exit_status_i = 0;
+  std::string command_output_string;
+  if (unlikely (!Common_Process_Tools::command (command_line_string,
+                                                exit_status_i,
+                                                command_output_string)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_Tools::command(\"%s\"), aborting\n"),
+                ACE_TEXT (command_line_string.c_str ())));
+    return false; // *TODO*: avoid false negatives
+  } // end IF
+  if (unlikely (command_output_string.empty ()))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to 'which' \"%s\", aborting\n"),
+                ACE_TEXT (executableName_in.c_str ())));
+    return false; // *TODO*: avoid false negatives
+  } // end IF
+  command_line_string = Common_String_Tools::strip (command_output_string);
+  ACE_ASSERT (Common_File_Tools::isExecutable (command_line_string));
 
-  // step0: fast path ?
-  if (probability_in == 0.0F)
-    return false;
-  else if (probability_in == 1.0F)
-    return true;
-
-  float limit_f = probability_in * static_cast<float> (RAND_MAX);
-
-  return (ACE_OS::rand_r (&Common_Tools::randomSeed) <= static_cast<int> (limit_f));
+  return true;
 }

@@ -90,6 +90,7 @@ set (source_files
      common_message_queue_iterator.cpp
      common_message_queue_iterator.h
      common_message_queue_iterator.inl
+     common_os_tools.h
      common_pragmas.h
      common_process_tools.cpp
      common_process_tools.h
@@ -113,11 +114,16 @@ set (source_files
 set (source_files
      ${CMAKE_BINARY_DIR}/${PROJECT_NAME}_config.h
      ${source_files})
-if (WIN32)
+if (UNIX)
  set (source_files
+      common_os_tools_unix.cpp
+      ${source_files})
+elseif (WIN32)
+ set (source_files
+      common_os_tools_win32.cpp
       ../include/targetver.h
       ${source_files})
-endif (WIN32)
+endif ()
 
 # Include dir for installed targets
 #set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
@@ -208,6 +214,7 @@ install (FILES
          common_macros.h
          common_message_queue_iterator.h
          common_message_queue_iterator.inl
+         common_os_tools.h
          common_pragmas.h
          common_process_tools.h
          common_referencecounter.h

@@ -42,10 +42,10 @@
 #include "ace/OS.h"
 #include "ace/Synch_Traits.h"
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include "common_tools.h"
-#endif // ACE_WIN32 || ACE_WIN64
 #include "common_file_tools.h"
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "common_os_tools.h"
+#endif // ACE_WIN32 || ACE_WIN64
 
 #include "common_gl_defines.h"
 #include "common_gl_texture.h"
@@ -1149,7 +1149,7 @@ combobox_source_2_changed_cb (GtkWidget* widget_in,
   std::string format_string = g_value_get_string (&value);
   g_value_unset (&value);
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  struct _GUID GUID_s = Common_Tools::StringToGUID (format_string);
+  struct _GUID GUID_s = Common_OS_Tools::StringToGUID (format_string);
   ACE_ASSERT (!InlineIsEqualGUID (GUID_s, GUID_NULL));
 #else
   __u32 format_i = 0;

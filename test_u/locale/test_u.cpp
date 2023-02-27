@@ -6,7 +6,7 @@
 #include "ace/Log_Msg.h"
 
 #include "common_defines.h"
-#include "common_tools.h"
+#include "common_os_tools.h"
 
 int
 main (int argc, char *argv[])
@@ -23,13 +23,13 @@ main (int argc, char *argv[])
                 ACE_TEXT ("caught exception in std::locale(\"%s\"): \"%s\", aborting\n"),
                 ACE_TEXT (COMMON_LOCALE_EN_US_ASCII_STRING),
                 ACE_TEXT (exception_in.what ())));
-    Common_Tools::printLocales ();
+    Common_OS_Tools::printLocales ();
     return -1;
   } catch (...) {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("caught exception in std::locale(\"%s\"), aborting\n"),
                 ACE_TEXT (COMMON_LOCALE_EN_US_ASCII_STRING)));
-    Common_Tools::printLocales ();
+    Common_OS_Tools::printLocales ();
     return -1;
   }
 
