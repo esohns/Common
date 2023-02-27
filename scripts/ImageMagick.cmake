@@ -67,8 +67,10 @@ if (IMAGEMAGICK_FOUND)
   add_definitions (-DIMAGEMAGICK_SUPPORT)
 # *NOTE*: get rid of compiler warnings
   if (NOT IMAGEMAGICK_IS_GRAPHICSMAGIC)
+   if (WIN32)
 # Find Imagemagick Library directory
-   get_filename_component (MAGICK_LIB_DIR ${ImageMagick_MagickCore_LIBRARY} DIRECTORY)
+    get_filename_component (MAGICK_LIB_DIR ${ImageMagick_MagickCore_LIBRARY} DIRECTORY)
+   endif (WIN32)
 # Find where Magick-config lives
 #   file (GLOB_RECURSE MAGICK_CONFIG FOLLOW_SYMLINKS ${MAGICK_LIB_DIR}/Magick++-config)
    file (GLOB_RECURSE MAGICK_CONFIG FOLLOW_SYMLINKS /usr/bin/Magick-config)
