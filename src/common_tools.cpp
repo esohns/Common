@@ -612,7 +612,12 @@ Common_Tools::testRandomProbability (float probability_in)
   else if (probability_in == 1.0F)
     return true;
 
-  float limit_f = probability_in * static_cast<float> (RAND_MAX);
+  //float limit_f = probability_in * static_cast<float> (RAND_MAX);
 
-  return (ACE_OS::rand_r (&Common_Tools::randomSeed) <= static_cast<int> (limit_f));
+  //return (ACE_OS::rand_r (&Common_Tools::randomSeed) <= static_cast<int> (limit_f));
+
+  std::uniform_real_distribution<float> distribution (0.0F, 1.0F);
+  float result_d = Common_Tools::getRandomNumber (distribution);
+
+  return result_d <= probability_in;
 }

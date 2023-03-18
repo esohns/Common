@@ -220,11 +220,9 @@ Common_Tools::getRandomNumber (ValueType begin_in,
   if ((end_in - begin_in + 1) <= (RAND_MAX + 1)) // can rand() generate this range ?
     return (static_cast<ValueType> (ACE_OS::rand () % (end_in - begin_in + 1)) + begin_in);
 
-////std::function<unsigned int ()> generator =
-////    std::bind (distribution, engine);
-
-//return generator ();
+  // sanity check(s)
   ACE_ASSERT (std::is_integral<ValueType>::value);
+
   std::uniform_int_distribution<ValueType> distribution (begin_in, end_in);
   return Common_Tools::getRandomNumber (distribution);
 }
@@ -240,5 +238,5 @@ Common_Tools::getRandomNumber (ValueType begin_in,
   ACE_ASSERT (begin_in <= end_in);
 
   std::uniform_real_distribution<ValueType> distribution (begin_in, end_in);
-  return distribution (Common_Tools::randomEngine);
+  return Common_Tools::getRandomNumber(distribution);
 }
