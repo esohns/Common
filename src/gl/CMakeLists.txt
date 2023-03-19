@@ -44,6 +44,7 @@ set (source_files
      common_gl_defines.h
      common_gl_tools.cpp
      common_gl_tools.h
+     common_gl_tools.inl
      common_gl_image_tools.cpp
      common_gl_image_tools.h
      common_gl_texture.cpp
@@ -107,7 +108,8 @@ export (TARGETS ${LIBRARY}
       common_gl_defines.h
       common_gl_image_tools.h
       common_gl_texture.h
-      common_gl_tools.h)
+      common_gl_tools.h
+      common_gl_tools.inl)
 if (ASSIMP_SUPPORT)
  set (source_files
       ${source_files}

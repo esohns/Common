@@ -44,6 +44,20 @@ class Common_GL_Tools
   // debug
   static std::string errorToString (GLenum);
 
+  // lerp
+  template <typename ValueType>
+  static std::enable_if_t<std::is_integral<ValueType>::value, ValueType> map (ValueType,  // value
+                                                                              ValueType,  // from start (inclusive)
+                                                                              ValueType,  // from end   (inclusive)
+                                                                              ValueType,  // to start (inclusive)
+                                                                              ValueType); // to end   (inclusive)
+  template <typename ValueType>
+  static std::enable_if_t<!std::is_integral<ValueType>::value, ValueType> map (ValueType,  // value
+                                                                               ValueType,  // from start (inclusive)
+                                                                               ValueType,  // from end   (inclusive)
+                                                                               ValueType,  // to start (inclusive)
+                                                                               ValueType); // to end   (inclusive)
+
   // color
   static Common_GL_Color_t lerpRGB (const Common_GL_Color_t&, // color 1
                                     const Common_GL_Color_t&, // color 2
@@ -89,5 +103,8 @@ class Common_GL_Tools
                        bool&,              // return value: has alpha channel ?
                        GLubyte*&);         // return value: data
 };
+
+// include template definition
+#include "common_gl_tools.inl"
 
 #endif
