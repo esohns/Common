@@ -60,8 +60,8 @@ template <typename StateType, // implements struct Common_ScannerState
 class Common_ILexScanner_T
  : public Common_IScannerBase
  , public Common_IGetR_T<StateType>
-// , public Common_IGetSetP_T<ParserInterfaceType>
-//, public Common_IGetP_2_T<ParserInterfaceType>
+//, public Common_IGetSetP_T<ExtraDataType>
+//, public Common_IGetP_2_T<ExtraDataType>
 {
  public:
   virtual void debug (yyscan_t,  // state handle
