@@ -3,11 +3,7 @@
 #include <iostream>
 #include <string>
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "MagickWand/MagickWand.h"
-#else
-#include "wand/magick_wand.h"
-#endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/config-lite.h"
 #include "ace/ACE.h"
