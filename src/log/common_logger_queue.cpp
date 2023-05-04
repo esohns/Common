@@ -19,4 +19,4 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include "common_logger.h"
+#include "common_logger_queue.h"

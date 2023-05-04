@@ -281,16 +281,16 @@ struct Common_UI_State
    : eventStack (NULL)
    , lock ()
    , condition (lock)
-   , logStack ()
-   , logStackLock ()
+   , logQueue ()
+   , logQueueLock ()
    , subscribersLock ()
   {}
 
   Common_UI_Events_t        eventStack;
   ACE_SYNCH_MUTEX           lock;
   ACE_SYNCH_CONDITION       condition;
-  Common_MessageStack_t     logStack;
-  ACE_SYNCH_MUTEX           logStackLock;
+  Common_Log_MessageQueue_t logQueue;
+  ACE_SYNCH_MUTEX           logQueueLock;
   ACE_SYNCH_RECURSIVE_MUTEX subscribersLock;
 };
 

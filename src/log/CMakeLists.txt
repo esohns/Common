@@ -18,9 +18,12 @@ set (source_files
      common_log_common.h
      common_log_tools.cpp
      common_log_tools.h
-     common_logger.cpp
-     common_logger.h
-     common_logger.inl)
+     common_logger_file.cpp
+     common_logger_file.h
+     common_logger_file.inl
+     common_logger_queue.cpp
+     common_logger_queue.h
+     common_logger_queue.inl)
 
 # Include dir for installed targets
 set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
@@ -69,8 +72,10 @@ export (TARGETS ${LIBRARY}
 install (FILES
          common_log_common.h
          common_log_tools.h
-         common_logger.h
-         common_logger.inl
+         common_logger_file.h
+         common_logger_file.inl
+         common_logger_queue.h
+         common_logger_queue.inl
          DESTINATION include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets

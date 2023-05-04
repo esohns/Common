@@ -18,29 +18,28 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_LOGGER_T_H
-#define COMMON_LOGGER_T_H
+#ifndef COMMON_LOGGER_FILE_T_H
+#define COMMON_LOGGER_FILE_T_H
+
+#include <string>
 
 #include "ace/Global_Macros.h"
 #include "ace/Log_Msg_Backend.h"
 #include "ace/Log_Record.h"
 #include "ace/Synch_Traits.h"
 
-#include "common_log_common.h"
-
 template <ACE_SYNCH_DECL>
-class Common_Logger_T
+class Common_Logger_File_T
  : public ACE_Log_Msg_Backend
 {
   typedef ACE_Log_Msg_Backend inherited;
 
  public:
-  Common_Logger_T (Common_MessageStack_t* = NULL, // message stack handle {NULL: do not cache messages}
-                   ACE_SYNCH_MUTEX_T* = NULL);    // message stack lock handle {NULL: single-threaded application}
-  virtual ~Common_Logger_T ();
+  Common_Logger_File_T ();
+  virtual ~Common_Logger_File_T ();
 
-  bool initialize (Common_MessageStack_t*, // message stack handle {NULL: do not cache messages}
-                   ACE_SYNCH_MUTEX_T*);    // message stack lock handle {NULL: single-threaded application}
+  bool initialize (const std::string&,  // file name
+                   ACE_SYNCH_MUTEX_T*); // lock handle {NULL: single-threaded application}
 
   // implement ACE_Log_Msg_Backend interface
   virtual int open (const ACE_TCHAR*); // logger key
@@ -49,22 +48,20 @@ class Common_Logger_T
   virtual ssize_t log (ACE_Log_Record&); // record
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_Logger_T ())
-  ACE_UNIMPLEMENTED_FUNC (Common_Logger_T (const Common_Logger_T&))
-  ACE_UNIMPLEMENTED_FUNC (Common_Logger_T& operator= (const Common_Logger_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Logger_File_T (const Common_Logger_File_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Logger_File_T& operator= (const Common_Logger_File_T&))
 
-//  FILE*                  buffer_;
-  bool                   isInitialized_;
-  ACE_SYNCH_MUTEX_T*     lock_;
-  Common_MessageStack_t* messageStack_;
+  FILE*              buffer_;
+  bool               isInitialized_;
+  ACE_SYNCH_MUTEX_T* lock_;
 };
 
 // include template definition
-#include "common_logger.inl"
+#include "common_logger_file.inl"
 
 //////////////////////////////////////////
 
-typedef Common_Logger_T<ACE_MT_SYNCH> Common_Logger_t;
+typedef Common_Logger_File_T<ACE_MT_SYNCH> Common_Logger_File_t;
 //typedef Common_Logger_T<ACE_NULL_SYNCH> Common_NullSynchLogger_t;
 
 #endif

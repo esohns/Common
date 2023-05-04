@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2009 by Erik Sohns   *
+ *   Copyright (C) 2010 by Erik Sohns   *
  *   erik.sohns@web.de   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -17,18 +17,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#include "stdafx.h"
 
-#ifndef COMMON_LOG_COMMON_H
-#define COMMON_LOG_COMMON_H
-
-#include <deque>
-#include <string>
-
-//#include "ace/Log_Msg.h"
-
-typedef std::deque<std::string> Common_Log_MessageQueue_t;
-typedef Common_Log_MessageQueue_t::const_iterator Common_Log_MessageQueueConstIterator_t;
-typedef Common_Log_MessageQueue_t::const_reverse_iterator Common_Log_MessageQueueConstReverseIterator_t;
-//typedef std::deque<ACE_Log_Record> Common_LogRecordStack_t;
-
-#endif
+#include "common_logger_file.h"
