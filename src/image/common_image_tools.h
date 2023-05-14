@@ -35,7 +35,6 @@
 extern "C"
 {
 #include "libavcodec/avcodec.h"
-//#include "libavcodec/codec_id.h"
 #include "libavutil/imgutils.h"
 }
 #endif /* __cplusplus */
@@ -158,6 +157,12 @@ class Common_Image_Tools
 
   // --- ImageMagick ---
 #if defined (IMAGEMAGICK_SUPPORT)
+  // *NOTE*: callers need to MagickRelinquishMemory() the returned memory buffer (iff any)
+  static bool load (const std::string&,         // source file path
+                    const std::string&,         // blob output format (e.g. "RGB", "RGBA", etc)
+                    Common_Image_Resolution_t&, // return value: resolution
+                    uint8_t*&);                 // return value: buffer
+
   static std::string errorToString (struct _MagickWand*); // context
 #endif // IMAGEMAGICK_SUPPORT
 

@@ -137,76 +137,34 @@ do_work (const std::string& sourceFilePath_in)
 {
   std::string out_filename = ACE_TEXT_ALWAYS_CHAR ("outfile.rgb");
   unsigned char* data_p = NULL;
-  size_t size_i = 0, size_2 = 0;
-  FILE* file_p = NULL;
-  unsigned char buffer_a[BUFSIZ * 1024];
-  ACE_OS::memset (&buffer_a, 0, sizeof (unsigned char[BUFSIZ * 1024]));
+  Common_Image_Resolution_t resolution_s;
 
   //MagickWandGenesis ();
-  MagickWand* wand_p = NewMagickWand ();
-  ACE_ASSERT (wand_p);
-
-  file_p = ACE_OS::fopen (sourceFilePath_in.c_str (), "rb");
-  ACE_ASSERT (file_p);
-
-  size_2 = ACE_OS::fread (buffer_a,
-                          1,
-                          sizeof (unsigned char[BUFSIZ * 1024]),
-                          file_p);
-  ACE_ASSERT (size_2 > 0);
-
-  ACE_OS::fclose (file_p); file_p = NULL;
-
-  MagickSetImageType (wand_p, TrueColorType);
-  MagickSetImageColorspace (wand_p, sRGBColorspace);
-  MagickSetImageFormat (wand_p, "PNG");
-
-  unsigned int result = MagickReadImageBlob (wand_p,
-                                             buffer_a,
-                                             size_2);
-//  MagickBooleanType result = MagickReadImage (wand_p,
-//                                              sourceFilePath_in.c_str ());
-  if (result != MagickTrue)
+  if (!Common_Image_Tools::load (sourceFilePath_in,
+                                 ACE_TEXT_ALWAYS_CHAR ("RGB"),
+                                 resolution_s,
+                                 data_p))
   {
-    ExceptionType severity;
-    char* description_p = MagickGetException (wand_p, &severity);
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to MagickReadImageBlob(): \"%s\", aborting\n"),
-                ACE_TEXT (description_p)));
+                ACE_TEXT ("failed to Common_Image_Tools::load(\"%s\"), returning\n"),
+                ACE_TEXT (sourceFilePath_in.c_str ())));
     return;
   } // end IF
-
-  result = MagickSetImageFormat (wand_p, "RGB");
-  ACE_ASSERT (result == MagickTrue);
-  //result = MagickSetImageUnits (wand_p, PixelsPerInchResolution);
-  //ACE_ASSERT (result == MagickTrue);
-  //result = MagickSetImageResolution (wand_p, 96.0, 96.0);
-  //ACE_ASSERT (result == MagickTrue);
-
-  //result = MagickWriteImage (wand_p, "logo.bmp");
-  //ACE_ASSERT (result == MagickTrue);
-
-  //MagickResetIterator (wand_p);
-  data_p = MagickGetImageBlob (wand_p, // was: MagickWriteImageBlob
-                               &size_i);
   ACE_ASSERT (data_p);
 
-  file_p = ACE_OS::fopen ("logo.rgb", "w");
+  FILE* file_p = ACE_OS::fopen ("logo.rgb", "w");
   ACE_ASSERT (file_p);
 
-  size_2 = ACE_OS::fwrite (static_cast<void*> (data_p),
-                           size_i,
-                           1,
-                           file_p);
+  size_t size_i = resolution_s.cx * resolution_s.cy * 3;
+  size_t size_2 = ACE_OS::fwrite (static_cast<void*> (data_p),
+                                  size_i,
+                                  1,
+                                  file_p);
   ACE_ASSERT (1 == size_2);
 
 //error:
   MagickRelinquishMemory (data_p); data_p = NULL;
   ACE_OS::fclose (file_p); file_p = NULL;
-  if (wand_p)
-  {
-    DestroyMagickWand (wand_p); wand_p = NULL;
-  } // end IF
   //MagickWandTerminus ();
 }
 

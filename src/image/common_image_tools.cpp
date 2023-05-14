@@ -1561,6 +1561,76 @@ Common_Image_Tools::codecIdToString (enum AVCodecID codecId_in)
 #endif // FFMPEG_SUPPORT
 
 #if defined (IMAGEMAGICK_SUPPORT)
+bool
+Common_Image_Tools::load (const std::string& sourceFilePath_in,
+                          const std::string& outputFormat_in,
+                          Common_Image_Resolution_t& resolution_out,
+                          uint8_t*& data_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::load"));
+
+  // initialize return value(s)
+  ACE_ASSERT (!data_out);
+
+  FILE* file_p = ACE_OS::fopen (sourceFilePath_in.c_str (), "rb");
+  ACE_ASSERT (file_p);
+
+  ACE_UINT8 buffer_a[BUFSIZ * 1024];
+  ACE_OS::memset (&buffer_a, 0, sizeof (ACE_UINT8[BUFSIZ * 1024]));
+  size_t size_2 =
+    ACE_OS::fread (buffer_a,
+                   1,
+                   sizeof (ACE_UINT8[BUFSIZ * 1024]),
+                   file_p);
+  ACE_ASSERT (size_2 > 0);
+
+  ACE_OS::fclose (file_p); file_p = NULL;
+
+  MagickWand* wand_p = NewMagickWand ();
+  ACE_ASSERT (wand_p);
+  MagickSetImageType (wand_p, TrueColorType);
+  MagickSetImageColorspace (wand_p, sRGBColorspace);
+  MagickSetImageFormat (wand_p, "PNG");
+
+  unsigned int result = MagickReadImageBlob (wand_p,
+                                             buffer_a,
+                                             size_2);
+//  MagickBooleanType result = MagickReadImage (wand_p,
+//                                              sourceFilePath_in.c_str ());
+  if (result != MagickTrue)
+  {
+    ExceptionType severity;
+    char* description_p = MagickGetException (wand_p, &severity);
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to MagickReadImageBlob(): \"%s\", aborting\n"),
+                ACE_TEXT (description_p)));
+    return false;
+  } // end IF
+
+  resolution_out.cx = static_cast<LONG> (MagickGetImageWidth (wand_p));
+  resolution_out.cy = static_cast<LONG> (MagickGetImageHeight (wand_p));
+
+  result = MagickSetImageFormat (wand_p, outputFormat_in.c_str ());
+  ACE_ASSERT (result == MagickTrue);
+  //result = MagickSetImageUnits (wand_p, PixelsPerInchResolution);
+  //ACE_ASSERT (result == MagickTrue);
+  //result = MagickSetImageResolution (wand_p, 96.0, 96.0);
+  //ACE_ASSERT (result == MagickTrue);
+
+  //result = MagickWriteImage (wand_p, "logo.bmp");
+  //ACE_ASSERT (result == MagickTrue);
+
+  //MagickResetIterator (wand_p);
+  size_t size_i;
+  data_out = MagickGetImageBlob (wand_p, // was: MagickWriteImageBlob
+                                 &size_i);
+  ACE_ASSERT (data_out);
+
+  DestroyMagickWand (wand_p); wand_p = NULL;
+
+  return true;
+}
+
 std::string
 Common_Image_Tools::errorToString (struct _MagickWand* context_in)
 {
