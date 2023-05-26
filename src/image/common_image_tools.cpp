@@ -1607,8 +1607,13 @@ Common_Image_Tools::load (const std::string& sourceFilePath_in,
     return false;
   } // end IF
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   resolution_out.cx = static_cast<LONG> (MagickGetImageWidth (wand_p));
   resolution_out.cy = static_cast<LONG> (MagickGetImageHeight (wand_p));
+#else
+  resolution_out.width = MagickGetImageWidth (wand_p);
+  resolution_out.height = MagickGetImageHeight (wand_p);
+#endif // ACE_WIN32 || ACE_WIN64
 
   result = MagickSetImageFormat (wand_p, outputFormat_in.c_str ());
   ACE_ASSERT (result == MagickTrue);

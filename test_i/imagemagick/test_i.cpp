@@ -155,7 +155,11 @@ do_work (const std::string& sourceFilePath_in)
   FILE* file_p = ACE_OS::fopen ("logo.rgb", "w");
   ACE_ASSERT (file_p);
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   size_t size_i = resolution_s.cx * resolution_s.cy * 3;
+#else
+  size_t size_i = resolution_s.width * resolution_s.height * 3;
+#endif // ACE_WIN32 || ACE_WIN64
   size_t size_2 = ACE_OS::fwrite (static_cast<void*> (data_p),
                                   size_i,
                                   1,
