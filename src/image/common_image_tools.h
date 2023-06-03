@@ -87,12 +87,18 @@ class Common_Image_Tools
 #endif // ACE_WIN32 || ACE_WIN64
 
   // color conversion
-  static void RGBToHSV (const float&, // r - normalized
-                        const float&, // g - normalized
-                        const float&, // b - normalized
-                        float&,       // return value: h
-                        float&,       // return value: s
-                        float&);      // return value: v
+  static void RGBToHSV (float,   // r - normalized
+                        float,   // g - normalized
+                        float,   // b - normalized
+                        float&,  // return value: h - degrees
+                        float&,  // return value: s - normalized
+                        float&); // return value: v - normalized
+  static void HSVToRGB (float,     // h - degrees
+                        float,     // s - normalized
+                        float,     // v - normalized
+                        float&,  // return value: r - normalized
+                        float&,  // return value: g - normalized
+                        float&); // return value: b - normalized
 
   // --- libav/ffmpeg ---
 #if defined (FFMPEG_SUPPORT)

@@ -211,9 +211,9 @@ Common_Image_Tools::saveBMP (const Common_Image_Resolution_t& resolution_in,
 #endif // ACE_WIN32 || ACE_WIN64
 
 void
-Common_Image_Tools::RGBToHSV (const float& red_in,
-                              const float& green_in,
-                              const float& blue_in,
+Common_Image_Tools::RGBToHSV (float red_in,
+                              float green_in,
+                              float blue_in,
                               float& hue_out,
                               float& saturation_out,
                               float& value_out)
@@ -257,6 +257,69 @@ Common_Image_Tools::RGBToHSV (const float& red_in,
   hue_out *= 60.0F; // degrees
   if (hue_out < 0.0F)
     hue_out += 360.0F;
+}
+
+void
+Common_Image_Tools::HSVToRGB (float hue_in,
+                              float saturation_in,
+                              float value_in,
+                              float& red_out,
+                              float& green_out,
+                              float& blue_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::HSVToRGB"));
+
+  float H = hue_in, S = saturation_in, V = value_in, P, Q, T, fract;
+
+  (H == 360.0f) ? (H = 0.0f) : (H /= 60.0f);
+  fract = H - std::floorf (H);
+
+  P = V * (1.0f - S);
+  Q = V * (1.0f - S * fract);
+  T = V * (1.0f - S * (1.0f - fract));
+
+  if (0.0f <= H && H < 1.0f)
+  {
+    red_out = V;
+    green_out = T;
+    blue_out = P;
+  } // end IF
+  else if (1.0f <= H && H < 2.0f)
+  {
+    red_out = Q;
+    green_out = V;
+    blue_out = P;
+  } // end ELSE IF
+  else if (2.0f <= H && H < 3.0f)
+  {
+    red_out = P;
+    green_out = V;
+    blue_out = T;
+  } // end ELSE IF
+  else if (3.0f <= H && H < 4.0f)
+  {
+    red_out = P;
+    green_out = Q;
+    blue_out = V;
+  } // end ELSE IF
+  else if (4.0f <= H && H < 5.0f)
+  {
+    red_out = T;
+    green_out = P;
+    blue_out = V;
+  } // end ELSE IF
+  else if (5.0f <= H && H < 6.0f)
+  {
+    red_out = V;
+    green_out = P;
+    blue_out = Q;
+  } // end ELSE IF
+  else
+  {
+    red_out = 0.0f;
+    green_out = 0.0f;
+    blue_out = 0.0f;
+  } // end ELSE
 }
 
 #if defined (FFMPEG_SUPPORT)
