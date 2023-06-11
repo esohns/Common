@@ -248,7 +248,7 @@ Common_Image_Tools::RGBToHSV (float red_in,
     return;
   } // end ELSE
 
-  if (red_in >= max_f) // > is bogus, just keeps compilor happy
+  if (red_in >= max_f) // > is bogus, just keeps compiler happy
     hue_out = (green_in - blue_in) / delta_f;      // between yellow & magenta
   else if (green_in >= max_f)
     hue_out = 2.0F + (blue_in - red_in) / delta_f;  // between cyan & yellow
@@ -272,7 +272,7 @@ Common_Image_Tools::HSVToRGB (float hue_in,
   float H = hue_in, S = saturation_in, V = value_in, P, Q, T, fract;
 
   (H == 360.0f) ? (H = 0.0f) : (H /= 60.0f);
-  fract = H - std::floorf (H);
+  fract = H - std::floor (H);
 
   P = V * (1.0f - S);
   Q = V * (1.0f - S * fract);

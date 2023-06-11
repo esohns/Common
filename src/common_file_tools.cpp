@@ -2657,6 +2657,7 @@ Common_File_Tools::parseFileEntry (const std::string& entry_in)
 
   // *TODO*: process date
   bool has_year_b = !match_results[6].matched;
+  ACE_UNUSED_ARG (has_year_b);
 
   ACE_ASSERT (match_results[11].matched);
   result.name = match_results[11].str ();
