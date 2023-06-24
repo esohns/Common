@@ -33,11 +33,10 @@ Common_GL_Tools::map (ValueType value_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::map"));
 
-  // sanity check(s)
-  ACE_ASSERT (fromBegin_in <= fromEnd_in);
-  ACE_ASSERT (toBegin_in <= toEnd_in);
-
-  return (value_in - fromBegin_in) * (toEnd_in - toBegin_in) / (fromEnd_in - fromBegin_in) + toBegin_in;
+  float temp = (value_in - fromBegin_in) *
+               (static_cast<float> (toEnd_in - toBegin_in) /
+                static_cast<float> (fromEnd_in - fromBegin_in));
+  return static_cast<ValueType> (temp) + toBegin_in;
 }
 
 template <typename ValueType>
@@ -50,9 +49,5 @@ Common_GL_Tools::map (ValueType value_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::map"));
 
-  // sanity check(s)
-  ACE_ASSERT (fromBegin_in <= fromEnd_in);
-  ACE_ASSERT (toBegin_in <= toEnd_in);
-
-  return (value_in - fromBegin_in) * (toEnd_in - toBegin_in) / (fromEnd_in - fromBegin_in) + toBegin_in;
+  return (value_in - fromBegin_in) * ((toEnd_in - toBegin_in) / (fromEnd_in - fromBegin_in)) + toBegin_in;
 }
