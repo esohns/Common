@@ -118,6 +118,9 @@ class Common_Tools
   inline static ValueType getRandomNumber (std::uniform_int_distribution<ValueType>& distribution_in) { return distribution_in (Common_Tools::randomEngine); }
   template <typename ValueType>
   inline static ValueType getRandomNumber (std::uniform_real_distribution<ValueType>& distribution_in) { return distribution_in (Common_Tools::randomEngine); }
+  template <typename ValueType>
+  inline static ValueType getRandomNumber (std::normal_distribution<ValueType>& distribution_in) { return distribution_in (Common_Tools::randomEngine); }
+
   // *IMPORTANT NOTE*: relies on the uniformity of distribution of the RNG's values
   static bool testRandomProbability (float); // between 0.0f (0%) and 1.0f (100%)
 
