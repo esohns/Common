@@ -39,11 +39,22 @@ Common_Math_Tools::map (ValueType value_in,
   if (std::is_floating_point<ValueType>::value &&
       decimalPrecision_in >= 0)
   {
-    int calc_scale = (int)std::pow (10, decimalPrecision_in);
-    return (ValueType)std::round (result * calc_scale) / calc_scale;
+    int calc_scale = static_cast<int> (std::pow (10, decimalPrecision_in));
+    return static_cast<ValueType> (std::round (result * calc_scale) / calc_scale);
   } // end IF
 
   return result;
+}
+
+template <typename ValueType>
+std::enable_if_t<!std::is_integral<ValueType>::value, ValueType>
+Common_Math_Tools::lerp (ValueType start_in,
+                         ValueType end_in,
+                         ValueType amount_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Math_Tools::lerp"));
+
+  return (static_cast<ValueType> (1.0) - amount_in) * start_in + amount_in * end_in;
 }
 
 template <typename ContainerType>

@@ -45,6 +45,7 @@
 #include "rctl.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
+#include "ace/config.h"
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
 #include "ace/Time_Value.h"
