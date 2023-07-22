@@ -54,6 +54,15 @@ Common_Math_Tools::lerp (ValueType start_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Math_Tools::lerp"));
 
+  // sanity check(s)
+  if (end_in < start_in)
+  {
+    ValueType temp = end_in;
+    end_in = start_in;
+    start_in = temp;
+    amount_in = static_cast<ValueType> (1.0) - amount_in;
+  } // end IF
+
   return (static_cast<ValueType> (1.0) - amount_in) * start_in + amount_in * end_in;
 }
 
