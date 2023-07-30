@@ -215,7 +215,12 @@ Common_Tools::getRandomNumber (ValueType begin_in,
   COMMON_TRACE (ACE_TEXT ("Common_Tools::getRandomNumber"));
 
   // sanity check(s)
-  ACE_ASSERT (begin_in <= end_in);
+  if (unlikely (begin_in > end_in))
+  {
+    ValueType temp = begin_in;
+    begin_in = end_in;
+    end_in = temp;
+  } // end IF
 
   if ((end_in - begin_in + 1) <= (RAND_MAX + 1)) // can rand() generate this range ?
     return (static_cast<ValueType> (ACE_OS::rand () % (end_in - begin_in + 1)) + begin_in);
@@ -235,8 +240,13 @@ Common_Tools::getRandomNumber (ValueType begin_in,
   COMMON_TRACE (ACE_TEXT ("Common_Tools::getRandomNumber"));
 
   // sanity check(s)
-  ACE_ASSERT (begin_in <= end_in);
+  if (unlikely (begin_in > end_in))
+  {
+    ValueType temp = begin_in;
+    begin_in = end_in;
+    end_in = temp;
+  } // end IF
 
   std::uniform_real_distribution<ValueType> distribution (begin_in, end_in);
-  return Common_Tools::getRandomNumber(distribution);
+  return Common_Tools::getRandomNumber (distribution);
 }

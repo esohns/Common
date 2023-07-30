@@ -65,6 +65,8 @@ class Common_GL_Tools
   // transitions between red --> green --> blue
   static Common_GL_Color_t toRGBColor (float); // [0.0..1.0]
 
+  static Common_GL_Color_t randomColor ();
+
   // model
   static GLuint loadModel (const std::string&,          // path
                            Common_GL_BoundingBox_t&,    // return value: bounding box

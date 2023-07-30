@@ -30,6 +30,7 @@
 
 #include "common_file_tools.h"
 #include "common_macros.h"
+#include "common_tools.h"
 
 #include "common_image_common.h"
 #include "common_image_defines.h"
@@ -125,6 +126,19 @@ Common_GL_Tools::toRGBColor (float color_in)
     result = green;
   else
     result = Common_GL_Tools::lerpRGB (green, blue, (color_in - 0.5F) * 2.0F);
+
+  return result;
+}
+
+Common_GL_Color_t
+Common_GL_Tools::randomColor ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::randomColor"));
+
+  Common_GL_Color_t result;
+  result.r = static_cast<uint8_t> (Common_Tools::getRandomNumber (0, 255));
+  result.g = static_cast<uint8_t> (Common_Tools::getRandomNumber (0, 255));
+  result.b = static_cast<uint8_t> (Common_Tools::getRandomNumber (0, 255));
 
   return result;
 }
