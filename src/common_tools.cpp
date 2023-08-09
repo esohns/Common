@@ -617,7 +617,7 @@ Common_Tools::testRandomProbability (float probability_in)
 
   //return (ACE_OS::rand_r (&Common_Tools::randomSeed) <= static_cast<int> (limit_f));
 
-  std::uniform_real_distribution<float> distribution (0.0F, 1.0F);
+  static std::uniform_real_distribution<float> distribution (0.0F, 1.0F);
   float result_d = Common_Tools::getRandomNumber (distribution);
 
   return result_d <= probability_in;

@@ -30,16 +30,10 @@
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "windef.h"
-//#include "WinUser.h"
-//#include "wtypes.h"
 #else
 //#include "X11/Xlib.h"
 // forward declarations
 struct _XDisplay;
-typedef struct {
-    short x, y;
-    unsigned short width, height;
-} Common_UI_Rectangle;
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/Condition_Thread_Mutex.h"
@@ -51,6 +45,11 @@ typedef struct {
 #include "common_log_common.h"
 
 // #######################################
+struct Common_UI_Rectangle
+{
+  short x, y;
+  unsigned short width, height;
+};
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 typedef struct tagSIZE Common_UI_Resolution_t;

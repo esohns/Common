@@ -215,6 +215,8 @@ Common_Tools::getRandomNumber (ValueType begin_in,
   COMMON_TRACE (ACE_TEXT ("Common_Tools::getRandomNumber"));
 
   // sanity check(s)
+  if (unlikely (begin_in == end_in))
+    return begin_in;
   if (unlikely (begin_in > end_in))
   {
     ValueType temp = begin_in;
@@ -240,6 +242,8 @@ Common_Tools::getRandomNumber (ValueType begin_in,
   COMMON_TRACE (ACE_TEXT ("Common_Tools::getRandomNumber"));
 
   // sanity check(s)
+  if (unlikely (begin_in == end_in))
+    return begin_in;
   if (unlikely (begin_in > end_in))
   {
     ValueType temp = begin_in;
