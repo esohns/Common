@@ -29,6 +29,11 @@ class Common_Math_Tools
                         int = -1); // decimal precision
 
   template <typename ValueType>
+  static std::enable_if_t<!std::is_integral<ValueType>::value, bool> almost_equal (ValueType, // x
+                                                                                   ValueType, // y
+                                                                                   int);      // units in the last place (precision)
+
+  template <typename ValueType>
   static std::enable_if_t<!std::is_integral<ValueType>::value, ValueType> lerp (ValueType,  // start
                                                                                 ValueType,  // end
                                                                                 ValueType); // amount
