@@ -97,13 +97,6 @@ class Common_GL_Tools
   ACE_UNIMPLEMENTED_FUNC (~Common_GL_Tools ())
   ACE_UNIMPLEMENTED_FUNC (Common_GL_Tools (const Common_GL_Tools&))
   ACE_UNIMPLEMENTED_FUNC (Common_GL_Tools& operator= (const Common_GL_Tools&))
-
-  // *IMPORTANT NOTE*: callers need to free() allocated memory (5th argument)
-  static bool loadPNG (const std::string&, // path
-                       unsigned int&,      // return value: width
-                       unsigned int&,      // return value: height
-                       bool&,              // return value: has alpha channel ?
-                       GLubyte*&);         // return value: data
 };
 
 // include template definition
