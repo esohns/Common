@@ -21,6 +21,9 @@
 #ifndef COMMON_MATH_DEFINES_H
 #define COMMON_MATH_DEFINES_H
 
-#define COMMON_MATH_NUMDIGITS_INT(X) (X == 0) ? 1 : (floor(log10(X)) + 1)
+#define COMMON_MATH_NUMDIGITS_INT(X) (X == 0) ? 1 : (std::floor (std::log10 (X)) + 1)
+
+#define COMMON_MATH_DEGREES_TO_RADIANS_D(A) A * M_PI / 180.0
+#define COMMON_MATH_DEGREES_TO_RADIANS_F(A) A * static_cast<float> (M_PI) / 180.0f
 
 #endif
