@@ -998,7 +998,6 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
   THREAD_TIMER_QUEUE_T* timer_queue_p =
     dynamic_cast<THREAD_TIMER_QUEUE_T*> (this);
   ACE_ASSERT (timer_queue_p);
-
   int result = timer_queue_p->THREAD_TIMER_QUEUE_T::svc ();
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

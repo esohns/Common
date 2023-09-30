@@ -66,7 +66,7 @@ elseif (WIN32)
   if (EXISTS $ENV{TENSORFLOW_ROOT})
    set (TENSORFLOW_ROOT $ENV{TENSORFLOW_ROOT})
   else ()
-   set (TENSORFLOW_ROOT $ENV{LIB_ROOT}/libtensorflow)
+   set (TENSORFLOW_ROOT $ENV{LIB_ROOT}/tensorflow)
   endif (EXISTS $ENV{TENSORFLOW_ROOT})
   find_library (TENSORFLOW_LIBRARY tensorflow.lib
                 PATHS ${TENSORFLOW_ROOT}
@@ -84,6 +84,28 @@ elseif (WIN32)
    set (tensorflow_INCLUDE_DIRS "${TENSORFLOW_ROOT}/include")
    set (tensorflow_LIB_DIR "${TENSORFLOW_ROOT}/lib")
   endif (TENSORFLOW_LIBRARY)
+ 
+  if (EXISTS $ENV{TENSORFLOW_CC_ROOT})
+   set (TENSORFLOW_CC_ROOT $ENV{TENSORFLOW_CC_ROOT})
+  else ()
+   set (TENSORFLOW_CC_ROOT "C:/tf")
+  endif (EXISTS $ENV{TENSORFLOW_CC_ROOT})
+  find_library (TENSORFLOW_CC_LIBRARY libtensorflow_cc.so.2.15.0.if.lib
+                PATHS ${TENSORFLOW_CC_ROOT}/bazel-out/x64_windows-opt/bin
+                PATH_SUFFIXES tensorflow
+                DOC "searching for libtensorflow_cc.so.2.15.0.if.lib"
+                NO_DEFAULT_PATH)
+  if (NOT TENSORFLOW_CC_LIBRARY)
+   message (WARNING "could not find libtensorflow_cc.so.2.15.0.if.lib, continuing")
+  else ()
+   message (STATUS "Found libtensorflow_cc.so.2.15.0.if.lib library \"${TENSORFLOW_CC_LIBRARY}\"")
+  endif (NOT TENSORFLOW_CC_LIBRARY)
+  if (TENSORFLOW_CC_LIBRARY)
+   set (TENSORFLOW_CC_FOUND TRUE)
+   set (tensorflow_cc_LIBRARIES "${TENSORFLOW_CC_LIBRARY}")
+   set (tensorflow_cc_INCLUDE_DIRS "${TENSORFLOW_CC_ROOT};${TENSORFLOW_CC_ROOT}/bazel-tf/external/com_google_absl;${TENSORFLOW_CC_ROOT}/bazel-out/x64_windows-opt/bin;${TENSORFLOW_CC_ROOT}/bazel-tf/external/com_google_protobuf/src;${TENSORFLOW_CC_ROOT}/bazel-tf/external/eigen_archive;${TENSORFLOW_CC_ROOT}/third_party/xla/third_party/tsl;${TENSORFLOW_CC_ROOT}/bazel-tf/external;${TENSORFLOW_CC_ROOT}/bazel-bin/external/local_tsl")
+   set (tensorflow_cc_LIB_DIR "${TENSORFLOW_CC_ROOT}/bazel-out/x64_windows-opt/bin/tensorflow")
+  endif (TENSORFLOW_CC_LIBRARY)
  endif (NOT TENSORFLOW_FOUND)
 endif ()
 if (TENSORFLOW_FOUND)
