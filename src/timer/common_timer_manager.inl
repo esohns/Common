@@ -70,18 +70,22 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
 
   int result = -1;
 
-  if (unlikely (isRunning ()))
-    stop (true,  // wait ?
-          true); // N/A
-
   switch (dispatch_)
   {
+    // *IMPORTANT NOTE*: when this singleton is deleted, do not invoke
+    //                   ACE_Reactor/ACE_Proactor::instance () anymore; it would
+    //                   be left dangling
     case COMMON_TIMER_DISPATCH_PROACTOR:
     case COMMON_TIMER_DISPATCH_REACTOR:
+      break;
     case COMMON_TIMER_DISPATCH_SIGNAL:
       break;
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
+      if (unlikely (isRunning ()))
+        stop (true,  // wait ?
+              true); // N/A
+
       // *IMPORTANT NOTE*: avoid close()ing the timer queue in the base class dtor
       THREAD_TIMER_QUEUE_T* timer_queue_p =
           dynamic_cast<THREAD_TIMER_QUEUE_T*> (this);

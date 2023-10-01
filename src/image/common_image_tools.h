@@ -105,7 +105,7 @@ class Common_Image_Tools
                     enum AVPixelFormat,               // source pixel format
                     uint8_t*[],                       // source buffer(s)
                     const std::string&);              // target file path
-  // *TODO*: currently supports AV_PIX_FMT_RGB24 input only
+  // *NOTE*: input will be converted to AV_PIX_FMT_RGB24 (iff necessary) and then forwarded to save (AV_CODEC_ID_PNG) (see below)
   static bool savePNG (const Common_Image_Resolution_t&, // source resolution
                        enum AVPixelFormat,               // source pixel format
                        uint8_t*[],                       // source buffer(s)

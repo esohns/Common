@@ -192,9 +192,12 @@ Common_Tools::finalize ()
 
   Common_Error_Tools::finalize ();
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if defined(ACE_WIN32) || defined(ACE_WIN64)
   if (Common_Tools::COMInitialized) // *NOTE*: should be thread-specific
+  {
     Common_Tools::finalizeCOM ();
+    Common_Tools::COMInitialized = false;
+  } // end IF
 #endif // ACE_WIN32 || ACE_WIN64
 }
 

@@ -700,8 +700,8 @@ Common_Image_Tools::load (const std::string& path_in,
   const struct AVCodec* codec_p = NULL;
   struct AVCodecContext* codec_context_p = NULL;
   struct AVFrame* frame_p = NULL;
-  struct AVPacket packet_s;
-  av_init_packet (&packet_s);
+  struct AVPacket packet_s = { 0 };
+  //av_init_packet (&packet_s);
   ACE_UINT64 file_size_i = 0;
   Common_Image_Tools_GetFormatCBData cb_data_s;
   cb_data_s.formats.push_back (AV_PIX_FMT_RGB24);
@@ -995,12 +995,10 @@ Common_Image_Tools::decode (uint8_t* sourceBuffers_in[],
   Common_Image_Tools_GetFormatCBData cb_data_s;
   cb_data_s.formats.push_back (((codecId_in == AV_CODEC_ID_MJPEG) ? AV_PIX_FMT_YUVJ420P : format_in));
   struct AVFrame* frame_p = NULL;
-  struct AVPacket packet_s;
-  av_init_packet (&packet_s);
-  packet_s.data = sourceBuffers_in[0]; // *TODO*: this is probably wrong !!!
-  ACE_ASSERT (!sourceBuffers_in[1]);
-  ACE_ASSERT (!sourceBuffers_in[2]);
-  ACE_ASSERT (!sourceBuffers_in[3]);
+  struct AVPacket packet_s = { 0 };
+  //av_init_packet (&packet_s);
+  packet_s.data = sourceBuffers_in[0];
+  ACE_ASSERT (!sourceBuffers_in[1]); ACE_ASSERT (!sourceBuffers_in[2]); ACE_ASSERT (!sourceBuffers_in[3]);
   packet_s.size = sourceBuffersSize_in;
 
   //frame_p = av_frame_alloc ();
@@ -1012,7 +1010,7 @@ Common_Image_Tools::decode (uint8_t* sourceBuffers_in[],
   //} // end IF
 
   codec_p = avcodec_find_decoder (codecId_in);
-  if (!codec_p)
+  if (unlikely (!codec_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to avcodec_find_decoder(%d): \"%m\", aborting\n"),
@@ -1021,7 +1019,7 @@ Common_Image_Tools::decode (uint8_t* sourceBuffers_in[],
   } // end IF
   // *NOTE*: fire-and-forget codec_p
   codec_context_p = avcodec_alloc_context3 (codec_p);
-  if (!codec_context_p)
+  if (unlikely (!codec_context_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to avcodec_alloc_context3(): \"%m\", aborting\n")));
@@ -1064,7 +1062,7 @@ Common_Image_Tools::decode (uint8_t* sourceBuffers_in[],
   result_2 = avcodec_open2 (codec_context_p,
                             codec_p,
                             NULL);
-  if (result_2 < 0)
+  if (unlikely (result_2 < 0))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to avcodec_open2(): \"%s\", aborting\n"),
@@ -1074,7 +1072,7 @@ Common_Image_Tools::decode (uint8_t* sourceBuffers_in[],
 
   result_2 = avcodec_send_packet (codec_context_p,
                                   &packet_s);
-  if (result_2)
+  if (unlikely (result_2))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to avcodec_send_packet(): \"%s\", aborting\n"),
@@ -1083,7 +1081,7 @@ Common_Image_Tools::decode (uint8_t* sourceBuffers_in[],
   } // end IF
   result_2 = avcodec_receive_frame (codec_context_p,
                                     frame_p);
-  if (result_2)
+  if (unlikely (result_2))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to avcodec_receive_frame(): \"%s\", aborting\n"),
