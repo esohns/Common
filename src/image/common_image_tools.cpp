@@ -24,6 +24,7 @@
 #include <sstream>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "amvideo.h"
 #include "d3dx9tex.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
@@ -144,17 +145,13 @@ Common_Image_Tools::save (const std::string& path_in,
   return true;
 }
 
-#if defined (FFMPEG_SUPPORT)
 bool
 Common_Image_Tools::saveBMP (const Common_Image_Resolution_t& resolution_in,
-                             enum AVPixelFormat format_in,
+                             WORD bitCount_in,
                              uint8_t* sourceBuffers_in[],
                              const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::saveBMP"));
-
-  // sanity check(s)
-  ACE_ASSERT (format_in == AV_PIX_FMT_RGB24);
 
   FILE* file_p = ACE_OS::fopen (path_in.c_str (),
                                 ACE_TEXT_ALWAYS_CHAR ("wb"));
@@ -173,9 +170,9 @@ Common_Image_Tools::saveBMP (const Common_Image_Resolution_t& resolution_in,
   bitmap_info_header_s.biHeight =
     (resolution_in.cy > 0 ? -resolution_in.cy : resolution_in.cy);
   bitmap_info_header_s.biPlanes = 1;
-  bitmap_info_header_s.biBitCount = 24;
+  bitmap_info_header_s.biBitCount = bitCount_in;
   bitmap_info_header_s.biCompression = BI_RGB;
-  bitmap_info_header_s.biSizeImage = resolution_in.cx * resolution_in.cy * 3;
+  bitmap_info_header_s.biSizeImage = DIBSIZE (bitmap_info_header_s);
 
   BITMAPFILEHEADER bitmap_file_header_s;
   ACE_OS::memset (&bitmap_file_header_s, 0, sizeof (BITMAPFILEHEADER));
@@ -207,7 +204,6 @@ Common_Image_Tools::saveBMP (const Common_Image_Resolution_t& resolution_in,
 
   return true;
 }
-#endif // FFMPEG_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
 void
