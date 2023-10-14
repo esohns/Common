@@ -1,0 +1,46 @@
+set (RAPIDJSON_SUPPORT_DEFAULT ON)
+if (UNIX)
+ find_package (RapidJSON MODULE)
+ if (RapidJSON_FOUND)
+  message (STATUS "found RapidJSON")
+  set (RAPIDJSON_FOUND TRUE)
+  set (RAPIDJSON_INCLUDE_DIRS "${RapidJSON_INCLUDE_DIRS}")
+  set (RAPIDJSON_LIBRARIES "${RapidJSON_LIBRARIES}")
+ endif (RapidJSON_FOUND)
+# pkg_check_modules (PKG_RAPIDJSON rapidjson)
+elseif (WIN32)
+ if (VCPKG_USE)
+  find_package (RapidJSON)
+  if (RapidJSON_FOUND)
+   message (STATUS "found RapidJSON")
+   set (RAPIDJSON_FOUND TRUE)
+   find_path (RAPIDJSON_INCLUDE_DIR NAMES rapidjson.h
+              HINTS ${VCPKG_LIB_DIR_BASE}
+              PATH_SUFFIXES rapidjson
+              DOC "searching for rapidjson.h"
+              NO_DEFAULT_PATH)
+   set (RAPIDJSON_INCLUDE_DIRS ${RAPIDJSON_INCLUDE_DIR})
+  endif (RapidJSON_FOUND)
+ endif (VCPKG_USE)
+ if (NOT RAPIDJSON_FOUND)
+  find_path (RAPIDJSON_INCLUDE_DIR NAMES rapidjson.h
+             PATHS "$ENV{LIB_ROOT}/rapidjson/include"
+             PATH_SUFFIXES rapidjson
+             DOC "searching for rapidjson.h"
+             NO_DEFAULT_PATH)
+  endif ()
+  if (RAPIDJSON_INCLUDE_DIR)
+   message (STATUS "found RapidJSON")
+   set (RAPIDJSON_FOUND TRUE)
+   set (RAPIDJSON_INCLUDE_DIRS "${RAPIDJSON_INCLUDE_DIR}")
+  else ()
+   message (WARNING "could not find RapidJSON, continuing")
+  endif (RAPIDJSON_INCLUDE_DIR)
+ endif (NOT RAPIDJSON_FOUND)
+endif ()
+if (RAPIDJSON_FOUND)
+ option (RAPIDJSON_SUPPORT "enable RapidJSON support" ${RAPIDJSON_SUPPORT_DEFAULT})
+ if (RAPIDJSON_SUPPORT)
+  add_definitions (-DRAPIDJSON_SUPPORT)
+ endif (RAPIDJSON_SUPPORT)
+endif (RAPIDJSON_FOUND)
