@@ -1629,38 +1629,38 @@ Common_Image_Tools::load (const std::string& sourceFilePath_in,
   // initialize return value(s)
   ACE_ASSERT (!data_out);
 
-  FILE* file_p = ACE_OS::fopen (sourceFilePath_in.c_str (), "rb");
-  ACE_ASSERT (file_p);
+//  FILE* file_p =
+//    ACE_OS::fopen (sourceFilePath_in.c_str (), ACE_TEXT_ALWAYS_CHAR ("rb"));
+//  ACE_ASSERT (file_p);
 
-  ACE_UINT8 buffer_a[BUFSIZ * 1024];
-  ACE_OS::memset (&buffer_a, 0, sizeof (ACE_UINT8[BUFSIZ * 1024]));
-  size_t size_2 =
-    ACE_OS::fread (buffer_a,
-                   1,
-                   sizeof (ACE_UINT8[BUFSIZ * 1024]),
-                   file_p);
-  ACE_ASSERT (size_2 > 0);
+//  ACE_UINT8 buffer_a[BUFSIZ * 1024];
+//  ACE_OS::memset (&buffer_a, 0, sizeof (ACE_UINT8) * BUFSIZ * 1024);
+//  size_t size_2 =
+//    ACE_OS::fread (buffer_a,
+//                   1,
+//                   sizeof (ACE_UINT8) * BUFSIZ * 1024,
+//                   file_p);
+//  ACE_ASSERT (size_2 > 0);
 
-  ACE_OS::fclose (file_p); file_p = NULL;
+//  ACE_OS::fclose (file_p); file_p = NULL;
 
   MagickWand* wand_p = NewMagickWand ();
   ACE_ASSERT (wand_p);
   MagickSetImageType (wand_p, TrueColorType);
   MagickSetImageColorspace (wand_p, sRGBColorspace);
-  MagickSetImageFormat (wand_p, "PNG");
+  MagickSetImageFormat (wand_p, ACE_TEXT_ALWAYS_CHAR ("PNG"));
 
-  unsigned int result = MagickReadImageBlob (wand_p,
-                                             buffer_a,
-                                             size_2);
-//  MagickBooleanType result = MagickReadImage (wand_p,
-//                                              sourceFilePath_in.c_str ());
+//  unsigned int result = MagickReadImageBlob (wand_p,
+//                                             buffer_a,
+//                                             size_2);
+  MagickBooleanType result = MagickReadImage (wand_p,
+                                              sourceFilePath_in.c_str ());
   if (result != MagickTrue)
   {
     ExceptionType severity;
-    char* description_p = MagickGetException (wand_p, &severity);
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to MagickReadImageBlob(): \"%s\", aborting\n"),
-                ACE_TEXT (description_p)));
+                ACE_TEXT ("failed to MagickReadImage(): \"%s\", aborting\n"),
+                ACE_TEXT (MagickGetException (wand_p, &severity))));
     return false;
   } // end IF
 

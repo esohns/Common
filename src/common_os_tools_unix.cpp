@@ -1016,7 +1016,7 @@ Common_OS_Tools::getUserName (uid_t userId_in,
       realname_out = passwd_s.pw_gecos;
       std::string::size_type position = realname_out.find (',');
       if (position != std::string::npos)
-        realname_out.substr (0, position);
+        realname_out = realname_out.substr (0, position);
     } // end IF
   } // end ELSE
 }

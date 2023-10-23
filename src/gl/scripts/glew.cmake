@@ -1,5 +1,5 @@
 if (UNIX)
- set (GLEW_LIB_FILE libglew.so)
+ set (GLEW_LIB_FILE libGLEW.so)
  find_library (GLEW_LIBRARY ${GLEW_LIB_FILE}
                PATHS /usr /usr/lib
                PATH_SUFFIXES lib64 x86_64-linux-gnu
@@ -7,7 +7,7 @@ if (UNIX)
  if (GLEW_LIBRARY)
   message (STATUS "Found GLEW library \"${GLEW_LIBRARY}\"")
   set (GLEW_FOUND TRUE)
-#   set (GLEW_INCLUDE_DIR "/usr/include")
+#  set (GLEW_INCLUDE_DIR "/usr/include")
   set (GLEW_LIBRARIES "${GLEW_LIBRARY}")
  else ()
   message (WARNING "could not find ${GLEW_LIB_FILE}, continuing")
