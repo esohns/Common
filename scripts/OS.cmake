@@ -1,5 +1,6 @@
 ##########################################
 
+# *TODO*: use cmake_host_system_information() instead
 function (get_linux_lsb_release_information)
  find_program (LSB_RELEASE_EXEC lsb_release
                PATHS /usr
