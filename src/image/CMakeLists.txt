@@ -24,6 +24,8 @@ if (FFMPEG_SUPPORT)
                              $<BUILD_INTERFACE:${ffmpeg_INCLUDE_DIRS}>)
 endif (FFMPEG_SUPPORT)
 if (IMAGEMAGICK_SUPPORT)
+ target_compile_options (${LIBRARY} PUBLIC
+                         ${MAGICK_CXX_FLAGS})
  target_include_directories (${LIBRARY} PUBLIC
                              ${ImageMagick_INCLUDE_DIRS})
 endif (IMAGEMAGICK_SUPPORT)

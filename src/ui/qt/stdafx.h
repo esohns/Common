@@ -33,7 +33,7 @@
 // Library Header Files
 #undef Bool
 #undef uint
-#include <QEvent>
+//#include <QEvent>
 #include <QApplication>
 
 #include "ace/config-lite.h"
