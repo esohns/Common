@@ -42,6 +42,10 @@ class Common_Process_Tools
                        std::string&,       // return value: stdout
                        bool = true);       // return stdout
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static HWND window (pid_t); // process id
+#endif // ACE_WIN32 || ACE_WIN64
+
   // *NOTE*: the Windows implementation relies on the 'tasklist.exe' command
   // *NOTE*: the Linux implementation relies on the 'pidofproc' command, which
   //         may not be available on all versions of all distributions

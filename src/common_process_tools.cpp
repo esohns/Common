@@ -37,6 +37,42 @@
 #include "common_os_tools.h"
 #include "common_tools.h"
 
+#if defined(ACE_WIN32) || defined(ACE_WIN64)
+#include "common_error_tools.h"
+#endif // ACE_WIN32 || ACE_WIN64
+
+//////////////////////////////////////////
+
+struct common_enum_windows_cbdata
+{
+  DWORD id;
+  HWND  window; // result
+};
+
+BOOL CALLBACK
+common_enum_windows_cb (HWND hwnd, LPARAM lParam)
+{
+  struct common_enum_windows_cbdata* cb_data_p =
+    static_cast<struct common_enum_windows_cbdata*> ((void*)lParam);
+  ACE_ASSERT (cb_data_p);
+
+  DWORD window_pid;
+  GetWindowThreadProcessId (hwnd, &window_pid);
+  if (cb_data_p->id == window_pid)
+  {
+    HWND hwndParent = GetParent (hwnd);
+    if (!hwndParent) // --> retrieve top-level windows only
+    {
+      cb_data_p->window = hwnd;
+      return FALSE;
+    } // end IF
+  } // end IF
+
+  return TRUE;
+}
+
+//////////////////////////////////////////
+
 std::string
 Common_Process_Tools::toString (int argc_in,
                                 ACE_TCHAR* argv_in[])
@@ -132,6 +168,33 @@ Common_Process_Tools::command (const std::string& commandLine_in,
 
   return true;
 }
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+HWND
+Common_Process_Tools::window (pid_t processId_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Process_Tools::window"));
+
+  // sanity check(s)
+  ACE_ASSERT (processId_in);
+
+  struct common_enum_windows_cbdata cb_data_s;
+  cb_data_s.id = processId_in;
+  cb_data_s.window = NULL;
+
+  // step2: retrieve window handle by process id
+  if (!EnumWindows (common_enum_windows_cb,
+                    reinterpret_cast<LPARAM> (&cb_data_s)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to EnumWindows(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false, false).c_str ())));
+    return cb_data_s.window;
+  } // end IF
+
+  return cb_data_s.window;
+}
+#endif // ACE_WIN32 || ACE_WIN64
 
 pid_t
 Common_Process_Tools::id (const std::string& executableName_in)
@@ -292,6 +355,7 @@ clean:
       continue;
     } // end IF
     ACE_ASSERT (match_results[2].matched);
+    converter_2.clear ();
     converter_2.str (match_results[2].str ());
     converter_2 >> result;
   } while (!converter.fail ());
