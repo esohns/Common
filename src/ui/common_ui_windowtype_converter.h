@@ -64,7 +64,11 @@ class Common_UI_WindowTypeConverter_T
 #else
   inline void getWindowType (const Window windowType_in, Window& windowType_out) { windowType_out = windowType_in; }
 #if defined (GTK_SUPPORT)
+#if GTK_CHECK_VERSION (3,0,0)
+  inline void getWindowType (const GdkWindow* windowType_in, Window& windowType_out) { ACE_ASSERT (windowType_in); /*g_object_ref (windowType_in);*/ windowType_out = gdk_x11_window_get_xid (const_cast<GdkWindow*> (windowType_in)); }
+#elif (GTK_CHECK_VERSION (2,0,0))
   inline void getWindowType (const GdkWindow* windowType_in, Window& windowType_out) { ACE_ASSERT (windowType_in); /*g_object_ref (windowType_in);*/ windowType_out = gdk_x11_drawable_get_xid (GDK_DRAWABLE (const_cast<GdkWindow*> (windowType_in))); }
+#endif // GTK_CHECK_VERSION
 #endif // GTK_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 

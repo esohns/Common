@@ -966,9 +966,7 @@ do_work (int argc_in,
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
-  GtkGLArea* gl_area_p =
-    GTK_GL_AREA (gtk_builder_get_object ((*iterator).second.second,
-      ACE_TEXT_ALWAYS_CHAR (TEST_U_STREAM_UI_GTK_GLAREA_NAME)));
+  GtkGLArea* gl_area_p = GTK_GL_AREA (gtk_gl_area_new ());
   ACE_ASSERT (gl_area_p);
   gtk_widget_realize (GTK_WIDGET (gl_area_p));
   GdkGLContext* context_p = gtk_gl_area_get_context (gl_area_p);
@@ -1131,7 +1129,7 @@ do_work (int argc_in,
   GdkColor black = {0, 0x0000, 0x0000, 0x0000};
 //  GdkColor red = {0, 0xffff, 0x0000, 0x0000};
 #elif defined (GTK3_USE)
-  GdkRGBA black = { 0.0, 0.0, 0.0, 1.0 };
+  // GdkRGBA black = { 0.0, 0.0, 0.0, 1.0 };
 
   GtkCssProvider* css_provider_p = gtk_css_provider_new ();
   ACE_ASSERT (css_provider_p);

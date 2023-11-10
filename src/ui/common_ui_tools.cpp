@@ -971,6 +971,8 @@ Common_UI_Tools::getDisplays ()
   {
     ACE_DEBUG ((LM_ERROR,
                ACE_TEXT ("failed to XRRGetMonitors(): \"%m\", falling back\n")));
+    result_2 = XCloseDisplay (display_p); display_p = NULL;
+    ACE_ASSERT (result_2 == 0);
     goto fallback;
   } // end IF
 
@@ -1009,7 +1011,7 @@ Common_UI_Tools::getDisplays ()
 
   XRRFreeScreenResources (screen_resources_p); screen_resources_p = NULL;
   XRRFreeMonitors (monitor_info_p); monitor_info_p = NULL;
-  result_2 = XCloseDisplay (display_p);
+  result_2 = XCloseDisplay (display_p); display_p = NULL;
   ACE_ASSERT (result_2 == 0);
 
   goto continue_;
@@ -1582,12 +1584,12 @@ Common_UI_Tools::getX11DisplayName (const std::string& outputName_in)
     XRRFreeScreenResources (screen_resources_p); screen_resources_p = NULL;
   } // end FOR
 
-  result = XCloseDisplay (display_2);
+  result = XCloseDisplay (display_2); display_2 = NULL;
   if (result)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to XCloseDisplay(), continuing\n")));
 
-  return (display_p ? ACE_TEXT (display_p) : ACE_TEXT ("NULL"));
+  return (display_p ? ACE_TEXT_ALWAYS_CHAR (display_p) : ACE_TEXT_ALWAYS_CHAR (""));
 }
 
 XWindowAttributes

@@ -23,6 +23,11 @@
 
 #include <string>
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+//#include "X11/X.h"
+#endif // ACE_WIN32 || ACE_WIN64
+
 #include "gtk/gtk.h"
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
@@ -45,6 +50,24 @@
 
 #include "common_ui_common.h"
 
+// helper types
+struct common_ui_gtk_tools_treemodel_indexsearch_cbdata
+{
+  common_ui_gtk_tools_treemodel_indexsearch_cbdata ()
+   : column (0)
+   , found (false)
+   , index (0)
+   , value ()
+  {
+    ACE_OS::memset (&value, 0, sizeof (struct _GValue));
+  }
+
+  gint   column;
+  bool   found;
+  gint   index;
+  GValue value;
+};
+
 class Common_UI_GTK_Tools
 // : public Common_SInitializeFinalize_T<Common_UI_Tools>
 {
@@ -59,22 +82,6 @@ class Common_UI_GTK_Tools
   // *IMPORTANT NOTE*: return value needs to be g_free()'d !
   static gchar* localeToUTF8 (const std::string&); // string
 
-  struct TreeModel_IndexSearch_CBData
-  {
-    TreeModel_IndexSearch_CBData ()
-     : column (0)
-     , found (false)
-     , index (0)
-     , value ()
-    {
-      ACE_OS::memset (&value, 0, sizeof (struct _GValue));
-    }
-
-    gint   column;
-    bool   found;
-    gint   index;
-    GValue value;
-  };
   // *IMPORTANT NOTE*: convert G_TYPE_STRING values to UTF8 (second argument)
   // *NOTE*: returns -1 if not found
   static gint valueToIndex (GtkTreeModel*,
@@ -87,19 +94,27 @@ class Common_UI_GTK_Tools
 
   static Common_UI_DisplayDevices_t getDisplayDevices (); // return value: connected devices
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  // *IMPORTANT NOTE*: if return value is not NULL, it must be g_object_unref()'d !
+  static GdkWindow* get (unsigned long); // window ID (XID)
+#endif // ACE_WIN32 || ACE_WIN64
+  // *IMPORTANT NOTE*: if return value is not NULL, it must be g_object_unref()'d !
+  static GdkPixbuf* get (GdkWindow*);
+
 #if defined (_DEBUG)
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
 #else
   // *NOTE*: recurses into any children
   static void dump (GtkContainer*); // container handle
-#endif // GTK_CHECK_VERSION(4,0,0)
+#endif // GTK_CHECK_VERSION (4,0,0)
 
   // print Gtk library information
   static void dumpGtkLibraryInfo ();
 #if defined (GTKGL_SUPPORT)
   // print OpenGL library information
-#if GTK_CHECK_VERSION(3,0,0)
-#if GTK_CHECK_VERSION(3,16,0)
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
   // *NOTE*: the context has to be realized before calling this function
   static void dumpGtkOpenGLInfo (GdkGLContext*); // context handle
 #else
@@ -108,14 +123,14 @@ class Common_UI_GTK_Tools
 #else
   static void dumpGtkOpenGLInfo (GdkWindow*); // GtkGLArea window handle
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION(3,16,0)
-#elif GTK_CHECK_VERSION(2,0,0)
+#endif // GTK_CHECK_VERSION (3,16,0)
+#elif GTK_CHECK_VERSION (2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
   static void dumpGtkOpenGLInfo (GdkGLContext*); // OpenGL context handle
 #else
   static void dumpGtkOpenGLInfo ();
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION(3,0,0)
+#endif // GTK_CHECK_VERSION (3,0,0)
 #endif // GTKGL_SUPPORT
 #endif // _DEBUG
 

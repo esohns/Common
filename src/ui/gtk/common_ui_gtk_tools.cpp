@@ -29,6 +29,12 @@
 #include "glib-object.h"
 #endif // GTK_CHECK_VERSION (2,3,0)
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+#include "gdk/gdkwayland.h"
+#include "gdk/gdkx.h"
+#endif // ACE_WIN32 || ACE_WIN64
+
 #if defined (GTK2_USE)
 #if defined (LIBGLADE_SUPPORT)
 #include "glade/glade-init.h"
@@ -91,8 +97,8 @@ gtk_tree_model_foreach_find_index_cb (GtkTreeModel* treeModel_in,
   ACE_ASSERT (treeModel_in);
   ACE_ASSERT (treeIterator_in);
   ACE_ASSERT (userData_in);
-  struct Common_UI_GTK_Tools::TreeModel_IndexSearch_CBData* cb_data_p =
-      reinterpret_cast<struct Common_UI_GTK_Tools::TreeModel_IndexSearch_CBData*> (userData_in);
+  struct common_ui_gtk_tools_treemodel_indexsearch_cbdata* cb_data_p =
+      reinterpret_cast<struct common_ui_gtk_tools_treemodel_indexsearch_cbdata*> (userData_in);
   ACE_ASSERT (cb_data_p);
 
 #if GTK_CHECK_VERSION (2,30,0)
@@ -349,7 +355,7 @@ Common_UI_GTK_Tools::valueToIndex (GtkTreeModel* treeModel_in,
                                        NULL))
     return -1;
 
-  struct Common_UI_GTK_Tools::TreeModel_IndexSearch_CBData cb_data_s;
+  struct common_ui_gtk_tools_treemodel_indexsearch_cbdata cb_data_s;
   cb_data_s.column = column_in;
   cb_data_s.index = 0;
   g_value_init (&cb_data_s.value, G_VALUE_TYPE (&value_in));
@@ -404,7 +410,7 @@ Common_UI_GTK_Tools::getDisplayDevices ()
 
   GdkDisplay* display_p = NULL;
   int number_of_monitors = 0;
-#if GTK_CHECK_VERSION(3,22,0)
+#if GTK_CHECK_VERSION (3,22,0)
   GdkMonitor* monitor_p = NULL;
 #else
   int number_of_screens = 0;
@@ -500,8 +506,97 @@ Common_UI_GTK_Tools::getDisplayDevices ()
   return return_value;
 }
 
+#if defined(ACE_WIN32) || defined(ACE_WIN64)
+#else
+GdkWindow*
+Common_UI_GTK_Tools::get (unsigned long windowId_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::get"));
+
+  GdkWindow* result_p = NULL;
+
+  std::vector<GdkDisplay*> displays_a;
+  GdkDisplayManager* display_manager_p = gdk_display_manager_get ();
+  ACE_ASSERT (display_manager_p);
+  GdkDisplay* display_p = NULL;
+  // display_p = gdk_display_manager_get_default_display (display_manager_p);
+  // if (!display_p)
+  //  display_p = gdk_display_get_default ();
+  // if (display_p)
+  //   displays_a.push_back (display_p);
+  // else
+  // {
+    GSList* list_p =
+     gdk_display_manager_list_displays (display_manager_p);
+    for (GSList* iterator = list_p; iterator; iterator = iterator->next)
+    {
+      display_p = (GdkDisplay*)iterator->data;
+      if (GDK_IS_X11_DISPLAY (display_p))
+        displays_a.push_back (display_p);
+    } // end FOR
+    g_slist_free (list_p); list_p = NULL;
+  // } // end ELSE
+  // Display* display_2 = XOpenDisplay (NULL);
+  // ACE_ASSERT (display_2);
+  // display_p = gdk_x11_lookup_xdisplay (display_2);
+  // ACE_ASSERT (display_p);
+  // XCloseDisplay (display_2); display_2 = NULL;
+
+  for (std::vector<GdkDisplay*>::iterator iterator = displays_a.begin ();
+       iterator != displays_a.end ();
+       ++iterator)
+  {
+    result_p = gdk_x11_window_lookup_for_display (*iterator,
+                                                  windowId_in);
+    if (result_p)
+    {
+      g_object_ref (result_p); // *NOTE*: consistent with code below (caller
+                               //         holds a reference)
+      return result_p;
+    } // end IF
+  } // end FOR
+
+  if (displays_a.empty ())
+    return NULL;
+  result_p =
+    gdk_x11_window_foreign_new_for_display (*displays_a.begin (),
+                                            windowId_in);
+  return result_p;
+}
+#endif // ACE_WIN32 || ACE_WIN64
+
+GdkPixbuf*
+Common_UI_GTK_Tools::get (GdkWindow* window_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::get"));
+
+  GdkPixbuf* pixel_buffer_p = NULL;
+
+#if GTK_CHECK_VERSION (3,0,0)
+  gint x, y, width, height;
+  gdk_window_get_geometry (window_in, &x, &y, &width, &height);
+  pixel_buffer_p = gdk_pixbuf_get_from_window (window_in,
+                                               x, y,
+                                               width, height);
+#elif GTK_CHECK_VERSION (2, 0, 0)
+  gint x_orig, y_orig;
+  gint width, height;
+  gdk_drawable_get_size (window_in, &width, &height);
+  gdk_window_get_origin (window_in, &x_orig, &y_orig);
+
+  pixel_buffer_p = gdk_pixbuf_get_from_drawable (NULL,
+                                                 window_in,
+                                                 NULL,
+                                                 x_orig, y_orig,
+                                                 0, 0,
+                                                 width, height);
+#endif // GTK_CHECK_VERSION
+
+  return pixel_buffer_p;
+}
+
 #if defined (_DEBUG)
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
 #else
 void
 Common_UI_GTK_Tools::dump (GtkContainer* container_in)
@@ -524,7 +619,7 @@ Common_UI_GTK_Tools::dump (GtkContainer* container_in)
                          gtk_container_dump_cb,
                          &indent_i);
 }
-#endif // GTK_CHECK_VERSION(4,0,0)
+#endif // GTK_CHECK_VERSION (4,0,0)
 
 void
 Common_UI_GTK_Tools::dumpGtkLibraryInfo ()
@@ -651,11 +746,11 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
 #if defined (GTKGLAREA_SUPPORT)
 #else
 #endif /* GTKGLAREA_SUPPORT */
-#endif // GTK_CHECK_VERSION (3/4,0,0)
+#endif // GTK_CHECK_VERSION
 
   // sanity check(s)
-#if GTK_CHECK_VERSION(3,0,0)
-#if GTK_CHECK_VERSION(3,16,0)
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
   ACE_ASSERT (context_in);
 #else
 #if defined (GTKGLAREA_SUPPORT)
@@ -684,20 +779,20 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
   } // end IF
   ACE_ASSERT (window_p);
 #endif /* GTKGLAREA_SUPPORT */
-#endif // GTK_CHECK_VERSION(3,16,0)
+#endif // GTK_CHECK_VERSION (3,16,0)
 #elif GTK_CHECK_VERSION (2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
   ACE_ASSERT (context_in);
 #endif // GTKGLAREA_SUPPORT
 #else
   ACE_ASSERT (false); // *TODO*: use glext
-#endif // GTK_CHECK_VERSION(3,0,0)
+#endif // GTK_CHECK_VERSION (3,0,0)
 //  ACE_ASSERT (window_p);
 
 #if GTK_CHECK_VERSION (4,0,0)
   GdkGLContext* gl_context_p = context_in;
-#elif GTK_CHECK_VERSION(3,0,0)
-#if GTK_CHECK_VERSION(3,16,0)
+#elif GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
   GdkGLContext* gl_context_p = gdk_gl_context_get_current ();
   if (unlikely (!gl_context_p))
   {
@@ -713,16 +808,11 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
                   window_p,
                   ACE_TEXT (error_p->message)));
       g_error_free (error_p); error_p = NULL;
-      if (release_window)
-      {
-        g_object_unref (window_p); window_p = NULL;
-      } // end IF
       return;
     } // end IF
     release_context = true;
 #if defined (_DEBUG)
-    gdk_gl_context_set_debug_enabled (gl_context_p,
-                                      TRUE);
+    gdk_gl_context_set_debug_enabled (gl_context_p, TRUE);
 #endif // _DEBUG
     if (!gdk_gl_context_realize (gl_context_p,
                                  &error_p))
@@ -732,10 +822,6 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
                   gl_context_p,
                   ACE_TEXT (error_p->message)));
       g_error_free (error_p); error_p = NULL;
-      if (release_window)
-      {
-        g_object_unref (window_p); window_p = NULL;
-      } // end IF
       g_object_unref (gl_context_p); gl_context_p = NULL;
       return;
     } // end IF
@@ -758,7 +844,7 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
   g_free (info_string_p); info_string_p = NULL;
 #else
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION(3,16,0)
+#endif // GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
   gint result = gdk_gl_query ();
@@ -776,13 +862,13 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
   g_free (info_string_p); info_string_p = NULL;
 #else
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION(3/4,0,0)
+#endif // GTK_CHECK_VERSION (3/4,0,0)
 
   int version_major = 0, version_minor = 0;
 
   information_string = ACE_TEXT_ALWAYS_CHAR ("OpenGL version: ");
-#if GTK_CHECK_VERSION(3,0,0)
-#if GTK_CHECK_VERSION(3,16,0)
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
   ACE_ASSERT (gl_context_p);
 
   gdk_gl_context_get_version (gl_context_p,
@@ -833,8 +919,6 @@ continue_:
 #if GTK_CHECK_VERSION (3,16,0)
   if (release_context)
     g_object_unref (gl_context_p);
-  if (release_window)
-    g_object_unref (window_p);
 #else
 #endif // GTK_CHECK_VERSION (3,16,0)
 #else

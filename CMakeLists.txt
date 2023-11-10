@@ -284,8 +284,7 @@ if (WIN32)
  else ()
   set (CMAKE_HELPERS_PATH "modules/CMakeHelpers")
  endif (DEFINED ENV{LIB_ROOT})
- list (APPEND CMAKE_MODULE_PATH
-       "${CMAKE_HELPERS_PATH}")
+ list (APPEND CMAKE_MODULE_PATH "${CMAKE_HELPERS_PATH}")
  include (generate_product_version)
 endif (WIN32)
 

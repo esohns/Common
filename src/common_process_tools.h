@@ -21,10 +21,23 @@
 #ifndef COMMON_PROCESS_TOOLS_H
 #define COMMON_PROCESS_TOOLS_H
 
-#include <string>
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+#include "unistd.h"
+#endif // ACE_WIN32 || ACE_WIN64
 
-#include "ace/config-lite.h"
+#include <string>
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+#include <vector>
+
+//#include "X11/X.h"
+//#include "X11/Xlib.h"
+struct _XDisplay;
+#endif // ACE_WIN32 || ACE_WIN64
+
 #include "ace/ace_wchar.h"
+#include "ace/Global_Macros.h"
 
 class Common_Process_Tools
 {
@@ -44,6 +57,8 @@ class Common_Process_Tools
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   static HWND window (pid_t); // process id
+#else
+  static unsigned long window (pid_t); // process id
 #endif // ACE_WIN32 || ACE_WIN64
 
   // *NOTE*: the Windows implementation relies on the 'tasklist.exe' command
@@ -67,6 +82,19 @@ class Common_Process_Tools
   ACE_UNIMPLEMENTED_FUNC (~Common_Process_Tools ())
   ACE_UNIMPLEMENTED_FUNC (Common_Process_Tools (const Common_Process_Tools&))
   ACE_UNIMPLEMENTED_FUNC (Common_Process_Tools& operator= (const Common_Process_Tools&))
+
+  // helper methods
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+  static pid_t id (struct _XDisplay&, // display handle
+                   unsigned long,     // window id (XID)
+                   unsigned long);    // _NET_WM_PID (!) atom
+  static void recurseSearchWindow (struct _XDisplay&,            // display handle
+                                   unsigned long,                // window id (XID)
+                                   unsigned long,                // _NET_WM_PID (!) atom
+                                   pid_t,                        // process id
+                                   std::vector<unsigned long>&); // in/out result
+#endif // ACE_WIN32 || ACE_WIN64
 };
 
 #endif

@@ -185,7 +185,10 @@ if (GTK_SUPPORT AND OPENGL_SUPPORT)
  if (UNIX)
   if (GTK3_FOUND)
 # *TODO*: find out the distribution release versions that require this package
-   pkg_check_modules (PKG_GTKGL3 gtkgl-3.0)
+# *NOTE*: assume GL support is available for gtk3 (either native or via
+#         gtkglarea, see below)
+   set (GTKGL_FOUND TRUE)
+#   pkg_check_modules (PKG_GTKGL3 gtkgl-3.0)
    if (PKG_GTKGL3_FOUND)
     set (GTKGL_FOUND TRUE)
    endif (PKG_GTKGL3_FOUND)

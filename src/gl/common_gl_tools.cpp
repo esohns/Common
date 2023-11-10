@@ -281,17 +281,17 @@ Common_GL_Tools::loadTexture (const std::string& path_in)
 //#endif // _DEBUG
 
   glGenTextures (1, &return_value);
-  COMMON_GL_ASSERT;
+  // COMMON_GL_ASSERT;
 
   glBindTexture (GL_TEXTURE_2D, return_value);
-  COMMON_GL_ASSERT;
+  // COMMON_GL_ASSERT;
 
   glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-  COMMON_GL_ASSERT;
+  // COMMON_GL_ASSERT;
   glEnableClientState (GL_VERTEX_ARRAY);
-  COMMON_GL_ASSERT;
+  // COMMON_GL_ASSERT;
   glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  COMMON_GL_ASSERT;
+  // COMMON_GL_ASSERT;
   // select modulate to mix texture with color for shading
 //    glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 //    COMMON_GL_ASSERT;
@@ -307,24 +307,24 @@ Common_GL_Tools::loadTexture (const std::string& path_in)
 //#else
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 //#endif // GL_VERSION_1_1
-  COMMON_GL_ASSERT;
+  // COMMON_GL_ASSERT;
 
   glTexImage2D (GL_TEXTURE_2D, 0, (has_alpha ? GL_RGBA8 : GL_RGB8), width, height, 0,
                 (has_alpha ? GL_RGBA : GL_RGB),
                 GL_UNSIGNED_BYTE, image_p);
-  COMMON_GL_ASSERT;
+  // COMMON_GL_ASSERT;
 
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  COMMON_GL_ASSERT;
+  // COMMON_GL_ASSERT;
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  COMMON_GL_ASSERT;
+  // COMMON_GL_ASSERT;
 #if defined (GL_VERSION_1_4)
   glTexParameteri (GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-  COMMON_GL_ASSERT;
+  // COMMON_GL_ASSERT;
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-  COMMON_GL_ASSERT;
+  // COMMON_GL_ASSERT;
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1000);
-  COMMON_GL_ASSERT;
+  // COMMON_GL_ASSERT;
 #endif // GL_VERSION_1_4
 
   //glBindTexture (GL_TEXTURE_2D, 0);

@@ -55,6 +55,7 @@ if (WIN32)
  target_include_directories (${PROJECT_NAME} PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
 endif (WIN32)
+
 target_include_directories (${PROJECT_NAME} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/error>)
 target_include_directories (${PROJECT_NAME} PUBLIC
@@ -63,6 +64,8 @@ target_include_directories (${PROJECT_NAME} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/task>)
 target_include_directories (${PROJECT_NAME} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/timer>)
+target_include_directories (${PROJECT_NAME} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ui>)
 
 ############## next target ################
 set (source_files
@@ -165,6 +168,8 @@ if (UNIX)
  if (LIBSYSFS_SUPPORT)
   target_link_libraries (${PROJECT_NAME} PUBLIC ${PKG_LIBSYSFS_LIBRARIES})
  endif (LIBSYSFS_SUPPORT)
+
+ target_link_libraries (${PROJECT_NAME} PUBLIC X11)
 elseif (WIN32)
  set (LIB_WITH_SUFFIX "Msvcrt")
  if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
@@ -183,6 +188,7 @@ elseif (WIN32)
 endif ()
 target_link_libraries (${PROJECT_NAME} PUBLIC ${PROJECT_NAME}Error)
 target_link_libraries (${PROJECT_NAME} PUBLIC ${PROJECT_NAME}Signal)
+target_link_libraries (${PROJECT_NAME} PUBLIC ${PROJECT_NAME}UI)
 
 ##########################################
 

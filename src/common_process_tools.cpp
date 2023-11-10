@@ -27,6 +27,10 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 #include "signal.h"
+
+#include "X11/X.h"
+#include "X11/Xatom.h"
+#include "X11/Xlib.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/Log_Msg.h"
@@ -37,12 +41,15 @@
 #include "common_os_tools.h"
 #include "common_tools.h"
 
-#if defined(ACE_WIN32) || defined(ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "common_error_tools.h"
+#else
+#include "common_ui_tools.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 //////////////////////////////////////////
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 struct common_enum_windows_cbdata
 {
   DWORD id;
@@ -70,6 +77,7 @@ common_enum_windows_cb (HWND hwnd, LPARAM lParam)
 
   return TRUE;
 }
+#endif // ACE_WIN32 || ACE_WIN64
 
 //////////////////////////////////////////
 
@@ -193,6 +201,38 @@ Common_Process_Tools::window (pid_t processId_in)
   } // end IF
 
   return cb_data_s.window;
+}
+#else
+Window
+Common_Process_Tools::window (pid_t processId_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Process_Tools::window"));
+
+  // sanity check(s)
+  ACE_ASSERT (processId_in);
+
+  struct _XDisplay* display_p = XOpenDisplay (NULL);
+  ACE_ASSERT (display_p);
+  Window root_window_i = XDefaultRootWindow (display_p);
+  ACE_ASSERT (root_window_i);
+  Atom atom_i = XInternAtom (display_p,
+                             ACE_TEXT_ALWAYS_CHAR ("_NET_WM_PID"),
+                             True);
+  ACE_ASSERT (atom_i != None);
+
+  std::vector<Window> result_a;
+  Common_Process_Tools::recurseSearchWindow (*display_p,
+                                             root_window_i,
+                                             atom_i,
+                                             processId_in,
+                                             result_a);
+
+  Status result = XCloseDisplay (display_p); display_p = NULL;
+  ACE_ASSERT (result == Success);
+
+  if (unlikely (result_a.empty ()))
+    return 0;
+  return result_a[0];
 }
 #endif // ACE_WIN32 || ACE_WIN64
 
@@ -517,5 +557,101 @@ clean:
 #endif // ACE_LINUX
 
   return result;
+}
+#endif // ACE_WIN32 || ACE_WIN64
+
+#if defined(ACE_WIN32) || defined(ACE_WIN64)
+#else
+pid_t
+Common_Process_Tools::id (struct _XDisplay& display_in,
+                          unsigned long windowId_in,
+                          unsigned long atom_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Process_Tools::id"));
+
+  Atom type;
+  int format;
+  unsigned long nItems;
+  unsigned long bytesAfter;
+  unsigned char* propPID = NULL;
+
+  Status result = XGetWindowProperty (&display_in,
+                                      windowId_in,
+                                      atom_in,
+                                      0,
+                                      1,
+                                      False,
+                                      XA_CARDINAL,
+                                      &type,
+                                      &format,
+                                      &nItems,
+                                      &bytesAfter,
+                                      &propPID);
+  if (unlikely (result != Success))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to XGetWindowProperty(_NET_WM_PID): \"%s\", aborting\n"),
+                ACE_TEXT (Common_UI_Tools::toString (display_in, result).c_str ())));
+    return 0;
+  } // end IF
+
+  pid_t result_2 = 0;
+  if (propPID)
+  {
+    result_2 = *reinterpret_cast<pid_t*> (propPID);
+
+    // clean up
+    XFree (propPID);
+  } // end IF
+
+  return result_2;
+}
+
+void
+Common_Process_Tools::recurseSearchWindow (struct _XDisplay& display_in,
+                                           unsigned long windowId_in,
+                                           unsigned long atom_in,
+                                           pid_t processId_in,
+                                           std::vector<unsigned long>& result_inout)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Process_Tools::recurseSearchWindow"));
+
+  // step1: check current window
+  pid_t process_id = Common_Process_Tools::id (display_in,
+                                               windowId_in,
+                                               atom_in);
+  if (process_id == processId_in)
+    result_inout.push_back (windowId_in);
+
+  // step2: recurse into any children
+  Window wRoot;
+  Window wParent;
+  Window* wChild = NULL;
+  unsigned int nChildren = 0;
+
+  Status result = XQueryTree (&display_in,
+                              windowId_in,
+                              &wRoot,
+                              &wParent,
+                              &wChild,
+                              &nChildren);
+  if (unlikely (result == 0)) // *NOTE*: "...XQueryTree() returns zero if it
+                              //         fails and nonzero if it succeeds..."
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to XQueryTree(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_UI_Tools::toString (display_in, result).c_str ())));
+    return;
+  } // end IF
+  for (unsigned int i = 0; i < nChildren; i++)
+    Common_Process_Tools::recurseSearchWindow (display_in,
+                                               wChild[i],
+                                               atom_in,
+                                               processId_in,
+                                               result_inout);
+
+  // clean up
+  if (wChild)
+    XFree (wChild);
 }
 #endif // ACE_WIN32 || ACE_WIN64
