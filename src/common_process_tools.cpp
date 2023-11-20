@@ -191,13 +191,14 @@ Common_Process_Tools::window (pid_t processId_in)
   cb_data_s.window = NULL;
 
   // step2: retrieve window handle by process id
-  if (!EnumWindows (common_enum_windows_cb,
-                    reinterpret_cast<LPARAM> (&cb_data_s)))
+  if (unlikely (!EnumWindows (common_enum_windows_cb,
+                              reinterpret_cast<LPARAM> (&cb_data_s)) &&
+                !cb_data_s.window))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to EnumWindows(): \"%s\", aborting\n"),
                 ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false, false).c_str ())));
-    return cb_data_s.window;
+    return NULL;
   } // end IF
 
   return cb_data_s.window;
