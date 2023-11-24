@@ -6,6 +6,10 @@ if (UNIX)
                PATH_SUFFIXES lib
                DOC "searching for ${ACE_LIB_FILE}")
 elseif (WIN32)
+ set (LIB_FILE_SUFFIX "")
+ if ($<CONFIG> STREQUAL "Debug")
+  set (LIB_FILE_SUFFIX "d")
+ endif ($<CONFIG> STREQUAL "Debug")
  set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
 
  if (VCPKG_USE)
