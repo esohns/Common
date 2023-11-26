@@ -39,12 +39,14 @@
 #include "common_ui_gtk_gl_common.h"
 #endif // GTKGL_SUPPORT
 
-#include "common_ui_gtk_builder_definition.h"
+// #include "common_ui_gtk_builder_definition.h"
 
 // forward declarations
 #if defined (LIGBGLADE_SUPPORT)
 struct _GladeXML;
 #endif // LIGBGLADE_SUPPORT
+template <typename StateType>
+class Common_UI_GtkBuilderDefinition_T;
 
 //enum Common_UI_GTK_InterfaceDefinitionType : int
 enum Common_UI_GTK_InterfaceDefinitionType
