@@ -70,7 +70,8 @@ Common_Math_Tools::lerp (ValueType start_in,
   COMMON_TRACE (ACE_TEXT ("Common_Math_Tools::lerp"));
 
   // sanity check(s)
-  if (end_in < start_in)
+  ACE_ASSERT (amount_in >= static_cast<ValueType> (0.0) && amount_in <= static_cast<ValueType> (1.0));
+  if (unlikely (end_in < start_in))
   {
     ValueType temp = end_in;
     end_in = start_in;
