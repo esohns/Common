@@ -23,7 +23,9 @@
 
 #include <string>
 
-#include "ace/config-lite.h"
+#if defined (GLEW_SUPPORT)
+#include "GL/glew.h"
+#endif // GLEW_SUPPORT
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "gl/GL.h"
 #else
@@ -82,11 +84,17 @@ class Common_GL_Tools
   // *TODO*: currently, only PNG files are supported
   static GLuint loadTexture (const std::string&); // path
   // *NOTE*: invoke glTexImage2D() with 'target' GL_TEXTURE_2D and 'internal
-  //         format' GL_RGBA8, format GL_RGBA
+  //         format' GL_RGBA8, format GL_RGBA (!)
   static void loadTexture (const uint8_t*, // data
                            unsigned int,   // width
                            unsigned int,   // height
-                           GLuint);        // texture id
+                           GLuint,         // texture id
+                           bool);          // initial ? : update
+
+  // shader
+  static bool loadAndCompileShader (const std::string&, // path
+                                    GLenum,             // shader type (i.e. GL_VERTEX_SHADER || GL_FRAGMENT_SHADER)
+                                    GLuint&);           // return value: shader id
 
   // drawing
   // *NOTE*: includes glBegin()/glEnd() calls

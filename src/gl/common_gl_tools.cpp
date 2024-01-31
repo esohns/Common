@@ -339,56 +339,127 @@ void
 Common_GL_Tools::loadTexture (const uint8_t* data_in,
                               unsigned int width_in,
                               unsigned int height_in,
-                              GLuint textureIndex_in)
+                              GLuint textureIndex_in,
+                              bool isFirst_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::loadTexture"));
 
   glBindTexture (GL_TEXTURE_2D, textureIndex_in);
-  COMMON_GL_PRINT_ERROR;
+  //COMMON_GL_PRINT_ERROR;
 
-  glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-  COMMON_GL_ASSERT;
-  glEnableClientState (GL_VERTEX_ARRAY);
-  COMMON_GL_ASSERT;
-  glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  COMMON_GL_ASSERT;
-  // select modulate to mix texture with color for shading
-//    glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-//    ACE_ASSERT (glGetError () == GL_NO_ERROR);
+  if (isFirst_in)
+  {
+    glEnableClientState (GL_TEXTURE_COORD_ARRAY);
+    //COMMON_GL_ASSERT;
+    glEnableClientState (GL_VERTEX_ARRAY);
+    //COMMON_GL_ASSERT;
+    glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    //COMMON_GL_ASSERT;
+    // select modulate to mix texture with color for shading
+  //    glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+  //    ACE_ASSERT (glGetError () == GL_NO_ERROR);
 
-//#if !defined (GL_VERSION_1_2)
-//  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); // GL_CLAMP_TO_EDGE
-//#else
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-//#endif // GL_VERSION_1_2
-  COMMON_GL_ASSERT;
-//#if !defined (GL_VERSION_1_2)
-//  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP); // GL_CLAMP_TO_EDGE
-//#else
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-//#endif // GL_VERSION_1_1
-  COMMON_GL_ASSERT;
+  //#if !defined (GL_VERSION_1_2)
+  //  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); // GL_CLAMP_TO_EDGE
+  //#else
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  //#endif // GL_VERSION_1_2
+    //COMMON_GL_ASSERT;
+  //#if !defined (GL_VERSION_1_2)
+  //  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP); // GL_CLAMP_TO_EDGE
+  //#else
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  //#endif // GL_VERSION_1_1
+    //COMMON_GL_ASSERT;
 
-  glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, width_in, height_in, 0,
-                GL_RGBA,
-                GL_UNSIGNED_BYTE, data_in);
-  COMMON_GL_ASSERT;
+    glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, width_in, height_in, 0,
+                  GL_RGBA,
+                  GL_UNSIGNED_BYTE, data_in);
+    //COMMON_GL_ASSERT;
 
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  COMMON_GL_ASSERT;
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  COMMON_GL_ASSERT;
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    //COMMON_GL_ASSERT;
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    //COMMON_GL_ASSERT;
 
-#if defined (GL_VERSION_1_4)
-  glTexParameteri (GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-  COMMON_GL_ASSERT;
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-  COMMON_GL_ASSERT;
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1000);
-  COMMON_GL_ASSERT;
-#endif // GL_VERSION_1_4
+//#if defined (GL_VERSION_1_4)
+//    glTexParameteri (GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+//    //COMMON_GL_ASSERT;
+//    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+//    //COMMON_GL_ASSERT;
+//    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1000);
+//    //COMMON_GL_ASSERT;
+//#endif // GL_VERSION_1_4
+  }    // end IF
+  else
+  {
+    glTexSubImage2D (GL_TEXTURE_2D, 0, 0, 0, width_in, height_in,
+                     GL_RGBA,
+                     GL_UNSIGNED_BYTE, data_in);
+    //glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, width_in, height_in, 0,
+    //              GL_RGBA,
+    //              GL_UNSIGNED_BYTE, data_in);
+    //COMMON_GL_ASSERT;
+  } // end ELSE
 
   glBindTexture (GL_TEXTURE_2D, 0);
+}
+
+bool
+Common_GL_Tools::loadAndCompileShader (const std::string& path_in,
+                                       GLenum type_in,
+                                       GLuint& id_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::loadAndCompileShader"));
+
+  // initialize return value(s)
+  id_out = -1;
+
+  id_out = glCreateShader (type_in);
+
+  uint8_t* data_p = NULL;
+  ACE_UINT64 file_size_i = 0;
+  if (unlikely (!Common_File_Tools::load (path_in,
+                                          data_p,
+                                          file_size_i,
+                                          0)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to load \"%s\", aborting\n"),
+                ACE_TEXT (path_in.c_str ())));
+    glDeleteShader (id_out); id_out = -1;
+    return false;
+  } // end IF
+
+  GLchar* array_a[2];
+  array_a[0] = reinterpret_cast<GLchar*> (data_p);
+  array_a[1] = NULL;
+  GLint array_2[2];
+  array_2[0] = static_cast<GLint> (file_size_i);
+  array_2[1] = static_cast<GLint> (NULL);
+  glShaderSource (id_out, 1, array_a, array_2);
+  delete [] data_p; data_p = NULL;
+
+  glCompileShader (id_out);
+  GLint success = 0;
+  glGetShaderiv (id_out, GL_COMPILE_STATUS, &success);
+  if (unlikely (success == GL_FALSE))
+  {
+    GLchar info_log_a[BUFSIZ * 4];
+    GLsizei buf_size_i = 0;
+    glGetShaderInfoLog (id_out,
+                        sizeof (GLchar) * BUFSIZ * 4,
+                        &buf_size_i,
+                        info_log_a);
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to compile \"%s\": \"%s\", aborting\n"),
+                ACE_TEXT (path_in.c_str ()),
+                ACE_TEXT (info_log_a)));
+    glDeleteShader (id_out); id_out = -1;
+    return false;
+  } // end IF
+
+  return true;
 }
 
 void

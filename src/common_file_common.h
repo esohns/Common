@@ -58,7 +58,8 @@ typedef Common_File_Entries_t::const_iterator Common_File_EntriesIterator_t;
 struct Common_File_Identifier
 {
   Common_File_Identifier ()
-   : identifier ()
+   : comparator (NULL)
+   , identifier ()
    , identifierDiscriminator (Common_File_Identifier::FILE)
    , selector (NULL) // *NOTE*: NULL will select all (!) entries by default
   {}
@@ -73,6 +74,7 @@ struct Common_File_Identifier
     INVALID
   };
 
+  ACE_SCANDIR_COMPARATOR comparator;
   std::string            identifier;
   enum discriminatorType identifierDiscriminator;
   ACE_SCANDIR_SELECTOR   selector;

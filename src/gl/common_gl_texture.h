@@ -3,7 +3,9 @@
 
 #include <string>
 
-#include "ace/config-lite.h"
+#if defined (GLEW_SUPPORT)
+#include "GL/glew.h"
+#endif // GLEW_SUPPORT
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "gl/GL.h"
 #else

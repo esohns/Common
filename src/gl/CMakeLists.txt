@@ -2,6 +2,7 @@ include (ImageMagick)
 
 set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts")
 include (assimp)
+include (glew)
 include (glm)
 include (glut)
 set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../image/scripts")
@@ -15,18 +16,23 @@ if (IMAGEMAGICK_SUPPORT)
                              "$<BUILD_INTERFACE:${ImageMagick_INCLUDE_DIRS}>")
 endif (IMAGEMAGICK_SUPPORT)
 
-if (GLM_SUPPORT)
- target_include_directories (${LIBRARY} PUBLIC
-                             "$<BUILD_INTERFACE:${GLM_INCLUDE_DIRS}>")
-endif (GLM_SUPPORT)
-if (LIBPNG_SUPPORT)
- target_include_directories (${LIBRARY} PUBLIC
-                             "$<BUILD_INTERFACE:${PNG_INCLUDE_DIRS}>")
-endif (LIBPNG_SUPPORT)
 if (ASSIMP_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
                              "$<BUILD_INTERFACE:${ASSIMP_INCLUDE_DIRS}>")
 endif (ASSIMP_SUPPORT)
+if (GLEW_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             "$<BUILD_INTERFACE:${GLEW_INCLUDE_DIRS}>")
+endif (GLEW_SUPPORT)
+if (GLM_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             "$<BUILD_INTERFACE:${GLM_INCLUDE_DIRS}>")
+endif (GLM_SUPPORT)
+
+if (LIBPNG_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             "$<BUILD_INTERFACE:${PNG_INCLUDE_DIRS}>")
+endif (LIBPNG_SUPPORT)
 
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)
@@ -83,12 +89,17 @@ if (IMAGEMAGICK_SUPPORT)
  target_link_libraries (${LIBRARY} PUBLIC ${ImageMagick_LIBRARIES})
 endif (IMAGEMAGICK_SUPPORT)
 
-if (LIBPNG_SUPPORT)
- target_link_libraries (${LIBRARY} PUBLIC ${PNG_LIBRARIES})
-endif (LIBPNG_SUPPORT)
 if (ASSIMP_SUPPORT)
  target_link_libraries (${LIBRARY} PUBLIC ${ASSIMP_LIBRARIES})
 endif (ASSIMP_SUPPORT)
+if (GLEW_SUPPORT)
+ target_link_libraries (${LIBRARY} PUBLIC ${GLEW_LIBRARIES})
+endif (GLEW_SUPPORT)
+
+if (LIBPNG_SUPPORT)
+ target_link_libraries (${LIBRARY} PUBLIC ${PNG_LIBRARIES})
+endif (LIBPNG_SUPPORT)
+
 
 target_link_libraries (${LIBRARY} PUBLIC ${PROJECT_NAME}Image)
 
