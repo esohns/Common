@@ -463,107 +463,108 @@ Common_GL_Tools::loadAndCompileShader (const std::string& path_in,
 }
 
 void
-Common_GL_Tools::drawCube (bool setTextureCoordinates_in)
+Common_GL_Tools::drawCube (bool setTextureCoordinates_in,
+                           bool setColor_in)
 {
-//  COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::drawCube"));
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::drawCube"));
 
   glBegin (GL_QUADS);
 
   // Front Face
   if (setTextureCoordinates_in)
     glTexCoord2f (0.0f, 0.0f);
-  else
+  else if (setColor_in)
     glColor3f (1.0f, 0.0f, 0.0f);
-  glVertex3f (-1.0f, -1.0f,  1.0f); // Bottom Left Of The Texture and Quad
+  glVertex3f (-0.5f, -0.5f, 0.5f); // Bottom Left Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 0.0f);
-  glVertex3f ( 1.0f, -1.0f,  1.0f); // Bottom Right Of The Texture and Quad
+  glVertex3f (0.5f, -0.5f, 0.5f); // Bottom Right Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 1.0f);
-  glVertex3f ( 1.0f,  1.0f,  1.0f); // Top Right Of The Texture and Quad
+  glVertex3f (0.5f, 0.5f, 0.5f); // Top Right Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (0.0f, 1.0f);
-  glVertex3f (-1.0f,  1.0f,  1.0f); // Top Left Of The Texture and Quad
+  glVertex3f (-0.5f, 0.5f, 0.5f); // Top Left Of The Texture and Quad
 
   // Back Face
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 0.0f);
-  else
+  else if (setColor_in)
     glColor3f (0.0f, 1.0f, 0.0f);
-  glVertex3f (-1.0f, -1.0f, -1.0f); // Bottom Right Of The Texture and Quad
+  glVertex3f (-0.5f, -0.5f, -0.5f); // Bottom Right Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 1.0f);
-  glVertex3f (-1.0f,  1.0f, -1.0f); // Top Right Of The Texture and Quad
+  glVertex3f (-0.5f, 0.5f, -0.5f); // Top Right Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (0.0f, 1.0f);
-  glVertex3f ( 1.0f,  1.0f, -1.0f); // Top Left Of The Texture and Quad
+  glVertex3f (0.5f, 0.5f, -0.5f); // Top Left Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (0.0f, 0.0f);
-  glVertex3f ( 1.0f, -1.0f, -1.0f); // Bottom Left Of The Texture and Quad
+  glVertex3f (0.5f, -0.5f, -0.5f); // Bottom Left Of The Texture and Quad
 
   // Top Face
   if (setTextureCoordinates_in)
     glTexCoord2f (0.0f, 1.0f);
-  else
+  else if (setColor_in)
     glColor3f (0.0f, 0.0f, 1.0f);
-  glVertex3f (-1.0f,  1.0f, -1.0f); // Top Left Of The Texture and Quad
+  glVertex3f (-0.5f, 0.5f, -0.5f); // Top Left Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (0.0f, 0.0f);
-  glVertex3f (-1.0f,  1.0f,  1.0f); // Bottom Left Of The Texture and Quad
+  glVertex3f (-0.5f, 0.5f, 0.5f); // Bottom Left Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 0.0f);
-  glVertex3f ( 1.0f,  1.0f,  1.0f); // Bottom Right Of The Texture and Quad
+  glVertex3f (0.5f, 0.5f, 0.5f); // Bottom Right Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 1.0f);
-  glVertex3f ( 1.0f,  1.0f, -1.0f); // Top Right Of The Texture and Quad
+  glVertex3f (0.5f, 0.5f, -0.5f); // Top Right Of The Texture and Quad
 
   // Bottom Face
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 1.0f);
-  else
+  else if (setColor_in)
     glColor3f (1.0f, 1.0f, 0.0f);
-  glVertex3f (-1.0f, -1.0f, -1.0f); // Top Right Of The Texture and Quad
+  glVertex3f (-0.5f, -0.5f, -0.5f); // Top Right Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (0.0f, 1.0f);
-  glVertex3f ( 1.0f, -1.0f, -1.0f); // Top Left Of The Texture and Quad
+  glVertex3f (0.5f, -0.5f, -0.5f); // Top Left Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (0.0f, 0.0f);
-  glVertex3f ( 1.0f, -1.0f,  1.0f); // Bottom Left Of The Texture and Quad
+  glVertex3f (0.5f, -0.5f, 0.5f); // Bottom Left Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 0.0f);
-  glVertex3f (-1.0f, -1.0f,  1.0f); // Bottom Right Of The Texture and Quad
+  glVertex3f (-0.5f, -0.5f, 0.5f); // Bottom Right Of The Texture and Quad
 
   // Right face
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 0.0f);
-  else
+  else if (setColor_in)
     glColor3f (1.0f, 0.0f, 1.0f);
-  glVertex3f ( 1.0f, -1.0f, -1.0f); // Bottom Right Of The Texture and Quad
+  glVertex3f (0.5f, -0.5f, -0.5f); // Bottom Right Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 1.0f);
-  glVertex3f ( 1.0f,  1.0f, -1.0f); // Top Right Of The Texture and Quad
+  glVertex3f (0.5f, 0.5f, -0.5f); // Top Right Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (0.0f, 1.0f);
-  glVertex3f ( 1.0f,  1.0f,  1.0f); // Top Left Of The Texture and Quad
+  glVertex3f (0.5f, 0.5f, 0.5f); // Top Left Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (0.0f, 0.0f);
-  glVertex3f ( 1.0f, -1.0f,  1.0f); // Bottom Left Of The Texture and Quad
+  glVertex3f (0.5f, -0.5f, 0.5f); // Bottom Left Of The Texture and Quad
 
   // Left Face
   if (setTextureCoordinates_in)
     glTexCoord2f (0.0f, 0.0f);
-  else
+  else if (setColor_in)
     glColor3f (1.0f, 1.0f, 1.0f);
-  glVertex3f (-1.0f, -1.0f, -1.0f); // Bottom Left Of The Texture and Quad
+  glVertex3f (-0.5f, -0.5f, -0.5f); // Bottom Left Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 0.0f);
-  glVertex3f (-1.0f, -1.0f,  1.0f); // Bottom Right Of The Texture and Quad
+  glVertex3f (-0.5f, -0.5f, 0.5f); // Bottom Right Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (1.0f, 1.0f);
-  glVertex3f (-1.0f,  1.0f,  1.0f); // Top Right Of The Texture and Quad
+  glVertex3f (-0.5f, 0.5f, 0.5f); // Top Right Of The Texture and Quad
   if (setTextureCoordinates_in)
     glTexCoord2f (0.0f, 1.0f);
-  glVertex3f (-1.0f,  1.0f, -1.0f); // Top Left Of The Texture and Quad
+  glVertex3f (-0.5f, 0.5f, -0.5f); // Top Left Of The Texture and Quad
 
   glEnd ();
 }

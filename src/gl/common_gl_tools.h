@@ -98,7 +98,8 @@ class Common_GL_Tools
 
   // drawing
   // *NOTE*: includes glBegin()/glEnd() calls
-  static void drawCube (bool = false); // set (2d-)texture coordinates ?
+  static void drawCube (bool = false, // set (2d-)texture coordinates ?
+                        bool = true); // set color ?
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_GL_Tools ())
