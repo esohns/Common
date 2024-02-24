@@ -532,8 +532,8 @@ clean_2:
 #if defined (_DEBUG)
   iterator_2 = state_.OpenGLContexts.find (NULL);
   ACE_ASSERT (iterator_2 != state_.OpenGLContexts.end ());
-#if GTK_CHECK_VERSION(3,0,0)
-#if GTK_CHECK_VERSION(3,16,0)
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
   Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator_2).second);
 #else
 #if defined (GTKGLAREA_SUPPORT)
@@ -541,14 +541,14 @@ clean_2:
 #else
   Common_UI_GTK_Tools::dumpGtkOpenGLInfo (NULL);
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION(3,0,0)
+#endif // GTK_CHECK_VERSION (3,0,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
   Common_UI_GTK_Tools::dumpGtkOpenGLInfo ((*iterator_2).second);
 #else
   Common_UI_GTK_Tools::dumpGtkOpenGLInfo ();
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION(3,0,0)
+#endif // GTK_CHECK_VERSION (3,0,0)
 #endif // _DEBUG
 #endif // GTKGL_SUPPORT
 

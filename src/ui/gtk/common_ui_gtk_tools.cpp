@@ -31,7 +31,8 @@
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-#include "gdk/gdkwayland.h"
+// #include "gdk/gdkwayland.h"
+#include "gdk/gdkdisplay.h"
 #include "gdk/gdkx.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
@@ -531,7 +532,7 @@ Common_UI_GTK_Tools::get (unsigned long windowId_in)
     for (GSList* iterator = list_p; iterator; iterator = iterator->next)
     {
       display_p = (GdkDisplay*)iterator->data;
-      if (GDK_IS_X11_DISPLAY (display_p))
+      // if (GDK_IS_X11_DISPLAY (display_p))
         displays_a.push_back (display_p);
     } // end FOR
     g_slist_free (list_p); list_p = NULL;
