@@ -175,13 +175,13 @@ fallback:
     result +=
         ACE_TEXT_ALWAYS_CHAR (ACE::basename (filename.c_str (),
                                              ACE_DIRECTORY_SEPARATOR_CHAR));
-    result += COMMON_LOG_FILENAME_SUFFIX;
+    result += ACE_TEXT_ALWAYS_CHAR (COMMON_LOG_FILENAME_SUFFIX);
 
     return result;
   } // end IF
   result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   result += programName_in;
-  result += COMMON_LOG_FILENAME_SUFFIX;
+  result += ACE_TEXT_ALWAYS_CHAR (COMMON_LOG_FILENAME_SUFFIX);
 
   // sanity check(s)
   // *TODO*: replace this with a permission check
