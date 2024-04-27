@@ -7,8 +7,10 @@ if (UNIX)
    include (OS)
    if (${LSB_RELEASE_ID_SHORT} MATCHES "Fedora")
 # *WORKAROUND*: 'prefix' variable must be prepended to 'includedir'
-    pkg_get_variable (PKG_ASSIMP_PREFIX assimp prefix)
-    set (ASSIMP_INCLUDE_DIRS "${PKG_ASSIMP_PREFIX}/${PKG_ASSIMP_INCLUDE_DIRS}")
+#    pkg_get_variable (PKG_ASSIMP_PREFIX assimp prefix)
+#    set (ASSIMP_INCLUDE_DIRS "${PKG_ASSIMP_PREFIX}/${PKG_ASSIMP_INCLUDE_DIRS}")
+    set (ASSIMP_INCLUDE_DIRS "/usr/include")
+    message (STATUS "ASSIMP_INCLUDE_DIRS: \"${ASSIMP_INCLUDE_DIRS}\"")
    elseif (${LSB_RELEASE_ID_SHORT} MATCHES "Ubuntu")
 # *WORKAROUND*: there seems to be a problem on Ubuntu
     set (ASSIMP_INCLUDE_DIRS "/usr/include/assimp")

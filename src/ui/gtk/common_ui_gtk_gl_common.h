@@ -24,8 +24,8 @@
 #include <map>
 
 #include "gtk/gtk.h"
-#if GTK_CHECK_VERSION(3,0,0)
-#if GTK_CHECK_VERSION(3,16,0)
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gdkgl.h"
@@ -34,7 +34,7 @@
 //#error GTK 3 supports OpenGL natively from 3.16.0 onward; for earlier versions, try gtkglarea (see: git://git.gnome.org/gtkglarea)
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,16,0) */
-#elif GTK_CHECK_VERSION(2,0,0)
+#elif GTK_CHECK_VERSION (2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
 #include "gtkgl/gdkgl.h"
 #include "gtkgl/gtkglarea.h"
@@ -43,10 +43,10 @@
 #include "gdk/gdkgl.h"
 #endif /* GTK_CHECK_VERSION (x,0,0) */
 
-#if GTK_CHECK_VERSION(3,0,0)
-#if GTK_CHECK_VERSION(3,24,1)
+#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (3,24,1)
 typedef std::map<GtkGLArea*, GdkGLContext*> Common_UI_GTK_GLContexts_t;
-#elif GTK_CHECK_VERSION(3,16,0)
+#elif GTK_CHECK_VERSION (3,16,0)
 typedef std::map<GdkWindow*, GdkGLContext*> Common_UI_GTK_GLContexts_t;
 #else
 #if defined (GTKGLAREA_SUPPORT)
@@ -55,7 +55,7 @@ typedef std::map<GglaArea*, GglaContext*> Common_UI_GTK_GLContexts_t;
 typedef std::map<GdkWindow*, gpointer> Common_UI_GTK_GLContexts_t;
 #endif /* GTKGLAREA_SUPPORT */
 #endif /* GTK_CHECK_VERSION (3,24,1) */
-#elif GTK_CHECK_VERSION(2,0,0)
+#elif GTK_CHECK_VERSION (2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
 typedef std::map<GtkGLArea*, GdkGLContext*> Common_UI_GTK_GLContexts_t;
 #else
