@@ -62,7 +62,7 @@ add_dependencies (${LIBRARY} Common)
 
 target_link_libraries (${LIBRARY} ${CURSES_LIBRARIES})
 
-#target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
+target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
 
 target_link_libraries (${LIBRARY} Common)
 

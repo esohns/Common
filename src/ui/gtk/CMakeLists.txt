@@ -110,7 +110,7 @@ elseif (WIN32)
 #  target_link_libraries (${LIBRARY} ${LIBGLADE_LIBRARY})
 # endif (LIBGLADE_SUPPORT)
 
-# target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
+ target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
 
  target_link_libraries (${LIBRARY} Common)
  target_link_libraries (${LIBRARY} CommonError)

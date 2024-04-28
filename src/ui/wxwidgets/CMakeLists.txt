@@ -68,15 +68,15 @@ if (WIN32)
 #*TODO*: use pkg-config instead
  add_dependencies (${LIBRARY} Common)
 
- if (CMAKE_BUILD_TYPE STREQUAL Debug)
-  target_link_libraries (${LIBRARY} Msvcrtd.lib)
- else ()
-  target_link_libraries (${LIBRARY} Msvcrt.lib)
- endif ()
+# if (CMAKE_BUILD_TYPE STREQUAL Debug)
+#  target_link_libraries (${LIBRARY} Msvcrtd.lib)
+# else ()
+#  target_link_libraries (${LIBRARY} Msvcrt.lib)
+# endif ()
 
  target_link_libraries (${LIBRARY} ${wxWidgets_LIBRARIES})
 
-# target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
+ target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
 
  target_link_libraries (${LIBRARY} Common)
 endif (WIN32)

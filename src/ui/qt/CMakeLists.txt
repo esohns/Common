@@ -69,13 +69,16 @@ target_sources (${LIBRARY}
 target_link_libraries (${LIBRARY} ${QT_LIBRARIES})
 if (UNIX)
 elseif (WIN32)
- if (CMAKE_BUILD_TYPE STREQUAL Debug)
-  target_link_libraries (${LIBRARY} Msvcrtd.lib)
- else ()
-  target_link_libraries (${LIBRARY} Msvcrt.lib)
- endif ()
+# if (CMAKE_BUILD_TYPE STREQUAL Debug)
+#  target_link_libraries (${LIBRARY} Msvcrtd.lib)
+# else ()
+#  target_link_libraries (${LIBRARY} Msvcrt.lib)
+# endif ()
 endif ()
-#target_link_libraries (${LIBRARY} Common)
+
+target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
+
+target_link_libraries (${LIBRARY} Common)
 
 #set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_UI_BUILD_DLL)
 #set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
