@@ -226,6 +226,8 @@ Common_UI_GTK_Tools::initialize (int argc_in,
   if (Common_UI_GTK_Tools::GTKInitialized)
     return true;
 
+  gtk_disable_setlocale ();
+
 #if GTK_CHECK_VERSION (4,0,0)
 #undef gtk_init
   gtk_init ();

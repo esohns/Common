@@ -923,6 +923,8 @@ do_work (int argc_in,
          ACE_TCHAR* argv_in[],
          const std::string& UIDefinitionFilePath_in)
 {
+  gtk_disable_setlocale ();
+
 #if GTK_CHECK_VERSION (4,0,0)
 #undef gtk_init
   gtk_init ();
