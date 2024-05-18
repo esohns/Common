@@ -62,7 +62,9 @@ class Common_ParserBase_T
  protected:
   // implement (part of) Common_IScannerBase
   inline virtual ACE_Message_Block* buffer () { return fragment_; }
-//  inline virtual bool debug () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
+#if defined (_DEBUG)
+  inline virtual bool debug () const { ACE_ASSERT (configuration_); return configuration_->debugScanner; }
+#endif // _DEBUG
   inline virtual bool isBlocking () const { ACE_ASSERT (configuration_); return configuration_->block; }
   inline virtual unsigned int offset () const { return scannerState_.offset; }
   virtual bool begin (const char*,   // buffer

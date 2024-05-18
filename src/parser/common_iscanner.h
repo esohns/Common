@@ -38,7 +38,9 @@ class Common_IScannerBase
 {
  public:
   virtual ACE_Message_Block* buffer () = 0;
-//  virtual bool debug () const = 0;
+#if defined (_DEBUG)
+  virtual bool debug () const = 0;
+#endif // _DEBUG
   virtual bool isBlocking () const = 0;
   virtual unsigned int offset () const = 0;
 
@@ -64,8 +66,8 @@ class Common_ILexScanner_T
 //, public Common_IGetP_2_T<ExtraDataType>
 {
  public:
-  virtual void debug (yyscan_t,  // state handle
-                      bool) = 0; // toggle
+  virtual void setDebug (yyscan_t,  // state handle
+                         bool) = 0; // toggle
   virtual void reset () = 0; // resets the offsets (line/column to 1,1)
 
   virtual bool initialize (yyscan_t&,                  // return value: state handle

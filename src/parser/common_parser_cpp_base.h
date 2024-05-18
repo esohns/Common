@@ -67,7 +67,9 @@ class Common_CppParserBase_T
   inline virtual const ParserInterfaceType* const getP_2 () const { return this; }
   //inline virtual void setP (ParserInterfaceType* interfaceHandle_in) { scanner_.setP (interfaceHandle_in); }
   inline virtual ACE_Message_Block* buffer () { return fragment_; }
-//  inline virtual bool debug () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
+#if defined (_DEBUG)
+  inline virtual bool debug () const { return scanner_.debug (); }
+#endif // _DEBUG
   inline virtual bool isBlocking () const { return blockInParse_; }
   inline virtual void offset (unsigned int offset_in) { offset_ += offset_in; } // offset (increment)
   inline virtual unsigned int offset () const { return offset_; }
@@ -77,7 +79,7 @@ class Common_CppParserBase_T
   virtual bool switchBuffer (bool = false); // unlink current fragment ?
   virtual void waitBuffer ();
   virtual void error (const std::string&); // message
-  inline virtual void debug (yyscan_t state_in, bool toggle_in) { scanner_.debug (state_in, toggle_in); }
+  inline virtual void setDebug (yyscan_t state_in, bool toggle_in) { scanner_.setDebug (state_in, toggle_in); }
   inline virtual void reset () { scanner_.reset (); }
   inline virtual bool initialize (yyscan_t& state_in, ExtraDataType* extra_in) { return scanner_.initialize (state_in, extra_in); }
   virtual void finalize (yyscan_t& state_in) { scanner_.finalize (state_in); }

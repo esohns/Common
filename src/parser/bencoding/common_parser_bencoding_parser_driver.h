@@ -104,7 +104,7 @@ class Common_Parser_Bencoding_ParserDriver
   // implement Common_ILexScanner_T
   inline virtual const Bencoding_IParser_t* const getP_2 () const { return this; }
   //inline virtual void setP (Bencoding_IParser_t*) { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
-  inline virtual void debug (yyscan_t state_in, bool toggle_in) { Bencoding_set_debug ((toggle_in ? 1 : 0), state_in); }
+  inline virtual void setDebug (yyscan_t state_in, bool toggle_in) { Bencoding_set_debug ((toggle_in ? 1 : 0), state_in); }
   inline virtual void reset () { Bencoding_set_lineno (1, inherited::scannerState_.context); Bencoding_set_column (1, inherited::scannerState_.context); }
   inline virtual bool initialize (yyscan_t& state_inout, void* extra_in) { return (Bencoding_lex_init_extra (extra_in, &state_inout) == 0); }
   inline virtual void finalize (yyscan_t& state_inout) { int result = Bencoding_lex_destroy (state_inout); ACE_UNUSED_ARG (result); state_inout = NULL; }

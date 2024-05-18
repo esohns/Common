@@ -150,11 +150,11 @@ Common_ParserBase_T<ConfigurationType,
 #if defined (_DEBUG)
   // trace ?
   try {
-    this->debug (scannerState_.context,
-                 configuration_->debugScanner);
+    this->setDebug (scannerState_.context,
+                    configuration_->debugScanner);
   } catch (...) {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("caught exception in Common_ILexScanner_T::debug(): \"%m\", continuing\n")));
+                ACE_TEXT ("caught exception in Common_ILexScanner_T::setDebug(): \"%m\", continuing\n")));
   }
   parser_.set_debug_level (configuration_->debugParser ? 1 : 0);
 #endif // _DEBUG
