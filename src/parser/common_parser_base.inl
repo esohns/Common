@@ -134,7 +134,8 @@ Common_ParserBase_T<ConfigurationType,
   bool result = false;
   ExtraDataType* extra_p = this;
   try {
-    result = this->initialize (scannerState_.context, extra_p);
+    result = this->initialize (scannerState_.context,
+                               extra_p);
   } catch (...) {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("caught exception in Common_ILexScanner_T::initialize(): \"%m\", continuing\n")));
@@ -230,6 +231,12 @@ Common_ParserBase_T<ConfigurationType,
 //  headFragment_ = data_in;
   fragment_ = data_in;
   scannerState_.offset = 0;
+  try {
+    this->reset ();
+  } catch (...) {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("caught exception in Common_ILexScanner_T::reset(): \"%m\", continuing\n")));
+  }
 
   // append the "\0\0"-sequence, as required by flex
   ACE_ASSERT ((fragment_->capacity () - fragment_->length ()) >= COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE);
@@ -246,15 +253,6 @@ Common_ParserBase_T<ConfigurationType,
     goto error;
   } // end IF
   do_scan_end = true;
-
-  // initialize scanner ?
-//  if (isFirst_)
-//  {
-//    isFirst_ = false;
-//
-////    bittorrent_set_column (1, state_);
-////    bittorrent_set_lineno (1, state_);
-//  } // end IF
 
   // parse data fragment
   try {
@@ -309,13 +307,12 @@ Common_ParserBase_T<ConfigurationType,
 
   // sanity check(s)
   ACE_ASSERT (configuration_);
-  ACE_ASSERT (fragment_);
 
   ACE_Message_Block* message_block_p = fragment_;
   if (!fragment_->cont ())
   {
     //ACE_DEBUG ((LM_DEBUG,
-    //            ACE_TEXT ("parsed %B byte(s), getting next fragment\n"),
+    //            ACE_TEXT ("parsed %Q byte(s), getting next fragment\n"),
     //            fragment_->length ()));
 
     // sanity check(s)
@@ -332,7 +329,7 @@ Common_ParserBase_T<ConfigurationType,
     } // end IF
   } // end IF
   //ACE_DEBUG ((LM_DEBUG,
-  //            ACE_TEXT ("parsed %B byte(s), using next fragment\n"),
+  //            ACE_TEXT ("parsed %Q byte(s), using next fragment\n"),
   //            fragment_->length ()));
   fragment_ = fragment_->cont ();
   scannerState_.offset = 0;
@@ -347,6 +344,7 @@ Common_ParserBase_T<ConfigurationType,
   end ();
 
   // initialize next buffer
+  ACE_ASSERT (fragment_);
 
   // append the "\0\0"-sequence, as required by flex
   ACE_ASSERT ((fragment_->capacity () - fragment_->length ()) >= COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE);
@@ -542,7 +540,7 @@ Common_ParserBase_T<ConfigurationType,
                     ParserType,
                     ParserInterfaceType,
                     ExtraDataType>::error (const struct YYLTYPE& location_in,
-                                          const std::string& message_in)
+                                           const std::string& message_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::error"));
 
@@ -588,7 +586,7 @@ Common_ParserBase_T<ConfigurationType,
                     ParserType,
                     ParserInterfaceType,
                     ExtraDataType>::error (const yy::location& location_in,
-                                          const std::string& message_in)
+                                           const std::string& message_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_ParserBase_T::error"));
 
