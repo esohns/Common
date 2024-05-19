@@ -134,7 +134,7 @@ class Common_File_Tools
   // *IMPORTANT NOTE*: creates any sub-directories as necessary
   static bool store (const std::string&, // (FQ) path
                      const uint8_t*,     // buffer handle
-                     unsigned int,       // buffer size
+                     ACE_UINT64,         // buffer size
                      bool = false);      // append if file exists ?
   static ACE_UINT64 size (const ACE_FILE_Addr&); // file name
   static ACE_UINT64 size (const std::string&); // (FQ) path

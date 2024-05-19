@@ -1604,7 +1604,7 @@ Common_File_Tools::open (const std::string& path_in,
 bool
 Common_File_Tools::store (const std::string& path_in,
                           const uint8_t* buffer_in,
-                          unsigned int size_in,
+                          ACE_UINT64 size_in,
                           bool appendIfExists_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::store"));
