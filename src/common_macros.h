@@ -21,7 +21,13 @@
 #ifndef COMMON_MACROS_H
 #define COMMON_MACROS_H
 
-#include "ace/config-lite.h"
+//#include "ace/Trace.h"
+//
+//#include "common_tools.h"
+//
+//#if defined (HAVE_CONFIG_H)
+//#include "Common_config.h"
+//#endif // HAVE_CONFIG_H
 
 // branch prediction //
 
@@ -60,7 +66,7 @@
 #endif
 #else
 #error invalid/unknown C++ compiler; not supported, check implementation
-#endif
+#endif // __GNUC__ || _MSC_VER
 
 // platform (OS) //
 
@@ -156,4 +162,4 @@
 #define COMMON_DEFINE_PRINTVERSION_FUNCTION(function,header,variable)                                          \
   void function (const std::string& programName_in) { header; std::cout << variable << std::endl << std::endl; }
 
-#endif
+#endif // COMMON_MACROS_H

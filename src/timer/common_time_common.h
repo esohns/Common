@@ -51,7 +51,7 @@ typedef ACE_System_Time_Policy Common_TimePolicy_t;
 typedef ACE_HR_Time_Policy Common_TimePolicy_t;
 #endif // ACE_WIN32 || ACE_WIN64
 #else
-#error "ACE version > 6.1.6 required"
+#error ACE version > 6.1.6 required
 typedef ACE_System_Time_Policy Common_TimePolicy_t;
 #endif // ACE_VERSION (> 6.1.6)
 

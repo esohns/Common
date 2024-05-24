@@ -213,6 +213,9 @@ if (GTK_SUPPORT AND OPENGL_SUPPORT)
 
  if (GTK2_SUPPORT OR GTK3_SUPPORT)
   if (UNIX)
+   if (NOT GTK_VERSION)
+    set (GTK_VERSION "gtk3")
+   endif (NOT GTK_VERSION)
    if (${GTK_VERSION} STREQUAL "gtk3")
     # *NOTE*: check out the 'master' branch for gtk3-based applications
     set (GTKGLAREA_LIB_FILE libgtkgl-3.0.so)
