@@ -217,7 +217,7 @@ Common_Tools::getNumberOfCPUs (bool logicalProcessors_in)
   } // end IF
   else
   {
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0601) // _WIN32_WINNT_WIN7
+#if COMMON_OS_WIN32_TARGET_PLATFORM (0x0601) // _WIN32_WINNT_WIN7
     DWORD size = 0;
     DWORD error = 0;
     BYTE* byte_p = NULL;

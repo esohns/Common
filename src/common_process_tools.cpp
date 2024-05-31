@@ -229,7 +229,10 @@ Common_Process_Tools::window (pid_t processId_in)
                                              result_a);
 
   Status result = XCloseDisplay (display_p); display_p = NULL;
-  ACE_ASSERT (result == Success);
+  if (unlikely (result != Success))
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to XCloseDisplay() (result was: %d), continuing\n"),
+                result));
 
   if (unlikely (result_a.empty ()))
     return 0;

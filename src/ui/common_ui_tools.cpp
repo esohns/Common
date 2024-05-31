@@ -32,9 +32,9 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "d3d9.h"
 #include "WinUser.h"
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
+#if COMMON_OS_WIN32_TARGET_PLATFORM (0x0600) // _WIN32_WINNT_VISTA
 #include "physicalmonitorenumerationapi.h"
-#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0600)
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM (0x0600)
 #else
 #include "X11/Xlib.h"
 #include "X11/extensions/Xrandr.h"
@@ -973,6 +973,7 @@ Common_UI_Tools::getDisplays ()
                ACE_TEXT ("failed to XRRGetMonitors(): \"%m\", falling back\n")));
     result_2 = XCloseDisplay (display_p); display_p = NULL;
     ACE_ASSERT (result_2 == 0);
+    ACE_UNUSED_ARG (result_2);
     goto fallback;
   } // end IF
 

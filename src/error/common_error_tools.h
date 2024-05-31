@@ -61,13 +61,13 @@ class Common_Error_Tools
   static bool inDebugSession ();
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   // *WARNING*: limited to 9 characters
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
+#if COMMON_OS_WIN32_TARGET_PLATFORM (0x0A00) // _WIN32_WINNT_WIN10
   static void setThreadName (const std::string&, // thread name
                              HANDLE = NULL);     // thread handle (NULL: caller)
 #else
   static void setThreadName (const std::string&, // thread name
                              DWORD = 0);         // thread id (0: caller)
-#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00)
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM (0x0A00)
 
 #if defined (_DEBUG)
   // debug heap

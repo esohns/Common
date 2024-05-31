@@ -2364,7 +2364,7 @@ Common_File_Tools::getUserDownloadDirectory (const std::string& userName_in)
   std::string result;
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
+#if COMMON_OS_WIN32_TARGET_PLATFORM (0x0600) // _WIN32_WINNT_VISTA
   PWSTR buffer_p = NULL;
   HRESULT result_2 =
     SHGetKnownFolderPath (FOLDERID_Downloads, // rfid
