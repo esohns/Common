@@ -122,6 +122,7 @@ Common_UI_GtkBuilderDefinition_T<StateType>::finalize (bool clearPendingEventSou
       {
         g_object_unref (G_OBJECT ((*iterator).second.second)); (*iterator).second.second = NULL;
       } // end IF
+    state_->builders.clear ();
 
     // step2: clear active events ?
     if (likely (clearPendingEventSources_in))
