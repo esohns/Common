@@ -418,6 +418,7 @@ do_work (enum Test_U_ModeType mode_in,
       ACE_ASSERT (result);
       result = task_manager_p->start (NULL);
       ACE_ASSERT (result);
+      ACE_UNUSED_ARG (result);
 
       Test_U_Task task (task_manager_p);
       Test_U_Task_2 task_2 (task_manager_p);
@@ -439,8 +440,9 @@ do_work (enum Test_U_ModeType mode_in,
       ACE_ASSERT (message_block_p);
       int result_2 = task.put (message_block_p, NULL);
       ACE_ASSERT (result_2 > 0);
-      message_block_p = NULL;
+      ACE_UNUSED_ARG (result_2);
 
+      message_block_p = NULL;
       ACE_NEW_NORETURN (message_block_p,
                         ACE_Message_Block (200,
                                            ACE_Message_Block::MB_DATA,

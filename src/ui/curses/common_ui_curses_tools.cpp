@@ -96,6 +96,7 @@ Common_UI_Curses_Tools::init_colorpairs ()
         result = init_pair (Common_UI_Curses_Tools::colornum (fg, bg),
                             fg, bg);
       ACE_ASSERT (result == OK);
+      ACE_UNUSED_ARG (result);
     } // end FOR
 }
 

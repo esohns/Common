@@ -73,6 +73,7 @@ class Test_U_SignalHandler
         result = inherited::configuration_->condition->broadcast ();
       } // end lock scope
       ACE_ASSERT (result == 0);
+      ACE_UNUSED_ARG (result);
     } // end IF
   }
 

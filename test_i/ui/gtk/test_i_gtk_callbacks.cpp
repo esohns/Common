@@ -291,6 +291,7 @@ idle_initialize_UI_cb (gpointer userData_in)
                         G_CALLBACK (gtk_widget_destroyed),
                         &dialog_p);
   ACE_ASSERT (result_2);
+  ACE_UNUSED_ARG (result_2);
 #endif // GTK_CHECK_VERSION(4,0,0)
 
 //  result_2 = g_signal_connect_swapped (G_OBJECT (about_dialog_p),
@@ -349,6 +350,7 @@ idle_initialize_UI_cb (gpointer userData_in)
   GdkWindow* window_p = gtk_widget_get_window (GTK_WIDGET (drawing_area_p));
 #endif // GTK_CHECK_VERSION(4,0,0)
   ACE_ASSERT (window_p);
+  ACE_UNUSED_ARG (window_p);
 
   // step11: select default capture source (if any)
   //         --> populate the options comboboxes
