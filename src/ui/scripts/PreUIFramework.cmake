@@ -79,7 +79,7 @@ elseif (WIN32)
    message (WARNING "could not find gtk, continuing")
 #  endif (GTK_FOUND)
 
-   pkg_check_modules (PKG_GTK_3 gtk3)
+   pkg_check_modules (PKG_GTK_3 gtk+-3.0)
 #  if (GTK_FOUND)
    if (PKG_GTK_3_FOUND)
     message (STATUS "found gtk3")
