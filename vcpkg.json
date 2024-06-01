@@ -9,8 +9,9 @@
     "directxsdk",
     "ffmpeg",
     "freeglut",
+    "glew",
     "glm",
-    "gtk",
+    "gtk3",
     "libiconv",
     "libxml2",
     "pdcurses"

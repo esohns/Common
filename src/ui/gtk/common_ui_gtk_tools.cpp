@@ -581,7 +581,7 @@ Common_UI_GTK_Tools::get (GdkWindow* window_in)
   pixel_buffer_p = gdk_pixbuf_get_from_window (window_in,
                                                x, y,
                                                width, height);
-#elif GTK_CHECK_VERSION (2, 0, 0)
+#elif GTK_CHECK_VERSION (2,0,0)
   gint x_orig, y_orig;
   gint width, height;
   gdk_drawable_get_size (window_in, &width, &height);
