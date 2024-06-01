@@ -37,6 +37,10 @@ jobs:
    - name: Checkout
      uses: actions/checkout@v4
 
+   - name: Install Windows SDK [Win32]
+     if: ${{ matrix.os=='windows-latest' }}
+     uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
+
    - name: Checkout submodules
      run: git submodule update --init --recursive
 

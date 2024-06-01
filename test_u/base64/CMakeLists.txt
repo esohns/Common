@@ -22,11 +22,14 @@ set (${EXECUTABLE}_EXE_SRCS
 #cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
 add_executable (${EXECUTABLE}
                 EXCLUDE_FROM_ALL)
+
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_u")
+
 target_sources (${EXECUTABLE}
 #                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 PRIVATE ${${EXECUTABLE}_EXE_SRCS})
+
 target_precompile_headers (${EXECUTABLE}
                            PRIVATE stdafx.h)
 
