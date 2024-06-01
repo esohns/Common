@@ -99,8 +99,12 @@ class Common_UI_GTK_Tools
   // *IMPORTANT NOTE*: if return value is not NULL, it must be g_object_unref()'d !
   static GdkWindow* get (unsigned long); // window ID (XID)
 #endif // ACE_WIN32 || ACE_WIN64
+#if GTK_CHECK_VERSION (4,0,0)
+  static GdkPixbuf* get (GdkSurface*);
+#else
   // *IMPORTANT NOTE*: if return value is not NULL, it must be g_object_unref()'d !
   static GdkPixbuf* get (GdkWindow*);
+#endif // GTK_CHECK_VERSION (4,0,0)
 
 #if defined (_DEBUG)
 #if GTK_CHECK_VERSION (4,0,0)

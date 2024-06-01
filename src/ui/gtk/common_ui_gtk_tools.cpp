@@ -568,6 +568,23 @@ Common_UI_GTK_Tools::get (unsigned long windowId_in)
 }
 #endif // ACE_WIN32 || ACE_WIN64
 
+#if GTK_CHECK_VERSION (4,0,0)
+GdkPixbuf*
+Common_UI_GTK_Tools::get (GdkSurface* surface_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::get"));
+
+  GdkPixbuf* pixel_buffer_p = NULL;
+
+  gint width, height;
+  width = gdk_surface_get_width (surface_in);
+  height = gdk_surface_get_height (surface_in);
+  pixel_buffer_p = gdk_pixbuf_get_from_surface (surface_in,
+                                                0, 0,
+                                                width, height);
+
+  return pixel_buffer_p;
+#else
 GdkPixbuf*
 Common_UI_GTK_Tools::get (GdkWindow* window_in)
 {
@@ -597,6 +614,7 @@ Common_UI_GTK_Tools::get (GdkWindow* window_in)
 
   return pixel_buffer_p;
 }
+#endif // GTK_CHECK_VERSION (4,0,0)
 
 #if defined (_DEBUG)
 #if GTK_CHECK_VERSION (4,0,0)
