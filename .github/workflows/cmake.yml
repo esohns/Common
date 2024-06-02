@@ -102,11 +102,12 @@ jobs:
 
    - name: Upload GitHub Actions artifact of vcpkg build logs [Win32]
      if: ${{ matrix.os=='windows-latest' }}
-     uses: actions/upload-artifact@v2
+     uses: actions/upload-artifact@v4
      with:
       name: vcpkg-logs-${{ matrix.os }}
-      path: ${{env.VCPKG_ROOT}}/buildtrees/**/*.log
+      path: ${{env.VCPKG_INSTALLATION_ROOT}}/buildtrees/**/*.log
       if-no-files-found: ignore
+      overwrite: true
 
    - name: Test
      working-directory: ${{github.workspace}}/build
