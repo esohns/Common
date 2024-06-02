@@ -12,7 +12,7 @@ env:
  # set vcpkg root/installed directories
  VCPKG_ROOT: C:/vcpkg
  VCPKG_INSTALLED_DIR: C:/vcpkg/installed
- WINDOWS_SDK: 22621
+ # WINDOWS_SDK: 22621
 
 jobs:
 
@@ -38,11 +38,11 @@ jobs:
    - name: Checkout
      uses: actions/checkout@v4
 
-   - name: Install Windows SDK [Win32]
-     if: ${{ matrix.os=='windows-latest' }}
-     uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
-     with:
-      sdk-version: ${{env.WINDOWS_SDK}}
+#   - name: Install Windows SDK [Win32]
+#     if: ${{ matrix.os=='windows-latest' }}
+#     uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
+#     with:
+#      sdk-version: ${{env.WINDOWS_SDK}}
 
    - name: Checkout submodules
      run: git submodule update --init --recursive
@@ -87,7 +87,7 @@ jobs:
 
    - name: Configure CMake [Win32]
      if: ${{ matrix.os=='windows-latest' }}
-     run: cmake -B ${{github.workspace}}/build -DCMAKE_SYSTEM_VERSION=10.0.${{env.WINDOWS_SDK}}.0 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DVCPKG_USE=ON -DUI_FRAMEWORK=gtk -DBUILD_TEST_U=ON -DBUILD_TEST_I=ON
+     run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DVCPKG_USE=ON -DUI_FRAMEWORK=gtk -DBUILD_TEST_U=ON -DBUILD_TEST_I=ON
 
    - name: Build
      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
