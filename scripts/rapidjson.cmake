@@ -15,7 +15,7 @@ elseif (WIN32)
    message (STATUS "found RapidJSON")
    set (RAPIDJSON_FOUND TRUE)
    find_path (RAPIDJSON_INCLUDE_DIR NAMES rapidjson.h
-              HINTS ${VCPKG_LIB_DIR_BASE}
+              HINTS ${VCPKG_INCLUDE_DIR}
               PATH_SUFFIXES rapidjson
               DOC "searching for rapidjson.h"
               NO_DEFAULT_PATH)

@@ -15,13 +15,12 @@ elseif (WIN32)
    message (STATUS "found iconv")
    set (LIBICONV_FOUND TRUE)
    find_path (LIBICONV_INCLUDE_DIR NAMES iconv.h
-              HINTS ${VCPKG_LIB_DIR_BASE}
-              PATH_SUFFIXES include
+              HINTS ${VCPKG_INCLUDE_DIR}
               DOC "searching for iconv.h"
               NO_DEFAULT_PATH)
    set (LIBICONV_INCLUDE_DIRS ${LIBICONV_INCLUDE_DIR})
-   set (LIBICONV_LIBRARIES "${VCPKG_LIB_DIR}/lib/iconv.lib")
-   set (LIBICONV_LIB_DIR "${VCPKG_LIB_DIR}/bin")
+   set (LIBICONV_LIBRARIES "${VCPKG_LIB_DIR}/iconv.lib")
+   set (LIBICONV_LIB_DIR "${VCPKG_BIN_DIR}")
   endif (Iconv_FOUND)
  endif (VCPKG_USE)
  if (NOT LIBICONV_FOUND)
