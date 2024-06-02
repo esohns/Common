@@ -7,7 +7,7 @@ inputs:
 runs:
  using: "composite"
  steps:
-  - uses: lukka/run-vcpkg@v10
+  - uses: lukka/run-vcpkg@v11
     with:
      vcpkgDirectory: '${{ env.VCPKG_ROOT }}'
      vcpkgGitCommitId: '099fb9250d916511782bf5215f01f2e7141beb3a'

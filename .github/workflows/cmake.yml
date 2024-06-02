@@ -36,6 +36,9 @@ jobs:
   runs-on: ${{matrix.os}}
 
   steps:
+   - name: Get latest Cmake and Ninja
+     uses: lukka/get-cmake@latest
+
    - name: Checkout
      uses: actions/checkout@v4
 
@@ -89,6 +92,10 @@ jobs:
    - name: Configure CMake [Win32]
      if: ${{ matrix.os=='windows-latest' }}
      run: cmake -B ${{github.workspace}}\\build -DCMAKE_TOOLCHAIN_FILE=${{env.VCPKG_TOOLCHAIN_FILE}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DVCPKG_USE=ON -DUI_FRAMEWORK=gtk -DBUILD_TEST_U=ON -DBUILD_TEST_I=ON
+
+   - name: Setup Developper Command Prompt [Win32]
+     if: ${{ matrix.os=='windows-latest' }}
+     uses: ilammy/msvc-dev-cmd@v1
 
    - name: Build
      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
