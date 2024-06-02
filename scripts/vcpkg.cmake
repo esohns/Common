@@ -38,14 +38,14 @@ if (VCPKG_SUPPORT)
   include (${VCPKG_SCRIPT})
 
   set (VCPKG_LIB_DIR_BASE ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET} CACHE STRING "vcpkg library path (base)" FORCE)
-  set (VCPKG_INCLUDE_DIR_BASE ${VCPKG_LIB_DIR_BASE}/include CACHE STRING "vcpkg include path (base)" FORCE)
+  set (VCPKG_INCLUDE_DIR ${VCPKG_LIB_DIR_BASE}/include CACHE STRING "vcpkg include path (base)" FORCE)
   if ($<CONFIG> STREQUAL "Debug" OR
       $<CONFIG> STREQUAL "RelWithDebInfo" OR
       ${CMAKE_BUILD_TYPE} STREQUAL "Debug" OR
       ${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo")
-   set (VCPKG_LIB_DIR ${VCPKG_LIB_DIR_BASE}/debug CACHE STRING "vcpkg library path" FORCE)
+   set (VCPKG_LIB_DIR ${VCPKG_LIB_DIR_BASE}/debug/lib CACHE STRING "vcpkg library path" FORCE)
   else ()
-   set (VCPKG_LIB_DIR ${VCPKG_LIB_DIR_BASE} CACHE STRING "vcpkg library path" FORCE)
+   set (VCPKG_LIB_DIR ${VCPKG_LIB_DIR_BASE}/lib CACHE STRING "vcpkg library path" FORCE)
   endif ()
  endif (VCPKG_USE)
 endif (VCPKG_SUPPORT)
