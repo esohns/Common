@@ -15,4 +15,3 @@ runs:
      runVcpkgInstall: true
      vcpkgJsonGlob: '**/vcpkg.json'
      #vcpkgJsonGlob: '${{ runner.workspace }}/a/Common/vcpkg.json'
-     appendedCacheKey: vcpkginstall
