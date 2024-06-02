@@ -17,7 +17,7 @@ elseif (WIN32)
 #                COMPONENTS core
 #                OPTIONAL_COMPONENTS ssl,xml)
   find_path (ACE_INCLUDE_DIR ace/ACE.h
-             PATHS ${VCPKG_INCLUDE_DIR_BASE}
+             PATHS ${VCPKG_INCLUDE_DIR}
              DOC "searching for ACE.h"
              NO_DEFAULT_PATH)
   find_library (ACE_LIBRARY ${ACE_LIB_FILE}
@@ -55,8 +55,8 @@ if (UNIX)
 elseif (WIN32)
  if (NOT DEFINED ENV{ACE_ROOT})
   if (VCPKG_USE)
-   set (ACE_INCLUDE_DIR ${VCPKG_INCLUDE_DIR_BASE})
-   set (ACE_LIB_DIR ${VCPKG_LIB_DIR}/bin)
+   set (ACE_INCLUDE_DIR ${VCPKG_INCLUDE_DIR})
+   set (ACE_LIB_DIR ${VCPKG_BIN_DIR})
   elseif (DEFINED ENV{LIB_ROOT})
    set (ACE_INCLUDE_DIR $ENV{LIB_ROOT}/ACE_TAO/ACE)
    set (ACE_LIB_DIR $ENV{LIB_ROOT}/ACE_TAO/ACE/lib)
