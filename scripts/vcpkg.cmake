@@ -20,9 +20,6 @@ if (VCPKG_SUPPORT)
  if (VCPKG_USE)
   message (STATUS "using vcpkg in ${VCPKG_ROOT}")
 
-  set (CMAKE_TOOLCHAIN_FILE ${VCPKG_SCRIPT} CACHE STRING "vcpkg.cmake")
-  message (STATUS "including vcpkg.cmake from \"${VCPKG_SCRIPT}\"")
-
   set (VCPKG_TARGET_TRIPLET "${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE}-windows")
   message (STATUS "vcpkg triplet \"${VCPKG_TARGET_TRIPLET}\"")
 
@@ -35,8 +32,6 @@ if (VCPKG_SUPPORT)
 
   set (VCPKG_APPLOCAL_DEPS OFF CACHE BOOL "" FORCE)
 
-  include (${VCPKG_SCRIPT})
-
   set (VCPKG_LIB_DIR_BASE ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET} CACHE STRING "vcpkg library path (base)" FORCE)
   set (VCPKG_INCLUDE_DIR ${VCPKG_LIB_DIR_BASE}/include CACHE STRING "vcpkg include path (base)" FORCE)
   if ($<CONFIG> STREQUAL "Debug" OR
@@ -48,5 +43,9 @@ if (VCPKG_SUPPORT)
    set (VCPKG_LIB_DIR ${VCPKG_LIB_DIR_BASE}/lib CACHE STRING "vcpkg library path" FORCE)
   endif ()
   set (VCPKG_BIN_DIR ${VCPKG_LIB_DIR_BASE}/bin CACHE STRING "vcpkg binary path" FORCE)
+
+  # set (CMAKE_TOOLCHAIN_FILE ${VCPKG_SCRIPT} CACHE STRING "vcpkg.cmake")
+  # message (STATUS "including vcpkg.cmake from \"${VCPKG_SCRIPT}\"")
+  # include (${VCPKG_SCRIPT})
  endif (VCPKG_USE)
 endif (VCPKG_SUPPORT)
