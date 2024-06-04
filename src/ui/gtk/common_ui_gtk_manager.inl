@@ -210,8 +210,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #if GTK_CHECK_VERSION (4,0,0)
       g_application_quit (G_APPLICATION (configuration_->application));
 
-      if (configuration_->widgetName.empty ())
-        g_application_release (G_APPLICATION (configuration_->application));
+      if (configuration_->widgetName.empty ()) // <-- this means that g_application_hold() was called (see below)
+        g_application_release (G_APPLICATION (configuration_->application)); // --> release the extra reference
 #else
       guint level = gtk_main_level ();
       if (level > 0)

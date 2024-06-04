@@ -34,8 +34,8 @@
 #ifdef __cplusplus
 extern "C"
 {
-#include "libavcodec/avcodec.h"
-#include "libavutil/imgutils.h"
+#include "libavcodec/codec_id.h"
+#include "libavutil/pixfmt.h"
 }
 #endif /* __cplusplus */
 #endif // FFMPEG_SUPPORT
@@ -74,12 +74,12 @@ class Common_Image_Tools
   static enum Common_Image_FileType fileExtensionToType (const std::string&); // path
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if defined (DIRECTXSDK)
+#if defined (DIRECTXSDK_SUPPORT)
   // DirectX
   static bool save (const std::string&,         // target file path
                     enum _D3DXIMAGE_FILEFORMAT, // file format
                     const IDirect3DSurface9*);  // data
-#endif // DIRECTXSDK
+#endif // DIRECTXSDK_SUPPORT
   static bool saveBMP (const Common_Image_Resolution_t&, // source resolution
                        WORD,                             // source (coded-) bit count
                        uint8_t*[],                       // source buffer(s)

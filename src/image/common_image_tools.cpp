@@ -25,16 +25,18 @@
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "amvideo.h"
-#if defined (DIRECTXSDK)
+#if defined (DIRECTXSDK_SUPPORT)
 #include "d3dx9tex.h"
-#endif // DIRECTXSDK
+#endif // DIRECTXSDK_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (FFMPEG_SUPPORT)
 #ifdef __cplusplus
 extern "C"
 {
+#include "libavcodec/avcodec.h"
 #include "libavformat/avformat.h"
+#include "libavutil/imgutils.h"
 #include "libswscale/swscale.h"
 }
 #endif /* __cplusplus */
