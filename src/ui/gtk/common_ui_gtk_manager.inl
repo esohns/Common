@@ -210,7 +210,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #if GTK_CHECK_VERSION (4,0,0)
       g_application_quit (G_APPLICATION (configuration_->application));
 
-      g_application_release (G_APPLICATION (configuration_->application));
+      if (configuration_->widgetName.empty ())
+        g_application_release (G_APPLICATION (configuration_->application));
 #else
       guint level = gtk_main_level ();
       if (level > 0)
@@ -628,10 +629,15 @@ continue_:
     gtk_window_set_transient_for (GTK_WINDOW (widget_p),
                                   configuration_->mainWindow);
   } // end IF
-  // *WORKAROUND*: connect to the "activate" signal and add the mainWindow to
-  //               the application there; then remove the hold()/release() calls
-  //               (see close(1) above)
-  g_application_hold (G_APPLICATION (configuration_->application));
+  else
+  {
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("main widget not set, continuing\n")));
+
+    // *WORKAROUND*: connect to the "activate" signal and add the mainWindow to
+    //               the application there...
+    g_application_hold (G_APPLICATION (configuration_->application));
+  } // end ELSE
 
   g_application_run (G_APPLICATION (configuration_->application),
                      configuration_->argc,
