@@ -31,6 +31,25 @@
 #include "test_i_gtk_defines.h"
 
 void
+on_activate_cb (GApplication* self,
+                gpointer userData_in)
+{
+  ACE_UNUSED_ARG (self);
+
+  // sanity check(s)
+  struct Common_UI_GTK_Configuration* configuration_p =
+    static_cast<struct Common_UI_GTK_Configuration*> (userData_in);
+  ACE_ASSERT (configuration_p);
+  ACE_ASSERT (configuration_p->application);
+  ACE_ASSERT (configuration_p->mainWindow);
+
+  gtk_application_add_window (configuration_p->application,
+                              configuration_p->mainWindow);
+}
+
+//////////////////////////////////////////
+
+void
 do_print_usage (const std::string& programName_in)
 {
   // enable verbatim boolean output
@@ -157,12 +176,14 @@ do_work (int argc_in,
   gtk_configuration.eventHooks.finiHook = idle_finalize_UI_cb;
   gtk_configuration.eventHooks.initHook = idle_initialize_UI_cb;
   gtk_configuration.definition = &gtk_ui_definition;
+  gtk_configuration.onActivateCb = G_CALLBACK (on_activate_cb);
 
   ui_cb_data.UIState = &state_r;
   ui_cb_data.progressData.state = &state_r;
 
   state_r.builders[ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN)] =
     std::make_pair (UIDefinitionFilePath_in, static_cast<GtkBuilder*> (NULL));
+  state_r.userData = &ui_cb_data;
 
   int result = gtk_manager_p->initialize (gtk_configuration);
   if (!result)
@@ -250,12 +271,12 @@ ACE_TMAIN (int argc_in,
   } // end IF
 
   // step1c: initialize logging and/or tracing
-  if (!Common_Log_Tools::initializeLogging (ACE::basename (argv_in[0]),           // program name
-                                            ACE_TEXT_ALWAYS_CHAR (""),            // log file name
-                                            false,                                // log to syslog ?
-                                            false,                                // trace messages ?
-                                            trace_information,                    // debug messages ?
-                                            NULL))                                // logger ?
+  if (!Common_Log_Tools::initializeLogging (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])), // program name
+                                            ACE_TEXT_ALWAYS_CHAR (""),                         // log file name
+                                            false,                                             // log to syslog ?
+                                            false,                                             // trace messages ?
+                                            trace_information,                                 // debug messages ?
+                                            NULL))                                             // logger ?
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Log_Tools::initializeLogging(), aborting\n")));

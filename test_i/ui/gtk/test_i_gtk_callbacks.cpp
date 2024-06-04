@@ -145,7 +145,7 @@ idle_initialize_UI_cb (gpointer userData_in)
   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (combo_box_p), cell_renderer_p,
                                   //"cell-background", 0,
                                   //"text", 1,
-                                  "text", 0,
+                                  ACE_TEXT_ALWAYS_CHAR ("text"), 0,
                                   NULL);
 
 //  combo_box_p =
@@ -276,14 +276,14 @@ idle_initialize_UI_cb (gpointer userData_in)
 //  } // end lock scope
 
   // step2: (auto-)connect signals/slots
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
 #else
   gtk_builder_connect_signals ((*iterator).second.second,
                                ui_cb_data_p);
 #endif // GTK_CHECK_VERSION(4,0,0)
 
   // step6a: connect default signals
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
 #else
   gulong result_2 =
       g_signal_connect (dialog_p,
@@ -332,7 +332,7 @@ idle_initialize_UI_cb (gpointer userData_in)
 //  } // end IF
 
   // step9: draw main dialog
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
   gtk_widget_show (dialog_p);
 #else
   gtk_widget_show_all (dialog_p);
@@ -390,206 +390,6 @@ idle_finalize_UI_cb (gpointer userData_in)
 
   return G_SOURCE_REMOVE;
 }
-
-//gboolean
-//idle_update_log_display_cb (gpointer userData_in)
-//{
-//  STREAM_TRACE (ACE_TEXT ("::idle_update_log_display_cb"));
-
-//  struct Common_UI_GTK_CBData* ui_cb_data_p =
-//    static_cast<struct Common_UI_GTK_CBData*> (userData_in);
-
-//  // sanity check(s)
-//  ACE_ASSERT (ui_cb_data_p);
-//  Common_UI_GTK_BuildersIterator_t iterator =
-//    ui_cb_data_p->UIState->builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
-//  ACE_ASSERT (iterator != ui_cb_data_p->UIState->builders.end ());
-
-//  GtkTextView* view_p =
-//      GTK_TEXT_VIEW (gtk_builder_get_object ((*iterator).second.second,
-//                                             ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_TEXTVIEW_NAME)));
-//  ACE_ASSERT (view_p);
-//  GtkTextBuffer* buffer_p = gtk_text_view_get_buffer (view_p);
-//  ACE_ASSERT (buffer_p);
-
-//  GtkTextIter text_iterator;
-//  gtk_text_buffer_get_end_iter (buffer_p,
-//                                &text_iterator);
-
-//  gchar* converted_text = NULL;
-//  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, ui_cb_data_p->UIState->lock, G_SOURCE_REMOVE);
-//    if (ui_cb_data_p->UIState->logStack.empty ())
-//      return G_SOURCE_CONTINUE;
-
-//    // step1: convert text
-//    for (Common_MessageStackConstIterator_t iterator_2 = ui_cb_data_p->UIState->logStack.begin ();
-//         iterator_2 != ui_cb_data_p->UIState->logStack.end ();
-//         ++iterator_2)
-//    {
-//      converted_text = Common_UI_GTK_Tools::localeToUTF8 (*iterator_2);
-//      if (!converted_text)
-//      {
-//        ACE_DEBUG ((LM_ERROR,
-//                    ACE_TEXT ("failed to Common_UI_GTK_Tools::localeToUTF8(\"%s\"), aborting\n"),
-//                    ACE_TEXT ((*iterator_2).c_str ())));
-//        return G_SOURCE_REMOVE;
-//      } // end IF
-
-//      // step2: display text
-//      gtk_text_buffer_insert (buffer_p,
-//                              &text_iterator,
-//                              converted_text,
-//                              -1);
-
-//      g_free (converted_text); converted_text = NULL;
-//    } // end FOR
-//    ui_cb_data_p->UIState->logStack.clear ();
-//  } // end lock scope
-
-//  // step3: scroll the view accordingly
-////  // move the iterator to the beginning of line, so it doesn't scroll
-////  // in horizontal direction
-////  gtk_text_iter_set_line_offset (&text_iterator, 0);
-
-////  // ...and place the mark at iter. The mark will stay there after insertion
-////  // because it has "right" gravity
-////  GtkTextMark* text_mark_p =
-////      gtk_text_buffer_get_mark (buffer_p,
-////                                ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_SCROLLMARK_NAME));
-//////  gtk_text_buffer_move_mark (buffer_p,
-//////                             text_mark_p,
-//////                             &text_iterator);
-
-////  // scroll the mark onscreen
-////  gtk_text_view_scroll_mark_onscreen (view_p,
-////                                      text_mark_p);
-//  GtkAdjustment* adjustment_p =
-//      GTK_ADJUSTMENT (gtk_builder_get_object ((*iterator).second.second,
-//                                              ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_ADJUSTMENT_NAME)));
-//  ACE_ASSERT (adjustment_p);
-//  gtk_adjustment_set_value (adjustment_p,
-//                            gtk_adjustment_get_upper (adjustment_p));
-
-//  return G_SOURCE_CONTINUE;
-//}
-
-//gboolean
-//idle_update_info_display_cb (gpointer userData_in)
-//{
-//  STREAM_TRACE (ACE_TEXT ("::idle_update_info_display_cb"));
-
-//  // sanity check(s)
-//  ACE_ASSERT (userData_in);
-//  struct Common_UI_GTK_CBData* ui_cb_data_p =
-//      static_cast<struct Common_UI_GTK_CBData*> (userData_in);
-//  Common_UI_GTK_BuildersIterator_t iterator =
-//    ui_cb_data_p->UIState->builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
-//  ACE_ASSERT (iterator != ui_cb_data_p->UIState->builders.end ());
-
-//  GtkSpinButton* spin_button_p = NULL;
-//  bool is_session_message = false;
-//  enum Common_UI_EventType* event_p = NULL;
-//  int result = -1;
-//  enum Common_UI_EventType event_e = COMMON_UI_EVENT_INVALID;
-//  { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, ui_cb_data_p->UIState->lock, G_SOURCE_REMOVE);
-//    for (Common_UI_Events_t::ITERATOR iterator_2 (ui_cb_data_p->UIState->eventStack);
-//         iterator_2.next (event_p);
-//         iterator_2.advance ())
-//    { ACE_ASSERT (event_p);
-//      switch (*event_p)
-//      {
-//        case COMMON_UI_EVENT_STARTED:
-//        {
-//          spin_button_p =
-//            GTK_SPIN_BUTTON (gtk_builder_get_object ((*iterator).second.second,
-//                                                     ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_SPINBUTTON_DATAMESSAGES_NAME)));
-//          ACE_ASSERT (spin_button_p);
-//          gtk_spin_button_set_value (spin_button_p, 0.0);
-//          spin_button_p =
-//            GTK_SPIN_BUTTON (gtk_builder_get_object ((*iterator).second.second,
-//                                                     ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_SPINBUTTON_SESSIONMESSAGES_NAME)));
-//          ACE_ASSERT (spin_button_p);
-//          gtk_spin_button_set_value (spin_button_p, 0.0);
-//          is_session_message = true;
-//          break;
-//        }
-//        case COMMON_UI_EVENT_DATA:
-//        {
-//          spin_button_p =
-//            GTK_SPIN_BUTTON (gtk_builder_get_object ((*iterator).second.second,
-//                                                     ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_SPINBUTTON_DATA_NAME)));
-//          ACE_ASSERT (spin_button_p);
-//          gtk_spin_button_set_value (spin_button_p,
-//                                     static_cast<gdouble> (ui_cb_data_p->progressData.statistic.bytes));
-
-//          spin_button_p =
-//            GTK_SPIN_BUTTON (gtk_builder_get_object ((*iterator).second.second,
-//                                                     ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_SPINBUTTON_DATAMESSAGES_NAME)));
-//          ACE_ASSERT (spin_button_p);
-//          break;
-//        }
-//        case COMMON_UI_EVENT_FINISHED:
-//        {
-//          spin_button_p =
-//            GTK_SPIN_BUTTON (gtk_builder_get_object ((*iterator).second.second,
-//                                                     ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_SPINBUTTON_SESSIONMESSAGES_NAME)));
-//          ACE_ASSERT (spin_button_p);
-//          is_session_message = true;
-//          break;
-//        }
-//        case COMMON_UI_EVENT_STATISTIC:
-//        {
-////#if defined (ACE_WIN32) || defined (ACE_WIN64)
-////          spin_button_p =
-////            GTK_SPIN_BUTTON (gtk_builder_get_object ((*iterator).second.second,
-////                                                     ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_SPINBUTTON_CAPTUREDFRAMES_NAME)));
-////          ACE_ASSERT (spin_button_p);
-////          gtk_spin_button_set_value (spin_button_p,
-////                                     static_cast<gdouble> (ui_cb_data_p->progressData.statistic.capturedFrames));
-////#endif
-////
-////          spin_button_p =
-////            GTK_SPIN_BUTTON (gtk_builder_get_object ((*iterator).second.second,
-////                                                     ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_SPINBUTTON_DROPPEDFRAMES_NAME)));
-////          ACE_ASSERT (spin_button_p);
-////          gtk_spin_button_set_value (spin_button_p,
-////                                     static_cast<gdouble> (ui_cb_data_p->progressData.statistic.droppedFrames));
-
-//          spin_button_p =
-//            GTK_SPIN_BUTTON (gtk_builder_get_object ((*iterator).second.second,
-//                                                     ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_SPINBUTTON_SESSIONMESSAGES_NAME)));
-//          ACE_ASSERT (spin_button_p);
-
-//          is_session_message = true;
-//          break;
-//        }
-//        default:
-//        {
-//          ACE_DEBUG ((LM_ERROR,
-//                      ACE_TEXT ("invalid/unknown event type (was: %d), continuing\n"),
-//                      event_e));
-//          break;
-//        }
-//      } // end SWITCH
-//      ACE_UNUSED_ARG (is_session_message);
-//      gtk_spin_button_spin (spin_button_p,
-//                            GTK_SPIN_STEP_FORWARD,
-//                            1.0);
-//      event_p = NULL;
-//    } // end FOR
-
-//    // clean up
-//    while (!ui_cb_data_p->UIState->eventStack.is_empty ())
-//    {
-//      result = ui_cb_data_p->UIState->eventStack.pop (event_e);
-//      if (result == -1)
-//        ACE_DEBUG ((LM_ERROR,
-//                    ACE_TEXT ("failed to ACE_Unbounded_Stack::pop(): \"%m\", continuing\n")));
-//    } // end WHILE
-//  } // end lock scope
-
-//  return G_SOURCE_CONTINUE;
-//}
 
 gboolean
 idle_update_progress_cb (gpointer userData_in)
@@ -725,7 +525,7 @@ extern "C"
 {
 #endif /* __cplusplus */
 gint
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
 dialog_main_delete_cb (GtkWidget* w,
                        GdkEvent* e,
                        gpointer data)
@@ -733,14 +533,15 @@ dialog_main_delete_cb (GtkWidget* w,
 dialog_main_delete_cb (GtkWidget* w,
                        GdkEventAny* e,
                        gpointer data)
-#endif // GTK_CHECK_VERSION(4,0,0)
+#endif // GTK_CHECK_VERSION (4,0,0)
 {
   /* callback for "delete" signal */
   g_print ("dialog_main_delete_cb()n");
   return 0;
 }
+
 gint
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
 dialog_main_destroy_cb (GtkWidget* w,
                         GdkEvent* e,
                         gpointer data)
@@ -748,217 +549,86 @@ dialog_main_destroy_cb (GtkWidget* w,
 dialog_main_destroy_cb (GtkWidget* w,
                         GdkEventAny* e,
                         gpointer data)
-#endif // GTK_CHECK_VERSION(4,0,0)
+#endif // GTK_CHECK_VERSION (4,0,0)
 {
   /* callback for "destroy" signal */
   g_print("dialog_main_destroy_cb()n");
   return 0;
 }
 
+#if GTK_CHECK_VERSION (4,0,0)
+void
+dialog_main_close_cb (GtkDialog* d, 
+                      gpointer data)
+{
+  /* callback for "close" signal */
+  g_print ("dialog_main_close_cb()n");
+}
+
+void
+dialog_main_response_cb (GtkDialog* d,
+                         gint response_id,
+                         gpointer data)
+{
+  /* callback for "response" signal */
+  g_print ("dialog_main_response_cb()n");
+}
+#endif // GTK_CHECK_VERSION (4,0,0)
+
 void
 togglebutton_record_toggled_cb (GtkToggleButton* toggleButton_in,
                                 gpointer userData_in)
 {
-  bool is_active_b =
-      gtk_toggle_button_get_active (toggleButton_in);
-
+  // sanity check(s)
+#if GTK_CHECK_VERSION (4,0,0)
+  GObject* object_p = reinterpret_cast<GObject*> (userData_in);
+  ACE_ASSERT (object_p);
+  userData_in = g_object_get_data (object_p, ACE_TEXT_ALWAYS_CHAR ("data"));
+#endif // GTK_CHECK_VERSION (4,0,0)
   struct Common_UI_GTK_CBData* ui_cb_data_p =
     static_cast<struct Common_UI_GTK_CBData*> (userData_in);
-
+  ACE_ASSERT (ui_cb_data_p);
   Common_UI_GTK_BuildersIterator_t iterator =
     ui_cb_data_p->UIState->builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
   ACE_UNUSED_ARG (iterator);
 
-  // sanity check(s)
-  ACE_ASSERT (ui_cb_data_p);
-
-#if GTK_CHECK_VERSION(4,0,0)
+  bool is_active_b = gtk_toggle_button_get_active (toggleButton_in);
+#if GTK_CHECK_VERSION (4,0,0)
   gtk_button_set_label (GTK_BUTTON (toggleButton_in),
                         (is_active_b ? ACE_TEXT_ALWAYS_CHAR ("_Stop") : ACE_TEXT_ALWAYS_CHAR ("_Record")));
 #else
   gtk_button_set_label (GTK_BUTTON (toggleButton_in),
                         (is_active_b ? GTK_STOCK_MEDIA_STOP : GTK_STOCK_MEDIA_RECORD));
-#endif // GTK_CHECK_VERSION(4,0,0)
+#endif // GTK_CHECK_VERSION (4,0,0)
 
-    // step3: start progress reporting
-    //ACE_ASSERT (!data_p->progressData.eventSourceId);
-    ui_cb_data_p->progressData.eventSourceId =
-      //g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, // _LOW doesn't work (on Win32)
-      //                 idle_update_progress_cb,
-      //                 &data_p->progressData,
-      //                 NULL);
-      g_timeout_add (//G_PRIORITY_DEFAULT_IDLE,               // _LOW doesn't work (on Win32)
-                     COMMON_UI_REFRESH_DEFAULT_PROGRESS_MS, // ms (?)
-                     idle_update_progress_cb,
-                     &ui_cb_data_p->progressData);//,
-                     //NULL);
-    if (!ui_cb_data_p->progressData.eventSourceId)
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to g_timeout_add_full(idle_update_progress_cb): \"%m\", returning\n")));
+  // step3: start progress reporting
+  //ACE_ASSERT (!data_p->progressData.eventSourceId);
+  ui_cb_data_p->progressData.eventSourceId =
+    //g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, // _LOW doesn't work (on Win32)
+    //                 idle_update_progress_cb,
+    //                 &data_p->progressData,
+    //                 NULL);
+    g_timeout_add (//G_PRIORITY_DEFAULT_IDLE,               // _LOW doesn't work (on Win32)
+                    COMMON_UI_REFRESH_DEFAULT_PROGRESS_MS, // ms (?)
+                    idle_update_progress_cb,
+                    &ui_cb_data_p->progressData);//,
+                    //NULL);
+  if (!ui_cb_data_p->progressData.eventSourceId)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to g_timeout_add_full(idle_update_progress_cb): \"%m\", returning\n")));
     ui_cb_data_p->progressData.pendingActions[ui_cb_data_p->progressData.eventSourceId] =
       ACE_Thread_ID (0, 0);
     //    ACE_DEBUG ((LM_DEBUG,
     //                ACE_TEXT ("idle_update_progress_cb: %d\n"),
     //                event_source_id));
     ui_cb_data_p->UIState->eventSourceIds.insert (ui_cb_data_p->progressData.eventSourceId);
-  } // end lock scope
+  } // end IF
 } // toggleaction_record_toggled_cb
-
-//void
-//toggleaction_fullscreen_toggled_cb (GtkToggleAction* toggleAction_in,
-//                                    gpointer userData_in)
-//{
-//  struct Common_UI_GTK_CBData* ui_cb_data_p =
-//    static_cast<struct Common_UI_GTK_CBData*> (userData_in);
-
-//  // sanity check(s)
-//  ACE_ASSERT (ui_cb_data_p);
-
-//  bool is_active_b =
-//#if GTK_CHECK_VERSION(3,0,0)
-//      gtk_toggle_action_get_active (toggleAction_in);
-//#elif GTK_CHECK_VERSION(2,0,0)
-//      gtk_toggle_button_get_active (toggleButton_in);
-//#endif // GTK_CHECK_VERSION
-
-//  Common_UI_GTK_BuildersIterator_t iterator =
-//    ui_cb_data_p->UIState->builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
-//  ACE_ASSERT (iterator != ui_cb_data_p->UIState->builders.end ());
-
-//  Stream_IStreamControlBase* stream_base_p = NULL;
-//  Stream_IStream_t* stream_p = NULL;
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
-//  struct Stream_CamSave_DirectShow_UI_CBData* directshow_cb_data_p = NULL;
-//  Stream_CamSave_DirectShow_StreamConfiguration_t::ITERATOR_T directshow_stream_iterator;
-//  struct Stream_CamSave_MediaFoundation_UI_CBData* mediafoundation_cb_data_p =
-//    NULL;
-//  Stream_CamSave_MediaFoundation_StreamConfiguration_t::ITERATOR_T mediafoundation_stream_iterator;
-//  switch (ui_cb_data_p->mediaFramework)
-//  {
-//    case STREAM_MEDIAFRAMEWORK_DIRECTSHOW:
-//    {
-//      directshow_cb_data_p =
-//        static_cast<struct Stream_CamSave_DirectShow_UI_CBData*> (ui_cb_data_p);
-//      stream_base_p = directshow_cb_data_p->stream;
-//      stream_p = directshow_cb_data_p->stream;
-//      ACE_ASSERT (directshow_cb_data_p->configuration);
-//      directshow_stream_iterator =
-//        directshow_cb_data_p->configuration->streamConfiguration.find (ACE_TEXT_ALWAYS_CHAR (""));
-//      ACE_ASSERT (directshow_stream_iterator != directshow_cb_data_p->configuration->streamConfiguration.end ());
-//      (*directshow_stream_iterator).second.second.fullScreen = is_active;
-//      break;
-//    }
-//    case STREAM_MEDIAFRAMEWORK_MEDIAFOUNDATION:
-//    {
-//      mediafoundation_cb_data_p =
-//        static_cast<struct Stream_CamSave_MediaFoundation_UI_CBData*> (ui_cb_data_p);
-//      stream_base_p = mediafoundation_cb_data_p->stream;
-//      stream_p = mediafoundation_cb_data_p->stream;
-//      ACE_ASSERT (mediafoundation_cb_data_p->configuration);
-//      mediafoundation_stream_iterator =
-//        mediafoundation_cb_data_p->configuration->streamConfiguration.find (ACE_TEXT_ALWAYS_CHAR (""));
-//      ACE_ASSERT (mediafoundation_stream_iterator != mediafoundation_cb_data_p->configuration->streamConfiguration.end ());
-//      (*mediafoundation_stream_iterator).second.second.fullScreen = is_active;
-//      break;
-//    }
-//    default:
-//    {
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("invalid/unknown media framework (was: %d), returning\n"),
-//                  ui_cb_data_p->mediaFramework));
-//      return;
-//    }
-//  } // end SWITCH
-//#else
-//  struct Stream_CamSave_V4L_UI_CBData* cb_data_p =
-//    static_cast<struct Stream_CamSave_V4L_UI_CBData*> (ui_cb_data_p);
-//  stream_base_p = cb_data_p->stream;
-//  stream_p = cb_data_p->stream;
-//  ACE_ASSERT (cb_data_p->configuration);
-//  Stream_CamSave_V4L_StreamConfiguration_t::ITERATOR_T iterator_2 =
-//    cb_data_p->configuration->streamConfiguration.find (ACE_TEXT_ALWAYS_CHAR (""));
-//  ACE_ASSERT (iterator_2 != cb_data_p->configuration->streamConfiguration.end ());
-//  (*iterator_2).second.second.fullScreen = is_active_b;
-//#endif
-//  ACE_ASSERT (stream_base_p);
-//  if (!stream_base_p->isRunning ())
-//    return;
-
-//  ACE_ASSERT (iterator != ui_cb_data_p->UIState->builders.end ());
-//  GtkWindow* window_p =
-//    GTK_WINDOW (gtk_builder_get_object ((*iterator).second.second,
-//                                        ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_WINDOW_FULLSCREEN)));
-//  ACE_ASSERT (window_p);
-
-//  if (is_active_b)
-//  {
-//    gtk_widget_show (GTK_WIDGET (window_p));
-////  gtk_window_fullscreen (window_p);
-//    gtk_window_maximize (window_p);
-//  } // end IF
-//  else
-//  {
-////    gtk_window_minimize (window_p);
-////  gtk_window_unfullscreen (window_p);
-//    gtk_widget_hide (GTK_WIDGET (window_p));
-//  } // end ELSE
-
-//  ACE_ASSERT (stream_p);
-//  const Stream_Module_t* module_p = NULL;
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
-//  switch (ui_cb_data_p->mediaFramework)
-//  {
-//    case STREAM_MEDIAFRAMEWORK_DIRECTSHOW:
-//      module_p =
-//        stream_p->find (ACE_TEXT_ALWAYS_CHAR (STREAM_VIS_DIRECTSHOW_DEFAULT_NAME_STRING));
-//      break;
-//    case STREAM_MEDIAFRAMEWORK_MEDIAFOUNDATION:
-//      module_p =
-//        stream_p->find (ACE_TEXT_ALWAYS_CHAR (STREAM_VIS_MEDIAFOUNDATION_DEFAULT_NAME_STRING));
-//      break;
-//    default:
-//    {
-//      ACE_DEBUG ((LM_ERROR,
-//                  ACE_TEXT ("%s: invalid/unkown media framework (was: %d), returning\n"),
-//                  ACE_TEXT (stream_p->name ().c_str ()),
-//                  ui_cb_data_p->mediaFramework));
-//      return;
-//    }
-//  } // end SWITCH
-//#else
-//  module_p =
-//      stream_p->find (ACE_TEXT_ALWAYS_CHAR (STREAM_VIS_GTK_CAIRO_DEFAULT_NAME_STRING));
-//#endif
-//  if (!module_p)
-//  {
-//    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("%s: failed to Stream_IStream::find(\"Display\"), returning\n"),
-//                ACE_TEXT (stream_p->name ().c_str ())));
-//    return;
-//  } // end IF
-//  Common_UI_IFullscreen* ifullscreen_p =
-//    dynamic_cast<Common_UI_IFullscreen*> (const_cast<Stream_Module_t*> (module_p)->writer ());
-//  if (!ifullscreen_p)
-//  {
-//    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("%s:Display: failed to dynamic_cast<Common_UI_IFullscreen*>(0x%@), returning\n"),
-//                ACE_TEXT (stream_p->name ().c_str ()),
-//                const_cast<Stream_Module_t*> (module_p)->writer ()));
-//    return;
-//  } // end IF
-//  try {
-//    ifullscreen_p->toggle ();
-//  } catch (...) {
-//    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("caught exception in Common_UI_IFullscreen::toggle(), returning\n")));
-//    return;
-//  }
-//} // toggleaction_fullscreen_toggled_cb
 
 // -----------------------------------------------------------------------------
 
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
 void
 on_dialog_response_cb (GtkDialog* dialog_in,
                        gint responseId_in,
@@ -981,15 +651,17 @@ button_about_clicked_cb (GtkWidget* widget_in,
                          gpointer userData_in)
 {
   ACE_UNUSED_ARG (widget_in);
+  // sanity check(s)
+#if GTK_CHECK_VERSION(4, 0, 0)
+  GObject* object_p = reinterpret_cast<GObject*> (userData_in);
+  ACE_ASSERT (object_p);
+  userData_in = g_object_get_data (object_p, ACE_TEXT_ALWAYS_CHAR ("data"));
+#endif // GTK_CHECK_VERSION (4,0,0)
   struct Common_UI_GTK_CBData* ui_cb_data_p =
     static_cast<struct Common_UI_GTK_CBData*> (userData_in);
-
-  // sanity check(s)
   ACE_ASSERT (ui_cb_data_p);
-
   Common_UI_GTK_BuildersIterator_t iterator =
     ui_cb_data_p->UIState->builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
-  // sanity check(s)
   ACE_ASSERT (iterator != ui_cb_data_p->UIState->builders.end ());
 
   // retrieve about dialog handle
@@ -1005,9 +677,11 @@ button_about_clicked_cb (GtkWidget* widget_in,
   } // end IF
 
   // run dialog
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
   gtk_window_set_modal (GTK_WINDOW (dialog_p), TRUE);
-  g_signal_connect (dialog_p, "response", G_CALLBACK (on_dialog_response_cb), userData_in);
+  g_signal_connect (dialog_p, ACE_TEXT_ALWAYS_CHAR ("response"),
+                    G_CALLBACK (on_dialog_response_cb),
+                    userData_in);
 #else
   gint result = gtk_dialog_run (dialog_p);
   switch (result)
@@ -1034,8 +708,9 @@ button_quit_clicked_cb (GtkWidget* widget_in,
 //    static_cast<struct Common_UI_GTK_CBData*> (userData_in);
 //  ACE_ASSERT (ui_cb_data_p);
 
-#if GTK_CHECK_VERSION(4,0,0)
-  COMMON_UI_GTK_MANAGER_SINGLETON::instance ()->stop (false, true);
+#if GTK_CHECK_VERSION (4,0,0)
+  COMMON_UI_GTK_MANAGER_SINGLETON::instance ()->stop (false, // wait for completion ?
+                                                      true); // N/A
 #else
   gtk_main_quit ();
 #endif // GTK_CHECK_VERSION(4,0,0)
@@ -1049,12 +724,15 @@ void
 combobox_source_changed_cb (GtkWidget* widget_in,
                             gpointer userData_in)
 {
+  // sanity check(s)
+#if GTK_CHECK_VERSION (4,0,0)
+  GObject* object_p = reinterpret_cast<GObject*> (userData_in);
+  ACE_ASSERT (object_p);
+  userData_in = g_object_get_data (object_p, ACE_TEXT_ALWAYS_CHAR ("data"));
+#endif // GTK_CHECK_VERSION (4,0,0)
   struct Common_UI_GTK_CBData* ui_cb_data_p =
     static_cast<struct Common_UI_GTK_CBData*> (userData_in);
-
-  // sanity check(s)
   ACE_ASSERT (ui_cb_data_p);
-
   Common_UI_GTK_BuildersIterator_t iterator =
     ui_cb_data_p->UIState->builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
   ACE_ASSERT (iterator != ui_cb_data_p->UIState->builders.end ());
@@ -1068,7 +746,7 @@ combobox_source_changed_cb (GtkWidget* widget_in,
     GTK_LIST_STORE (gtk_builder_get_object ((*iterator).second.second,
                                             ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_LISTSTORE_SOURCE_NAME)));
   ACE_ASSERT (list_store_p);
-#if GTK_CHECK_VERSION(2,30,0)
+#if GTK_CHECK_VERSION (2,30,0)
   GValue value = G_VALUE_INIT;
 #else
   GValue value;
@@ -1093,7 +771,7 @@ combobox_source_changed_cb (GtkWidget* widget_in,
 
   list_store_p =
       GTK_LIST_STORE (gtk_builder_get_object ((*iterator).second.second,
-                                              ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_LISTSTORE_SOURCE_NAME)));
+                                              ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_LISTSTORE_SOURCE_2_NAME)));
   ACE_ASSERT (list_store_p);
 
   load_entries (list_store_p);
@@ -1115,12 +793,15 @@ void
 combobox_source_2_changed_cb (GtkWidget* widget_in,
                               gpointer userData_in)
 {
+  // sanity check(s)
+#if GTK_CHECK_VERSION (4,0,0)
+  GObject* object_p = reinterpret_cast<GObject*> (userData_in);
+  ACE_ASSERT (object_p);
+  userData_in = g_object_get_data (object_p, ACE_TEXT_ALWAYS_CHAR ("data"));
+#endif // GTK_CHECK_VERSION (4,0,0)
   struct Common_UI_GTK_CBData* ui_cb_data_p =
     static_cast<struct Common_UI_GTK_CBData*> (userData_in);
-
-  // sanity check(s)
   ACE_ASSERT (ui_cb_data_p);
-
   Common_UI_GTK_BuildersIterator_t iterator =
     ui_cb_data_p->UIState->builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
   ACE_ASSERT (iterator != ui_cb_data_p->UIState->builders.end ());
@@ -1137,7 +818,7 @@ combobox_source_2_changed_cb (GtkWidget* widget_in,
     GTK_LIST_STORE (gtk_builder_get_object ((*iterator).second.second,
                                             ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_LISTSTORE_SOURCE_2_NAME)));
   ACE_ASSERT (list_store_p);
-#if GTK_CHECK_VERSION(2,30,0)
+#if GTK_CHECK_VERSION (2,30,0)
   GValue value = G_VALUE_INIT;
 #else
   GValue value;
@@ -1159,7 +840,7 @@ combobox_source_2_changed_cb (GtkWidget* widget_in,
   converter.str (format_string);
   converter >> format_i;
 #endif // ACE_WIN32 || ACE_WIN64
-} // combobox_format_changed_cb
+} // combobox_source_2_changed_cb
 
 #if GTK_CHECK_VERSION(3,0,0)
 gboolean

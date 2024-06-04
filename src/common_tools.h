@@ -103,7 +103,7 @@ class Common_Tools
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   // --- COM ---
   // *IMPORTANT NOTE*: iff this returns 'true', invoke finalizeCOM()
-  static bool initializeCOM ();
+  static bool initializeCOM (DWORD = COMMON_WIN32_COM_INITIALIZATION_DEFAULT_FLAGS);
   inline static void finalizeCOM () { CoUninitialize (); }
 #endif // ACE_WIN32 || ACE_WIN64
 

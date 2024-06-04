@@ -26,7 +26,11 @@
 #endif // LIBPNG_SUPPORT
 
 #if defined (IMAGEMAGICK_SUPPORT)
+#if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
+#include "wand/wand_api.h"
+#else
 #include "MagickWand/MagickWand.h"
+#endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
 #endif // IMAGEMAGICK_SUPPORT
 
 #include "ace/Log_Msg.h"
@@ -249,7 +253,7 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
   width_out = static_cast<unsigned int> (MagickGetImageWidth (context_p));
   height_out = static_cast<unsigned int> (MagickGetImageHeight (context_p));
 
-  result = MagickSetImageFormat (context_p, "RGBA");
+  result = MagickSetImageFormat (context_p, ACE_TEXT_ALWAYS_CHAR ("RGBA"));
   if (unlikely (result != MagickTrue))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -257,6 +261,18 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
                 ACE_TEXT (Common_Image_Tools::errorToString (context_p).c_str ())));
     goto error;
   } // end IF
+
+#if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
+  ACE_NEW_NORETURN (data_out,
+                    GLubyte[4 * MagickGetImageWidth (context_p) * MagickGetImageHeight (context_p)]);
+  result = MagickGetImagePixels (context_p,
+                                 0, 0,
+                                 MagickGetImageWidth (context_p), MagickGetImageHeight (context_p),
+                                 ACE_TEXT_ALWAYS_CHAR ("RGBA"),
+                                 StorageType::CharPixel,
+                                 data_out);
+  ACE_ASSERT (result == MagickFalse);
+#else
   blob_p = MagickGetImageBlob (context_p, // was: MagickWriteImageBlob
                                &file_size_i);
   if (unlikely (!blob_p))
@@ -275,7 +291,9 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
     goto error;
   } // end IF
   ACE_OS::memcpy (data_out, blob_p, file_size_i);
+
   MagickRelinquishMemory (blob_p); blob_p = NULL;
+#endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
 
   DestroyMagickWand (context_p); context_p = NULL;
   //MagickWandTerminus ();

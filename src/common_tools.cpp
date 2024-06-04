@@ -581,18 +581,18 @@ Common_Tools::getHostName ()
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 bool
-Common_Tools::initializeCOM ()
+Common_Tools::initializeCOM (DWORD flags_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::initializeCOM"));
 
   HRESULT result =
     CoInitializeEx (NULL,
-                    COMMON_WIN32_COM_INITIALIZATION_DEFAULT_FLAGS);
+                    flags_in);
   if (FAILED (result)) // RPC_E_CHANGED_MODE : 0x80010106L
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to CoInitializeEx(NULL,0x%x): \"%s\", aborting\n"),
-                COMMON_WIN32_COM_INITIALIZATION_DEFAULT_FLAGS,
+                flags_in,
                 ACE_TEXT (Common_Error_Tools::errorToString (result).c_str ())));
     return false;
   } // end IF

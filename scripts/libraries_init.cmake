@@ -2,7 +2,7 @@
 # set (CMAKE_BUILD_TYPE $<CONFIG> CACHE STRING "build type" FORCE)
 #endif (WIN32)
 
-if ($<CONFIG> STREQUAL "Debug" OR
+if ($<CONFIG> STREQUAL "Debug" OR # *NOTE*: this does not work
     $<CONFIG> STREQUAL "RelWithDebInfo" OR
     ${CMAKE_BUILD_TYPE} STREQUAL "Debug" OR
     ${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo")
@@ -12,5 +12,5 @@ else ()
 endif ()
 
 if (WIN32)
- set (CMAKE_FIND_LIBRARY_SUFFIXES .lib .dll.a)
+ set (CMAKE_FIND_LIBRARY_SUFFIXES .lib .dll.a .a)
 endif (WIN32)

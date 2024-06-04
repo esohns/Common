@@ -81,9 +81,15 @@ G_MODULE_EXPORT void glarea_resize_cb (GtkGLArea*, gint, gint, gpointer);
 #endif // GTKGL_SUPPORT
 #if GTK_CHECK_VERSION (4,0,0)
 G_MODULE_EXPORT void filechooserdialog_cb (GtkNativeDialog*, int);
+G_MODULE_EXPORT gint dialog_main_delete_cb (GtkWidget*, GdkEvent*, gpointer);
+G_MODULE_EXPORT gint dialog_main_destroy_cb (GtkWidget*, GdkEvent*, gpointer);
+G_MODULE_EXPORT void dialog_main_close_cb (GtkDialog*, gpointer);
+G_MODULE_EXPORT void dialog_main_response_cb (GtkDialog*, gint, gpointer);
 #else
 G_MODULE_EXPORT void filechooserbutton_cb (GtkFileChooserButton*, gpointer);
 //G_MODULE_EXPORT void filechooserdialog_cb (GtkFileChooser*, gpointer);
+G_MODULE_EXPORT gint dialog_main_delete_cb (GtkWidget*, GdkEventAny*, gpointer);
+G_MODULE_EXPORT gint dialog_main_destroy_cb (GtkWidget*, GdkEventAny*, gpointer);
 #endif // GTK_CHECK_VERSION (4,0,0)
 gboolean key_cb (GtkWidget*, GdkEvent*, gpointer);
 G_MODULE_EXPORT void togglebutton_record_toggled_cb (GtkToggleButton*, gpointer);

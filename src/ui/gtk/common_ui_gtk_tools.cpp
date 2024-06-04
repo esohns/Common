@@ -569,8 +569,7 @@ Common_UI_GTK_Tools::get (unsigned long windowId_in)
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if GTK_CHECK_VERSION (4,0,0)
-GdkPixbuf*
-Common_UI_GTK_Tools::get (GdkSurface* surface_in)
+GdkPixbuf* Common_UI_GTK_Tools::get (GdkSurface* surface_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::get"));
 
@@ -579,11 +578,13 @@ Common_UI_GTK_Tools::get (GdkSurface* surface_in)
   gint width, height;
   width = gdk_surface_get_width (surface_in);
   height = gdk_surface_get_height (surface_in);
-  pixel_buffer_p = gdk_pixbuf_get_from_surface (surface_in,
-                                                0, 0,
-                                                width, height);
+  ACE_ASSERT (false); // *TODO*
+  // pixel_buffer_p = gdk_pixbuf_get_from_surface (surface_in,
+  //                                               0, 0,
+  //                                               width, height);
 
   return pixel_buffer_p;
+}
 #else
 GdkPixbuf*
 Common_UI_GTK_Tools::get (GdkWindow* window_in)
@@ -737,12 +738,12 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::dumpGtkOpenGLInfo"));
 
+  bool release_context = false;
 #if GTK_CHECK_VERSION (4,0,0)
-  GdkSurface* window_p = NULL;
+  GdkSurface* surface_p = NULL;
 #elif GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
   GdkWindow* window_p = NULL;
-  bool release_context = false;
 #else
 #if defined (GTKGLAREA_SUPPORT)
 #else
@@ -754,7 +755,7 @@ Common_UI_GTK_Tools::dumpGtkOpenGLInfo ()
   std::string information_string;
 
 #if GTK_CHECK_VERSION (4,0,0)
-  window_p = gdk_gl_context_get_surface (context_in);
+  surface_p = gdk_gl_context_get_surface (context_in);
 #elif GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
   window_p = gdk_gl_context_get_window (context_in);

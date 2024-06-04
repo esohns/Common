@@ -25,7 +25,9 @@
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "amvideo.h"
+#if defined (DIRECTXSDK)
 #include "d3dx9tex.h"
+#endif // DIRECTXSDK
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (FFMPEG_SUPPORT)
@@ -39,7 +41,11 @@ extern "C"
 #endif // FFMPEG_SUPPORT
 
 #if defined (IMAGEMAGICK_SUPPORT)
+#if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
+#include "wand/wand_api.h"
+#else
 #include "MagickWand/MagickWand.h"
+#endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
 #endif // IMAGEMAGICK_SUPPORT
 
 #include "ace/Log_Msg.h"
@@ -112,10 +118,10 @@ Common_Image_Tools::fileExtensionToType (const std::string& path_in)
 }
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-bool
-Common_Image_Tools::save (const std::string& path_in,
-                          enum _D3DXIMAGE_FILEFORMAT format_in,
-                          const IDirect3DSurface9* surface_in)
+#if defined (DIRECTXSDK)
+bool Common_Image_Tools::save (const std::string& path_in,
+                               enum _D3DXIMAGE_FILEFORMAT format_in,
+                               const IDirect3DSurface9* surface_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::save"));
 
@@ -144,6 +150,7 @@ Common_Image_Tools::save (const std::string& path_in,
 
   return true;
 }
+#endif // DIRECTXSDK
 
 bool
 Common_Image_Tools::saveBMP (const Common_Image_Resolution_t& resolution_in,
@@ -1629,32 +1636,19 @@ Common_Image_Tools::load (const std::string& sourceFilePath_in,
   // initialize return value(s)
   ACE_ASSERT (!data_out);
 
-//  FILE* file_p =
-//    ACE_OS::fopen (sourceFilePath_in.c_str (), ACE_TEXT_ALWAYS_CHAR ("rb"));
-//  ACE_ASSERT (file_p);
-
-//  ACE_UINT8 buffer_a[BUFSIZ * 1024];
-//  ACE_OS::memset (&buffer_a, 0, sizeof (ACE_UINT8) * BUFSIZ * 1024);
-//  size_t size_2 =
-//    ACE_OS::fread (buffer_a,
-//                   1,
-//                   sizeof (ACE_UINT8) * BUFSIZ * 1024,
-//                   file_p);
-//  ACE_ASSERT (size_2 > 0);
-
-//  ACE_OS::fclose (file_p); file_p = NULL;
-
   MagickWand* wand_p = NewMagickWand ();
   ACE_ASSERT (wand_p);
   MagickSetImageType (wand_p, TrueColorType);
   MagickSetImageColorspace (wand_p, sRGBColorspace);
   MagickSetImageFormat (wand_p, ACE_TEXT_ALWAYS_CHAR ("PNG"));
 
-//  unsigned int result = MagickReadImageBlob (wand_p,
-//                                             buffer_a,
-//                                             size_2);
-  MagickBooleanType result = MagickReadImage (wand_p,
-                                              sourceFilePath_in.c_str ());
+#if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
+  unsigned int result = 0;
+#else
+  MagickBooleanType result = MagickFalse;
+#endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
+  result = MagickReadImage (wand_p,
+                            sourceFilePath_in.c_str ());
   if (result != MagickTrue)
   {
     ExceptionType severity;
@@ -1679,13 +1673,22 @@ Common_Image_Tools::load (const std::string& sourceFilePath_in,
   //result = MagickSetImageResolution (wand_p, 96.0, 96.0);
   //ACE_ASSERT (result == MagickTrue);
 
-  //result = MagickWriteImage (wand_p, "logo.bmp");
-  //ACE_ASSERT (result == MagickTrue);
-
-  //MagickResetIterator (wand_p);
+#if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
+  //ACE_ASSERT (isRGB (outputFormat_in)); // *TODO*
+  ACE_NEW_NORETURN (data_out,
+                    uint8_t[outputFormat_in.size () * MagickGetImageWidth (wand_p) * MagickGetImageHeight (wand_p)]);
+  result = MagickGetImagePixels (wand_p,
+                                 0, 0,
+                                 MagickGetImageWidth (wand_p), MagickGetImageHeight (wand_p),
+                                 outputFormat_in.c_str (),
+                                 StorageType::CharPixel,
+                                 data_out);
+  ACE_ASSERT (result == MagickFalse);
+#else
   size_t size_i;
   data_out = MagickGetImageBlob (wand_p, // was: MagickWriteImageBlob
                                  &size_i);
+#endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
   ACE_ASSERT (data_out);
 
   DestroyMagickWand (wand_p); wand_p = NULL;

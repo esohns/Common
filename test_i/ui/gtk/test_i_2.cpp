@@ -53,7 +53,7 @@ idle_mode_0_cb (gpointer userData_in)
   ACE_ASSERT (drawing_area_p);
 
 #if GTK_CHECK_VERSION (4,0,0)
-  ACE_ASSERT (false); // *TODO*
+  gtk_widget_queue_draw (GTK_WIDGET (drawing_area_p));
 #else
   gdk_window_invalidate_rect (gtk_widget_get_window (GTK_WIDGET (drawing_area_p)),
                               NULL,   // whole window
@@ -61,6 +61,22 @@ idle_mode_0_cb (gpointer userData_in)
 #endif // GTK_CHECK_VERSION (4,0,0)
 
   return G_SOURCE_CONTINUE;
+}
+
+void
+on_activate_cb (GApplication* self, gpointer userData_in)
+{
+  ACE_UNUSED_ARG (self);
+
+  // sanity check(s)
+  struct Common_UI_GTK_Configuration* configuration_p =
+    static_cast<struct Common_UI_GTK_Configuration*> (userData_in);
+  ACE_ASSERT (configuration_p);
+  ACE_ASSERT (configuration_p->application);
+  ACE_ASSERT (configuration_p->mainWindow);
+
+  gtk_application_add_window (configuration_p->application,
+                              configuration_p->mainWindow);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -207,12 +223,16 @@ do_work (int argc_in,
   gtk_configuration.eventHooks.finiHook = idle_finalize_UI_cb;
   gtk_configuration.eventHooks.initHook = idle_initialize_UI_cb;
   gtk_configuration.definition = &gtk_ui_definition;
+  gtk_configuration.widgetName =
+    ACE_TEXT_ALWAYS_CHAR (COMMON_UI_GTK_DEFINITION_WIDGET_MAIN);
+  gtk_configuration.onActivateCb = G_CALLBACK (on_activate_cb);
 
   ui_cb_data.UIState = &state_r;
   ui_cb_data.progressData.state = &state_r;
 
   state_r.builders[ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN)] =
     std::make_pair (UIDefinitionFilePath_in, static_cast<GtkBuilder*> (NULL));
+  state_r.userData = &ui_cb_data;
 
   int result = gtk_manager_p->initialize (gtk_configuration);
   if (!result)
@@ -287,9 +307,11 @@ ACE_TMAIN (int argc_in,
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   Common_Tools::initialize (false,  // COM ?
                             false); // RNG ?
+  //Common_UI_GTK_Tools::initialize (argc_in, argv_in);
 #else
   Common_Tools::initialize (false); // RNG ?
 #endif // ACE_WIN32 || ACE_WIN64
+  Common_File_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (argv_in[0]));
 
   ACE_High_Res_Timer timer;
   ACE_Time_Value working_time;
@@ -327,12 +349,13 @@ ACE_TMAIN (int argc_in,
   } // end IF
 
   // step1c: initialize logging and/or tracing
-  if (!Common_Log_Tools::initializeLogging (ACE::basename (argv_in[0]),           // program name
-                                            ACE_TEXT_ALWAYS_CHAR (""),            // log file name
-                                            false,                                // log to syslog ?
-                                            false,                                // trace messages ?
-                                            trace_information,                    // debug messages ?
-                                            NULL))                                // logger ?
+  if (!Common_Log_Tools::initializeLogging (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])), // program name
+                                            Common_Log_Tools::getLogFilename (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                                              Common_File_Tools::executable),             // log file name
+                                            false,                                             // log to syslog ?
+                                            false,                                             // trace messages ?
+                                            trace_information,                                 // debug messages ?
+                                            NULL))                                             // logger ?
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Log_Tools::initializeLogging(), aborting\n")));
@@ -405,6 +428,8 @@ ACE_TMAIN (int argc_in,
   result = EXIT_SUCCESS;
 
 clean:
+  Common_Log_Tools::finalizeLogging ();
+  Common_Tools::finalize ();
   // *PORTABILITY*: on Windows, finalize ACE
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   result = ACE::fini ();

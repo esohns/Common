@@ -3,7 +3,13 @@
 #include <iostream>
 #include <string>
 
+#if defined (IMAGEMAGICK_SUPPORT)
+#if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
+#include "wand/wand_api.h"
+#else
 #include "MagickWand/MagickWand.h"
+#endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
+#endif // IMAGEMAGICK_SUPPORT
 
 #include "ace/config-lite.h"
 #include "ace/ACE.h"

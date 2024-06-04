@@ -15,28 +15,31 @@
   </object>
   <object class="GtkDialog" id="dialog_main">
     <property name="visible">1</property>
-    <property name="can_focus">0</property>
-    <property name="title" translatable="yes">dialog</property>
-    <child>
-      <placeholder/>
-    </child>
+    <property name="title" translatable="1">dialog</property>
+    <signal name="close" handler="dialog_main_close_cb" swapped="no"/>
+    <signal name="response" handler="dialog_main_response_cb" swapped="no"/>
     <child internal-child="content_area">
       <object class="GtkBox" id="dialog_box">
-        <property name="can_focus">0</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkBox" id="box_main_2">
-            <property name="can_focus">0</property>
             <child>
               <object class="GtkToggleButton" id="togglebutton_record">
-                <property name="label" translatable="yes">togglebutton</property>
-                <property name="focus_on_click">0</property>
+                <property name="label" translatable="1">togglebutton</property>
+                <property name="focusable">1</property>
                 <property name="receives_default">1</property>
+                <property name="focus_on_click">0</property>
                 <signal name="toggled" handler="togglebutton_record_toggled_cb" swapped="no"/>
               </object>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkGrid" id="grid1">
+                <property name="hexpand">1</property>
+                <property name="row_spacing">1</property>
+                <property name="column_spacing">1</property>
+                <property name="row_homogeneous">1</property>
+                <property name="column_homogeneous">1</property>
+              </object>
             </child>
             <child>
               <placeholder/>
@@ -44,49 +47,34 @@
           </object>
         </child>
         <child>
-          <object class="GtkBox" id="box_main_3">
-            <property name="can_focus">0</property>
+          <object class="GtkBox" id="vbox3">
+            <property name="vexpand">1</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkComboBox" id="combobox_source">
-                <property name="can_focus">0</property>
-                <property name="focus_on_click">0</property>
                 <property name="model">liststore_source</property>
+                <property name="focus_on_click">0</property>
                 <signal name="changed" handler="combobox_source_changed_cb" swapped="no"/>
               </object>
             </child>
             <child>
               <object class="GtkComboBox" id="combobox_source_2">
-                <property name="can_focus">0</property>
-                <property name="focus_on_click">0</property>
                 <property name="model">liststore_source_2</property>
+                <property name="focus_on_click">0</property>
                 <signal name="changed" handler="combobox_source_2_changed_cb" swapped="no"/>
               </object>
             </child>
             <child>
               <object class="GtkDrawingArea" id="drawingarea">
-                <property name="width_request">100</property>
-                <property name="height_request">100</property>
-                <property name="can_focus">0</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkGLArea" id="glarea">
+                <property name="vexpand">1</property>
                 <property name="width_request">320</property>
                 <property name="height_request">240</property>
-                <property name="can_focus">0</property>
-                <property name="has_depth_buffer">1</property>
-                <signal name="create-context" handler="glarea_create_context_cb" swapped="no"/>
-                <signal name="render" handler="glarea_render_cb" swapped="no"/>
-                <signal name="resize" handler="glarea_resize_cb" swapped="no"/>
               </object>
             </child>
             <child>
               <object class="GtkBox" id="box_main_4">
-                <property name="can_focus">0</property>
                 <child>
                   <object class="GtkProgressBar" id="progressbar">
-                    <property name="can_focus">0</property>
                     <property name="show_text">1</property>
                   </object>
                 </child>
@@ -105,9 +93,12 @@
     </action-widgets>
     <child internal-child="action_area">
       <object class="GtkBox" id="dialog_actionarea">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <child>
           <object class="GtkButton" id="button_about">
             <property name="label">gtk-about</property>
+            <property name="focusable">1</property>
             <property name="focus_on_click">0</property>
             <signal name="clicked" handler="button_about_clicked_cb" swapped="no"/>
           </object>
@@ -115,6 +106,7 @@
         <child>
           <object class="GtkButton" id="button_quit">
             <property name="label">gtk-quit</property>
+            <property name="focusable">1</property>
             <property name="focus_on_click">0</property>
             <signal name="clicked" handler="button_quit_clicked_cb" swapped="no"/>
           </object>

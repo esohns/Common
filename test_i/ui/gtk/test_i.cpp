@@ -189,7 +189,7 @@ combobox_source_2_changed_cb (GtkWidget* widget_in,
 }
 
 #if defined (GTKGL_SUPPORT)
-#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
 G_MODULE_EXPORT GdkGLContext*
 glarea_create_context_cb (GtkGLArea* GLArea_in,
@@ -515,7 +515,7 @@ glarea_destroy_cb (GtkWidget* widget_in,
 } // glarea_destroy_cb
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION(3,16,0)
-#elif GTK_CHECK_VERSION(2,0,0)
+#elif GTK_CHECK_VERSION (2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
 void
 glarea_configure_event_cb (GtkWidget* widget_in,
@@ -862,8 +862,8 @@ on_activate_cb (GtkWidget* widget,
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("activate event\n")));
 
-  GtkWidget* mainwin = (GtkWidget*)data;
-  gtk_widget_show (mainwin);
+  GtkWindow* mainwin = (GtkWindow*)data;
+  gtk_window_present (mainwin);
 }
 #else
 G_MODULE_EXPORT gboolean
@@ -878,12 +878,7 @@ on_destroy_event_cb (GtkWidget* widget,
 #else
   gdk_threads_enter();
 #endif // GTK_CHECK_VERSION (3,6,0)
-#if GTK_CHECK_VERSION (4,0,0)
-  ACE_ASSERT (app_p);
-  g_application_quit (G_APPLICATION (app_p));
-#else
   gtk_main_quit();
-#endif // GTK_CHECK_VERSION (4,0,0)
 #if GTK_CHECK_VERSION (3,6,0)
 #else
   gdk_threads_leave();
@@ -945,12 +940,19 @@ do_work (int argc_in,
     g_error_free (error_p); error_p = NULL;
     return;
   } // end IF
-  GtkWidget* mainwin =
-      GTK_WIDGET (gtk_builder_get_object (gtkBuilder, "dialog_main"));
+  GtkDialog* dialog_p =
+      GTK_DIALOG (gtk_builder_get_object (gtkBuilder, ACE_TEXT_ALWAYS_CHAR ("dialog_main")));
 
 #if GTK_CHECK_VERSION (4,0,0)
-  app_p = gtk_application_new ("org.gnome.example", G_APPLICATION_FLAGS_NONE);
-  g_signal_connect (app_p, "activate", G_CALLBACK (on_activate_cb), mainwin);
+  GtkWindow* main_window_p = GTK_WINDOW (gtk_window_new ());
+  ACE_ASSERT (main_window_p);
+  gtk_window_set_transient_for (GTK_WINDOW (dialog_p),
+                                main_window_p);
+  app_p =
+    gtk_application_new (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_GTK_APPLICATION_ID_DEFAULT),
+                         G_APPLICATION_FLAGS_NONE);
+  g_signal_connect (app_p, ACE_TEXT_ALWAYS_CHAR ("activate"),
+                    G_CALLBACK (on_activate_cb), main_window_p);
 #else
   //g_signal_handlers_block_matched (mainwin, G_SIGNAL_MATCH_DATA,
   //                                 g_signal_lookup ("delete-event", GTK_TYPE_WIDGET),
@@ -959,7 +961,24 @@ do_work (int argc_in,
 #endif // GTK_CHECK_VERSION (4,0,0)
 
 #if defined (GTKGL_SUPPORT)
-#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
+  GtkGLArea* gl_area_p = GTK_GL_AREA (gtk_gl_area_new ());
+  ACE_ASSERT (gl_area_p);
+  gtk_widget_set_parent (GTK_WIDGET (gl_area_p), GTK_WIDGET (dialog_p));
+  gtk_widget_realize (GTK_WIDGET (gl_area_p));
+  GdkGLContext* context_p = gtk_gl_area_get_context (gl_area_p);
+  ACE_ASSERT (context_p);
+  g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("resize"),
+                    G_CALLBACK (glarea_resize_cb), NULL);
+  static GLuint texture_id = 0;
+  g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("render"),
+                    G_CALLBACK (glarea_render_cb), &texture_id);
+  //g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("realize"),
+  //                  G_CALLBACK (glarea_realize_cb), &texture_id);
+  //g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("destroy"),
+  //                  G_CALLBACK (glarea_destroy_cb), &texture_id);
+  gtk_widget_set_size_request (GTK_WIDGET (gl_area_p), 256, 256);
+#elif GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
   GtkGLArea* gl_area_p = GTK_GL_AREA (gtk_gl_area_new ());
   ACE_ASSERT (gl_area_p);
@@ -1082,7 +1101,7 @@ do_work (int argc_in,
                          GDK_POINTER_MOTION_HINT_MASK);
   g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("configure-event"),
                     G_CALLBACK (glarea_configure_event_cb), NULL);
-  GLuint texture_id = 0;
+  static GLuint texture_id = 0;
   g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("expose-event"),
                     G_CALLBACK (glarea_expose_event_cb), &texture_id);
   g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("realize"),
@@ -1093,10 +1112,25 @@ do_work (int argc_in,
 #endif // GTKGLAREA_SUPPORT
 #else
 #endif // GTK_CHECK_VERSION (2,0,0)
-  GtkVBox* box_p = GTK_VBOX (gtk_builder_get_object (gtkBuilder, "vbox3"));
+#if (GTK4_USE)
+  GtkBox* box_p =
+    GTK_BOX (gtk_builder_get_object (gtkBuilder, ACE_TEXT_ALWAYS_CHAR ("vbox3")));
+  ACE_ASSERT (box_p);
+  GtkWidget* childs = gtk_widget_get_first_child (GTK_WIDGET (box_p));
+  while (childs != NULL)
+  {
+    gtk_box_remove (box_p, childs);
+    //gtk_widget_unparent (childs);
+    childs = gtk_widget_get_first_child (GTK_WIDGET (box_p));
+  } // end WHILE
+  gtk_box_append (GTK_BOX (box_p), GTK_WIDGET (gl_area_p));
+#else
+  GtkVBox* box_p =
+    GTK_VBOX (gtk_builder_get_object (gtkBuilder, ACE_TEXT_ALWAYS_CHAR ("vbox3")));
   ACE_ASSERT (box_p);
   gtk_container_foreach (GTK_CONTAINER (box_p), (GtkCallback)gtk_widget_destroy, NULL);
   gtk_box_pack_start (GTK_BOX (box_p), GTK_WIDGET (gl_area_p), TRUE, TRUE, 0);
+#endif // GTK4_USE
 #endif // GTKGL_SUPPORT
 
 #if defined (GTK2_USE)
@@ -1104,12 +1138,12 @@ do_work (int argc_in,
     GTK_TABLE (gtk_builder_get_object (gtkBuilder,
                                        ACE_TEXT_ALWAYS_CHAR ("table1")));
   ACE_ASSERT (table_p);
-#elif defined (GTK3_USE)
+#elif defined (GTK3_USE) || defined (GTK4_USE)
   GtkGrid* grid_p =
     GTK_GRID (gtk_builder_get_object (gtkBuilder,
                                       ACE_TEXT_ALWAYS_CHAR ("grid1")));
   ACE_ASSERT (grid_p);
-#endif // GTK2_USE || GTK3_USE
+#endif // GTK2_USE || GTK3_USE || GTK4_USE
   unsigned int number_of_pieces_i = 100;
   unsigned int number_of_colummns_and_rows_i =
       static_cast<unsigned int> (std::ceil (std::sqrt (static_cast<float> (number_of_pieces_i))));
@@ -1117,22 +1151,28 @@ do_work (int argc_in,
   gtk_table_resize (table_p,
                     number_of_colummns_and_rows_i,
                     number_of_colummns_and_rows_i);
-#endif // GTK2_USE || GTK3_USE
+#endif // GTK2_USE
   int x, y;
   GtkButton* button_p = NULL;
 #if defined (GTK2_USE)
   GdkColor black = {0, 0x0000, 0x0000, 0x0000};
 //  GdkColor red = {0, 0xffff, 0x0000, 0x0000};
-#elif defined (GTK3_USE)
+#elif defined (GTK3_USE) || defined (GTK4_USE)
   // GdkRGBA black = { 0.0, 0.0, 0.0, 1.0 };
 
   GtkCssProvider* css_provider_p = gtk_css_provider_new ();
   ACE_ASSERT (css_provider_p);
   // Load CSS into the object ("-1" says, that the css string is \0-terminated)
+#if defined (GTK3_USE)
   gtk_css_provider_load_from_data (css_provider_p,
-                                   ACE_TEXT ("* { background-image:none; background-color:black; }"), -1,
+                                   ACE_TEXT_ALWAYS_CHAR ("* { background-image:none; background-color:black; }"), -1,
                                    NULL);
-#endif // GTK2_USE || GTK3_USE
+#elif defined (GTK4_USE)
+  gtk_css_provider_load_from_data (css_provider_p,
+                                   ACE_TEXT_ALWAYS_CHAR ("* { background-image:none; background-color:black; }"),
+                                   -1);
+#endif // GTK3_USE || GTK4_USE
+#endif // GTK2_USE || GTK3_USE || GTK4_USE
   for (unsigned int i = 0;
        i < number_of_pieces_i;
        ++i)
@@ -1146,7 +1186,7 @@ do_work (int argc_in,
     //gtk_widget_modify_fg (GTK_WIDGET (button_p), GTK_STATE_NORMAL, &red);
     //gtk_widget_modify_fg (GTK_WIDGET (button_p), GTK_STATE_PRELIGHT, &red);
     //gtk_widget_modify_fg (GTK_WIDGET (button_p), GTK_STATE_ACTIVE, &red);
-#elif defined (GTK3_USE)
+#elif defined (GTK3_USE) || defined (GTK4_USE)
     //gtk_widget_override_background_color (GTK_WIDGET (button_p), GTK_STATE_FLAG_NORMAL, &black);
     //gtk_widget_override_background_color (GTK_WIDGET (button_p), GTK_STATE_FLAG_PRELIGHT, &black);
     //gtk_widget_override_background_color (GTK_WIDGET (button_p), GTK_STATE_FLAG_ACTIVE, &black);
@@ -1157,7 +1197,7 @@ do_work (int argc_in,
     gtk_style_context_add_provider (gtk_widget_get_style_context (GTK_WIDGET (button_p)),
                                     GTK_STYLE_PROVIDER (css_provider_p),
                                     GTK_STYLE_PROVIDER_PRIORITY_USER);
-#endif // GTK2_USE || GTK3_USE
+#endif // GTK2_USE || GTK3_USE || GTK4_USE
 
     x = i % number_of_colummns_and_rows_i;
     y = i / number_of_colummns_and_rows_i;
@@ -1166,30 +1206,27 @@ do_work (int argc_in,
                                GTK_WIDGET (button_p),
                                x, x + 1,
                                y, y + 1);
-#elif defined (GTK3_USE)
+#elif defined (GTK3_USE) || defined (GTK4_USE)
     gtk_grid_attach (grid_p,
                      GTK_WIDGET (button_p),
                      x, y,
                      1, 1);
-#endif // GTK2_USE || GTK3_USE
+#endif // GTK2_USE || GTK3_USE || GTK4_USE
   } // end FOR
-#if defined (GTK3_USE)
+#if defined (GTK3_USE) || defined (GTK4_USE)
   g_object_unref (css_provider_p); css_provider_p = NULL;
-#endif // GTK3_USE
+#endif // GTK3_USE || GTK4_USE
 
   //g_object_unref (G_OBJECT (gtkBuilder));
-
-#if GTK_CHECK_VERSION (4,0,0)
-#else
-  gtk_widget_show_all (mainwin);
-#endif // GTK_CHECK_VERSION(4,0,0)
 
 #if GTK_CHECK_VERSION (4,0,0)
   g_application_run (G_APPLICATION (app_p), 0, NULL);
   g_object_unref (app_p);
 #else
+  gtk_widget_show_all (GTK_WIDGET (dialog_p));
+
   gtk_main ();
-#endif // GTK_CHECK_VERSION(4,0,0)
+#endif // GTK_CHECK_VERSION (4,0,0)
 }
 
 int

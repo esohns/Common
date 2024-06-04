@@ -21,13 +21,7 @@
 #ifndef COMMON_MACROS_H
 #define COMMON_MACROS_H
 
-//#include "ace/Trace.h"
-//
-//#include "common_tools.h"
-//
-//#if defined (HAVE_CONFIG_H)
-//#include "Common_config.h"
-//#endif // HAVE_CONFIG_H
+#include "ace/config-lite.h"
 
 // branch prediction //
 

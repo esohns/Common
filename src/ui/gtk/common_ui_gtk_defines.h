@@ -23,7 +23,7 @@
 
 #include "gtk/gtk.h"
 
-#if GTK_CHECK_VERSION(2,32,0)
+#if GTK_CHECK_VERSION (2,32,0)
 #else
 #define G_SOURCE_CONTINUE                                       TRUE
 #define G_SOURCE_REMOVE                                         FALSE
@@ -37,7 +37,7 @@
 #define COMMON_UI_GTK_TIMEOUT_DEFAULT_WIDGET_TOOLTIP_DELAY_MS   100 // ms
 
 // application
-#define COMMON_UI_GTK_APPLICATION_ID_DEFAULT                    "application_id"
+#define COMMON_UI_GTK_APPLICATION_ID_DEFAULT                    "org.gnome.example"
 
 // widgets
 #define COMMON_UI_GTK_DEFINITION_WIDGET_MAIN                    "dialog_main"

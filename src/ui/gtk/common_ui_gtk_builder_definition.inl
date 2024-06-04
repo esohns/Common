@@ -77,6 +77,13 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
         return false;
       } // end IF
 
+#if GTK_CHECK_VERSION (4,0,0)
+      GObject* object_p = G_OBJECT (g_object_new (G_TYPE_OBJECT, NULL));
+      g_object_set_data (object_p, ACE_TEXT_ALWAYS_CHAR ("data"), (gpointer)state_->userData);
+
+      gtk_builder_set_current_object (builder_p, object_p);
+#endif // GTK_CHECK_VERSION (4,0,0)
+
       gtk_builder_add_from_file (builder_p,                         // builder handle
                                  (*iterator).second.first.c_str (), // definition file,
                                  &error_p);                         // error
@@ -84,7 +91,7 @@ Common_UI_GtkBuilderDefinition_T<StateType>::initialize (StateType& state_inout)
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to gtk_builder_add_from_file(\"%s\"): \"%s\", aborting\n"),
-                    ACE_TEXT (ACE::basename (ACE_TEXT ((*iterator).second.first.c_str ()), ACE_DIRECTORY_SEPARATOR_CHAR)),
+                    ACE::basename (ACE_TEXT ((*iterator).second.first.c_str ()), ACE_DIRECTORY_SEPARATOR_CHAR),
                     ACE_TEXT (error_p->message)));
         g_error_free (error_p); error_p = NULL;
         g_object_unref (G_OBJECT (builder_p)); builder_p = NULL;

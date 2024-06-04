@@ -207,13 +207,15 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #else
       gdk_threads_enter ();
 #endif // GTK_CHECK_VERSION (3,6,0)
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
       g_application_quit (G_APPLICATION (configuration_->application));
+
+      g_application_release (G_APPLICATION (configuration_->application));
 #else
       guint level = gtk_main_level ();
       if (level > 0)
         gtk_main_quit ();
-#endif // GTK_CHECK_VERSION(4,0,0)
+#endif // GTK_CHECK_VERSION (4,0,0)
 #if GTK_CHECK_VERSION (3,6,0)
 #else
       gdk_threads_leave ();
@@ -328,7 +330,12 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   // step0: initialize COM
+#if GTK_CHECK_VERSION (4,0,0)
+  DWORD flags_i = COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE;
+  bool COM_initialized = Common_Tools::initializeCOM (flags_i);
+#else
   bool COM_initialized = Common_Tools::initializeCOM ();
+#endif // GTK_CHECK_VERSION (4,0,0)
 #endif // ACE_WIN32 || ACE_WIN64
 
   // step1: initialize GTK
@@ -373,7 +380,36 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     GTK_WIDGET (gtk_builder_get_object ((*iterator).second.second,
                                         ACE_TEXT_ALWAYS_CHAR (configuration_->widgetName.c_str ())));
   ACE_ASSERT (widget_p);
-#if GTK_CHECK_VERSION (3,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
+  context_p =
+    gdk_surface_create_gl_context (gtk_native_get_surface (gtk_widget_get_native (widget_p)),
+                                   &error_p);
+  if (unlikely (!context_p || error_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to gdk_surface_create_gl_context(%@): \"%s\", aborting\n"),
+                gtk_native_get_surface (gtk_widget_get_native (widget_p)),
+                ACE_TEXT (error_p->message)));
+    g_error_free (error_p); error_p = NULL;
+    result = -1;
+    goto done;
+  } // end IF
+  if (unlikely (!gdk_gl_context_realize (context_p,
+                                         &error_p)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to gdk_gl_context_realize(0x%@): \"%s\", aborting\n"),
+                context_p,
+                ACE_TEXT (error_p->message)));
+    g_error_free (error_p); error_p = NULL;
+    g_object_unref (context_p); context_p = NULL;
+    result = -1;
+    goto done;
+  } // end IF
+  state_.OpenGLContexts.insert (std::make_pair (static_cast<GtkGLArea*> (NULL),
+                                                context_p));
+  context_p = NULL;
+#elif GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
   context_p =
       gdk_window_create_gl_context (gtk_widget_get_window (widget_p),
@@ -523,7 +559,7 @@ clean_2:
     result = -1;
     goto done;
   } // end IF
-#endif /* GTK_CHECK_VERSION (3,0,0) */
+#endif /* GTK_CHECK_VERSION (4,0,0) */
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("initializing OpenGL...DONE\n")));
 #endif // GTKGL_SUPPORT
@@ -579,9 +615,28 @@ continue_:
   } // end IF
 
 #if GTK_CHECK_VERSION (4,0,0)
+  iterator =
+    state_.builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
+  ACE_ASSERT (iterator != state_.builders.end ());
+  widget_p =
+    GTK_WIDGET (gtk_builder_get_object ((*iterator).second.second,
+                                        ACE_TEXT_ALWAYS_CHAR (configuration_->widgetName.c_str ())));
+  if (widget_p && GTK_IS_DIALOG (G_OBJECT (widget_p)))
+  { ACE_ASSERT (!configuration_->mainWindow);
+    configuration_->mainWindow = GTK_WINDOW (gtk_window_new ());
+    ACE_ASSERT (configuration_->mainWindow);
+    gtk_window_set_transient_for (GTK_WINDOW (widget_p),
+                                  configuration_->mainWindow);
+  } // end IF
+  // *WORKAROUND*: connect to the "activate" signal and add the mainWindow to
+  //               the application there; then remove the hold()/release() calls
+  //               (see close(1) above)
+  g_application_hold (G_APPLICATION (configuration_->application));
+
   g_application_run (G_APPLICATION (configuration_->application),
                      configuration_->argc,
                      configuration_->argv);
+
   g_object_unref (configuration_->application);
 #else
   gtk_main ();
@@ -768,7 +823,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     goto error;
   } // end IF
 #if defined (_DEBUG)
-#if GTK_CHECK_VERSION (3,14,0)
+#if GTK_CHECK_VERSION (4,0,0)
+#elif GTK_CHECK_VERSION (3,14,0)
   gtk_window_set_interactive_debugging (TRUE);
 #endif // GTK_CHECK_VERSION (3,14,0)
   Common_UI_GTK_Tools::dumpGtkLibraryInfo ();
@@ -827,8 +883,11 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   ACE_ASSERT (!configuration_->application);
   configuration_->application =
     gtk_application_new (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_GTK_APPLICATION_ID_DEFAULT),
-                         G_APPLICATION_FLAGS_NONE);
-  //g_signal_connect (configuration_->application, "activate", G_CALLBACK (on_activate_cb), mainwin);
+                         G_APPLICATION_DEFAULT_FLAGS);
+  if (configuration_->onActivateCb)
+    g_signal_connect (configuration_->application, ACE_TEXT_ALWAYS_CHAR ("activate"),
+                      G_CALLBACK (configuration_->onActivateCb),
+                      configuration_);
 #else
   //   GnomeClient* gnomeSession = NULL;
   //   gnomeSession = gnome_client_new();

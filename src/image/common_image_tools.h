@@ -74,10 +74,12 @@ class Common_Image_Tools
   static enum Common_Image_FileType fileExtensionToType (const std::string&); // path
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+#if defined (DIRECTXSDK)
   // DirectX
   static bool save (const std::string&,         // target file path
                     enum _D3DXIMAGE_FILEFORMAT, // file format
                     const IDirect3DSurface9*);  // data
+#endif // DIRECTXSDK
   static bool saveBMP (const Common_Image_Resolution_t&, // source resolution
                        WORD,                             // source (coded-) bit count
                        uint8_t*[],                       // source buffer(s)

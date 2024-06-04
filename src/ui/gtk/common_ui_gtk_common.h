@@ -169,31 +169,35 @@ typedef Common_UI_IDefinition_T<Common_UI_GTK_State_t> Common_UI_GTK_IDefinition
 struct Common_UI_GTK_Configuration
 {
   Common_UI_GTK_Configuration ()
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
    : application (NULL)
+   , mainWindow (NULL)
+   , onActivateCb (NULL)
    , argc (0)
 #else
    : argc (0)
-#endif // GTK_CHECK_VERSION(4,0,0)
+#endif // GTK_CHECK_VERSION (4,0,0)
    , argv (NULL)
    , CBData (NULL)
-#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION (3,0,0)
    , CSSProviders ()
-#endif // GTK_CHECK_VERSION(3,0,0)
+#endif // GTK_CHECK_VERSION (3,0,0)
    , definition (NULL)
    , eventHooks ()
    , RCFiles ()
   {}
 
-#if GTK_CHECK_VERSION(4,0,0)
+#if GTK_CHECK_VERSION (4,0,0)
   GtkApplication*                             application;
-#endif // GTK_CHECK_VERSION(4,0,0)
+  GtkWindow*                                  mainWindow;
+  GCallback                                   onActivateCb;
+#endif // GTK_CHECK_VERSION (4,0,0)
   int                                         argc;
   ACE_TCHAR**                                 argv;
   gpointer                                    CBData; // widget cb user data (inherits Common_UI_GTK_CBData)
-#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION (3,0,0)
   Common_UI_GTK_CSSProviders_t                CSSProviders;
-#endif // GTK_CHECK_VERSION(3,0,0)
+#endif // GTK_CHECK_VERSION (3,0,0)
   Common_UI_GTK_IDefinition_t*                definition;
   struct Common_UI_GTK_EventHookConfiguration eventHooks;
   Common_UI_GTK_RCFiles_t                     RCFiles;
