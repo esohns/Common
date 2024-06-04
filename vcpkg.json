@@ -11,7 +11,7 @@
     "freeglut",
     "glew",
     "glm",
-    "gtk3",
+    "gtk",
     "libiconv",
     "libxml2",
     "pdcurses"
