@@ -120,7 +120,7 @@ Common_Image_Tools::fileExtensionToType (const std::string& path_in)
 }
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if defined (DIRECTXSDK)
+#if defined (DIRECTXSDK_SUPPORT)
 bool Common_Image_Tools::save (const std::string& path_in,
                                enum _D3DXIMAGE_FILEFORMAT format_in,
                                const IDirect3DSurface9* surface_in)
@@ -152,7 +152,7 @@ bool Common_Image_Tools::save (const std::string& path_in,
 
   return true;
 }
-#endif // DIRECTXSDK
+#endif // DIRECTXSDK_SUPPORT
 
 bool
 Common_Image_Tools::saveBMP (const Common_Image_Resolution_t& resolution_in,
