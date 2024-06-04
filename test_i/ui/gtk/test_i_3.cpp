@@ -172,11 +172,14 @@ do_work (int argc_in,
   Common_UI_GTK_State_t& state_r =
     const_cast<Common_UI_GTK_State_t&> (gtk_manager_p->getR ());
 
+#if GTK_CHECK_VERSION (4,0,0)
   // *WARNING*: if you pass any commandline arguments, the "activate" signal is
   //            not emitted, and g_application_run() will return immediately,
   //            because no windows will have been added to it (see above)
-  //gtk_configuration.argc = argc_in;
-  //gtk_configuration.argv = argv_in;
+#else
+  gtk_configuration.argc = argc_in;
+  gtk_configuration.argv = argv_in;
+#endif // GTK_CHECK_VERSION (4,0,0)
   gtk_configuration.CBData = &ui_cb_data;
   gtk_configuration.eventHooks.finiHook = idle_finalize_UI_cb;
   gtk_configuration.eventHooks.initHook = idle_initialize_UI_cb;

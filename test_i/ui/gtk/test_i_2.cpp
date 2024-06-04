@@ -63,6 +63,7 @@ idle_mode_0_cb (gpointer userData_in)
   return G_SOURCE_CONTINUE;
 }
 
+#if GTK_CHECK_VERSION (4,0,0)
 void
 on_activate_cb (GApplication* self, gpointer userData_in)
 {
@@ -78,6 +79,7 @@ on_activate_cb (GApplication* self, gpointer userData_in)
   gtk_application_add_window (configuration_p->application,
                               configuration_p->mainWindow);
 }
+#endif // GTK_CHECK_VERSION (4,0,0)
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -217,15 +219,23 @@ do_work (int argc_in,
   Common_UI_GTK_State_t& state_r =
     const_cast<Common_UI_GTK_State_t&> (gtk_manager_p->getR ());
 
+#if GTK_CHECK_VERSION (4,0,0)
+  // *WARNING*: if you pass any commandline arguments, the "activate" signal is
+  //            not emitted, and g_application_run() will return immediately,
+  //            because no windows will have been added to it (see above)
+#else
   gtk_configuration.argc = argc_in;
   gtk_configuration.argv = argv_in;
+#endif // GTK_CHECK_VERSION (4,0,0)
   gtk_configuration.CBData = &ui_cb_data;
   gtk_configuration.eventHooks.finiHook = idle_finalize_UI_cb;
   gtk_configuration.eventHooks.initHook = idle_initialize_UI_cb;
   gtk_configuration.definition = &gtk_ui_definition;
+#if GTK_CHECK_VERSION (4,0,0)
   gtk_configuration.widgetName =
     ACE_TEXT_ALWAYS_CHAR (COMMON_UI_GTK_DEFINITION_WIDGET_MAIN);
   gtk_configuration.onActivateCb = G_CALLBACK (on_activate_cb);
+#endif // GTK_CHECK_VERSION (4,0,0)
 
   ui_cb_data.UIState = &state_r;
   ui_cb_data.progressData.state = &state_r;
