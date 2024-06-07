@@ -228,15 +228,8 @@ Common_ParserBase_T<ConfigurationType,
   ACE_ASSERT (isInitialized_);
   ACE_ASSERT (data_in);
 
-//  headFragment_ = data_in;
   fragment_ = data_in;
   scannerState_.offset = 0;
-  try {
-    this->reset ();
-  } catch (...) {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("caught exception in Common_ILexScanner_T::reset(): \"%m\", continuing\n")));
-  }
 
   // append the "\0\0"-sequence, as required by flex
   ACE_ASSERT ((fragment_->capacity () - fragment_->length ()) >= COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE);
@@ -253,6 +246,13 @@ Common_ParserBase_T<ConfigurationType,
     goto error;
   } // end IF
   do_scan_end = true;
+
+  try {
+    this->reset (); // *WARNING*: this bombs out if there is no YY_CURRENT_BUFFER...
+  } catch (...) {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("caught exception in Common_ILexScanner_T::reset(): \"%m\", continuing\n")));
+  }
 
   // parse data fragment
   try {
