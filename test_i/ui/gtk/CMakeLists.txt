@@ -197,9 +197,9 @@ if (WIN32)
                 ${LIB_ROOT}/assimp/cmake/bin/Debug/assimp-vc142-mtd.dll
                 ${LIB_ROOT}/libpng/build/Debug/libpng16d.dll
                 ${LIB_ROOT}/ffmpeg/libswresample/swresample-4.dll
-                ${LIB_ROOT}/ffmpeg/libswscale/swscale-6.dll
-                ${LIB_ROOT}/ffmpeg/libavcodec/avcodec-59.dll
-                ${LIB_ROOT}/ffmpeg/libavutil/avutil-57.dll
+                ${LIB_ROOT}/ffmpeg/libswscale/swscale-7.dll
+                ${LIB_ROOT}/ffmpeg/libavcodec/avcodec-60.dll
+                ${LIB_ROOT}/ffmpeg/libavutil/avutil-58.dll
                 ${LIB_ROOT}/libepoxy/bin/epoxy-0.dll
                 ${LIB_ROOT}/wxWidgets/lib/vc_x64_dll/wxmsw316d_core_vc_x64_custom.dll
                 ${LIB_ROOT}/wxWidgets/lib/vc_x64_dll/wxmsw316d_html_vc_x64_custom.dll
