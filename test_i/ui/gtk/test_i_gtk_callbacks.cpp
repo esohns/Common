@@ -23,6 +23,9 @@
 
 #include <sstream>
 
+#if defined (GLEW_SUPPORT)
+#include "gl/glew.h"
+#endif // GLEW_SUPPORT
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "gl/GL.h"
 #include "gl/GLU.h"

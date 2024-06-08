@@ -8,6 +8,9 @@
 #if GTK_CHECK_VERSION (3,16,0)
 #else
 #if defined (GTKGL_SUPPORT)
+#if defined (GLEW_SUPPORT)
+#include "gl/glew.h"
+#endif // GLEW_SUPPORT
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "gl/GL.h"
 #include "gl/GLU.h"
@@ -50,7 +53,7 @@
 
 #include "common_test_i_defines.h"
 
-#include "test_i_gtk_callbacks.h"
+//#include "test_i_gtk_callbacks.h"
 #include "test_i_gtk_defines.h"
 
 void
@@ -110,7 +113,7 @@ do_process_arguments (int argc_in,
                                0);                        // for now, don't use long options
 
   int option = 0;
-  std::stringstream converter;
+  //std::stringstream converter;
   while ((option = argument_parser ()) != EOF)
   {
     switch (option)
@@ -138,14 +141,14 @@ do_process_arguments (int argc_in,
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("unrecognized option \"%s\", aborting\n"),
-                    ACE_TEXT (argument_parser.last_option ())));
+                    argument_parser.last_option ()));
         return false;
       }
       case 0:
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("found long option \"%s\", aborting\n"),
-                    ACE_TEXT (argument_parser.long_option ())));
+                    argument_parser.long_option ()));
         return false;
       }
       default:
@@ -172,21 +175,21 @@ togglebutton_record_toggled_cb (GtkToggleButton* toggleButton_in,
               ACE_TEXT ("togglebutton toggled\n")));
 }
 
-G_MODULE_EXPORT void
-combobox_source_changed_cb (GtkWidget* widget_in,
-                            gpointer userData_in)
-{
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("combobox changed\n")));
-}
-
-G_MODULE_EXPORT void
-combobox_source_2_changed_cb (GtkWidget* widget_in,
-                              gpointer userData_in)
-{
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("combobox changed\n")));
-}
+//G_MODULE_EXPORT void
+//combobox_source_changed_cb (GtkWidget* widget_in,
+//                            gpointer userData_in)
+//{
+//  ACE_DEBUG ((LM_DEBUG,
+//              ACE_TEXT ("combobox changed\n")));
+//}
+//
+//G_MODULE_EXPORT void
+//combobox_source_2_changed_cb (GtkWidget* widget_in,
+//                              gpointer userData_in)
+//{
+//  ACE_DEBUG ((LM_DEBUG,
+//              ACE_TEXT ("combobox changed\n")));
+//}
 
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
@@ -248,9 +251,8 @@ glarea_configure_event_cb (GtkWidget* widget_in,
                   100.0); // Calculate The Aspect Ratio Of The Window
 #else
   GLdouble fW, fH;
-
   //fH = tan( (fovY / 2) / 180 * pi ) * zNear;
-  fH = tan (45.0 / 360 * M_PI) * 0.1;
+  fH = std::tan (((45.0f / 2.0f) / 180.0f) * static_cast<float> (M_PI)) * 0.1f;
   fW = fH * (event_in->configure.width / (GLdouble)event_in->configure.height);
 
   glFrustum (-fW, fW, -fH, fH, 0.1, 100.0);
@@ -285,77 +287,73 @@ glarea_expose_event_cb (GtkWidget* widget_in,
   glBindTexture (GL_TEXTURE_2D, *texture_id_p);
   COMMON_GL_ASSERT;
 
-//  static GLfloat rot_x = 0.0f;
-//  static GLfloat rot_y = 0.0f;
-//  static GLfloat rot_z = 0.0f;
-//  glRotatef (rot_x, 1.0f, 0.0f, 0.0f); // Rotate On The X Axis
-//  glRotatef (rot_y, 0.0f, 1.0f, 0.0f); // Rotate On The Y Axis
-//  glRotatef (rot_z, 0.0f, 0.0f, 1.0f); // Rotate On The Z Axis
-  static GLfloat rotation = 0.0F;
-  glRotatef (rotation, 1.0F, 1.0F, 1.0F); // Rotate On The X,Y,Z Axis
+  //static GLfloat rot_x = 0.0f;
+  //static GLfloat rot_y = 0.0f;
+  //static GLfloat rot_z = 0.0f;
+  //glRotatef (rot_x, 1.0f, 0.0f, 0.0f); // Rotate On The X Axis
+  //glRotatef (rot_y, 0.0f, 1.0f, 0.0f); // Rotate On The Y Axis
+  //glRotatef (rot_z, 0.0f, 0.0f, 1.0f); // Rotate On The Z Axis
+  static GLfloat rotation = 0.0f;
+  glRotatef (rotation, 1.0f, 1.0f, 1.0f); // Rotate On The X,Y,Z Axis
   COMMON_GL_ASSERT;
 
-//  glBegin (GL_QUADS);
+  static GLfloat cube[] = {
+    // x,    y,    z,   s,   t,
+     1.0f,-1.0f,-1.0f, 0.0f,1.0f,
+    -1.0f,-1.0f,-1.0f, 1.0f,1.0f,
+    -1.0f, 1.0f,-1.0f, 1.0f,0.0f,
+     1.0f, 1.0f,-1.0f, 0.0f,0.0f,
 
-//  glTexCoord2i (0, 0); glVertex3f (  0.0f,   0.0f, 0.0f);
-//  glTexCoord2i (0, 1); glVertex3f (  0.0f, 100.0f, 0.0f);
-//  glTexCoord2i (1, 1); glVertex3f (100.0f, 100.0f, 0.0f);
-//  glTexCoord2i (1, 0); glVertex3f (100.0f,   0.0f, 0.0f);
+    -1.0f, 1.0f,-1.0f, 0.0f,0.0f,
+    -1.0f,-1.0f,-1.0f, 0.0f,1.0f,
+    -1.0f,-1.0f, 1.0f, 1.0f,1.0f,
+    -1.0f, 1.0f, 1.0f, 1.0f,0.0f,
 
-  static GLfloat vertices[] = {
-    -0.5f, 0.0f, 0.5f,   0.5f, 0.0f, 0.5f,   0.5f, 1.0f, 0.5f,  -0.5f, 1.0f, 0.5f,
-    -0.5f, 1.0f, -0.5f,  0.5f, 1.0f, -0.5f,  0.5f, 0.0f, -0.5f, -0.5f, 0.0f, -0.5f,
-    0.5f, 0.0f, 0.5f,   0.5f, 0.0f, -0.5f,  0.5f, 1.0f, -0.5f,  0.5f, 1.0f, 0.5f,
-    -0.5f, 0.0f, -0.5f,  -0.5f, 0.0f, 0.5f,  -0.5f, 1.0f, 0.5f, -0.5f, 1.0f, -0.5f};
-  static GLfloat texture_coordinates[] = {
-    0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0,
-    0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0,
-    0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0,
-    0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0 };
-  static GLubyte cube_indices[24] = {
-    0,1,2,3, 4,5,6,7, 3,2,5,4, 7,6,1,0,
-    8,9,10,11, 12,13,14,15};
+    -1.0f,-1.0f, 1.0f, 0.0f,1.0f,
+     1.0f,-1.0f, 1.0f, 1.0f,1.0f,
+     1.0f, 1.0f, 1.0f, 1.0f,0.0f,
+    -1.0f, 1.0f, 1.0f, 0.0f,0.0f,
 
-  glTexCoordPointer (2, GL_FLOAT, 0, texture_coordinates);
-  COMMON_GL_ASSERT;
-  glVertexPointer (3, GL_FLOAT, 0, vertices);
-  COMMON_GL_ASSERT;
-  glDrawElements (GL_QUADS, 24, GL_UNSIGNED_BYTE, cube_indices);
-  COMMON_GL_ASSERT;
+     1.0f,-1.0f,-1.0f, 1.0f,1.0f,
+     1.0f, 1.0f,-1.0f, 1.0f,0.0f,
+     1.0f, 1.0f, 1.0f, 0.0f,0.0f,
+     1.0f,-1.0f, 1.0f, 0.0f,1.0f,
 
-//  rot_x += 0.3f;
-//  rot_y += 0.20f;
-//  rot_z += 0.4f;
-  rotation -= 1.0f; // Decrease The Rotation Variable For The Cube
+     1.0f, 1.0f,-1.0f, 0.0f,1.0f,
+    -1.0f, 1.0f,-1.0f, 1.0f,1.0f,
+    -1.0f, 1.0f, 1.0f, 1.0f,0.0f,
+     1.0f, 1.0f, 1.0f, 0.0f,0.0f,
 
-  //GLuint vertex_array_id = 0;
-  //glGenVertexArrays (1, &vertex_array_id);
-  //glBindVertexArray (vertex_array_id);
+     1.0f,-1.0f, 1.0f, 0.0f,0.0f,
+    -1.0f,-1.0f, 1.0f, 1.0f,0.0f,
+    -1.0f,-1.0f,-1.0f, 1.0f,1.0f,
+     1.0f,-1.0f,-1.0f, 0.0f,1.0f,
+  };
 
-  //static const GLfloat vertex_buffer_data[] = {
-  //  -1.0f, -1.0f, 0.0f,
-  //  1.0f, -1.0f, 0.0f,
-  //  -1.0f,  1.0f, 0.0f,
-  //  -1.0f,  1.0f, 0.0f,
-  //  1.0f, -1.0f, 0.0f,
-  //  1.0f,  1.0f, 0.0f,
-  //};
+  glBegin (GL_QUADS);
+  int i = 0, n = sizeof (cube) / (sizeof (cube[0]));
+  for (i = 0; i < n; i += 5)
+  {
+    glTexCoord2fv (cube + i + 3);
+    glVertex3fv (cube + i + 0);
+  } // end FOR
+  glEnd ();
 
-  //GLuint vertex_buffer;
-  //glGenBuffers (1, &vertex_buffer);
-  //glBindBuffer (GL_ARRAY_BUFFER, vertex_buffer);
-  //glBufferData (GL_ARRAY_BUFFER,
-  //              sizeof (vertex_buffer_data), vertex_buffer_data,
-  //              GL_STATIC_DRAW);
-
-  ////GLuint program_id = LoadShaders ("Passthrough.vertexshader",
-  ////                                 "SimpleTexture.fragmentshader");
-  ////GLuint tex_id = glGetUniformLocation (program_id, "renderedTexture");
-  ////GLuint time_id = glGetUniformLocation (program_id, "time");
-
-  //glBindFramebuffer (GL_FRAMEBUFFER, 0);
-  //glViewport (0, 0,
-  //            data_p->area3D.width, data_p->area3D.height);
+  //switch (Common_Tools::getRandomNumber (0, 2))
+  //{
+  //  case 0:
+  //    rot_x += 0.1f;
+  //    break;
+  //  case 1:
+  //    rot_y += 0.1f;
+  //    break;
+  //  case 2:
+  //    rot_z += 0.1f;
+  //    break;
+  //  default:
+  //    ACE_ASSERT (false);
+  //} // end SWITCH
+  rotation += 0.1f; // change the rotation variable for the cube
 
   ggla_area_swap_buffers (gl_area_p);
 
@@ -514,7 +512,7 @@ glarea_destroy_cb (GtkWidget* widget_in,
   *texture_id_p = 0;
 } // glarea_destroy_cb
 #endif // GTKGLAREA_SUPPORT
-#endif // GTK_CHECK_VERSION(3,16,0)
+#endif // GTK_CHECK_VERSION (3,16,0)
 #elif GTK_CHECK_VERSION (2,0,0)
 #if defined (GTKGLAREA_SUPPORT)
 void
@@ -824,6 +822,24 @@ button_quit_clicked_cb (GtkWidget* widget,
 {
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("button quit clicked\n")));
+
+#if GTK_CHECK_VERSION (3,6,0)
+#else
+  gdk_threads_enter ();
+#endif // GTK_CHECK_VERSION (3,6,0)
+
+#if GTK_CHECK_VERSION (4,0,0)
+  ACE_ASSERT (app_p);
+  g_application_quit (G_APPLICATION (app_p));
+#else
+  gtk_main_quit ();
+#endif // GTK_CHECK_VERSION (4,0,0)
+
+#if GTK_CHECK_VERSION (3,6,0)
+#else
+  gdk_threads_leave ();
+#endif // GTK_CHECK_VERSION (3,6,0)
+
   return 0;
 }
 
@@ -876,12 +892,19 @@ on_destroy_event_cb (GtkWidget* widget,
 
 #if GTK_CHECK_VERSION (3,6,0)
 #else
-  gdk_threads_enter();
+  gdk_threads_enter ();
 #endif // GTK_CHECK_VERSION (3,6,0)
-  gtk_main_quit();
+
+#if GTK_CHECK_VERSION (4,0,0)
+  ACE_ASSERT (app_p);
+  g_application_quit (G_APPLICATION (app_p));
+#else
+  gtk_main_quit ();
+#endif // GTK_CHECK_VERSION (4,0,0)
+
 #if GTK_CHECK_VERSION (3,6,0)
 #else
-  gdk_threads_leave();
+  gdk_threads_leave ();
 #endif // GTK_CHECK_VERSION (3,6,0)
 
   return TRUE;
@@ -896,17 +919,19 @@ on_destroy_cb (GtkWidget* widget,
 
 #if GTK_CHECK_VERSION (3,6,0)
 #else
-  gdk_threads_enter();
+  gdk_threads_enter ();
 #endif // GTK_CHECK_VERSION (3,6,0)
+
 #if GTK_CHECK_VERSION (4,0,0)
   ACE_ASSERT (app_p);
   g_application_quit (G_APPLICATION (app_p));
 #else
   gtk_main_quit ();
 #endif // GTK_CHECK_VERSION (4,0,0)
+
 #if GTK_CHECK_VERSION (3,6,0)
 #else
-  gdk_threads_leave();
+  gdk_threads_leave ();
 #endif // GTK_CHECK_VERSION (3,6,0)
 }
 #ifdef __cplusplus
@@ -924,12 +949,13 @@ do_work (int argc_in,
 #undef gtk_init
   gtk_init ();
 #else
-  gtk_init (&argc_in, &argv_in);
+  gtk_init (&argc_in,
+            &argv_in);
 #endif // GTK_CHECK_VERSION (4,0,0)
 
   GError* error_p = NULL;
-  GtkBuilder* gtkBuilder= gtk_builder_new ();
-  if (!gtk_builder_add_from_file (gtkBuilder,
+  GtkBuilder* builder_p = gtk_builder_new ();
+  if (!gtk_builder_add_from_file (builder_p,
                                   UIDefinitionFilePath_in.c_str (),
                                   &error_p))
   { ACE_ASSERT (error_p);
@@ -940,8 +966,8 @@ do_work (int argc_in,
     g_error_free (error_p); error_p = NULL;
     return;
   } // end IF
-  GtkDialog* dialog_p =
-      GTK_DIALOG (gtk_builder_get_object (gtkBuilder, ACE_TEXT_ALWAYS_CHAR ("dialog_main")));
+  GtkDialog* dialog_p = GTK_DIALOG (
+    gtk_builder_get_object (builder_p, ACE_TEXT_ALWAYS_CHAR ("dialog_main")));
 
 #if GTK_CHECK_VERSION (4,0,0)
   GtkWindow* main_window_p = GTK_WINDOW (gtk_window_new ());
@@ -957,7 +983,7 @@ do_work (int argc_in,
   //g_signal_handlers_block_matched (mainwin, G_SIGNAL_MATCH_DATA,
   //                                 g_signal_lookup ("delete-event", GTK_TYPE_WIDGET),
   //                                 0, NULL, NULL, NULL);
-  gtk_builder_connect_signals (gtkBuilder, NULL);
+  gtk_builder_connect_signals (builder_p, NULL);
 #endif // GTK_CHECK_VERSION (4,0,0)
 
 #if defined (GTKGL_SUPPORT)
@@ -1027,7 +1053,7 @@ do_work (int argc_in,
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to ggla_area_new(), returning\n")));
-    g_object_unref (G_OBJECT (gtkBuilder));
+    g_object_unref (G_OBJECT (builder_p));
     return;
   } // end IF
   gtk_widget_set_events (GTK_WIDGET (gl_area_p),
@@ -1126,7 +1152,7 @@ do_work (int argc_in,
   gtk_box_append (GTK_BOX (box_p), GTK_WIDGET (gl_area_p));
 #else
   GtkVBox* box_p =
-    GTK_VBOX (gtk_builder_get_object (gtkBuilder, ACE_TEXT_ALWAYS_CHAR ("vbox3")));
+    GTK_VBOX (gtk_builder_get_object (builder_p, ACE_TEXT_ALWAYS_CHAR ("vbox3")));
   ACE_ASSERT (box_p);
   gtk_container_foreach (GTK_CONTAINER (box_p), (GtkCallback)gtk_widget_destroy, NULL);
   gtk_box_pack_start (GTK_BOX (box_p), GTK_WIDGET (gl_area_p), TRUE, TRUE, 0);
@@ -1135,12 +1161,12 @@ do_work (int argc_in,
 
 #if defined (GTK2_USE)
   GtkTable* table_p =
-    GTK_TABLE (gtk_builder_get_object (gtkBuilder,
+    GTK_TABLE (gtk_builder_get_object (builder_p,
                                        ACE_TEXT_ALWAYS_CHAR ("table1")));
   ACE_ASSERT (table_p);
 #elif defined (GTK3_USE) || defined (GTK4_USE)
   GtkGrid* grid_p =
-    GTK_GRID (gtk_builder_get_object (gtkBuilder,
+    GTK_GRID (gtk_builder_get_object (builder_p,
                                       ACE_TEXT_ALWAYS_CHAR ("grid1")));
   ACE_ASSERT (grid_p);
 #endif // GTK2_USE || GTK3_USE || GTK4_USE

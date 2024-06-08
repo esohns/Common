@@ -30,6 +30,31 @@
 #include "test_i_gtk_callbacks.h"
 #include "test_i_gtk_defines.h"
 
+gboolean
+idle_redraw_cb (gpointer userData_in)
+{
+  struct Common_UI_GTK_CBData* ui_cb_data_p =
+    static_cast<struct Common_UI_GTK_CBData*> (userData_in);
+  ACE_ASSERT (ui_cb_data_p);
+  ACE_ASSERT (ui_cb_data_p->UIState);
+  Common_UI_GTK_BuildersIterator_t iterator =
+    ui_cb_data_p->UIState->builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
+  GtkDrawingArea* drawing_area_p =
+    GTK_DRAWING_AREA (gtk_builder_get_object ((*iterator).second.second,
+                                              ACE_TEXT_ALWAYS_CHAR (TEST_I_UI_GTK_DRAWINGAREA_NAME)));
+  ACE_ASSERT (drawing_area_p);
+
+#if GTK_CHECK_VERSION (4,0,0)
+  gtk_widget_queue_draw (GTK_WIDGET (drawing_area_p));
+#else
+  gdk_window_invalidate_rect (gtk_widget_get_window (GTK_WIDGET (drawing_area_p)),
+                              NULL,   // whole window
+                              FALSE); // invalidate children ?
+#endif // GTK_CHECK_VERSION (4,0,0)
+
+  return G_SOURCE_CONTINUE;
+}
+
 #if GTK_CHECK_VERSION (4,0,0)
 void
 on_activate_cb (GApplication* self,
@@ -219,6 +244,18 @@ do_work (int argc_in,
                 ACE_TEXT ("failed to start GTK event dispatch, returning\n")));
     return;
   } // end IF
+
+  guint event_source_id = //g_idle_add (
+                          g_timeout_add (1000, // ms
+                                         idle_redraw_cb,
+                                         &ui_cb_data);
+  if (unlikely (!event_source_id))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to g_timeout_add(): \"%m\", returning")));
+    return;
+  } // end IF
+
   gtk_manager_p->wait (false);
 }
 

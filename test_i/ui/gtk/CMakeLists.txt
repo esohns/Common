@@ -1,14 +1,13 @@
-include (ffmpeg)
-include (ImageMagick)
 if (GTKGL_SUPPORT)
  set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../../../src/gl/scripts")
+ include (OpenGL)
+ include (glew)
  include (assimp)
  set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../../../src/image/scripts")
  include (png)
 endif (GTKGL_SUPPORT)
-
-string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
-string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
+include (ffmpeg)
+include (ImageMagick)
 
 ############## includes ###############
 include_directories (${GTK_INCLUDE_DIRS})
@@ -270,22 +269,24 @@ if (UNIX)
 elseif (WIN32)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
  string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
- file (TO_CMAKE_PATH "${ACE_LIB_DIR}" ACE_LIB_PATH)
+ file (TO_CMAKE_PATH "${GLEW_LIB_DIR}" GLEW_LIB_PATH)
  file (TO_CMAKE_PATH "${ffmpeg_LIB_DIR}" FFMPEG_LIB_PATH)
  file (TO_CMAKE_PATH "${ImageMagick_LIB_DIR}" IMAGEMAGICK_LIB_PATH)
  file (TO_CMAKE_PATH "${PNG_LIB_DIR}" PNG_LIB_PATH)
  file (TO_CMAKE_PATH "${ASSIMP_LIB_DIR}" ASSIMP_LIB_PATH)
  file (TO_CMAKE_PATH "${GTK_LIB_DIRS}" GTK_LIB_PATH)
+ file (TO_CMAKE_PATH "${ACE_LIB_DIR}" ACE_LIB_PATH)
  create_target_launcher (${EXECUTABLE}
                          COMMAND ${COMMAND}
                          ARGS ${ARGS}
 #                         FORWARD_ARGS
-                         RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
-                                              ${ACE_LIB_PATH}
-                                              ${FFMPEG_LIB_PATH}
-                                              ${IMAGEMAGICK_LIB_PATH}
+                         RUNTIME_LIBRARY_DIRS ${GLEW_LIB_PATH}
                                               ${PNG_LIB_PATH}
                                               ${ASSIMP_LIB_PATH}
+                                              ${FFMPEG_LIB_PATH}
+                                              ${IMAGEMAGICK_LIB_PATH}
+                                              ${ACE_LIB_PATH}
+                                              ${GTK_LIB_PATH}
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/gtk
                          ENVIRONMENT ${ENVIRONMENT})
 
@@ -295,7 +296,8 @@ elseif (WIN32)
                          COMMAND ${COMMAND_2}
                          ARGS ${ARGS}
  #                         FORWARD_ARGS
-                         RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
+                         RUNTIME_LIBRARY_DIRS ${GLEW_LIB_PATH}
+                                              ${GTK_LIB_PATH}
                                               ${LIBXML2_LIB_PATH}
                                               ${ASSIMP_LIB_PATH}
                                               ${PNG_LIB_PATH}
@@ -312,7 +314,8 @@ elseif (WIN32)
                          COMMAND ${COMMAND_3}
                          ARGS ${ARGS}
  #                         FORWARD_ARGS
-                         RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
+                         RUNTIME_LIBRARY_DIRS ${GLEW_LIB_PATH}
+                                              ${GTK_LIB_PATH}
                                               ${LIBXML2_LIB_PATH}
                                               ${ASSIMP_LIB_PATH}
                                               ${PNG_LIB_PATH}

@@ -272,7 +272,7 @@ do_work (int argc_in,
       if (unlikely (!event_source_id))
       {
         ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to g_idle_add(): \"%m\", returning")));
+                    ACE_TEXT ("failed to g_timeout_add(): \"%m\", returning")));
         goto error;
       } // end IF
 
