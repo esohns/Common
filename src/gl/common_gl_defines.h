@@ -23,10 +23,9 @@
 
 // *** assimp ***
 #define COMMON_GL_ASSIMP_LOG_FILENAME_STRING                 "assimp.log"
-#define COMMON_GL_ASSIMP_MIN(x,y)                            (x<y?x:y)
-#define COMMON_GL_ASSIMP_MAX(x,y)                            (y>x?y:x)
+#define COMMON_GL_ASSIMP_MIN(x,y)                            (x < y ? x : y)
+#define COMMON_GL_ASSIMP_MAX(x,y)                            (y > x ? y : x)
 
-// *IMPORTANT NOTE*: do NOT use inside glBegin()/glEnd() sections
 #if defined (_DEBUG)
 #define COMMON_GL_ASSERT                                                          \
   do {                                                                            \
@@ -45,11 +44,12 @@
 #define COMMON_GL_ASSERT static_cast<void> (0)
 #endif // _DEBUG
 
-#define COMMON_GL_CLEAR_ERROR                           \
-  do {                                                  \
-    GLenum error_e = GL_NO_ERROR;                       \
-    while ((error_e = glGetError ()) != GL_NO_ERROR) {} \
+#define COMMON_GL_CLEAR_ERROR                                                     \
+  do {                                                                            \
+    GLenum error_e = GL_NO_ERROR;                                                 \
+    while ((error_e = glGetError ()) != GL_NO_ERROR) {}                           \
   } while (0);
+
 #define COMMON_GL_PRINT_ERROR                                                     \
   do {                                                                            \
     GLenum error_e = GL_NO_ERROR;                                                 \
@@ -61,8 +61,8 @@
   } while (0);
 
 // camera
-#define COMMON_GL_CAMERA_DEFAULT_ROTATION_FACTOR             0.8F
-#define COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR          0.01F
-#define COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR                 0.03F
+#define COMMON_GL_CAMERA_DEFAULT_ROTATION_FACTOR             0.8f
+#define COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR          0.01f
+#define COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR                 0.03f
 
 #endif

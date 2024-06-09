@@ -22,7 +22,9 @@ class Common_GL_Texture
   ~Common_GL_Texture ();
 
   bool load (const std::string&); // filename
-  void bind (unsigned int = 0); // texture unit
+  void reset ();
+  void bind (GLuint = 0); // texture unit
+  void unbind ();
 
   GLuint id_;
 

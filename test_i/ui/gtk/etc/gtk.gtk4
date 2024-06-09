@@ -17,12 +17,14 @@
     <property name="visible">1</property>
     <property name="title" translatable="1">dialog</property>
     <signal name="close" handler="dialog_main_close_cb" swapped="no"/>
+    <signal name="close-request" handler="dialog_main_close_request_cb" swapped="no"/>
     <signal name="response" handler="dialog_main_response_cb" swapped="no"/>
     <child internal-child="content_area">
       <object class="GtkBox" id="dialog_box">
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkBox" id="box_main_2">
+            <property name="orientation">vertical</property>
             <child>
               <object class="GtkToggleButton" id="togglebutton_record">
                 <property name="label" translatable="1">togglebutton</property>
@@ -40,9 +42,6 @@
                 <property name="row_homogeneous">1</property>
                 <property name="column_homogeneous">1</property>
               </object>
-            </child>
-            <child>
-              <placeholder/>
             </child>
           </object>
         </child>
@@ -78,9 +77,6 @@
                     <property name="show_text">1</property>
                   </object>
                 </child>
-                <child>
-                  <placeholder/>
-                </child>
               </object>
             </child>
           </object>
@@ -88,7 +84,7 @@
       </object>
     </child>
     <action-widgets>
-      <action-widget response="0">button_about</action-widget>
+      <action-widget response="1">button_about</action-widget>
       <action-widget response="0">button_quit</action-widget>
     </action-widgets>
     <child internal-child="action_area">

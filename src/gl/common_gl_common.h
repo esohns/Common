@@ -37,9 +37,9 @@ typedef std::pair<glm::vec3, glm::vec3> Common_GL_BoundingBox_t;
 struct Common_GL_VectorF3
 {
   Common_GL_VectorF3 ()
-   : x (0.0F)
-   , y (0.0F)
-   , z (0.0F)
+   : x (0.0f)
+   , y (0.0f)
+   , z (0.0f)
   {}
 
   float x;
@@ -65,15 +65,15 @@ struct Common_GL_Camera
 {
   Common_GL_Camera ()
 #if defined (GLUT_SUPPORT)
-   : position ()
-   , looking_at ()
-   , up ()
-   , zoom (0.0F)
+   : position (0.0f, 0.0f, 0.0f)
+   , looking_at (0.0f, 0.0f, -1.0f)
+   , up (0.0f, 1.0f, 0.0f)
+   , zoom (0.0f)
 #else
-   : zoom (0.0F)
+   : zoom (0.0f)
 #endif // GLUT_SUPPORT
-   , rotation ()
-   , translation ()
+   , rotation (0.0f, 0.0f, 0.0f)
+   , translation (0.0f, 0.0f, 0.0f)
   {
     ACE_OS::memset (last, 0, sizeof (int[2]));
   }
