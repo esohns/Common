@@ -247,13 +247,10 @@ glarea_create_context_cb (GtkGLArea* GLArea_in,
   } // end IF
 
 #if defined (_DEBUG)
-  gdk_gl_context_set_debug_enabled (context_p, TRUE);
+  //gdk_gl_context_set_debug_enabled (context_p, TRUE);
 #endif // _DEBUG
   //gdk_gl_context_set_required_version (context_p, 3, 3);
   //gdk_gl_context_set_allowed_apis (context_p, GdkGLAPI::GDK_GL_API_GLES);
-
-  gtk_gl_area_set_has_depth_buffer (GLArea_in, TRUE);
-  gtk_gl_area_set_auto_render (GLArea_in, TRUE);
 
   return context_p;
 }
@@ -295,7 +292,7 @@ glarea_realize_cb (GtkWidget* widget_in,
   }    // end IF
 #endif // GLEW_SUPPORT
 #if defined (_DEBUG)
-  Common_GL_Debug::Install ();
+  //Common_GL_Debug::Install ();
 #endif // _DEBUG
 
   filename = Common_File_Tools::getWorkingDirectory ();
@@ -327,10 +324,10 @@ glarea_realize_cb (GtkWidget* widget_in,
   COMMON_GL_ASSERT;
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   COMMON_GL_ASSERT;
-  //glEnable (GL_DEPTH_TEST);                           // Enables Depth Testing
-  //COMMON_GL_ASSERT;
-  //glDepthFunc (GL_LESS);                              // The Type Of Depth Testing To Do
-  //COMMON_GL_ASSERT;
+  glEnable (GL_DEPTH_TEST);                           // Enables Depth Testing
+  COMMON_GL_ASSERT;
+  glDepthFunc (GL_LESS);                              // The Type Of Depth Testing To Do
+  COMMON_GL_ASSERT;
   //glDepthMask (GL_TRUE);
   //COMMON_GL_ASSERT;
 
@@ -432,8 +429,6 @@ glarea_render_cb (GtkGLArea* area_in,
   // sanity check(s)
   ACE_ASSERT (VAO && texture.id_);
 
-  //gtk_gl_area_make_current (area_in);
-
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   COMMON_GL_ASSERT;
 
@@ -466,10 +461,6 @@ glarea_render_cb (GtkGLArea* area_in,
 #endif // GLM_SUPPORT
   shader.setInt (ACE_TEXT_ALWAYS_CHAR ("texture1"), 0); // *IMPORTANT NOTE*: <-- texture unit (!) not -id
 
-  //COMMON_GL_CLEAR_ERROR; // *TODO*: why does this happen ?
-  //glDrawArrays (GL_QUADS, 0, 24); // *TODO*: GL_QUADS not supported in glDrawArrays()
-  //glDrawElementsBaseVertex (GL_POINTS, 24, GL_UNSIGNED_INT, (void*)0, 0);
-
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, EBO);
   COMMON_GL_ASSERT;
   glDrawElements (GL_TRIANGLE_STRIP, 14, GL_UNSIGNED_BYTE, (void*)0);
@@ -493,29 +484,6 @@ glarea_render_cb (GtkGLArea* area_in,
   //} // end SWITCH
   rotation += 1.0f; // change the rotation variable for the cube
 
-  //glBegin (GL_LINES);
-  //glColor3f (1.0f, 0.0f, 0.0f); glVertex3i (0, 0, 0); glVertex3i (100, 0, 0);
-  //glColor3f (0.0f, 1.0f, 0.0f); glVertex3i (0, 0, 0); glVertex3i (0, 100, 0);
-  //glColor3f (0.0f, 0.0f, 1.0f); glVertex3i (0, 0, 0); glVertex3i (0, 0, 100);
-  //glEnd ();
-
-  //// create a "canvas" for the shader
-  //static unsigned int columns = 512 / 30;
-  //static unsigned int rows = 512 / 30;
-  //glTranslatef (-static_cast<GLfloat> (512 / 2.0f),
-  //              -static_cast<GLfloat> (512 / 2.0f),
-  //              0.0f);
-  //for (unsigned int y = 0; y < rows - 1; ++y)
-  //{
-  //  glBegin (GL_TRIANGLE_STRIP);
-  //  for (unsigned int x = 0; x < columns; ++x)
-  //  {
-  //    glVertex3f (static_cast<float> (x * 30), static_cast<float> (y * 30), 0.0f);
-  //    glVertex3f (static_cast<float> (x * 30), static_cast<float> ((y + 1) * 30), 0.0f);
-  //  } // end FOR
-  //  glEnd ();
-  //} // end FOR
-
   // gtk_gl_area_swap_buffers (area_in);
   glFlush ();
   //COMMON_GL_CLEAR_ERROR;
@@ -525,8 +493,8 @@ glarea_render_cb (GtkGLArea* area_in,
   texture.unbind ();
 
   // auto-redraw
-  //gtk_gl_area_queue_render (area_in);
-  gtk_widget_queue_draw (GTK_WIDGET (area_in));
+  //gtk_widget_queue_draw (GTK_WIDGET (area_in));
+  g_idle_add ((GSourceFunc)gtk_widget_queue_draw, (void*)GTK_WIDGET (area_in));
 
   return TRUE;
 }
