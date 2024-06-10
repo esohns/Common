@@ -414,11 +414,11 @@ Common_GL_Tools::loadTexture (const uint8_t* data_in,
 }
 
 bool
-Common_GL_Tools::loadAndCompileShader (const std::string& path_in,
-                                       GLenum type_in,
-                                       GLuint& id_out)
+Common_GL_Tools::loadAndCompileShaderFile (const std::string& path_in,
+                                           GLenum type_in,
+                                           GLuint& id_out)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::loadAndCompileShader"));
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::loadAndCompileShaderFile"));
 
   // initialize return value(s)
   id_out = -1;
@@ -467,7 +467,56 @@ Common_GL_Tools::loadAndCompileShader (const std::string& path_in,
     COMMON_GL_ASSERT;
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to compile \"%s\": \"%s\", aborting\n"),
-                ACE_TEXT (path_in.c_str ()),
+                ACE_TEXT (Common_File_Tools::basename (path_in, false).c_str ()),
+                ACE_TEXT (info_log_a)));
+    glDeleteShader (id_out); id_out = -1;
+    COMMON_GL_ASSERT;
+    return false;
+  } // end IF
+
+  return true;
+}
+
+bool
+Common_GL_Tools::loadAndCompileShaderString (const std::string& shaderCode_in,
+                                             GLenum type_in,
+                                             GLuint& id_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::loadAndCompileShaderString"));
+
+  // initialize return value(s)
+  id_out = -1;
+
+  id_out = glCreateShader (type_in);
+  COMMON_GL_ASSERT;
+
+  GLchar* array_a[2];
+  array_a[0] =
+    static_cast<GLchar*> (const_cast<char*> (shaderCode_in.c_str ()));
+  array_a[1] = NULL;
+  GLint array_2[2];
+  array_2[0] = static_cast<GLint> (shaderCode_in.size ());
+  array_2[1] = static_cast<GLint> (NULL);
+  glShaderSource (id_out, 1, array_a, array_2);
+  COMMON_GL_ASSERT;
+
+  glCompileShader (id_out);
+  COMMON_GL_ASSERT;
+  GLint success = 0;
+  glGetShaderiv (id_out, GL_COMPILE_STATUS, &success);
+  COMMON_GL_ASSERT;
+  if (unlikely (success == GL_FALSE))
+  {
+    GLchar info_log_a[BUFSIZ * 4];
+    GLsizei buf_size_i = 0;
+    glGetShaderInfoLog (id_out,
+                        sizeof (GLchar) * BUFSIZ * 4,
+                        &buf_size_i,
+                        info_log_a);
+    COMMON_GL_ASSERT;
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to compile %s shader: \"%s\", aborting\n"),
+                ((type_in == GL_VERTEX_SHADER) ? ACE_TEXT ("vertex") : ACE_TEXT ("fragment")),
                 ACE_TEXT (info_log_a)));
     glDeleteShader (id_out); id_out = -1;
     COMMON_GL_ASSERT;

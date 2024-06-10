@@ -49,6 +49,7 @@
 #include "common_tools.h"
 
 #if defined (GTKGL_SUPPORT)
+#include "common_gl_debug.h"
 #include "common_gl_defines.h"
 #include "common_gl_shader.h"
 #include "common_gl_texture.h"
@@ -216,48 +217,63 @@ combobox_source_2_changed_cb (GtkWidget* widget_in,
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
-//G_MODULE_EXPORT GdkGLContext*
-//glarea_create_context_cb (GtkGLArea* GLArea_in,
-//                          gpointer userData_in)
-//{
-//  ACE_DEBUG ((LM_DEBUG,
-//              ACE_TEXT ("glarea create context\n")));
-//
-//  GdkGLContext* context_p = gtk_gl_area_get_context (GLArea_in);
-//  if (context_p)
-//    return context_p;
-//
-//  GtkNative* native_p = gtk_widget_get_native (GTK_WIDGET (GLArea_in));
-//  ACE_ASSERT (native_p);
-//  //gtk_native_realize (native_p);
-//  GdkSurface* surface_p = gtk_native_get_surface (native_p);
-//  ACE_ASSERT (surface_p);
-//  GError* error_p = NULL;
-//  context_p = gdk_surface_create_gl_context (surface_p,
-//                                             &error_p);
-//  if (!context_p || error_p)
-//  { ACE_ASSERT (error_p);
-//    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("failed to gdk_surface_create_gl_context(): \"%s\", aborting\n"),
-//                ACE_TEXT (error_p->message)));
-//    g_error_free (error_p);
-//    return NULL;
-//  } // end IF
-//
-//  gtk_gl_area_set_has_depth_buffer (GLArea_in, TRUE);
-//  //gdk_gl_context_set_use_es (context_p, TRUE);
-//
-//  return context_p;
-//}
+G_MODULE_EXPORT GdkGLContext*
+glarea_create_context_cb (GtkGLArea* GLArea_in,
+                          gpointer userData_in)
+{
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("glarea create context\n")));
+
+  GdkGLContext* context_p = NULL; 
+  context_p = gtk_gl_area_get_context (GLArea_in);
+  if (context_p)
+    return context_p;
+
+  GtkNative* native_p = gtk_widget_get_native (GTK_WIDGET (GLArea_in));
+  ACE_ASSERT (native_p);
+  //gtk_native_realize (native_p);
+  GdkSurface* surface_p = gtk_native_get_surface (native_p);
+  ACE_ASSERT (surface_p);
+  GError* error_p = NULL;
+  context_p = gdk_surface_create_gl_context (surface_p,
+                                             &error_p);
+  if (!context_p || error_p)
+  { ACE_ASSERT (error_p);
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to gdk_surface_create_gl_context(): \"%s\", aborting\n"),
+                ACE_TEXT (error_p->message)));
+    g_error_free (error_p);
+    return NULL;
+  } // end IF
+
+#if defined (_DEBUG)
+  gdk_gl_context_set_debug_enabled (context_p, TRUE);
+#endif // _DEBUG
+  //gdk_gl_context_set_required_version (context_p, 3, 3);
+  //gdk_gl_context_set_allowed_apis (context_p, GdkGLAPI::GDK_GL_API_GLES);
+
+  gtk_gl_area_set_has_depth_buffer (GLArea_in, TRUE);
+  gtk_gl_area_set_auto_render (GLArea_in, TRUE);
+
+  return context_p;
+}
 
 G_MODULE_EXPORT void
 glarea_realize_cb (GtkWidget* widget_in,
                    gpointer   userData_in)
-{
+{ // *NOTE*: only run this once (see below)
+  static bool has_been_realized_b = false;
+  if (has_been_realized_b)
+    return;
+  has_been_realized_b = true;
+
   // sanity check(s)
   GtkGLArea* gl_area_p = GTK_GL_AREA (widget_in);
   ACE_ASSERT (gl_area_p);
-  gtk_gl_area_make_current (gl_area_p);
+  // gtk_gl_area_make_current (gl_area_p);
+  GdkGLContext* context_p = gtk_gl_area_get_context (gl_area_p);
+  ACE_ASSERT (context_p);
+  gdk_gl_context_make_current (context_p);
 
   glClearColor (0.0f, 0.0f, 0.0f, 1.0f);
   COMMON_GL_ASSERT;
@@ -267,10 +283,6 @@ glarea_realize_cb (GtkWidget* widget_in,
 
   // load texture ?
   std::string filename;
-  // *IMPORTANT NOTE*: this function is currently called twice (find out why)
-  //                   --> initialize only the first time around
-  //if (texture.id_ != -1)
-  //  goto continue_;
 
 #if defined (GLEW_SUPPORT)
   GLenum status_e = glewInit ();
@@ -282,6 +294,9 @@ glarea_realize_cb (GtkWidget* widget_in,
     return;
   }    // end IF
 #endif // GLEW_SUPPORT
+#if defined (_DEBUG)
+  Common_GL_Debug::Install ();
+#endif // _DEBUG
 
   filename = Common_File_Tools::getWorkingDirectory ();
   filename += ACE_DIRECTORY_SEPARATOR_CHAR;
@@ -299,7 +314,7 @@ glarea_realize_cb (GtkWidget* widget_in,
               ACE_TEXT ("OpenGL texture id: %u\n"),
               texture.id_));
 
-  camera_s.position = glm::vec3 (0.0f, 0.0f, 10.0f);
+  camera_s.position = glm::vec3 (0.0f, 0.0f, 0.1f);
   camera_s.looking_at = glm::vec3 (0.0f, 0.0f, 0.0f);
   camera_s.up = glm::vec3 (0.0f, 1.0f, 0.0f);
 
@@ -312,18 +327,12 @@ glarea_realize_cb (GtkWidget* widget_in,
   COMMON_GL_ASSERT;
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   COMMON_GL_ASSERT;
-  glEnable (GL_DEPTH_TEST);                           // Enables Depth Testing
-  COMMON_GL_ASSERT;
-  glDepthFunc (GL_LESS);                              // The Type Of Depth Testing To Do
-  COMMON_GL_ASSERT;
+  //glEnable (GL_DEPTH_TEST);                           // Enables Depth Testing
+  //COMMON_GL_ASSERT;
+  //glDepthFunc (GL_LESS);                              // The Type Of Depth Testing To Do
+  //COMMON_GL_ASSERT;
   //glDepthMask (GL_TRUE);
   //COMMON_GL_ASSERT;
-
-//continue_:
-//  // *IMPORTANT NOTE*: this function is currently called twice (find out why)
-//  //                   --> initialize only the first time around
-//  if (shader.id_ != -1)
-//    return;
 
   glGenVertexArrays (1, &VAO);
   COMMON_GL_ASSERT;
@@ -340,56 +349,51 @@ glarea_realize_cb (GtkWidget* widget_in,
 
   glBindBuffer (GL_ARRAY_BUFFER, VBO);
   COMMON_GL_ASSERT;
-  static GLfloat vertices_texcoords[] = {
-    -0.5f,  0.0f,  0.5f,    0.0f, 0.0f,
-     0.5f,  0.0f,  0.5f,    1.0f, 0.0f,
-     0.5f,  1.0f,  0.5f,    1.0f, 1.0f,
-    -0.5f,  1.0f,  0.5f,    0.0f, 1.0f,
-    -0.5f,  1.0f, -0.5f,    0.0f, 0.0f,
-     0.5f,  1.0f, -0.5f,    1.0f, 0.0f,
-     0.5f,  0.0f, -0.5f,    1.0f, 1.0f,
-    -0.5f,  0.0f, -0.5f,    0.0f, 1.0f,
-     0.5f,  0.0f,  0.5f,    0.0f, 0.0f,
-     0.5f,  0.0f, -0.5f,    1.0f, 0.0f,
-     0.5f,  1.0f, -0.5f,    1.0f, 1.0f,
-     0.5f,  1.0f,  0.5f,    0.0f, 1.0f,
-    -0.5f,  0.0f, -0.5f,    0.0f, 0.0f,
-    -0.5f,  0.0f,  0.5f,    1.0f, 0.0f,
-    -0.5f,  1.0f,  0.5f,    1.0f, 1.0f,
-    -0.5f,  1.0f, -0.5f,    0.0f, 1.0f
+  const GLfloat x0 = -0.5, x1 = 0.5, y0 = -0.5, y1 = 0.5, z0 = -0.5, z1 = 0.5;
+  const GLfloat s0 = 0, s1 = 1.f / 5, s2 = 2.f / 5, s3 = 3.f / 5, s4 = 4.f / 5, s5 = 1;
+  const GLfloat t0 = 0, t1 = 1.f / 5, t2 = 2.f / 5, t3 = 3.f / 5, t4 = 4.f / 5, t5 = 1;
+  static GLfloat cube_strip_texcoords[] = {
+    x0, y1, z1, s0, t1,
+    x0, y0, z0, s1, t0,
+    x0, y0, z1, s1, t1,
+    x1, y0, z1, s2, t1,
+    x0, y1, z1, s1, t2,
+    x1, y1, z1, s2, t2,
+    x1, y1, z0, s2, t3,
+    x1, y0, z1, s3, t2,
+    x1, y0, z0, s3, t3,
+    x0, y0, z0, s4, t3,
+    x1, y1, z0, s3, t4,
+    x0, y1, z0, s4, t4,
+    x0, y1, z1, s4, t5,
+    x0, y0, z0, s5, t4
   };
-  glBufferData (GL_ARRAY_BUFFER, sizeof (vertices_texcoords), vertices_texcoords, GL_STATIC_DRAW);
+  glBufferData (GL_ARRAY_BUFFER, sizeof (cube_strip_texcoords), cube_strip_texcoords, GL_STATIC_DRAW);
   COMMON_GL_ASSERT;
 
   // position attribute
-  //glEnableClientState (GL_VERTEX_ARRAY);
   glEnableVertexAttribArray (0);
-  //COMMON_GL_CLEAR_ERROR;
+  COMMON_GL_ASSERT;
   glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof (GLfloat), (void*)0);
-  //COMMON_GL_CLEAR_ERROR;
-  //glVertexAttribBinding (0, 0);
+  COMMON_GL_ASSERT;
 
   //// color attribute
   // glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
   // (void*)(3 * sizeof(float))); glEnableVertexAttribArray (1);
 
   // texture coord attribute
-  //glClientActiveTexture (GL_TEXTURE0);
-  //glEnableClientState (GL_TEXTURE_COORD_ARRAY);
   glEnableVertexAttribArray (1);
-  //COMMON_GL_CLEAR_ERROR;
+  COMMON_GL_ASSERT;
   glVertexAttribPointer (1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof (GLfloat), (void*)(3 * sizeof (GLfloat)));
-  //COMMON_GL_CLEAR_ERROR;
-  //glVertexAttribBinding (1, 0);
+  COMMON_GL_ASSERT;
 
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, EBO);
-  //COMMON_GL_CLEAR_ERROR;
-  static GLubyte cube_indices[24] = {
-    0, 1, 2, 3, 4, 5, 6,  7,  3,  2,  5,  4,
-    7, 6, 1, 0, 8, 9, 10, 11, 12, 13, 14, 15
+  COMMON_GL_ASSERT;
+  static GLubyte cube_indices[14] = {
+    1, 2, 5, 6, 7, 2, 4, 1, 3, 5, 8, 7, 3, 4
   };
   glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof (cube_indices), cube_indices, GL_STATIC_DRAW);
-  //COMMON_GL_ASSERT;
+  COMMON_GL_ASSERT;
 
   std::string vertex_shader_filename = Common_File_Tools::getWorkingDirectory ();
   vertex_shader_filename += ACE_DIRECTORY_SEPARATOR_STR_A;
@@ -403,15 +407,18 @@ glarea_realize_cb (GtkWidget* widget_in,
     ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY);
   fragment_shader_filename += ACE_DIRECTORY_SEPARATOR_STR_A;
   fragment_shader_filename += ACE_TEXT_ALWAYS_CHAR ("fragment_shader.glsl");
-  bool success_b = shader.load (vertex_shader_filename,
-                                fragment_shader_filename);
+  bool success_b = shader.loadFromFile (vertex_shader_filename,
+                                        fragment_shader_filename);
   if (success_b)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("loaded shader\n")));
 
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
+  COMMON_GL_ASSERT;
   glBindBuffer (GL_ARRAY_BUFFER, 0);
+  COMMON_GL_ASSERT;
   glBindVertexArray (0);
+  COMMON_GL_ASSERT;
 } // glarea_realize_cb
 
 G_MODULE_EXPORT gboolean
@@ -423,12 +430,15 @@ glarea_render_cb (GtkGLArea* area_in,
   //            ACE_TEXT ("glarea render\n")));
 
   // sanity check(s)
-  gtk_gl_area_make_current (area_in);
+  ACE_ASSERT (VAO && texture.id_);
+
+  //gtk_gl_area_make_current (area_in);
 
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  COMMON_GL_CLEAR_ERROR;
+  COMMON_GL_ASSERT;
 
   glBindVertexArray (VAO);
+  COMMON_GL_ASSERT;
   texture.bind (0);
 
   //static GLfloat rot_x = 0.0f;
@@ -443,7 +453,7 @@ glarea_render_cb (GtkGLArea* area_in,
   glm::mat4 projection_matrix =
     glm::perspective (glm::radians (45.0f), (float)width_i / (float)height_i, 0.1f, 100.0f);
   glm::mat4 model_matrix = glm::mat4 (1.0f); // make sure to initialize matrix to identity matrix first
-  model_matrix = glm::translate (model_matrix, glm::vec3 (0.0f, 0.0f, -5.0f));
+  model_matrix = glm::translate (model_matrix, glm::vec3 (0.0f, 0.0f, -3.0f));
   model_matrix =
     glm::rotate (model_matrix, glm::radians (rotation), glm::vec3 (1.0f, 1.0f, 1.0f));
 #endif // GLM_SUPPORT
@@ -459,8 +469,13 @@ glarea_render_cb (GtkGLArea* area_in,
   //COMMON_GL_CLEAR_ERROR; // *TODO*: why does this happen ?
   //glDrawArrays (GL_QUADS, 0, 24); // *TODO*: GL_QUADS not supported in glDrawArrays()
   //glDrawElementsBaseVertex (GL_POINTS, 24, GL_UNSIGNED_INT, (void*)0, 0);
-  glDrawElements (GL_QUADS, 24, GL_UNSIGNED_INT, (void*)0);
-  //COMMON_GL_CLEAR_ERROR;
+
+  glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, EBO);
+  COMMON_GL_ASSERT;
+  glDrawElements (GL_TRIANGLE_STRIP, 14, GL_UNSIGNED_BYTE, (void*)0);
+  COMMON_GL_ASSERT; // *NOTE*: GL_QUADS is not supported as primitive mode
+  glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
+  COMMON_GL_ASSERT;
 
   //switch (Common_Tools::getRandomNumber (0, 2))
   //{
@@ -476,7 +491,7 @@ glarea_render_cb (GtkGLArea* area_in,
   //  default:
   //    ACE_ASSERT (false);
   //} // end SWITCH
-  rotation += 0.1f; // change the rotation variable for the cube
+  rotation += 1.0f; // change the rotation variable for the cube
 
   //glBegin (GL_LINES);
   //glColor3f (1.0f, 0.0f, 0.0f); glVertex3i (0, 0, 0); glVertex3i (100, 0, 0);
@@ -506,7 +521,7 @@ glarea_render_cb (GtkGLArea* area_in,
   //COMMON_GL_CLEAR_ERROR;
 
   glBindVertexArray (0);
-  COMMON_GL_CLEAR_ERROR;
+  COMMON_GL_ASSERT;
   texture.unbind ();
 
   // auto-redraw
@@ -525,12 +540,11 @@ glarea_resize_cb (GtkGLArea* GLArea_in,
   //ACE_DEBUG ((LM_DEBUG,
   //            ACE_TEXT ("glarea resize\n")));
 
-  // sanity check(s)
-  gtk_gl_area_make_current (GLArea_in);
+  //gtk_gl_area_make_current (GLArea_in);
 
   glViewport (0, 0,
               width_in, height_in);
-  COMMON_GL_CLEAR_ERROR;
+  COMMON_GL_ASSERT;
 
 //  glMatrixMode (GL_PROJECTION);
 //  //COMMON_GL_CLEAR_ERROR;
@@ -1359,16 +1373,16 @@ do_work (int argc_in,
                     G_CALLBACK (glarea_realize_cb), &texture_id);
   g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("destroy"),
                     G_CALLBACK (glarea_destroy_cb), &texture_id);
-  //g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("create-context"),
-  //                  G_CALLBACK (glarea_create_context_cb), NULL);
+  g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("create-context"),
+                    G_CALLBACK (glarea_create_context_cb), NULL);
   g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("render"),
                     G_CALLBACK (glarea_render_cb), &texture_id);
   g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("resize"),
                     G_CALLBACK (glarea_resize_cb), NULL);
-  gtk_widget_set_parent (GTK_WIDGET (gl_area_p), GTK_WIDGET (dialog_p));
+  //gtk_widget_set_parent (GTK_WIDGET (gl_area_p), GTK_WIDGET (dialog_p));
   //gtk_widget_realize (GTK_WIDGET (gl_area_p));
-  GdkGLContext* context_p = gtk_gl_area_get_context (gl_area_p);
-  ACE_ASSERT (context_p);
+  //GdkGLContext* context_p = gtk_gl_area_get_context (gl_area_p);
+  //ACE_ASSERT (context_p);
   gtk_widget_set_size_request (GTK_WIDGET (gl_area_p), 512, 512);
 #elif GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)

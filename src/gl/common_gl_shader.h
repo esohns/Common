@@ -26,8 +26,10 @@ class Common_GL_Shader
                     const std::string&); // fragment shader filename
   ~Common_GL_Shader ();
 
-  bool load (const std::string&,  // vertex shader filename
-             const std::string&); // fragment shader filename
+  bool loadFromFile (const std::string&,  // vertex shader filename
+                     const std::string&); // fragment shader filename
+  bool loadFromString (const std::string&,  // vertex shader code
+                       const std::string&); // fragment shader code
   void reset ();
   void use ();
 

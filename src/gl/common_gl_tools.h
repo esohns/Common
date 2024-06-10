@@ -92,9 +92,12 @@ class Common_GL_Tools
                            bool);          // initial ? : update
 
   // shader
-  static bool loadAndCompileShader (const std::string&, // path
-                                    GLenum,             // shader type (i.e. GL_VERTEX_SHADER || GL_FRAGMENT_SHADER)
-                                    GLuint&);           // return value: shader id
+  static bool loadAndCompileShaderFile (const std::string&, // path
+                                        GLenum,             // shader type (i.e. GL_VERTEX_SHADER || GL_FRAGMENT_SHADER)
+                                        GLuint&);           // return value: shader id
+  static bool loadAndCompileShaderString (const std::string&, // shader code
+                                          GLenum,             // shader type (i.e. GL_VERTEX_SHADER || GL_FRAGMENT_SHADER)
+                                          GLuint&);           // return value: shader id
 
   // drawing
   // *NOTE*: includes glBegin()/glEnd() calls
