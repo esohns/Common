@@ -252,6 +252,8 @@ glarea_create_context_cb (GtkGLArea* GLArea_in,
   //gdk_gl_context_set_required_version (context_p, 3, 3);
   //gdk_gl_context_set_allowed_apis (context_p, GdkGLAPI::GDK_GL_API_GLES);
 
+  gtk_gl_area_set_has_depth_buffer (GLArea_in, TRUE);
+
   return context_p;
 }
 
@@ -326,9 +328,15 @@ glarea_realize_cb (GtkWidget* widget_in,
   COMMON_GL_ASSERT;
   glEnable (GL_DEPTH_TEST);                           // Enables Depth Testing
   COMMON_GL_ASSERT;
-  glDepthFunc (GL_LESS);                              // The Type Of Depth Testing To Do
-  COMMON_GL_ASSERT;
+  //glDepthFunc (GL_LESS);                              // The Type Of Depth Testing To Do
+  //COMMON_GL_ASSERT;
   //glDepthMask (GL_TRUE);
+  //COMMON_GL_ASSERT;
+  //glEnable (GL_CULL_FACE);
+  //COMMON_GL_ASSERT;
+  //glCullFace (GL_FRONT);
+  //COMMON_GL_ASSERT;
+  //glFrontFace (GL_CW);
   //COMMON_GL_ASSERT;
 
   glGenVertexArrays (1, &VAO);
@@ -346,24 +354,32 @@ glarea_realize_cb (GtkWidget* widget_in,
 
   glBindBuffer (GL_ARRAY_BUFFER, VBO);
   COMMON_GL_ASSERT;
-  const GLfloat x0 = -0.5, x1 = 0.5, y0 = -0.5, y1 = 0.5, z0 = -0.5, z1 = 0.5;
-  const GLfloat s0 = 0, s1 = 1.f / 5, s2 = 2.f / 5, s3 = 3.f / 5, s4 = 4.f / 5, s5 = 1;
-  const GLfloat t0 = 0, t1 = 1.f / 5, t2 = 2.f / 5, t3 = 3.f / 5, t4 = 4.f / 5, t5 = 1;
+  // *TODO*: these texcoords are incorrect...
   static GLfloat cube_strip_texcoords[] = {
-    x0, y1, z1, s0, t1,
-    x0, y0, z0, s1, t0,
-    x0, y0, z1, s1, t1,
-    x1, y0, z1, s2, t1,
-    x0, y1, z1, s1, t2,
-    x1, y1, z1, s2, t2,
-    x1, y1, z0, s2, t3,
-    x1, y0, z1, s3, t2,
-    x1, y0, z0, s3, t3,
-    x0, y0, z0, s4, t3,
-    x1, y1, z0, s3, t4,
-    x0, y1, z0, s4, t4,
-    x0, y1, z1, s4, t5,
-    x0, y0, z0, s5, t4
+    -0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f, 0.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f, 1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f, 0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f, 0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f, 0.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f, 1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f, 0.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f, 0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f, 1.0f, 1.0f
   };
   glBufferData (GL_ARRAY_BUFFER, sizeof (cube_strip_texcoords), cube_strip_texcoords, GL_STATIC_DRAW);
   COMMON_GL_ASSERT;
@@ -386,8 +402,13 @@ glarea_realize_cb (GtkWidget* widget_in,
 
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, EBO);
   COMMON_GL_ASSERT;
-  static GLubyte cube_indices[14] = {
-    1, 2, 5, 6, 7, 2, 4, 1, 3, 5, 8, 7, 3, 4
+  static GLubyte cube_indices[34] = {
+    0,  1,  2,  3,  3,      // Face 0 - triangle strip ( v0,  v1,  v2,  v3)
+    4,  4,  5,  6,  7,  7,  // Face 1 - triangle strip ( v4,  v5,  v6,  v7)
+    8,  8,  9,  10, 11, 11, // Face 2 - triangle strip ( v8,  v9, v10, v11)
+    12, 12, 13, 14, 15, 15, // Face 3 - triangle strip (v12, v13, v14, v15)
+    16, 16, 17, 18, 19, 19, // Face 4 - triangle strip (v16, v17, v18, v19)
+    20, 20, 21, 22, 23      // Face 5 - triangle strip (v20, v21, v22, v23)
   };
   glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof (cube_indices), cube_indices, GL_STATIC_DRAW);
   COMMON_GL_ASSERT;
@@ -463,7 +484,7 @@ glarea_render_cb (GtkGLArea* area_in,
 
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, EBO);
   COMMON_GL_ASSERT;
-  glDrawElements (GL_TRIANGLE_STRIP, 14, GL_UNSIGNED_BYTE, (void*)0);
+  glDrawElements (GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_BYTE, (void*)0);
   COMMON_GL_ASSERT; // *NOTE*: GL_QUADS is not supported as primitive mode
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
   COMMON_GL_ASSERT;
