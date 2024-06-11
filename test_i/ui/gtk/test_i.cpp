@@ -332,8 +332,8 @@ glarea_realize_cb (GtkWidget* widget_in,
   //COMMON_GL_ASSERT;
   //glDepthMask (GL_TRUE);
   //COMMON_GL_ASSERT;
-  //glEnable (GL_CULL_FACE);
-  //COMMON_GL_ASSERT;
+  glEnable (GL_CULL_FACE);
+  COMMON_GL_ASSERT;
   //glCullFace (GL_FRONT);
   //COMMON_GL_ASSERT;
   //glFrontFace (GL_CW);
@@ -350,54 +350,61 @@ glarea_realize_cb (GtkWidget* widget_in,
   ACE_ASSERT (EBO);
 
   glBindVertexArray (VAO);
-  COMMON_GL_CLEAR_ERROR;
+  COMMON_GL_ASSERT;
 
   glBindBuffer (GL_ARRAY_BUFFER, VBO);
   COMMON_GL_ASSERT;
-  // *TODO*: these texcoords are incorrect...
-  static GLfloat cube_strip_texcoords[] = {
-    -0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f, 0.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f, 1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f, 0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f, 0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f, 0.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f, 1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f, 0.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f, 0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f, 1.0f, 1.0f
+  static GLfloat cube_strip_color_texcoords[] = {
+   // x       y      z         r    g     b     a         u    v
+    -0.5f, -0.5f,  0.5f,     1.0f, 0.0f, 0.0f, 1.0f,    0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,     0.0f, 1.0f, 0.0f, 1.0f,    0.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f, 1.0f,    1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
+
+     0.5f, -0.5f,  0.5f,     1.0f, 0.0f, 0.0f, 1.0f,    0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,     0.0f, 1.0f, 0.0f, 1.0f,    0.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f, 1.0f,    1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
+
+     0.5f, -0.5f, -0.5f,     1.0f, 0.0f, 0.0f, 1.0f,    0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,     0.0f, 1.0f, 0.0f, 1.0f,    0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,     0.0f, 0.0f, 1.0f, 1.0f,    1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
+
+    -0.5f, -0.5f, -0.5f,     1.0f, 0.0f, 0.0f, 1.0f,    0.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,     0.0f, 1.0f, 0.0f, 1.0f,    0.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,     0.0f, 0.0f, 1.0f, 1.0f,    1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
+
+    -0.5f, -0.5f, -0.5f,     1.0f, 0.0f, 0.0f, 1.0f,    0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,     0.0f, 1.0f, 0.0f, 1.0f,    0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f, 1.0f,    1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
+
+    -0.5f,  0.5f,  0.5f,     1.0f, 0.0f, 0.0f, 1.0f,    0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,     0.0f, 1.0f, 0.0f, 1.0f,    0.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,     0.0f, 0.0f, 1.0f, 1.0f,    1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f, 1.0f,    1.0f, 1.0f
   };
-  glBufferData (GL_ARRAY_BUFFER, sizeof (cube_strip_texcoords), cube_strip_texcoords, GL_STATIC_DRAW);
+  glBufferData (GL_ARRAY_BUFFER, sizeof (cube_strip_color_texcoords), cube_strip_color_texcoords, GL_STATIC_DRAW);
   COMMON_GL_ASSERT;
 
   // position attribute
   glEnableVertexAttribArray (0);
   COMMON_GL_ASSERT;
-  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof (GLfloat), (void*)0);
+  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof (GLfloat), (void*)0);
   COMMON_GL_ASSERT;
 
-  //// color attribute
-  // glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
-  // (void*)(3 * sizeof(float))); glEnableVertexAttribArray (1);
-
-  // texture coord attribute
+  // color attribute
   glEnableVertexAttribArray (1);
   COMMON_GL_ASSERT;
-  glVertexAttribPointer (1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof (GLfloat), (void*)(3 * sizeof (GLfloat)));
+  glVertexAttribPointer (1, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (void*)(3 * sizeof (GLfloat)));
+  COMMON_GL_ASSERT;
+
+  // texture coord attribute
+  glEnableVertexAttribArray (2);
+  COMMON_GL_ASSERT;
+  glVertexAttribPointer (2, 2, GL_FLOAT, GL_FALSE, 9 * sizeof (GLfloat), (void*)(7 * sizeof (GLfloat)));
   COMMON_GL_ASSERT;
 
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -503,7 +510,7 @@ glarea_render_cb (GtkGLArea* area_in,
   //  default:
   //    ACE_ASSERT (false);
   //} // end SWITCH
-  rotation += 1.0f; // change the rotation variable for the cube
+  rotation += 0.3f; // change the rotation variable for the cube
 
   // gtk_gl_area_swap_buffers (area_in);
   glFlush ();
