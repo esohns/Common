@@ -330,21 +330,21 @@ glarea_realize_cb (GtkWidget* widget_in,
   //glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);
   //COMMON_GL_ASSERT;
 
-  glEnable (GL_BLEND);                                // Enable Semi-Transparency
+  glEnable (GL_DEPTH_TEST); // Enables Depth Testing
+  COMMON_GL_ASSERT;
+  glEnable (GL_BLEND); // Enable Semi-Transparency
   COMMON_GL_ASSERT;
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  COMMON_GL_ASSERT;
-  glEnable (GL_DEPTH_TEST);                           // Enables Depth Testing
   COMMON_GL_ASSERT;
   //glDepthFunc (GL_LESS);                              // The Type Of Depth Testing To Do
   //COMMON_GL_ASSERT;
   //glDepthMask (GL_TRUE);
   //COMMON_GL_ASSERT;
-  glEnable (GL_CULL_FACE);
-  COMMON_GL_ASSERT;
-  //glCullFace (GL_FRONT);
+  //glEnable (GL_CULL_FACE);
   //COMMON_GL_ASSERT;
-  //glFrontFace (GL_CW);
+  //glCullFace (GL_BACK);
+  //COMMON_GL_ASSERT;
+  //glFrontFace (GL_CCW);
   //COMMON_GL_ASSERT;
 
   glGenVertexArrays (1, &VAO);
@@ -364,35 +364,35 @@ glarea_realize_cb (GtkWidget* widget_in,
   COMMON_GL_ASSERT;
   static GLfloat cube_strip_color_texcoords[] = {
    // x       y      z         r    g     b     a         u    v
-    -0.5f, -0.5f,  0.5f,     1.0f, 0.0f, 0.0f, 1.0f,    0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,     0.0f, 1.0f, 0.0f, 1.0f,    0.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f, 1.0f,    1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,     1.0f, 0.0f, 0.0f, 0.5f,    0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,     0.0f, 1.0f, 0.0f, 0.5f,    0.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f, 0.5f,    1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f, 0.5f,    1.0f, 1.0f,
 
-     0.5f, -0.5f,  0.5f,     1.0f, 0.0f, 0.0f, 1.0f,    0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,     0.0f, 1.0f, 0.0f, 1.0f,    0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f, 1.0f,    1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,     1.0f, 0.0f, 0.0f, 0.5f,    0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,     0.0f, 1.0f, 0.0f, 0.5f,    0.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f, 0.5f,    1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f, 0.5f,    1.0f, 1.0f,
 
-     0.5f, -0.5f, -0.5f,     1.0f, 0.0f, 0.0f, 1.0f,    0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,     0.0f, 1.0f, 0.0f, 1.0f,    0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,     0.0f, 0.0f, 1.0f, 1.0f,    1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,     1.0f, 0.0f, 0.0f, 0.5f,    0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,     0.0f, 1.0f, 0.0f, 0.5f,    0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,     0.0f, 0.0f, 1.0f, 0.5f,    1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f, 0.5f,    1.0f, 1.0f,
 
-    -0.5f, -0.5f, -0.5f,     1.0f, 0.0f, 0.0f, 1.0f,    0.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,     0.0f, 1.0f, 0.0f, 1.0f,    0.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,     0.0f, 0.0f, 1.0f, 1.0f,    1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,     1.0f, 0.0f, 0.0f, 0.5f,    0.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,     0.0f, 1.0f, 0.0f, 0.5f,    0.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,     0.0f, 0.0f, 1.0f, 0.5f,    1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,     1.0f, 1.0f, 1.0f, 0.5f,    1.0f, 1.0f,
 
-    -0.5f, -0.5f, -0.5f,     1.0f, 0.0f, 0.0f, 1.0f,    0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,     0.0f, 1.0f, 0.0f, 1.0f,    0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f, 1.0f,    1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f, 1.0f,    1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,     1.0f, 0.0f, 0.0f, 0.5f,    0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,     0.0f, 1.0f, 0.0f, 0.5f,    0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f, 0.5f,    1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,     1.0f, 1.0f, 1.0f, 0.5f,    1.0f, 1.0f,
 
-    -0.5f,  0.5f,  0.5f,     1.0f, 0.0f, 0.0f, 1.0f,    0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,     0.0f, 1.0f, 0.0f, 1.0f,    0.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,     0.0f, 0.0f, 1.0f, 1.0f,    1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f, 1.0f,    1.0f, 1.0f
+    -0.5f,  0.5f,  0.5f,     1.0f, 0.0f, 0.0f, 0.5f,    0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,     0.0f, 1.0f, 0.0f, 0.5f,    0.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,     0.0f, 0.0f, 1.0f, 0.5f,    1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f, 0.5f,    1.0f, 1.0f
   };
   glBufferData (GL_ARRAY_BUFFER, sizeof (cube_strip_color_texcoords), cube_strip_color_texcoords, GL_STATIC_DRAW);
   COMMON_GL_ASSERT;
@@ -488,7 +488,7 @@ glarea_render_cb (GtkGLArea* area_in,
   glm::mat4 model_matrix = glm::mat4 (1.0f); // make sure to initialize matrix to identity matrix first
   model_matrix = glm::translate (model_matrix, glm::vec3 (0.0f, 0.0f, -3.0f));
   model_matrix =
-    glm::rotate (model_matrix, glm::radians (rotation), glm::vec3 (1.0f, 1.0f, 1.0f));
+    glm::rotate (model_matrix, glm::radians (rotation), glm::vec3 (-1.0f, 1.0f, -1.0f));
 #endif // GLM_SUPPORT
 
   // compute elapsed time
@@ -514,7 +514,11 @@ glarea_render_cb (GtkGLArea* area_in,
 
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, EBO);
   COMMON_GL_ASSERT;
+
+  glDisable (GL_DEPTH_TEST);
   glDrawElements (GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_BYTE, (void*)0);
+  glEnable (GL_DEPTH_TEST);
+
   COMMON_GL_ASSERT; // *NOTE*: GL_QUADS is not supported as primitive mode
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
   COMMON_GL_ASSERT;

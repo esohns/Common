@@ -13,9 +13,9 @@ void
 main ()
 {
   //FragColor = ourColor;
+  //FragColor = texture (texture1, TexCoord);
+  //FragColor = texture (texture1, TexCoord) * ourColor;
 
   float pct = abs (sin (time));
   FragColor = mix (texture (texture1, TexCoord), ourColor, pct);
-  
-  //FragColor = texture (texture1, TexCoord) * ourColor;
 }
