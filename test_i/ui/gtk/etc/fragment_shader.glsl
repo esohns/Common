@@ -1,16 +1,21 @@
 #version 330 core
 
-out vec4 FragColor;
-
 in vec4 ourColor;
 in vec2 TexCoord;
 
+out vec4 FragColor;
+
 // texture sampler
 uniform sampler2D texture1;
+uniform float     time;
 
 void
 main ()
 {
-  //  FragColor = ourColor;
-  FragColor = texture (texture1, TexCoord);
+  //FragColor = ourColor;
+
+  float pct = abs (sin (time));
+  FragColor = mix (texture (texture1, TexCoord), ourColor, pct);
+  
+  //FragColor = texture (texture1, TexCoord) * ourColor;
 }

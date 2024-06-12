@@ -14,7 +14,7 @@ uniform mat4 projection;
 void
 main ()
 {
-  gl_Position = projection * view * model * vec4 (aPos, 1.0);
+  gl_Position = projection * view * model * vec4 (aPos, 1.0f);
   ourColor = aColor;
 // *IMPORTANT NOTE*: "...OpenGL stores textures starting at the bottom left
 //                   pixel while images are usually stored starting with the top

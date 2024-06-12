@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include <chrono>
 #include <cmath>
 #include <iostream>
 #include <string>
@@ -73,6 +74,13 @@ GtkWindow* main_window_p = NULL;
 GLuint VBO = 0, VAO = 0, EBO = 0;
 Common_GL_Shader shader;
 struct Common_GL_Camera camera_s;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+static std::chrono::steady_clock::time_point tp1;
+#elif defined (ACE_LINUX)
+static std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> tp1;
+#else
+#error missing implementation, aborting
+#endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
 #endif // GTK_CHECK_VERSION (4,0,0)
 #if defined (GTKGL_SUPPORT)
 Common_GL_Texture texture;
@@ -444,6 +452,8 @@ glarea_realize_cb (GtkWidget* widget_in,
   COMMON_GL_ASSERT;
   glBindVertexArray (0);
   COMMON_GL_ASSERT;
+
+  tp1 = std::chrono::high_resolution_clock::now ();
 } // glarea_realize_cb
 
 G_MODULE_EXPORT gboolean
@@ -481,6 +491,18 @@ glarea_render_cb (GtkGLArea* area_in,
     glm::rotate (model_matrix, glm::radians (rotation), glm::vec3 (1.0f, 1.0f, 1.0f));
 #endif // GLM_SUPPORT
 
+  // compute elapsed time
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  std::chrono::steady_clock::time_point tp2 =
+    std::chrono::high_resolution_clock::now ();
+#elif defined (ACE_LINUX)
+  std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> tp2 =
+    std::chrono::high_resolution_clock::now ();
+#else
+#error missing implementation, aborting
+#endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
+  std::chrono::duration<float> elapsed_time = tp2 - tp1;
+
   shader.use ();
 #if defined (GLM_SUPPORT)
   shader.setMat4 (ACE_TEXT_ALWAYS_CHAR ("projection"), projection_matrix);
@@ -488,6 +510,7 @@ glarea_render_cb (GtkGLArea* area_in,
   shader.setMat4 (ACE_TEXT_ALWAYS_CHAR ("model"), model_matrix);
 #endif // GLM_SUPPORT
   shader.setInt (ACE_TEXT_ALWAYS_CHAR ("texture1"), 0); // *IMPORTANT NOTE*: <-- texture unit (!) not -id
+  shader.setFloat (ACE_TEXT_ALWAYS_CHAR ("time"), elapsed_time.count ());
 
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, EBO);
   COMMON_GL_ASSERT;
