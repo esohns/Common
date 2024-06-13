@@ -761,6 +761,21 @@ glarea_realize_cb (GtkWidget* widget_in,
   ACE_ASSERT (gl_area_p);
   if (!ggla_area_make_current (gl_area_p))
     return;
+
+#if defined (GLEW_SUPPORT)
+  GLenum status_e = glewInit ();
+  if (status_e != GLEW_OK)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to glewInit(): \"%s\", returning\n"),
+                ACE_TEXT (glewGetErrorString (status_e))));
+    return;
+  } // end IF
+#endif // GLEW_SUPPORT
+#if defined(_DEBUG)
+  // Common_GL_Debug::Install ();
+#endif // _DEBUG
+
   GLuint* texture_id_p = static_cast<GLuint*> (userData_in);
   ACE_ASSERT (texture_id_p);
   GtkAllocation allocation;
@@ -827,7 +842,7 @@ glarea_realize_cb (GtkWidget* widget_in,
   GLdouble fW, fH;
 
   //fH = tan( (fovY / 2) / 180 * pi ) * zNear;
-  fH = tan (45.0 / 360 * M_PI) * 0.1;
+  fH = tan (45.0 / 360.0 * M_PI) * 0.1;
   fW = fH * (allocation.width / (GLdouble)allocation.height);
 
   glFrustum (-fW, fW, -fH, fH, 0.1, 100.0);
@@ -1557,11 +1572,11 @@ do_work (int argc_in,
   gtk_widget_unparent (GTK_WIDGET (gl_area_p));
   gtk_box_append (GTK_BOX (box_p), GTK_WIDGET (gl_area_p));
 #else
-  GtkVBox* box_p =
-    GTK_VBOX (gtk_builder_get_object (builder_p, ACE_TEXT_ALWAYS_CHAR ("vbox3")));
+  GtkBox* box_p =
+    GTK_BOX (gtk_builder_get_object (builder_p, ACE_TEXT_ALWAYS_CHAR ("vbox3")));
   ACE_ASSERT (box_p);
   gtk_container_foreach (GTK_CONTAINER (box_p), (GtkCallback)gtk_widget_destroy, NULL);
-  gtk_box_pack_start (GTK_BOX (box_p), GTK_WIDGET (gl_area_p), TRUE, TRUE, 0);
+  gtk_box_pack_start (box_p, GTK_WIDGET (gl_area_p), TRUE, TRUE, 0);
 #endif // GTK_CHECK_VERSION (4,0,0)
 #endif // GTKGL_SUPPORT
 

@@ -12,6 +12,9 @@ include (ffmpeg)
 include (ImageMagick)
 
 ############## includes ###############
+if (GLUT_SUPPORT)
+ include_directories (${GLUT_INCLUDE_DIRS})
+endif (GLUT_SUPPORT)
 include_directories (${GTK_INCLUDE_DIRS})
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src)
@@ -278,6 +281,7 @@ elseif (WIN32)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
  string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
  file (TO_CMAKE_PATH "${GLEW_LIB_DIR}" GLEW_LIB_PATH)
+ file (TO_CMAKE_PATH "${GLUT_LIB_DIR}" GLUT_LIB_PATH)
  file (TO_CMAKE_PATH "${ffmpeg_LIB_DIR}" FFMPEG_LIB_PATH)
  file (TO_CMAKE_PATH "${ImageMagick_LIB_DIR}" IMAGEMAGICK_LIB_PATH)
  file (TO_CMAKE_PATH "${PNG_LIB_DIR}" PNG_LIB_PATH)
@@ -289,6 +293,7 @@ elseif (WIN32)
                          ARGS ${ARGS}
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${GLEW_LIB_PATH}
+                                              ${GLUT_LIB_PATH}
                                               ${PNG_LIB_PATH}
                                               ${ASSIMP_LIB_PATH}
                                               ${FFMPEG_LIB_PATH}
