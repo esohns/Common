@@ -42,6 +42,12 @@ struct Common_GL_VectorF3
    , z (0.0f)
   {}
 
+  Common_GL_VectorF3 (float x_in, float y_in, float z_in)
+   : x (x_in)
+   , y (y_in)
+   , z (z_in)
+  {}
+
   float x;
   float y;
   float z;
