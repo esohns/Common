@@ -166,30 +166,37 @@ do_work (int argc_in,
       TF_SessionOptions* options_p = TF_NewSessionOptions ();
       TF_Status* status_p = TF_NewStatus ();
       TF_Session* session_p = TF_NewSession (graph_p, options_p, status_p);
-      char hello[] = "Hello TensorFlow!";
+      ACE_ASSERT (TF_GetCode (status_p) == TSL_OK);
+
+      char hello[] = ACE_TEXT_ALWAYS_CHAR ("Hello TensorFlow!");
       struct TF_TString string_s;
       TF_StringInit (&string_s);
       TF_StringCopy (&string_s, hello, ACE_OS::strlen (hello));
-      TF_Tensor* tensor_p = TF_AllocateTensor (TF_STRING, 0, 0, TF_StringGetSize (&string_s));
-      TF_Tensor* tensor_output_p = NULL;
-      TF_OperationDescription* operation_description_p = TF_NewOperation (graph_p, "Const", "hello");
-      TF_Operation* operation_p = NULL;
-      struct TF_Output output_s;
 
+      TF_Tensor* tensor_p = TF_AllocateTensor (TF_STRING, 0, 0, TF_StringGetSize (&string_s));
       ACE_OS::memcpy (TF_TensorData (tensor_p), &string_s, sizeof (struct TF_TString));
       TF_StringDealloc (&string_s);
-      TF_SetAttrTensor (operation_description_p, "value", tensor_p, status_p);
-      TF_SetAttrType (operation_description_p, "dtype", TF_TensorType (tensor_p));
-      operation_p = TF_FinishOperation (operation_description_p, status_p);
 
+      TF_OperationDescription* operation_description_p =
+        TF_NewOperation (graph_p,
+                         ACE_TEXT_ALWAYS_CHAR ("Const"), ACE_TEXT_ALWAYS_CHAR ("hello"));
+      TF_SetAttrTensor (operation_description_p, ACE_TEXT_ALWAYS_CHAR ("value"), tensor_p, status_p);
+      ACE_ASSERT (TF_GetCode (status_p) == TSL_OK);
+      TF_SetAttrType (operation_description_p, ACE_TEXT_ALWAYS_CHAR ("dtype"), TF_TensorType (tensor_p));
+      TF_Operation* operation_p =
+        TF_FinishOperation (operation_description_p, status_p);
+      ACE_ASSERT (operation_p && (TF_GetCode (status_p) == TSL_OK));
+
+      struct TF_Output output_s;
       output_s.oper = operation_p;
       output_s.index = 0;
-
+      TF_Tensor* tensor_output_p = NULL;
       TF_SessionRun (session_p, 0,
                      0, 0, 0,                        // Inputs
                      &output_s, &tensor_output_p, 1, // Outputs
                      &operation_p, 1,                // Operations
                      0, status_p);
+      ACE_ASSERT (TF_GetCode (status_p) == TSL_OK);
 
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("status code: %d\n"),
@@ -201,7 +208,9 @@ do_work (int argc_in,
                   ACE_TEXT (TF_StringGetDataPointer (string_p))));
 
       TF_CloseSession (session_p, status_p);
+      ACE_ASSERT (TF_GetCode (status_p) == TSL_OK);
       TF_DeleteSession (session_p, status_p);
+      ACE_ASSERT (TF_GetCode (status_p) == TSL_OK);
       TF_DeleteStatus (status_p);
       TF_DeleteSessionOptions (options_p);
 
@@ -248,7 +257,7 @@ do_work (int argc_in,
                     ACE_TEXT ("slopemodel.pb")));
         TF_DeleteGraph (graph_p);
         TF_DeleteStatus (status_p);
-        TF_DeleteBuffer (buffer_p); buffer_p = NULL;
+        TF_DeleteBuffer (buffer_p);
         return;
       } // end IF
       TF_DeleteBuffer (buffer_p); buffer_p = NULL;
@@ -283,7 +292,9 @@ do_work (int argc_in,
                                 1.f };
 
       // generate input
-      TF_Operation* input_operation_p = TF_GraphOperationByName (graph_p, "dense_1_input");
+      TF_Operation* input_operation_p =
+        TF_GraphOperationByName (graph_p,
+                                 ACE_TEXT_ALWAYS_CHAR ("dense_1_input"));
       ACE_ASSERT (input_operation_p);
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("input_operation_p has %d input(s)\n"),
@@ -291,9 +302,8 @@ do_work (int argc_in,
       int64_t raw_input_dims_a[2];
       raw_input_dims_a[0] = 1;
       raw_input_dims_a[1] = 21;
-      float* raw_input_data_p = (float*)malloc (SEQ_LENGTH * sizeof (float));
-      for (int i = 0; i < SEQ_LENGTH; i++)
-        raw_input_data_p[i] = sampledata1[i];
+      float* raw_input_data_p = (float*)malloc (sizeof (float) * SEQ_LENGTH);
+      ACE_OS::memcpy (raw_input_data_p, sampledata1, sizeof (float) * SEQ_LENGTH);
       //raw_input_data[1] = 1.f;
 
       // prepare inputs
@@ -309,7 +319,9 @@ do_work (int argc_in,
       run_input_tensors_a[0] = input_tensor_p;
 
       // prepare outputs
-      TF_Operation* output_operation_p = TF_GraphOperationByName (graph_p, "dense_2/Sigmoid");
+      TF_Operation* output_operation_p =
+        TF_GraphOperationByName (graph_p,
+                                 ACE_TEXT_ALWAYS_CHAR ("dense_2/Sigmoid"));
       ACE_ASSERT (output_operation_p);
       struct TF_Output output_s;
       output_s.oper = output_operation_p;
@@ -355,7 +367,9 @@ do_work (int argc_in,
       TF_DeleteTensor (input_tensor_p);
       TF_DeleteTensor (output_tensor_p);
       TF_CloseSession (session_p, status_p);
+      ACE_ASSERT (TF_GetCode (status_p) == TSL_OK);
       TF_DeleteSession (session_p, status_p);
+      ACE_ASSERT (TF_GetCode (status_p) == TSL_OK);
       TF_DeleteGraph (graph_p);
       TF_DeleteStatus (status_p);
       break;
