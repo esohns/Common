@@ -714,10 +714,9 @@ bool Common_Image_Tools::load (const std::string& path_in,
 
   if (!Common_File_Tools::load (path_in, packet_s.data, file_size_i, 0))
   {
-    ACE_DEBUG (
-      (LM_ERROR,
-       ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), aborting\n"),
-       ACE_TEXT (path_in.c_str ())));
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_File_Tools::load(\"%s\"), aborting\n"),
+                ACE_TEXT (path_in.c_str ())));
     goto error;
   } // end IF
   packet_s.size = static_cast<int> (file_size_i);
@@ -725,8 +724,8 @@ bool Common_Image_Tools::load (const std::string& path_in,
   frame_p = av_frame_alloc ();
   if (!frame_p)
   {
-    ACE_DEBUG (
-      (LM_ERROR, ACE_TEXT ("failed to av_frame_alloc(): \"%m\", aborting\n")));
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to av_frame_alloc(): \"%m\", aborting\n")));
     delete[] packet_s.data;
     packet_s.data = NULL;
     goto error;
@@ -735,10 +734,9 @@ bool Common_Image_Tools::load (const std::string& path_in,
   codec_p = avcodec_find_decoder (codecId_in);
   if (unlikely (!codec_p))
   {
-    ACE_DEBUG (
-      (LM_ERROR,
-       ACE_TEXT ("failed to avcodec_find_decoder(%s [%d]): \"%m\", aborting\n"),
-       ACE_TEXT (avcodec_get_name (codecId_in)), codecId_in));
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to avcodec_find_decoder(%s [%d]): \"%m\", aborting\n"),
+                ACE_TEXT (avcodec_get_name (codecId_in)), codecId_in));
     delete[] packet_s.data;
     packet_s.data = NULL;
     goto error;
@@ -747,9 +745,8 @@ bool Common_Image_Tools::load (const std::string& path_in,
   codec_context_p = avcodec_alloc_context3 (codec_p);
   if (unlikely (!codec_context_p))
   {
-    ACE_DEBUG (
-      (LM_ERROR,
-       ACE_TEXT ("failed to avcodec_alloc_context3(): \"%m\", aborting\n")));
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to avcodec_alloc_context3(): \"%m\", aborting\n")));
     delete[] packet_s.data;
     packet_s.data = NULL;
     goto error;
@@ -784,9 +781,9 @@ bool Common_Image_Tools::load (const std::string& path_in,
   result_2 = avcodec_open2 (codec_context_p, codec_p, NULL);
   if (unlikely (result_2 < 0))
   {
-    ACE_DEBUG (
-      (LM_ERROR, ACE_TEXT ("failed to avcodec_open2(): \"%s\", aborting\n"),
-       ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to avcodec_open2(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
     delete[] packet_s.data;
     packet_s.data = NULL;
     goto error;
@@ -795,10 +792,9 @@ bool Common_Image_Tools::load (const std::string& path_in,
   result_2 = avcodec_send_packet (codec_context_p, &packet_s);
   if (unlikely (result_2))
   {
-    ACE_DEBUG (
-      (LM_ERROR,
-       ACE_TEXT ("failed to avcodec_send_packet(): \"%s\", aborting\n"),
-       ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to avcodec_send_packet(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
     delete[] packet_s.data;
     packet_s.data = NULL;
     goto error;
@@ -808,18 +804,16 @@ bool Common_Image_Tools::load (const std::string& path_in,
   result_2 = avcodec_receive_frame (codec_context_p, frame_p);
   if (unlikely (result_2))
   {
-    ACE_DEBUG (
-      (LM_ERROR,
-       ACE_TEXT ("failed to avcodec_receive_frame(): \"%s\", aborting\n"),
-       ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to avcodec_receive_frame(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
     goto error;
   } // end IF
   ACE_ASSERT (frame_p);
-  ACE_DEBUG ((LM_DEBUG, ACE_TEXT ("loaded image \"%s\" (%ux%u %s)\n"),
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("loaded image \"%s\" (%ux%u %s)\n"),
               ACE_TEXT (path_in.c_str ()), frame_p->width, frame_p->height,
-              ACE_TEXT (Common_Image_Tools::pixelFormatToString (
-                          static_cast<enum AVPixelFormat> (frame_p->format))
-                          .c_str ())));
+              ACE_TEXT (Common_Image_Tools::pixelFormatToString (static_cast<enum AVPixelFormat> (frame_p->format)).c_str ())));
 
   //ACE_ASSERT (frame_p->width <= frame_p->linesize[0]);
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
