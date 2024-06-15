@@ -177,10 +177,10 @@ do_work (int argc_in,
     {
       Common_Image_Resolution_t resolution_s;
       enum AVPixelFormat pixel_format_e = AV_PIX_FMT_NONE;
-      uint8_t* data_a[4], *data_2[4];
-      ACE_OS::memset (&data_a, 0, sizeof (uint8_t*[4]));
-      ACE_OS::memset (&data_2, 0, sizeof (uint8_t*[4]));
-      std::string out_filename = ACE_TEXT_ALWAYS_CHAR ("outfile.rgb");
+      uint8_t *data_a[AV_NUM_DATA_POINTERS], *data_2[AV_NUM_DATA_POINTERS];
+      ACE_OS::memset (&data_a, 0, sizeof (uint8_t* [AV_NUM_DATA_POINTERS]));
+      ACE_OS::memset (&data_2, 0, sizeof (uint8_t* [AV_NUM_DATA_POINTERS]));
+      std::string out_filename = ACE_TEXT_ALWAYS_CHAR ("outfile.rgba");
       std::ofstream file_stream;
       //std::string file_extension_string =
       //    Common_File_Tools::fileExtension (sourceFilePath_in, false);
@@ -197,16 +197,17 @@ do_work (int argc_in,
         return;
       } // end IF
       ACE_ASSERT (data_a[0]);
-      if (pixel_format_e != AV_PIX_FMT_RGB24)
+      if (pixel_format_e != AV_PIX_FMT_RGBA)
       {
         Common_Image_Tools::convert (resolution_s,
                                      pixel_format_e,
                                      data_a,
                                      resolution_s,
-                                     AV_PIX_FMT_RGB24,
+                                     AV_PIX_FMT_RGBA,
                                      data_2);
         ACE_ASSERT (data_2[0]);
-        av_free (data_a[0]); data_a[0] = NULL;
+        delete [] data_a[0]; data_a[0] = NULL;
+        delete [] data_a[1]; data_a[1] = NULL;
         ACE_OS::memcpy (data_a, data_2, sizeof (uint8_t*[4]));
         ACE_ASSERT (data_a[0]);
       } // end IF
@@ -217,11 +218,11 @@ do_work (int argc_in,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to open file (was: \"%s\"): \"%m\", returning\n"),
                     ACE_TEXT (out_filename.c_str ())));
-        av_free (data_a[0]); data_a[0] = NULL;
+        delete [] data_a[0]; data_a[0] = NULL;
         return;
       } // end IF
       int size_i =
-        av_image_get_buffer_size (AV_PIX_FMT_RGB32,
+        av_image_get_buffer_size (AV_PIX_FMT_RGBA,
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
                                   resolution_s.cx, resolution_s.cy,
 #else
@@ -236,7 +237,7 @@ do_work (int argc_in,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to write file (%d byte(s)): \"%m\", returning\n"),
                     size_i));
-        av_free (data_a[0]); data_a[0] = NULL;
+        delete [] data_a[0]; data_a[0] = NULL;
         return;
       } // end IF
       file_stream.close ();
@@ -244,7 +245,7 @@ do_work (int argc_in,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to close file (\"%s\"): \"%m\", continuing\n"),
                     ACE_TEXT (out_filename.c_str ())));
-      //av_free (data_a[0]); data_a[0] = NULL;
+      delete [] data_a[0]; data_a[0] = NULL;
       break;
     }
     case TEST_I_MODE_HWACCEL:
