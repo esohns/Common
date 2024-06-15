@@ -141,13 +141,13 @@ do_process_arguments (int argc_in,
 void
 do_work (const std::string& sourceFilePath_in)
 {
-  std::string out_filename = ACE_TEXT_ALWAYS_CHAR ("outfile.rgb");
+  std::string out_filename = ACE_TEXT_ALWAYS_CHAR ("outfile.rgba");
   unsigned char* data_p = NULL;
   Common_Image_Resolution_t resolution_s;
 
   //MagickWandGenesis ();
   if (!Common_Image_Tools::load (sourceFilePath_in,
-                                 ACE_TEXT_ALWAYS_CHAR ("RGB"),
+                                 ACE_TEXT_ALWAYS_CHAR ("RGBA"),
                                  resolution_s,
                                  data_p))
   {
@@ -158,13 +158,14 @@ do_work (const std::string& sourceFilePath_in)
   } // end IF
   ACE_ASSERT (data_p);
 
-  FILE* file_p = ACE_OS::fopen ("logo.rgb", "w");
+  FILE* file_p = ::fopen (out_filename.c_str (),
+                          ACE_TEXT_ALWAYS_CHAR ("wb"));
   ACE_ASSERT (file_p);
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  size_t size_i = resolution_s.cx * resolution_s.cy * 3;
+  size_t size_i = resolution_s.cx * resolution_s.cy * 4;
 #else
-  size_t size_i = resolution_s.width * resolution_s.height * 3;
+  size_t size_i = resolution_s.width * resolution_s.height * 4;
 #endif // ACE_WIN32 || ACE_WIN64
   size_t size_2 = ACE_OS::fwrite (static_cast<void*> (data_p),
                                   size_i,

@@ -1662,8 +1662,8 @@ Common_Image_Tools::load (const std::string& sourceFilePath_in,
 
   MagickWand* wand_p = NewMagickWand ();
   ACE_ASSERT (wand_p);
-  MagickSetImageType (wand_p, TrueColorType);
-  MagickSetImageColorspace (wand_p, sRGBColorspace);
+  //MagickSetImageType (wand_p, TrueColorType);
+  //MagickSetImageColorspace (wand_p, sRGBColorspace);
   MagickSetImageFormat (wand_p, ACE_TEXT_ALWAYS_CHAR ("PNG"));
 
 #if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
@@ -1690,7 +1690,8 @@ Common_Image_Tools::load (const std::string& sourceFilePath_in,
   resolution_out.height = MagickGetImageHeight (wand_p);
 #endif // ACE_WIN32 || ACE_WIN64
 
-  result = MagickSetImageFormat (wand_p, outputFormat_in.c_str ());
+  result = MagickSetImageFormat (wand_p,
+                                 outputFormat_in.c_str ());
   ACE_ASSERT (result == MagickTrue);
   //result = MagickSetImageUnits (wand_p, PixelsPerInchResolution);
   //ACE_ASSERT (result == MagickTrue);
