@@ -1,4 +1,5 @@
 include (ffmpeg)
+include (ImageMagick)
 
 string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
 string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
@@ -71,16 +72,14 @@ elseif (WIN32)
  file (TO_CMAKE_PATH "${ffmpeg_LIB_DIR}" FFMPEG_LIB_PATH)
  file (TO_CMAKE_PATH "${ImageMagick_LIB_DIR}" IMAGEMAGICK_LIB_PATH)
  file (TO_CMAKE_PATH "${ACE_LIB_DIR}" ACE_LIB_PATH)
- set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
-                           ${FFMPEG_LIB_PATH}
+ set (RUNTIME_LIBRARY_DIRS ${FFMPEG_LIB_PATH}
+                           ${IMAGEMAGICK_LIB_PATH}
                            ${ACE_LIB_PATH})
  create_target_launcher (${EXECUTABLE}
                          COMMAND ${COMMAND}
                          ARGS "-f oak-tree.png -t"
 #                         FORWARD_ARGS
-                         RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
-                                              ${FFMPEG_LIB_PATH}
-                                              ${IMAGEMAGICK_LIB_PATH}
+                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 endif ()

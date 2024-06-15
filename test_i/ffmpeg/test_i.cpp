@@ -177,9 +177,9 @@ do_work (int argc_in,
     {
       Common_Image_Resolution_t resolution_s;
       enum AVPixelFormat pixel_format_e = AV_PIX_FMT_NONE;
-      uint8_t* data_a[AV_NUM_DATA_POINTERS], *data_2[AV_NUM_DATA_POINTERS];
-      ACE_OS::memset (&data_a, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
-      ACE_OS::memset (&data_2, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
+      uint8_t* data_a[4], *data_2[4];
+      ACE_OS::memset (&data_a, 0, sizeof (uint8_t*[4]));
+      ACE_OS::memset (&data_2, 0, sizeof (uint8_t*[4]));
       std::string out_filename = ACE_TEXT_ALWAYS_CHAR ("outfile.rgb");
       std::ofstream file_stream;
       //std::string file_extension_string =
@@ -206,8 +206,8 @@ do_work (int argc_in,
                                      AV_PIX_FMT_RGB24,
                                      data_2);
         ACE_ASSERT (data_2[0]);
-//        delete [] data_a[0]; data_a[0] = NULL;
-        ACE_OS::memcpy (data_a, data_2, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
+        av_free (data_a[0]); data_a[0] = NULL;
+        ACE_OS::memcpy (data_a, data_2, sizeof (uint8_t*[4]));
         ACE_ASSERT (data_a[0]);
       } // end IF
       file_stream.open (out_filename,
@@ -217,17 +217,17 @@ do_work (int argc_in,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to open file (was: \"%s\"): \"%m\", returning\n"),
                     ACE_TEXT (out_filename.c_str ())));
-        delete [] data_a[0]; data_a[0] = NULL;
+        av_free (data_a[0]); data_a[0] = NULL;
         return;
       } // end IF
       int size_i =
-          av_image_get_buffer_size (AV_PIX_FMT_RGB24,
+        av_image_get_buffer_size (AV_PIX_FMT_RGB32,
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-                                    resolution_s.cx, resolution_s.cy,
+                                  resolution_s.cx, resolution_s.cy,
 #else
-                                    resolution_s.width, resolution_s.height,
+                                  resolution_s.width, resolution_s.height,
 #endif // ACE_WIN32 || ACE_WIN64
-                                    1); // *TODO*: linesize alignment
+                                  1); // *TODO*: linesize alignment
       ACE_ASSERT (file_stream.is_open ());
       file_stream.write (reinterpret_cast<char*> (data_a[0]),
                          size_i);
@@ -236,15 +236,15 @@ do_work (int argc_in,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to write file (%d byte(s)): \"%m\", returning\n"),
                     size_i));
-        delete [] data_a[0]; data_a[0] = NULL;
+        av_free (data_a[0]); data_a[0] = NULL;
         return;
       } // end IF
-      delete [] data_a[0]; data_a[0] = NULL;
       file_stream.close ();
       if (unlikely (file_stream.fail ()))
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to close file (\"%s\"): \"%m\", continuing\n"),
                     ACE_TEXT (out_filename.c_str ())));
+      //av_free (data_a[0]); data_a[0] = NULL;
       break;
     }
     case TEST_I_MODE_HWACCEL:

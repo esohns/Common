@@ -1453,8 +1453,8 @@ Common_File_Tools::load (const std::string& path_in,
   file_out = NULL;
   fileSize_out = 0;
 
-  FILE* file_p = ACE_OS::fopen (ACE_TEXT (path_in.c_str ()),
-                                ACE_TEXT_ALWAYS_CHAR ("rb"));
+  FILE* file_p = ::fopen (ACE_TEXT (path_in.c_str ()),
+                          ACE_TEXT_ALWAYS_CHAR ("rb"));
   if (unlikely (!file_p))
   {
     ACE_DEBUG ((LM_ERROR,

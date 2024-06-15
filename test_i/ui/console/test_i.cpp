@@ -212,8 +212,8 @@ do_work (int argc_in,
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
       struct _COORD coord_s;
       ACE_OS::memset (&coord_s, 0, sizeof (struct _COORD));
-      coord_s.X = 4;
-      coord_s.Y = 4;
+      coord_s.X = 256;
+      coord_s.Y = 256;
       if (!Common_UI_Tools::setConsoleFontSize (coord_s))
       {
         ACE_DEBUG ((LM_ERROR,
@@ -223,13 +223,17 @@ do_work (int argc_in,
       } // end IF
 #endif // ACE_WIN32 || ACE_WIN64
 
-      //break;
+      std::cout << ACE_TEXT_ALWAYS_CHAR ("Hello World !") << std::endl;
+
+      break;
     }
     case TEST_I_MODE_WINDOW_SIZE:
     {
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
       struct _SMALL_RECT small_rect_s = Common_UI_Tools::setConsoleMaxWindowSize ();
 #endif // ACE_WIN32 || ACE_WIN64
+
+      std::cout << ACE_TEXT_ALWAYS_CHAR ("Hello World !") << std::endl;
 
       break;
     }
