@@ -477,18 +477,18 @@ glarea_render_cb (GtkGLArea* area_in,
   //static GLfloat rot_x = 0.0f;
   //static GLfloat rot_y = 0.0f;
   //static GLfloat rot_z = 0.0f;
-  static GLfloat rotation = 0.0f;
+  static GLfloat rotation = 0.0f; // *NOTE*: degrees
 
 #if defined (GLM_SUPPORT)
-  glm::mat4 view_matrix = glm::lookAt (camera_s.position,
-                                       camera_s.looking_at,
-                                       camera_s.up);
-  glm::mat4 projection_matrix =
-    glm::perspective (glm::radians (45.0f), (float)width_i / (float)height_i, 0.1f, 100.0f);
   glm::mat4 model_matrix = glm::mat4 (1.0f); // make sure to initialize matrix to identity matrix first
   model_matrix = glm::translate (model_matrix, glm::vec3 (0.0f, 0.0f, -3.0f));
   model_matrix =
-    glm::rotate (model_matrix, glm::radians (rotation), glm::vec3 (-1.0f, 1.0f, -1.0f));
+    glm::rotate (model_matrix, glm::radians (rotation), glm::vec3 (1.0f, 1.0f, 1.0f));
+
+  glm::mat4 view_matrix = camera_s.getViewMatrix ();
+
+  glm::mat4 projection_matrix =
+    glm::perspective (glm::radians (45.0f), width_i / (float)height_i, 0.1f, 100.0f);
 #endif // GLM_SUPPORT
 
   // compute elapsed time
@@ -505,9 +505,9 @@ glarea_render_cb (GtkGLArea* area_in,
 
   shader.use ();
 #if defined (GLM_SUPPORT)
-  shader.setMat4 (ACE_TEXT_ALWAYS_CHAR ("projection"), projection_matrix);
-  shader.setMat4 (ACE_TEXT_ALWAYS_CHAR ("view"), view_matrix);
   shader.setMat4 (ACE_TEXT_ALWAYS_CHAR ("model"), model_matrix);
+  shader.setMat4 (ACE_TEXT_ALWAYS_CHAR ("view"), view_matrix);
+  shader.setMat4 (ACE_TEXT_ALWAYS_CHAR ("projection"), projection_matrix);
 #endif // GLM_SUPPORT
   shader.setInt (ACE_TEXT_ALWAYS_CHAR ("texture1"), 0); // *IMPORTANT NOTE*: <-- texture unit (!) not -id
   shader.setFloat (ACE_TEXT_ALWAYS_CHAR ("time"), elapsed_time.count ());
