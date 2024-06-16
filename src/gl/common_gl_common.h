@@ -30,10 +30,7 @@
 #include "glm/gtx/rotate_vector.hpp"
 #endif // GLM_SUPPORT
 
-#if defined (GLUT_SUPPORT)
-#else
 #include "common_gl_defines.h"
-#endif // GLUT_SUPPORT
 
 #if defined (GLM_SUPPORT)
 typedef std::pair<glm::vec3, glm::vec3> Common_GL_BoundingBox_t;
@@ -145,6 +142,7 @@ struct Common_GL_Camera
     } // end IF
 
     glm::vec2 mouse_delta = old_mouse_position - current_mouse_position;
+    mouse_delta *= COMMON_GL_CAMERA_DEFAULT_MOUSE_LOOK_FACTOR;
     looking_at = glm::rotate (looking_at, glm::radians (mouse_delta.x), up);
 
     old_mouse_position = current_mouse_position;
@@ -184,16 +182,16 @@ struct Common_GL_Scene
 
   inline void resetCamera () { camera.reset (); }
 
-  struct Common_GL_Camera camera;
+  struct Common_GL_Camera   camera;
 
   // scene
-  Common_GL_BoundingBox_t boundingBox;
+  Common_GL_BoundingBox_t   boundingBox;
 #if defined (GLM_SUPPORT)
-  glm::vec3               center;
-  glm::vec3               orientation; // model/scene-
+  glm::vec3                 center;
+  glm::vec3                 orientation; // model/scene-
 #else
   struct Common_GL_VectorF3 center;
-  struct Common_GL_VectorF3 orientation;
+  struct Common_GL_VectorF3 orientation; // model/scene-
 #endif // GLM_SUPPORT
 };
 
