@@ -52,10 +52,10 @@ struct Common_OpenGL_GLUT_CBData
    , EBO (0)
   {}
 
-  GLfloat                 width;
-  GLfloat                 height;
+  GLfloat                 width; // current-
+  GLfloat                 height; // current-
 
-  bool                    mouseButton0IsDown;
+  bool                    mouseButton0IsDown; // current-
 
   struct Common_GL_Camera camera;
   Common_GL_Shader        shader;

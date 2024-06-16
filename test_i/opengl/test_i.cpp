@@ -206,7 +206,6 @@ do_work (int argc_in,
   glutDisplayFunc (test_i_opengl_glut_draw);
   glutReshapeFunc (test_i_opengl_glut_reshape);
   glutVisibilityFunc (test_i_opengl_glut_visible);
-
   glutKeyboardFunc (test_i_opengl_glut_key);
   glutSpecialFunc (test_i_opengl_glut_key_special);
   glutMouseFunc (test_i_opengl_glut_mouse_button);
