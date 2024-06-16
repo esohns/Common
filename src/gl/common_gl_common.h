@@ -116,17 +116,25 @@ struct Common_GL_Camera
 
   inline glm::mat4 getViewMatrix () { return glm::lookAt (position, position + looking_at, up); }
 
-  inline void forward (float speed_in) { position += looking_at * speed_in; }
-  inline void backward (float speed_in) { position -= looking_at * speed_in; }
+  inline void forward (float speed_in)
+  {
+    position += looking_at * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR);
+  }
+  inline void backward (float speed_in)
+  {
+    position -= looking_at * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR);
+  }
   void left (float speed_in)
   {
     glm::vec3 right = glm::cross (looking_at, up);
-    position -= right * speed_in;
+    position -=
+      right * (speed_in * COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR);
   }
   void right (float speed_in)
   {
     glm::vec3 right = glm::cross (looking_at, up);
-    position += right * speed_in;
+    position +=
+      right * (speed_in * COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR);
   }
 
   glm::vec2 old_mouse_position;

@@ -262,7 +262,7 @@ test_i_opengl_glut_mouse_move (int x, int y)
   ACE_ASSERT (cb_data_p);
 
   if (cb_data_p->mouseButton0IsDown)
-    cb_data_p->camera.mouseLook (x, y);
+    cb_data_p->camera.mouseLook (cb_data_p->width - x, y);
 }
 
 //void
