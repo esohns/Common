@@ -31,5 +31,6 @@ void test_i_opengl_glut_menu (int);
 void test_i_opengl_glut_mouse_button (int, int, int, int);
 void test_i_opengl_glut_mouse_move (int, int);
 //void test_i_opengl_glut_timer (int);
+void test_i_opengl_glut_mouse_wheel (int, int, int, int);
 
 #endif

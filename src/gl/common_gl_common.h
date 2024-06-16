@@ -127,13 +127,13 @@ struct Common_GL_Camera
   void left (float speed_in)
   {
     glm::vec3 right = glm::cross (looking_at, up);
-    position -=
+    position +=
       right * (speed_in * COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR);
   }
   void right (float speed_in)
   {
     glm::vec3 right = glm::cross (looking_at, up);
-    position +=
+    position -=
       right * (speed_in * COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR);
   }
 

@@ -276,3 +276,16 @@ test_i_opengl_glut_mouse_move (int x, int y)
 //                 test_i_opengl_glut_timer,
 //                 v);
 //}
+
+void
+test_i_opengl_glut_mouse_wheel (int button, int dir, int x, int y)
+{
+  struct Common_OpenGL_GLUT_CBData* cb_data_p =
+    static_cast<struct Common_OpenGL_GLUT_CBData*> (glutGetWindowData ());
+  ACE_ASSERT (cb_data_p);
+
+  if (dir > 0)
+    cb_data_p->camera.forward (0.5f);
+  else
+    cb_data_p->camera.backward (0.5f);
+}

@@ -214,6 +214,7 @@ do_work (int argc_in,
   glutPassiveMotionFunc (test_i_opengl_glut_mouse_move);
   glutIdleFunc (test_i_opengl_glut_idle);
   //glutTimerFunc (1000 / 30, test_i_opengl_glut_timer, 0);
+  glutMouseWheelFunc (test_i_opengl_glut_mouse_wheel);
 
   glutCreateMenu (test_i_opengl_glut_menu);
   glutAddMenuEntry (ACE_TEXT_ALWAYS_CHAR ("wireframe"), 0);
