@@ -87,16 +87,15 @@ typedef struct Common_GL_Color Common_GL_Color_t;
 struct Common_GL_Camera
 {
   Common_GL_Camera ()
-#if defined (GLUT_SUPPORT)
    : position (0.0f, 0.0f, 0.0f)
    , looking_at (0.0f, 0.0f, -1.0f)
    , up (0.0f, 1.0f, 0.0f)
    , old_mouse_position (0.0f, 0.0f)
-#else
-   : zoom (0.0f)
+   // *NOTE*: use these to 'manually' compute the different view matrices
+   // *TODO*: remove these ASAP
+   , zoom (0.0f)
    , rotation (0.0f, 0.0f, 0.0f)
    , translation (0.0f, 0.0f, 0.0f)
-#endif // GLUT_SUPPORT
   {}
 
 #if defined (GLUT_SUPPORT)
@@ -108,6 +107,14 @@ struct Common_GL_Camera
 
     //old_mouse_position = {0.0f, 0.0f};
   }
+#else
+  void reset ()
+  {
+    zoom = COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR;
+    rotation = {0.0f, 0.0f, 0.0f};
+    translation = {0.0f, 0.0f, 0.0f};
+  }
+#endif // GLUT_SUPPORT
 
 #if defined (GLM_SUPPORT)
   glm::vec3 position;
@@ -162,18 +169,12 @@ struct Common_GL_Camera
 
   struct Common_GL_VectorF2 old_mouse_position;
 #endif // GLM_SUPPORT
-#endif // GLUT_SUPPORT
 
-#if defined (GLUT_SUPPORT)
+  float                     zoom;
+#if defined (GLM_SUPPORT)
+  glm::vec3                 rotation;
+  glm::vec3                 translation;
 #else
-  void reset ()
-  {
-    zoom = COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR;
-    rotation = {0.0f, 0.0f, 0.0f};
-    translation = {0.0f, 0.0f, 0.0f};
-  }
-
-  float zoom;
   struct Common_GL_VectorF3 rotation;
   struct Common_GL_VectorF3 translation;
 #endif // GLM_SUPPORT
