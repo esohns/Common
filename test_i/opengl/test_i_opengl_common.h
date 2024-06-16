@@ -21,6 +21,8 @@
 #ifndef TEST_I_OPENGL_COMMON_H
 #define TEST_I_OPENGL_COMMON_H
 
+#include <chrono>
+
 #if defined (GLEW_SUPPORT)
 #include "gl/glew.h"
 #endif // GLEW_SUPPORT
@@ -50,6 +52,7 @@ struct Common_OpenGL_GLUT_CBData
    , VBO (0)
    , VAO (0)
    , EBO (0)
+   , tp1 ()
   {}
 
   GLfloat                 width; // current-
@@ -66,6 +69,14 @@ struct Common_OpenGL_GLUT_CBData
   GLuint                  VBO;
   GLuint                  VAO;
   GLuint                  EBO;
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  std::chrono::steady_clock::time_point tp1;
+#elif defined (ACE_LINUX)
+  std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> tp1;
+#else
+#error missing implementation, aborting
+#endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
 };
 
 #endif

@@ -174,16 +174,31 @@ do_work (int argc_in,
 {
   struct Common_OpenGL_GLUT_CBData cb_data_s;
 
+#if defined (GLUT_SUPPORT)
   // initialize GLUT
   glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);
   glutInitWindowSize (TEST_I_OPENGL_DEFAULT_WINDOW_WIDTH,
                       TEST_I_OPENGL_DEFAULT_WINDOW_HEIGHT);
 
   int window_i = glutCreateWindow ("OpenGL");
-  glutSetWindow (window_i);
+  //glutSetWindow (window_i);
   glutSetWindowData (&cb_data_s);
+#endif // GLUT_SUPPORT
+
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("using OpenGL version: %s\n"),
+              ACE_TEXT ((const char*)glGetString (GL_VERSION))));
+
+#if defined (GLUT_SUPPORT)
+  std::ostringstream converter;
+  converter << GLUT_API_VERSION;
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("using OpenGL GLUT API: %s\n"),
+              ACE_TEXT (converter.str ().c_str ())));
+#endif // GLUT_SUPPORT
 
   // initialize GLEW
+#if defined (GLEW_SUPPORT)
   GLenum err = glewInit ();
   if (GLEW_OK != err)
   {
@@ -195,6 +210,7 @@ do_work (int argc_in,
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("using GLEW version: %s\n"),
               ACE_TEXT (glewGetString (GLEW_VERSION))));
+#endif // GLEW_SUPPORT
 
   glClearColor (0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -203,6 +219,7 @@ do_work (int argc_in,
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   COMMON_GL_ASSERT;
 
+#if defined (GLUT_SUPPORT)
   glutDisplayFunc (test_i_opengl_glut_draw);
   glutReshapeFunc (test_i_opengl_glut_reshape);
   glutVisibilityFunc (test_i_opengl_glut_visible);
@@ -250,6 +267,7 @@ do_work (int argc_in,
     return;
   } // end IF
   cb_data_s.shader.use ();
+#endif // GLUT_SUPPORT
 
   glGenVertexArrays (1, &cb_data_s.VAO);
   COMMON_GL_ASSERT;
@@ -339,7 +357,13 @@ do_work (int argc_in,
   glBindVertexArray (0);
   COMMON_GL_ASSERT;
 
+  cb_data_s.tp1 = std::chrono::high_resolution_clock::now ();
+
+#if defined (GLUT_SUPPORT)
   glutMainLoop ();
+
+  glutDestroyWindow (window_i); window_i = -1;
+#endif // GLUT_SUPPORT
 }
 
 int

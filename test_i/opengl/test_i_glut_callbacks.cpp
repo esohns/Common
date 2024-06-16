@@ -91,21 +91,33 @@ test_i_opengl_glut_draw ()
                       0.1f, 100.0f);
 #endif // GLM_SUPPORT
 
+  // compute elapsed time
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  std::chrono::steady_clock::time_point tp2 =
+    std::chrono::high_resolution_clock::now ();
+#elif defined (ACE_LINUX)
+  std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>
+    tp2 = std::chrono::high_resolution_clock::now ();
+#else
+#error missing implementation, aborting
+#endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
+  std::chrono::duration<float> elapsed_time = tp2 - cb_data_p->tp1;
+
   cb_data_p->shader.use ();
-#if defined(GLM_SUPPORT)
+#if defined (GLM_SUPPORT)
   cb_data_p->shader.setMat4 (ACE_TEXT_ALWAYS_CHAR ("model"), model_matrix);
   cb_data_p->shader.setMat4 (ACE_TEXT_ALWAYS_CHAR ("view"), view_matrix);
   cb_data_p->shader.setMat4 (ACE_TEXT_ALWAYS_CHAR ("projection"), projection_matrix);
 #endif // GLM_SUPPORT
   cb_data_p->shader.setInt (ACE_TEXT_ALWAYS_CHAR ("texture1"), 0); // *IMPORTANT NOTE*: <-- texture unit (!) not -id
-  //cb_data_p->shader.setFloat (ACE_TEXT_ALWAYS_CHAR ("time"), elapsed_time.count ());
+  cb_data_p->shader.setFloat (ACE_TEXT_ALWAYS_CHAR ("time"), elapsed_time.count ());
 
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, cb_data_p->EBO);
   COMMON_GL_ASSERT;
 
   glDisable (GL_DEPTH_TEST);
   COMMON_GL_ASSERT;
-  glDrawElements (GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_BYTE, (void*)0);
+  glDrawElements (GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_BYTE, (void*)0); // see: cube_indices
   COMMON_GL_ASSERT;
   glEnable (GL_DEPTH_TEST);
   COMMON_GL_ASSERT;
@@ -148,6 +160,7 @@ test_i_opengl_glut_reshape (int width_in, int height_in)
   ACE_ASSERT (cb_data_p);
 
   glViewport (0, 0, width_in, height_in);
+  COMMON_GL_ASSERT;
 
   cb_data_p->width = static_cast<float> (width_in);
   cb_data_p->height = static_cast<float> (height_in);
@@ -179,8 +192,23 @@ test_i_opengl_glut_key (unsigned char key_in,
 
   switch (key_in)
   {
+    case 'w':
+      cb_data_p->camera.forward (0.5f);
+      break;
+    case 's':
+      cb_data_p->camera.backward (0.5f);
+      break;
+    case 'a':
+      cb_data_p->camera.left (0.5f);
+      break;
+    case 'd':
+      cb_data_p->camera.right (0.5f);
+      break;
+    case 'q':
     case 27: /* Escape */
       glutLeaveMainLoop ();
+      break;
+    default:
       break;
   } // end SWITCH
 }
@@ -210,6 +238,8 @@ test_i_opengl_glut_key_special (int key_in,
       break;
     case GLUT_KEY_HOME:
       cb_data_p->camera.reset ();
+      break;
+    default:
       break;
   } // end SWITCH
 }
@@ -262,7 +292,7 @@ test_i_opengl_glut_mouse_move (int x, int y)
   ACE_ASSERT (cb_data_p);
 
   if (cb_data_p->mouseButton0IsDown)
-    cb_data_p->camera.mouseLook (cb_data_p->width - x, y);
+    cb_data_p->camera.mouseLook (static_cast<int> (cb_data_p->width) - x, y);
 }
 
 //void
