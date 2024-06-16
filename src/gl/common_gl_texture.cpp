@@ -4,6 +4,7 @@
 
 #include "common_macros.h"
 
+#include "common_gl_defines.h"
 #include "common_gl_tools.h"
 
 Common_GL_Texture::Common_GL_Texture ()

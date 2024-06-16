@@ -4,6 +4,7 @@
 
 #include "common_macros.h"
 
+#include "common_gl_defines.h"
 #include "common_gl_tools.h"
 
 Common_GL_Shader::Common_GL_Shader ()
@@ -103,6 +104,7 @@ Common_GL_Shader::loadFromFile (const std::string& vertexShaderFilename_in,
   glDetachShader (id_, fragment_shader_id_i);
   glDeleteShader (vertex_shader_id_i);
   glDeleteShader (fragment_shader_id_i);
+  COMMON_GL_ASSERT;
 
   return true;
 }
@@ -166,6 +168,7 @@ Common_GL_Shader::loadFromString (const std::string& vertexShaderCode_in,
   glDetachShader (id_, fragment_shader_id_i);
   glDeleteShader (vertex_shader_id_i);
   glDeleteShader (fragment_shader_id_i);
+  COMMON_GL_ASSERT;
 
   return true;
 }
@@ -189,4 +192,5 @@ Common_GL_Shader::use ()
   ACE_ASSERT (id_ != -1);
 
   glUseProgram (id_);
+  COMMON_GL_ASSERT;
 }
