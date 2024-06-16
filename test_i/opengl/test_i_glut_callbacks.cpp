@@ -255,6 +255,7 @@ test_i_opengl_glut_menu (int entry_in)
   {
     case 0:
       cb_data_p->wireframe = !cb_data_p->wireframe;
+      glPolygonMode (GL_FRONT_AND_BACK, cb_data_p->wireframe ? GL_LINE : GL_FILL);
       break;
     default:
       break;
