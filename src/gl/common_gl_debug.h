@@ -78,7 +78,11 @@ class Common_GL_Debug
     } // end SWITCH
   }
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   static void APIENTRY DebugCallback (GLenum source,
+#else
+  static void          DebugCallback (GLenum source,
+#endif // ACE_WIN32 || ACE_WIN64
                                       GLenum type,
                                       GLuint id,
                                       GLenum severity,

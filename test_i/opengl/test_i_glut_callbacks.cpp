@@ -24,7 +24,11 @@
 #include <sstream>
 
 #if defined (GLEW_SUPPORT)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "gl/glew.h"
+#else
+#include "GL/glew.h"
+#endif // ACE_WIN32 || ACE_WIN64
 #endif // GLEW_SUPPORT
 #if defined (GLUT_SUPPORT)
 #include "GL/freeglut.h"

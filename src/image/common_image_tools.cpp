@@ -711,6 +711,7 @@ bool Common_Image_Tools::load (const std::string& path_in,
   ACE_UINT64 file_size_i = 0;
   Common_Image_Tools_GetFormatCBData cb_data_s;
   cb_data_s.formats.push_back (AV_PIX_FMT_RGB24);
+  int size_i = -1;
 
   if (!Common_File_Tools::load (path_in, packet_s.data, file_size_i, 0))
   {
@@ -825,9 +826,9 @@ bool Common_Image_Tools::load (const std::string& path_in,
 #endif // ACE_WIN32 || ACE_WIN64
   format_out = static_cast<enum AVPixelFormat> (frame_p->format);
 
-  int size_i = av_image_get_buffer_size (format_out,
-                                         frame_p->width, frame_p->height,
-                                         1); // *TODO*: linesize alignment
+  size_i = av_image_get_buffer_size (format_out,
+                                     frame_p->width, frame_p->height,
+                                     1); // *TODO*: linesize alignment
   ACE_NEW_NORETURN (buffers_out[0],
                     uint8_t[size_i]);
   if (unlikely (!buffers_out[0]))

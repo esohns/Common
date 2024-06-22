@@ -166,7 +166,7 @@ do_work (int argc_in,
       TF_SessionOptions* options_p = TF_NewSessionOptions ();
       TF_Status* status_p = TF_NewStatus ();
       TF_Session* session_p = TF_NewSession (graph_p, options_p, status_p);
-      ACE_ASSERT (TF_GetCode (status_p) == TSL_OK);
+      ACE_ASSERT (TF_GetCode (status_p) == TF_OK);
 
       char hello[] = ACE_TEXT_ALWAYS_CHAR ("Hello TensorFlow!");
       struct TF_TString string_s;
@@ -181,11 +181,11 @@ do_work (int argc_in,
         TF_NewOperation (graph_p,
                          ACE_TEXT_ALWAYS_CHAR ("Const"), ACE_TEXT_ALWAYS_CHAR ("hello"));
       TF_SetAttrTensor (operation_description_p, ACE_TEXT_ALWAYS_CHAR ("value"), tensor_p, status_p);
-      ACE_ASSERT (TF_GetCode (status_p) == TSL_OK);
+      ACE_ASSERT (TF_GetCode (status_p) == TF_OK);
       TF_SetAttrType (operation_description_p, ACE_TEXT_ALWAYS_CHAR ("dtype"), TF_TensorType (tensor_p));
       TF_Operation* operation_p =
         TF_FinishOperation (operation_description_p, status_p);
-      ACE_ASSERT (operation_p && (TF_GetCode (status_p) == TSL_OK));
+      ACE_ASSERT (operation_p && (TF_GetCode (status_p) == TF_OK));
 
       struct TF_Output output_s;
       output_s.oper = operation_p;
@@ -196,7 +196,7 @@ do_work (int argc_in,
                      &output_s, &tensor_output_p, 1, // Outputs
                      &operation_p, 1,                // Operations
                      0, status_p);
-      ACE_ASSERT (TF_GetCode (status_p) == TSL_OK);
+      ACE_ASSERT (TF_GetCode (status_p) == TF_OK);
 
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("status code: %d\n"),
@@ -208,9 +208,9 @@ do_work (int argc_in,
                   ACE_TEXT (TF_StringGetDataPointer (string_p))));
 
       TF_CloseSession (session_p, status_p);
-      ACE_ASSERT (TF_GetCode (status_p) == TSL_OK);
+      ACE_ASSERT (TF_GetCode (status_p) == TF_OK);
       TF_DeleteSession (session_p, status_p);
-      ACE_ASSERT (TF_GetCode (status_p) == TSL_OK);
+      ACE_ASSERT (TF_GetCode (status_p) == TF_OK);
       TF_DeleteStatus (status_p);
       TF_DeleteSessionOptions (options_p);
 
@@ -367,9 +367,9 @@ do_work (int argc_in,
       TF_DeleteTensor (input_tensor_p);
       TF_DeleteTensor (output_tensor_p);
       TF_CloseSession (session_p, status_p);
-      ACE_ASSERT (TF_GetCode (status_p) == TSL_OK);
+      ACE_ASSERT (TF_GetCode (status_p) == TF_OK);
       TF_DeleteSession (session_p, status_p);
-      ACE_ASSERT (TF_GetCode (status_p) == TSL_OK);
+      ACE_ASSERT (TF_GetCode (status_p) == TF_OK);
       TF_DeleteGraph (graph_p);
       TF_DeleteStatus (status_p);
       break;

@@ -8,7 +8,11 @@
 #include "gtk/gtk.h"
 #if defined (GTKGL_SUPPORT)
 #if defined (GLEW_SUPPORT)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "gl/glew.h"
+#else
+#include "GL/glew.h"
+#endif // ACE_WIN32 || ACE_WIN64
 #endif // GLEW_SUPPORT
 #if defined (GLUT_SUPPORT)
 #include "GL/freeglut.h"
@@ -71,6 +75,9 @@
 #if GTK_CHECK_VERSION (4,0,0)
 GtkApplication* app_p = NULL;
 GtkWindow* main_window_p = NULL;
+#endif // GTK_CHECK_VERSION (4,0,0)
+#if defined (GTKGL_SUPPORT)
+Common_GL_Texture texture;
 GLuint VBO = 0, VAO = 0, EBO = 0;
 Common_GL_Shader shader;
 struct Common_GL_Camera camera_s;
@@ -81,9 +88,6 @@ static std::chrono::time_point<std::chrono::system_clock, std::chrono::nanosecon
 #else
 #error missing implementation, aborting
 #endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
-#endif // GTK_CHECK_VERSION (4,0,0)
-#if defined (GTKGL_SUPPORT)
-Common_GL_Texture texture;
 int width_i, height_i;
 #endif // GTKGL_SUPPORT
 
@@ -237,14 +241,21 @@ glarea_create_context_cb (GtkGLArea* GLArea_in,
   if (context_p)
     return context_p;
 
+  GError* error_p = NULL;
+#if GTK_CHECK_VERSION (4,0,0)
   GtkNative* native_p = gtk_widget_get_native (GTK_WIDGET (GLArea_in));
   ACE_ASSERT (native_p);
   //gtk_native_realize (native_p);
   GdkSurface* surface_p = gtk_native_get_surface (native_p);
   ACE_ASSERT (surface_p);
-  GError* error_p = NULL;
   context_p = gdk_surface_create_gl_context (surface_p,
                                              &error_p);
+#else
+  GdkWindow* window_p = gtk_widget_get_window (GTK_WIDGET (GLArea_in));
+  ACE_ASSERT (window_p);
+  context_p = gdk_window_create_gl_context (window_p,
+                                            &error_p);
+#endif // GTK_CHECK_VERSION (4,0,0)
   if (!context_p || error_p)
   { ACE_ASSERT (error_p);
     ACE_DEBUG ((LM_ERROR,
