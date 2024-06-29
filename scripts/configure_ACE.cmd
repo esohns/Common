@@ -194,7 +194,7 @@ set MWC_PL_OPTIONS=
 @rem MWC_PL_OPTIONS="-name_modifier *_gnu"
 @rem fi
 cd "%ACE_BUILD_DIRECTORY%"
-%PERL_EXE% "%MWC_PL%" -feature_file "%LOCAL_FEATURES_FILE%" %MWC_PL_OPTIONS% -type %PROJECT_TYPE% "%ACE_MWC_FILE%"
+%PERL_EXE% "%MWC_PL%" -feature_file "%LOCAL_FEATURES_FILE%" %MWC_PL_OPTIONS% -workers 8 -type %PROJECT_TYPE% "%ACE_MWC_FILE%"
 if %ERRORLEVEL% NEQ 0 (
  echo failed to run script ^(was: "%ACE_MWC_FILE%"^)^, exiting
  goto Failed
@@ -214,7 +214,7 @@ echo processing "%ACE_MWC_FILE%"...DONE
 @rem  goto Failed
 @rem )
 
-timeout /T 2 /NOBREAK >NUL
+timeout /t 2 /nobreak >NUL
 
 goto Clean_Up
 
