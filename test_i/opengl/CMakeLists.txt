@@ -98,6 +98,8 @@ elseif (WIN32)
  file (TO_CMAKE_PATH "${GLUT_LIB_DIR}" GLUT_LIB_PATH)
  file (TO_CMAKE_PATH "${PNG_LIB_DIR}" PNG_LIB_PATH)
  file (TO_CMAKE_PATH "${ASSIMP_LIB_DIR}" ASSIMP_LIB_PATH)
+ # *NOTE*: ffmpeg was built with "vcpkg-libpng" support, so now there is a new dependency to zlib1.dll, liblzma.dll, iconv-2.dll :-(
+ file (TO_CMAKE_PATH "$ENV{VCPKG_INSTALLATION_ROOT}/installed/x64-windows/bin" VCPKG_LIB_PATH)
  file (TO_CMAKE_PATH "${ffmpeg_LIB_DIR}" FFMPEG_LIB_PATH)
  file (TO_CMAKE_PATH "${ImageMagick_LIB_DIR}" IMAGEMAGICK_LIB_PATH)
  file (TO_CMAKE_PATH "${ACE_LIB_DIR}" ACE_LIB_PATH)
@@ -109,6 +111,7 @@ elseif (WIN32)
                                               ${GLUT_LIB_PATH}
                                               ${PNG_LIB_PATH}
                                               ${ASSIMP_LIB_PATH}
+                                              ${VCPKG_LIB_PATH}
                                               ${FFMPEG_LIB_PATH}
                                               ${IMAGEMAGICK_LIB_PATH}
                                               ${ACE_LIB_PATH}
