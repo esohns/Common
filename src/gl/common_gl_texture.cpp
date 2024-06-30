@@ -19,7 +19,7 @@ Common_GL_Texture::Common_GL_Texture (const std::string& fileName_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::Common_GL_Texture"));
 
-  if (unlikely (id_ == -1))
+  if (unlikely (id_ == static_cast<GLuint> (-1)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_GL_Tools::loadTexture(\"%s\"), returning\n"),
@@ -32,7 +32,7 @@ Common_GL_Texture::~Common_GL_Texture ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::~Common_GL_Texture"));
 
-  if (id_ != -1)
+  if (id_ != static_cast<GLuint> (-1))
   {
     glDeleteTextures (1, &id_);
     COMMON_GL_ASSERT;
@@ -45,11 +45,11 @@ Common_GL_Texture::load (const std::string& fileName_in)
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::load"));
 
   // sanity check(s)
-  if (id_ != -1)
+  if (id_ != static_cast<GLuint> (-1))
     reset ();
 
   id_ = Common_GL_Tools::loadTexture (fileName_in);
-  if (unlikely (id_ == -1))
+  if (unlikely (id_ == static_cast<GLuint> (-1)))
   {
    ACE_DEBUG ((LM_ERROR,
                ACE_TEXT ("failed to Common_GL_Tools::loadTexture(\"%s\"), aborting\n"),
@@ -65,7 +65,7 @@ Common_GL_Texture::reset ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::reset"));
 
-  if (likely (id_ != -1))
+  if (likely (id_ != static_cast<GLuint> (-1)))
   {
     glDeleteTextures (1, &id_); id_ = -1;
     COMMON_GL_ASSERT;
@@ -78,7 +78,7 @@ Common_GL_Texture::bind (GLuint unit_in)
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::bind"));
 
   // sanity check(s)
-  ACE_ASSERT (id_ != -1);
+  ACE_ASSERT (id_ != static_cast<GLuint> (-1));
   ACE_ASSERT (unit_in < 31);
 
   glActiveTexture (GL_TEXTURE0 + unit_in);

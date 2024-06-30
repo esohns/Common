@@ -36,7 +36,7 @@ Common_GL_Shader::~Common_GL_Shader ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Shader::~Common_GL_Shader"));
 
-  if (likely (id_ != -1))
+  if (likely (id_ != static_cast<GLuint> (-1)))
   {
     glDeleteProgram (id_);
     COMMON_GL_ASSERT;
@@ -50,7 +50,7 @@ Common_GL_Shader::loadFromFile (const std::string& vertexShaderFilename_in,
   COMMON_TRACE (ACE_TEXT ("Common_GL_Shader::loadFromFile"));
 
   // sanity check(s)
-  if (id_ != -1)
+  if (id_ != static_cast<GLuint> (-1))
     reset ();
 
   GLuint vertex_shader_id_i = -1, fragment_shader_id_i = -1;
@@ -75,7 +75,7 @@ Common_GL_Shader::loadFromFile (const std::string& vertexShaderFilename_in,
   ACE_ASSERT (vertex_shader_id_i != -1 && fragment_shader_id_i != -1);
 
   id_ = glCreateProgram ();
-  ACE_ASSERT (id_ != -1);
+  ACE_ASSERT (id_ != static_cast<GLuint> (-1));
   glAttachShader (id_, vertex_shader_id_i);
   glAttachShader (id_, fragment_shader_id_i);
   glLinkProgram (id_);
@@ -116,7 +116,7 @@ Common_GL_Shader::loadFromString (const std::string& vertexShaderCode_in,
   COMMON_TRACE (ACE_TEXT ("Common_GL_Shader::loadFromString"));
 
   // sanity check(s)
-  if (id_ != -1)
+  if (id_ != static_cast<GLuint> (-1))
     reset ();
 
   GLuint vertex_shader_id_i = -1, fragment_shader_id_i = -1;
@@ -139,7 +139,7 @@ Common_GL_Shader::loadFromString (const std::string& vertexShaderCode_in,
   ACE_ASSERT (vertex_shader_id_i != -1 && fragment_shader_id_i != -1);
 
   id_ = glCreateProgram ();
-  ACE_ASSERT (id_ != -1);
+  ACE_ASSERT (id_ != static_cast<GLuint> (-1));
   glAttachShader (id_, vertex_shader_id_i);
   glAttachShader (id_, fragment_shader_id_i);
   glLinkProgram (id_);
@@ -176,7 +176,7 @@ Common_GL_Shader::loadFromString (const std::string& vertexShaderCode_in,
 void
 Common_GL_Shader::reset ()
 {
-  if (likely (id_ != -1))
+  if (likely (id_ != static_cast<GLuint> (-1)))
   {
     glDeleteProgram (id_);
     COMMON_GL_ASSERT;
