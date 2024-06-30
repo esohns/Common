@@ -1,0 +1,43 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "base64.exe (test_u\\base64\\Debug\\base64.exe)",
+      "name": "base64.exe (test_u\\base64\\Debug\\base64.exe)",
+      "env": {
+        "PATH": "%PATH%;I:\\lib\\ACE_TAO\\ACE\\lib;C:\\vcpkg\\installed\\x64-windows\\debug\\bin"
+      },
+      "args": [
+        "-t"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "gtk.exe (test_i\\ui\\gtk\\Debug\\gtk.exe)",
+      "name": "gtk.exe (test_i\\ui\\gtk\\Debug\\gtk.exe)",
+      "currentDir": "${workspaceRoot}\\test_i\\ui\\gtk",
+      "env": {
+        "PATH": "%PATH%;I:\\lib\\ACE_TAO\\ACE\\lib;I:\\lib\\freeglut\\bin\\x64;I:\\lib\\glew\\bin\\Release\\x64;I:\\lib\\gtk3\\bin;I:\\lib\\ffmpeg\\libavcodec;I:\\lib\\ffmpeg\\libavformat;I:\\lib\\ffmpeg\\libswscale;I:\\lib\\ffmpeg\\libavutil;I:\\lib\\ffmpeg\\libswresample;I:\\lib\\ImageMagick;C:\\vcpkg\\installed\\x64-windows\\bin;I:\\lib\\assimp\\cmake\\bin\\Debug;I:\\lib\\libpng\\build\\Debug;I:\\lib\\zlib\\build\\Debug"
+      },
+      "args": [
+        "-t"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "console.exe (test_i\\ui\\console\\Debug\\console.exe)",
+      "name": "console.exe (test_i\\ui\\console\\Debug\\console.exe)",
+      "env": {
+        "PATH": "%PATH%;I:\\lib\\ACE_TAO\\ACE\\lib;C:\\vcpkg\\installed\\x64-windows\\debug\\bin"
+      },
+      "args": [
+        "-t"
+      ]
+    }
+  ]
+}
