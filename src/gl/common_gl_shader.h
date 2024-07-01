@@ -44,7 +44,7 @@ class Common_GL_Shader
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_GL_Shader (const Common_GL_Shader&))
-  ACE_UNIMPLEMENTED_FUNC (Common_GL_Shader& operator= (const Common_GL_Shader&))
+  //ACE_UNIMPLEMENTED_FUNC (Common_GL_Shader& operator= (const Common_GL_Shader&))
 };
 
 #endif // COMMON_GL_SHADER_H

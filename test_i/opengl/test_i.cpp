@@ -239,6 +239,7 @@ do_work (int argc_in,
   glutCreateMenu (test_i_opengl_glut_menu);
   glutAddMenuEntry (ACE_TEXT_ALWAYS_CHAR ("wireframe"), 0);
   glutAttachMenu (GLUT_RIGHT_BUTTON);
+#endif // GLUT_SUPPORT
 
   if (!cb_data_s.texture.load (textureFilePath_in))
   {
@@ -271,7 +272,6 @@ do_work (int argc_in,
     return;
   } // end IF
   cb_data_s.shader.use ();
-#endif // GLUT_SUPPORT
 
   glGenVertexArrays (1, &cb_data_s.VAO);
   COMMON_GL_ASSERT;
