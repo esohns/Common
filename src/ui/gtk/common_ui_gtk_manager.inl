@@ -214,7 +214,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
         g_application_release (G_APPLICATION (configuration_->application)); // --> release the extra reference
 #else
       guint level = gtk_main_level ();
-      if (level > 0)
+      if (level > 1) // *IMPORTANT NOTE*: call gtk_main_quit() in the finalize hook (see above)
         gtk_main_quit ();
 #endif // GTK_CHECK_VERSION (4,0,0)
 #if GTK_CHECK_VERSION (3,6,0)

@@ -36,9 +36,22 @@ class Common_IDispatch_T
 
 //////////////////////////////////////////
 
+class Common_INotify
+{
+ public:
+  virtual void notify () = 0;
+};
+
+template <typename EventType>
+class Common_INotify_T
+{
+ public:
+  virtual void notify (EventType) = 0; // event (state/status change, ...)
+};
+
 template <typename IdType,
           typename EventType>
-class Common_INotify_T
+class Common_INotify_2
 {
  public:
   virtual void notify (IdType,                // event id

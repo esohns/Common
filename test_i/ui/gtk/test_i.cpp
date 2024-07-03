@@ -912,8 +912,8 @@ glarea_realize_cb (GtkWidget* widget_in,
 } // glarea_realize_cb
 
 void
-glarea_destroy_cb (GtkWidget* widget_in,
-                   gpointer   userData_in)
+glarea_unrealize_cb (GtkWidget* widget_in,
+                     gpointer   userData_in)
 {
   // sanity check(s)
   GglaArea* gl_area_p = GGLA_AREA (widget_in);
@@ -925,7 +925,7 @@ glarea_destroy_cb (GtkWidget* widget_in,
   glDeleteTextures (1, texture_id_p);
   COMMON_GL_ASSERT;
   *texture_id_p = 0;
-} // glarea_destroy_cb
+} // glarea_unrealize_cb
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION (3,16,0)
 #elif GTK_CHECK_VERSION (2,0,0)
@@ -1498,8 +1498,8 @@ do_work (int argc_in,
                     G_CALLBACK (glarea_expose_event_cb), &texture_id);
   g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("realize"),
                     G_CALLBACK (glarea_realize_cb), &texture_id);
-  g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("destroy"),
-                    G_CALLBACK (glarea_destroy_cb), &texture_id);
+  g_signal_connect (G_OBJECT (gl_area_p), ACE_TEXT_ALWAYS_CHAR ("unrealize"),
+                    G_CALLBACK (glarea_unrealize_cb), &texture_id);
   gtk_widget_set_size_request (GTK_WIDGET (gl_area_p), 256, 256);
 #endif // GTKGLAREA_SUPPORT
 #endif // GTK_CHECK_VERSION (3,16,0)
