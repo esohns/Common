@@ -212,6 +212,7 @@ endif (TENSORFLOW_SUPPORT)
 if (GUI_SUPPORT)
  add_subdirectory (ui)
 endif (GUI_SUPPORT)
+add_subdirectory (vulkan)
 
 # phonies
 add_custom_target (test_i ALL
@@ -226,7 +227,7 @@ if (IMAGEMAGICK_SUPPORT)
  add_dependencies (test_i imagemagick)
 endif (IMAGEMAGICK_SUPPORT)
 add_dependencies (test_i input)
-add_dependencies (test_i opengl)
+add_dependencies (test_i opengl vulkan)
 add_dependencies (test_i parser parser_2 parser_3 parser_4)
 if (UNIX)
  add_dependencies (test_i print)

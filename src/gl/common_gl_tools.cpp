@@ -21,6 +21,10 @@
 
 #include "common_gl_tools.h"
 
+//#if defined (GLEW_SUPPORT)
+//#include "GL/glew.h"
+//#endif // GLEW_SUPPORT
+
 #if defined (ASSIMP_SUPPORT)
 #include "assimp/cimport.h"
 #include "assimp/scene.h"
@@ -389,7 +393,7 @@ Common_GL_Tools::loadTexture (const uint8_t* data_in,
 #if defined (GL_VERSION_3_0)
     glGenerateMipmap (GL_TEXTURE_2D);
     COMMON_GL_ASSERT;
-#elif defined(GL_VERSION_1_4)
+#elif defined (GL_VERSION_1_4)
     glTexParameteri (GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     COMMON_GL_ASSERT;
     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
