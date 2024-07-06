@@ -63,3 +63,6 @@ CMakeLists.txt.user*
 
 # CLion
 .idea/
+
+# compiled shader programs
+*.spv
