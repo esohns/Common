@@ -24,14 +24,16 @@
 #include <optional>
 #include <vector>
 
-#if defined (GLFW_SUPPORT)
+#include "ace/config-lite.h"
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #define VK_USE_PLATFORM_WIN32_KHR
-//#elif defined (ACE_LINUX)
+#elif defined (ACE_LINUX)
+//#define VK_USE_PLATFORM_WAYLAND_KHR
+#define VK_USE_PLATFORM_XLIB_KHR
 #endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
-#endif // GLFW_SUPPORT
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback (VkDebugUtilsMessageSeverityFlagBitsEXT,
                                                      VkDebugUtilsMessageTypeFlagsEXT,
@@ -58,6 +60,8 @@ class HelloTriangleApplication
     mainLoop ();
     cleanup (enable_validation_layers_b);
   }
+
+  bool framebufferResized_;
 
  private:
   void initWindow ();
@@ -107,6 +111,9 @@ class HelloTriangleApplication
 
   void drawFrame ();
   void mainLoop ();
+
+  void cleanupSwapChain ();
+  void recreateSwapChain ();
 
   void cleanup (bool); // enable validation layers ?
 

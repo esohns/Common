@@ -21,6 +21,7 @@
 
 #include "test_i_app.h"
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <set>
@@ -29,12 +30,15 @@
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #define GLFW_EXPOSE_NATIVE_WIN32
-//#elif defined (ACE_LINUX)
+#elif defined (ACE_LINUX)
+// #define GLFW_EXPOSE_NATIVE_WAYLAND
+#define GLFW_EXPOSE_NATIVE_X11
+#define GLFW_EXPOSE_NATIVE_NONE
 #endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
 #include "GLFW/glfw3native.h"
 
 #include "ace/Log_Msg.h"
-#include "ace/OS.h"
+#include "ace/OS_NS_string.h"
 
 #include "test_i_vulkan_common.h"
 
@@ -60,7 +64,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback (VkDebugUtilsMessageSeverity
 /////////////////////////////////////////
 
 HelloTriangleApplication::HelloTriangleApplication ()
- : commandBuffers_ ()
+ : framebufferResized_ (false)
+ , commandBuffers_ ()
  , commandPool_ (VK_NULL_HANDLE)
  , debugMessenger_ (VK_NULL_HANDLE)
  , device_ (VK_NULL_HANDLE)
@@ -85,7 +90,16 @@ HelloTriangleApplication::HelloTriangleApplication ()
  , window_ (NULL)
 {
   glfwWindowHint (GLFW_CLIENT_API, GLFW_NO_API); // do not create an OpenGL context
-  glfwWindowHint (GLFW_RESIZABLE, GLFW_FALSE);
+  // glfwWindowHint (GLFW_RESIZABLE, GLFW_FALSE);
+}
+
+static void framebufferResizeCallback (GLFWwindow* window,
+                                       int width,
+                                       int height)
+{
+  HelloTriangleApplication* app =
+    reinterpret_cast<HelloTriangleApplication*> (glfwGetWindowUserPointer (window));
+  app->framebufferResized_ = true;
 }
 
 void
@@ -96,6 +110,9 @@ HelloTriangleApplication::initWindow ()
                               ACE_TEXT_ALWAYS_CHAR ("Vulkan window"),
                               NULL, NULL);
   ACE_ASSERT (window_);
+
+  glfwSetWindowUserPointer (window_, this);
+  glfwSetFramebufferSizeCallback (window_, framebufferResizeCallback);
 }
 
 bool
@@ -135,6 +152,11 @@ HelloTriangleApplication::getRequiredExtensions (bool enableValidationLayers_in)
   if (enableValidationLayers_in)
     extensions.push_back (VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
+#if defined (ACE_LINUX)
+  // extensions.push_back (ACE_TEXT_ALWAYS_CHAR ("VK_KHR_wayland_surface"));
+  extensions.push_back (ACE_TEXT_ALWAYS_CHAR ("VK_KHR_xlib_surface"));
+#endif // ACE_LINUX
+
   return extensions;
 }
 
@@ -157,22 +179,22 @@ HelloTriangleApplication::createInstance (bool enableValidationLayers_in)
   createInfo.enabledExtensionCount = static_cast<uint32_t> (required_extensions_a.size ());
   createInfo.ppEnabledExtensionNames = required_extensions_a.data ();
 
-  if (enableValidationLayers_in && !checkValidationLayerSupport (validation_layers_a))
-    return;
-  VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo {};
-  if (enableValidationLayers_in)
-  {
-    createInfo.enabledLayerCount =
-      static_cast<uint32_t> (validation_layers_a.size ());
-    createInfo.ppEnabledLayerNames = validation_layers_a.data ();
+  // if (enableValidationLayers_in && !checkValidationLayerSupport (validation_layers_a))
+  //   return;
+  // VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo {};
+  // if (enableValidationLayers_in)
+  // {
+  //   createInfo.enabledLayerCount =
+  //     static_cast<uint32_t> (validation_layers_a.size ());
+  //   createInfo.ppEnabledLayerNames = validation_layers_a.data ();
 
-    populateDebugMessengerCreateInfo (debugCreateInfo);
-    createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
-  } // end IF
-  else
+  //   populateDebugMessengerCreateInfo (debugCreateInfo);
+  //   createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
+  // } // end IF
+  // else
   {
     createInfo.enabledLayerCount = 0;
-    createInfo.pNext = nullptr;
+    createInfo.pNext = NULL;
   } // end ELSE
 
   VkResult result = vkCreateInstance (&createInfo, NULL, &instance_);
@@ -284,7 +306,7 @@ HelloTriangleApplication::findQueueFamilies (VkPhysicalDevice device)
       indices.graphicsFamily = i;
     } // end IF
 
-    presentSupport = false;
+    presentSupport = 0;
     vkGetPhysicalDeviceSurfaceSupportKHR (device, i, surface_, &presentSupport);
     if (presentSupport)
     {
@@ -500,7 +522,32 @@ HelloTriangleApplication::createSurface ()
                 ACE_TEXT (string_VkResult (result))));
     return;
   } // end IF
-// #elif defined (ACE_LINUX)
+#elif defined (ACE_LINUX)
+  // VkWaylandSurfaceCreateInfoKHR createInfo {};
+  // createInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
+  // createInfo.display = glfwGetWaylandDisplay ();
+  // createInfo.surface = glfwGetWaylandWindow (window_);
+
+  // VkResult result = vkCreateWaylandSurfaceKHR (instance_,
+  //                                              &createInfo,
+  //                                              NULL,
+  //                                              &surface_);
+  VkXlibSurfaceCreateInfoKHR createInfo {};
+  createInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
+  createInfo.dpy = glfwGetX11Display ();
+  createInfo.window = glfwGetX11Window (window_);
+
+  VkResult result = vkCreateXlibSurfaceKHR (instance_,
+                                            &createInfo,
+                                            NULL,
+                                            &surface_);
+  if (result != VK_SUCCESS)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to create window surface: \"%s\"\n"),
+                ACE_TEXT (string_VkResult (result))));
+    return;
+  } // end IF
 #endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
 }
 
@@ -668,7 +715,7 @@ readFile (const std::string& filename)
   } // end IF
 
   size_t fileSize = (size_t)file.tellg ();
-  buffer.reserve (fileSize);
+  buffer.resize (fileSize);
   file.seekg (0);
   file.read (buffer.data (), fileSize);
 
@@ -756,7 +803,7 @@ HelloTriangleApplication::createRenderPass ()
 void
 HelloTriangleApplication::createGraphicsPipeline ()
 {
-  std::vector<char> vertShaderCode = readFile ("etc/vertex.spv");
+  std::vector<char> vertShaderCode = readFile ("etc/vert.spv");
   std::vector<char> fragShaderCode = readFile ("etc/frag.spv");
 
   VkShaderModule vertShaderModule = createShaderModule (vertShaderCode);
@@ -1138,7 +1185,7 @@ void
 HelloTriangleApplication::drawFrame ()
 {
   vkWaitForFences (device_, 1, &inFlightFences_[currentFrame_], VK_TRUE, UINT64_MAX);
-  vkResetFences (device_, 1, &inFlightFences_[currentFrame_]);
+  //vkResetFences (device_, 1, &inFlightFences_[currentFrame_]);
 
   uint32_t imageIndex;
   VkResult result = vkAcquireNextImageKHR (device_,
@@ -1147,13 +1194,21 @@ HelloTriangleApplication::drawFrame ()
                                            imageAvailableSemaphores_[currentFrame_],
                                            VK_NULL_HANDLE,
                                            &imageIndex);
-  if (result != VK_SUCCESS)
+  if (result == VK_ERROR_OUT_OF_DATE_KHR)
+  {
+    recreateSwapChain ();
+    return;
+  } // end IF
+  else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to vkAcquireNextImageKHR(): \"%s\", returning\n"),
                 ACE_TEXT (string_VkResult (result))));
     return;
-  } // end IF
+  } // end ELSE IF
+
+  // Only reset the fence if we are submitting work
+  vkResetFences (device_, 1, &inFlightFences_[currentFrame_]);
 
   vkResetCommandBuffer (commandBuffers_[currentFrame_], 0);
   recordCommandBuffer (commandBuffers_[currentFrame_], imageIndex);
@@ -1194,13 +1249,18 @@ HelloTriangleApplication::drawFrame ()
   presentInfo.pResults = NULL; // Optional
 
   result = vkQueuePresentKHR (presentQueue_, &presentInfo);
-  if (result != VK_SUCCESS)
+  if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized_)
+  {
+    framebufferResized_ = false;
+    recreateSwapChain ();
+  } // end IF
+  else if (result != VK_SUCCESS)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to vkQueuePresentKHR(): \"%s\", returning\n"),
                 ACE_TEXT (string_VkResult (result))));
     return;
-  } // end IF
+  } // end ELSE IF
 
   currentFrame_ = (currentFrame_ + 1) % TEST_I_VULKAN_MAX_FRAMES_IN_FLIGHT;
 }
@@ -1218,6 +1278,40 @@ HelloTriangleApplication::mainLoop ()
 }
 
 void
+HelloTriangleApplication::cleanupSwapChain ()
+{
+  for (size_t i = 0; i < swapChainFramebuffers_.size (); i++)
+    vkDestroyFramebuffer (device_, swapChainFramebuffers_[i], NULL);
+  swapChainFramebuffers_.clear ();
+
+  for (size_t i = 0; i < swapChainImageViews_.size (); i++)
+    vkDestroyImageView (device_, swapChainImageViews_[i], NULL);
+  swapChainImageViews_.clear ();
+
+  vkDestroySwapchainKHR (device_, swapChain_, NULL);
+}
+
+void 
+HelloTriangleApplication::recreateSwapChain ()
+{
+  int width = 0, height = 0;
+  glfwGetFramebufferSize (window_, &width, &height);
+  while (width == 0 || height == 0)
+  {
+    glfwGetFramebufferSize (window_, &width, &height);
+    glfwWaitEvents ();
+  } // end WHILE
+
+  vkDeviceWaitIdle (device_);
+
+  cleanupSwapChain ();
+
+  createSwapChain ();
+  createImageViews ();
+  createFramebuffers ();
+}
+
+void
 HelloTriangleApplication::cleanup (bool enableValidationLayers_in)
 {
   for (int i = 0; i < TEST_I_VULKAN_MAX_FRAMES_IN_FLIGHT; i++)
@@ -1227,16 +1321,10 @@ HelloTriangleApplication::cleanup (bool enableValidationLayers_in)
     vkDestroyFence (device_, inFlightFences_[i], NULL);
   } // end FOR
   vkDestroyCommandPool (device_, commandPool_, NULL);
-  for (auto framebuffer: swapChainFramebuffers_)
-    vkDestroyFramebuffer (device_, framebuffer, NULL);
-  swapChainFramebuffers_.clear ();
   vkDestroyPipeline (device_, graphicsPipeline_, NULL);
   vkDestroyPipelineLayout (device_, pipelineLayout_, NULL);
   vkDestroyRenderPass (device_, renderPass_, NULL);
-  for (auto imageView: swapChainImageViews_)
-    vkDestroyImageView (device_, imageView, NULL);
-  swapChainImageViews_.clear ();
-  vkDestroySwapchainKHR (device_, swapChain_, NULL);
+  cleanupSwapChain ();
   vkDestroyDevice (device_, NULL);
 
   if (enableValidationLayers_in)

@@ -167,10 +167,6 @@ do_work (int argc_in,
   HelloTriangleApplication application;
   application.run ();
 
-  glm::mat4 matrix;
-  glm::vec4 vec;
-  glm::vec4 test = matrix * vec;
-
   glfwTerminate ();
 #endif // GLFW_SUPPORT
 }
@@ -182,9 +178,6 @@ ACE_TMAIN (int argc_in,
   int result = EXIT_FAILURE, result_2 = -1;
 
   // step0: initialize
-#if defined (GLUT_SUPPORT)
-  glutInit (&argc_in, argv_in);
-#endif // GLUT_SUPPORT
   // *PORTABILITY*: on Windows, initialize ACE
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   result_2 = ACE::init ();

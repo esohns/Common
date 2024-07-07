@@ -1,5 +1,5 @@
 if (UNIX)
- set (VULKAN_LIB_FILE libVulkan.so)
+ set (VULKAN_LIB_FILE libvulkan.so)
  find_library (VULKAN_LIBRARY ${VULKAN_LIB_FILE}
                PATHS /usr /usr/lib
                PATH_SUFFIXES lib64 x86_64-linux-gnu

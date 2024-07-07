@@ -29,7 +29,7 @@ Common_GL_Shader::Common_GL_Shader (const std::string& vertexShaderFilename_in,
                 ACE_TEXT (fragmentShaderFilename_in.c_str ())));
     return;
   } // end IF
-  ACE_ASSERT (id_ != -1);
+  ACE_ASSERT (id_ != static_cast<GLuint> (-1));
 }
 
 Common_GL_Shader::~Common_GL_Shader ()
@@ -75,7 +75,7 @@ Common_GL_Shader::loadFromFile (const std::string& vertexShaderFilename_in,
                 ACE_TEXT (fragmentShaderFilename_in.c_str ())));
     return false;
   } // end IF
-  ACE_ASSERT (vertex_shader_id_i != -1 && fragment_shader_id_i != -1);
+  ACE_ASSERT (vertex_shader_id_i != static_cast<GLuint> (-1) && fragment_shader_id_i != static_cast<GLuint> (-1));
 
   id_ = glCreateProgram ();
   ACE_ASSERT (id_ != static_cast<GLuint> (-1));
@@ -140,7 +140,7 @@ Common_GL_Shader::loadFromString (const std::string& vertexShaderCode_in,
                 ACE_TEXT ("failed to Common_GL_Tools::loadAndCompileShaderString(), aborting\n")));
     return false;
   } // end IF
-  ACE_ASSERT (vertex_shader_id_i != -1 && fragment_shader_id_i != -1);
+  ACE_ASSERT (vertex_shader_id_i != static_cast<GLuint> (-1) && fragment_shader_id_i != static_cast<GLuint> (-1));
 
   id_ = glCreateProgram ();
   ACE_ASSERT (id_ != static_cast<GLuint> (-1));
@@ -194,7 +194,7 @@ Common_GL_Shader::use ()
   COMMON_TRACE (ACE_TEXT ("Common_GL_Shader::use"));
 
   // sanity check(s)
-  ACE_ASSERT (id_ != -1);
+  ACE_ASSERT (id_ != static_cast<GLuint> (-1));
 
   glUseProgram (id_);
   COMMON_GL_ASSERT;

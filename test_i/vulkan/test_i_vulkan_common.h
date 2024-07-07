@@ -23,9 +23,9 @@
 
 #include <chrono>
 
+#include "ace/config-lite.h"
+
 #include "common_gl_common.h"
-//#include "common_gl_shader.h"
-//#include "common_gl_texture.h"
 
 #include "test_i_vulkan_defines.h"
 
@@ -36,29 +36,18 @@ struct Common_Vulkan_CBData
    , height (static_cast<float> (TEST_I_VULKAN_DEFAULT_WINDOW_HEIGHT))
    , mouseButton0IsDown (false)
    , camera ()
-   //, shader ()
-   //, texture ()
    , wireframe (false)
-   //, VBO (0)
-   //, VAO (0)
-   //, EBO (0)
    , tp1 ()
   {}
 
-  GLfloat                 width; // current-
-  GLfloat                 height; // current-
+  float                   width; // current-
+  float                   height; // current-
 
   bool                    mouseButton0IsDown; // current-
 
   struct Common_GL_Camera camera;
-  //Common_GL_Shader        shader;
-  //Common_GL_Texture       texture;
 
   bool                    wireframe;
-
-  //GLuint                  VBO;
-  //GLuint                  VAO;
-  //GLuint                  EBO;
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   std::chrono::steady_clock::time_point tp1;

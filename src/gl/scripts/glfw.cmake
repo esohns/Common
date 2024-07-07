@@ -1,5 +1,5 @@
 if (UNIX)
- set (GLFW_LIB_FILE libGLFW.so)
+ set (GLFW_LIB_FILE libglfw.so.3)
  find_library (GLFW_LIBRARY ${GLFW_LIB_FILE}
                PATHS /usr /usr/lib
                PATH_SUFFIXES lib64 x86_64-linux-gnu
