@@ -27,6 +27,10 @@
 #define TEST_I_VULKAN_MAX_FRAMES_IN_FLIGHT     2
 
 #define TEST_I_VULKAN_TEXTURE_FILENAME         "vulkan_logo.png"
+
+#define TEST_I_VULKAN_MODEL_FILENAME           "viking_room.obj"
+#define TEST_I_VULKAN_MODEL_TEXTURE_FILENAME   "viking_room.png"
+
 #define TEST_I_VULKAN_VERTEX_SHADER_FILENAME   "vertex_shader.glsl"
 #define TEST_I_VULKAN_FRAGMENT_SHADER_FILENAME "fragment_shader.glsl"
 

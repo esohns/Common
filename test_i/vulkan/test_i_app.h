@@ -21,8 +21,17 @@
 #ifndef TEST_I_APP_H
 #define TEST_I_APP_H
 
+#include <array>
 #include <optional>
 #include <vector>
+
+#if defined (GLM_SUPPORT)
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#endif // GLM_SUPPORT
 
 #include "ace/config-lite.h"
 
@@ -35,10 +44,74 @@
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
 
+struct Vertex
+{
+  glm::vec3 pos;
+  glm::vec3 color;
+  glm::vec2 texCoord;
+
+  static VkVertexInputBindingDescription getBindingDescription ()
+  {
+    VkVertexInputBindingDescription bindingDescription {};
+    bindingDescription.binding = 0;
+    bindingDescription.stride = sizeof (Vertex);
+    bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+    return bindingDescription;
+  }
+
+  // static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions ()
+  // {
+  //  std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions {};
+  //  attributeDescriptions[0].binding = 0;
+  //  attributeDescriptions[0].location = 0;
+  //  attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+  //  attributeDescriptions[0].offset = offsetof (Vertex, pos);
+
+  //  attributeDescriptions[1].binding = 0;
+  //  attributeDescriptions[1].location = 1;
+  //  attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+  //  attributeDescriptions[1].offset = offsetof (Vertex, color);
+
+  //  return attributeDescriptions;
+  // }
+
+  static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions ()
+  {
+    std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions {};
+
+    attributeDescriptions[0].binding = 0;
+    attributeDescriptions[0].location = 0;
+    attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescriptions[0].offset = offsetof (Vertex, pos);
+
+    attributeDescriptions[1].binding = 0;
+    attributeDescriptions[1].location = 1;
+    attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescriptions[1].offset = offsetof (Vertex, color);
+
+    attributeDescriptions[2].binding = 0;
+    attributeDescriptions[2].location = 2;
+    attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+    attributeDescriptions[2].offset = offsetof (Vertex, texCoord);
+
+    return attributeDescriptions;
+  }
+
+  bool operator== (const Vertex& other) const
+  {
+    return pos == other.pos && color == other.color && texCoord == other.texCoord;
+  }
+};
+
+///////////////////////////////////////////
+
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback (VkDebugUtilsMessageSeverityFlagBitsEXT,
                                                      VkDebugUtilsMessageTypeFlagsEXT,
                                                      const VkDebugUtilsMessengerCallbackDataEXT*,
                                                      void*);
+
+///////////////////////////////////////////
 
 class HelloTriangleApplication
 {
@@ -102,13 +175,40 @@ class HelloTriangleApplication
   void createImageViews ();
   VkShaderModule createShaderModule (const std::vector<char>&);
   void createRenderPass ();
+  void createDescriptorSetLayout ();
   void createGraphicsPipeline ();
   void createFramebuffers ();
+  void createImage (uint32_t, uint32_t, VkFormat, VkImageTiling,
+                    VkImageUsageFlags, VkMemoryPropertyFlags,
+                    VkImage&, VkDeviceMemory&);
+  void createTextureImage ();
+  VkImageView createImageView (VkImage, VkFormat, VkImageAspectFlags);
+  void createTextureImageView ();
+  void createTextureSampler ();
+  VkCommandBuffer beginSingleTimeCommands ();
+  void endSingleTimeCommands (VkCommandBuffer);
+  void transitionImageLayout (VkImage, VkFormat, VkImageLayout, VkImageLayout);
+  void copyBufferToImage (VkBuffer, VkImage, uint32_t, uint32_t);
   void createCommandPool ();
+  VkFormat findSupportedFormat (const std::vector<VkFormat>&, VkImageTiling, VkFormatFeatureFlags);
+  VkFormat findDepthFormat ();
+  bool hasStencilComponent (VkFormat);
+  void createDepthResources ();
+  void loadModel ();
+  uint32_t findMemoryType (uint32_t, VkMemoryPropertyFlags);
+  void createBuffer (VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags,
+                     VkBuffer&, VkDeviceMemory&);
+  void copyBuffer (VkBuffer, VkBuffer, VkDeviceSize);
+  void createVertexBuffer ();
+  void createIndexBuffer ();
+  void createUniformBuffers ();
+  void createDescriptorPool ();
+  void createDescriptorSets ();
   void createCommandBuffers ();
   void recordCommandBuffer (VkCommandBuffer, uint32_t);
   void createSyncObjects ();
 
+  void updateUniformBuffer (uint32_t);
   void drawFrame ();
   void mainLoop ();
 
@@ -139,6 +239,31 @@ class HelloTriangleApplication
   std::vector<VkSemaphore>     imageAvailableSemaphores_;
   std::vector<VkSemaphore>     renderFinishedSemaphores_;
   std::vector<VkFence>         inFlightFences_;
+
+  VkBuffer                     vertexBuffer_;
+  VkDeviceMemory               vertexBufferMemory_;
+  VkBuffer                     indexBuffer_;
+  VkDeviceMemory               indexBufferMemory_;
+
+  std::vector<VkBuffer>        uniformBuffers_;
+  std::vector<VkDeviceMemory>  uniformBuffersMemory_;
+  std::vector<void*>           uniformBuffersMapped_;
+
+  VkDescriptorSetLayout        descriptorSetLayout_;
+  VkDescriptorPool             descriptorPool_;
+  std::vector<VkDescriptorSet> descriptorSets_;
+
+  VkImage                      textureImage_;
+  VkDeviceMemory               textureImageMemory_;
+  VkImageView                  textureImageView_;
+  VkSampler                    textureSampler_;
+
+  VkImage                      depthImage_;
+  VkDeviceMemory               depthImageMemory_;
+  VkImageView                  depthImageView_;
+
+  std::vector<Vertex>          vertices_;
+  std::vector<uint32_t>        indices_;
 
   uint32_t                     currentFrame_;
 

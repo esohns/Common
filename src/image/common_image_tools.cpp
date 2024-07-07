@@ -1395,9 +1395,9 @@ Common_Image_Tools::convert (struct SwsContext* context_in,
   return true;
 
 error:
-  if (targetBuffers_out)
+  if (targetBuffers_out[0])
   {
-    delete [] targetBuffers_out; ACE_OS::memset (targetBuffers_out, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
+    delete [] targetBuffers_out[0]; ACE_OS::memset (targetBuffers_out, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
   } // end IF
   if (unlikely (!context_in))
   {
