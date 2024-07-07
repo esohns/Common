@@ -1215,9 +1215,12 @@ HelloTriangleApplication::createTextureImage ()
   texture_file_path += ACE_DIRECTORY_SEPARATOR_STR_A;
   //texture_file_path += ACE_TEXT_ALWAYS_CHAR (TEST_I_VULKAN_TEXTURE_FILENAME);
   texture_file_path += ACE_TEXT_ALWAYS_CHAR (TEST_I_VULKAN_MODEL_TEXTURE_FILENAME);
-  stbi_uc* pixels = stbi_load (texture_file_path.c_str (),
-                               &texWidth, &texHeight, &texChannels,
-                               STBI_rgb_alpha);
+  uint8_t* pixels = NULL;
+#if defined (STB_IMAGE_SUPPORT)
+  pixels = stbi_load (texture_file_path.c_str (),
+                      &texWidth, &texHeight, &texChannels,
+                      STBI_rgb_alpha);
+#endif // STB_IMAGE_SUPPORT
   if (!pixels)
   {
     ACE_DEBUG ((LM_ERROR,
@@ -1247,13 +1250,17 @@ HelloTriangleApplication::createTextureImage ()
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to vkMapMemory(): \"%s\", returning\n"),
                 ACE_TEXT (string_VkResult (result))));
+#if defined (STB_IMAGE_SUPPORT)
     stbi_image_free (pixels); pixels = NULL;
+#endif // STB_IMAGE_SUPPORT
     return;
   } // end IF
   ACE_OS::memcpy (data, pixels, static_cast<size_t> (imageSize));
   vkUnmapMemory (device_, stagingBufferMemory);
 
+#if defined (STB_IMAGE_SUPPORT)
   stbi_image_free (pixels); pixels = NULL;
+#endif // STB_IMAGE_SUPPORT
 
   createImage (texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB,
                VK_IMAGE_TILING_OPTIMAL,
@@ -1635,9 +1642,11 @@ HelloTriangleApplication::createDepthResources ()
 void
 HelloTriangleApplication::loadModel ()
 {
+#if defined (TINY_OBJ_LOADER_SUPPORT)
   tinyobj::attrib_t attrib;
   std::vector<tinyobj::shape_t> shapes;
   std::vector<tinyobj::material_t> materials;
+#endif // TINY_OBJ_LOADER_SUPPORT
   std::string warn, err;
   std::string obj_file_path = Common_File_Tools::getWorkingDirectory ();
   obj_file_path += ACE_DIRECTORY_SEPARATOR_STR_A;
@@ -1645,8 +1654,13 @@ HelloTriangleApplication::loadModel ()
   obj_file_path += ACE_DIRECTORY_SEPARATOR_STR_A;
   obj_file_path += ACE_TEXT_ALWAYS_CHAR (TEST_I_VULKAN_MODEL_FILENAME);
 
-  if (!tinyobj::LoadObj (&attrib, &shapes, &materials, &warn, &err,
-                         obj_file_path.c_str ()))
+  bool result = false;
+#if defined (TINY_OBJ_LOADER_SUPPORT)
+  result = tinyobj::LoadObj (&attrib, &shapes, &materials,
+                             &warn, &err,
+                             obj_file_path.c_str ());
+#endif // TINY_OBJ_LOADER_SUPPORT
+  if (!result)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to tinyobj::LoadObj(\"%s\"): \"%s\", returning\n"),
@@ -1656,18 +1670,16 @@ HelloTriangleApplication::loadModel ()
   } // end IF
 
   std::unordered_map<Vertex, uint32_t> uniqueVertices {};
+#if defined (TINY_OBJ_LOADER_SUPPORT)
   for (const auto& shape : shapes)
     for (const auto& index : shape.mesh.indices)
     {
       Vertex vertex {};
-
       vertex.pos = {attrib.vertices[3 * index.vertex_index + 0],
                     attrib.vertices[3 * index.vertex_index + 1],
                     attrib.vertices[3 * index.vertex_index + 2]};
-
       vertex.texCoord = {attrib.texcoords[2 * index.texcoord_index + 0],
                          1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
-
       vertex.color = {1.0f, 1.0f, 1.0f};
 
       // vertices_.push_back (vertex);
@@ -1679,6 +1691,7 @@ HelloTriangleApplication::loadModel ()
       } // end IF
       indices_.push_back (uniqueVertices[vertex]);
     } // end FOR
+#endif // TINY_OBJ_LOADER_SUPPORT
 }
 
 uint32_t
