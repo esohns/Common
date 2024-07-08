@@ -26,7 +26,7 @@ class Common_GL_Texture
   void bind (GLuint = 0); // texture unit
   void unbind ();
 
-  GLuint id_;
+  GLuint id_; // texture id
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_GL_Texture (const Common_GL_Texture&))

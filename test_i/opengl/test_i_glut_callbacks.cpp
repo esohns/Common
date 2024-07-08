@@ -47,9 +47,7 @@
 #include "ace/Synch_Traits.h"
 
 #include "common_file_tools.h"
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include "common_os_tools.h"
-#endif // ACE_WIN32 || ACE_WIN64
+#include "common_tools.h"
 
 #include "common_gl_defines.h"
 #include "common_gl_texture.h"
@@ -75,17 +73,19 @@ test_i_opengl_glut_draw ()
   glBindVertexArray (cb_data_p->VAO);
   COMMON_GL_ASSERT;
 
-  cb_data_p->texture.bind (0);
+  cb_data_p->texture.bind (0); // texture unit
 
-  static GLfloat rotation = 0.0f; // *NOTE*: degrees
+  static float angle_f = 0.0f; // *NOTE*: degrees
+  static glm::vec3 rotation_s (0.0f, 0.0f, 1.0f);
 
 #if defined (GLM_SUPPORT)
   glm::mat4 model_matrix = glm::mat4 (1.0f); // make sure to initialize matrix to identity matrix first
   model_matrix = glm::translate (model_matrix,
                                  glm::vec3 (0.0f, 0.0f, -3.0f));
   model_matrix = glm::rotate (model_matrix,
-                              glm::radians (rotation),
-                              glm::vec3 (1.0f, 1.0f, 1.0f));
+                              glm::radians (angle_f),
+                              //glm::vec3 (1.0f, 1.0f, 1.0f));
+                              rotation_s);
 
   glm::mat4 view_matrix = cb_data_p->camera.getViewMatrix ();
 
@@ -100,12 +100,24 @@ test_i_opengl_glut_draw ()
   std::chrono::steady_clock::time_point tp2 =
     std::chrono::high_resolution_clock::now ();
 #elif defined (ACE_LINUX)
-  std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>
-    tp2 = std::chrono::high_resolution_clock::now ();
+  std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> tp2 =
+    std::chrono::high_resolution_clock::now ();
 #else
 #error missing implementation, aborting
 #endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
   std::chrono::duration<float> elapsed_time = tp2 - cb_data_p->tp1;
+
+#if defined(ACE_WIN32) || defined(ACE_WIN64)
+  static std::chrono::steady_clock::time_point tp_last = tp2;
+#elif defined(ACE_LINUX)
+  std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> tp_last = tp2;
+#else
+#error missing implementation, aborting
+#endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
+  std::chrono::duration<float> elapsed_time_2 = tp2 - tp_last;
+  static float duration_f = 0.0f;
+  duration_f += elapsed_time_2.count ();
+  tp_last = tp2;
 
   cb_data_p->shader.use ();
 #if defined (GLM_SUPPORT)
@@ -134,24 +146,24 @@ test_i_opengl_glut_draw ()
   glBindVertexArray (0);
   COMMON_GL_ASSERT;
 
-  // switch (Common_Tools::getRandomNumber (0, 2))
-  //{
-  //   case 0:
-  //     rot_x += 0.1f;
-  //     break;
-  //   case 1:
-  //     rot_y += 0.1f;
-  //     break;
-  //   case 2:
-  //     rot_z += 0.1f;
-  //     break;
-  //   default:
-  //     ACE_ASSERT (false);
-  // } // end SWITCH
-  rotation += 0.3f; // change the rotation variable for the cube
+  // "smooth" (random-) rotation
+#define TRANSITION_DURATION_F 2.0f
+  ACE_ASSERT (TRANSITION_DURATION_F != 0.0f); // would divide by 0 (see below)
+  static glm::vec3 rotation_from (0.0f, 0.0f, 1.0f);
+  static glm::vec3 rotation_to (1.0f, 1.0f, 1.0f);
+  if (duration_f >= TRANSITION_DURATION_F)
+  {
+    duration_f -= TRANSITION_DURATION_F;
 
-  //glFlush ();
-  //COMMON_GL_ASSERT;
+    rotation_from = rotation_s;
+    rotation_to.x = Common_Tools::getRandomNumber (0.0f, 1.0f);
+    rotation_to.y = Common_Tools::getRandomNumber (0.0f, 1.0f);
+    rotation_to.z = Common_Tools::getRandomNumber (0.0f, 1.0f);
+    //rotation_to = glm::normalize (rotation_to);
+  } // end IF
+  rotation_s = glm::mix (rotation_from, rotation_to, duration_f / TRANSITION_DURATION_F);
+  angle_f += 0.5f; // degrees
+  //angle_f = std::fmod (angle_f, 360.0f);
 
   glutSwapBuffers ();
 }

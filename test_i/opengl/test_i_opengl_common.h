@@ -37,6 +37,8 @@
 #include "GL/gl.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
+#include "noise/noise.h"
+
 #include "common_gl_common.h"
 #include "common_gl_shader.h"
 #include "common_gl_texture.h"
@@ -57,6 +59,10 @@ struct Common_OpenGL_GLUT_CBData
    , VAO (0)
    , EBO (0)
    , tp1 ()
+   , noise ()
+   , x (0.0)
+   , y (0.0)
+   , z (0.0)
   {}
 
   GLfloat                 width; // current-
@@ -81,6 +87,9 @@ struct Common_OpenGL_GLUT_CBData
 #else
 #error missing implementation, aborting
 #endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
+
+  noise::module::Perlin   noise;
+  double                  x, y, z;
 };
 
 #endif

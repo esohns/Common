@@ -9,11 +9,15 @@ include (png)
 
 include (ffmpeg)
 include (ImageMagick)
+include (libnoise)
 
 ############## includes ###############
 if (GLUT_SUPPORT)
  include_directories (${GLUT_INCLUDE_DIRS})
 endif (GLUT_SUPPORT)
+if (LIBNOISE_SUPPORT)
+ include_directories (${LIBNOISE_INCLUDE_DIRS})
+endif (LIBNOISE_SUPPORT)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/gl)
@@ -46,6 +50,9 @@ add_executable (${EXECUTABLE}
                 ${${EXECUTABLE}_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
+if (LIBNOISE_SUPPORT)
+ target_link_libraries (${EXECUTABLE} PUBLIC ${LIBNOISE_LIB})
+endif (LIBNOISE_SUPPORT)
 if (OPENGL_SUPPORT)
  target_link_libraries (${EXECUTABLE} PUBLIC ${OPENGL_LIBRARIES})
  if (GLUT_SUPPORT)
@@ -94,6 +101,7 @@ if (UNIX)
 elseif (WIN32)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
  string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
+ file (TO_CMAKE_PATH "${LIBNOISE_LIB_DIR}" LIBNOISE_LIB_PATH)
  file (TO_CMAKE_PATH "${GLEW_LIB_DIR}" GLEW_LIB_PATH)
  file (TO_CMAKE_PATH "${GLUT_LIB_DIR}" GLUT_LIB_PATH)
  file (TO_CMAKE_PATH "${PNG_LIB_DIR}" PNG_LIB_PATH)
@@ -111,6 +119,7 @@ elseif (WIN32)
                                               ${GLUT_LIB_PATH}
                                               ${PNG_LIB_PATH}
                                               ${ASSIMP_LIB_PATH}
+                                              ${LIBNOISE_LIB_PATH}
                                               ${VCPKG_LIB_PATH}
                                               ${FFMPEG_LIB_PATH}
                                               ${IMAGEMAGICK_LIB_PATH}
