@@ -54,6 +54,7 @@
 #include "common_tools.h"
 
 #if defined (GTKGL_SUPPORT)
+#include "common_gl_camera.h"
 #include "common_gl_debug.h"
 #include "common_gl_defines.h"
 #include "common_gl_shader.h"
@@ -80,7 +81,7 @@ GtkWindow* main_window_p = NULL;
 Common_GL_Texture texture;
 GLuint VBO = 0, VAO = 0, EBO = 0;
 Common_GL_Shader shader;
-struct Common_GL_Camera camera_s;
+Common_GL_Camera camera;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 static std::chrono::steady_clock::time_point tp1;
 #elif defined (ACE_LINUX)
@@ -332,9 +333,9 @@ glarea_realize_cb (GtkWidget* widget_in,
               ACE_TEXT ("OpenGL texture id: %u\n"),
               texture.id_));
 
-  camera_s.position = glm::vec3 (0.0f, 0.0f, 0.1f);
-  camera_s.looking_at = glm::vec3 (0.0f, 0.0f, 0.0f);
-  camera_s.up = glm::vec3 (0.0f, 1.0f, 0.0f);
+  camera.position = glm::vec3 (0.0f, 0.0f, 0.1f);
+  camera.looking_at = glm::vec3 (0.0f, 0.0f, 0.0f);
+  camera.up = glm::vec3 (0.0f, 1.0f, 0.0f);
 
   //glShadeModel (GL_SMOOTH);                           // Enable Smooth Shading
   //COMMON_GL_ASSERT;
@@ -496,7 +497,7 @@ glarea_render_cb (GtkGLArea* area_in,
   model_matrix =
     glm::rotate (model_matrix, glm::radians (rotation), glm::vec3 (1.0f, 1.0f, 1.0f));
 
-  glm::mat4 view_matrix = camera_s.getViewMatrix ();
+  glm::mat4 view_matrix = camera.getViewMatrix ();
 
   glm::mat4 projection_matrix =
     glm::perspective (glm::radians (45.0f), width_i / (float)height_i, 0.1f, 100.0f);

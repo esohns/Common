@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "common_gl_shader.h"
 
 #include "ace/Log_Msg.h"

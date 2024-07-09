@@ -21,10 +21,6 @@
 
 #include "common_gl_tools.h"
 
-//#if defined (GLEW_SUPPORT)
-//#include "GL/glew.h"
-//#endif // GLEW_SUPPORT
-
 #if defined (ASSIMP_SUPPORT)
 #include "assimp/cimport.h"
 #include "assimp/scene.h"

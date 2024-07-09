@@ -46,6 +46,8 @@ target_include_directories (${LIBRARY} PUBLIC
 
 ############## next target ################
 set (source_files
+     common_gl_camera.cpp
+     common_gl_camera.h
      common_gl_common.h
      common_gl_debug.h
      common_gl_defines.h

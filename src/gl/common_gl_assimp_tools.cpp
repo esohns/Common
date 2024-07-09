@@ -23,7 +23,7 @@
 
 #include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include <gl/GL.h>
+#include "gl/GL.h"
 #else
 #include "GL/gl.h"
 #endif // ACE_WIN32 || ACE_WIN64
@@ -143,8 +143,7 @@ Common_GL_Assimp_Tools::loadModel (const std::string& path_in,
 
   if (scene_inout)
   {
-    aiReleaseImport (scene_inout);
-    scene_inout = NULL;
+    aiReleaseImport (scene_inout); scene_inout = NULL;
   } // end IF
 
   scene_inout =

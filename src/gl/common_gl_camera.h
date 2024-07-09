@@ -18,92 +18,55 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_GL_COMMON_H
-#define COMMON_GL_COMMON_H
-
-#include <utility>
+#ifndef COMMON_GL_CAMERA_H
+#define COMMON_GL_CAMERA_H
 
 #if defined (GLM_SUPPORT)
 #include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #endif // GLM_SUPPORT
 
+#include "common_gl_common.h"
 #include "common_gl_defines.h"
 
-// forward declaration
-class Common_GL_Camera;
-
-#if defined (GLM_SUPPORT)
-typedef std::pair<glm::vec3, glm::vec3> Common_GL_BoundingBox_t;
-#else
-struct Common_GL_VectorF2
+class Common_GL_Camera
 {
-  Common_GL_VectorF2 ()
-   : x (0.0f)
-   , y (0.0f)
-  {}
+ public:
+  Common_GL_Camera ();
+  inline ~Common_GL_Camera () {}
 
-  Common_GL_VectorF2 (float x_in, float y_in)
-   : x (x_in)
-   , y (y_in)
-  {}
+  void reset ();
 
-  float x;
-  float y;
-};
+  glm::vec3 position;
+  glm::vec3 looking_at;
+  glm::vec3 up;
+  float zoom;
+  glm::vec2 old_mouse_position;
 
-struct Common_GL_VectorF3
-{
-  Common_GL_VectorF3 ()
-   : x (0.0f)
-   , y (0.0f)
-   , z (0.0f)
-  {}
+  inline glm::mat4 getViewMatrix () { return glm::lookAt (position, position + looking_at, up); }
 
-  Common_GL_VectorF3 (float x_in, float y_in, float z_in)
-   : x (x_in)
-   , y (y_in)
-   , z (z_in)
-  {}
+  inline void forward (float speed_in)
+  {
+    position += looking_at * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR);
+  }
+  inline void backward (float speed_in)
+  {
+    position -= looking_at * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR);
+  }
+  void left (float speed_in)
+  {
+    glm::vec3 right = glm::cross (looking_at, up);
+    position +=
+      right * (speed_in * COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR);
+  }
+  void right (float speed_in)
+  {
+    glm::vec3 right = glm::cross (looking_at, up);
+    position -=
+      right * (speed_in * COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR);
+  }
 
-  float x;
-  float y;
-  float z;
-};
-typedef std::pair<struct Common_GL_VectorF3, struct Common_GL_VectorF3> Common_GL_BoundingBox_t;
-#endif // GLM_SUPPORT
-
-#if defined (GLM_SUPPORT)
-typedef glm::u8vec3 Common_GL_Color_t;
-#else
-struct Common_GL_Color
-{
-  uint8_t r;
-  uint8_t g;
-  uint8_t b;
-};
-typedef struct Common_GL_Color Common_GL_Color_t;
-#endif // GLM_SUPPORT
-
-struct Common_GL_Scene
-{
-  Common_GL_Scene ()
-   : camera ()
-   , boundingBox ()
-   , center ()
-   , orientation ()
-  {}
-
-  Common_GL_Camera*         camera;
-
-  // scene
-  Common_GL_BoundingBox_t   boundingBox;
-#if defined (GLM_SUPPORT)
-  glm::vec3                 center;
-  glm::vec3                 orientation; // model/scene-
-#else
-  struct Common_GL_VectorF3 center;
-  struct Common_GL_VectorF3 orientation; // model/scene-
-#endif // GLM_SUPPORT
+  void mouseLook (int, int);
 };
 
 #endif

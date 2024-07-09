@@ -25,7 +25,7 @@
 
 #include "ace/config-lite.h"
 
-#include "common_gl_common.h"
+#include "common_gl_camera.h"
 
 #include "test_i_vulkan_defines.h"
 
@@ -45,7 +45,7 @@ struct Common_Vulkan_CBData
 
   bool                    mouseButton0IsDown; // current-
 
-  struct Common_GL_Camera camera;
+  Common_GL_Camera        camera;
 
   bool                    wireframe;
 
