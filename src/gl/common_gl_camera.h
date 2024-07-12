@@ -29,6 +29,17 @@
 #include "common_gl_common.h"
 #include "common_gl_defines.h"
 
+enum Common_GL_CameraDirection
+{
+  NONE = 0,
+  FORWARD,
+  BACKWARD,
+  LEFT,
+  RIGHT,
+  UP,
+  DOWN
+};
+
 class Common_GL_Camera
 {
  public:
@@ -37,36 +48,48 @@ class Common_GL_Camera
 
   void reset ();
 
-  glm::vec3 position;
-  glm::vec3 looking_at;
-  glm::vec3 up;
-  float zoom;
-  glm::vec2 old_mouse_position;
+  // *TODO*: to be tested
+  void updatePosition (enum Common_GL_CameraDirection, // direction
+                       float);                         // dt
+  void updateDirection (float, float);
+  void updateZoom (float); // dz
 
-  inline glm::mat4 getViewMatrix () { return glm::lookAt (position, position + looking_at, up); }
+  glm::vec3 position_;
+  glm::vec3 looking_at_;
+  glm::vec3 up_;
+  glm::vec3 right_;
+  float yaw_; // degrees
+  float pitch_; // degrees
+  float zoom_;  // *TODO*: use for FOV [1.0f, 45.0f]
+  glm::vec2 old_mouse_position_;
+
+  inline glm::mat4 getViewMatrix () { return glm::lookAt (position_, position_ + looking_at_, up_); }
 
   inline void forward (float speed_in)
   {
-    position += looking_at * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR);
+    position_ += looking_at_ * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR);
   }
   inline void backward (float speed_in)
   {
-    position -= looking_at * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR);
+    position_ -= looking_at_ * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR);
   }
   void left (float speed_in)
   {
-    glm::vec3 right = glm::cross (looking_at, up);
-    position +=
+    glm::vec3 right = glm::cross (looking_at_, up_);
+    position_ +=
       right * (speed_in * COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR);
   }
   void right (float speed_in)
   {
-    glm::vec3 right = glm::cross (looking_at, up);
-    position -=
+    glm::vec3 right = glm::cross (looking_at_, up_);
+    position_ -=
       right * (speed_in * COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR);
   }
 
   void mouseLook (int, int);
+
+ private:
+  void updateVectors ();
 };
 
 #endif

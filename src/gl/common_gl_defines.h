@@ -61,6 +61,8 @@
   } while (0);
 
 // camera
+#define COMMON_GL_CAMERA_DEFAULT_SPEED                       2.5f
+
 #define COMMON_GL_CAMERA_DEFAULT_MOUSE_LOOK_FACTOR           0.1f
 
 #define COMMON_GL_CAMERA_DEFAULT_ROTATION_FACTOR             0.8f
