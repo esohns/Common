@@ -27,12 +27,9 @@
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include <string>
+#include <vector>
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-#include <vector>
-
-//#include "X11/X.h"
-//#include "X11/Xlib.h"
 struct _XDisplay;
 #endif // ACE_WIN32 || ACE_WIN64
 
@@ -56,7 +53,7 @@ class Common_Process_Tools
                        bool = true);       // return stdout
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  static HWND window (pid_t); // process id
+  static std::vector<HWND> window (pid_t); // process id
 #else
   static unsigned long window (pid_t); // process id
 #endif // ACE_WIN32 || ACE_WIN64

@@ -52,8 +52,8 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 struct common_enum_windows_cbdata
 {
-  DWORD id;
-  HWND  window; // result
+  DWORD              id;
+  std::vector<HWND>* windows; // result
 };
 
 BOOL CALLBACK
@@ -62,6 +62,7 @@ common_enum_windows_cb (HWND hwnd, LPARAM lParam)
   struct common_enum_windows_cbdata* cb_data_p =
     static_cast<struct common_enum_windows_cbdata*> ((void*)lParam);
   ACE_ASSERT (cb_data_p);
+  ACE_ASSERT (cb_data_p->windows);
 
   DWORD window_pid;
   GetWindowThreadProcessId (hwnd, &window_pid);
@@ -69,10 +70,7 @@ common_enum_windows_cb (HWND hwnd, LPARAM lParam)
   {
     HWND hwndParent = GetParent (hwnd);
     if (!hwndParent) // --> retrieve top-level windows only
-    {
-      cb_data_p->window = hwnd;
-      return FALSE;
-    } // end IF
+      cb_data_p->windows->push_back (hwnd);
   } // end IF
 
   return TRUE;
@@ -178,30 +176,30 @@ Common_Process_Tools::command (const std::string& commandLine_in,
 }
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-HWND
+std::vector<HWND>
 Common_Process_Tools::window (pid_t processId_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Process_Tools::window"));
+
+  std::vector<HWND> result;
 
   // sanity check(s)
   ACE_ASSERT (processId_in);
 
   struct common_enum_windows_cbdata cb_data_s;
   cb_data_s.id = processId_in;
-  cb_data_s.window = NULL;
+  cb_data_s.windows = &result;
 
   // step2: retrieve window handle by process id
   if (unlikely (!EnumWindows (common_enum_windows_cb,
-                              reinterpret_cast<LPARAM> (&cb_data_s)) &&
-                !cb_data_s.window))
-  {
+                              reinterpret_cast<LPARAM> (&cb_data_s)) ||
+                result.empty ()))
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to EnumWindows(): \"%s\", aborting\n"),
+                ACE_TEXT ("failed to EnumWindows(%d): \"%s\", aborting\n"),
+                processId_in,
                 ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false, false).c_str ())));
-    return NULL;
-  } // end IF
 
-  return cb_data_s.window;
+  return result;
 }
 #else
 Window
