@@ -17,6 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#include "libavcodec/packet.h"
 #include "stdafx.h"
 
 #include "common_image_tools.h"
@@ -517,32 +518,33 @@ Common_Image_Tools::savePNG (const Common_Image_Resolution_t& resolution_in,
   bool result = false;
   enum AVPixelFormat format_e = format_in;
   bool delete_buffer_b = false;
-  uint8_t** buffer_p = sourceBuffers_in;
+  uint8_t** buffers_a = sourceBuffers_in;
 
   if (unlikely (format_in != AV_PIX_FMT_RGB24))// &&
 //               (format_in != AV_PIX_FMT_RGB32))
   {
-    uint8_t** data_p = NULL;
+    uint8_t* data_a[AV_NUM_DATA_POINTERS];
+    ACE_OS::memset (&data_a[0], 0, sizeof (uint8_t[AV_NUM_DATA_POINTERS]));
     if (!Common_Image_Tools::convert (resolution_in,
                                       format_in,
                                       sourceBuffers_in,
                                       resolution_in,
                                       AV_PIX_FMT_RGB24,
-                                      data_p))
+                                      data_a))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_Image_Tools::convert(), aborting\n")));
       return false;
     } // end IF
-    ACE_ASSERT (data_p);
-    format_e = AV_PIX_FMT_RGB24;
-    buffer_p = data_p;
+    ACE_ASSERT (data_a[0]);
+    buffers_a[0] = data_a[0];
     delete_buffer_b = true;
+    format_e = AV_PIX_FMT_RGB24;
   } // end IF
 
   if (!Common_Image_Tools::save (resolution_in,
                                  format_e,
-                                 buffer_p,
+                                 buffers_a,
                                  AV_CODEC_ID_PNG,
                                  path_in))
   {
@@ -556,7 +558,7 @@ Common_Image_Tools::savePNG (const Common_Image_Resolution_t& resolution_in,
 error:
   if (delete_buffer_b)
   {
-    delete [] buffer_p; buffer_p = NULL;
+    delete [] buffers_a[0]; buffers_a[0] = NULL;
   } // end IF
 
   return result;
@@ -877,7 +879,10 @@ Common_Image_Tools::save (const Common_Image_Resolution_t& sourceResolution_in,
   int result_2 = -1;
   const struct AVCodec* codec_p = NULL;
   struct AVCodecContext* codec_context_p = NULL;
-  struct AVPacket* packet_p = NULL;
+  struct AVPacket packet_s = {0};
+  // av_init_packet (&packet_s);
+  packet_s.data = NULL;
+  packet_s.size = 0;
   struct AVFrame* frame_p = av_frame_alloc ();
   if (!frame_p)
   {
@@ -965,10 +970,10 @@ Common_Image_Tools::save (const Common_Image_Resolution_t& sourceResolution_in,
                 ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
     goto error;
   } // end IF
-  ACE_OS::memset (frame_p->data, 0, sizeof (uint8_t * [8]));
+  ACE_OS::memset (frame_p->data, 0, sizeof (uint8_t*[8]));
   av_frame_unref (frame_p);
   result_2 = avcodec_receive_packet (codec_context_p,
-                                     packet_p);
+                                     &packet_s);
   if (result_2)
   {
     ACE_DEBUG ((LM_ERROR,
@@ -976,11 +981,11 @@ Common_Image_Tools::save (const Common_Image_Resolution_t& sourceResolution_in,
                 ACE_TEXT (Common_Image_Tools::errorToString (result_2).c_str ())));
     goto error;
   } // end IF
-  ACE_ASSERT (packet_p);
+  ACE_ASSERT (packet_s.data && packet_s.size);
 
   if (!Common_File_Tools::store (targetPath_in,
-                                 packet_p->data,
-                                 packet_p->size))
+                                 packet_s.data,
+                                 packet_s.size))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_File_Tools::store(\"%s\"), aborting\n"),
@@ -990,12 +995,13 @@ Common_Image_Tools::save (const Common_Image_Resolution_t& sourceResolution_in,
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("wrote file \"%s\" (%u byte(s)\n"),
               ACE_TEXT (targetPath_in.c_str ()),
-              packet_p->size));
+              packet_s.size));
 
   result = true;
 
 error:
-  av_packet_free (&packet_p);
+  // av_packet_unref (&packet_s);
+  av_free (packet_s.data);
   if (frame_p)
     av_frame_free (&frame_p);
   if (codec_context_p)
@@ -1150,13 +1156,13 @@ Common_Image_Tools::decode (uint8_t* sourceBuffers_in[],
     // *NOTE*: do not av_frame_unref the frame, keep the data
     targetBuffers_out = frame_p->data;
   } // end ELSE
-  ACE_OS::memset (frame_p->data, 0, sizeof (uint8_t* [8]));
+  ACE_OS::memset (frame_p->data, 0, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
   av_frame_unref (frame_p);
 
   result = true;
 
 error:
-  av_packet_unref (&packet_s);
+  // av_packet_unref (&packet_s);
   if (frame_p)
     av_frame_free (&frame_p);
   if (codec_context_p)

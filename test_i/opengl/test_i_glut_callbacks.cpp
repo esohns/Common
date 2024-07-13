@@ -107,10 +107,10 @@ test_i_opengl_glut_draw ()
 #endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
   std::chrono::duration<float> elapsed_time = tp2 - cb_data_p->tp1;
 
-#if defined(ACE_WIN32) || defined(ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   static std::chrono::steady_clock::time_point tp_last = tp2;
-#elif defined(ACE_LINUX)
-  std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> tp_last = tp2;
+#elif defined (ACE_LINUX)
+  static std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> tp_last = tp2;
 #else
 #error missing implementation, aborting
 #endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
@@ -147,7 +147,7 @@ test_i_opengl_glut_draw ()
   COMMON_GL_ASSERT;
 
   // "smooth" (random-) rotation
-#define TRANSITION_DURATION_F 2.0f
+#define TRANSITION_DURATION_F 2.0f // second(s)
   ACE_ASSERT (TRANSITION_DURATION_F != 0.0f); // would divide by 0 (see below)
   static glm::vec3 rotation_from (0.0f, 0.0f, 1.0f);
   static glm::vec3 rotation_to (1.0f, 1.0f, 1.0f);

@@ -333,9 +333,9 @@ glarea_realize_cb (GtkWidget* widget_in,
               ACE_TEXT ("OpenGL texture id: %u\n"),
               texture.id_));
 
-  camera.position = glm::vec3 (0.0f, 0.0f, 0.1f);
-  camera.looking_at = glm::vec3 (0.0f, 0.0f, 0.0f);
-  camera.up = glm::vec3 (0.0f, 1.0f, 0.0f);
+  camera.position_ = glm::vec3 (0.0f, 0.0f, 0.1f);
+  camera.looking_at_ = glm::vec3 (0.0f, 0.0f, 0.0f);
+  camera.up_ = glm::vec3 (0.0f, 1.0f, 0.0f);
 
   //glShadeModel (GL_SMOOTH);                           // Enable Smooth Shading
   //COMMON_GL_ASSERT;

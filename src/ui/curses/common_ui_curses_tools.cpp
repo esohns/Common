@@ -79,8 +79,8 @@ Common_UI_Curses_Tools::init_colorpairs ()
   COMMON_TRACE (ACE_TEXT ("Common_UI_Curses_Tools::init_colorpairs"));
 
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("(# curses-) COLORS: %d\n"),
-              COLORS));
+              ACE_TEXT ("(# curses-) COLORS: %d; COLOR_PAIRS: %d\n"),
+              COLORS, COLOR_PAIRS));
 
   int result = ERR;
   for (ACE_UINT8 bg = 0; bg <= 15; bg++)

@@ -43,6 +43,7 @@ target_link_libraries (${EXECUTABLE} PUBLIC Common)
 target_link_libraries (${EXECUTABLE} PUBLIC CommonLog)
 target_link_libraries (${EXECUTABLE} PUBLIC CommonTimer)
 target_link_libraries (${EXECUTABLE} PUBLIC CommonUI)
+target_link_libraries (${EXECUTABLE} PUBLIC CommonUI_Curses)
 
 target_link_libraries (${EXECUTABLE} PUBLIC Common_Test_I)
 

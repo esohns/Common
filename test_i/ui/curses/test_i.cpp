@@ -40,6 +40,7 @@
 #include "common_ui_tools.h"
 
 #include "common_ui_curses_defines.h"
+#include "common_ui_curses_tools.h"
 
 #include "common_test_i_defines.h"
 
@@ -151,38 +152,47 @@ do_work (int argc_in,
          ACE_TCHAR* argv_in[],
          enum Test_I_ModeType mode_in)
 {
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-  HANDLE console_h = GetStdHandle (STD_OUTPUT_HANDLE);
-  ACE_ASSERT (console_h != ACE_INVALID_HANDLE);
-#endif // ACE_WIN32 || ACE_WIN64
+// #if defined (ACE_WIN32) || defined (ACE_WIN64)
+//   HANDLE console_h = GetStdHandle (STD_OUTPUT_HANDLE);
+//   ACE_ASSERT (console_h != ACE_INVALID_HANDLE);
+// #endif // ACE_WIN32 || ACE_WIN64
 
   switch (mode_in)
   {
     case TEST_I_MODE_WINDOW:
     {
       ACE_UINT8 fg, bg;
-      chtype char_i;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+      chtype char_i;
 #else
-      cchar_t char_2;
-      ACE_OS::memset (&char_2, 0, sizeof (cchar_t));
+      cchar_t char_i;
+      ACE_OS::memset (&char_i, 0, sizeof (cchar_t));
 #endif // ACE_WIN32 || ACE_WIN64
 
       initscr ();
       start_color ();
+
+      // Common_UI_Curses_Tools::init_colorpairs ();
 
       move (5, 5);
       fg = COMMON_UI_CURSES_BRIGHT_RED; bg = COMMON_UI_CURSES_WHITE;
       init_pair (1, fg, bg);
       attron (COLOR_PAIR (1));
       printw ("Hello World");
-      refresh ();
-      getch ();
 
+      move (15, 7);
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
       char_i = COMMON_UI_CURSES_BLOCK_THREE_QUARTERS;
+#else
+      char_i.chars[0] = COMMON_UI_CURSES_BLOCK_THREE_QUARTERS;
+#endif // ACE_WIN32 || ACE_WIN64
       fg = COMMON_UI_CURSES_BRIGHT_GREEN; bg = COMMON_UI_CURSES_GREY;
       init_pair (2, fg, bg);
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
       char_i |= COLOR_PAIR (2) | A_BOLD;
+#else
+      char_i.attr = COLOR_PAIR (2) | A_BOLD;
+#endif // ACE_WIN32 || ACE_WIN64
       wadd_wch (stdscr, &char_i);
       refresh ();
       getch ();
