@@ -115,7 +115,7 @@ class Common_Image_Tools
 
   // *NOTE*: callers need to delete[] the returned memory buffer(s) (iff any)
   static bool load (uint8_t*[],                 // source buffer(s)
-                    unsigned int,               // source buffer(s) size
+                    size_t,                     // source buffer(s) size
                     enum AVCodecID,             // source format {AV_CODEC_ID_NONE: deduce}
                     enum AVPixelFormat,         // target pixel format
                     Common_Image_Resolution_t&, // return value: resolution
@@ -137,7 +137,7 @@ class Common_Image_Tools
 
   // *NOTE*: callers need to delete[] the returned memory buffer(s) (iff any)
   static bool decode (uint8_t*[],                 // source buffer(s)
-                      unsigned int,               // source buffer(s) size
+                      size_t,                     // source buffer(s) size
                       enum AVCodecID,             // source format {AV_CODEC_ID_NONE: deduce}
                       enum AVPixelFormat,         // target pixel format
                       Common_Image_Resolution_t&, // return value: target resolution

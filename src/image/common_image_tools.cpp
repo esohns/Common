@@ -17,7 +17,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "libavcodec/packet.h"
 #include "stdafx.h"
 
 #include "common_image_tools.h"
@@ -566,7 +565,7 @@ error:
 
 bool
 Common_Image_Tools::load (uint8_t* sourceBuffers_in[],
-                          unsigned int sourceBuffersSize_in,
+                          size_t sourceBuffersSize_in,
                           enum AVCodecID codecId_in,
                           enum AVPixelFormat format_in,
                           Common_Image_Resolution_t& resolution_out,
@@ -1012,7 +1011,7 @@ error:
 
 bool
 Common_Image_Tools::decode (uint8_t* sourceBuffers_in[],
-                            unsigned int sourceBuffersSize_in,
+                            size_t sourceBuffersSize_in,
                             enum AVCodecID codecId_in,
                             enum AVPixelFormat format_in,
                             Common_Image_Resolution_t& resolution_out,
@@ -1034,7 +1033,7 @@ Common_Image_Tools::decode (uint8_t* sourceBuffers_in[],
   //av_init_packet (&packet_s);
   packet_s.data = sourceBuffers_in[0];
   ACE_ASSERT (!sourceBuffers_in[1]); ACE_ASSERT (!sourceBuffers_in[2]); ACE_ASSERT (!sourceBuffers_in[3]);
-  packet_s.size = sourceBuffersSize_in;
+  packet_s.size = static_cast<int> (sourceBuffersSize_in);
 
   //frame_p = av_frame_alloc ();
   //if (!frame_p)
