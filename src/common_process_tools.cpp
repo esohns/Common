@@ -25,6 +25,7 @@
 #include <sstream>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "Psapi.h"
 #else
 #include "signal.h"
 
@@ -243,7 +244,7 @@ Common_Process_Tools::id (const std::string& executableName_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Process_Tools::id"));
 
-  pid_t result = 0;
+  pid_t result;
 
   // sanity check(s)
   ACE_ASSERT (!executableName_in.empty ());
@@ -258,7 +259,7 @@ Common_Process_Tools::id (const std::string& executableName_in)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Tools::getDistribution(), aborting\n")));
-    return result;
+    return 0;
   } // end IF
 
   std::string command_line_string;
@@ -274,7 +275,7 @@ Common_Process_Tools::id (const std::string& executableName_in)
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("command (was: \"%s\") is not installed: cannot proceed, aborting\n"),
                     ACE_TEXT (COMMON_COMMAND_PIDOFPROC)));
-        return result;
+        return 0;
       } // end IF
 //      ACE_ASSERT (Common_File_Tools::isExecutable (command_line_string));
       break;
@@ -289,7 +290,7 @@ Common_Process_Tools::id (const std::string& executableName_in)
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("command (was: \"%s\") is not installed: cannot proceed, aborting\n"),
                     ACE_TEXT (COMMON_COMMAND_PIDOF)));
-        return result;
+        return 0;
       } // end IF
 //      ACE_ASSERT (Common_File_Tools::isExecutable (command_line_string));
       break;
@@ -299,13 +300,14 @@ Common_Process_Tools::id (const std::string& executableName_in)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("invalid/unsupported linux distribution (was: %d), aborting\n"),
                   linux_distribution_e));
-      return result;
+      ACE_ASSERT (false); // *TODO*
+      return 0;
     }
   } // end SWITCH
   ACE_ASSERT (!command_line_string.empty ());
   command_line_string += ACE_TEXT_ALWAYS_CHAR (" ");
   command_line_string +=
-    ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT_ALWAYS_CHAR (executableName_in.c_str ()),
+    ACE_TEXT_ALWAYS_CHAR (ACE::basename (executableName_in.c_str (),
                                          ACE_DIRECTORY_SEPARATOR_CHAR_A));
 
   char buffer_a[BUFSIZ];
@@ -318,7 +320,7 @@ Common_Process_Tools::id (const std::string& executableName_in)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::popen(\"%s\",r): \"%m\", aborting\n"),
                 ACE_TEXT (command_line_string.c_str ())));
-    return result;
+    return 0;
   } // end IF
   if (unlikely (!ACE_OS::fgets (buffer_a,
                                 sizeof (char[BUFSIZ]),
@@ -356,30 +358,105 @@ clean:
                   ACE_TEXT ("failed to ::pclose(%@): \"%m\", continuing\n"),
                   stream_p));
   } // end IF
+#elif defined (ACE_WIN32) || defined (ACE_WIN64)
+  DWORD processes_a[BUFSIZ], cbNeeded, cProcesses;
+  HANDLE hProcess;
+  TCHAR szProcessName[MAX_PATH];
+
+  std::string command_line_string;
+  int exit_status = 0;
+  std::string stdout_string;
+  char buffer_a[BUFSIZ];
+  std::istringstream converter, converter_2;
+  std::regex regex;
+  std::smatch match_results;
+  std::string line_string;
+
+  if (!EnumProcesses (processes_a, sizeof (DWORD[BUFSIZ]), &cbNeeded))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to EnumProcesses(): \"%s\", falling back\n"),
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
+    goto fallback;
+  } // end IF
+  cProcesses = cbNeeded / sizeof (DWORD);
+  for (DWORD i = 0; i < cProcesses; i++)
+  {
+    if (!processes_a[i]) // cannot OpenProcess() the system idle process
+      continue;
+     hProcess = OpenProcess (PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
+                             FALSE, // bInheritHandle
+                             processes_a[i]);
+    if (!hProcess)
+    {
+      //ACE_DEBUG ((LM_ERROR,
+      //            ACE_TEXT ("failed to OpenProcess(%u): \"%s\", continuing\n"),
+      //            processes_a[i],
+      //            ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
+      continue;
+    } // end IF
+
+    //HMODULE hMod = NULL;
+    //if (!EnumProcessModules (hProcess,
+    //                         &hMod,
+    //                         sizeof (HMODULE),
+    //                         &cbNeeded))
+    //{
+    //  ACE_DEBUG ((LM_ERROR,
+    //              ACE_TEXT ("failed to EnumProcessModules(%u): \"%s\", continuing\n"),
+    //              processes_a[i],
+    //              ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
+    //  CloseHandle (hProcess); hProcess = NULL;
+    //  continue;
+    //} // end IF
+    //ACE_ASSERT (hMod);
+
+    if (!GetModuleBaseName (hProcess,
+                            NULL,//hMod, "...If this parameter is NULL, this function returns the name of the file used to create the calling process..."
+                            szProcessName,
+                            sizeof (TCHAR[MAX_PATH]) / sizeof (TCHAR)))
+    {
+      //ACE_DEBUG ((LM_ERROR,
+      //            ACE_TEXT ("failed to GetModuleBaseName(%u): \"%s\", continuing\n"),
+      //            processes_a[i],
+      //            ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
+      CloseHandle (hProcess); hProcess = NULL;
+      continue;
+    } // end IF
+    std::string executable_string =
+#if defined (UNICODE)
+      ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (szProcessName));
 #else
-  std::string command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_TASKLIST);
+      szProcessName;
+#endif // UNICODE
+    if (!ACE_OS::strcmp (executable_string.c_str (), executableName_in.c_str ()))
+    {
+      result = processes_a[i];
+      CloseHandle (hProcess); hProcess = NULL;
+      return result;
+    } // end IF
+
+    CloseHandle (hProcess); hProcess = NULL;
+  } // end FOR
+  
+fallback:
+  command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_TASKLIST);
   command_line_string += ACE_TEXT_ALWAYS_CHAR (" /NH /FI \"imagename eq ");
   command_line_string += executableName_in;
   command_line_string += ACE_TEXT_ALWAYS_CHAR ("\"");
-  int exit_status = 0;
-  std::string stdout_string;
   if (!Common_Process_Tools::command (command_line_string,
                                       exit_status,
                                       stdout_string,
-                                      true))
+                                      true)) // return stdout ?
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Process_Tools::command(\"%s\"), aborting\n")));
-    return result;
+    return 0;
   } // end IF
 
   // parse result
-  char buffer_a[BUFSIZ];
-  std::istringstream converter, converter_2;
   converter.str (stdout_string);
-  std::regex regex (ACE_TEXT_ALWAYS_CHAR ("^([^ ]+)(?:[[:space:]]+)([[:digit:]]+)(?:[[:space:]]+)([[:alpha:]]+)(?:[[:space:]]+)([[:digit:]]+)(?:[[:space:]]+)(.+)(?:\r)$"));
-  std::smatch match_results;
-  std::string line_string;
+  regex.assign (ACE_TEXT_ALWAYS_CHAR ("^([^ ]+)(?:[[:space:]]+)([[:digit:]]+)(?:[[:space:]]+)([[:alpha:]]+)(?:[[:space:]]+)([[:digit:]]+)(?:[[:space:]]+)(.+)(?:\r)$"));
   do 
   {
     converter.getline (buffer_a, sizeof (char[BUFSIZ]));
@@ -398,8 +475,9 @@ clean:
     converter_2.clear ();
     converter_2.str (match_results[2].str ());
     converter_2 >> result;
+    break; // *NOTE*: retrieve the first entry only
   } while (!converter.fail ());
-#endif // ACE_LINUX
+#endif // ACE_LINUX || ACE_WIN32 || ACE_WIN64
 
   return result;
 }
