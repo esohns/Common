@@ -23,7 +23,6 @@
 
 #include <regex>
 
-#include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "Shlobj.h"
 #include "Userenv.h"
@@ -63,10 +62,12 @@ Common_File_Tools::initialize (const std::string& argv0_in)
   ACE_ASSERT (Common_File_Tools::isValidFilename (argv0_in));
 
   Common_File_Tools::executable =
-    ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv0_in.c_str (), ACE_DIRECTORY_SEPARATOR_CHAR));
+  ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv0_in.c_str (),
+                                        ACE_DIRECTORY_SEPARATOR_CHAR_A));
 
   Common_File_Tools::executableBase =
-      ACE_TEXT_ALWAYS_CHAR (ACE::dirname (argv0_in.c_str(), ACE_DIRECTORY_SEPARATOR_CHAR));
+    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (argv0_in.c_str(),
+                                        ACE_DIRECTORY_SEPARATOR_CHAR_A));
   ACE_ASSERT (Common_File_Tools::isDirectory (Common_File_Tools::executableBase));
 }
 
@@ -77,16 +78,16 @@ Common_File_Tools::addressToString (const ACE_FILE_Addr& address_in)
 
   std::string result;
 
-  ACE_TCHAR buffer[PATH_MAX];
-  int result_2 = address_in.addr_to_string (buffer,
-                                            sizeof (buffer));
+  ACE_TCHAR buffer_a[PATH_MAX];
+  int result_2 = address_in.addr_to_string (buffer_a,
+                                            sizeof (ACE_TCHAR[PATH_MAX]));
   if (unlikely (result_2 == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_FILE_Addr::addr_to_string(): \"%m\", aborting\n")));
     return result;
   } // end IF
-  result = ACE_TEXT_ALWAYS_CHAR (buffer);
+  result = ACE_TEXT_ALWAYS_CHAR (buffer_a);
 
   return result;
 }
@@ -155,7 +156,8 @@ Common_File_Tools::exists (const std::string& path_in)
   int result = -1;
   ACE_stat stat_s;
   ACE_OS::memset (&stat_s, 0, sizeof (ACE_stat));
-  result = ACE_OS::stat (ACE_TEXT (path_in.c_str ()), &stat_s);
+  result = ACE_OS::stat (ACE_TEXT (path_in.c_str ()),
+                         &stat_s);
   if (unlikely (result == -1))
   {
     int error = ACE_OS::last_error ();
@@ -900,11 +902,11 @@ Common_File_Tools::isValidFilename (const std::string& string_in)
 
   std::string directory, file_name;
   directory =
-    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (string_in.c_str ()),
-                                        ACE_DIRECTORY_SEPARATOR_CHAR));
+    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (string_in.c_str (),
+                                        ACE_DIRECTORY_SEPARATOR_CHAR_A));
   file_name =
-    ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (string_in.c_str ()),
-                                         ACE_DIRECTORY_SEPARATOR_CHAR));
+    ACE_TEXT_ALWAYS_CHAR (ACE::basename (string_in.c_str (),
+                                         ACE_DIRECTORY_SEPARATOR_CHAR_A));
 
   // *TODO*: this isn't entirely accurate
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -912,7 +914,7 @@ Common_File_Tools::isValidFilename (const std::string& string_in)
   //         successfully
   //         --> append slash(es)
   if ((directory.size () == 2) && (directory[1] == ':'))
-    directory += ACE_DIRECTORY_SEPARATOR_STR;
+    directory += ACE_DIRECTORY_SEPARATOR_CHAR_A;
 #endif // ACE_WIN32 || ACE_WIN64
 
   return (!Common_File_Tools::isDirectory (string_in) &&
@@ -932,11 +934,11 @@ Common_File_Tools::isValidPath (const std::string& string_in)
 
   std::string directory, file_name;
   directory =
-    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (string_in.c_str ()),
-                                        ACE_DIRECTORY_SEPARATOR_CHAR));
+    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (string_in.c_str (),
+                                        ACE_DIRECTORY_SEPARATOR_CHAR_A));
   file_name =
-    ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (string_in.c_str ()),
-                                         ACE_DIRECTORY_SEPARATOR_CHAR));
+    ACE_TEXT_ALWAYS_CHAR (ACE::basename (string_in.c_str (),
+                                         ACE_DIRECTORY_SEPARATOR_CHAR_A));
 
   return Common_File_Tools::isDirectory (directory);
 }
@@ -952,7 +954,7 @@ Common_File_Tools::isAbsolutePath (const std::string& path_in)
   std::regex regex (ACE_TEXT_ALWAYS_CHAR ("^(?:\\/)(?:([^\\/]+)(?:\\/))*([^\\/]+)?$"));
 #endif // ACE_WIN32 || ACE_WIN64
   std::smatch match_results;
-
+  
   if (!std::regex_match (path_in,
                          match_results,
                          regex,
@@ -969,7 +971,7 @@ Common_File_Tools::isRelativePath (const std::string& path_in)
 
   //std::string dot_slash_string;
   //dot_slash_string += '.';
-  //dot_slash_string += ACE_TEXT_ALWAYS_CHAR (ACE_DIRECTORY_SEPARATOR_CHAR);
+  //dot_slash_string += ACE_TEXT_ALWAYS_CHAR (ACE_DIRECTORY_SEPARATOR_CHAR_A);
 
   //return Common_String_Tools::startswith (path_in, dot_slash_string);
 
@@ -983,8 +985,8 @@ Common_File_Tools::basename (const std::string& path_in,
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::basename"));
 
   std::string return_value =
-      ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (path_in.c_str ()),
-                                           ACE_DIRECTORY_SEPARATOR_CHAR));
+      ACE_TEXT_ALWAYS_CHAR (ACE::basename (path_in.c_str (),
+                                           ACE_DIRECTORY_SEPARATOR_CHAR_A));
   if (stripSuffix_in)
   {
     std::string::size_type position = return_value.rfind ('.');
@@ -1002,11 +1004,11 @@ Common_File_Tools::isBasename (const std::string& path_in)
 
   std::string directory, file_name;
   directory =
-    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT (path_in.c_str ()),
-                                        ACE_DIRECTORY_SEPARATOR_CHAR));
+    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (path_in.c_str (),
+                                        ACE_DIRECTORY_SEPARATOR_CHAR_A));
   file_name =
-    ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (path_in.c_str ()),
-                                         ACE_DIRECTORY_SEPARATOR_CHAR));
+    ACE_TEXT_ALWAYS_CHAR (ACE::basename (path_in.c_str (),
+                                         ACE_DIRECTORY_SEPARATOR_CHAR_A));
 
   return (!ACE_OS::strcmp (directory.c_str (),
                            ACE_TEXT_ALWAYS_CHAR (".")) &&
@@ -1440,21 +1442,28 @@ bool
 Common_File_Tools::load (const std::string& path_in,
                          uint8_t*& file_out,
                          ACE_UINT64& fileSize_out,
-                         unsigned int padding_in)
+                         ACE_UINT64 padding_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::load"));
 
   bool result = true;
   int result_2 = -1;
   size_t result_3 = 0;
-  long file_size_i = 0;
+  FILE* file_p = NULL;
 
   // initialize return value(s)
   file_out = NULL;
-  fileSize_out = 0;
+  fileSize_out = Common_File_Tools::size (path_in);
 
-  FILE* file_p = ::fopen (ACE_TEXT (path_in.c_str ()),
-                          ACE_TEXT_ALWAYS_CHAR ("rb"));
+  // sanity check(s)
+  if (unlikely (!fileSize_out && !padding_in))
+  {
+    result = true;
+    goto continue_;
+  } // end IF
+
+  file_p = ::fopen (path_in.c_str (),
+                    ACE_TEXT_ALWAYS_CHAR ("rb"));
   if (unlikely (!file_p))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -1463,80 +1472,38 @@ Common_File_Tools::load (const std::string& path_in,
     return false;
   } // end IF
 
-  // *NOTE*: "...Subclause 7.21.9.2 of the C Standard [ISO/IEC 9899:2011]
-  //         specifies the following behavior for fseek() when opening a binary
-  //         file in binary mode: "A binary stream need not meaningfully support
-  //         fseek calls with a whence value of SEEK_END." In addition, footnote
-  //         268 of subclause 7.21.3 says: "Setting the file position indicator
-  //         to end-of-file, as with fseek(file, 0, SEEK_END), has undefined
-  //         behavior for a binary stream (because of possible trailing null
-  //         characters) or for any stream with state-dependent encoding that
-  //         does not assuredly end in the initial shift state."
-
-  // obtain file size
-  result_2 = ACE_OS::fseek (file_p, 0, SEEK_END);
-  if (unlikely (result_2))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::fseek(\"%s\",0,SEEK_END): \"%m\", aborting\n"),
-                ACE_TEXT (path_in.c_str ())));
-    goto error;
-  } // end IF
-  file_size_i = ACE_OS::ftell (file_p);
-  if (unlikely (file_size_i == -1))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::ftell(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (path_in.c_str ())));
-    goto error;
-  } // end IF
-  fileSize_out = static_cast<ACE_UINT64> (file_size_i);
-  result_2 = ACE_OS::fseek (file_p, 0, SEEK_SET);
-  if (unlikely (result_2))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::fseek(\"%s\",0,SEEK_SET): \"%m\", aborting\n"),
-                ACE_TEXT (path_in.c_str ())));
-    goto error;
-  } // end IF
-  if (unlikely (!file_size_i && !padding_in))
-  {
-    result = true;
-    goto continue_;
-  } // end IF
-
   // *PORTABILITY* allocate array
   ACE_NEW_NORETURN (file_out,
-                    uint8_t[static_cast<size_t> (file_size_i + padding_in)]);
+                    uint8_t[fileSize_out + padding_in]);
   if (unlikely (!file_out))
   {
     ACE_DEBUG ((LM_CRITICAL,
-                ACE_TEXT ("failed to allocate memory (was: %d byte(s)): \"%m\", aborting\n"),
-                file_size_i + padding_in));
+                ACE_TEXT ("failed to allocate memory (was: %Q byte(s)): \"%m\", aborting\n"),
+                fileSize_out + padding_in));
     goto error;
   } // end IF
-  ACE_OS::memset (file_out, 0, sizeof (uint8_t) * (file_size_i + padding_in));
+  ACE_OS::memset (file_out, 0, sizeof (uint8_t) * (fileSize_out + padding_in));
 
   // read data
   result_3 =
-    ACE_OS::fread (static_cast<void*> (file_out),     // target buffer
-                   static_cast<size_t> (file_size_i), // read everything ...
-                   1,                                 // ... at once
-                   file_p);                           // stream handle
+    ACE_OS::fread (static_cast<void*> (file_out), // target buffer
+                   fileSize_out,                  // read everything ...
+                   1,                             // ... at once
+                   file_p);                       // stream handle
   if (unlikely (result_3 != static_cast<size_t> (1)))
   { // *NOTE*: apparently, virtual filesystem files (e.g. sysfs) do not report
     //         correct sizes; fread fails but reads what is there --> continue
     if (::feof (file_p))
       ACE_DEBUG ((LM_WARNING,
-                  ACE_TEXT ("failed to ACE_OS::fread(\"%s\",%d): \"%m\" (sysfs short read ?), continuing\n"),
+                  ACE_TEXT ("failed to ACE_OS::fread(\"%s\",%Q): \"%m\" (sysfs short read ?), continuing\n"),
                   ACE_TEXT (path_in.c_str ()),
-                  file_size_i));
+                  fileSize_out));
     else
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_OS::fread(\"%s\",%d): \"%m\", aborting\n"),
+                  ACE_TEXT ("failed to ACE_OS::fread(\"%s\",%Q): \"%m\", aborting\n"),
                   ACE_TEXT (path_in.c_str ()),
-                  file_size_i));
+                  fileSize_out));
       goto error;
     } // end ELSE
   } // end IF
@@ -1551,6 +1518,7 @@ error:
   fileSize_out = 0;
 
   result = false;
+
 continue_:
   result_2 = ACE_OS::fclose (file_p);
   if (unlikely (result_2 == -1))
@@ -1749,14 +1717,16 @@ Common_File_Tools::size (const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::size"));
 
-  int result = -1;
+  ACE_UINT64 result;
+
   ACE_stat stat_s;
   ACE_OS::memset (&stat_s, 0, sizeof (ACE_stat));
-  result = ACE_OS::stat (path_in.c_str (), &stat_s);
+  result = ACE_OS::stat (path_in.c_str (),
+                         &stat_s);
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", returning\n"),
+                ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
                 ACE_TEXT (path_in.c_str ())));
     return 0;
   } // end IF
@@ -1854,7 +1824,8 @@ Common_File_Tools::realPath (const std::string& path_in)
   std::string return_value;
 
   char buffer_a[PATH_MAX];
-  if (unlikely (!ACE_OS::realpath (path_in.c_str (), buffer_a)))
+  if (unlikely (!ACE_OS::realpath (path_in.c_str (),
+                                   buffer_a)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::realpath(\"%s\"): %m, aborting\n"),
@@ -1880,7 +1851,7 @@ Common_File_Tools::setWorkingDirectory (const std::string& path_in)
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ::chdir(\"%s\"): %m, aborting\n"),
+                ACE_TEXT ("failed to ::chdir(\"%s\"): \"%m\", aborting\n"),
                 ACE_TEXT (path_in.c_str ())));
     return false;
   } // end IF
@@ -1899,11 +1870,12 @@ Common_File_Tools::getWorkingDirectory ()
   // retrieve working directory
   ACE_TCHAR buffer_a[PATH_MAX];
   ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[PATH_MAX]));
-  if (unlikely (!ACE_OS::getcwd (buffer_a, sizeof (ACE_TCHAR[PATH_MAX]))))
+  if (unlikely (!ACE_OS::getcwd (buffer_a,
+                                 sizeof (ACE_TCHAR[PATH_MAX]))))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::getcwd(): \"%m\", aborting\n")));
-    return return_value;
+    return ACE_TEXT_ALWAYS_CHAR ("");
   } // end IF
   return_value = ACE_TEXT_ALWAYS_CHAR (buffer_a);
 
@@ -1922,9 +1894,6 @@ Common_File_Tools::getSourceDirectory (const std::string& packageName_in,
   // sanity check(s)
   ACE_ASSERT (!packageName_in.empty ());
 
-#if defined (BASEDIR)
-  return_value = ACE_TEXT_ALWAYS_CHAR (BASEDIR);
-#else
   ACE_TCHAR buffer_a[PATH_MAX];
   ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[PATH_MAX]));
 
@@ -1935,18 +1904,17 @@ Common_File_Tools::getSourceDirectory (const std::string& packageName_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::getenv(%s): \"%m\", aborting\n"),
                 ACE_TEXT (COMMON_ENVIRONMENT_DIRECTORY_ROOT_PROJECTS)));
-    return return_value;
+    return ACE_TEXT_ALWAYS_CHAR ("");
   } // end IF
   return_value = ACE_TEXT_ALWAYS_CHAR (string_p);
-#endif // BASEDIR
-  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
   //return_value += ACE_TEXT_ALWAYS_CHAR (ACE_DLL_PREFIX);
   return_value += packageName_in;
-  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
   return_value += ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_SOURCE_SUBDIRECTORY);
   if (!moduleName_in.empty ())
   {
-    return_value += ACE_DIRECTORY_SEPARATOR_STR;
+    return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
     return_value += moduleName_in;
   } // end IF
 
@@ -1956,7 +1924,7 @@ Common_File_Tools::getSourceDirectory (const std::string& packageName_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("not a directory (was: \"%s\"), aborting\n"),
                 ACE_TEXT (return_value.c_str ())));
-    return_value.clear ();
+    return ACE_TEXT_ALWAYS_CHAR ("");
   } // end IF
 
   return return_value;
@@ -2012,27 +1980,27 @@ Common_File_Tools::getSystemConfigurationDataDirectory (const std::string& packa
     return Common_File_Tools::getWorkingDirectory ();
   } // end IF
   return_value = ACE_TEXT_ALWAYS_CHAR (buffer_a);
-  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
   return_value += packageName_in;
-  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
   return_value +=
       (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
                           : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
 #else
   return_value =
     ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_APPLICATION_STORAGE_ROOT_DIRECTORY);
-  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
   return_value +=
     ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_APPLICATION_STORAGE_LOCAL_SUBDIRECTORY);
-  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
   return_value +=
     (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
                         : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_APPLICATION_STORAGE_SUBDIRECTORY));
-  return_value += ACE_DIRECTORY_SEPARATOR_STR;
+  return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
   return_value += packageName_in;
   if (!moduleName_in.empty ())
   {
-    return_value += ACE_DIRECTORY_SEPARATOR_STR;
+    return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
     return_value += moduleName_in;
   } // end IF
 #endif // ACE_WIN32 || ACE_WIN64
@@ -2069,15 +2037,15 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
       return_value =
         Common_File_Tools::getSourceDirectory (packageName_in,
                                                ACE_TEXT_ALWAYS_CHAR (""));
-      return_value += ACE_DIRECTORY_SEPARATOR_STR;
+      return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
       return_value +=
         ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_PARENT_SUBDIRECTORY);
-      return_value += ACE_DIRECTORY_SEPARATOR_STR;
+      return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
       return_value += moduleName_in;
-      return_value += ACE_DIRECTORY_SEPARATOR_STR;
+      return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
       return_value +=
         Common_String_Tools::tolower (Common_File_Tools::basename (Common_File_Tools::executable, true));
-      return_value += ACE_DIRECTORY_SEPARATOR_STR;
+      return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
       return_value +=
           (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
                               : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
@@ -2086,10 +2054,10 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
     {
       return_value = Common_File_Tools::getSourceDirectory (packageName_in,
                                                             moduleName_in);
-      return_value += ACE_DIRECTORY_SEPARATOR_STR;
+      return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
       return_value +=
         ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_PARENT_SUBDIRECTORY);
-      return_value += ACE_DIRECTORY_SEPARATOR_STR;
+      return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
       return_value +=
           (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
                               : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
@@ -2106,28 +2074,28 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
   if (is_test_b)
   {
     return_value = Common_File_Tools::getWorkingDirectory ();
-    return_value += ACE_DIRECTORY_SEPARATOR_STR;
+    return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
     //return_value +=
     //  ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_PARENT_SUBDIRECTORY);
-    //return_value += ACE_DIRECTORY_SEPARATOR_STR;
+    //return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
     return_value +=
         (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
                             : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
-    return_value += ACE_DIRECTORY_SEPARATOR_STR;
+    return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
     return_value +=
       Common_String_Tools::tolower (Common_File_Tools::basename (Common_File_Tools::executable, true));
   } // end IF
   else
   {
     return_value = Common_File_Tools::getWorkingDirectory ();
-    return_value += ACE_DIRECTORY_SEPARATOR_STR;
+    return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
     //return_value +=
     //  ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_PARENT_SUBDIRECTORY);
-    //return_value += ACE_DIRECTORY_SEPARATOR_STR;
+    //return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
     return_value +=
         (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
                             : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
-    //return_value += ACE_DIRECTORY_SEPARATOR_STR;
+    //return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
     //return_value +=
     //  Common_String_Tools::tolower (Common_File_Tools::basename (Common_File_Tools::executable, true));
   } // end ELSE
@@ -2255,7 +2223,7 @@ Common_File_Tools::getHomeDirectory (const std::string& userName_in)
 
 fallback:
   ACE_TCHAR* string_p =
-      ACE_OS::getenv (ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE));
+      ACE_OS::getenv (ACE_TEXT (COMMON_LOCATION_TEMPORARY_STORAGE_VARIABLE)); // *TODO*: use $HOME on UNIX
   if (unlikely (!string_p))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -2276,20 +2244,34 @@ Common_File_Tools::getUserConfigurationDirectory ()
   std::string result;
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  ACE_TCHAR buffer[PATH_MAX];
-  ACE_OS::memset (buffer, 0, sizeof (buffer));
+#if defined (UNICODE)
+#if defined (ACE_USES_WCHAR)
+  ACE_TCHAR buffer_a[PATH_MAX];
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[PATH_MAX]));
+#else
+  ACE_ANTI_TCHAR buffer_a[PATH_MAX];
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_ANTI_TCHAR[PATH_MAX]));
+#endif // ACE_USES_WCHAR
+#else
+#if defined (ACE_USES_WCHAR)
+  ACE_ANTI_TCHAR buffer_a[PATH_MAX];
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_ANTI_TCHAR[PATH_MAX]));
+#else
+  ACE_TCHAR buffer_a[PATH_MAX];
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[PATH_MAX]));
+#endif // ACE_USES_WCHAR
+#endif // UNICODE
 
   HRESULT result_2 =
-// *TODO*: this is apparently inconsistent (see also config.h for details)
-#if defined (ACE_USES_WCHAR)
+#if defined (UNICODE)
     SHGetFolderPathW (NULL,                                   // hwndOwner
 #else
     SHGetFolderPathA (NULL,                                   // hwndOwner
-#endif // ACE_USES_WCHAR
+#endif // UNICODE
                       CSIDL_APPDATA | CSIDL_FLAG_DONT_VERIFY, // nFolder
                       NULL,                                   // hToken
                       SHGFP_TYPE_CURRENT,                     // dwFlags
-                      buffer);                                // pszPath
+                      buffer_a);                              // pszPath
   if (unlikely (FAILED (result_2)))
   {
     ACE_DEBUG ((LM_WARNING,
@@ -2298,7 +2280,7 @@ Common_File_Tools::getUserConfigurationDirectory ()
     goto fallback;
   } // end IF
 
-  result = ACE_TEXT_ALWAYS_CHAR (buffer);
+  result = ACE_TEXT_ALWAYS_CHAR (buffer_a);
   result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
 #else
   std::string username_string;
@@ -2408,6 +2390,7 @@ Common_File_Tools::getUserDownloadDirectory (const std::string& userName_in)
   result += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   result += ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DOWNLOAD_STORAGE_SUBDIRECTORY);
 #endif // ACE_WIN32 || ACE_WIN64
+
   // sanity check(s): directory exists ?
   // No ? --> (try to) create it then
   if (unlikely (!Common_File_Tools::isDirectory (result)))
@@ -2443,7 +2426,7 @@ Common_File_Tools::getTempDirectory ()
 use_environment:
 #endif // ACE_WIN32 || ACE_WIN64
   ACE_TCHAR* string_p =
-      ACE_OS::getenv (ACE_TEXT (environment_variable.c_str ()));
+    ACE_OS::getenv (ACE_TEXT (environment_variable.c_str ()));
   if (unlikely (!string_p))
   {
     ACE_DEBUG ((LM_WARNING,
@@ -2568,32 +2551,32 @@ Common_File_Tools::getTempFilename (const std::string& prefix_in,
                   ACE_TEXT ("failed to Common_File_Tools::getTempDirectory(), aborting\n")));
       return result;
     } // end IF
-    result += ACE_DIRECTORY_SEPARATOR_STR;
+    result += ACE_DIRECTORY_SEPARATOR_STR_A;
   } // end IF
 
   // sanity check(s)
   ACE_ASSERT (prefix_in.size () <= (BUFSIZ - 6 + 1));
 
   // *NOTE*: see also: man 3 mkstemp
-  ACE_TCHAR buffer[BUFSIZ];
+  ACE_TCHAR buffer_a[BUFSIZ];
   size_t offset_i = prefix_in.size ();
   char* result_p = NULL;
   if (unlikely (!prefix_in.empty ()))
   {
-    ACE_OS::strcpy (buffer, prefix_in.c_str ());
-    ACE_OS::strcpy (buffer + prefix_in.size (), ACE_TEXT_ALWAYS_CHAR ("_"));
+    ACE_OS::strcpy (buffer_a, ACE_TEXT (prefix_in.c_str ()));
+    ACE_OS::strcpy (buffer_a + prefix_in.size (), ACE_TEXT ("_"));
     ++offset_i;
   } // end IF
-  ACE_OS::strcpy (buffer + offset_i, ACE_TEXT ("XXXXXX"));
-  result_p = ACE_OS::mktemp (buffer);
+  ACE_OS::strcpy (buffer_a + offset_i, ACE_TEXT ("XXXXXX"));
+  result_p = ACE_OS::mktemp (buffer_a);
   if (unlikely (!result_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::mktemp(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT (buffer)));
-    return std::string ();
+                ACE_TEXT (buffer_a)));
+    return ACE_TEXT_ALWAYS_CHAR ("");
   } // end IF
-  result += buffer;
+  result += ACE_TEXT_ALWAYS_CHAR (buffer_a);
 
   return result;
 }

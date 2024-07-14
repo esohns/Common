@@ -305,14 +305,12 @@ Common_Process_Tools::id (const std::string& executableName_in)
   ACE_ASSERT (!command_line_string.empty ());
   command_line_string += ACE_TEXT_ALWAYS_CHAR (" ");
   command_line_string +=
-      ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (executableName_in.c_str ()),
-                                           ACE_DIRECTORY_SEPARATOR_CHAR));
+    ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT_ALWAYS_CHAR (executableName_in.c_str ()),
+                                         ACE_DIRECTORY_SEPARATOR_CHAR_A));
 
-  ACE_TCHAR buffer_a[BUFSIZ];
+  char buffer_a[BUFSIZ];
   char* pid_p = NULL;
-  int i = 0;
-  pid_t process_ids_a[64];
-  ACE_OS::memset (&process_ids_a, 0, sizeof (pid_t[64]));
+  std::vector<pid_t> process_ids_a;
   FILE* stream_p = ::popen (command_line_string.c_str (),
                             ACE_TEXT_ALWAYS_CHAR ("r"));
   if (unlikely (!stream_p))
@@ -323,7 +321,7 @@ Common_Process_Tools::id (const std::string& executableName_in)
     return result;
   } // end IF
   if (unlikely (!ACE_OS::fgets (buffer_a,
-                                sizeof (ACE_TCHAR[BUFSIZ]),
+                                sizeof (char[BUFSIZ]),
                                 stream_p)))
   {
     if (!::feof (stream_p)) // no output ? --> process not found
@@ -336,18 +334,17 @@ Common_Process_Tools::id (const std::string& executableName_in)
   pid_p = ACE_OS::strtok (buffer_a, ACE_TEXT_ALWAYS_CHAR (" "));
   while (pid_p)
   {
-    process_ids_a[i] = static_cast<pid_t> (ACE_OS::atoi (pid_p));
-    ++i;
+    process_ids_a.push_back (static_cast<pid_t> (ACE_OS::atoi (pid_p)));
     pid_p = ACE_OS::strtok (NULL , ACE_TEXT_ALWAYS_CHAR (" "));
   } // end WHILE
-  if (unlikely (i > 1))
+  if (unlikely (process_ids_a.size () > 1))
   {
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("found more than one process for executable (was: \"%s\"), returning the lowest PID\n"),
                 ACE_TEXT (executableName_in.c_str ())));
-    std::sort (process_ids_a, process_ids_a + 64);
+    std::sort (process_ids_a.begin (), process_ids_a.end ());
   } // end IF
-  if (likely (i))
+  if (likely (!process_ids_a.empty ()))
     result = process_ids_a[0];
 
 clean:
@@ -383,7 +380,8 @@ clean:
   std::regex regex (ACE_TEXT_ALWAYS_CHAR ("^([^ ]+)(?:[[:space:]]+)([[:digit:]]+)(?:[[:space:]]+)([[:alpha:]]+)(?:[[:space:]]+)([[:digit:]]+)(?:[[:space:]]+)(.+)(?:\r)$"));
   std::smatch match_results;
   std::string line_string;
-  do {
+  do 
+  {
     converter.getline (buffer_a, sizeof (char[BUFSIZ]));
     line_string = buffer_a;
     if (!std::regex_match (line_string,

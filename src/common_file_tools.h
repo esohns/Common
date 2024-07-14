@@ -127,7 +127,7 @@ class Common_File_Tools
   static bool load (const std::string&, // (FQ) path
                     uint8_t*&,          // return value: file data
                     ACE_UINT64&,        // return value: file size
-                    unsigned int = 0);  // padding byte(s)
+                    ACE_UINT64 = 0);    // padding byte(s)
   static bool open (const std::string&, // (FQ) path
                     int,                // flags
                     ACE_FILE_IO&);      // return value: file stream
