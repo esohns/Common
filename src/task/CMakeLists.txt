@@ -60,11 +60,8 @@ target_sources (${LIBRARY}
 
 #add_dependencies (${LIBRARY} ACE)
 
-#set_target_properties (${LIBRARY} PROPERTIES
-#                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
-
 if (UNIX)
- set_property(TARGET ${LIBRARY} PROPERTY CXX_STANDARD 11)
+# set_property(TARGET ${LIBRARY} PROPERTY CXX_STANDARD 11)
 elseif (WIN32)
  target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
 endif ()

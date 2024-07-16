@@ -1723,7 +1723,7 @@ Common_File_Tools::size (const std::string& path_in)
   ACE_OS::memset (&stat_s, 0, sizeof (ACE_stat));
   result = ACE_OS::stat (path_in.c_str (),
                          &stat_s);
-  if (unlikely (result == -1))
+  if (unlikely (result == static_cast<ACE_UINT64> (-1)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::stat(\"%s\"): \"%m\", aborting\n"),
