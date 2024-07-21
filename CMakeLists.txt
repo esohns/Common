@@ -4,6 +4,7 @@ set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts
 include (Configuration)
 include (Macros)
 include (OS)
+include (compiler_init)
 
 # detect version
 #include (MacrosAutotools)
