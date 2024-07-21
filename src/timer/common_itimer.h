@@ -50,9 +50,8 @@ class Common_ITimerCBBase
                                const void*,                                       // asynchronous completion token
                                const ACE_Time_Value&,                             // expiration time (relative)
                                const ACE_Time_Value& = ACE_Time_Value::zero) = 0; // set periodic interval ?
-  virtual int cancel_timer (long,             // timer id
-                            const void** = 0, // return value: asynchronous completion token
-                            int = 1) = 0;     // do not (!) call handle_close() ?
+  virtual int cancel_timer (long,                  // timer id
+                            const void** = 0) = 0; // return value: asynchronous completion token
   virtual int reset_timer_interval (long,                       // timer id
                                     const ACE_Time_Value&) = 0; // interval
 };

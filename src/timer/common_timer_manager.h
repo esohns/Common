@@ -75,9 +75,8 @@ class Common_Timer_Manager_T
   virtual void wait (bool = true) const; // N/A
 
   // implement Common_ITimerCB_T
-  virtual int cancel_timer (long,             // timer id
-                            const void** = 0, // return value: asynchronous completion token
-                            int = 1);         // do not (!) call handle_close() ?
+  virtual int cancel_timer (long,               // timer id
+                            const void** = 0); // return value: asynchronous completion token
   virtual int reset_timer_interval (long,                   // timer id
                                     const ACE_Time_Value&); // interval
   // *NOTE*: when using reactor scheduling, the expiration time is relative (!)

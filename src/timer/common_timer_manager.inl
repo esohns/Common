@@ -845,12 +845,9 @@ int
 Common_Timer_Manager_T<ACE_SYNCH_USE,
                        ConfigurationType,
                        TimerQueueAdapterType>::cancel_timer (long timerId_in,
-                                                             const void** ACT_out,
-                                                             int doNotCallHandleClose_in)
+                                                             const void** ACT_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Timer_Manager_T::cancel_timer"));
-
-  ACE_UNUSED_ARG (doNotCallHandleClose_in);
 
   int result = -1;
 
