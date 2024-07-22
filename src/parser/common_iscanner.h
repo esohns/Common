@@ -57,7 +57,7 @@ class Common_IScannerBase
   virtual void error (const std::string&) = 0;
 };
 
-template <typename StateType, // implements struct Common_ScannerState
+template <typename StateType,     // implements struct Common_ScannerState
           typename ExtraDataType> // 'extra' data type
 class Common_ILexScanner_T
  : public Common_IScannerBase
