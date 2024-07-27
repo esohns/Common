@@ -176,16 +176,16 @@ Common_GL_Tools::loadModel (const std::string& path_in,
 #endif // ASSIMP_SUPPORT
 
   return_value = glGenLists (1);
-  COMMON_GL_ASSERT;
+  // COMMON_GL_ASSERT;
   glNewList (return_value, GL_COMPILE);
-  COMMON_GL_ASSERT;
+  // COMMON_GL_ASSERT;
   // now begin at the root node of the imported data and traverse the scenegraph
   // by multiplying subsequent local transforms together on GLs' matrix stack
 #if defined (ASSIMP_SUPPORT)
   Common_GL_Assimp_Tools::render (scene_p, scene_p->mRootNode);
 #endif // ASSIMP_SUPPORT
   glEndList ();
-  COMMON_GL_ASSERT;
+  // COMMON_GL_ASSERT;
 
   // compute the scenes' bounding box / center
 #if defined (ASSIMP_SUPPORT)

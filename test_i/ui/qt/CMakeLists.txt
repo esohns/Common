@@ -10,13 +10,9 @@ set (CMAKE_AUTOUIC ON)
 
 include_directories (${ACE_INCLUDE_DIR})
 
-include_directories (${CMAKE_BINARY_DIR})
-
+include_directories (${QT_INCLUDES_DIRS})
 if (WIN32)
- include_directories (${Qt5Core_INCLUDE_DIRS})
- include_directories (${Qt5Widgets_INCLUDE_DIRS})
-
- include_directories ("H:/lib/qt/5.15.2/msvc2019_64/include;H:/lib/qt/5.15.2/msvc2019_64/include/QtCore;H:/lib/qt/5.15.2/msvc2019_64/include/QtWidgets;H:/lib/qt/5.15.2/msvc2019_64/include/QtGui")
+ include_directories ("$ENV{LIB_ROOT}/qt/5.15.2/msvc2019_64/include;$ENV{LIB_ROOT}/qt/5.15.2/msvc2019_64/include/QtCore;$ENV{LIB_ROOT}/qt/5.15.2/msvc2019_64/include/QtWidgets;$ENV{LIB_ROOT}/qt/5.15.2/msvc2019_64/include/QtGui")
 
  set (AUTOGEN_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
 # message (STATUS "AUTOGEN_BUILD_DIR: ${AUTOGEN_BUILD_DIR}")
@@ -27,6 +23,7 @@ endif (WIN32)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/ui)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../../src/ui/qt)
+include_directories (${CMAKE_BINARY_DIR})
 
 # Populate a CMake variable with the sources
 set (EXECUTABLE qt)

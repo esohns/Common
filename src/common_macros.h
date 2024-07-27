@@ -125,7 +125,7 @@
   COMMON_STRING_APPEND(command," -");               \
   command += ACE_TEXT_ALWAYS_CHAR (switch_);
 #define COMMON_COMMAND_START_IN_BACKGROUND(command) \
-  command += COMMON_STRING_APPEND(command, &);
+  command += COMMON_STRING_APPEND(command, " &");
 #endif // ACE_WIN32 || ACE_WIN64
 
 // memory allocation

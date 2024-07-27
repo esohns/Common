@@ -43,6 +43,8 @@ else ()
  message (STATUS "found ACE library \"${ACE_LIBRARY}\"")
 #add_definitions (-DACE_HAS_DLL)
  set (CMAKE_CXX_STANDARD 17)
+# set (CMAKE_CXX_STANDARD_REQUIRED ON)
+# set (CMAKE_CXX_EXTENSIONS OFF)
 endif ()
 
 # set ACE include[/dll] directory
