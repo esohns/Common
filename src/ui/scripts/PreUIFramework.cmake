@@ -300,7 +300,17 @@ if (Qt5_FOUND)
  if (UNIX)
   set (QT_LIBRARIES "Qt5Core;Qt5Widgets")
  elseif (WIN32)
-  set (QT_LIBRARIES "Qt5::Core;Qt5::Widgets")
+  set (QT5_CORE_LIB_FILE Qt5Core.lib)
+  find_library (QT5_CORE_LIBRARY ${QT5_CORE_LIB_FILE}
+                PATHS $ENV{LIB_ROOT}/qt/5.15.2/msvc2019_64
+                PATH_SUFFIXES lib
+                DOC "searching for ${QT5_CORE_LIB_FILE}")
+  set (QT5_WIDGETS_LIB_FILE Qt5Widgets.lib)
+  find_library (QT5_WIDGETS_LIBRARY ${QT5_WIDGETS_LIB_FILE}
+                PATHS $ENV{LIB_ROOT}/qt/5.15.2/msvc2019_64
+                PATH_SUFFIXES lib
+                DOC "searching for ${QT5_WIDGETS_LIB_FILE}")
+  set (QT_LIBRARIES "${QT5_CORE_LIBRARY};${QT5_WIDGETS_LIBRARY}")
  endif ()
  set (QT5_LIB_DIR "$ENV{QT5_DIR}/../../../bin")
 endif (Qt5_FOUND)
