@@ -75,20 +75,6 @@ enum Common_ReactorType
   COMMON_REACTOR_INVALID
 };
 
-struct Common_EventDispatchConfiguration;
-struct Common_EventDispatchState
-{
-  Common_EventDispatchState ()
-   : configuration (NULL)
-   , proactorGroupId (-1)
-   , reactorGroupId (-1)
-  {}
-
-  struct Common_EventDispatchConfiguration* configuration;
-  int                                       proactorGroupId;
-  int                                       reactorGroupId;
-};
-
 struct Common_EventDispatchConfiguration
 {
   Common_EventDispatchConfiguration ()
@@ -126,6 +112,19 @@ struct Common_EventDispatchConfiguration
   //                   Iff numberOfReactorThreads > 1, the 'threadpool' reactor
   //                   is used instead (see above)
   enum Common_ReactorType       reactorType;
+};
+
+struct Common_EventDispatchState
+{
+  Common_EventDispatchState ()
+   : configuration (NULL)
+   , proactorGroupId (-1)
+   , reactorGroupId (-1)
+  {}
+
+  struct Common_EventDispatchConfiguration* configuration;
+  int proactorGroupId;
+  int reactorGroupId;
 };
 
 #endif
