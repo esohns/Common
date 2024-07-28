@@ -799,6 +799,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
                    timerId_in));
         return -1;
       } // end IF
+      break;
     }
     case COMMON_TIMER_DISPATCH_QUEUE:
     {
@@ -912,6 +913,7 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
                     ((result == -1) ? ACE_TEXT ("aborting") : ACE_TEXT ("returning"))));
         return result;
       } // end IF
+      break;
     }
     default:
     {
