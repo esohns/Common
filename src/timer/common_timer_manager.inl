@@ -748,9 +748,9 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
     }
   } // end SWITCH
   handler_in->set (result);
-   ACE_DEBUG ((LM_DEBUG,
-               ACE_TEXT ("scheduled timer (id: %d)\n"),
-               result));
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("scheduled timer (id: %d)\n"),
+              result));
 
   return result;
 }
