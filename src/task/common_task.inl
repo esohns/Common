@@ -135,7 +135,6 @@ Common_Task_T<ACE_SYNCH_USE,
     else
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_Task::putq(): \"%m\", continuing\n")));
-
     message_block_p->release (); message_block_p = NULL;
   } // end IF
 }
@@ -218,11 +217,12 @@ Common_Task_T<ACE_SYNCH_USE,
       if (inherited::thr_count_ > 1)
       {
         result_2 = inherited::putq (message_p, NULL);
-        if (result_2 == -1)
+        if (unlikely (result_2 == -1))
         {
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("(%s): worker thread (id: %t) failed to ACE_Task::putq(): \"%m\", aborting\n"),
                       ACE_TEXT (inherited::threadName_.c_str ())));
+          message_p->release ();
           result = -1;
         } // end IF
         message_p = NULL;

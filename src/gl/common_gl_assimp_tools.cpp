@@ -21,7 +21,6 @@
 
 #include "common_gl_assimp_tools.h"
 
-#include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "gl/GL.h"
 #else
@@ -29,7 +28,6 @@
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "assimp/cimport.h"
-#include "assimp/postprocess.h"
 #include "assimp/scene.h"
 
 #include "ace/Log_Msg.h"
@@ -40,92 +38,72 @@
 #include "common_gl_defines.h"
 
 void
-Common_GL_Assimp_Tools::boundingBox (const struct aiScene* scene_in,
-                                     const struct aiNode* node_in,
-                                     aiVector3D* min_inout,
-                                     aiVector3D* max_inout,
-                                     aiMatrix4x4* tansformation_inout)
+Common_GL_Assimp_Tools::boundingBox (const struct aiScene& scene_in,
+                                     const struct aiNode& node_in,
+                                     aiVector3D& min_inout,
+                                     aiVector3D& max_inout,
+                                     aiMatrix4x4& tansformation_inout)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Assimp_Tools::boundingBox"));
 
-  // sanity check(s)
-  ACE_ASSERT (scene_in);
-  ACE_ASSERT (node_in);
-  ACE_ASSERT (min_inout);
-  ACE_ASSERT (max_inout);
-  ACE_ASSERT (tansformation_inout);
+  aiMatrix4x4 previous_m = tansformation_inout;
+  aiMultiplyMatrix4 (&tansformation_inout, &node_in.mTransformation);
 
-  aiMatrix4x4 previous_m;
-  unsigned int n = 0, t;
-  const struct aiMesh* mesh_p = NULL;
-  aiVector3D vector3d_s;
-
-  previous_m = *tansformation_inout;
-  aiMultiplyMatrix4 (tansformation_inout, &node_in->mTransformation);
-
-  for (;
-       n < node_in->mNumMeshes;
-       ++n)
+  for (unsigned int n; n < node_in.mNumMeshes; ++n)
   {
-    mesh_p = scene_in->mMeshes[node_in->mMeshes[n]];
-    ACE_ASSERT (mesh_p);
-
-    for (t = 0;
-         t < mesh_p->mNumVertices;
-         ++t)
+    aiMesh& mesh_r = *scene_in.mMeshes[node_in.mMeshes[n]];
+    for (unsigned int t = 0; t < mesh_r.mNumVertices; ++t)
     {
-      vector3d_s = mesh_p->mVertices[t];
-      aiTransformVecByMatrix4 (&vector3d_s, tansformation_inout);
+      aiVector3D& vector3d_r = mesh_r.mVertices[t];
+      aiTransformVecByMatrix4 (&vector3d_r, &tansformation_inout);
 
-      min_inout->x = COMMON_GL_ASSIMP_MIN (min_inout->x, vector3d_s.x);
-      min_inout->y = COMMON_GL_ASSIMP_MIN (min_inout->y, vector3d_s.y);
-      min_inout->z = COMMON_GL_ASSIMP_MIN (min_inout->z, vector3d_s.z);
+      min_inout.x = COMMON_GL_ASSIMP_MIN (min_inout.x, vector3d_r.x);
+      min_inout.y = COMMON_GL_ASSIMP_MIN (min_inout.y, vector3d_r.y);
+      min_inout.z = COMMON_GL_ASSIMP_MIN (min_inout.z, vector3d_r.z);
 
-      max_inout->x = COMMON_GL_ASSIMP_MAX (max_inout->x, vector3d_s.x);
-      max_inout->y = COMMON_GL_ASSIMP_MAX (max_inout->y, vector3d_s.y);
-      max_inout->z = COMMON_GL_ASSIMP_MAX (max_inout->z, vector3d_s.z);
+      max_inout.x = COMMON_GL_ASSIMP_MAX (max_inout.x, vector3d_r.x);
+      max_inout.y = COMMON_GL_ASSIMP_MAX (max_inout.y, vector3d_r.y);
+      max_inout.z = COMMON_GL_ASSIMP_MAX (max_inout.z, vector3d_r.z);
     } // end FOR
   } // end FOR
 
-  for (n = 0;
-       n < node_in->mNumChildren;
-       ++n)
+  for (unsigned int n = 0; n < node_in.mNumChildren; ++n)
     Common_GL_Assimp_Tools::boundingBox (scene_in,
-                                         node_in->mChildren[n],
+                                         *(node_in.mChildren[n]),
                                          min_inout,
                                          max_inout,
                                          tansformation_inout);
 
-  *tansformation_inout = previous_m;
+  tansformation_inout = previous_m;
 }
 
 void
-Common_GL_Assimp_Tools::boundingBox (const struct aiScene* scene_in,
-                                     aiVector3D* min_out,
-                                     aiVector3D* max_out)
+Common_GL_Assimp_Tools::boundingBox (const struct aiScene& scene_in,
+                                     aiVector3D& min_out,
+                                     aiVector3D& max_out)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Assimp_Tools::boundingBox"));
 
+  // initialize return value(s)
+  min_out.x = min_out.y = min_out.z =  1e10f;
+  max_out.x = max_out.y = max_out.z = -1e10f;
+
   // sanity check(s)
-  ACE_ASSERT (min_out);
-  ACE_ASSERT (max_out);
+  ACE_ASSERT (scene_in.mRootNode);
 
   aiMatrix4x4 transformation_m;
   aiIdentityMatrix4 (&transformation_m);
-
-  min_out->x = min_out->y = min_out->z =  1e10f;
-  max_out->x = max_out->y = max_out->z = -1e10f;
-
   Common_GL_Assimp_Tools::boundingBox (scene_in,
-                                       scene_in->mRootNode,
+                                       *scene_in.mRootNode,
                                        min_out,
                                        max_out,
-                                       &transformation_m);
+                                       transformation_m);
 }
 
 bool
 Common_GL_Assimp_Tools::loadModel (const std::string& path_in,
-                                   struct aiScene*& scene_inout)
+                                   struct aiScene*& scene_inout,
+                                   unsigned int flags_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Assimp_Tools::loadModel"));
 
@@ -148,13 +126,13 @@ Common_GL_Assimp_Tools::loadModel (const std::string& path_in,
 
   scene_inout =
       const_cast<struct aiScene*> (aiImportFile (path_in.c_str (),
-                                                 aiProcessPreset_TargetRealtime_MaxQuality));
+                                                 flags_in));
   if (!scene_inout)
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to aiImportFile(\"%s\",%d), aborting\n"),
+                ACE_TEXT ("failed to aiImportFile(\"%s\",%d): \"%s\", aborting\n"),
                 ACE_TEXT (path_in.c_str ()),
-                aiProcessPreset_TargetRealtime_MaxQuality));
+                flags_in));
     goto error;
   } // end IF
 
@@ -278,7 +256,7 @@ Common_GL_Assimp_Tools::render (const struct aiScene* scene_in,
 
     Common_GL_Assimp_Tools::applyMaterial (scene_in->mMaterials[mesh_p->mMaterialIndex]);
 
-    if (!mesh_p->mNormals)
+    if (!mesh_p->HasNormals ())
       glDisable (GL_LIGHTING);
     else
       glEnable (GL_LIGHTING);
@@ -309,9 +287,9 @@ Common_GL_Assimp_Tools::render (const struct aiScene* scene_in,
            ++i)
       {
         index = face_p->mIndices[i];
-        if (mesh_p->mColors[0])
+        if (mesh_p->HasVertexColors (0))
           glColor4fv (reinterpret_cast<GLfloat*> (&mesh_p->mColors[0][index]));
-        if (mesh_p->mNormals)
+        if (mesh_p->HasNormals ())
           glNormal3fv (&mesh_p->mNormals[index].x);
         glVertex3fv (&mesh_p->mVertices[index].x);
       } // end FOR

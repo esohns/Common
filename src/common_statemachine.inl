@@ -80,8 +80,7 @@ Common_StateMachineAsynch_T<StateMachineName,
   ACE_ASSERT (message_inout);
 
   StateType next_state_e = static_cast<StateType> (message_inout->msg_type ());
-  message_inout->release ();
-  message_inout = NULL;
+  message_inout->release (); message_inout = NULL;
 
   bool result = false;
   try {

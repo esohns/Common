@@ -90,9 +90,13 @@ test_i_opengl_glut_draw ()
   glm::mat4 view_matrix = cb_data_p->camera.getViewMatrix ();
 
   glm::mat4 projection_matrix =
-    glm::perspective (glm::radians (45.0f),
-                      cb_data_p->width / cb_data_p->height,
-                      0.1f, 100.0f);
+    glm::perspective (glm::radians (TEST_I_OPENGL_DEFAULT_FOV),
+#if defined (ACE_WIN32) || defined (ACE_WIN32)
+                      (float)cb_data_p->perspective.resolution.cx / cb_data_p->perspective.resolution.cy,
+#else
+                      (float)cb_data_p->perspective.resolution.width / cb_data_p->perspective.resolution.height,
+#endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
+                      TEST_I_OPENGL_DEFAULT_ZNEAR, TEST_I_OPENGL_DEFAULT_ZFAR);
 #endif // GLM_SUPPORT
 
   // compute elapsed time
@@ -178,8 +182,18 @@ test_i_opengl_glut_reshape (int width_in, int height_in)
   glViewport (0, 0, width_in, height_in);
   COMMON_GL_ASSERT;
 
-  cb_data_p->width = static_cast<float> (width_in);
-  cb_data_p->height = static_cast<float> (height_in);
+#if defined (ACE_WIN32) || defined (ACE_WIN32)
+  cb_data_p->perspective.resolution.cx =
+#else
+  cb_data_p->perspective.resolution.width =
+#endif // ACE_WIN32 || ACE_WIN64
+    static_cast<unsigned int> (width_in);
+#if defined (ACE_WIN32) || defined (ACE_WIN32)
+  cb_data_p->perspective.resolution.cy =
+#else
+  cb_data_p->perspective.resolution.height =
+#endif // ACE_WIN32 || ACE_WIN64
+  static_cast<unsigned int> (height_in);
 }
 
 void
@@ -309,7 +323,11 @@ test_i_opengl_glut_mouse_move (int x, int y)
   ACE_ASSERT (cb_data_p);
 
   if (cb_data_p->mouseButton0IsDown)
-    cb_data_p->camera.mouseLook (static_cast<int> (cb_data_p->width) - x, y);
+#if defined (ACE_WIN32) || defined (ACE_WIN32)
+    cb_data_p->camera.mouseLook (static_cast<int> (cb_data_p->perspective.resolution.cx) - x, y);
+#else
+    cb_data_p->camera.mouseLook (static_cast<int> (cb_data_p->perspective.resolution.width) - x, y);
+#endif // ACE_WIN32 || ACE_WIN64
 }
 
 //void

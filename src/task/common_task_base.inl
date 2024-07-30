@@ -194,7 +194,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
           break;
         // *NOTE*: deactivate the queue so it does not accept new data
         inherited::msg_queue_->deactivate ();
-        // *NOTE*: iff the task had several worker thread(s), there will
+        // *NOTE*: iff the task had (!) several worker thread(s), there will
         //         potentially still be STOP message(s) in the queue (see below)
         //         --> remove them
         int result = inherited::msg_queue_->flush ();
@@ -904,7 +904,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     inherited::grp_id_ = grp_spawned;
 
 #if defined (ACE_THREAD_T_IS_A_STRUCT)
-  ACE_OS::memcpy( &inherited::last_thread_id_, '\0', sizeof(inherited::last_thread_id_));
+  ACE_OS::memcpy(&inherited::last_thread_id_, '\0', sizeof (inherited::last_thread_id_));
 #else
   inherited::last_thread_id_ = 0;    // Reset to prevent inadvertant match on ID
 #endif /* ACE_THREAD_T_IS_A_STRUCT */

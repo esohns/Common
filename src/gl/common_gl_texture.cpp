@@ -9,19 +9,22 @@
 #include "common_gl_defines.h"
 #include "common_gl_tools.h"
 
-Common_GL_Texture::Common_GL_Texture ()
- : id_ (-1)
+Common_GL_Texture::Common_GL_Texture (enum Type type_in)
+ : id_ (0)
+ , type_ (type_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::Common_GL_Texture"));
 
 }
 
-Common_GL_Texture::Common_GL_Texture (const std::string& fileName_in)
+Common_GL_Texture::Common_GL_Texture (enum Type type_in,
+                                      const std::string& fileName_in)
  : id_ (Common_GL_Tools::loadTexture (fileName_in))
+ , type_ (type_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::Common_GL_Texture"));
 
-  if (unlikely (id_ == static_cast<GLuint> (-1)))
+  if (unlikely (!id_))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_GL_Tools::loadTexture(\"%s\"), returning\n"),
@@ -34,11 +37,11 @@ Common_GL_Texture::~Common_GL_Texture ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::~Common_GL_Texture"));
 
-  if (id_ != static_cast<GLuint> (-1))
-  {
-    glDeleteTextures (1, &id_);
-    COMMON_GL_ASSERT;
-  } // end IF
+  // if (id_)
+  // {
+  //   glDeleteTextures (1, &id_);
+  //   COMMON_GL_ASSERT;
+  // } // end IF
 }
 
 bool
@@ -47,11 +50,12 @@ Common_GL_Texture::load (const std::string& fileName_in)
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::load"));
 
   // sanity check(s)
-  if (id_ != static_cast<GLuint> (-1))
+  if (unlikely (id_))
     reset ();
+  ACE_ASSERT (!id_);
 
   id_ = Common_GL_Tools::loadTexture (fileName_in);
-  if (unlikely (id_ == static_cast<GLuint> (-1)))
+  if (unlikely (!id_))
   {
    ACE_DEBUG ((LM_ERROR,
                ACE_TEXT ("failed to Common_GL_Tools::loadTexture(\"%s\"), aborting\n"),
@@ -67,9 +71,9 @@ Common_GL_Texture::reset ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::reset"));
 
-  if (likely (id_ != static_cast<GLuint> (-1)))
+  if (likely (id_))
   {
-    glDeleteTextures (1, &id_); id_ = -1;
+    glDeleteTextures (1, &id_); id_ = 0;
     COMMON_GL_ASSERT;
   } // end IF
 }
@@ -80,7 +84,7 @@ Common_GL_Texture::bind (GLuint unit_in)
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::bind"));
 
   // sanity check(s)
-  ACE_ASSERT (id_ != static_cast<GLuint> (-1));
+  ACE_ASSERT (id_);
   ACE_ASSERT (unit_in < 31);
 
   glActiveTexture (GL_TEXTURE0 + unit_in);
@@ -97,4 +101,21 @@ Common_GL_Texture::unbind ()
 
   glBindTexture (GL_TEXTURE_2D, 0);
   COMMON_GL_ASSERT;
+}
+
+void
+Common_GL_Texture::set (Common_GL_Shader& shader_in,
+                        const std::string& uniform_in,
+                        GLint unit_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::set"));
+
+  GLint texUniformLocation_i =
+    glGetUniformLocation (shader_in.id_, uniform_in.c_str ());
+  // sanity check(s)
+  ACE_ASSERT (texUniformLocation_i);
+
+  shader_in.use ();
+
+  glUniform1i (texUniformLocation_i, unit_in);
 }

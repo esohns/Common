@@ -70,6 +70,7 @@ class Common_GL_Tools
   static Common_GL_Color_t randomColor ();
 
   // model
+  // *MOTE*: returns a list id (OpenGL 2.x only)
   static GLuint loadModel (const std::string&,          // path
                            Common_GL_BoundingBox_t&,    // return value: bounding box
 #if defined (GLM_SUPPORT)
@@ -99,7 +100,7 @@ class Common_GL_Tools
                                           GLenum,             // shader type (i.e. GL_VERTEX_SHADER || GL_FRAGMENT_SHADER)
                                           GLuint&);           // return value: shader id
 
-  // drawing
+  // drawing (OpenGL 2.x only)
   // *NOTE*: includes glBegin()/glEnd() calls
   static void drawCube (bool = false, // set (2d-)texture coordinates ?
                         bool = true); // set color ?

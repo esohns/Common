@@ -9,8 +9,8 @@ if (NOT GLUT_FOUND)
  if (UNIX)
   set (GLUT_LIB_FILE libglut.so)
   find_library (GLUT_LIBRARY ${GLUT_LIB_FILE}
-                PATHS /usr /usr/lib
-                PATH_SUFFIXES lib64 x86_64-linux-gnu
+                PATHS /usr
+                PATH_SUFFIXES lib64 lib x86_64-linux-gnu
                 DOC "searching for ${GLUT_LIB_FILE}")
   if (GLUT_LIBRARY)
    message (STATUS "Found Glut library \"${GLUT_LIBRARY}\"")

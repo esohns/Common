@@ -1185,7 +1185,7 @@ glarea_create_context_cb (GtkGLArea* GLArea_in,
   return result_p;
 }
 
-static Common_GL_Texture texture_c;
+static Common_GL_Texture texture_c (Common_GL_Texture::Type::TYPE_INVALID);
 gboolean
 glarea_render_cb (GtkGLArea* area_in,
                   GdkGLContext* context_in,
@@ -1439,7 +1439,7 @@ glarea_create_context_cb (GglaArea* GLArea_in,
   return result_p;
 }
 
-static Common_GL_Texture texture_c;
+static Common_GL_Texture texture_c (Common_GL_Texture::Type::TYPE_INVALID);
 gboolean
 glarea_render_cb (GglaArea* area_in,
                   GglaContext* context_in,

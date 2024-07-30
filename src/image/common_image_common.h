@@ -51,6 +51,16 @@ struct common_image_resolution_equal
 #else
 struct Common_Image_Resolution
 {
+  Common_Image_Resolution ()
+   : width (0)
+   , height (0)
+  {}
+  Common_Image_Resolution (unsigned int width_in,
+                           unsigned int height_in)
+   : width (width_in)
+   , height (height_in)
+  {}
+
   unsigned int width;
   unsigned int height;
 };

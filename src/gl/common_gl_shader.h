@@ -11,11 +11,13 @@
 #else
 #include "GL/gl.h"
 #endif // ACE_WIN32 || ACE_WIN64
+
 #if defined (GLM_SUPPORT)
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #endif // GLM_SUPPORT
 
+#include "ace/Assert.h"
 #include "ace/Global_Macros.h"
 
 class Common_GL_Shader
@@ -31,12 +33,14 @@ class Common_GL_Shader
   bool loadFromString (const std::string&,  // vertex shader code
                        const std::string&); // fragment shader code
   void reset ();
-  void use ();
+  inline void use () { ACE_ASSERT (id_); glUseProgram (id_); }
+  inline void unuse () { glUseProgram (0); }
 
   inline void setBool  (const std::string& name, bool value) const  { glUniform1i (glGetUniformLocation (id_, name.c_str ()), (int)value); }
   inline void setInt   (const std::string& name, int value)  const  { glUniform1i (glGetUniformLocation (id_, name.c_str ()), value); }
   inline void setFloat (const std::string& name, float value) const { glUniform1f (glGetUniformLocation (id_, name.c_str ()), value); }
 #if defined (GLM_SUPPORT)
+  inline void setVec3  (const std::string& name, const glm::vec3& vec) const { glUniform3fv (glGetUniformLocation (id_, name.c_str ()), 1, glm::value_ptr (vec)); }
   inline void setMat4  (const std::string& name, const glm::mat4& mat) const { glUniformMatrix4fv (glGetUniformLocation (id_, name.c_str ()), 1, GL_FALSE, glm::value_ptr (mat)); }
 #endif // GLM_SUPPORT
 
@@ -44,7 +48,7 @@ class Common_GL_Shader
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_GL_Shader (const Common_GL_Shader&))
-  //ACE_UNIMPLEMENTED_FUNC (Common_GL_Shader& operator= (const Common_GL_Shader&))
+  // ACE_UNIMPLEMENTED_FUNC (Common_GL_Shader& operator= (const Common_GL_Shader&))
 };
 
 #endif // COMMON_GL_SHADER_H

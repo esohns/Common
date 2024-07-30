@@ -26,6 +26,9 @@
 #include "glm/gtc/matrix_transform.hpp"
 #endif // GLM_SUPPORT
 
+#include "ace/Assert.h"
+// #include "ace/Global_Macros.h"
+
 #include "common_gl_common.h"
 #include "common_gl_defines.h"
 
@@ -64,6 +67,14 @@ class Common_GL_Camera
   glm::vec2 old_mouse_position_;
 
   inline glm::mat4 getViewMatrix () { return glm::lookAt (position_, position_ + looking_at_, up_); }
+  inline static glm::mat4 getProjectionMatrix (int width_in, int height_in,
+                                               float FOV_in, // degrees
+                                               float zNear_in, float zFar_in)
+  { ACE_ASSERT (height_in);
+    return glm::perspective (glm::radians (FOV_in),
+                             (float)width_in / height_in,
+                             zNear_in, zFar_in);
+  }
 
   inline void forward (float speed_in)
   {
@@ -89,6 +100,8 @@ class Common_GL_Camera
   void mouseLook (int, int);
 
  private:
+  // ACE_UNIMPLEMENTED_FUNC (Common_GL_Camera (const Common_GL_Camera&))
+
   void updateVectors ();
 };
 

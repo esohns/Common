@@ -21,8 +21,12 @@
 #ifndef TEST_I_OPENGL_DEFINES_H
 #define TEST_I_OPENGL_DEFINES_H
 
+// perspective
 #define TEST_I_OPENGL_DEFAULT_WINDOW_WIDTH     1024
 #define TEST_I_OPENGL_DEFAULT_WINDOW_HEIGHT    768
+#define TEST_I_OPENGL_DEFAULT_FOV              45.0f // degrees !
+#define TEST_I_OPENGL_DEFAULT_ZNEAR            0.1f
+#define TEST_I_OPENGL_DEFAULT_ZFAR             100.0f
 
 #define TEST_I_OPENGL_DEFAULT_SCALE_FACTOR     30
 

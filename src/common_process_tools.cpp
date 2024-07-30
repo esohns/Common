@@ -244,7 +244,7 @@ Common_Process_Tools::id (const std::string& executableName_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Process_Tools::id"));
 
-  pid_t result;
+  pid_t result = 0;
 
   // sanity check(s)
   ACE_ASSERT (!executableName_in.empty ());
@@ -355,8 +355,7 @@ clean:
     int result_2 = ::pclose (stream_p);
     if (unlikely (result_2 == -1))
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ::pclose(%@): \"%m\", continuing\n"),
-                  stream_p));
+                  ACE_TEXT ("failed to ::pclose(): \"%m\", continuing\n")));
   } // end IF
 #elif defined (ACE_WIN32) || defined (ACE_WIN64)
   DWORD processes_a[BUFSIZ], cbNeeded, cProcesses;

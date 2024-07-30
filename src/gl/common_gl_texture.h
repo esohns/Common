@@ -14,11 +14,21 @@
 
 #include "ace/Global_Macros.h"
 
+#include "common_gl_shader.h"
+
 class Common_GL_Texture
 {
  public:
-  Common_GL_Texture ();
-  Common_GL_Texture (const std::string&); // filename
+  enum Type
+  {
+    TYPE_DIFFUSE = 0,
+    TYPE_SPECULAR,
+    TYPE_INVALID
+  };
+
+  Common_GL_Texture (enum Type);
+  Common_GL_Texture (enum Type,
+                     const std::string&); // filename
   ~Common_GL_Texture ();
 
   bool load (const std::string&); // filename
@@ -26,11 +36,17 @@ class Common_GL_Texture
   void bind (GLuint = 0); // texture unit
   void unbind ();
 
-  GLuint id_; // texture id
+  void set (Common_GL_Shader&,  // shader
+            const std::string&, // uniform
+            GLint = 0);         // unit
+
+  GLuint    id_; // texture id
+  enum Type type_;
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_GL_Texture (const Common_GL_Texture&))
-  ACE_UNIMPLEMENTED_FUNC (Common_GL_Texture& operator= (const Common_GL_Texture&))
+  ACE_UNIMPLEMENTED_FUNC (Common_GL_Texture ())
+  // ACE_UNIMPLEMENTED_FUNC (Common_GL_Texture (const Common_GL_Texture&))
+  // ACE_UNIMPLEMENTED_FUNC (Common_GL_Texture& operator= (const Common_GL_Texture&))
 };
 
 #endif // COMMON_GL_TEXTURE_H

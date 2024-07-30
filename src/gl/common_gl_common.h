@@ -27,7 +27,7 @@
 #include "glm/glm.hpp"
 #endif // GLM_SUPPORT
 
-#include "common_gl_defines.h"
+#include "common_image_common.h"
 
 // forward declaration
 class Common_GL_Camera;
@@ -83,6 +83,32 @@ struct Common_GL_Color
 };
 typedef struct Common_GL_Color Common_GL_Color_t;
 #endif // GLM_SUPPORT
+
+struct Common_GL_Perspective
+{
+  Common_GL_Perspective (unsigned int width_in, unsigned int height_in,
+                         float FOV_in, // degrees !
+                         float zNear_in, float zFar_in)
+#if defined (ACE_WIN32) || defined (ACE_WIN32)
+   : resolution ()
+#else
+   : resolution (width_in, height_in)
+#endif // ACE_WIN32 || ACE_WIN64
+   , FOV (FOV_in)
+   , zNear (zNear_in)
+   , zFar (zFar_in)
+  {
+#if defined (ACE_WIN32) || defined (ACE_WIN32)
+    resolution.cx = width_in;
+    resolution.cy = height_in;
+#endif // ACE_WIN32 || ACE_WIN64
+  }
+
+  Common_Image_Resolution_t resolution;
+  float                     FOV; // degrees !
+  float                     zNear;
+  float                     zFar;
+};
 
 struct Common_GL_Scene
 {

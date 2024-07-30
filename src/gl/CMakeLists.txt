@@ -51,15 +51,20 @@ set (source_files
      common_gl_common.h
      common_gl_debug.h
      common_gl_defines.h
-     common_gl_tools.cpp
-     common_gl_tools.h
-     common_gl_tools.inl
      common_gl_image_tools.cpp
      common_gl_image_tools.h
+     common_gl_mesh.cpp
+     common_gl_mesh.h
+     common_gl_model.cpp
+     common_gl_model.h
      common_gl_shader.cpp
      common_gl_shader.h
      common_gl_texture.cpp
-     common_gl_texture.h)
+     common_gl_texture.h
+     common_gl_tools.cpp
+     common_gl_tools.h
+     common_gl_tools.inl
+     common_gl_vao_vbo_ebo.h)
 if (ASSIMP_SUPPORT)
  set (source_files
       ${source_files}
@@ -124,10 +129,13 @@ export (TARGETS ${LIBRARY}
       common_gl_debug.h
       common_gl_defines.h
       common_gl_image_tools.h
+      common_gl_mesh.h
+      common_gl_model.h
       common_gl_shader.h
       common_gl_texture.h
       common_gl_tools.h
-      common_gl_tools.inl)
+      common_gl_tools.inl
+      common_gl_vao_vbo_ebo.h)
 if (ASSIMP_SUPPORT)
  set (source_files
       ${source_files}

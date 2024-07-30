@@ -165,7 +165,8 @@ Common_GL_Tools::loadModel (const std::string& path_in,
 #if defined (ASSIMP_SUPPORT)
   struct aiScene* scene_p = NULL;
   if (!Common_GL_Assimp_Tools::loadModel (path_in,
-                                          scene_p))
+                                          scene_p,
+                                          aiProcessPreset_TargetRealtime_MaxQuality))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_GL_Assimp_Tools::loadModel(\"%s\"), aborting\n"),
@@ -190,8 +191,8 @@ Common_GL_Tools::loadModel (const std::string& path_in,
   // compute the scenes' bounding box / center
 #if defined (ASSIMP_SUPPORT)
   aiVector3D min, max;
-  Common_GL_Assimp_Tools::boundingBox (scene_p,
-                                       &min, &max);
+  Common_GL_Assimp_Tools::boundingBox (*scene_p,
+                                       min, max);
 
   boundingBox_out.first.x = min.x;
   boundingBox_out.first.y = min.y;
@@ -424,7 +425,7 @@ Common_GL_Tools::loadAndCompileShaderFile (const std::string& path_in,
   id_out = -1;
 
   id_out = glCreateShader (type_in);
-  COMMON_GL_ASSERT;
+  COMMON_GL_ASSERT
 
   uint8_t* data_p = NULL;
   ACE_UINT64 file_size_i = 0;
