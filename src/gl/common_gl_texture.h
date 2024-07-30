@@ -33,12 +33,12 @@ class Common_GL_Texture
 
   bool load (const std::string&); // filename
   void reset ();
-  void bind (GLuint = 0); // texture unit
+  void bind (GLuint = 0); // texture unit (!), not -id (!!!)
   void unbind ();
 
   void set (Common_GL_Shader&,  // shader
             const std::string&, // uniform
-            GLint = 0);         // unit
+            GLint = 0);         // texture unit (!), not -id (!!!)
 
   GLuint    id_; // texture id
   enum Type type_;

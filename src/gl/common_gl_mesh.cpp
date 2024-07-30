@@ -278,12 +278,13 @@ Common_GL_Mesh::render (Common_GL_Shader& shader_in,
     } // end SWITCH
     textures_[i].set (shader_in, type + num, i);
 
-    textures_[i].bind ();
+    textures_[i].bind (i);
   } // end FOR
 
   // Draw the actual mesh
-//  glDrawElements (GL_TRIANGLES, indices_.size (), GL_UNSIGNED_INT, 0);
-  glDrawArrays (GL_TRIANGLES, 0, vertices_.size ());
+  // *TODO*: find out why this segfaults
+  //glDrawElements (GL_TRIANGLES, static_cast<GLsizei> (indices_.size ()), GL_UNSIGNED_INT, 0);
+  glDrawArrays (GL_TRIANGLES, 0, static_cast<GLsizei> (vertices_.size ()));
 
   for (unsigned int i = 0; i < textures_.size (); i++)
     textures_[i].unbind ();

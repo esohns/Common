@@ -23,7 +23,8 @@
 
 #if defined (ASSIMP_SUPPORT)
 Common_GL_Model
-Common_GL_Model::loadFromFile (const std::string& path_in)
+Common_GL_Model::loadFromFile (const std::string& path_in,
+                               unsigned int flags_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Model::loadFromFile"));
 
@@ -32,12 +33,12 @@ Common_GL_Model::loadFromFile (const std::string& path_in)
   struct aiScene* scene_p = NULL;
   if (!Common_GL_Assimp_Tools::loadModel (path_in,
                                           scene_p,
-                                          aiProcessPreset_TargetRealtime_Quality))
+                                          flags_in))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_GL_Assimp_Tools::loadModel(\"%s\",%d), aborting\n"),
                 ACE_TEXT (path_in.c_str ()),
-                aiProcessPreset_TargetRealtime_Quality));
+                flags_in));
     return dummy;
   } // end IF
   ACE_ASSERT (scene_p);
@@ -102,8 +103,8 @@ Common_GL_Model::Common_GL_Model (const std::string& path_in,
   center_.z = (min.z + max.z) / 2.0f;
 
   // debug info
-  unsigned int num_vertices_i = 0;
-  unsigned int num_triangles_i = 0;
+  size_t num_vertices_i = 0;
+  size_t num_triangles_i = 0;
   for (std::vector<Common_GL_Mesh>::iterator iterator = meshes_.begin ();
        iterator != meshes_.end ();
        ++iterator)
@@ -113,7 +114,7 @@ Common_GL_Model::Common_GL_Model (const std::string& path_in,
   } // end FOR
 
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("loading scene \"%s\"...DONE --> %u triangles, %u vertices\n"),
+              ACE_TEXT ("loading scene \"%s\"...DONE --> %Q triangles, %Q vertices\n"),
               ACE_TEXT (scene_in.mName.C_Str ()),
               num_triangles_i,
               num_vertices_i));
@@ -136,7 +137,9 @@ Common_GL_Model::Common_GL_Model (const std::string& fileName_in)
   COMMON_TRACE (ACE_TEXT ("Common_GL_Model::Common_GL_Model"));
 
 #if defined (ASSIMP_SUPPORT)
-  *this = Common_GL_Model::loadFromFile (fileName_in);
+  unsigned int flags_i = COMMON_GL_ASSIMP_IMPORT_FLAGS;
+  *this = Common_GL_Model::loadFromFile (fileName_in,
+                                         flags_i);
 #else
   // *TODO*: load mesh from file
   ACE_ASSERT (false);
@@ -154,7 +157,9 @@ Common_GL_Model::load (const std::string& fileName_in)
   ACE_ASSERT (meshes_.empty ());
 
 #if defined (ASSIMP_SUPPORT)
-  *this = Common_GL_Model::loadFromFile (fileName_in);
+  unsigned int flags_i = COMMON_GL_ASSIMP_IMPORT_FLAGS;
+  *this = Common_GL_Model::loadFromFile (fileName_in,
+                                         flags_i);
 #else
   // *TODO*: load mesh from file
   ACE_ASSERT (false);
@@ -175,8 +180,10 @@ Common_GL_Model::render (Common_GL_Shader& shader_in,
   shader_in.use ();
 
   // manage camera uniforms
-  glUniform3fv (glGetUniformLocation (shader_in.id_, ACE_TEXT_ALWAYS_CHAR ("camPos")),
-                1, &(camera_in.position_.x));
+  static GLint camPos_location_i =
+    glGetUniformLocation (shader_in.id_, ACE_TEXT_ALWAYS_CHAR ("camPos"));
+  ACE_ASSERT (camPos_location_i);
+  glUniform3fv (camPos_location_i, 1, &(camera_in.position_.x));
 
   glm::mat4 view_matrix_s = camera_in.getViewMatrix ();
   glm::mat4 projection_matrix_s =
@@ -209,7 +216,8 @@ Common_GL_Model::render (Common_GL_Shader& shader_in,
   rot = glm::mat4_cast (rotation_in);
   sca = glm::scale (sca, scale_in);
 
-  // Push the matrices to the vertex shader
+  // Push the model orientation + scale matrices to the vertex shader.
+  // *NOTE*: the final model matrix is computed there (see ardrone_ui.vert)
   shader_in.setMat4 (ACE_TEXT_ALWAYS_CHAR ("translation"), trans);
   shader_in.setMat4 (ACE_TEXT_ALWAYS_CHAR ("rotation"), rot);
   shader_in.setMat4 (ACE_TEXT_ALWAYS_CHAR ("scale"), sca);

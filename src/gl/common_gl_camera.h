@@ -32,28 +32,28 @@
 #include "common_gl_common.h"
 #include "common_gl_defines.h"
 
-enum Common_GL_CameraDirection
-{
-  NONE = 0,
-  FORWARD,
-  BACKWARD,
-  LEFT,
-  RIGHT,
-  UP,
-  DOWN
-};
-
 class Common_GL_Camera
 {
  public:
+  enum Direction
+  {
+    NONE = 0,
+    FORWARD,
+    BACKWARD,
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN
+  };
+
   Common_GL_Camera ();
   inline ~Common_GL_Camera () {}
 
   void reset ();
 
   // *TODO*: to be tested
-  void updatePosition (enum Common_GL_CameraDirection, // direction
-                       float);                         // dt
+  void updatePosition (enum Common_GL_Camera::Direction, // direction
+                       float);                           // dt
   void updateDirection (float, float);
   void updateZoom (float); // dz
 
@@ -65,6 +65,20 @@ class Common_GL_Camera
   float pitch_; // degrees
   float zoom_;  // *TODO*: use for FOV [1.0f, 45.0f]
   glm::vec2 old_mouse_position_;
+
+  // *TODO*: is this an alternative to glm::lookAt() ?
+  inline static glm::mat4 getViewMatrix (const glm::vec3& position_in,
+                                         const glm::vec3& forward_in,
+                                         const glm::vec3& up_in)
+  {
+    glm::vec3 right = glm::normalize (glm::cross (forward_in, up_in));
+    glm::vec3 up = glm::normalize (glm::cross (right, forward_in));
+    glm::mat4 result = {{right.x, up.x, -forward_in.x, 0.0f},
+                        {right.y, up.y, -forward_in.y, 0.0f},
+                        {right.z, up.z, -forward_in.z, 0.0f},
+                        {-glm::dot (right, position_in), -glm::dot (up, position_in), glm::dot (forward_in, position_in), 1.0f}};
+    return result;
+  }
 
   inline glm::mat4 getViewMatrix () { return glm::lookAt (position_, position_ + looking_at_, up_); }
   inline static glm::mat4 getProjectionMatrix (int width_in, int height_in,

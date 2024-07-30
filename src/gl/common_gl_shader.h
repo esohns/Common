@@ -36,6 +36,7 @@ class Common_GL_Shader
   inline void use () { ACE_ASSERT (id_); glUseProgram (id_); }
   inline void unuse () { glUseProgram (0); }
 
+  // *TODO*: these are all slow (retrieve uniform locations on every call)...
   inline void setBool  (const std::string& name, bool value) const  { glUniform1i (glGetUniformLocation (id_, name.c_str ()), (int)value); }
   inline void setInt   (const std::string& name, int value)  const  { glUniform1i (glGetUniformLocation (id_, name.c_str ()), value); }
   inline void setFloat (const std::string& name, float value) const { glUniform1f (glGetUniformLocation (id_, name.c_str ()), value); }

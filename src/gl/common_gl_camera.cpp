@@ -20,7 +20,7 @@ Common_GL_Camera::Common_GL_Camera ()
  , right_ (1.0f, 0.0f, 0.0f)
  , yaw_ (0.0f)
  , pitch_ (0.0f)
- , zoom_ (45.0f) // fov
+ , zoom_ (45.0f) // FOV in degrees
  , old_mouse_position_ (0.0f, 0.0f)
 {
 
@@ -35,7 +35,7 @@ Common_GL_Camera::reset ()
   right_ = {1.0f, 0.0f, 0.0f};
   yaw_ = 0.0f;
   pitch_ = 0.0f;
-  zoom_ = 0.0f;
+  zoom_ = 45.0f; // FOV in degrees
 }
 
 void
@@ -53,29 +53,29 @@ Common_GL_Camera::updateDirection (float dx, float dy)
 }
 
 void
-Common_GL_Camera::updatePosition (enum Common_GL_CameraDirection direction,
+Common_GL_Camera::updatePosition (enum Common_GL_Camera::Direction direction_in,
                                   float dt)
 {
   float velocity = dt * COMMON_GL_CAMERA_DEFAULT_SPEED;
 
-  switch (direction)
+  switch (direction_in)
   {
-    case Common_GL_CameraDirection::FORWARD:
+    case Common_GL_Camera::Direction::FORWARD:
       position_ += looking_at_ * velocity;
       break;
-    case Common_GL_CameraDirection::BACKWARD:
+    case Common_GL_Camera::Direction::BACKWARD:
       position_ -= looking_at_ * velocity;
       break;
-    case Common_GL_CameraDirection::RIGHT:
+    case Common_GL_Camera::Direction::RIGHT:
       position_ += right_ * velocity;
       break;
-    case Common_GL_CameraDirection::LEFT:
+    case Common_GL_Camera::Direction::LEFT:
       position_ -= right_ * velocity;
       break;
-    case Common_GL_CameraDirection::UP:
+    case Common_GL_Camera::Direction::UP:
       position_ += up_ * velocity;
       break;
-    case Common_GL_CameraDirection::DOWN:
+    case Common_GL_Camera::Direction::DOWN:
       position_ -= up_ * velocity;
       break;
     default:

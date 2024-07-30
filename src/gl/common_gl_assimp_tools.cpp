@@ -49,7 +49,7 @@ Common_GL_Assimp_Tools::boundingBox (const struct aiScene& scene_in,
   aiMatrix4x4 previous_m = tansformation_inout;
   aiMultiplyMatrix4 (&tansformation_inout, &node_in.mTransformation);
 
-  for (unsigned int n; n < node_in.mNumMeshes; ++n)
+  for (unsigned int n = 0; n < node_in.mNumMeshes; ++n)
   {
     aiMesh& mesh_r = *scene_in.mMeshes[node_in.mMeshes[n]];
     for (unsigned int t = 0; t < mesh_r.mNumVertices; ++t)

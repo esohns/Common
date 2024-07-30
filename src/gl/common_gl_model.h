@@ -24,13 +24,14 @@ class Common_GL_Model
 {
  public:
 #if defined (ASSIMP_SUPPORT)
-  static Common_GL_Model loadFromFile (const std::string&); // FQ scene path
+  static Common_GL_Model loadFromFile (const std::string&, // FQ scene path
+                                       unsigned int);      // ORed enum aiPostProcessSteps
 
   Common_GL_Model (const std::string&,     // FQ scene path
                    const struct aiScene&); // scene handle
 #endif // ASSIMP_SUPPORT
   Common_GL_Model ();
-  Common_GL_Model (const std::string&); // filename
+  Common_GL_Model (const std::string&); // FQ scene path
   inline ~Common_GL_Model () {}
 
   void load (const std::string&); // filename
