@@ -33,6 +33,11 @@
 #endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
 #endif // IMAGEMAGICK_SUPPORT
 
+#if defined (STB_IMAGE_SUPPORT)
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+#endif // STB_IMAGE_SUPPORT
+
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
 
@@ -310,3 +315,37 @@ error:
   return false;
 }
 #endif // IMAGEMAGICK_SUPPORT
+
+#if defined (STB_IMAGE_SUPPORT)
+bool
+Common_GL_Image_Tools::loadSTB (const std::string& path_in,
+                                unsigned int& width_out,
+                                unsigned int& height_out,
+                                unsigned int& channels_out,
+                                GLubyte*& data_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Image_Tools::loadSTB"));
+
+  // sanity check(s)
+  ACE_ASSERT (!data_out);
+
+  // for OpenGL...
+  stbi_set_flip_vertically_on_load (1);
+
+  int width_i, height_i, channels_i;
+  data_out = stbi_load (path_in.c_str (),
+                        &width_i, &height_i,
+                        &channels_i,
+                        STBI_rgb_alpha);
+  if (likely (data_out))
+  {
+    width_out = static_cast<unsigned int> (width_i);
+    height_out = static_cast<unsigned int> (height_i);
+    channels_out = static_cast<unsigned int> (channels_i);
+
+    return true;
+  } // end IF
+
+  return false;
+}
+#endif // STB_IMAGE_SUPPORT

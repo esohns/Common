@@ -22,28 +22,34 @@
 #include "common_gl_camera.h"
 #include "common_gl_common.h"
 #include "common_gl_shader.h"
-#include "common_gl_texture.h"
 #include "common_gl_vao_vbo_ebo.h"
 
+// forward declarations
 #if defined (ASSIMP_SUPPORT)
 struct aiMesh;
 struct aiScene;
 #endif // ASSIMP_SUPPORT
+class Common_GL_Model;
+class Common_GL_Texture;
 
 class Common_GL_Mesh
 {
  public:
 #if defined (ASSIMP_SUPPORT)
-  static Common_GL_Mesh load (const std::string&, // FQ scene path
+  static Common_GL_Mesh load (Common_GL_Model*,   // model handle
+                              const std::string&, // FQ scene path
                               unsigned int = 0);  // mesh index
 
-  Common_GL_Mesh (const struct aiMesh&); // mesh handle
-  // load material(s) (i.e. --> texture(s))
-  bool init (const std::string&,     // FQ scene path
-             const struct aiScene&); // scene handle
+  Common_GL_Mesh (Common_GL_Model*,      // model handle
+                  const struct aiMesh&); // mesh handle
+  // load material (i.e. texture(s))
+  bool loadMaterial (const std::string&,    // FQ scene path
+                     const struct aiScene&, // scene handle
+                     unsigned int);         // mesh material index
 #endif // ASSIMP_SUPPORT
-  Common_GL_Mesh ();
-  Common_GL_Mesh (const std::string&); // filename
+  Common_GL_Mesh (Common_GL_Model*);
+  Common_GL_Mesh (Common_GL_Model*,
+                  const std::string&); // FQ scene path
   inline ~Common_GL_Mesh () {}
 
   void render (Common_GL_Shader&,
@@ -57,12 +63,13 @@ class Common_GL_Mesh
 
   std::vector <struct Common_GL_Vertex> vertices_;
   std::vector <GLuint>                  indices_;
-  std::vector <Common_GL_Texture>       textures_;
-  struct Common_GL_VAO                  VAO_;
+  Common_GL_Model*                      model_;
   GLenum                                primitiveType_;
+  std::vector <Common_GL_Texture*>      textures_;
+  struct Common_GL_VAO                  VAO_;
 
  private:
-  // ACE_UNIMPLEMENTED_FUNC (Common_GL_Mesh ())
+  ACE_UNIMPLEMENTED_FUNC (Common_GL_Mesh ())
   // ACE_UNIMPLEMENTED_FUNC (Common_GL_Mesh (const Common_GL_Mesh&))
   // ACE_UNIMPLEMENTED_FUNC (Common_GL_Mesh& operator= (const Common_GL_Mesh&))
 };

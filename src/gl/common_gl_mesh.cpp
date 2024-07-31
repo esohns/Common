@@ -22,16 +22,18 @@
 #include "common_gl_assimp_tools.h"
 #endif // ASSIMP_SUPPORT
 #include "common_gl_common.h"
+#include "common_gl_model.h"
 #include "common_gl_texture.h"
 
 #if defined (ASSIMP_SUPPORT)
 Common_GL_Mesh
-Common_GL_Mesh::load (const std::string& path_in,
+Common_GL_Mesh::load (Common_GL_Model* model_in,
+                      const std::string& path_in,
                       unsigned int index_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Mesh::load"));
 
-  static Common_GL_Mesh dummy;
+  static Common_GL_Mesh dummy (NULL);
 
   struct aiScene* scene_p = NULL;
   if (!Common_GL_Assimp_Tools::loadModel (path_in,
@@ -47,13 +49,17 @@ Common_GL_Mesh::load (const std::string& path_in,
   ACE_ASSERT (scene_p && scene_p->HasMeshes ());
   ACE_ASSERT (index_in < scene_p->mNumMeshes);
 
-  Common_GL_Mesh return_value (*scene_p->mMeshes[index_in]);
-  if (!return_value.init (path_in,
-                          *scene_p))
+  const aiMesh& mesh_r = *scene_p->mMeshes[index_in];
+  Common_GL_Mesh return_value (model_in,
+                               mesh_r);
+  if (!return_value.loadMaterial (path_in,
+                                  *scene_p,
+                                  mesh_r.mMaterialIndex))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_GL_Mesh::init(\"%s\"), aborting\n"),
-                ACE_TEXT (path_in.c_str ())));
+                ACE_TEXT ("failed to Common_GL_Mesh::loadMaterial(\"%s\",%u), aborting\n"),
+                ACE_TEXT (path_in.c_str ()),
+                mesh_r.mMaterialIndex));
     aiReleaseImport (scene_p); scene_p = NULL;
     return dummy;
   } // end IF
@@ -62,12 +68,14 @@ Common_GL_Mesh::load (const std::string& path_in,
   return return_value;
 }
 
-Common_GL_Mesh::Common_GL_Mesh (const struct aiMesh& mesh_in)
+Common_GL_Mesh::Common_GL_Mesh (Common_GL_Model* model_in,
+                                const struct aiMesh& mesh_in)
  : vertices_ ()
  , indices_ ()
+ , model_ (model_in)
+ , primitiveType_ (GL_TRIANGLES)
  , textures_ ()
  , VAO_ (true)
- , primitiveType_ (GL_TRIANGLES)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Mesh::Common_GL_Mesh"));
 
@@ -153,69 +161,77 @@ Common_GL_Mesh::Common_GL_Mesh (const struct aiMesh& mesh_in)
 }
 
 bool
-Common_GL_Mesh::init (const std::string& path_in,
-                      const struct aiScene& scene_in)
+Common_GL_Mesh::loadMaterial (const std::string& scenePath_in,
+                              const struct aiScene& scene_in,
+                              unsigned int materialIndex_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_GL_Mesh::init"));
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Mesh::loadMaterial"));
 
   // sanity check(s)
+  ACE_ASSERT (model_);
   ACE_ASSERT (textures_.empty ());
-  std::string directory_string = Common_File_Tools::directory (path_in);
+  std::string directory_string = Common_File_Tools::directory (scenePath_in);
   ACE_ASSERT (!directory_string.empty ());
+  ACE_ASSERT (scene_in.HasMaterials ());
 
-  for (unsigned int i = 0; i < scene_in.mNumMaterials; ++i)
-  { const aiMaterial& material_r = *scene_in.mMaterials[i];
-    if (material_r.GetTextureCount (aiTextureType_DIFFUSE) > 0)
+  const aiMaterial& material_r = *scene_in.mMaterials[materialIndex_in];
+  aiReturn result;
+  aiString path_string;
+  std::string path_string_2;
+  for (unsigned int i = 0;
+       i < material_r.GetTextureCount (aiTextureType_DIFFUSE);
+       ++i)
+  {
+    result = material_r.GetTexture (aiTextureType_DIFFUSE, i,
+                                    &path_string,
+                                    NULL, NULL, NULL, NULL, NULL);
+    if (unlikely (result != aiReturn_SUCCESS))
     {
-      aiString path_string;
-      aiReturn result = material_r.GetTexture (aiTextureType_DIFFUSE, 0, &path_string,
-                                               NULL, NULL, NULL, NULL, NULL);
-      if (unlikely (result != aiReturn_SUCCESS))
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to aiMaterial::GetTexture(aiTextureType_DIFFUSE, 0): \"%m\", aborting\n")));
-        return false;
-      } // end IF
-
-      std::string path_string_2 = path_string.data;
-      path_string_2 = Common_File_Tools::basename (path_string_2, false);
-      path_string_2 =
-        directory_string + ACE_DIRECTORY_SEPARATOR_CHAR_A + path_string_2;
-      Common_GL_Texture texture (Common_GL_Texture::Type::TYPE_DIFFUSE);
-      if (unlikely (!texture.load (path_string_2)))
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("failed to Common_GL_Texture::load(\"%s\"), continuing\n"),
-                    ACE_TEXT (path_string_2.c_str ())));
-        continue;
-      } // end IF
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("loaded texture \"%s\"...\n"),
-                  ACE_TEXT (path_string_2.c_str ())));
-      textures_.push_back (texture);
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to aiMaterial::GetTexture(aiTextureType_DIFFUSE, %u): \"%m\", continuing\n"),
+                  i));
+      continue;
     } // end IF
+
+    path_string_2 = path_string.data;
+    path_string_2 = Common_File_Tools::basename (path_string_2, false);
+    path_string_2 =
+      directory_string + ACE_DIRECTORY_SEPARATOR_CHAR_A + path_string_2;
+    Common_GL_Texture* texture_p = model_->addTexture (path_string_2,
+                                                       Common_GL_Texture::Type::TYPE_DIFFUSE);
+    if (unlikely (!texture_p))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_GL_Model::addTexture(\"%s\"), continuing\n"),
+                  ACE_TEXT (path_string_2.c_str ())));
+      continue;
+    } // end IF
+    textures_.push_back (texture_p);
   } // end FOR
 
   return true;
 }
 #endif // ASSIMP_SUPPORT
 
-Common_GL_Mesh::Common_GL_Mesh ()
+Common_GL_Mesh::Common_GL_Mesh (Common_GL_Model* model_in)
  : vertices_ ()
  , indices_ ()
+ , model_ (model_in)
+ , primitiveType_ (GL_TRIANGLES)
  , textures_ ()
  , VAO_ (false)
- , primitiveType_ (GL_TRIANGLES)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Mesh::Common_GL_Mesh"));
 }
 
-Common_GL_Mesh::Common_GL_Mesh (const std::string& fileName_in)
+Common_GL_Mesh::Common_GL_Mesh (Common_GL_Model* model_in,
+                                const std::string& scenePath_in)
  : vertices_ ()
  , indices_ ()
+ , model_ (model_in)
+ , primitiveType_ (GL_TRIANGLES)
  , textures_ ()
  , VAO_ (true)
- , primitiveType_ (GL_TRIANGLES)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Mesh::Common_GL_Mesh"));
 
@@ -260,7 +276,7 @@ Common_GL_Mesh::render (Common_GL_Shader& shader_in,
   std::string type, num;
   for (unsigned int i = 0; i < textures_.size (); i++)
   {
-    switch (textures_[i].type_)
+    switch (textures_[i]->type_)
     {
       case Common_GL_Texture::TYPE_DIFFUSE:
         type = ACE_TEXT_ALWAYS_CHAR ("diffuse");
@@ -273,21 +289,21 @@ Common_GL_Mesh::render (Common_GL_Shader& shader_in,
       default:
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("invalid/unknown texture type (was: %d), continuing\n"),
-                    textures_[i].type_));
+                    textures_[i]->type_));
         continue;
     } // end SWITCH
-    textures_[i].set (shader_in, type + num, i);
+    textures_[i]->set (shader_in, type + num, i);
 
-    textures_[i].bind (i);
+    textures_[i]->bind (i);
   } // end FOR
 
   // Draw the actual mesh
-  // *TODO*: find out why this segfaults
+  // *TODO*: find out why this segfaults (both Win32 and Linux...)
   //glDrawElements (GL_TRIANGLES, static_cast<GLsizei> (indices_.size ()), GL_UNSIGNED_INT, 0);
   glDrawArrays (GL_TRIANGLES, 0, static_cast<GLsizei> (vertices_.size ()));
 
   for (unsigned int i = 0; i < textures_.size (); i++)
-    textures_[i].unbind ();
+    textures_[i]->unbind ();
 
   VAO_.unbind ();
 }
@@ -299,10 +315,6 @@ Common_GL_Mesh::reset ()
 
   vertices_.clear ();
   indices_.clear ();
-  for (std::vector<Common_GL_Texture>::iterator iterator = textures_.begin ();
-       iterator != textures_.end ();
-       ++iterator)
-    (*iterator).reset ();
   textures_.clear ();
   VAO_.free ();
 }

@@ -7,6 +7,7 @@ include (glm)
 include (glut)
 set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../image/scripts")
 include (png)
+include (stb)
 
 set (LIBRARY ${PROJECT_NAME}OpenGL)
 add_library (${LIBRARY} STATIC "")
@@ -33,6 +34,11 @@ if (LIBPNG_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
                              "$<BUILD_INTERFACE:${PNG_INCLUDE_DIRS}>")
 endif (LIBPNG_SUPPORT)
+
+if (STB_IMAGE_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             "$<BUILD_INTERFACE:${STB_IMAGE_INCLUDE_DIRS}>")
+endif (STB_IMAGE_SUPPORT)
 
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)

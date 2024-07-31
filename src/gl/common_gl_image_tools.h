@@ -51,6 +51,15 @@ class Common_GL_Image_Tools
                        GLubyte*&);         // return value: data
 #endif // IMAGEMAGICK_SUPPORT
 
+#if defined (STB_IMAGE_SUPPORT)
+  // *IMPORTANT NOTE*: callers need to free() allocated memory (5th argument)
+  static bool loadSTB (const std::string&, // path
+                       unsigned int&,      // return value: width
+                       unsigned int&,      // return value: height
+                       unsigned int&,      // return value: #channels
+                       GLubyte*&);         // return value: data
+#endif // STB_IMAGE_SUPPORT
+
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_GL_Image_Tools ())
   ACE_UNIMPLEMENTED_FUNC (~Common_GL_Image_Tools ())

@@ -38,12 +38,12 @@ Common_GL_Shader::~Common_GL_Shader ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Shader::~Common_GL_Shader"));
 
-  if (likely (id_))
+  if (unlikely (id_))
   { // *TODO*
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("cannot free shader resources when out of context, continuing\n")));
     //glDeleteProgram (id_);
-    //COMMON_GL_ASSERT;
+    //COMMON_GL_ASSERT
   } // end IF
 }
 

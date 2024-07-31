@@ -26,12 +26,12 @@ class Common_GL_Texture
     TYPE_INVALID
   };
 
-  Common_GL_Texture (enum Type);
-  Common_GL_Texture (enum Type,
-                     const std::string&); // filename
+  Common_GL_Texture (enum Type = Type::TYPE_INVALID);
+  Common_GL_Texture (const std::string&, // FQ path
+                     enum Type = Type::TYPE_INVALID);
   ~Common_GL_Texture ();
 
-  bool load (const std::string&); // filename
+  bool load (const std::string&); // FQ path
   void reset ();
   void bind (GLuint = 0); // texture unit (!), not -id (!!!)
   void unbind ();
@@ -40,8 +40,9 @@ class Common_GL_Texture
             const std::string&, // uniform
             GLint = 0);         // texture unit (!), not -id (!!!)
 
-  GLuint    id_; // texture id
-  enum Type type_;
+  GLuint      id_; // texture id
+  std::string path_;
+  enum Type   type_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_GL_Texture ())

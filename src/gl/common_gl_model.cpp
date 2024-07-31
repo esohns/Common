@@ -12,6 +12,7 @@
 
 #include "ace/Default_Constants.h"
 #include "ace/Log_Msg.h"
+#include "ace/OS_Memory.h"
 
 #include "common_macros.h"
 #include "common_file_tools.h"
@@ -22,13 +23,13 @@
 #include "common_gl_common.h"
 
 #if defined (ASSIMP_SUPPORT)
-Common_GL_Model
+Common_GL_Model*
 Common_GL_Model::loadFromFile (const std::string& path_in,
                                unsigned int flags_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Model::loadFromFile"));
 
-  static Common_GL_Model dummy;
+  Common_GL_Model* return_value_p = NULL;
 
   struct aiScene* scene_p = NULL;
   if (!Common_GL_Assimp_Tools::loadModel (path_in,
@@ -39,16 +40,17 @@ Common_GL_Model::loadFromFile (const std::string& path_in,
                 ACE_TEXT ("failed to Common_GL_Assimp_Tools::loadModel(\"%s\",%d), aborting\n"),
                 ACE_TEXT (path_in.c_str ()),
                 flags_in));
-    return dummy;
+    return NULL;
   } // end IF
   ACE_ASSERT (scene_p);
 
-  Common_GL_Model return_value (path_in,
-                                *scene_p);
+  ACE_NEW_NORETURN (return_value_p,
+                    Common_GL_Model (path_in, *scene_p));
+  ACE_ASSERT (return_value_p);
 
   aiReleaseImport (scene_p); scene_p = NULL;
 
-  return return_value;
+  return return_value_p;
 }
 
 Common_GL_Model::Common_GL_Model (const std::string& path_in,
@@ -56,6 +58,7 @@ Common_GL_Model::Common_GL_Model (const std::string& path_in,
  : box_ ()
  , center_ ()
  , meshes_ ()
+ , textures_ ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Model::Common_GL_Model"));
 
@@ -74,13 +77,17 @@ Common_GL_Model::Common_GL_Model (const std::string& path_in,
       continue;
     } // end IF
 
-    Common_GL_Mesh mesh (*scene_in.mMeshes[i]);
-    if (!mesh.init (path_in,
-                    scene_in))
+    const aiMesh& mesh_r = *scene_in.mMeshes[i];
+    Common_GL_Mesh mesh (this,
+                         mesh_r);
+    if (!mesh.loadMaterial (path_in,
+                            scene_in,
+                            mesh_r.mMaterialIndex))
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to Common_GL_Mesh::init(\"%s\"), continuing\n"),
-                  ACE_TEXT (path_in.c_str ())));
+                  ACE_TEXT ("failed to Common_GL_Mesh::loadMaterial(\"%s\",%u), continuing\n"),
+                  ACE_TEXT (path_in.c_str ()),
+                  mesh_r.mMaterialIndex));
       continue;
     } // end IF
 
@@ -125,25 +132,20 @@ Common_GL_Model::Common_GL_Model ()
  : box_ ()
  , center_ ()
  , meshes_ ()
+ , textures_ ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Model::Common_GL_Model"));
 }
 
-Common_GL_Model::Common_GL_Model (const std::string& fileName_in)
+Common_GL_Model::Common_GL_Model (const std::string& path_in)
  : box_ ()
  , center_ ()
  , meshes_ ()
+ , textures_ ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Model::Common_GL_Model"));
 
-#if defined (ASSIMP_SUPPORT)
-  unsigned int flags_i = COMMON_GL_ASSIMP_IMPORT_FLAGS;
-  *this = Common_GL_Model::loadFromFile (fileName_in,
-                                         flags_i);
-#else
-  // *TODO*: load mesh from file
-  ACE_ASSERT (false);
-#endif // ASSIMP_SUPPORT
+  load (path_in);
 }
 
 void
@@ -158,8 +160,12 @@ Common_GL_Model::load (const std::string& fileName_in)
 
 #if defined (ASSIMP_SUPPORT)
   unsigned int flags_i = COMMON_GL_ASSIMP_IMPORT_FLAGS;
-  *this = Common_GL_Model::loadFromFile (fileName_in,
-                                         flags_i);
+  Common_GL_Model* model_p = 
+    Common_GL_Model::loadFromFile (fileName_in,
+                                   flags_i);
+  ACE_ASSERT (model_p);
+  *this = *model_p;
+  delete model_p; model_p = NULL;
 #else
   // *TODO*: load mesh from file
   ACE_ASSERT (false);
@@ -178,6 +184,13 @@ Common_GL_Model::render (Common_GL_Shader& shader_in,
   COMMON_TRACE (ACE_TEXT ("Common_GL_Model::render"));
 
   shader_in.use ();
+
+  // manage lighting
+  static glm::vec4 light_color_s (1.0f); // opaque white
+  static GLint lightColor_location_i =
+    glGetUniformLocation (shader_in.id_, ACE_TEXT_ALWAYS_CHAR ("lightColor"));
+  ACE_ASSERT (lightColor_location_i);
+  glUniform4fv (lightColor_location_i, 1, &(light_color_s.x));
 
   // manage camera uniforms
   static GLint camPos_location_i =
@@ -244,4 +257,54 @@ Common_GL_Model::reset ()
        ++iterator)
     (*iterator).reset ();
   meshes_.clear ();
+
+  for (std::vector<Common_GL_Texture*>::iterator iterator = textures_.begin ();
+       iterator != textures_.end ();
+       ++iterator)
+  {
+    (*iterator)->reset ();
+    delete *iterator;
+  } // end FOR
+  textures_.clear ();
+}
+
+Common_GL_Texture*
+Common_GL_Model::addTexture (const std::string& path_in,
+                             enum Common_GL_Texture::Type type_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Model::addTexture"));
+
+  // check cache first
+  for (std::vector<Common_GL_Texture*>::iterator iterator = textures_.begin ();
+       iterator != textures_.end ();
+       ++iterator)
+    if ((*iterator)->path_ == path_in)
+    {
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("texture \"%s\" found in cache...\n"),
+                  ACE_TEXT (path_in.c_str ())));
+      return *iterator; // --> already loaded, return handle
+    } // end IF
+
+  // not cached --> load
+  Common_GL_Texture* texture_p = NULL;
+  ACE_NEW_NORETURN (texture_p,
+                    Common_GL_Texture (type_in));
+  ACE_ASSERT (texture_p);
+
+  if (unlikely (!texture_p->load (path_in)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_GL_Texture::load(\"%s\"), aborting\n"),
+                ACE_TEXT (path_in.c_str ())));
+    delete texture_p;
+    return NULL;
+  } // end IF
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("loaded texture \"%s\"...\n"),
+              ACE_TEXT (path_in.c_str ())));
+
+  textures_.push_back (texture_p);
+
+  return textures_.back ();
 }

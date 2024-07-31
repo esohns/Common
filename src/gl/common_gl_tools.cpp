@@ -221,15 +221,9 @@ Common_GL_Tools::loadTexture (const std::string& path_in)
   GLuint return_value = 0;
 
   // sanity check(s)
-  if (!Common_File_Tools::isReadable (path_in))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_File_Tools::isReadable(\"%s\"), aborting\n"),
-                ACE_TEXT (path_in.c_str ())));
-    return return_value;
-  } // end IF
+  ACE_ASSERT (Common_File_Tools::isReadable (path_in));
 
-  unsigned int width = 0, height = 0;
+  unsigned int width = 0, height = 0, channels = 0;
   bool has_alpha = false;
   GLubyte* image_p = NULL;
   switch (Common_Image_Tools::fileExtensionToType (path_in))
@@ -258,16 +252,35 @@ Common_GL_Tools::loadTexture (const std::string& path_in)
 #endif // LIBPNG_SUPPORT || IMAGEMAGICK_SUPPORT
       break;
     }
+    case COMMON_IMAGE_FILE_JPG:
+    {
+#if defined (STB_IMAGE_SUPPORT)
+      if (!Common_GL_Image_Tools::loadSTB (path_in,
+                                           width, height,
+                                           channels,
+                                           image_p))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to Common_GL_Image_Tools::loadSTB(\"%s\"), aborting\n"),
+                    ACE_TEXT (path_in.c_str ())));
+        return return_value;
+      } // end IF
+      has_alpha = channels >= 4;
+#endif // STB_IMAGE_SUPPORT
+      break;
+    }
     default:
     {
+error:
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("invalid/unknown image file format (path was: \"%s\"), aborting\n"),
                   ACE_TEXT (path_in.c_str ())));
       return return_value;
     }
   } // end SWITCH
-  ACE_ASSERT (width && height);
-  ACE_ASSERT (image_p);
+  if (!width || !height || !image_p)
+    goto error;
+
 //#if defined (_DEBUG)
 //  Common_Image_Resolution_t resolution_s;
 //  resolution_s.width = width; resolution_s.height = height;
