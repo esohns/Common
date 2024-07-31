@@ -14,6 +14,7 @@
 
 #include "ace/Default_Constants.h"
 #include "ace/Log_Msg.h"
+#include "ace/OS_Memory.h"
 
 #include "common_macros.h"
 #include "common_file_tools.h"
@@ -26,14 +27,12 @@
 #include "common_gl_texture.h"
 
 #if defined (ASSIMP_SUPPORT)
-Common_GL_Mesh
+Common_GL_Mesh*
 Common_GL_Mesh::load (Common_GL_Model* model_in,
                       const std::string& path_in,
                       unsigned int index_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Mesh::load"));
-
-  static Common_GL_Mesh dummy (NULL);
 
   struct aiScene* scene_p = NULL;
   if (!Common_GL_Assimp_Tools::loadModel (path_in,
@@ -44,28 +43,32 @@ Common_GL_Mesh::load (Common_GL_Model* model_in,
                 ACE_TEXT ("failed to Common_GL_Assimp_Tools::loadModel(\"%s\",%d), aborting\n"),
                 ACE_TEXT (path_in.c_str ()),
                 aiProcessPreset_TargetRealtime_Quality));
-    return dummy;
+    return NULL;
   } // end IF
   ACE_ASSERT (scene_p && scene_p->HasMeshes ());
   ACE_ASSERT (index_in < scene_p->mNumMeshes);
 
   const aiMesh& mesh_r = *scene_p->mMeshes[index_in];
-  Common_GL_Mesh return_value (model_in,
-                               mesh_r);
-  if (!return_value.loadMaterial (path_in,
-                                  *scene_p,
-                                  mesh_r.mMaterialIndex))
+
+  Common_GL_Mesh* return_value_p = NULL;
+  ACE_NEW_NORETURN (return_value_p,
+                    Common_GL_Mesh (model_in, mesh_r));
+  ACE_ASSERT (return_value_p);
+  if (!return_value_p->loadMaterial (path_in,
+                                     *scene_p,
+                                     mesh_r.mMaterialIndex))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_GL_Mesh::loadMaterial(\"%s\",%u), aborting\n"),
                 ACE_TEXT (path_in.c_str ()),
                 mesh_r.mMaterialIndex));
     aiReleaseImport (scene_p); scene_p = NULL;
-    return dummy;
+    delete return_value_p;
+    return NULL;
   } // end IF
   aiReleaseImport (scene_p); scene_p = NULL;
 
-  return return_value;
+  return return_value_p;
 }
 
 Common_GL_Mesh::Common_GL_Mesh (Common_GL_Model* model_in,
@@ -76,6 +79,8 @@ Common_GL_Mesh::Common_GL_Mesh (Common_GL_Model* model_in,
  , primitiveType_ (GL_TRIANGLES)
  , textures_ ()
  , VAO_ (true)
+ , VBO_ (true)
+ , EBO_ (true)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Mesh::Common_GL_Mesh"));
 
@@ -140,18 +145,14 @@ Common_GL_Mesh::Common_GL_Mesh (Common_GL_Model* model_in,
   } // end FOR
 
   VAO_.bind ();
-  struct Common_GL_VBO VBO (vertices_);
-  VBO.bind ();
-  struct Common_GL_EBO EBO (indices_);
-  EBO.bind ();
 
-  VAO_.linkAttrib (VBO, 0, 3, GL_FLOAT, sizeof (struct Common_GL_Vertex), (void*)(0  * sizeof (float))); // position --> 0
-  VAO_.linkAttrib (VBO, 1, 3, GL_FLOAT, sizeof (struct Common_GL_Vertex), (void*)(3  * sizeof (float))); // normal   --> 1
-  VAO_.linkAttrib (VBO, 2, 4, GL_FLOAT, sizeof (struct Common_GL_Vertex), (void*)(6  * sizeof (float))); // color    --> 2
-  VAO_.linkAttrib (VBO, 3, 2, GL_FLOAT, sizeof (struct Common_GL_Vertex), (void*)(10 * sizeof (float))); // uv       --> 3
+  VBO_.upload (vertices_);
+  EBO_.upload (indices_);
 
-  EBO.unbind ();
-  VBO.unbind ();
+  VAO_.linkAttrib (VBO_, 0, 3, GL_FLOAT, sizeof (struct Common_GL_Vertex), (void*)(0  * sizeof (float))); // position --> 0
+  VAO_.linkAttrib (VBO_, 1, 3, GL_FLOAT, sizeof (struct Common_GL_Vertex), (void*)(3  * sizeof (float))); // normal   --> 1
+  VAO_.linkAttrib (VBO_, 2, 4, GL_FLOAT, sizeof (struct Common_GL_Vertex), (void*)(6  * sizeof (float))); // color    --> 2
+  VAO_.linkAttrib (VBO_, 3, 2, GL_FLOAT, sizeof (struct Common_GL_Vertex), (void*)(10 * sizeof (float))); // uv       --> 3
 
   VAO_.unbind ();
 
@@ -178,6 +179,37 @@ Common_GL_Mesh::loadMaterial (const std::string& scenePath_in,
   aiReturn result;
   aiString path_string;
   std::string path_string_2;
+  for (unsigned int i = 0;
+       i < material_r.GetTextureCount (aiTextureType_AMBIENT);
+       ++i)
+  {
+    result = material_r.GetTexture (aiTextureType_AMBIENT, i,
+                                    &path_string,
+                                    NULL, NULL, NULL, NULL, NULL);
+    if (unlikely (result != aiReturn_SUCCESS))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to aiMaterial::GetTexture(aiTextureType_AMBIENT, %u): \"%m\", continuing\n"),
+                  i));
+      continue;
+    } // end IF
+
+    path_string_2 = path_string.data;
+    path_string_2 = Common_File_Tools::basename (path_string_2, false);
+    path_string_2 =
+      directory_string + ACE_DIRECTORY_SEPARATOR_CHAR_A + path_string_2;
+    Common_GL_Texture* texture_p = model_->addTexture (path_string_2,
+                                                       Common_GL_Texture::Type::TYPE_AMBIENT);
+    if (unlikely (!texture_p))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_GL_Model::addTexture(\"%s\"), continuing\n"),
+                  ACE_TEXT (path_string_2.c_str ())));
+      continue;
+    } // end IF
+    textures_.push_back (texture_p);
+  } // end FOR
+
   for (unsigned int i = 0;
        i < material_r.GetTextureCount (aiTextureType_DIFFUSE);
        ++i)
@@ -209,6 +241,37 @@ Common_GL_Mesh::loadMaterial (const std::string& scenePath_in,
     textures_.push_back (texture_p);
   } // end FOR
 
+  for (unsigned int i = 0;
+       i < material_r.GetTextureCount (aiTextureType_SPECULAR);
+       ++i)
+  {
+    result = material_r.GetTexture (aiTextureType_SPECULAR, i,
+                                    &path_string,
+                                    NULL, NULL, NULL, NULL, NULL);
+    if (unlikely (result != aiReturn_SUCCESS))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to aiMaterial::GetTexture(aiTextureType_SPECULAR, %u): \"%m\", continuing\n"),
+                  i));
+      continue;
+    } // end IF
+
+    path_string_2 = path_string.data;
+    path_string_2 = Common_File_Tools::basename (path_string_2, false);
+    path_string_2 =
+      directory_string + ACE_DIRECTORY_SEPARATOR_CHAR_A + path_string_2;
+    Common_GL_Texture* texture_p = model_->addTexture (path_string_2,
+                                                       Common_GL_Texture::Type::TYPE_SPECULAR);
+    if (unlikely (!texture_p))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to Common_GL_Model::addTexture(\"%s\"), continuing\n"),
+                  ACE_TEXT (path_string_2.c_str ())));
+      continue;
+    } // end IF
+    textures_.push_back (texture_p);
+  } // end FOR
+
   return true;
 }
 #endif // ASSIMP_SUPPORT
@@ -220,6 +283,8 @@ Common_GL_Mesh::Common_GL_Mesh (Common_GL_Model* model_in)
  , primitiveType_ (GL_TRIANGLES)
  , textures_ ()
  , VAO_ (false)
+ , VBO_ (false)
+ , EBO_ (false)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Mesh::Common_GL_Mesh"));
 }
@@ -232,6 +297,8 @@ Common_GL_Mesh::Common_GL_Mesh (Common_GL_Model* model_in,
  , primitiveType_ (GL_TRIANGLES)
  , textures_ ()
  , VAO_ (true)
+ , VBO_ (true)
+ , EBO_ (true)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Mesh::Common_GL_Mesh"));
 
@@ -239,18 +306,14 @@ Common_GL_Mesh::Common_GL_Mesh (Common_GL_Model* model_in,
   ACE_ASSERT (false);
 
   VAO_.bind ();
-  struct Common_GL_VBO VBO (vertices_);
-  VBO.bind ();
-  struct Common_GL_EBO EBO (indices_);
-  EBO.bind ();
 
-  VAO_.linkAttrib (VBO, 0, 3, GL_FLOAT, sizeof (struct Common_GL_Vertex), (void*)offsetof (Common_GL_Vertex, position)); // position --> 0
-  VAO_.linkAttrib (VBO, 1, 3, GL_FLOAT, sizeof (struct Common_GL_Vertex), (void*)offsetof (Common_GL_Vertex, normal));   // normal   --> 1
-  VAO_.linkAttrib (VBO, 2, 4, GL_FLOAT, sizeof (struct Common_GL_Vertex), (void*)offsetof (Common_GL_Vertex, color));    // color    --> 2
-  VAO_.linkAttrib (VBO, 3, 2, GL_FLOAT, sizeof (struct Common_GL_Vertex), (void*)offsetof (Common_GL_Vertex, uv));       // uv       --> 3
+  VBO_.upload (vertices_);
+  EBO_.upload (indices_);
 
-  EBO.unbind ();
-  VBO.unbind ();
+  VAO_.linkAttrib (VBO_, 0, 3, GL_FLOAT, sizeof (struct Common_GL_Vertex), (void*)offsetof (Common_GL_Vertex, position)); // position --> 0
+  VAO_.linkAttrib (VBO_, 1, 3, GL_FLOAT, sizeof (struct Common_GL_Vertex), (void*)offsetof (Common_GL_Vertex, normal));   // normal   --> 1
+  VAO_.linkAttrib (VBO_, 2, 4, GL_FLOAT, sizeof (struct Common_GL_Vertex), (void*)offsetof (Common_GL_Vertex, color));    // color    --> 2
+  VAO_.linkAttrib (VBO_, 3, 2, GL_FLOAT, sizeof (struct Common_GL_Vertex), (void*)offsetof (Common_GL_Vertex, uv));       // uv       --> 3
 
   VAO_.unbind ();
 }
@@ -298,9 +361,12 @@ Common_GL_Mesh::render (Common_GL_Shader& shader_in,
   } // end FOR
 
   // Draw the actual mesh
-  // *TODO*: find out why this segfaults (both Win32 and Linux...)
-  //glDrawElements (GL_TRIANGLES, static_cast<GLsizei> (indices_.size ()), GL_UNSIGNED_INT, 0);
-  glDrawArrays (GL_TRIANGLES, 0, static_cast<GLsizei> (vertices_.size ()));
+  EBO_.bind ();
+  glDrawElements (GL_TRIANGLES, static_cast<GLsizei> (indices_.size ()), GL_UNSIGNED_INT, 0);
+  EBO_.unbind ();
+  //VBO_.bind ();
+  //glDrawArrays (GL_TRIANGLES, 0, static_cast<GLsizei> (vertices_.size ()));
+  //VBO_.unbind ();
 
   for (unsigned int i = 0; i < textures_.size (); i++)
     textures_[i]->unbind ();
@@ -316,5 +382,7 @@ Common_GL_Mesh::reset ()
   vertices_.clear ();
   indices_.clear ();
   textures_.clear ();
+  EBO_.free ();
+  VBO_.free ();
   VAO_.free ();
 }

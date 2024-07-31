@@ -18,6 +18,7 @@
 
 #include "ace/Assert.h"
 
+// *TODO*: move this away ASAP; it's not generic
 struct Common_GL_Vertex
 {
   Common_GL_Vertex ()
@@ -35,17 +36,25 @@ struct Common_GL_Vertex
 
 struct Common_GL_VBO
 {
-  Common_GL_VBO (const std::vector<struct Common_GL_Vertex>& vertices_in)
+  Common_GL_VBO (bool insideGLContext = false)
    : id_ (0)
   {
-    glGenBuffers (1, &id_);
-    ACE_ASSERT (id_);
+    if (insideGLContext)
+    {
+      glGenBuffers (1, &id_);
+      ACE_ASSERT (id_);
+    } // end IF
+  }
+  
+  // *TODO*: move this away ASAP; it's not generic
+  void upload (const std::vector<struct Common_GL_Vertex>& vertices_in)
+  {
     bind ();
     glBufferData (GL_ARRAY_BUFFER, vertices_in.size () * sizeof (struct Common_GL_Vertex), vertices_in.data (), GL_STATIC_DRAW);
     unbind ();
   }
 
-  inline void bind () { glBindBuffer (GL_ARRAY_BUFFER, id_); }
+  inline void bind () { ACE_ASSERT (id_); glBindBuffer (GL_ARRAY_BUFFER, id_); }
   inline void unbind () { glBindBuffer (GL_ARRAY_BUFFER, 0); }
   inline void free () { glDeleteBuffers (1, &id_); id_ = 0; }
 
@@ -56,17 +65,25 @@ struct Common_GL_VBO
 
 struct Common_GL_EBO
 {
-  Common_GL_EBO (const std::vector<GLuint>& indices_in)
+  Common_GL_EBO (bool insideGLContext = false)
    : id_ (0)
   {
-    glGenBuffers (1, &id_);
-    ACE_ASSERT (id_);
+    if (insideGLContext)
+    {
+      glGenBuffers (1, &id_);
+      ACE_ASSERT (id_);
+    } // end IF
+  }
+
+  // *TODO*: move this away ASAP; it's not generic
+  void upload (const std::vector<GLuint>& indices_in)
+  {
     bind ();
     glBufferData (GL_ELEMENT_ARRAY_BUFFER, indices_in.size () * sizeof (GLuint), indices_in.data (), GL_STATIC_DRAW);
     unbind ();
   }
 
-  inline void bind () { glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, id_); }
+  inline void bind () { ACE_ASSERT (id_); glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, id_); }
   inline void unbind () { glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0); }
   inline void free () { glDeleteBuffers (1, &id_); id_ = 0; }
 
@@ -87,9 +104,6 @@ struct Common_GL_VAO
     } // end IF
   }
 
-  inline void bind () { glBindVertexArray (id_); }
-  inline void unbind () { glBindVertexArray (0); }
-  inline void free () { glDeleteVertexArrays (1, &id_); id_ = 0; }
   void linkAttrib (struct Common_GL_VBO& VBO,
                    GLuint index, GLint size, GLenum type, GLsizei stride, const void* pointer)
   {
@@ -98,6 +112,10 @@ struct Common_GL_VAO
     glEnableVertexAttribArray (index);
     VBO.unbind ();
   }
+
+  inline void bind () { ACE_ASSERT (id_); glBindVertexArray (id_); }
+  inline void unbind () { glBindVertexArray (0); }
+  inline void free () { glDeleteVertexArrays (1, &id_); id_ = 0; }
 
   GLuint id_;
 };

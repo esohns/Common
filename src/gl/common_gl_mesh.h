@@ -36,9 +36,9 @@ class Common_GL_Mesh
 {
  public:
 #if defined (ASSIMP_SUPPORT)
-  static Common_GL_Mesh load (Common_GL_Model*,   // model handle
-                              const std::string&, // FQ scene path
-                              unsigned int = 0);  // mesh index
+  static Common_GL_Mesh* load (Common_GL_Model*,   // model handle
+                               const std::string&, // FQ scene path
+                               unsigned int = 0);  // mesh index
 
   Common_GL_Mesh (Common_GL_Model*,      // model handle
                   const struct aiMesh&); // mesh handle
@@ -66,7 +66,10 @@ class Common_GL_Mesh
   Common_GL_Model*                      model_;
   GLenum                                primitiveType_;
   std::vector <Common_GL_Texture*>      textures_;
+
   struct Common_GL_VAO                  VAO_;
+  struct Common_GL_VBO                  VBO_;
+  struct Common_GL_EBO                  EBO_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_GL_Mesh ())

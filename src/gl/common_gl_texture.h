@@ -21,7 +21,8 @@ class Common_GL_Texture
  public:
   enum Type
   {
-    TYPE_DIFFUSE = 0,
+    TYPE_AMBIENT = 0,
+    TYPE_DIFFUSE,
     TYPE_SPECULAR,
     TYPE_INVALID
   };
