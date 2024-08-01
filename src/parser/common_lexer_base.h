@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_PARSER_BASE_T_H
-#define COMMON_PARSER_BASE_T_H
+#ifndef COMMON_LEXER_BASE_T_H
+#define COMMON_LEXER_BASE_T_H
 
 #include <string>
 
@@ -37,10 +37,9 @@ struct YYLTYPE;
 struct yy_buffer_state;
 
 template <typename ConfigurationType,
-          typename ParserType, // yacc/bison-
           typename ParserInterfaceType, // implements Common_IParser_T
           typename ExtraDataType> // (f)lex-
-class Common_ParserBase_T
+class Common_LexerBase_T
  : public ParserInterfaceType
 {
  public:
@@ -48,8 +47,8 @@ class Common_ParserBase_T
   typedef ParserInterfaceType IPARSER_T;
   typedef typename ParserInterfaceType::ISCANNER_T ISCANNER_T;
 
-  Common_ParserBase_T ();
-  virtual ~Common_ParserBase_T ();
+  Common_LexerBase_T ();
+  virtual ~Common_LexerBase_T ();
 
   // implement (part of) ParserInterfaceType
   virtual bool initialize (const ConfigurationType&);
@@ -78,9 +77,9 @@ class Common_ParserBase_T
   // implement (part of) Common_ILexScanner_T
   inline virtual const struct Common_FlexScannerState& getR () const { return scannerState_; }
   inline virtual const IPARSER_T* const getP_2 () const { return this; }
-  inline virtual bool initialize (yyscan_t&, ExtraDataType*) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
-  inline virtual void finalize (yyscan_t&) { /*ACE_ASSERT (false);*/ ACE_NOTSUP; ACE_NOTREACHED (return;) }
-  inline virtual void destroy (yyscan_t, struct yy_buffer_state*&) { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
+  //inline virtual bool initialize (yyscan_t&, ExtraDataType*) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
+  //inline virtual void finalize (yyscan_t&) { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
+  //inline virtual void destroy (yyscan_t, struct yy_buffer_state*&) { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
   //inline virtual bool lex (yyscan_t) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
 
   // implement (part of) Common_IYaccParser_T
@@ -96,15 +95,12 @@ class Common_ParserBase_T
   bool                           finished_;
   ACE_Message_Block*             fragment_;
 
-  // parser
-  ParserType                     parser_;
-
   // scanner
   struct Common_FlexScannerState scannerState_;
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_ParserBase_T (const Common_ParserBase_T&))
-  ACE_UNIMPLEMENTED_FUNC (Common_ParserBase_T& operator= (const Common_ParserBase_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_LexerBase_T (const Common_LexerBase_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_LexerBase_T& operator= (const Common_LexerBase_T&))
 
   struct yy_buffer_state*        buffer_;
 
@@ -112,6 +108,6 @@ class Common_ParserBase_T
 };
 
 // include template definition
-#include "common_parser_base.inl"
+#include "common_lexer_base.inl"
 
 #endif

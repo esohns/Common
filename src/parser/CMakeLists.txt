@@ -19,6 +19,9 @@ target_include_directories (${LIBRARY} PUBLIC
 set (source_files
      common_iparser.h
      common_iscanner.h
+     common_lexer_base.cpp
+     common_lexer_base.h
+     common_lexer_base.inl
      common_parser_base.cpp
      common_parser_base.h
      common_parser_base.inl
@@ -75,6 +78,8 @@ export (TARGETS ${LIBRARY}
 install (FILES
          common_iparser.h
          common_iscanner.h
+         common_lexer_base.h
+         common_lexer_base.inl
          common_parser_base.h
          common_parser_base.inl
          common_parser_bencoding_common.h

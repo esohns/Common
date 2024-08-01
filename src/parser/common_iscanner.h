@@ -23,8 +23,6 @@
 
 #include <string>
 
-//#include "location.hh"
-
 #include "common_iget.h"
 #include "common_iinitialize.h"
 #include "common_idumpstate.h"
@@ -80,9 +78,7 @@ class Common_ILexScanner_T
   virtual void destroy (yyscan_t,                      // state handle
                         struct yy_buffer_state*&) = 0; // buffer handle
 
-  // *NOTE*: this is the C interface (not needed by C++ scanners)
-//  virtual bool lex (yyscan_t,           // state handle
-//                    yy::location*) = 0; // location handle
+  virtual bool lex (yyscan_t) = 0; // state handle
 };
 
 #endif

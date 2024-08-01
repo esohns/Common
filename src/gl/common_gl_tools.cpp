@@ -220,9 +220,6 @@ Common_GL_Tools::loadTexture (const std::string& path_in)
 
   GLuint return_value = 0;
 
-  // sanity check(s)
-  ACE_ASSERT (Common_File_Tools::isReadable (path_in));
-
   unsigned int width = 0, height = 0, channels = 0;
   bool has_alpha = false;
   GLubyte* image_p = NULL;

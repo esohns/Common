@@ -85,7 +85,7 @@ class Common_CppParserBase_T
   virtual void finalize (yyscan_t& state_in) { scanner_.finalize (state_in); }
   inline virtual struct yy_buffer_state* create (yyscan_t state_in, char* buffer_in, size_t size_in) { return scanner_.create (state_in, buffer_in, size_in); }
   inline virtual void destroy (yyscan_t state_in, struct yy_buffer_state*& buffer_inout) { scanner_.destroy (state_in, buffer_inout); }
-  inline virtual bool lex () { return scanner_.lex (); }
+  inline virtual bool lex (yyscan_t state_in) { return scanner_.lex (state_in); }
 
  protected:
   ConfigurationType*      configuration_;

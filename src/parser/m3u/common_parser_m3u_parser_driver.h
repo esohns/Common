@@ -105,7 +105,7 @@ class Common_Parser_M3U_ParserDriver
                                           char*,    // buffer handle
                                           size_t);  // buffer size
   inline virtual void destroy (yyscan_t state_in, struct yy_buffer_state*& buffer_inout) { M3U__delete_buffer (buffer_inout, state_in); buffer_inout = NULL; }
-//  inline virtual bool lex (yyscan_t state_in, yy::location* location_in) { ACE_ASSERT (false); return Bencoding_lex (NULL, location_in, this, state_in); }
+  inline virtual bool lex (yyscan_t state_in) { ACE_ASSERT (false); return M3U_lex (NULL, NULL, this, state_in); }
 
   bool                          popState_;
   struct M3U_Playlist*          playlist_;
