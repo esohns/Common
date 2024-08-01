@@ -65,6 +65,22 @@ Common_GL_Assimp_Tools::boundingBox (const struct aiScene& scene_in,
       max_inout.y = COMMON_GL_ASSIMP_MAX (max_inout.y, vector3d_r.y);
       max_inout.z = COMMON_GL_ASSIMP_MAX (max_inout.z, vector3d_r.z);
     } // end FOR
+
+    // use bounding box instead
+    // *TODO*: does not seem to work...
+    //aiVector3D& vector3d_r = mesh_r.mAABB.mMin;
+    //aiTransformVecByMatrix4 (&vector3d_r, &tansformation_inout);
+
+    //min_inout.x = COMMON_GL_ASSIMP_MIN (min_inout.x, vector3d_r.x);
+    //min_inout.y = COMMON_GL_ASSIMP_MIN (min_inout.y, vector3d_r.y);
+    //min_inout.z = COMMON_GL_ASSIMP_MIN (min_inout.z, vector3d_r.z);
+
+    //vector3d_r = mesh_r.mAABB.mMax;
+    //aiTransformVecByMatrix4 (&vector3d_r, &tansformation_inout);
+
+    //max_inout.x = COMMON_GL_ASSIMP_MAX (max_inout.x, vector3d_r.x);
+    //max_inout.y = COMMON_GL_ASSIMP_MAX (max_inout.y, vector3d_r.y);
+    //max_inout.z = COMMON_GL_ASSIMP_MAX (max_inout.z, vector3d_r.z);
   } // end FOR
 
   for (unsigned int n = 0; n < node_in.mNumChildren; ++n)

@@ -25,7 +25,7 @@
 #define COMMON_GL_ASSIMP_LOG_FILENAME_STRING                 "assimp.log"
 #define COMMON_GL_ASSIMP_MIN(x,y)                            (x < y ? x : y)
 #define COMMON_GL_ASSIMP_MAX(x,y)                            (y > x ? y : x)
-#define COMMON_GL_ASSIMP_IMPORT_FLAGS                        aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace
+#define COMMON_GL_ASSIMP_IMPORT_FLAGS                        aiProcess_Triangulate | aiProcess_SortByPType | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_FixInfacingNormals
 
 #if defined (_DEBUG)
 #define COMMON_GL_ASSERT                                                          \
