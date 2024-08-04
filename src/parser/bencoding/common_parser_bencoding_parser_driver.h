@@ -102,7 +102,7 @@ class Common_Parser_Bencoding_ParserDriver
   ACE_UNIMPLEMENTED_FUNC (Common_Parser_Bencoding_ParserDriver& operator= (const Common_Parser_Bencoding_ParserDriver&))
 
   // implement Common_ILexScanner_T
-  inline virtual const Bencoding_IParser_t* const getP_2 () const { return this; }
+  inline virtual const void* const getP_2 () const { return this; }
   //inline virtual void setP (Bencoding_IParser_t*) { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
   inline virtual void setDebug (yyscan_t state_in, bool toggle_in) { Bencoding_set_debug ((toggle_in ? 1 : 0), state_in); }
   inline virtual void reset () { Bencoding_set_lineno (1, inherited::scannerState_.context); Bencoding_set_column (1, inherited::scannerState_.context); }

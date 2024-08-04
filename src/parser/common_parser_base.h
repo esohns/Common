@@ -36,9 +36,9 @@
 struct YYLTYPE;
 struct yy_buffer_state;
 
-template <typename ConfigurationType,
+template <typename ConfigurationType, // implements struct Common_ParserConfiguration
           typename ParserType, // yacc/bison-
-          typename ParserInterfaceType, // implements Common_IParser_T
+          typename ParserInterfaceType, // implements Common_IParser_T, ExtraDataType
           typename ExtraDataType> // (f)lex-
 class Common_ParserBase_T
  : public ParserInterfaceType
@@ -77,7 +77,7 @@ class Common_ParserBase_T
 
   // implement (part of) Common_ILexScanner_T
   inline virtual const struct Common_FlexScannerState& getR () const { return scannerState_; }
-  inline virtual const IPARSER_T* const getP_2 () const { return this; }
+  inline virtual const ExtraDataType* const getP_2 () const { return this; }
   inline virtual bool initialize (yyscan_t&, ExtraDataType*) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
   inline virtual void finalize (yyscan_t&) { /*ACE_ASSERT (false);*/ ACE_NOTSUP; ACE_NOTREACHED (return;) }
   inline virtual void destroy (yyscan_t, struct yy_buffer_state*&) { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }

@@ -29,7 +29,10 @@ set (source_files
      common_parser_cpp_base.cpp
      common_parser_cpp_base.h
      common_parser_cpp_base.inl
-     common_parser_defines.h)
+     common_parser_defines.h
+     common_parser_driver_base.cpp
+     common_parser_driver_base.h
+     common_parser_driver_base.inl)
 
 # Include dir for installed targets
 set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
@@ -88,6 +91,8 @@ install (FILES
          common_parser_cpp_base.h
          common_parser_cpp_base.inl
          common_parser_defines.h
+         common_parser_driver_base.h
+         common_parser_driver_base.inl
          DESTINATION include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets

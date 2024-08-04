@@ -31,15 +31,12 @@
 #include "ace/Message_Queue.h"
 
 #include "common_iscanner.h"
-//#include "common_iparser.h"
 
 // forward declaration(s)
 struct yy_buffer_state;
-//class ACE_Message_Block;
-//class ACE_Message_Queue_Base;
 typedef void* yyscan_t;
 
-template <typename ConfigurationType,
+template <typename ConfigurationType, // implements struct Common_ParserConfiguration
           typename ScannerType, // (f)lex-
           typename ScannerStateType, // implements struct Common_ScannerState
           typename ParserType, // yacc/bison-
