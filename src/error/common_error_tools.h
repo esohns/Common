@@ -39,22 +39,24 @@ common_error_win32_seh_filter_core_dump (unsigned int,
 LONG WINAPI
 common_error_win32_default_seh_handler (struct _EXCEPTION_POINTERS*);
 
-#if defined (_DEBUG)
 int
 common_error_win32_debugheap_message_hook (int,
                                            char*,
                                            int*);
-#endif // _DEBUG
 #endif // ACE_WIN32 || ACE_WIN64
 
 void
 common_error_default_terminate_function ();
 
 class Common_Error_Tools
- : public Common_SInitializeFinalize_T<Common_Error_Tools>
+ //: public Common_SInitializeFinalize_T<Common_Error_Tools>
 {
  public:
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static void initialize (bool = false); // enable debug heap ?
+#else
   static void initialize ();
+#endif // ACE_WIN32 || ACE_WIN64
   static void finalize ();
 
   // --- debug ---
@@ -69,7 +71,6 @@ class Common_Error_Tools
                              DWORD = 0);         // thread id (0: caller)
 #endif // COMMON_OS_WIN32_TARGET_PLATFORM (0x0A00)
 
-#if defined (_DEBUG)
   // debug heap
   static ACE_HANDLE              debugHeapLogFileHandle;
   static HMODULE                 debugHelpModule;
@@ -82,7 +83,6 @@ class Common_Error_Tools
                                                 struct _MINIDUMP_CALLBACK_INFORMATION*
                                                );
   static MiniDumpWriteDumpFunc_t miniDumpWriteDumpFunc;
-#endif // _DEBUG
 #endif // ACE_WIN32 || ACE_WIN64
 
   // --- core dump ---
@@ -108,10 +108,8 @@ class Common_Error_Tools
 
   // helper methods
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if defined (_DEBUG)
-  static bool initializeDebugHeap ();
+  static bool initializeDebugHeap (const std::string&); // package name
   static void finalizeDebugHeap ();
-#endif // _DEBUG
 #endif // ACE_WIN32 || ACE_WIN64
 };
 

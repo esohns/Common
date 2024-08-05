@@ -31,22 +31,24 @@ class ACE_Log_Msg_Backend;
 class Common_Log_Tools
 {
  public:
-  static bool initializeLogging (const std::string&,           // program name (i.e. argv[0])
-                                 const std::string&,           // log file {"" --> disable}
-                                 bool = false,                 // log to syslog ?
-                                 bool = false,                 // enable tracing messages ?
+  static bool initialize (const std::string&,           // program name (i.e. argv[0])
+                          const std::string&,           // log file {"" --> disable}
+                          bool = false,                 // log to syslog ?
+                          bool = false,                 // enable tracing messages ?
 #if defined (_DEBUG)
-                                 bool = true,                  // enable debug messages ?
+                          bool = true,                  // enable debug messages ?
 #else
-                                 bool = false,                 // enable debug messages ?
+                          bool = false,                 // enable debug messages ?
 #endif // _DEBUG
-                                 ACE_Log_Msg_Backend* = NULL); // logger backend {NULL --> disable}
-  static void finalizeLogging ();
+                          ACE_Log_Msg_Backend* = NULL); // logger backend {NULL --> disable}
+  static void finalize ();
 
   static std::string getLogDirectory (const std::string&, // package name
                                       unsigned int = 0);  // fallback level {0: default}
   static std::string getLogFilename (const std::string&,  // package name
                                      const std::string&); // program name
+
+  static std::string packageName;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Log_Tools ())

@@ -21,17 +21,14 @@
 #ifndef COMMON_ERROR_DEFINES_H
 #define COMMON_ERROR_DEFINES_H
 
-#include "ace/config-lite.h"
-
-// *TODO*: turn this into a compile-time option
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-//#if defined (_DEBUG)
-//#define COMMON_ERROR_WIN32_DEFAULT_DEBUGHEAP        true
-//#else
-#define COMMON_ERROR_WIN32_DEFAULT_DEBUGHEAP          false
-//#endif // _DEBUG
-#else
-#define COMMON_ERROR_LINUX_PROC_STATUS_TRACER_PID_KEY "TracerPid"
+// *** debug heap ***
+#define COMMON_ERROR_WIN32_DEBUGHEAP_DEFAULT_ENABLE   false
+#define COMMON_ERROR_WIN32_DEBUGHEAP_LOG_FILE         "debugheap.log"
 #endif // ACE_WIN32 || ACE_WIN64
+
+#if defined (ACE_LINUX)
+#define COMMON_ERROR_LINUX_PROC_STATUS_TRACER_PID_KEY "TracerPid"
+#endif // ACE_LINUX
 
 #endif

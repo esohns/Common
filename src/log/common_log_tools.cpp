@@ -31,17 +31,30 @@
 #include "common_macros.h"
 #include "common_file_tools.h"
 
+#if defined (HAVE_CONFIG_H)
+#include "Common_config.h"
+#else
+#define Common_PACKAGE_NAME "Common"
+#endif // HAVE_CONFIG_H
+
+//initialize statics
+std::string Common_Log_Tools::packageName = ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME);
+
 bool
-Common_Log_Tools::initializeLogging (const std::string& programName_in,
-                                     const std::string& logFile_in,
-                                     bool logToSyslog_in,
-                                     bool enableTracing_in,
-                                     bool enableDebug_in,
-                                     ACE_Log_Msg_Backend* backend_in)
+Common_Log_Tools::initialize (const std::string& programName_in,
+                              const std::string& logFile_in,
+                              bool logToSyslog_in,
+                              bool enableTracing_in,
+                              bool enableDebug_in,
+                              ACE_Log_Msg_Backend* backend_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Log_Tools::initializeLogging"));
+  COMMON_TRACE (ACE_TEXT ("Common_Log_Tools::initialize"));
 
   int result = -1;
+
+  // sanity check(s)
+  ACE_Log_Msg* log_msg_p = ACE_LOG_MSG;
+  ACE_ASSERT (log_msg_p);
 
   // *NOTE*: default log target is stderr
   u_long options_flags = ACE_Log_Msg::STDERR;
@@ -50,7 +63,7 @@ Common_Log_Tools::initializeLogging (const std::string& programName_in,
   if (backend_in)
   {
     options_flags |= ACE_Log_Msg::CUSTOM;
-    ACE_LOG_MSG->msg_backend (backend_in);
+    log_msg_p->msg_backend (backend_in);
   } // end IF
   if (!logFile_in.empty ())
   {
@@ -86,11 +99,11 @@ Common_Log_Tools::initializeLogging (const std::string& programName_in,
 
     // *NOTE*: the logger singleton assumes ownership of the stream object
     // *BUG*: doesn't work on Linux
-    ACE_LOG_MSG->msg_ostream (log_stream_p, true);
+    log_msg_p->msg_ostream (log_stream_p, true);
   } // end IF
-  result = ACE_LOG_MSG->open (ACE_TEXT (programName_in.c_str ()),
-                              options_flags,
-                              NULL); // logger key
+  result = log_msg_p->open (ACE_TEXT (programName_in.c_str ()),
+                            options_flags,
+                            NULL); // logger key
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -116,22 +129,26 @@ Common_Log_Tools::initializeLogging (const std::string& programName_in,
     process_priority_mask &= ~LM_TRACE;
   if (!enableDebug_in)
     process_priority_mask &= ~LM_DEBUG;
-  ACE_LOG_MSG->priority_mask (process_priority_mask,
-                              ACE_Log_Msg::PROCESS);
+  log_msg_p->priority_mask (process_priority_mask,
+                            ACE_Log_Msg::PROCESS);
 
   return true;
 }
 
 void
-Common_Log_Tools::finalizeLogging ()
+Common_Log_Tools::finalize ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Log_Tools::finalizeLogging"));
+  COMMON_TRACE (ACE_TEXT ("Common_Log_Tools::finalize"));
+
+    // sanity check(s)
+  ACE_Log_Msg* log_msg_p = ACE_LOG_MSG;
+  ACE_ASSERT (log_msg_p);
 
   // *NOTE*: this may be necessary in case the backend sits on the stack.
   //         In that case, ACE::fini() closes the backend too late
-  ACE_LOG_MSG->msg_backend (NULL);
+  log_msg_p->msg_backend (NULL);
 
-  ACE_LOG_MSG->msg_ostream (NULL, false);
+  log_msg_p->msg_ostream (NULL, false);
 }
 
 std::string

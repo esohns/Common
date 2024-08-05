@@ -133,12 +133,6 @@
 
 /////////////////////////////////////////
 
-// *** debug ***
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define COMMON_DEBUG_DEBUGHEAP_DEFAULT_ENABLE                  false
-#define COMMON_DEBUG_DEBUGHEAP_LOG_FILE                        "debugheap.log"
-#endif // ACE_WIN32 || ACE_WIN64
-
 // *** file ***
 #define COMMON_FILE_FILENAME_BACKUP_SUFFIX                     ".bak"
 

@@ -551,12 +551,12 @@ ACE_TMAIN (int argc_in,
     log_file_name =
       Common_Log_Tools::getLogFilename (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
                                         Common_File_Tools::executable);
-  if (!Common_Log_Tools::initializeLogging (Common_File_Tools::executable, // program name
-                                            log_file_name,                 // log file name
-                                            false,                         // log to syslog ?
-                                            false,                         // trace messages ?
-                                            trace_information_b,           // debug messages ?
-                                            NULL))                         // logger ?
+  if (!Common_Log_Tools::initialize (Common_File_Tools::executable, // program name
+                                     log_file_name,                 // log file name
+                                     false,                         // log to syslog ?
+                                     false,                         // trace messages ?
+                                     trace_information_b,           // debug messages ?
+                                     NULL))                         // logger ?
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Log_Tools::initializeLogging(), aborting\n")));
@@ -582,7 +582,7 @@ ACE_TMAIN (int argc_in,
   result = EXIT_SUCCESS;
 
 error:
-  Common_Log_Tools::finalizeLogging ();
+  Common_Log_Tools::finalize ();
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   result_2 = ACE::fini ();
   if (result_2 == -1)

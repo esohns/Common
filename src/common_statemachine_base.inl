@@ -121,6 +121,10 @@ Common_StateMachine_Base_T<StateMachineName,
                       ACE_TEXT ("%s: failed to ACE_Condition::wait(%#T): \"%m\", aborting\n"),
                       ACE_TEXT (StateMachineName),
                       timeout_in));
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+        else
+          SetLastError (ETIMEDOUT); // this error handling is insane...
+#endif // ACE_WIN32 || ACE_WIN64
         goto continue_; // timed out ?
       } // end IF
     } // end WHILE

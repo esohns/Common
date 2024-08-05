@@ -246,15 +246,15 @@ ACE_TMAIN (int argc_in,
 
   // step1d: initialize logging and/or tracing
   std::string log_file_name;
-  if (!Common_Log_Tools::initializeLogging (ACE::basename (argv_in[0]), // program name
-                                            log_file_name,              // log file name
-                                            false,                      // log to syslog ?
-                                            false,                      // trace messages ?
-                                            trace_information_b,        // debug messages ?
-                                            NULL))                      // logger ?
+  if (!Common_Log_Tools::initialize (ACE::basename (argv_in[0]), // program name
+                                     log_file_name,              // log file name
+                                     false,                      // log to syslog ?
+                                     false,                      // trace messages ?
+                                     trace_information_b,        // debug messages ?
+                                     NULL))                      // logger ?
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_Log_Tools::initializeLogging(), aborting\n")));
+                ACE_TEXT ("failed to Common_Log_Tools::initialize(), aborting\n")));
     return EXIT_FAILURE;
   } // end IF
 
@@ -271,6 +271,8 @@ ACE_TMAIN (int argc_in,
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("total working time (h:m:s.us): \"%s\"...\n"),
               ACE_TEXT (working_time_string.c_str ())));
+
+  Common_Log_Tools::finalize ();
 
   return EXIT_SUCCESS;
 }

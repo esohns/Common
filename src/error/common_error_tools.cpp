@@ -17,7 +17,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "common_os_tools.h"
 #include "stdafx.h"
 
 #include "common_error_tools.h"
@@ -38,10 +37,7 @@
 #include "ace/OS.h"
 
 #include "common_macros.h"
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
 #include "common_os_tools.h"
-#endif // ACE_WIN32 || ACE_WIN64
 
 #include "common_log_tools.h"
 
@@ -52,11 +48,9 @@
 
 // initialize statics
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if defined (_DEBUG)
 ACE_HANDLE Common_Error_Tools::debugHeapLogFileHandle = ACE_INVALID_HANDLE;
 HMODULE Common_Error_Tools::debugHelpModule = NULL;
 Common_Error_Tools::MiniDumpWriteDumpFunc_t Common_Error_Tools::miniDumpWriteDumpFunc = NULL;
-#endif // _DEBUG
 #endif // ACE_WIN32 || ACE_WIN64
 
 //////////////////////////////////////////
@@ -90,6 +84,9 @@ common_error_win32_seh_filter_core_dump (unsigned int exceptionCode_in,
   // *TODO*: pass application information into the exception handler
   struct Common_ApplicationVersion application_version;
   ACE_OS::memset (&application_version, 0, sizeof (struct Common_ApplicationVersion));
+  application_version.majorVersion = Common_VERSION_MAJOR;
+  application_version.minorVersion = Common_VERSION_MINOR;
+  application_version.microVersion = Common_VERSION_MICRO;
   if (!Common_Error_Tools::generateCoreDump (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
                                              application_version,
                                              exceptionInformation_in))
@@ -98,11 +95,8 @@ common_error_win32_seh_filter_core_dump (unsigned int exceptionCode_in,
                 ACE_TEXT ("failed to Common_Error_Tools::generateCoreDump(), continuing\n")));
     return EXCEPTION_CONTINUE_SEARCH;
   } // end IF
-#if defined (_DEBUG)
-  else
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("caught Win32 structured exception, core dumped\n")));
-#endif // _DEBUG
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("caught Win32 structured exception, core dumped\n")));
 
   return EXCEPTION_EXECUTE_HANDLER;
 }
@@ -131,12 +125,8 @@ common_error_win32_default_seh_handler (struct _EXCEPTION_POINTERS* exceptionInf
 #endif // _M_IX86
 
   LONG result =
-#if defined (_DEBUG)
     common_error_win32_seh_filter_core_dump (exceptionInformation_in->ExceptionRecord->ExceptionCode,
                                              exceptionInformation_in);
-#else
-    0;
-#endif // _DEBUG
 
   // Optional display an error message
   FatalAppExit (-1, ACE_TEXT ("Application failed!"));
@@ -148,7 +138,6 @@ common_error_win32_default_seh_handler (struct _EXCEPTION_POINTERS* exceptionInf
   return result;
 }
 
-#if defined (_DEBUG)
 int
 common_error_win32_debugheap_message_hook (int reportType_in,
                                            char* message_in,
@@ -188,7 +177,6 @@ common_error_win32_debugheap_message_hook (int reportType_in,
 
   return FALSE; // <-- do not stop
 }
-#endif // _DEBUG
 #endif // ACE_WIN32 || ACE_WIN64
 
 void
@@ -202,19 +190,22 @@ common_error_default_terminate_function ()
 //////////////////////////////////////////
 
 void
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+Common_Error_Tools::initialize (bool enableDebugHeap_in)
+#else
 Common_Error_Tools::initialize ()
+#endif /* ACE_WIN32 || ACE_WIN64 */
 {
   COMMON_TRACE (ACE_TEXT ("Common_Error_Tools::initialize"));
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   _set_invalid_parameter_handler (common_error_win32_crt_invalid_parameter_cb_function);
 
-#if defined (_DEBUG)
-  if (!COMMON_ERROR_WIN32_DEFAULT_DEBUGHEAP ||
-      (Common_Error_Tools::debugHeapLogFileHandle != ACE_INVALID_HANDLE))
+  if (!enableDebugHeap_in ||
+      (Common_Error_Tools::debugHeapLogFileHandle != ACE_INVALID_HANDLE)) // --> already initialized ?
     goto continue_;
 
-  if (!Common_Error_Tools::initializeDebugHeap ())
+  if (!Common_Error_Tools::initializeDebugHeap (Common_Log_Tools::packageName))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Error_Tools::initializeDebugHeap(), returning\n")));
@@ -223,7 +214,6 @@ Common_Error_Tools::initialize ()
   ACE_ASSERT (Common_Error_Tools::debugHeapLogFileHandle != ACE_INVALID_HANDLE);
 
 continue_:
-#endif /* _DEBUG */
 #endif /* ACE_WIN32 || ACE_WIN64 */
 
   std::set_terminate (common_error_default_terminate_function);
@@ -235,22 +225,18 @@ Common_Error_Tools::finalize ()
   COMMON_TRACE (ACE_TEXT ("Common_Error_Tools::finalize"));
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if defined (_DEBUG)
   if (Common_Error_Tools::debugHelpModule)
-#endif // _DEBUG
     Common_Error_Tools::enableCoreDump (false);
   ACE_ASSERT (!Common_Error_Tools::debugHelpModule);
 #endif /* ACE_WIN32 || ACE_WIN64 */
 
-  std::set_terminate (NULL);
-
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if defined (_DEBUG)
   if (Common_Error_Tools::debugHeapLogFileHandle != ACE_INVALID_HANDLE)
     Common_Error_Tools::finalizeDebugHeap ();
   ACE_ASSERT (Common_Error_Tools::debugHeapLogFileHandle == ACE_INVALID_HANDLE);
-#endif /* _DEBUG */
 #endif /* ACE_WIN32 || ACE_WIN64 */
+
+  std::set_terminate (NULL);
 }
 
 bool
@@ -398,7 +384,6 @@ Common_Error_Tools::enableCoreDump (bool enable_in)
     // Additional call "PreventSetUnhandledExceptionFilter"...
     // See also: "SetUnhandledExceptionFilter" and VC8 (and later)
     // http://blog.kalmbachnet.de/?postid=75
-#if defined (_DEBUG)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("SetUnhandledExceptionFilter(NULL)\n")));
 
@@ -411,20 +396,16 @@ Common_Error_Tools::enableCoreDump (bool enable_in)
                     ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
       Common_Error_Tools::debugHelpModule = NULL;
     } // end IF
-#endif // _DEBUG
 
     goto continue_;
   } // end IF
 
   // sanity check(s)
-#if defined (_DEBUG)
   if (Common_Error_Tools::debugHelpModule)
     goto continue_;
-#endif // _DEBUG
 
   // *NOTE*: initialize the member so the dll is not loaded after the exception
   //         has occured which might be not possible anymore
-#if defined (_DEBUG)
   Common_Error_Tools::debugHelpModule = LoadLibrary (ACE_TEXT ("dbghelp.dll"));
   if (!Common_Error_Tools::debugHelpModule)
   {
@@ -445,7 +426,6 @@ Common_Error_Tools::enableCoreDump (bool enable_in)
                 ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
     return false;
   } // end IF
-#endif // _DEBUG
 
   // Register Unhandled Exception-Filter
   previous_handler_p =
@@ -454,10 +434,8 @@ Common_Error_Tools::enableCoreDump (bool enable_in)
   // Additional call "PreventSetUnhandledExceptionFilter"...
   // See also: "SetUnhandledExceptionFilter" and VC8 (and later)
   // http://blog.kalmbachnet.de/?postid=75
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("SetUnhandledExceptionFilter(common_error_win32_default_seh_handler)\n")));
-#endif // _DEBUG
 continue_:
 #else
 //  if (unlikely (!Common_OS_Tools::setResourceLimits (false,
@@ -481,11 +459,9 @@ continue_:
   } // end IF
 #endif // ACE_WIN32 || ACE_WIN64
 
-#if defined (_DEBUG)
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("%s core dump\n"),
               (enable_in ? ACE_TEXT ("enabled") : ACE_TEXT ("disabled"))));
-#endif // _DEBUG
 
   return true;
 }
@@ -730,9 +706,8 @@ strip_newline:
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if defined (_DEBUG)
 bool
-Common_Error_Tools::initializeDebugHeap ()
+Common_Error_Tools::initializeDebugHeap (const std::string& packageName_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Error_Tools::initializeDebugHeap"));
 
@@ -741,7 +716,7 @@ Common_Error_Tools::initializeDebugHeap ()
   ACE_FILE_Connector file_connector;
   ACE_FILE_IO file_IO;
   int result = -1;
-  std::string package_name, file_name;
+  std::string file_name;
   ACE_HANDLE previous_file_handle = ACE_INVALID_HANDLE;
 
   // sanity check(s)
@@ -759,9 +734,9 @@ Common_Error_Tools::initializeDebugHeap ()
   //debug_heap_flags &= ~_CRTDBG_CHECK_CRT_DF;
   previous_heap_flags = _CrtSetDbgFlag (debug_heap_flags);
   // output to debug window
-  file_name = Common_Log_Tools::getLogDirectory (package_name, 0);
+  file_name = Common_Log_Tools::getLogDirectory (packageName_in, 0);
   file_name += ACE_DIRECTORY_SEPARATOR_STR;
-  file_name += ACE_TEXT_ALWAYS_CHAR (COMMON_DEBUG_DEBUGHEAP_LOG_FILE);
+  file_name += ACE_TEXT_ALWAYS_CHAR (COMMON_ERROR_WIN32_DEBUGHEAP_LOG_FILE);
   result = file_address.set (ACE_TEXT (file_name.c_str ()));
   if (unlikely (result == -1))
   {
@@ -887,5 +862,4 @@ Common_Error_Tools::finalizeDebugHeap ()
     Common_Error_Tools::debugHeapLogFileHandle = ACE_INVALID_HANDLE;
   } // end IF
 }
-#endif /* _DEBUG */
 #endif /* ACE_WIN32 || ACE_WIN64 */
