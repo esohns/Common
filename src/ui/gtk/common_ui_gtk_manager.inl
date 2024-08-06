@@ -692,7 +692,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   //         which an application is running. Therefore, most GLib-using
   //         applications should call setlocale (LC_ALL, "") to set up the
   //         current locale. ..."
-  char* locale_p = ::setlocale (LC_ALL, "");
+  char* locale_p = ::setlocale (LC_ALL,
+                                ACE_TEXT_ALWAYS_CHAR (""));
   if (unlikely (!locale_p))
   {
     ACE_DEBUG ((LM_ERROR,
