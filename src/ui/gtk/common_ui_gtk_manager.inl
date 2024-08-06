@@ -72,7 +72,6 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
               1,                                                  // # threads
               false)                                              // do NOT auto-start !
  , configuration_ (NULL)
- , CBData_ (NULL)
  , GTKIsInitialized_ (false)
  , state_ ()
  , UIIsInitialized_ (false)
@@ -94,7 +93,6 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Manager_T::initialize"));
 
   configuration_ = &const_cast<ConfigurationType&> (configuration_in);
-  CBData_ = configuration_in.CBData;
 
   return true;
 }
@@ -182,7 +180,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
       { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_.lock, -1);
         event_source_id = g_idle_add_full (G_PRIORITY_DEFAULT, // same as timeout !
                                            configuration_->eventHooks.finiHook,
-                                           CBData_,
+                                           configuration_->CBData,
                                            NULL);
         if (unlikely (!event_source_id))
         {
@@ -595,7 +593,7 @@ continue_:
   if (configuration_->eventHooks.initHook)
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_.lock, -1);
     event_source_id = g_idle_add (configuration_->eventHooks.initHook,
-                                  CBData_);
+                                  configuration_->CBData);
     if (unlikely (!event_source_id))
     {
       ACE_DEBUG ((LM_ERROR,

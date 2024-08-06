@@ -44,7 +44,6 @@ Common_GL_Texture::~Common_GL_Texture ()
      ACE_DEBUG ((LM_WARNING,
                  ACE_TEXT ("cannot free texture resources when out of context, continuing\n")));
      //glDeleteTextures (1, &id_);
-     //COMMON_GL_ASSERT
    } // end IF
 }
 
@@ -79,7 +78,6 @@ Common_GL_Texture::reset ()
   if (likely (id_))
   {
     glDeleteTextures (1, &id_); id_ = 0;
-    COMMON_GL_ASSERT
   } // end IF
 }
 
@@ -93,10 +91,8 @@ Common_GL_Texture::bind (GLuint unit_in)
   ACE_ASSERT (unit_in < 31);
 
   glActiveTexture (GL_TEXTURE0 + unit_in);
-  COMMON_GL_ASSERT
 
   glBindTexture (GL_TEXTURE_2D, id_);
-  COMMON_GL_ASSERT
 }
 
 void
@@ -105,7 +101,6 @@ Common_GL_Texture::unbind ()
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::unbind"));
 
   glBindTexture (GL_TEXTURE_2D, 0);
-  COMMON_GL_ASSERT
 }
 
 void

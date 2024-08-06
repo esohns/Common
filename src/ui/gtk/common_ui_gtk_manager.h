@@ -125,7 +125,6 @@ class Common_UI_GTK_Manager_T
   bool initializeGTK ();
 
   ConfigurationType* configuration_;
-  CallBackDataType   CBData_;
   bool               GTKIsInitialized_;
   StateType          state_;
   bool               UIIsInitialized_;
