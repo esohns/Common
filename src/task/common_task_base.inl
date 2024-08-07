@@ -977,8 +977,8 @@ Common_TaskBase_T<ACE_NULL_SYNCH,
                                     process_handle,
                                     &handle,
                                     0,
-                                    FALSE,
-                                    DUPLICATE_CLOSE_SOURCE | DUPLICATE_SAME_ACCESS)))
+                                    TRUE,
+                                    DUPLICATE_SAME_ACCESS)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to DuplicateHandle(0x%@): \"%s\", aborting\n"),
@@ -1006,6 +1006,7 @@ Common_TaskBase_T<ACE_NULL_SYNCH,
                 ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
                 handle,
                 ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false).c_str ())));
+  threadId_.handle (ACE_INVALID_HANDLE);
 #endif // ACE_WIN32 || ACE_WIN64
 
   return ((result < 0) ? false : true);
