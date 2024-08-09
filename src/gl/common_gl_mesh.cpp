@@ -87,9 +87,9 @@ Common_GL_Mesh::Common_GL_Mesh (Common_GL_Model* model_in,
   // sanity check(s)
   ACE_ASSERT (mesh_in.mPrimitiveTypes == aiPrimitiveType_TRIANGLE);
 
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("loading mesh \"%s\"...\n"),
-              ACE_TEXT (mesh_in.mName.C_Str ())));
+  // ACE_DEBUG ((LM_DEBUG,
+  //             ACE_TEXT ("loading mesh \"%s\"...\n"),
+  //             ACE_TEXT (mesh_in.mName.C_Str ())));
 
   struct Common_GL_Vertex vertex_s;
   vertex_s.color = {1.0f, 1.0f, 1.0f, 1.0f}; // opaque white
@@ -156,9 +156,9 @@ Common_GL_Mesh::Common_GL_Mesh (Common_GL_Model* model_in,
 
   VAO_.unbind ();
 
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("loading mesh \"%s\"...DONE\n"),
-              ACE_TEXT (mesh_in.mName.C_Str ())));
+  // ACE_DEBUG ((LM_DEBUG,
+  //             ACE_TEXT ("loading mesh \"%s\"...DONE\n"),
+  //             ACE_TEXT (mesh_in.mName.C_Str ())));
 }
 
 bool

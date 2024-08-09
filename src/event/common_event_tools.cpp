@@ -224,22 +224,6 @@ Common_Event_Tools::initializeEventDispatch (struct Common_EventDispatchConfigur
   // step2: initialize proactor
   if (configuration_inout.numberOfProactorThreads)
   {
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-    struct aioinit aioinit_s;
-    ACE_OS::memset (&aioinit_s, 0, sizeof (struct aioinit));
-    aioinit_s.aio_threads = configuration_inout.numberOfProactorThreads; // default: 20
-    aioinit_s.aio_num =
-      COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS;                        // default: 64
-//    aioinit_s.aio_locks = 0;
-//    aioinit_s.aio_usedba = 0;
-//    aioinit_s.aio_debug = 0;
-//    aioinit_s.aio_numusers = 0;
-    aioinit_s.aio_idle_time = 1;                                         // default: 1
-//    aioinit_s.aio_reserved = 0;
-    aio_init (&aioinit_s);
-#endif // ACE_WIN32 || ACE_WIN64
-
     ACE_Proactor_Impl* proactor_impl_p = NULL;
     switch (configuration_inout.proactorType)
     {
@@ -255,6 +239,20 @@ Common_Event_Tools::initializeEventDispatch (struct Common_EventDispatchConfigur
       {
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("using POSIX AIOCB proactor\n")));
+
+        struct aioinit aioinit_s;
+        ACE_OS::memset (&aioinit_s, 0, sizeof (struct aioinit));
+        aioinit_s.aio_threads = configuration_inout.numberOfProactorThreads; // default: 20
+        aioinit_s.aio_num =
+          COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS;                        // default: 64
+        //    aioinit_s.aio_locks = 0;
+        //    aioinit_s.aio_usedba = 0;
+        //    aioinit_s.aio_debug = 0;
+        //    aioinit_s.aio_numusers = 0;
+        aioinit_s.aio_idle_time = 1;                                         // default: 1
+        //    aioinit_s.aio_reserved = 0;
+        aio_init (&aioinit_s);
+
         ACE_NEW_NORETURN (proactor_impl_p,
                           ACE_POSIX_AIOCB_Proactor (COMMON_EVENT_PROACTOR_POSIX_AIO_OPERATIONS)); // parallel operations
 
