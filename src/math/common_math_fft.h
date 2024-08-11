@@ -58,16 +58,16 @@ class Common_Math_FFT_T
   inline unsigned int Channels () const { return channels_; }
   inline unsigned int Slots () const { return slots_; }
 
-  inline double       Magnitude (unsigned int slot_in,
-                                 unsigned int channel_in,
-                                 bool normalize_in = true) const
+  inline ValueType Magnitude (unsigned int slot_in,
+                              unsigned int channel_in,
+                              bool normalize_in = true) const
   { ACE_ASSERT (X_);
     ACE_ASSERT (slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
-    return (normalize_in ? (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in])) 
-                                    : 0.0) * (2.0 / static_cast<double> (slots_))
-                         : (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in]))
-                                    : 0.0));
+    return (normalize_in ? (slot_in ? std::sqrt (std::abs (X_[channel_in][slot_in])) 
+                                    : 0) / (maxValue_ ? maxValue_ : 1)
+                         : (slot_in ? std::sqrt (std::abs (X_[channel_in][slot_in]))
+                                    : 0));
   }
   //inline int          Value (unsigned int slot_in,
   //                           unsigned int channel_in) const
@@ -86,6 +86,9 @@ class Common_Math_FFT_T
     return static_cast<unsigned int> ((slots_ * frequency_in) / static_cast<double> (sampleRate_ / 2));
   }
 
+  // *NOTE*: only required when retrieving normalized (!) magnitudes (see above)
+  void ComputeMaxValue (); // -of the working buffer X_
+
  protected:
   bool                      isInitialized_;
   ValueType**               buffer_;        // sample data [/channel]
@@ -96,6 +99,7 @@ class Common_Math_FFT_T
   unsigned int              halfSlots_;     // #slots / 2
   unsigned int              slots_;         // #buffered samples / channel
   unsigned int              sampleRate_;
+  ValueType                 maxValue_;      // only required for normalization (see above)
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_T ())

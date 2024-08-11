@@ -261,17 +261,10 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
         if (unlikely (result == -1))
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to ACE_Task_Base::wait(): \"%m\", continuing\n")));
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
         ACE_DEBUG ((LM_DEBUG,
                     ACE_TEXT ("(%s): joined worker thread (id was: %u)\n"),
                     ACE_TEXT (COMMON_TIMER_THREAD_NAME),
                     task_base_r.last_thread ()));
-#else
-        ACE_DEBUG ((LM_DEBUG,
-                    ACE_TEXT ("(%s): joined worker thread (id was: %d)\n"),
-                    ACE_TEXT (COMMON_TIMER_THREAD_NAME),
-                    task_base_r.last_thread ()));
-#endif // ACE_WIN32 || ACE_WIN64
       } // end IF
       break;
     }

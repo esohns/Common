@@ -18,6 +18,7 @@ Common_Math_FFT_T<ValueType>::Common_Math_FFT_T (unsigned int channels_in,
  , halfSlots_ (slots_in / 2)
  , slots_ (slots_in)
  , sampleRate_ (sampleRate_in)
+ , maxValue_ (0)
  /////////////////////////////////////////
  , logSlots_ (0)
  , sqrtSlots_ (0.0)
@@ -339,12 +340,12 @@ Common_Math_FFT_T<ValueType>::Compute (unsigned int channel_in)
     for (unsigned int j = 0; j < step; ++j)
     {
       // U = exp ( - 2 PI j / 2 ^ level )
-      //std::complex<double> U = W_[level][j];
+      std::complex<ValueType> U = W_[level][j];
       for (unsigned int i = j; i < slots_; i += increment)
       {
         // butterfly
         //std::complex<double> T = U;
-        std::complex<ValueType> T = W_[level][j];
+        std::complex<ValueType> T = U;
         T *= X_[channel_in][i + step];
         X_[channel_in][i + step]  = X_[channel_in][i];
         X_[channel_in][i + step] -= T;
@@ -353,4 +354,24 @@ Common_Math_FFT_T<ValueType>::Compute (unsigned int channel_in)
     } // end FOR
     step *= 2;
   } // end FOR
+}
+
+template <typename ValueType>
+void
+Common_Math_FFT_T<ValueType>::ComputeMaxValue ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::ComputeMaxValue"));
+
+  ValueType temp = 0;
+
+  for (unsigned int j = 0;
+       j < channels_;
+       ++j)
+    for (unsigned int i = 0; i < slots_; ++i)
+    {
+      ValueType magnitude = std::sqrt (std::abs (X_[j][i]));
+      temp = std::max (temp, magnitude);
+    } // end FOR
+
+  maxValue_ = temp;
 }

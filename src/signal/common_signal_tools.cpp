@@ -23,6 +23,7 @@
 
 #include <sstream>
 
+#include "ace/config-macros.h"
 #include "ace/Log_Msg.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
@@ -53,6 +54,12 @@ common_default_rt_sig_handler_cb (int signum_in)
   ACE_UNUSED_ARG (signum_in);
 //  ACE_UNUSED_ARG (info_in);
 //  ACE_UNUSED_ARG (context_in);
+
+  // *WARNING*: should never actually get here, because RT signals ought to be
+  //            blocked early on in the main thread, BEFORE other threads have
+  //            started. The Sig-Proactor can then unblock the signal in its
+  //            individual worker thread(s) where they ought to be dispatched
+  ACE_NOTREACHED (return;)
 }
 
 //////////////////////////////////////////
@@ -143,7 +150,7 @@ continue_:
 
   // *IMPORTANT NOTE*: "...The default action for an unhandled real-time signal
   //                   is to terminate the receiving process. ..."
-  //                   --> establish a default handler
+  //                   --> establish a default handler ? block them (see below)
   handleRealtimeSignals ();
 
   // step2a: block [SIGRTMIN,SIGRTMAX] iff the default[/current (!)] proactor
@@ -160,15 +167,17 @@ continue_:
   // --> when using the proactor, block the signals in the main thread
   if (dispatchType_in == COMMON_SIGNAL_DISPATCH_PROACTOR)
   {
-    unsigned int number = 0;
-    ACE_Proactor* proactor_p = ACE_Proactor::instance ();
-    ACE_ASSERT (proactor_p);
-    ACE_POSIX_Proactor* proactor_impl_p =
-        static_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
-    ACE_ASSERT (proactor_impl_p);
-    if (proactor_impl_p->get_impl_type () != ACE_POSIX_Proactor::PROACTOR_SIG)
-      goto continue_2;
+    // *NOTE*: calling the instance() method starts several threads, which may
+    //         receive RT signals and crash the whole process...
+    // ACE_Proactor* proactor_p = ACE_Proactor::instance ();
+    // ACE_ASSERT (proactor_p);
+    // ACE_POSIX_Proactor* proactor_impl_p =
+    //     static_cast<ACE_POSIX_Proactor*> (proactor_p->implementation ());
+    // ACE_ASSERT (proactor_impl_p);
+    // if (proactor_impl_p->get_impl_type () != ACE_POSIX_Proactor::PROACTOR_SIG)
+    //   goto continue_2;
 
+    unsigned int number = 0;
     for (int i = ACE_SIGRTMIN;
          i <= ACE_SIGRTMAX;
          ++i, ++number)

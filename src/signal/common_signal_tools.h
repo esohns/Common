@@ -63,8 +63,10 @@ class Common_Signal_Tools
   static void dump ();
 
   static std::string signalToString (const struct Common_Signal&); // signal information
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
+  static void handleRealtimeSignals ();
   static void unblockRealtimeSignals (sigset_t&); // return value: original mask
 #endif // ACE_WIN32 || ACE_WIN64
 
@@ -75,11 +77,6 @@ class Common_Signal_Tools
   ACE_UNIMPLEMENTED_FUNC (~Common_Signal_Tools ())
   ACE_UNIMPLEMENTED_FUNC (Common_Signal_Tools (const Common_Signal_Tools&))
   ACE_UNIMPLEMENTED_FUNC (Common_Signal_Tools& operator= (const Common_Signal_Tools&))
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-  static void handleRealtimeSignals ();
-#endif // ACE_WIN32 || ACE_WIN64
 };
 
 #endif
