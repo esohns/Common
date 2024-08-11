@@ -180,7 +180,7 @@ Common_Math_FFT_T<ValueType>::Initialize (unsigned int channels_in,
     } // end WHILE
     rev += mask;
   } // end FOR
-  bitReverseMap_[slots_ - 1] = slots_ - 1;
+  bitReverseMap_[slots_ - 1] = static_cast<int> (slots_ - 1);
 
   // calculate binary log
   slots_in--;
@@ -189,13 +189,13 @@ Common_Math_FFT_T<ValueType>::Initialize (unsigned int channels_in,
     slots_in >>= 1;
     logSlots_++;
   } // end WHILE
-  sqrtSlots_ = sqrt (static_cast<double> (slots_));
+  sqrtSlots_ = std::sqrt (static_cast<double> (slots_));
 
   // precompute complex exponentials
   //  ACE_NEW_NORETURN (W_,
   //                    std::complex<ValueType>*[logSlots_ + 1]);
   W_ =
-      reinterpret_cast<std::complex<ValueType>**> (ACE_OS::malloc (sizeof (std::complex<ValueType>*) * (logSlots_ + 1)));
+    reinterpret_cast<std::complex<ValueType>**> (ACE_OS::malloc (sizeof (std::complex<ValueType>*) * (logSlots_ + 1)));
   if (unlikely (!W_))
   {
     ACE_DEBUG ((LM_CRITICAL,
@@ -213,8 +213,8 @@ Common_Math_FFT_T<ValueType>::Initialize (unsigned int channels_in,
       goto error;
     } // end IF
     for (unsigned int i = 0; i < slots_; ++i)
-      W_[l][i] = std::complex<ValueType> ( cos (2.0 * M_PI * i / _2_l),
-                                          -sin (2.0 * M_PI * i / _2_l));
+      W_[l][i] = std::complex<ValueType> ( std::cos (static_cast<ValueType> (2.0 * M_PI) * i / static_cast<ValueType> (_2_l)),
+                                          -std::sin (static_cast<ValueType> (2.0 * M_PI) * i / static_cast<ValueType> (_2_l)));
     _2_l *= 2;
   } // end FOR
 
@@ -328,6 +328,10 @@ void
 Common_Math_FFT_T<ValueType>::Compute (unsigned int channel_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Compute"));
+
+  //// initialize the FFT working set buffer
+  //for (int i = 0; i < slots_; ++i)
+  //  X_[channel_in][bitReverseMap_[i]] = std::complex<ValueType> (buffer_[channel_in][i]);
 
   // step = 2 ^ (level - 1)
   // increment = 2 ^ level;
