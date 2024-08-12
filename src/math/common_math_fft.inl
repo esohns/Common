@@ -237,6 +237,9 @@ Common_Math_FFT_T<ValueType>::Initialize (unsigned int channels_in,
       goto error;
     } // end IF
   } // end FOR
+  for (unsigned int j = 0; j < channels_; ++j)
+    for (int i = 0; i < slots_; ++i)
+      X_[j][bitReverseMap_[i]] = std::complex<ValueType> (buffer_[j][i], 0);
 
   isInitialized_ = true;
 
@@ -329,9 +332,9 @@ Common_Math_FFT_T<ValueType>::Compute (unsigned int channel_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Compute"));
 
-  //// initialize the FFT working set buffer
-  //for (int i = 0; i < slots_; ++i)
-  //  X_[channel_in][bitReverseMap_[i]] = std::complex<ValueType> (buffer_[channel_in][i]);
+  // initialize the FFT working set buffer
+  for (int i = 0; i < slots_; ++i)
+    X_[channel_in][bitReverseMap_[i]] = std::complex<ValueType> (buffer_[channel_in][i], 0);
 
   // step = 2 ^ (level - 1)
   // increment = 2 ^ level;
@@ -373,9 +376,10 @@ Common_Math_FFT_T<ValueType>::ComputeMaxValue ()
        ++j)
     for (unsigned int i = 0; i < slots_; ++i)
     {
-      ValueType magnitude = std::sqrt (std::abs (X_[j][i]));
+      ValueType magnitude = std::sqrt (std::norm (X_[j][i]));
       temp = std::max (temp, magnitude);
     } // end FOR
 
   maxValue_ = temp;
+  sqMaxValue_ = maxValue_ * maxValue_;
 }

@@ -232,6 +232,7 @@ continue_2:
                   ACE_TEXT ("failed to ACE_OS::read(%d): \"%m\", aborting\n"),
                   ACE_STDIN));
       // *WARNING*: falls through
+      ACE_FALLTHROUGH;
     }
     // *** GOOD CASES ***
     case 0:

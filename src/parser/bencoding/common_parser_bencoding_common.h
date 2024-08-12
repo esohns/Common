@@ -45,6 +45,7 @@ struct Bencoding_Element
 {
   Bencoding_Element ()
    : type (BENCODING_TYPE_INVALID)
+   , integer (0)
   {}
 
   enum Bencoding_ElementType

@@ -58,15 +58,35 @@ class Common_Math_FFT_T
   inline unsigned int Channels () const { return channels_; }
   inline unsigned int Slots () const { return slots_; }
 
+  //inline ValueType SqModulus (unsigned int slot_in,
+  //                            unsigned int channel_in)
+  //{ ACE_ASSERT (X_);
+  //  ACE_ASSERT (slot_in < slots_);
+  //  ACE_ASSERT (channel_in < channels_);
+  //  ValueType modulus =
+  //    (slot_in ? std::abs (X_[channel_in][slot_in]) : 0);
+  //  return modulus * modulus;
+  //}
+  inline ValueType SqMagnitude (unsigned int slot_in,
+                                unsigned int channel_in,
+                                bool normalize_in)
+  { ACE_ASSERT (X_);
+    ACE_ASSERT (slot_in < slots_);
+    ACE_ASSERT (channel_in < channels_);
+    return (normalize_in ? (slot_in ? std::norm (X_[channel_in][slot_in]) 
+                                    : 0) / (sqMaxValue_ ? sqMaxValue_ : 1)
+                         : (slot_in ? std::norm (X_[channel_in][slot_in])
+                                    : 0));
+  }
   inline ValueType Magnitude (unsigned int slot_in,
                               unsigned int channel_in,
                               bool normalize_in = true) const
   { ACE_ASSERT (X_);
     ACE_ASSERT (slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
-    return (normalize_in ? (slot_in ? std::sqrt (std::abs (X_[channel_in][slot_in])) 
+    return (normalize_in ? (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in])) 
                                     : 0) / (maxValue_ ? maxValue_ : 1)
-                         : (slot_in ? std::sqrt (std::abs (X_[channel_in][slot_in]))
+                         : (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in]))
                                     : 0));
   }
   //inline int          Value (unsigned int slot_in,
@@ -100,6 +120,7 @@ class Common_Math_FFT_T
   unsigned int              slots_;         // #buffered samples / channel
   unsigned int              sampleRate_;
   ValueType                 maxValue_;      // only required for normalization (see above)
+  ValueType                 sqMaxValue_;    // only required for normalization (see above)
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_T ())
