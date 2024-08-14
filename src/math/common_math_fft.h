@@ -89,6 +89,17 @@ class Common_Math_FFT_T
                          : (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in]))
                                     : 0));
   }
+  inline ValueType Magnitude2 (unsigned int slot_in,
+                               unsigned int channel_in,
+                               bool normalize_in = true) const
+  { ACE_ASSERT (X_);
+    ACE_ASSERT (slot_in < slots_);
+    ACE_ASSERT (channel_in < channels_);
+    return (normalize_in ? (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in]))
+                                      : 0) / (2.0 * slots_)
+                           : (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in]))
+                                      : 0));
+  }
   //inline int          Value (unsigned int slot_in,
   //                           unsigned int channel_in) const
   //{ ACE_ASSERT (slot_in < slots_); ACE_ASSERT (channel_in < channels_);
@@ -127,6 +138,8 @@ class Common_Math_FFT_T
   ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_T (const Common_Math_FFT_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_T& operator= (const Common_Math_FFT_T&))
 
+  void ApplyHammingWindow (unsigned int); // channel
+
   int                       logSlots_;
   double                    sqrtSlots_;
   std::complex<ValueType>** W_;             // exponentials
@@ -134,5 +147,10 @@ class Common_Math_FFT_T
 
 // include template definition
 #include "common_math_fft.inl"
+
+/////////////////////////////////////////
+
+typedef Common_Math_FFT_T<float> Common_Math_FFT_Float_t;
+typedef Common_Math_FFT_T<double> Common_Math_FFT_Double_t;
 
 #endif

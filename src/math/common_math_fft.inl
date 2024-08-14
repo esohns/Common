@@ -332,9 +332,9 @@ Common_Math_FFT_T<ValueType>::Compute (unsigned int channel_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Compute"));
 
-  // initialize the FFT working set buffer
-  for (int i = 0; i < slots_; ++i)
-    X_[channel_in][bitReverseMap_[i]] = std::complex<ValueType> (buffer_[channel_in][i], 0);
+  //// apply a window function
+  //// *TODO*: do this only for the 'new' buffers ?
+  //ApplyHammingWindow (channel_in);
 
   // step = 2 ^ (level - 1)
   // increment = 2 ^ level;
@@ -360,6 +360,20 @@ Common_Math_FFT_T<ValueType>::Compute (unsigned int channel_in)
       } // end FOR
     } // end FOR
     step *= 2;
+  } // end FOR
+}
+
+template <typename ValueType>
+void
+Common_Math_FFT_T<ValueType>::ApplyHammingWindow (unsigned int channel_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::ApplyHammingWindow"));
+
+  for (unsigned int i = 0; i < slots_; ++i)
+  {
+    ValueType factor =
+      (0.54 - 0.46 * std::cos ((2.0 * M_PI * i) / static_cast<ValueType> (slots_)));
+    buffer_[channel_in][i] *= factor;
   } // end FOR
 }
 

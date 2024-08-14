@@ -2081,9 +2081,9 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
     return_value +=
         (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
                             : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
-    return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
-    return_value +=
-      Common_String_Tools::tolower (Common_File_Tools::basename (Common_File_Tools::executable, true));
+    //return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
+    //return_value +=
+    //  Common_String_Tools::tolower (Common_File_Tools::basename (Common_File_Tools::executable, true));
   } // end IF
   else
   {
