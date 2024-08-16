@@ -380,19 +380,19 @@ do_work (int argc_in,
       using namespace tensorflow;
       Scope root = Scope::NewRootScope ();
       // Matrix A = [3 2; -1 0]
-      Output A = ops::Const (root, {{3.f, 2.f}, {-1.f, 0.f}});
+      Output A =
+        ops::Const (root, {{3.f, 2.f}, {-1.f, 0.f}});
       // Vector b = [3 5]
       Output b = ops::Const (root, {{3.f, 5.f}});
       // v = Ab^T
-      Output v =
-          ops::MatMul (root.WithOpName ("v"),
-                       A, b,
-                       ops::MatMul::TransposeB (true));
+      Output v = ops::MatMul (root.WithOpName (ACE_TEXT_ALWAYS_CHAR ("v")),
+                              A, b,
+                              ops::MatMul::TransposeB (true));
       std::vector<Tensor> outputs;
       ClientSession session (root);
       // Run and fetch v
       TF_CHECK_OK (session.Run ({v}, &outputs));
-      // Expect outputs[0] == [19; -3]
+      // Expect outputs[0] == [19 -3]
       typename TTypes<float>::Matrix matrix = outputs[0].matrix<float> ();
       LOG (INFO) << matrix;
 #endif // TENSORFLOW_CC_SUPPORT

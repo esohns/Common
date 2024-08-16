@@ -8,6 +8,9 @@ string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 ############## includes ###############
 
 include_directories (${tensorflow_INCLUDE_DIRS})
+if (TENSORFLOW_CC_SUPPORT)
+ include_directories (${tensorflow_cc_INCLUDE_DIRS})
+endif (TENSORFLOW_CC_SUPPORT)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/log)
@@ -27,11 +30,12 @@ add_executable (${EXECUTABLE}
                 ${${EXECUTABLE}_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
-if (TENSORFLOW_CC_SUPPORT)
- target_link_libraries (${EXECUTABLE} PUBLIC ${tensorflow_cc_LIBRARIES})
-elseif (TENSORFLOW_SUPPORT)
+if (TENSORFLOW_SUPPORT)
  target_link_libraries (${EXECUTABLE} PUBLIC ${tensorflow_LIBRARIES})
 endif ()
+if (TENSORFLOW_CC_SUPPORT)
+ target_link_libraries (${EXECUTABLE} PUBLIC ${tensorflow_cc_LIBRARIES})
+endif (TENSORFLOW_CC_SUPPORT)
 
 target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
 
