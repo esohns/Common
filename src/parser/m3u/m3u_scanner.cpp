@@ -2139,18 +2139,15 @@ case 43:
 /* rule 43 can match eol */
 YY_RULE_SETUP
 { /* *TODO*: use (?s:.) ? */
-                                    if (!parser->isBlocking ())
-                                      yyterminate();
-                                    // wait for more data fragment(s)
-//                                    if (!parser->switchBuffer ())
-//                                    { // *NOTE*: most probable reason: connection
-//                                      //         has been closed --> session end
-//                                      ACE_DEBUG ((LM_DEBUG,
-//                                                  ACE_TEXT ("failed to Common_IParser::switchBuffer(), returning\n")));
-//                                      yyterminate(); // not enough data, cannot proceed
-//                                    } // end IF
-//                                    yyless (0);
-                                    yyterminate(); }
+                                   // wait for more data fragment(s)
+                                   if (!parser->switchBuffer ())
+                                   { // *NOTE*: most probable reason: connection
+                                     //         has been closed --> session end
+                                     ACE_DEBUG ((LM_DEBUG,
+                                                 ACE_TEXT ("failed to Common_IParser::switchBuffer(), returning\n")));
+                                     yyterminate(); // not enough data, cannot proceed
+                                   } // end IF
+                                   yyless (0); }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP

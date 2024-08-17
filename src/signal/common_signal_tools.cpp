@@ -213,7 +213,7 @@ continue_:
                 number,
                 ACE_SIGRTMIN, ACE_SIGRTMIN, ACE_SIGRTMAX, ACE_SIGRTMAX));
   } // end IF
-continue_2:
+// continue_2:
 #if defined (ACE_LINUX)
   // *IMPORTANT NOTE*: "...NPTL makes internal use of the first two real-time
   //                   signals (see also signal(7)); these signals cannot be
@@ -285,11 +285,25 @@ continue_2:
   } // end IF
 #endif // ACE_WIN32 || ACE_WIN64
 
-  // *NOTE*: on UNIX remove SIGTRAP/[SIGSTOP]/SIGCONT when running in a debugger
+  // *NOTE*: on UNIX remove SIGINT/SIGTRAP/[SIGSTOP]/SIGCONT when running in a debugger
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
   if (!Common_Error_Tools::inDebugSession ())
     goto continue_3;
+  if (signals_inout.is_member (SIGINT) > 0)
+  {
+    result = signals_inout.sig_del (SIGINT);
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%d: \"%S\"): \"%m\", aborting\n"),
+                  SIGINT, SIGINT));
+      return false;
+    } // end IF
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("%t: removed %d: \"%S\" from handled signals\n"),
+                SIGINT, SIGINT));
+  } // end IF
   if (signals_inout.is_member (SIGTRAP) > 0)
   {
     result = signals_inout.sig_del (SIGTRAP);
