@@ -21,7 +21,6 @@
 #ifndef COMMON_PARSER_BENCODING_COMMON_H
 #define COMMON_PARSER_BENCODING_COMMON_H
 
-//#include <unordered_map>
 #include <string>
 #include <utility>
 #include <vector>
@@ -33,12 +32,8 @@
 struct Bencoding_Element;
 typedef std::vector<Bencoding_Element*> Bencoding_List_t;
 typedef Bencoding_List_t::const_iterator Bencoding_ListIterator_t;
-//typedef std::unordered_map<std::string*,
-//                           Bencoding_Element*,
-//                           string_p_hash,
-//                           string_p_equal> Bencoding_Dictionary_t;
-typedef std::vector<std::pair<std::string*,
-                              Bencoding_Element*> > Bencoding_Dictionary_t;
+// *NOTE*: key order is important to generate correct hashes --> cannot use map
+typedef std::vector<std::pair<std::string*, Bencoding_Element*> > Bencoding_Dictionary_t;
 typedef Bencoding_Dictionary_t::const_iterator Bencoding_DictionaryIterator_t;
 
 struct Bencoding_Element

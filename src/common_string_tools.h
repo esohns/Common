@@ -44,6 +44,8 @@ class Common_String_Tools
   static BSTR to_2 (const std::string&); // string
 #endif // ACE_WIN32 || ACE_WIN64
 
+  static std::string toHexString (const std::string&); // string (*NOTE*: may contain non-ASCII characters)
+
   // *TODO*: move to ACE_Network::HTTP_Tools
   static std::string sanitizeURI (const std::string&); // URI
 

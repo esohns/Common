@@ -22,7 +22,9 @@
 #include "common_string_tools.h"
 
 #include <algorithm>
+#include <iomanip>
 #include <locale>
+#include <sstream>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "OleAuto.h"
@@ -227,6 +229,33 @@ Common_String_Tools::to (const std::string& string_in)
   return return_value;
 }
 #endif // ACE_WIN32 || ACE_WIN64
+
+std::string
+Common_String_Tools::toHexString (const std::string& string_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_String_Tools::toHexString"));
+
+  std::string result;
+
+  std::ostringstream converter;
+  converter << std::hex << std::setfill ('0');
+  std::string converted_string;
+  for (std::string::const_iterator iterator = string_in.begin ();
+       iterator != string_in.end ();
+       ++iterator)
+  {
+    converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+    converter.clear ();
+    // *TODO*: there is probably a better way to do this...
+    converter << std::setw (2) << static_cast<ACE_UINT16> (*iterator);
+    converted_string = converter.str ();
+    result +=
+      (converted_string.size () == 2 ? converted_string
+                                     : converted_string.substr (2, std::string::npos));
+  } // end FOR
+
+  return result;
+}
 
 std::string
 Common_String_Tools::sanitizeURI (const std::string& uri_in)
