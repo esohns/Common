@@ -93,6 +93,7 @@ class Common_ParserBase_T
   typedef ACE_Message_Queue_Base MESSAGE_QUEUE_T;
 
   ConfigurationType*             configuration_;
+  bool                           error_;
   bool                           finished_;
   ACE_Message_Block*             fragment_;
 

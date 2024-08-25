@@ -35,6 +35,7 @@ Common_ParserBase_T<ConfigurationType,
                     ParserInterfaceType,
                     ExtraDataType>::Common_ParserBase_T ()
  : configuration_ (NULL)
+ , error_ (false)
  , finished_ (false)
  , fragment_ (NULL)
  , parser_ (this, // parser
@@ -99,6 +100,7 @@ Common_ParserBase_T<ConfigurationType,
 
   if (isInitialized_)
   {
+    error_ = false;
     finished_ = false;
     fragment_ = NULL;
 
@@ -262,15 +264,20 @@ Common_ParserBase_T<ConfigurationType,
                 ACE_TEXT ("caught exception in Common_IParser_T::parse(), continuing\n")));
     result = 1;
   }
+  if (unlikely (error_))
+  {
+    error_ = false;
+    result = 1;
+  } // end IF
   switch (result)
   {
     case 0:
       break; // done/need more data
     case 1:
     default:
-    { // *NOTE*: most probable reason: connection
-      //         has been closed --> session end
-      ACE_DEBUG ((LM_WARNING,
+    { // *NOTE*: most probable reason: connection has been closed
+      //         --> received end-of-session
+      ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("failed to Common_IParser_T::parse (result was: %d), aborting\n"),
                   result));
       goto error;
@@ -415,7 +422,7 @@ retry:
       if (configuration_->messageQueue->is_empty ())
         done = true;
       result = configuration_->messageQueue->enqueue_tail (message_block_p);
-      if (result == -1)
+      if (unlikely (result == -1))
       {
         error = ACE_OS::last_error ();
         if (error != ESHUTDOWN)
@@ -431,7 +438,7 @@ retry:
     case ACE_Message_Block::MB_EVENT:
     {
       result = configuration_->messageQueue->enqueue_tail (message_block_p);
-      if (result == -1)
+      if (unlikely (result == -1))
       {
         error = ACE_OS::last_error ();
         if (error != ESHUTDOWN)
