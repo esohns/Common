@@ -19,7 +19,6 @@
 ***************************************************************************/
 #include "stdafx.h"
 
-#include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 #include  "sys/inotify.h"
@@ -41,6 +40,8 @@
 #include "common_file_tools.h"
 #include "common_process_tools.h"
 #include "common_tools.h"
+
+#include "common_error_tools.h"
 
 #include "common_log_tools.h"
 
@@ -68,7 +69,7 @@ class INotify_Event_Handler
 
     bytes_read_i = ACE_OS::read (fd_in,
                                  static_cast<void*> (&buffer_a),
-                                 sizeof (buffer_a));
+                                 sizeof (uint8_t[16 * sizeof (struct inotify_event)]));
     switch (bytes_read_i)
     {
       case -1:
@@ -269,7 +270,106 @@ do_work (enum Test_U_Common_File_ModeType mode_in,
     case TEST_U_COMMON_FILE_MODE_WATCH:
     {
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-      ACE_ASSERT (false); // *TODO*
+      HANDLE handles_a[2];
+      handles_a[0] =
+        ACE_TEXT_FindFirstChangeNotification (ACE_TEXT (filePath_in.c_str ()), // directory to watch 
+                                              FALSE,                           // do not watch subtree 
+                                              FILE_NOTIFY_CHANGE_FILE_NAME);   // watch file name changes
+      if (handles_a[0] == INVALID_HANDLE_VALUE)
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to FindFirstChangeNotification(\"%s\"): \"%s\", returning\n"),
+                    ACE_TEXT (filePath_in.c_str ()),
+                    ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false, false).c_str ())));
+        return;
+      } // end IF
+      handles_a[1] =
+        ACE_TEXT_FindFirstChangeNotification (ACE_TEXT (filePath_in.c_str ()), // directory to watch 
+                                              TRUE,                            // watch the subtree 
+                                              FILE_NOTIFY_CHANGE_DIR_NAME);    // watch dir name changes
+      if (handles_a[1] == INVALID_HANDLE_VALUE)
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to FindFirstChangeNotification(\"%s\"): \"%s\", returning\n"),
+                    ACE_TEXT (filePath_in.c_str ()),
+                    ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false, false).c_str ())));
+        return;
+      } // end IF
+
+      DWORD dwWaitStatus;
+      while (TRUE)
+      {
+        dwWaitStatus = WaitForMultipleObjects (2, handles_a,
+                                               FALSE,
+                                               INFINITE);
+        switch (dwWaitStatus)
+        {
+          case WAIT_OBJECT_0:
+          {
+            // A file was created, renamed, or deleted in the directory.
+            // Refresh this directory and restart the notification.
+            ACE_DEBUG ((LM_DEBUG,
+                        ACE_TEXT ("directory \"%s\" modified, continuing\n"),
+                        ACE_TEXT (filePath_in.c_str ())));
+
+            if (FindNextChangeNotification (handles_a[0]) == FALSE)
+            {
+              ACE_DEBUG ((LM_ERROR,
+                          ACE_TEXT ("failed to FindNextChangeNotification(): \"%s\", returning\n"),
+                          ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false, false).c_str ())));
+              return;
+            } // end IF
+            break;
+          }
+          case WAIT_OBJECT_0 + 1:
+          {
+            // A directory was created, renamed, or deleted.
+            // Refresh the tree and restart the notification.
+ 
+            ACE_DEBUG ((LM_DEBUG,
+                        ACE_TEXT ("subtree \"%s\" modified, continuing\n"),
+                        ACE_TEXT (filePath_in.c_str ())));
+
+            if (FindNextChangeNotification (handles_a[1]) == FALSE)
+            {
+              ACE_DEBUG ((LM_ERROR,
+                          ACE_TEXT ("failed to FindNextChangeNotification(): \"%s\", returning\n"),
+                          ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false, false).c_str ())));
+              return;
+            } // end IF
+            break;
+          }
+          case WAIT_TIMEOUT:
+          {
+            // A timeout occurred, this would happen if some value other
+            // than INFINITE is used in the Wait call and no changes occur.
+            // In a single-threaded environment you might not want an
+            // INFINITE wait.
+
+            ACE_DEBUG ((LM_DEBUG,
+                        ACE_TEXT ("no changes in the specified timeout, continuing\n")));
+            break;
+          }
+          default:
+          {
+            ACE_DEBUG ((LM_ERROR,
+                        ACE_TEXT ("invalid/unknown status (was: %d), returning\n"),
+                        dwWaitStatus));
+            return;
+          }
+        } // end SWITCH
+      } // end WHILE
+
+      if (FindCloseChangeNotification (handles_a[0]) == FALSE)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to FindCloseChangeNotification(0x%x): \"%s\", continuing\n"),
+                    handles_a[0],
+                    ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false, false).c_str ())));
+      if (FindCloseChangeNotification (handles_a[1]) == FALSE)
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to FindCloseChangeNotification(0x%x): \"%s\", continuing\n"),
+                    handles_a[1],
+                    ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false, false).c_str ())));
 #else
       int flags_i = 0;
 //      IN_CLOEXEC | IN_NONBLOCK;
