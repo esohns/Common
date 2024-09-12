@@ -196,7 +196,7 @@ do_work (int argc_in,
                      &output_s, &tensor_output_p, 1, // Outputs
                      &operation_p, 1,                // Operations
                      0, status_p);
-      ACE_ASSERT (TF_GetCode (status_p) == TF_OK);
+      ACE_ASSERT ((TF_GetCode (status_p) == TF_OK) && tensor_output_p);
 
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("status code: %d\n"),
@@ -211,8 +211,11 @@ do_work (int argc_in,
       ACE_ASSERT (TF_GetCode (status_p) == TF_OK);
       TF_DeleteSession (session_p, status_p);
       ACE_ASSERT (TF_GetCode (status_p) == TF_OK);
+      TF_DeleteGraph (graph_p);
       TF_DeleteStatus (status_p);
       TF_DeleteSessionOptions (options_p);
+      TF_DeleteTensor (tensor_p);
+      TF_DeleteTensor (tensor_output_p);
 
       break;
     }
@@ -278,7 +281,7 @@ do_work (int argc_in,
       } // end IF
 
       // First two samples, normalized values
-      int SEQ_LENGTH = 21;
+      static int SEQ_LENGTH = 21;
       float sampledata0[21] = { 1.f, 0.96713615f, 0.88262911f, 0.74178404f, 0.69953052f,
                                 0.66666667f, 0.6713615f, 0.57746479f, 0.48826291f, 0.50234742f,
                                 0.5399061f, 0.43661972f, 0.33333333f, 0.342723f, 0.25821596f,
@@ -301,7 +304,7 @@ do_work (int argc_in,
                   TF_OperationNumInputs (input_operation_p)));
       int64_t raw_input_dims_a[2];
       raw_input_dims_a[0] = 1;
-      raw_input_dims_a[1] = 21;
+      raw_input_dims_a[1] = SEQ_LENGTH;
       float* raw_input_data_p = (float*)malloc (sizeof (float) * SEQ_LENGTH);
       ACE_OS::memcpy (raw_input_data_p, sampledata1, sizeof (float) * SEQ_LENGTH);
       //raw_input_data[1] = 1.f;
@@ -310,10 +313,9 @@ do_work (int argc_in,
       struct TF_Output input_s;
       input_s.oper = input_operation_p;
       input_s.index = 0;
-      TF_Tensor* input_tensor_p = TF_NewTensor (TF_FLOAT, raw_input_dims_a, 2, raw_input_data_p,
-                                                SEQ_LENGTH * sizeof (float),
-                                                &deallocator,
-                                                NULL);
+      TF_Tensor* input_tensor_p = TF_NewTensor (TF_FLOAT, raw_input_dims_a, 2,
+                                                raw_input_data_p, SEQ_LENGTH * sizeof (float),
+                                                &deallocator, NULL);
       ACE_ASSERT (input_tensor_p);
       TF_Tensor* run_input_tensors_a[1];
       run_input_tensors_a[0] = input_tensor_p;
@@ -331,10 +333,9 @@ do_work (int argc_in,
       raw_output_dims_a[0] = 1;
       float* raw_output_data_p = (float*)malloc (1 * sizeof (float));
       raw_output_data_p[0] = 1.f;
-      TF_Tensor* output_tensor_p = TF_NewTensor (TF_FLOAT, raw_output_dims_a, 1, raw_output_data_p,
-                                                 1 * sizeof (float),
-                                                 &deallocator,
-                                                 NULL);
+      TF_Tensor* output_tensor_p = TF_NewTensor (TF_FLOAT, raw_output_dims_a, 1,
+                                                 raw_output_data_p, 1 * sizeof (float),
+                                                 &deallocator, NULL);
       ACE_ASSERT (output_tensor_p);
       TF_Tensor* run_output_tensors_a[1];
       run_output_tensors_a[0] = output_tensor_p;
