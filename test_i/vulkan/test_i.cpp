@@ -10,7 +10,6 @@
 #include "GLFW/glfw3.h"
 #endif // GLFW_SUPPORT
 
-#include "ace/config-lite.h"
 #include "ace/ACE.h"
 #include "ace/Get_Opt.h"
 #include "ace/High_Res_Timer.h"

@@ -124,9 +124,9 @@ main (int argc, char** argv)
   return 0;
 }
 
-#if wxCHECK_VERSION(3,0,0)
+#if wxCHECK_VERSION (3,0,0)
 //wxIMPLEMENT_APP (Test_U_wxWidgets_Application);
-#elif wxCHECK_VERSION(2,0,0)
+#elif wxCHECK_VERSION (2,0,0)
 //IMPLEMENT_APP(Test_U_wxWidgets_Application)
 
 void wxApp::OnAssertFailure (const wxChar *file,

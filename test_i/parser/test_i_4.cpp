@@ -7,7 +7,6 @@
 #include "libxml/xpath.h"
 #include "libxml/xpathInternals.h"
 
-#include "ace/config-lite.h"
 #include "ace/ACE.h"
 #include "ace/Get_Opt.h"
 #include "ace/High_Res_Timer.h"

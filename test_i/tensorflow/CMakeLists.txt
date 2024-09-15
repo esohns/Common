@@ -32,7 +32,7 @@ set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
 if (TENSORFLOW_SUPPORT)
  target_link_libraries (${EXECUTABLE} PUBLIC ${tensorflow_LIBRARIES})
-endif ()
+endif (TENSORFLOW_SUPPORT)
 if (TENSORFLOW_CC_SUPPORT)
  target_link_libraries (${EXECUTABLE} PUBLIC ${tensorflow_cc_LIBRARIES})
 endif (TENSORFLOW_CC_SUPPORT)

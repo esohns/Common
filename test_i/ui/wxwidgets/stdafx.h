@@ -32,8 +32,8 @@
 
 // Library Header Files
 //#include "ace/os_include/sys/os_types.h"
-#undef DrawText
-#undef SIZEOF_SIZE_T
+//#undef DrawText
+//#undef SIZEOF_SIZE_T
 #undef wxHAS_MODE_T
 #include "wx/wx.h"
 #define ACE_HAS_SSIZE_T

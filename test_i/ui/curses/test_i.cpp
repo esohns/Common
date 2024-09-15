@@ -15,7 +15,6 @@
 #endif // ACE_WIN32 || ACE_WIN32
 #include "panel.h"
 
-#include "ace/config-lite.h"
 #include "ace/ACE.h"
 #include "ace/Get_Opt.h"
 #include "ace/High_Res_Timer.h"
