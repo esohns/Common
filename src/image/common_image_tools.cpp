@@ -162,8 +162,11 @@ Common_Image_Tools::saveBMP (const Common_Image_Resolution_t& resolution_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::saveBMP"));
 
-  FILE* file_p = ACE_OS::fopen (path_in.c_str (),
-                                ACE_TEXT_ALWAYS_CHAR ("wb"));
+  // sanity check(s)
+  ACE_ASSERT (sourceBuffers_in[0]);
+
+  FILE* file_p = ::fopen (path_in.c_str (),
+                          ACE_TEXT_ALWAYS_CHAR ("wb"));
   if (unlikely (!file_p))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -172,9 +175,9 @@ Common_Image_Tools::saveBMP (const Common_Image_Resolution_t& resolution_in,
     return false;
   } // end IF
 
-  BITMAPINFOHEADER bitmap_info_header_s;
-  ACE_OS::memset (&bitmap_info_header_s, 0, sizeof (BITMAPINFOHEADER));
-  bitmap_info_header_s.biSize = sizeof (BITMAPINFOHEADER);
+  struct tagBITMAPINFOHEADER bitmap_info_header_s;
+  ACE_OS::memset (&bitmap_info_header_s, 0, sizeof (struct tagBITMAPINFOHEADER));
+  bitmap_info_header_s.biSize = sizeof (struct tagBITMAPINFOHEADER);
   bitmap_info_header_s.biWidth = resolution_in.cx;
   bitmap_info_header_s.biHeight =
     (resolution_in.cy > 0 ? -resolution_in.cy : resolution_in.cy);
@@ -183,23 +186,24 @@ Common_Image_Tools::saveBMP (const Common_Image_Resolution_t& resolution_in,
   bitmap_info_header_s.biCompression = BI_RGB;
   bitmap_info_header_s.biSizeImage = DIBSIZE (bitmap_info_header_s);
 
-  BITMAPFILEHEADER bitmap_file_header_s;
-  ACE_OS::memset (&bitmap_file_header_s, 0, sizeof (BITMAPFILEHEADER));
+  struct tagBITMAPFILEHEADER bitmap_file_header_s;
+  ACE_OS::memset (&bitmap_file_header_s, 0, sizeof (struct tagBITMAPFILEHEADER));
   bitmap_file_header_s.bfType = 'B' + ('M' << 8);
-  bitmap_file_header_s.bfSize =
-    sizeof (BITMAPFILEHEADER) + sizeof (BITMAPINFOHEADER) + bitmap_info_header_s.biSizeImage;
+  bitmap_file_header_s.bfSize = sizeof (struct tagBITMAPFILEHEADER) +
+                                sizeof (struct tagBITMAPINFOHEADER) +
+                                bitmap_info_header_s.biSizeImage;
   bitmap_file_header_s.bfOffBits =
-    sizeof (BITMAPFILEHEADER) + sizeof (BITMAPINFOHEADER);
+    sizeof (struct tagBITMAPFILEHEADER) + sizeof (struct tagBITMAPINFOHEADER);
 
   // write the bitmap file header
   size_t bytes_written = ACE_OS::fwrite (&bitmap_file_header_s,
-                                         sizeof (BITMAPFILEHEADER),
+                                         sizeof (struct tagBITMAPFILEHEADER),
                                          1,
                                          file_p);
 
   // ...and then the bitmap info header
   bytes_written += ACE_OS::fwrite (&bitmap_info_header_s,
-                                   sizeof (BITMAPINFOHEADER),
+                                   sizeof (struct tagBITMAPINFOHEADER),
                                    1,
                                    file_p);
 
@@ -209,7 +213,8 @@ Common_Image_Tools::saveBMP (const Common_Image_Resolution_t& resolution_in,
                                    1,
                                    file_p);
 
-  ACE_OS::fclose (file_p);
+  int result = ACE_OS::fclose (file_p);
+  ACE_ASSERT (result == 0);
 
   return true;
 }
