@@ -18,9 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_UI_WXWIDGETS_DEFINES_H
-#define COMMON_UI_WXWIDGETS_DEFINES_H
-
-#define COMMON_UI_WXWIDGETS_APP_CMDLINE_DEFAULT_PARSE false
+#ifndef COMMON_UI_QT_DEFINES_H
+#define COMMON_UI_QT_DEFINES_H
 
 #endif

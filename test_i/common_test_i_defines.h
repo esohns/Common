@@ -18,9 +18,9 @@
 *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
 ***************************************************************************/
 
-#ifndef COMMON_TEST_I_GTK_DEFINES_H
-#define COMMON_TEST_I_GTK_DEFINES_H
+#ifndef COMMON_TEST_I_DEFINES_H
+#define COMMON_TEST_I_DEFINES_H
 
-#define COMMON_TEST_I_UI_SUBDIRECTORY        "ui"
+#define COMMON_TEST_I_UI_SUBDIRECTORY "ui"
 
 #endif

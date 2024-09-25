@@ -75,8 +75,8 @@ Common_Timer_Tools::timeStampToLocalString (const ACE_Time_Value& timeStamp_in)
   std::string result;
 
   //ACE_Date_Time time_local(timestamp_in);
-  tm time_local;
-  // init structure
+  struct tm time_local;
+  // initialize structure
   time_local.tm_sec = -1;
   time_local.tm_min = -1;
   time_local.tm_hour = -1;
@@ -521,10 +521,10 @@ Common_Timer_Tools::periodToString (const ACE_Time_Value& period_in)
   int minutes = static_cast<int> (temp.sec ()) / 60;
   temp.sec (temp.sec () % 60);
 
-  char time_string[BUFSIZ];
+  char buffer_a[BUFSIZ];
   // *TODO*: rewrite this in C++...
-  if (unlikely (ACE_OS::snprintf (time_string,
-                                  sizeof (time_string),
+  if (unlikely (ACE_OS::snprintf (buffer_a,
+                                  sizeof (char[BUFSIZ]),
                                   ACE_TEXT_ALWAYS_CHAR ("%d:%d:%d.%d"),
                                   hours,
                                   minutes,
@@ -535,7 +535,7 @@ Common_Timer_Tools::periodToString (const ACE_Time_Value& period_in)
                 ACE_TEXT ("failed to ACE_OS::snprintf(): \"%m\", aborting\n")));
     return return_value;
   } // end IF
-  return_value = time_string;
+  return_value = buffer_a;
 
   return return_value;
 }
@@ -572,11 +572,11 @@ Common_Timer_Tools::timestampToString (const ACE_Time_Value& timeStamp_in,
     } // end IF
   } // end ELSE
 
-  char time_string[BUFSIZ];
-  ACE_OS::memset (time_string, 0, BUFSIZ);
+  char buffer_a[BUFSIZ];
+  ACE_OS::memset (buffer_a, 0, sizeof (char[BUFSIZ]));
   // *TODO*: rewrite this in C++...
-  if (unlikely (ACE_OS::snprintf (time_string,
-                                  sizeof (time_string),
+  if (unlikely (ACE_OS::snprintf (buffer_a,
+                                  sizeof (char[BUFSIZ]),
                                   ACE_TEXT_ALWAYS_CHAR ("%u-%u-%u %u:%u:%u.%ld"),
                                   tm_s.tm_year + 1900,
                                   tm_s.tm_mon + 1,
@@ -590,7 +590,7 @@ Common_Timer_Tools::timestampToString (const ACE_Time_Value& timeStamp_in,
                 ACE_TEXT ("failed to ACE_OS::snprintf(): \"%m\", aborting\n")));
     return return_value;
   } // end IF
-  return_value = time_string;
+  return_value = buffer_a;
 
   if (unlikely (appendTimezone_in))
   {
@@ -696,11 +696,11 @@ Common_Timer_Tools::timestampToString2 (const ACE_Time_Value& timeStamp_in)
     return return_value;
   } // end IF
 
-  char time_string[BUFSIZ];
-  ACE_OS::memset (time_string, 0, sizeof (char[BUFSIZ]));
+  char buffer_a[BUFSIZ];
+  ACE_OS::memset (buffer_a, 0, sizeof (char[BUFSIZ]));
   // *TODO*: rewrite this in C++...
-  if (unlikely (ACE_OS::snprintf (time_string,
-                                  sizeof (time_string),
+  if (unlikely (ACE_OS::snprintf (buffer_a,
+                                  sizeof (char[BUFSIZ]),
                                   ACE_TEXT_ALWAYS_CHAR ("%u-%u-%u %u.%u.%u"),
                                   tm_s.tm_mday,
                                   tm_s.tm_mon + 1,
@@ -713,7 +713,7 @@ Common_Timer_Tools::timestampToString2 (const ACE_Time_Value& timeStamp_in)
                 ACE_TEXT ("failed to ACE_OS::snprintf(): \"%m\", aborting\n")));
     return return_value;
   } // end IF
-  return_value = time_string;
+  return_value = buffer_a;
 
   return return_value;
 }

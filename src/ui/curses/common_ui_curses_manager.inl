@@ -18,7 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "ace/config-lite.h"
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
 #include "ace/Thread.h"
@@ -161,7 +160,7 @@ Common_UI_Curses_Manager_T<ACE_SYNCH_USE,
   COMMON_TRACE (ACE_TEXT ("Common_UI_Curses_Manager_T::svc"));
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
+#if COMMON_OS_WIN32_TARGET_PLATFORM (0x0A00) // _WIN32_WINNT_WIN10
   Common_Error_Tools::setThreadName (inherited::threadName_,
                                      NULL);
 #else

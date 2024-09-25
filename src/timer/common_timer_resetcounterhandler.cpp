@@ -24,7 +24,6 @@
 #include "ace/Log_Msg.h"
 
 #include "common_icounter.h"
-
 #include "common_macros.h"
 
 Common_Timer_ResetCounterHandler::Common_Timer_ResetCounterHandler (Common_ICounter* counter_in)

@@ -18,8 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "ace/config-lite.h"
-
 #include "ace/Log_Msg.h"
 
 #include "common_macros.h"
@@ -85,7 +83,7 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::~Common_UI_WxWidgets_Manager_T (
   if (inherited::IsAlive ())
   {
     result = inherited::Delete (&exit_code
-#if wxCHECK_VERSION(3,0,0)
+#if wxCHECK_VERSION (3,0,0)
                                 ,wxTHREAD_WAIT_DEFAULT
 #endif // wxCHECK_VERSION
                                );
@@ -97,8 +95,8 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::~Common_UI_WxWidgets_Manager_T (
   if (inherited::IsPaused ())
     inherited::Resume ();
   exit_code = inherited::Wait (
-#if wxCHECK_VERSION(3,0,0)
-                wxTHREAD_WAIT_DEFAULT
+#if wxCHECK_VERSION (3,0,0)
+                               wxTHREAD_WAIT_DEFAULT
 #endif // wxCHECK_VERSION
                               );
   ACE_UNUSED_ARG (exit_code);
@@ -140,7 +138,7 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::stop (bool waitForCompletion_in,
   if (inherited::IsAlive ())
   {
     result = inherited::Delete (&exit_code
-#if wxCHECK_VERSION(3,0,0)
+#if wxCHECK_VERSION (3,0,0)
                                 ,wxTHREAD_WAIT_DEFAULT
 #endif // wxCHECK_VERSION
                                );
@@ -153,7 +151,7 @@ Common_UI_WxWidgets_Manager_T<ApplicationType>::stop (bool waitForCompletion_in,
   if (likely (waitForCompletion_in))
   {
     exit_code = inherited::Wait (
-#if wxCHECK_VERSION(3,0,0)
+#if wxCHECK_VERSION (3,0,0)
                                  wxTHREAD_WAIT_DEFAULT
 #endif // wxCHECK_VERSION
                                 );

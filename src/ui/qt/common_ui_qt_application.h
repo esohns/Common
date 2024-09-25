@@ -21,7 +21,7 @@
 #ifndef COMMON_UI_QT_APPLICATION_H
 #define COMMON_UI_QT_APPLICATION_H
 
-#include <QApplication>
+#include "QApplication"
 
 #include "ace/Global_Macros.h"
 

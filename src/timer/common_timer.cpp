@@ -65,7 +65,7 @@ Common_Timer::tocTic ()
   } while (previous != InterlockedCompareExchange64 (&start_, next, previous));
 #else
   } while (previous != __sync_val_compare_and_swap (&start_, previous, next));
-#endif
+#endif // ACE_WIN32 || ACE_WIN64
 
   return (next - previous) * Common_Timer::toMilliSecondsFactor;
 }

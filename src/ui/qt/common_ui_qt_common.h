@@ -24,8 +24,6 @@
 #include <map>
 #include <set>
 
-//#include <QMainWindow>
-
 #include "common_ui_common.h"
 
 #include "common_ui_qt_iapplication.h"

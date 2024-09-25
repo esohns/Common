@@ -4,6 +4,8 @@
 
 #include <algorithm>
 
+#include "ace/Log_Msg.h"
+
 Common_PIDControl::Common_PIDControl (double kP_in,
                                       double kI_in,
                                       double kD_in,
@@ -13,9 +15,9 @@ Common_PIDControl::Common_PIDControl (double kP_in,
  , kI_ (kI_in)
  , kD_ (kD_in)
  , uMax_ (uMax_in)
- , uMin_ (uMax_in != std::numeric_limits<double>::max () &&
-          uMin_in == std::numeric_limits<double>::min () ? -uMax_in
-                                                         : uMin_in)
+ , uMin_ ((uMax_in != std::numeric_limits<double>::max () &&
+           uMin_in == std::numeric_limits<double>::min ()) ? -uMax_in
+                                                           :  uMin_in)
  , integratorActive_ (true)
  , errorIntegral_ (0.0)
  , errorPrevious_ (NAN)

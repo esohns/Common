@@ -21,8 +21,6 @@
 #ifndef COMMON_UI_WXWIDGETS_MANAGER_T_H
 #define COMMON_UI_WXWIDGETS_MANAGER_T_H
 
-#include <string>
-
 //#if defined (_DEBUG)
 //#undef _DEBUG // *NOTE*: do not (!) #define __WXDEBUG__
 //#define REDEDINE_DEBUG 1
@@ -34,6 +32,8 @@
 //#undef REDEDINE_DEBUG
 //#define _DEBUG
 //#endif // REDEDINE_DEBUG
+
+#include <string>
 
 #include "ace/Global_Macros.h"
 #include "ace/Synch_Traits.h"

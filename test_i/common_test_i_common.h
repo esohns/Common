@@ -21,8 +21,6 @@
 #ifndef COMMON_TEST_I_COMMON_H
 #define COMMON_TEST_I_COMMON_H
 
-#include "ace/config-lite.h"
-
 #include "common_event_common.h"
 
 #include "common_signal_common.h"

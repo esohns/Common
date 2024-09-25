@@ -231,7 +231,8 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
           goto continue_; // nothing to do
         ACE_ASSERT (configuration_->eventDispatchState);
         Common_Event_Tools::finalizeEventDispatch (*configuration_->eventDispatchState,
-                                                   false); // wait ?
+                                                   false,  // wait ?
+                                                   false); // release singletons ?
       } // end IF
 
 continue_:
@@ -281,7 +282,7 @@ Common_Input_Manager_T<ACE_SYNCH_USE,
   COMMON_TRACE (ACE_TEXT ("Common_Input_Manager_T::svc"));
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
+#if COMMON_OS_WIN32_TARGET_PLATFORM (0x0A00) // _WIN32_WINNT_WIN10
   Common_Error_Tools::setThreadName (inherited::threadName_,
                                      NULL);
 #else

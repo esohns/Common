@@ -1,7 +1,6 @@
 #ifndef COMMON_MATH_PIDCONTROL_ZIEGLERNICHOLS_H
 #define COMMON_MATH_PIDCONTROL_ZIEGLERNICHOLS_H
 
-#include <cmath>
 #include <limits>
 
 #include "ace/Global_Macros.h"

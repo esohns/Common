@@ -21,14 +21,14 @@
 
 #include "common_ui_qt_tools.h"
 
-#include "ace/Log_Msg.h"
-#include "ace/OS.h"
-
-#include "common_macros.h"
+//#include "ace/Log_Msg.h"
+//#include "ace/OS.h"
+//
+//#include "common_macros.h"
 
 //bool
 //Common_UI_Qt_Tools::initialize (int argc_in,
-//                                       ACE_TCHAR** argv_in)
+//                                ACE_TCHAR** argv_in)
 //{
 //  COMMON_TRACE (ACE_TEXT ("Common_UI_Qt_Tools::initialize"));
 

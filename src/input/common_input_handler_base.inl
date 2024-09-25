@@ -100,7 +100,7 @@ Common_InputHandler_Base_T<ConfigurationType>::handle_input (ACE_HANDLE handle_i
   if (unlikely (is_first))
   {
     is_first = false;
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
+#if COMMON_OS_WIN32_TARGET_PLATFORM (0x0A00) // _WIN32_WINNT_WIN10
     Common_Error_Tools::setThreadName (ACE_TEXT_ALWAYS_CHAR (COMMON_INPUT_EVENT_HANDLER_THREAD_NAME),
                                        NULL);
 #else
@@ -230,7 +230,7 @@ continue_2:
       ACE_UNUSED_ARG (error_i);
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to ACE_OS::read(%d): \"%m\", aborting\n"),
-                  ACE_STDIN));
+                  handle_in));
       // *WARNING*: falls through
       ACE_FALLTHROUGH;
     }

@@ -19,7 +19,6 @@
  ***************************************************************************/
 #include "stdafx.h"
 
-#include "ace/Synch.h"
 #include "common_ui_wxwidgets_tools.h"
 
 #include "wx/artprov.h"

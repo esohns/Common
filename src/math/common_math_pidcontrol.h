@@ -33,9 +33,9 @@ class Common_PIDControl
   inline void enableIntegrator () { integratorActive_ = true; }
 
  protected:
-  bool integratorActive_;
-  double errorIntegral_; // integral of previous errors
-  double errorPrevious_; // error at last call
+  bool         integratorActive_;
+  double       errorIntegral_; // integral of previous errors
+  double       errorPrevious_; // error at last call
   Common_Timer timer_; // time since last call
 
  private:

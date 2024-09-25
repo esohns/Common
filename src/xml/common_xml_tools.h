@@ -40,9 +40,9 @@ class Common_XML_Tools
                                                 const std::string&); // prefix
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_XML_Tools ());
-  ACE_UNIMPLEMENTED_FUNC (Common_XML_Tools (const Common_XML_Tools&));
-  ACE_UNIMPLEMENTED_FUNC (Common_XML_Tools& operator= (const Common_XML_Tools&));
+  ACE_UNIMPLEMENTED_FUNC (Common_XML_Tools ())
+  ACE_UNIMPLEMENTED_FUNC (Common_XML_Tools (const Common_XML_Tools&))
+  ACE_UNIMPLEMENTED_FUNC (Common_XML_Tools& operator= (const Common_XML_Tools&))
 };
 
 #endif

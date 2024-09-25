@@ -18,11 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include "wx/xrc/xmlres.h"
+
 #include "ace/Guard_T.h"
 #include "ace/Log_Msg.h"
 #include "ace/Synch_Traits.h"
-
-#include "wx/xrc/xmlres.h"
 
 #include "common_file_tools.h"
 #include "common_macros.h"
@@ -59,13 +59,13 @@ Common_UI_WxWidgetsXRCDefinition_T<StateType,
                 ACE_TEXT ("failed to wxXmlResource::Get(): \"%m\", aborting\n")));
     return false;
   } // end IF
-  resource_p->InitAllHandlers();
+  resource_p->InitAllHandlers ();
 
   // load widget tree(s)
   wxObject* object_p = NULL;
-#if wxCHECK_VERSION(3,0,0)
+#if wxCHECK_VERSION (3,0,0)
   wxFileName file_name;
-#elif wxCHECK_VERSION(2,0,0)
+#elif wxCHECK_VERSION (2,0,0)
   wxString file_name;
 #endif // wxCHECK_VERSION
   { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_->lock, false);
@@ -74,20 +74,20 @@ Common_UI_WxWidgetsXRCDefinition_T<StateType,
          ++iterator)
     { ACE_ASSERT (!(*iterator).second.second);
       ACE_ASSERT (!object_p);
-#if wxCHECK_VERSION(3,0,0)
+#if wxCHECK_VERSION (3,0,0)
       file_name.Assign (ACE_TEXT_ALWAYS_CHAR ((*iterator).second.first.c_str ()),
                         wxPATH_NATIVE);
       if (unlikely (!resource_p->LoadFile (file_name)))
-#elif wxCHECK_VERSION(2,0,0)
+#elif wxCHECK_VERSION (2,0,0)
       file_name  = ACE_TEXT_ALWAYS_WCHAR ((*iterator).second.first.c_str ());
       if (unlikely (!resource_p->Load (file_name)))
 #endif // wxCHECK_VERSION
       {
-#if wxCHECK_VERSION(3,0,0)
+#if wxCHECK_VERSION (3,0,0)
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to wxXmlResource::LoadFile(\"%s\"): \"%m\", aborting\n"),
                     ACE_TEXT ((*iterator).second.first.c_str ())));
-#elif wxCHECK_VERSION(2,0,0)
+#elif wxCHECK_VERSION (2,0,0)
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to wxXmlResource::Load(\"%s\"): \"%m\", aborting\n"),
                     ACE_TEXT ((*iterator).second.first.c_str ())));
@@ -121,7 +121,7 @@ Common_UI_WxWidgetsXRCDefinition_T<StateType,
       else
       {
         object_p =
-          resource_p->LoadObject (NULL,                                   // parent widget handle
+          resource_p->LoadObject (NULL, // parent widget handle
                                   wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())),
                                   wxString (ACE_TEXT_ALWAYS_CHAR (TopLevelClassName)));
       } // end ELSE
