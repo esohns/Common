@@ -33,7 +33,7 @@
 #include "ace/Init_ACE.h"
 #endif // ACE_WIN32 || ACE_WIN64
 #include "ace/Log_Msg.h"
-//#include "ace/Reactor.h"
+#include "ace/Reactor.h"
 #include "ace/Time_Value.h"
 
 #include "common_defines.h"
