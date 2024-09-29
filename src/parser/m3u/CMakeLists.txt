@@ -21,16 +21,16 @@ target_include_directories (${LIBRARY} PUBLIC
 
 ############## next target ################
 set (source_files
-     common_parser_m3u_iparser.h
-     m3u_parser.cpp
-     m3u_parser.h
-     m3u_scanner.cpp
-     m3u_scanner.h
      common_parser_m3u_defines.h
+     common_parser_m3u_iparser.h
      common_parser_m3u_parser_driver.cpp
      common_parser_m3u_parser_driver.h
      common_parser_m3u_tools.cpp
-     common_parser_m3u_tools.h)
+     common_parser_m3u_tools.h
+     m3u_parser.cpp
+     m3u_parser.h
+     m3u_scanner.cpp
+     m3u_scanner.h)
 
 # Include dir for installed targets
 set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})

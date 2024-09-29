@@ -263,6 +263,8 @@ Common_GL_Tools::loadTexture (const std::string& path_in)
         return return_value;
       } // end IF
       has_alpha = channels >= 4;
+#else
+      ACE_UNUSED_ARG (channels);
 #endif // STB_IMAGE_SUPPORT
       break;
     }

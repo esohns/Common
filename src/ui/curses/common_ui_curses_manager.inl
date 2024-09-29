@@ -18,11 +18,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include "ace/Global_Macros.h"
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
+#include "ace/Synch_Traits.h"
 #include "ace/Thread.h"
 
 #include "common_macros.h"
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "common_error_tools.h"
+#endif // ACE_WIN32 || ACE_WIN64
 
 #include "common_ui_defines.h"
 

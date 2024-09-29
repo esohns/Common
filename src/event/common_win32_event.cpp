@@ -17,31 +17,26 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#include "stdafx.h"
 
-#ifndef COMMON_EVENT_H
-#define COMMON_EVENT_H
+#include "common_win32_event.h"
 
-#include "ace/Global_Macros.h"
+#include "winerror.h"
 
-class Common_Event
+#include "ace/config-macros.h"
+#include "ace/Log_Msg.h"
+
+#include "common_macros.h"
+
+Common_Win32_Event::Common_Win32_Event (HRESULT* result_inout)
+ : event_ (ACE_INVALID_HANDLE)
 {
- public:
-  Common_Event (HRESULT*);
-  inline virtual ~Common_Event () { if (event_) CloseHandle (event_); }
+  COMMON_TRACE (ACE_TEXT ("Common_Win32_Event::Common_Win32_Event"));
 
-  inline operator HANDLE () const { return event_; }
-
-  inline void Set () { SetEvent (event_); }
-  inline bool Wait (DWORD dwTimeout_in = INFINITE) { return (WaitForSingleObject (event_, dwTimeout_in) == WAIT_OBJECT_0); }
-  inline void Reset () { ResetEvent (event_); }
-  inline bool Check () { return Wait (0); }
-
- protected:
-  HANDLE event_;
-
- private:
-  ACE_UNIMPLEMENTED_FUNC (Common_Event (const Common_Event&));
-  ACE_UNIMPLEMENTED_FUNC (Common_Event &operator=(const Common_Event&));
-};
-
-#endif /* COMMON_EVENT_H */
+  event_ = CreateEvent (NULL, FALSE, FALSE, NULL);
+  if (unlikely (ACE_INVALID_HANDLE == event_))
+  {
+    if ((NULL != result_inout) && SUCCEEDED (*result_inout))
+      *result_inout = E_OUTOFMEMORY;
+  } // end IF
+}

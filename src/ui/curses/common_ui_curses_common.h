@@ -21,9 +21,6 @@
 #ifndef COMMON_UI_CURSES_COMMON_H
 #define COMMON_UI_CURSES_COMMON_H
 
-#include <map>
-#include <string>
-
 #if defined (ACE_WIN32) || defined (ACE_WIN32)
 #undef MOUSE_MOVED
 #include "curses.h"
@@ -35,6 +32,9 @@
 #undef timeout
 #endif // ACE_WIN32 || ACE_WIN32
 #include "panel.h"
+
+#include <map>
+#include <string>
 
 #include "common_ui_common.h"
 

@@ -18,23 +18,36 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "stdafx.h"
+#ifndef COMMON_WIN32_EVENT_H
+#define COMMON_WIN32_EVENT_H
 
-#include "common_event.h"
+#include "handleapi.h"
+#include "minwindef.h"
+#include "synchapi.h"
+#include "winnt.h"
+#include "WinBase.h"
 
-#include "ace/Log_Msg.h"
+#include "ace/Global_Macros.h"
 
-#include "common_macros.h"
-
-Common_Event::Common_Event (HRESULT* result_inout)
- : event_ (ACE_INVALID_HANDLE)
+class Common_Win32_Event
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Event::Common_Event"));
+ public:
+  Common_Win32_Event (HRESULT*);
+  inline virtual ~Common_Win32_Event () { if (event_) CloseHandle (event_); }
 
-  event_ = CreateEvent (NULL, FALSE, FALSE, NULL);
-  if (ACE_INVALID_HANDLE == event_)
-  {
-    if ((NULL != result_inout) && SUCCEEDED (*result_inout))
-      *result_inout = E_OUTOFMEMORY;
-  } // end IF
-}
+  inline operator HANDLE () const { return event_; }
+
+  inline void Set () { SetEvent (event_); }
+  inline bool Wait (DWORD dwTimeout_in = INFINITE) { return (WaitForSingleObject (event_, dwTimeout_in) == WAIT_OBJECT_0); }
+  inline void Reset () { ResetEvent (event_); }
+  inline bool Check () { return Wait (0); }
+
+ protected:
+  HANDLE event_;
+
+ private:
+  ACE_UNIMPLEMENTED_FUNC (Common_Win32_Event (const Common_Win32_Event&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Win32_Event& operator= (const Common_Win32_Event&))
+};
+
+#endif /* COMMON_EVENT_H */

@@ -21,9 +21,6 @@
 
 #include "common_error_tools.h"
 
-#include <exception>
-#include <sstream>
-
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "DbgHelp.h"
 #include "errors.h"
@@ -31,6 +28,9 @@
 #else
 #include "sys/prctl.h"
 #endif // ACE_WIN32 || ACE_WIN64
+
+#include <exception>
+#include <sstream>
 
 #include "ace/FILE_Connector.h"
 #include "ace/Log_Msg.h"

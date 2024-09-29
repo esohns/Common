@@ -80,11 +80,10 @@ extern YY_DECL;
 %option header-file="m3u_scanner.h"
 %option outfile="m3u_scanner.cpp"
 %option prefix="M3U_"
-/*%option yyclass="Common_BencodingScanner"*/
+/*%option yyclass="Common_M3UScanner"*/
 
-/* *NOTE*: for protcol specification, see:
-           - http://bittorrent.org/beps/bep_0003.html
-           - https://wiki.theory.org/BitTorrentSpecification */
+/* *NOTE*: for protcol specification, see e.g.:
+           - https://en.wikipedia.org/wiki/M3U */
 
 DIGIT                             [[:digit:]]
 OCTET                             [\x00-\xFF]
@@ -409,17 +408,16 @@ LF                                \x0A|\x0D\x0A
 <<EOF>>                           { return yy::parser::token::END; }
 <*>{OCTET}                        { /* *TODO*: use (?s:.) ? */
                                     if (!parser->isBlocking ())
-                                      yyterminate();
+                                      yyterminate ();
                                     // wait for more data fragment(s)
-//                                    if (!parser->switchBuffer ())
-//                                    { // *NOTE*: most probable reason: connection
-//                                      //         has been closed --> session end
-//                                      ACE_DEBUG ((LM_DEBUG,
-//                                                  ACE_TEXT ("failed to Common_IParser::switchBuffer(), returning\n")));
-//                                      yyterminate(); // not enough data, cannot proceed
-//                                    } // end IF
-//                                    yyless (0);
-                                    yyterminate(); }
+                                    if (!parser->switchBuffer ())
+                                    { // *NOTE*: most probable reason: connection
+                                      //         has been closed --> session end
+                                      ACE_DEBUG ((LM_DEBUG,
+                                                  ACE_TEXT ("failed to Common_IParser::switchBuffer(), returning\n")));
+                                      yyterminate (); // not enough data, cannot proceed
+                                    } // end IF
+                                    yyless (0); }
 %% /* end of rules */
 
 #include "common_macros.h"

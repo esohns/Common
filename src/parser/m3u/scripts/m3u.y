@@ -13,7 +13,7 @@
 %defines                          "m3u_parser.h"
 %output                           "m3u_parser.cpp"
 
-/*%define "parser_class_name"       "Bencoding_Parser"*/
+/*%define "parser_class_name"       "M3U_Parser"*/
 /* *NOTE*: this is the namespace AND the (f)lex prefix */
 /*%name-prefix                      "y"*/
 /*%pure-parser*/
@@ -47,7 +47,7 @@
 /*%define parse.error               verbose*/
 /* %define parse.lac                 {full} */
 /* %define parse.lac                 {none} */
-/*%define parser_class_name         {BitTorrent_Bencoding_Parser}*/
+/*%define parser_class_name         {M3U_Parser}*/
 /* *NOTE*: enabling debugging functionality implies inclusion of <iostream> (see
            below). This interferes with ACE (version 6.2.3), when compiled with
            support for traditional iostreams */

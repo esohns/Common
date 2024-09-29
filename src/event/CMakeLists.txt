@@ -28,8 +28,8 @@ set (source_files
 if (WIN32)
  set (source_files
       ${source_files}
-      common_event.cpp
-      common_event.h)
+      common_win32_event.cpp
+      common_win32_event.h)
 endif (WIN32)
 
 # Include dir for installed targets
@@ -79,7 +79,7 @@ install (FILES
          DESTINATION ${INSTALL_INCLUDE_DIR})
 if (WIN32)
  install (FILES
-          common_event.h
+          common_win32_event.h
           DESTINATION ${INSTALL_INCLUDE_DIR})
 endif (WIN32)
 install (TARGETS ${LIBRARY}
