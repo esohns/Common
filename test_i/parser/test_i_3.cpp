@@ -25,6 +25,8 @@
 
 #include "common_parser_m3u_parser_driver.h"
 
+#define TEST_I_SOURCE_FILE_NAME "test_3.txt"
+
 enum Test_I_ModeType
 {
   TEST_I_MODE_DEFAULT = 0,
@@ -60,7 +62,7 @@ do_print_usage (const std::string& programName_in)
             << std::endl;
   std::string source_file_path = path_root;
   source_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  source_file_path += ACE_TEXT_ALWAYS_CHAR ("test_2.txt");
+  source_file_path += ACE_TEXT_ALWAYS_CHAR (TEST_I_SOURCE_FILE_NAME);
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-f [PATH]   : source (m3u) file [")
             << source_file_path
             << ACE_TEXT_ALWAYS_CHAR ("]")
@@ -97,7 +99,7 @@ do_process_arguments (int argc_in,
   debugParser_out = false;
   sourceFilePath_out = path_root;
   sourceFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  sourceFilePath_out += ACE_TEXT_ALWAYS_CHAR ("test_3.txt");
+  sourceFilePath_out += ACE_TEXT_ALWAYS_CHAR (TEST_I_SOURCE_FILE_NAME);
   logToFile_out = false;
   mode_out = TEST_I_MODE_DEFAULT;
   traceInformation_out = false;
@@ -140,7 +142,7 @@ do_process_arguments (int argc_in,
       case 'm':
       {
         std::istringstream converter (ACE_TEXT_ALWAYS_CHAR (argument_parser.opt_arg ()),
-                                     std::ios_base::in);
+                                      std::ios_base::in);
         int i = 0;
         converter >> i;
         mode_out = static_cast<enum Test_I_ModeType> (i);
@@ -357,7 +359,7 @@ ACE_TMAIN (int argc_in,
   std::string path_root = Common_File_Tools::getWorkingDirectory ();
   std::string source_file_path = path_root;
   source_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  source_file_path += ACE_TEXT_ALWAYS_CHAR ("test_3.txt");
+  source_file_path += ACE_TEXT_ALWAYS_CHAR (TEST_I_SOURCE_FILE_NAME);
   bool log_to_file = false;
   std::string log_file_name;
   enum Test_I_ModeType mode_type_e = TEST_I_MODE_DEFAULT;
@@ -373,7 +375,7 @@ ACE_TMAIN (int argc_in,
                              mode_type_e,
                              trace_information))
   {
-    do_print_usage (ACE::basename (argv_in[0]));
+    do_print_usage (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)));
     goto clean;
   } // end IF
 
@@ -381,7 +383,7 @@ ACE_TMAIN (int argc_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("invalid argument(s), aborting\n")));
-    do_print_usage (ACE::basename (argv_in[0]));
+    do_print_usage (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)));
     goto clean;
   } // end IF
 
@@ -389,8 +391,8 @@ ACE_TMAIN (int argc_in,
   if (log_to_file)
     log_file_name =
       Common_Log_Tools::getLogFilename (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
-                                        ACE::basename (argv_in[0]));
-  if (!Common_Log_Tools::initialize (ACE::basename (argv_in[0]), // program name
+                                        ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)));
+  if (!Common_Log_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)), // program name
                                      log_file_name,              // log file name
                                      false,                      // log to syslog ?
                                      false,                      // trace messages ?
@@ -431,7 +433,7 @@ ACE_TMAIN (int argc_in,
                 ACE_TEXT ("failed to ACE_Profile_Timer::elapsed_time: \"%m\", aborting\n")));
     goto clean;
   } // end IF
-  ACE_OS::memset (&elapsed_rusage, 0, sizeof (elapsed_rusage));
+  ACE_OS::memset (&elapsed_rusage, 0, sizeof (ACE_Profile_Timer::Rusage));
   process_profile.elapsed_rusage (elapsed_rusage);
   user_time.set (elapsed_rusage.ru_utime);
   system_time.set (elapsed_rusage.ru_stime);

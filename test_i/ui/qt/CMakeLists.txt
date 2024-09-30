@@ -33,7 +33,7 @@ set (${EXECUTABLE}_EXE_SRCS
      mainwindow.ui
      mainwindow.cpp
      mainwindow.h
-     test_u.cpp)
+     test_i.cpp)
 
 add_executable (${EXECUTABLE} ${${EXECUTABLE}_EXE_SRCS})
 
@@ -47,7 +47,7 @@ set (${EXECUTABLE_2}_EXE_SRCS
      mainwindow_2.cpp
      mainwindow_2.h
      mainwindow_2.inl
-     test_u_2.cpp)
+     test_i_2.cpp)
 
 # Tell CMake to create the helloworld executable
 add_executable (${EXECUTABLE_2} ${${EXECUTABLE_2}_EXE_SRCS})

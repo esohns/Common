@@ -57,6 +57,6 @@ class Test_U_WxWidgetsDialog_T
 };
 
 // include template definition
-#include "test_u_3_ui.inl"
+#include "test_i_3_ui.inl"
 
 #endif // __test_u_imagescreen_ui__

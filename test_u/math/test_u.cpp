@@ -178,7 +178,7 @@ do_work (enum Test_U_ModeType mode_in)
 //  print_vectors (results);
 
       std::vector<int> test_vector = {1, 2, 3, 4, 5, 6};
-      std::vector<std::vector<int>> results;
+      std::vector<std::vector<int> > results;
       std::vector<int> positions_a (test_vector.size (), 0);
       Common_Math_Tools::combine (test_vector,
                                   positions_a,
@@ -251,7 +251,6 @@ ACE_TMAIN (int argc_in,
   bool log_to_file = false;
   std::string log_file_name;
   ACE_High_Res_Timer timer;
-  std::string working_time_string;
   ACE_Time_Value working_time;
 
   if (!do_processArguments (argc_in,
@@ -260,7 +259,7 @@ ACE_TMAIN (int argc_in,
                             log_to_file,
                             trace_information_b))
   {
-    do_printUsage (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])));
+    do_printUsage (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)));
     goto error;
   } // end IF
 
@@ -268,8 +267,8 @@ ACE_TMAIN (int argc_in,
   if (log_to_file)
     log_file_name =
       Common_Log_Tools::getLogFilename (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
-                                        ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])));
-  if (!Common_Log_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])), // program name
+                                        ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)));
+  if (!Common_Log_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)), // program name
                                      log_file_name,                                     // log file name
                                      false,                                             // log to syslog ?
                                      false,                                             // trace messages ?
@@ -287,10 +286,9 @@ ACE_TMAIN (int argc_in,
 
   // debug info
   timer.elapsed_time (working_time);
-  working_time_string = Common_Timer_Tools::periodToString (working_time);
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("total working time (h:m:s.us): \"%s\"...\n"),
-              ACE_TEXT (working_time_string.c_str ())));
+              ACE_TEXT (Common_Timer_Tools::periodToString (working_time).c_str ())));
 
   result = EXIT_SUCCESS;
 

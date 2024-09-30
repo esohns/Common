@@ -214,7 +214,7 @@ do_work (int argc_in,
   } // end IF
 
   // step3: initialize input manager
-  input_manager_p = INPUT_MANAGER_SINGLETON::instance();
+  input_manager_p = INPUT_MANAGER_SINGLETON::instance ();
   ACE_ASSERT (input_manager_p);
   input_configuration.allocatorConfiguration = &allocator_configuration;
   input_configuration.eventDispatchConfiguration =
@@ -296,7 +296,7 @@ ACE_TMAIN (int argc_in,
                              line_mode,
                              trace_information))
   {
-    do_print_usage (ACE::basename (argv_in[0]));
+    do_print_usage (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR));
     goto clean;
   } // end IF
 
@@ -304,7 +304,7 @@ ACE_TMAIN (int argc_in,
 //  {
 //    ACE_DEBUG ((LM_ERROR,
 //                ACE_TEXT ("invalid argument(s), aborting\n")));
-//    do_print_usage (ACE::basename (argv_in[0]));
+//    do_print_usage (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR));
 //    goto clean;
 //  } // end IF
 
@@ -312,8 +312,8 @@ ACE_TMAIN (int argc_in,
   if (log_to_file)
     log_file_name =
       Common_Log_Tools::getLogFilename (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
-                                        ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])));
-  if (!Common_Log_Tools::initialize (ACE::basename (argv_in[0]), // program name
+                                        ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)));
+  if (!Common_Log_Tools::initialize (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR), // program name
                                      log_file_name,              // log file name
                                      false,                      // log to syslog ?
                                      false,                      // trace messages ?
@@ -351,7 +351,7 @@ ACE_TMAIN (int argc_in,
                 ACE_TEXT ("failed to ACE_Profile_Timer::elapsed_time: \"%m\", aborting\n")));
     goto clean;
   } // end IF
-  ACE_OS::memset (&elapsed_rusage, 0, sizeof (elapsed_rusage));
+  ACE_OS::memset (&elapsed_rusage, 0, sizeof (ACE_Profile_Timer::Rusage));
   process_profile.elapsed_rusage (elapsed_rusage);
   user_time.set (elapsed_rusage.ru_utime);
   system_time.set (elapsed_rusage.ru_stime);

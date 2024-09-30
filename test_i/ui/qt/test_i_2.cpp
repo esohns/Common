@@ -2,7 +2,7 @@
 
 #undef Bool
 #undef Status
-#include <QtGui>
+#include "QtGui"
 
 #include "common_ui_qt_application.h"
 #include "common_ui_qt_common.h"

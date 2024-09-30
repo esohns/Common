@@ -9,7 +9,8 @@
 //  g++ main.cpp $(wx-config --libs) $(wx-config --cxxflags) -o MyApp Dialog1.cpp Frame1.cpp
 //
 #include "stdafx.h"
-#include "test_u_2.h"
+
+#include "test_i_2.h"
 
 #include "wx/xrc/xmlres.h"
 
@@ -21,8 +22,8 @@
 
 
 
-wxDialog_main::wxDialog_main(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style):
-  wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
+wxDialog_main::wxDialog_main (wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style)
+ : wxDialog (parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
 {
   // begin wxGlade: wxDialog_main::wxDialog_main
 //  button_1 = new wxButton(this, wxID_NEW, wxEmptyString);
@@ -34,7 +35,7 @@ wxDialog_main::wxDialog_main(wxWindow* parent, wxWindowID id, const wxString& ti
   // end wxGlade
 }
 
-void wxDialog_main::set_properties()
+void wxDialog_main::set_properties ()
 {
   // begin wxGlade: wxDialog_main::set_properties
   SetTitle(wxT("dialog"));
@@ -45,10 +46,10 @@ void wxDialog_main::set_properties()
 }
 
 
-void wxDialog_main::do_layout()
+void wxDialog_main::do_layout ()
 {
   // begin wxGlade: wxDialog_main::do_layout
-  wxBoxSizer* sizer_v_main = new wxBoxSizer(wxVERTICAL);
+  wxBoxSizer* sizer_v_main = new wxBoxSizer (wxVERTICAL);
   sizer_v_main->Add(button_1, 0, 0, 0);
   sizer_v_main->Add(button_2, 0, 0, 0);
   sizer_v_main->Add(button_3, 0, 0, 0);
@@ -68,7 +69,7 @@ void wxDialog_main::do_layout()
 //END_EVENT_TABLE();
 
 
-void wxDialog_main::button_1_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
+void wxDialog_main::button_1_clicked_cb (wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
 {
   event.Skip();
   // notify the user that he hasn't implemented the event handler yet
@@ -77,7 +78,7 @@ void wxDialog_main::button_1_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDi
               ACE_TEXT ("button 1, clicked\n")));
 }
 
-void wxDialog_main::button_2_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
+void wxDialog_main::button_2_clicked_cb (wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
 {
   event.Skip();
   // notify the user that he hasn't implemented the event handler yet
@@ -86,7 +87,7 @@ void wxDialog_main::button_2_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDi
               ACE_TEXT ("button 2, clicked\n")));
 }
 
-void wxDialog_main::button_3_clicked_cb(wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
+void wxDialog_main::button_3_clicked_cb (wxCommandEvent &event)  // wxGlade: wxDialog_main.<event_handler>
 {
   event.Skip();
   // notify the user that he hasn't implemented the event handler yet
@@ -125,10 +126,10 @@ class Test_U_wxWidgets_Application
   wxDialog* dialog_;
 };
 
-#if wxCHECK_VERSION(3,0,0)
+#if wxCHECK_VERSION (3,0,0)
 wxIMPLEMENT_APP (Test_U_wxWidgets_Application);
-#elif wxCHECK_VERSION(2,0,0)
-IMPLEMENT_APP(Test_U_wxWidgets_Application)
+#elif wxCHECK_VERSION (2,0,0)
+IMPLEMENT_APP (Test_U_wxWidgets_Application)
 
 void wxApp::OnAssertFailure (const wxChar *file,
                              int line,
@@ -141,7 +142,7 @@ void wxAppConsole::OnAssert (const wxChar *file,
                              const wxChar *msg) {};
 #endif // wxCHECK_VERSION
 
-bool Test_U_wxWidgets_Application::OnInit()
+bool Test_U_wxWidgets_Application::OnInit ()
 {
   wxInitAllImageHandlers ();
 
@@ -164,24 +165,24 @@ bool Test_U_wxWidgets_Application::OnInit()
 
   // load widget tree
 //  wxObject* object_p = NULL;
-#if wxCHECK_VERSION(3,0,0)
+#if wxCHECK_VERSION (3,0,0)
   wxFileName file_name;
-  file_name.Assign (wxString (ACE_TEXT_ALWAYS_CHAR ("test_u_2.xrc")),
+  file_name.Assign (wxString (ACE_TEXT_ALWAYS_CHAR ("test_i_2.xrc")),
                     wxPATH_NATIVE);
   if (!resource_p->LoadFile (file_name))
-#elif wxCHECK_VERSION(2,0,0)
-  wxString file_name (ACE_TEXT_ALWAYS_CHAR ("test_u_2.xrc"));
+#elif wxCHECK_VERSION (2,0,0)
+  wxString file_name (ACE_TEXT_ALWAYS_CHAR ("test_i_2.xrc"));
   if (unlikely (!resource_p->Load (file_name)))
 #endif // wxCHECK_VERSION
   {
-#if wxCHECK_VERSION(3,0,0)
+#if wxCHECK_VERSION (3,0,0)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to wxXmlResource::LoadFile(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT ("test_u_2.xrc")));
-#elif wxCHECK_VERSION(2,0,0)
+                ACE_TEXT ("test_i_2.xrc")));
+#elif wxCHECK_VERSION (2,0,0)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to wxXmlResource::Load(\"%s\"): \"%m\", aborting\n"),
-                ACE_TEXT ("test_u_2.xrc")));
+                ACE_TEXT ("test_i_2.xrc")));
 #endif // wxCHECK_VERSION
     return false;
   } // end IF
@@ -210,16 +211,16 @@ bool Test_U_wxWidgets_Application::OnInit()
   ACE_ASSERT (dialog_);
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("loaded widget tree \"%s\"\n"),
-              ACE_TEXT ("test_u_2.xrc")));
+              ACE_TEXT ("test_i_2.xrc")));
 
   SetTopWindow (dialog_main_p);
 //  dialog_main->Show (true);
   dialog_->Show (true);
 
-  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &wxDialog_main::button_1_clicked_cb, dialog_main_p, wxID_NEW);
+  Bind (wxEVT_COMMAND_BUTTON_CLICKED, &wxDialog_main::button_1_clicked_cb, dialog_main_p, wxID_NEW);
 //  Connect (XRCID("button_1"), wxEVT_COMMAND_BUTTON_CLICKED, (wxObjectEventFunction)&wxDialog_main::button_1_clicked_cb);
-  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &wxDialog_main::button_2_clicked_cb, dialog_main_p, wxID_COPY);
-  Bind(wxEVT_COMMAND_BUTTON_CLICKED, &wxDialog_main::button_3_clicked_cb, dialog_main_p, wxID_CLEAR);
+  Bind (wxEVT_COMMAND_BUTTON_CLICKED, &wxDialog_main::button_2_clicked_cb, dialog_main_p, wxID_COPY);
+  Bind (wxEVT_COMMAND_BUTTON_CLICKED, &wxDialog_main::button_3_clicked_cb, dialog_main_p, wxID_CLEAR);
   dialog_->Connect (wxEVT_CLOSE_WINDOW, wxCloseEventHandler (wxDialog_main::on_close_cb), NULL, dialog_);
 
   return true;

@@ -36,6 +36,10 @@
 
 #include "common_log_tools.h"
 
+#include "common_signal_common.h"
+#include "common_signal_handler.h"
+#include "common_signal_tools.h"
+
 #include "common_time_common.h"
 #include "common_timer_manager_common.h"
 #include "common_timer_tools.h"
@@ -45,6 +49,21 @@
 #include "common_task_defines.h"
 
 #include "common_test_u_common.h"
+
+//////////////////////////////////////////
+
+class Test_U_SignalHandler
+ : public Common_SignalHandler_T<struct Common_SignalHandlerConfiguration>
+{
+ typedef Common_SignalHandler_T<struct Common_SignalHandlerConfiguration> inherited;
+
+ public:
+  Test_U_SignalHandler ()
+   : inherited (NULL)
+  {}
+
+  inline virtual void handle (const struct Common_Signal& signal_in) {}
+};
 
 //////////////////////////////////////////
 
@@ -178,6 +197,10 @@ class Test_U_Task_3
     // *TODO*: do some meaningful work here
     ACE_OS::sleep (ACE_Time_Value (7, 0)); // sleep some seconds
 
+    //{ ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, inherited::lock_);
+    //  inherited::statistic_.bytes += message_inout->total_length ();
+    //  inherited::statistic_.messages += 1;
+    //} // end lock scope
     message_inout->release (); message_inout = NULL;
 
     ACE_DEBUG ((LM_DEBUG,
@@ -369,39 +392,40 @@ do_work (enum Test_U_ModeType mode_in,
   struct Common_TimerConfiguration timer_configuration;
   struct Common_Task_ManagerConfiguration task_configuration;
 
-  //Test_U_SignalHandler signal_handler;
-  //if (!signal_handler.initialize (configuration))
-  //{
-  //  ACE_DEBUG ((LM_ERROR,
-  //             ACE_TEXT ("failed to Common_SignalHandler_T::initialize(), returning\n")));
-  //  goto error;
-  //} // end IF
+  struct Common_SignalHandlerConfiguration signal_configuration;
+  Test_U_SignalHandler signal_handler;
+  if (!signal_handler.initialize (signal_configuration))
+  {
+    ACE_DEBUG ((LM_ERROR,
+               ACE_TEXT ("failed to Common_SignalHandler_T::initialize(), returning\n")));
+    goto error;
+  } // end IF
 
   switch (mode_in)
   {
     case TEST_U_MODE_DEFAULT:
     {
-      //if (!Common_Signal_Tools::preInitialize (signals_in,
-      //                                         COMMON_SIGNAL_DISPATCH_SIGNAL,
-      //                                         false, // using networking ?
-      //                                         false, // using asynch timers ?
-      //                                         previous_signal_actions,
-      //                                         previous_signal_mask))
-      //{
-      //  ACE_DEBUG ((LM_ERROR,
-      //             ACE_TEXT ("failed to Common_Signal_Tools::preInitialize(), returning\n")));
-      //  return;
-      //} // end IF
-      //if (!Common_Signal_Tools::initialize (COMMON_SIGNAL_DISPATCH_SIGNAL,
-      //                                      signals_in,
-      //                                      ignoredSignals_in,
-      //                                      &signal_handler,
-      //                                      previous_signal_actions))
-      //{
-      //  ACE_DEBUG ((LM_ERROR,
-      //             ACE_TEXT ("failed to Common_Signal_Tools::initialize(), returning\n")));
-      //  goto error;
-      //} // end IF
+      if (!Common_Signal_Tools::preInitialize (signals_in,
+                                               COMMON_SIGNAL_DISPATCH_SIGNAL,
+                                               false, // using networking ?
+                                               false, // using asynch timers ?
+                                               previous_signal_actions,
+                                               previous_signal_mask))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                   ACE_TEXT ("failed to Common_Signal_Tools::preInitialize(), returning\n")));
+        return;
+      } // end IF
+      if (!Common_Signal_Tools::initialize (COMMON_SIGNAL_DISPATCH_SIGNAL,
+                                            signals_in,
+                                            ignoredSignals_in,
+                                            &signal_handler,
+                                            previous_signal_actions))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                   ACE_TEXT ("failed to Common_Signal_Tools::initialize(), returning\n")));
+        goto error;
+      } // end IF
 
       Common_Timer_Manager_t* timer_manager_p =
         COMMON_TIMERMANAGER_SINGLETON::instance ();
@@ -498,10 +522,10 @@ do_work (enum Test_U_ModeType mode_in,
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("finished working\n")));
 
-//error:
-  //Common_Signal_Tools::finalize (COMMON_SIGNAL_DISPATCH_SIGNAL,
-  //                               previous_signal_actions,
-  //                               previous_signal_mask);
+error:
+  Common_Signal_Tools::finalize (COMMON_SIGNAL_DISPATCH_SIGNAL,
+                                 previous_signal_actions,
+                                 previous_signal_mask);
 }
 
 int

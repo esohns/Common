@@ -4,4 +4,4 @@
 
 #undef Bool
 #undef Status
-#include <QtGui>
+#include "QtGui"

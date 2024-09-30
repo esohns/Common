@@ -240,13 +240,13 @@ ACE_TMAIN (int argc_in,
                             mode_type_e,
                             trace_information_b))
   {
-    do_printUsage (ACE::basename (argv_in[0]));
+    do_printUsage (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR));
     return EXIT_FAILURE;
   } // end IF
 
   // step1d: initialize logging and/or tracing
   std::string log_file_name;
-  if (!Common_Log_Tools::initialize (ACE::basename (argv_in[0]), // program name
+  if (!Common_Log_Tools::initialize (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR), // program name
                                      log_file_name,              // log file name
                                      false,                      // log to syslog ?
                                      false,                      // trace messages ?
@@ -264,13 +264,11 @@ ACE_TMAIN (int argc_in,
   timer.stop ();
 
   // debug info
-  std::string working_time_string;
   ACE_Time_Value working_time;
   timer.elapsed_time (working_time);
-  working_time_string = Common_Timer_Tools::periodToString (working_time);
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("total working time (h:m:s.us): \"%s\"...\n"),
-              ACE_TEXT (working_time_string.c_str ())));
+              ACE_TEXT (Common_Timer_Tools::periodToString (working_time).c_str ())));
 
   Common_Log_Tools::finalize ();
 

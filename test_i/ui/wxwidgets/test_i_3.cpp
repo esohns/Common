@@ -9,7 +9,8 @@
 //  g++ main.cpp $(wx-config --libs) $(wx-config --cxxflags) -o MyApp Dialog1.cpp Frame1.cpp
 //
 #include "stdafx.h"
-#include "test_u_3.h"
+
+#include "test_i_3.h"
 
 #include "wx/apptrait.h"
 #include "wx/xrc/xmlres.h"
@@ -116,7 +117,7 @@ main (int argc, char** argv)
   struct Common_UI_wxWidgets_State& state_r =
     const_cast<struct Common_UI_wxWidgets_State&> (application_s.getR ());
   state_r.resources[ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN)] =
-    std::make_pair (ACE_TEXT_ALWAYS_CHAR ("test_u_3.xrc"), static_cast<wxObject*> (NULL));
+    std::make_pair (ACE_TEXT_ALWAYS_CHAR ("test_i_3.xrc"), static_cast<wxObject*> (NULL));
 
   application_s.run ();
   application_s.wait ();

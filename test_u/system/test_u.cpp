@@ -19,8 +19,6 @@
 ***************************************************************************/
 #include "stdafx.h"
 
-#include "ace/config-lite.h"
-
 #include <algorithm>
 #include <iostream>
 #include <sstream>
@@ -160,7 +158,7 @@ do_work (int argc_in,
   {
     case TEST_U_MODE_DEFAULT:
     {
-      std::string commandline_string = ACE_TEXT_ALWAYS_CHAR("sox -h");
+      std::string commandline_string = ACE_TEXT_ALWAYS_CHAR ("sox -h");
       int exit_status = 0;
       std::string output_string;
       if (!Common_Process_Tools::command (commandline_string,
@@ -173,6 +171,7 @@ do_work (int argc_in,
                    ACE_TEXT (commandline_string.c_str ())));
         return;
       } // end IF
+
       break;
     }
     default:
@@ -219,7 +218,6 @@ ACE_TMAIN (int argc_in,
   bool log_to_file = false;
   std::string log_file_name;
   ACE_High_Res_Timer timer;
-  std::string working_time_string;
   ACE_Time_Value working_time;
 
   if (!do_processArguments (argc_in,
@@ -228,7 +226,7 @@ ACE_TMAIN (int argc_in,
                             log_to_file,
                             trace_information_b))
   {
-    do_printUsage (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])));
+    do_printUsage (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)));
     goto error;
   } // end IF
 
@@ -236,8 +234,8 @@ ACE_TMAIN (int argc_in,
   if (log_to_file)
     log_file_name =
       Common_Log_Tools::getLogFilename (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
-                                        ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])));
-  if (!Common_Log_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])), // program name
+                                        ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)));
+  if (!Common_Log_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)), // program name
                                      log_file_name,                                     // log file name
                                      false,                                             // log to syslog ?
                                      false,                                             // trace messages ?
@@ -257,10 +255,9 @@ ACE_TMAIN (int argc_in,
 
   // debug info
   timer.elapsed_time (working_time);
-  working_time_string = Common_Timer_Tools::periodToString (working_time);
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("total working time (h:m:s.us): \"%s\"...\n"),
-              ACE_TEXT (working_time_string.c_str ())));
+              ACE_TEXT (Common_Timer_Tools::periodToString (working_time).c_str ())));
 
   result = EXIT_SUCCESS;
 

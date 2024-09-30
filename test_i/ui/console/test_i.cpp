@@ -33,58 +33,62 @@
 /////////////////////////////////////////
 
 #define WIDTH 160
-#define HEIGHT 44
+#define HEIGHT 32
 float A, B, C;
 float cubeWidth = 20;
 int width = WIDTH, height = HEIGHT;
 float zBuffer[WIDTH * HEIGHT];
 char buffer[WIDTH * HEIGHT];
-int backgroundASCIICode = '.';
+int backgroundASCIICode = ' ';
 int distanceFromCam = 100;
 float horizontalOffset;
-float K1 = 40;
+float K1 = 40.0f;
 float incrementSpeed = 0.6f;
 
 float
 calculateX (float i, float j, float k)
 {
-  return j * sin (A) * sin (B) * cos (C) - k * cos (A) * sin (B) * cos (C) +
-         j * cos (A) * sin (C) + k * sin (A) * sin (C) + i * cos (B) * cos (C);
+  return j * std::sin (A) * std::sin (B) * std::cos (C) - k * std::cos (A) * std::sin (B) * std::cos (C) +
+         j * std::cos (A) * std::sin (C) + k * std::sin (A) * std::sin (C) + i * std::cos (B) * std::cos (C);
 }
+
 float
 calculateY (float i, float j, float k)
 {
-  return j * cos (A) * cos (C) + k * sin (A) * cos (C) -
-         j * sin (A) * sin (B) * sin (C) + k * cos (A) * sin (B) * sin (C) -
-         i * cos (B) * sin (C);
+  return j * std::cos (A) * std::cos (C) + k * std::sin (A) * std::cos (C) -
+         j * std::sin (A) * std::sin (B) * std::sin (C) + k * std::cos (A) * std::sin (B) * std::sin (C) -
+         i * std::cos (B) * std::sin (C);
 }
+
 float
 calculateZ (float i, float j, float k)
 {
-  return k * cos (A) * cos (B) - j * sin (A) * cos (B) + i * sin (B);
+  return k * std::cos (A) * std::cos (B) - j * std::sin (A) * std::cos (B) + i * std::sin (B);
 }
 
 void
 calculateForSurface (float cubeX, float cubeY, float cubeZ, int ch)
 {
+  static int size = width * height;
+
   float x = calculateX (cubeX, cubeY, cubeZ);
   float y = calculateY (cubeX, cubeY, cubeZ);
   float z = calculateZ (cubeX, cubeY, cubeZ) + distanceFromCam;
 
-  float ooz = 1 / z;
+  float ooz = 1.0f / z;
 
-  int xp = (int)(width / 2 + horizontalOffset + K1 * ooz * x * 2);
-  int yp = (int)(height / 2 + K1 * ooz * y);
+  int xp = (int)(width / 2.0f + horizontalOffset + K1 * ooz * x * 2.0f);
+  int yp = (int)(height / 2.0f + K1 * ooz * y);
 
   int idx = xp + yp * width;
-  if (idx >= 0 && idx < width * height)
+  if (idx >= 0 && idx < size)
   {
     if (ooz > zBuffer[idx])
     {
       zBuffer[idx] = ooz;
       buffer[idx] = ch;
-    }
-  }
+    } // end IF
+  } // end IF
 }
 
 /////////////////////////////////////////
@@ -238,18 +242,23 @@ do_work (int argc_in,
     }
     case TEST_I_MODE_CUBE:
     {
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-      ACE_Time_Value sleep_interval (0, 16000);
-#endif // ACE_WIN32 || ACE_WIN64
+//#if defined (ACE_WIN32) || defined (ACE_WIN64)
+//      ACE_Time_Value sleep_interval (0, 8000 * 2);
+//#endif // ACE_WIN32 || ACE_WIN64
 
-      printf ("\x1b[2J");
+      A = static_cast<float> (Common_Tools::getRandomNumber (0.0, 2.0 * M_PI));
+      B = static_cast<float> (Common_Tools::getRandomNumber (0.0, 2.0 * M_PI));
+      C = static_cast<float> (Common_Tools::getRandomNumber (0.0, 2.0 * M_PI));
+
+      ACE_OS::printf ("\x1b[2J");
       while (1)
       {
         ACE_OS::memset (buffer, backgroundASCIICode, width * height * sizeof (char));
         ACE_OS::memset (zBuffer, 0, width * height * sizeof (float));
-        //cubeWidth = 20;
-        horizontalOffset = -2 * cubeWidth;
+
         // first cube
+        cubeWidth = 20;
+        horizontalOffset = -2.0f * cubeWidth;
         for (float cubeX = -cubeWidth; cubeX < cubeWidth; cubeX += incrementSpeed)
           for (float cubeY = -cubeWidth; cubeY < cubeWidth; cubeY += incrementSpeed)
           {
@@ -259,48 +268,49 @@ do_work (int argc_in,
             calculateForSurface (-cubeX, cubeY, cubeWidth, '#');
             calculateForSurface (cubeX, -cubeWidth, -cubeY, ';');
             calculateForSurface (cubeX, cubeWidth, cubeY, '+');
-          }
-//        cubeWidth = 10;
-//        horizontalOffset = 1 * cubeWidth;
-//        // second cube
-//        for (float cubeX = -cubeWidth; cubeX < cubeWidth; cubeX += incrementSpeed)
-//          for (float cubeY = -cubeWidth; cubeY < cubeWidth; cubeY += incrementSpeed)
-//          {
-//            calculateForSurface (cubeX, cubeY, -cubeWidth, '@');
-//            calculateForSurface (cubeWidth, cubeY, cubeX, '$');
-//            calculateForSurface (-cubeWidth, cubeY, -cubeX, '~');
-//            calculateForSurface (-cubeX, cubeY, cubeWidth, '#');
-//            calculateForSurface (cubeX, -cubeWidth, -cubeY, ';');
-//            calculateForSurface (cubeX, cubeWidth, cubeY, '+');
-//          }
-//        cubeWidth = 5;
-//        horizontalOffset = 8 * cubeWidth;
-//        // third cube
-//        for (float cubeX = -cubeWidth; cubeX < cubeWidth; cubeX += incrementSpeed)
-//          for (float cubeY = -cubeWidth; cubeY < cubeWidth; cubeY += incrementSpeed)
-//          {
-//            calculateForSurface (cubeX, cubeY, -cubeWidth, '@');
-//            calculateForSurface (cubeWidth, cubeY, cubeX, '$');
-//            calculateForSurface (-cubeWidth, cubeY, -cubeX, '~');
-//            calculateForSurface (-cubeX, cubeY, cubeWidth, '#');
-//            calculateForSurface (cubeX, -cubeWidth, -cubeY, ';');
-//            calculateForSurface (cubeX, cubeWidth, cubeY, '+');
-//          }
-        printf("\x1b[H");
+          } // end FOR
+
+        // second cube
+        cubeWidth = 10;
+        horizontalOffset = 1.0f * cubeWidth;
+        for (float cubeX = -cubeWidth; cubeX < cubeWidth; cubeX += incrementSpeed)
+          for (float cubeY = -cubeWidth; cubeY < cubeWidth; cubeY += incrementSpeed)
+          {
+            calculateForSurface (cubeX, cubeY, -cubeWidth, '@');
+            calculateForSurface (cubeWidth, cubeY, cubeX, '$');
+            calculateForSurface (-cubeWidth, cubeY, -cubeX, '~');
+            calculateForSurface (-cubeX, cubeY, cubeWidth, '#');
+            calculateForSurface (cubeX, -cubeWidth, -cubeY, ';');
+            calculateForSurface (cubeX, cubeWidth, cubeY, '+');
+          } // end FOR
+  
+        // third cube
+        cubeWidth = 5;
+        horizontalOffset = 8.0f * cubeWidth;
+        for (float cubeX = -cubeWidth; cubeX < cubeWidth; cubeX += incrementSpeed)
+          for (float cubeY = -cubeWidth; cubeY < cubeWidth; cubeY += incrementSpeed)
+          {
+            calculateForSurface (cubeX, cubeY, -cubeWidth, '@');
+            calculateForSurface (cubeWidth, cubeY, cubeX, '$');
+            calculateForSurface (-cubeWidth, cubeY, -cubeX, '~');
+            calculateForSurface (-cubeX, cubeY, cubeWidth, '#');
+            calculateForSurface (cubeX, -cubeWidth, -cubeY, ';');
+            calculateForSurface (cubeX, cubeWidth, cubeY, '+');
+          } // end FOR
+
+        ACE_OS::printf ("\x1b[H");
         for (int k = 0; k < width * height; k++)
-        {
-          putchar (k % width ? buffer[k] : 10);
-        }
+          ::putchar (k % width ? buffer[k] : 10);
 
         A += 0.05f;
         B += 0.05f;
         C += 0.01f;
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-        ACE_OS::sleep (sleep_interval);
-#else
-        usleep (8000 * 2);
-#endif // ACE_WIN32 || ACE_WIN64
-      }
+//#if defined (ACE_WIN32) || defined (ACE_WIN64)
+//        ACE_OS::sleep (sleep_interval);
+//#else
+//        usleep (8000 * 2);
+//#endif // ACE_WIN32 || ACE_WIN64
+      } // end WHILE
 
       break;
     }
@@ -361,7 +371,7 @@ ACE_TMAIN (int argc_in,
                              mode_type_e,
                              trace_information))
   {
-    do_print_usage (ACE::basename (argv_in[0]));
+    do_print_usage (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR));
     goto clean;
   } // end IF
 
@@ -369,7 +379,7 @@ ACE_TMAIN (int argc_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("invalid argument(s), aborting\n")));
-    do_print_usage (ACE::basename (argv_in[0]));
+    do_print_usage (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR));
     goto clean;
   } // end IF
 

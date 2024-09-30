@@ -9,15 +9,16 @@
 //  g++ main.cpp $(wx-config --libs) $(wx-config --cxxflags) -o MyApp Dialog1.cpp Frame1.cpp
 //
 #include "stdafx.h"
-#include "test_u_3_ui_base.h"
+
+#include "test_i_3_ui_base.h"
 
 // begin wxGlade: ::extracode
 // end wxGlade
 
 
 
-dialog_main_base::dialog_main_base(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style):
-  wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
+dialog_main_base::dialog_main_base (wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style)
+ : wxDialog (parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
 {
 //  // begin wxGlade: dialog_main_base::dialog_main_base
 //  button_1 = new wxButton(this, wxID_NEW, wxEmptyString);
@@ -30,27 +31,27 @@ dialog_main_base::dialog_main_base(wxWindow* parent, wxWindowID id, const wxStri
 }
 
 
-void dialog_main_base::set_properties()
+void dialog_main_base::set_properties ()
 {
   // begin wxGlade: dialog_main_base::set_properties
-  SetTitle(wxT("dialog"));
-  button_1->SetFocus();
-  button_1->SetDefault();
-  button_3->Enable(0);
+  SetTitle (wxT ("dialog"));
+  button_1->SetFocus ();
+  button_1->SetDefault ();
+  button_3->Enable (0);
   // end wxGlade
 }
 
 
-void dialog_main_base::do_layout()
+void dialog_main_base::do_layout ()
 {
   // begin wxGlade: dialog_main_base::do_layout
-  wxBoxSizer* sizer_v_main = new wxBoxSizer(wxVERTICAL);
-  sizer_v_main->Add(button_1, 0, 0, 0);
-  sizer_v_main->Add(button_2, 0, 0, 0);
-  sizer_v_main->Add(button_3, 0, 0, 0);
-  SetSizer(sizer_v_main);
-  sizer_v_main->Fit(this);
-  Layout();
+  wxBoxSizer* sizer_v_main = new wxBoxSizer (wxVERTICAL);
+  sizer_v_main->Add (button_1, 0, 0, 0);
+  sizer_v_main->Add (button_2, 0, 0, 0);
+  sizer_v_main->Add (button_3, 0, 0, 0);
+  SetSizer (sizer_v_main);
+  sizer_v_main->Fit (this);
+  Layout ();
   // end wxGlade
 }
 
@@ -64,23 +65,23 @@ void dialog_main_base::do_layout()
 //END_EVENT_TABLE();
 
 
-void dialog_main_base::button_1_clicked_cb(wxCommandEvent &event)  // wxGlade: dialog_main_base.<event_handler>
+void dialog_main_base::button_1_clicked_cb (wxCommandEvent &event)  // wxGlade: dialog_main_base.<event_handler>
 {
-  event.Skip();
+  event.Skip ();
   // notify the user that he hasn't implemented the event handler yet
   wxLogDebug(wxT("Event handler (dialog_main_base::button_1_clicked_cb) not implemented yet"));
 }
 
-void dialog_main_base::button_2_clicked_cb(wxCommandEvent &event)  // wxGlade: dialog_main_base.<event_handler>
+void dialog_main_base::button_2_clicked_cb (wxCommandEvent &event)  // wxGlade: dialog_main_base.<event_handler>
 {
-  event.Skip();
+  event.Skip ();
   // notify the user that he hasn't implemented the event handler yet
   wxLogDebug(wxT("Event handler (dialog_main_base::button_2_clicked_cb) not implemented yet"));
 }
 
-void dialog_main_base::button_3_clicked_cb(wxCommandEvent &event)  // wxGlade: dialog_main_base.<event_handler>
+void dialog_main_base::button_3_clicked_cb (wxCommandEvent &event)  // wxGlade: dialog_main_base.<event_handler>
 {
-  event.Skip();
+  event.Skip ();
   // notify the user that he hasn't implemented the event handler yet
   wxLogDebug(wxT("Event handler (dialog_main_base::button_3_clicked_cb) not implemented yet"));
 }

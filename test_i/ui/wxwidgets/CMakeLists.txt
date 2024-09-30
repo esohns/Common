@@ -27,26 +27,26 @@ set (EXECUTABLE wxwidgets)
 set (${EXECUTABLE}_EXE_SRCS
 #     stdafx.cpp
      stdafx.h
-     test_u.cpp)
+     test_i.cpp)
 
 set (EXECUTABLE_2 wxwidgets_2)
 set (${EXECUTABLE_2}_EXE_SRCS
 #     stdafx.cpp
      stdafx.h
-     test_u_2.cpp
-     test_u_2.h)
+     test_i_2.cpp
+     test_i_2.h)
 
 set (EXECUTABLE_3 wxwidgets_3)
 set (${EXECUTABLE_3}_EXE_SRCS
 #     stdafx.cpp
      stdafx.h
-     test_u_3.cpp
-     test_u_3.h
-     test_u_3_ui.cpp
-     test_u_3_ui.h
-     test_u_3_ui.inl
-     test_u_3_ui_base.cpp
-     test_u_3_ui_base.h)
+     test_i_3.cpp
+     test_i_3.h
+     test_i_3_ui.cpp
+     test_i_3_ui.h
+     test_i_3_ui.inl
+     test_i_3_ui_base.cpp
+     test_i_3_ui_base.h)
 
 #cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
 if (WIN32)

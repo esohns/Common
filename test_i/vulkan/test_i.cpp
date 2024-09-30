@@ -1,14 +1,14 @@
 #include "stdafx.h"
 
-#include <chrono>
-#include <cmath>
-#include <iostream>
-#include <string>
-
 #if defined (GLFW_SUPPORT)
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
 #endif // GLFW_SUPPORT
+
+#include <chrono>
+#include <cmath>
+#include <iostream>
+#include <string>
 
 #include "ace/ACE.h"
 #include "ace/Get_Opt.h"
@@ -213,7 +213,7 @@ ACE_TMAIN (int argc_in,
                              texture_file_path,
                              trace_information))
   {
-    do_print_usage (ACE::basename (argv_in[0]));
+    do_print_usage (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)));
     goto clean;
   } // end IF
 
@@ -221,12 +221,12 @@ ACE_TMAIN (int argc_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("invalid argument(s), aborting\n")));
-    do_print_usage (ACE::basename (argv_in[0]));
+    do_print_usage (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)));
     goto clean;
   } // end IF
 
   // step1c: initialize logging and/or tracing
-  if (!Common_Log_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])),                            // program name
+  if (!Common_Log_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)), // program name
                                      Common_Log_Tools::getLogFilename (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
                                                                        Common_File_Tools::executable),             // log file name
                                      false,                                                                        // log to syslog ?
@@ -265,7 +265,7 @@ ACE_TMAIN (int argc_in,
                 ACE_TEXT ("failed to ACE_Profile_Timer::elapsed_time: \"%m\", aborting\n")));
     goto clean;
   } // end IF
-  ACE_OS::memset (&elapsed_rusage, 0, sizeof (elapsed_rusage));
+  ACE_OS::memset (&elapsed_rusage, 0, sizeof (ACE_Profile_Timer::Rusage));
   process_profile.elapsed_rusage (elapsed_rusage);
   user_time.set (elapsed_rusage.ru_utime);
   system_time.set (elapsed_rusage.ru_stime);

@@ -56,7 +56,7 @@ class Test_U_SignalHandler
   typedef Common_SignalHandler_T<struct Test_U_SignalHandlerConfiguration> inherited;
 
  public:
-  Test_U_SignalHandler() : inherited (this) {}
+  Test_U_SignalHandler () : inherited (this) {}
   inline virtual ~Test_U_SignalHandler () {}
 
   // implement Common_ISignal
@@ -405,7 +405,6 @@ ACE_TMAIN (int argc_in,
   bool trace_information_b = false;
   std::string log_file_name;
   ACE_High_Res_Timer timer;
-  std::string working_time_string;
   ACE_Time_Value working_time;
   ACE_Sig_Set signals, ignored_signals;
 
@@ -414,12 +413,12 @@ ACE_TMAIN (int argc_in,
                             mode_type_e,
                             trace_information_b))
   {
-    do_printUsage (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])));
+    do_printUsage (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)));
     goto error;
   } // end IF
 
   // step1d: initialize logging and/or tracing
-  if (!Common_Log_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0])), // program name
+  if (!Common_Log_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)), // program name
                                      log_file_name,                                     // log file name
                                      false,                                             // log to syslog ?
                                      false,                                             // trace messages ?
@@ -442,10 +441,9 @@ ACE_TMAIN (int argc_in,
 
   // debug info
   timer.elapsed_time (working_time);
-  working_time_string = Common_Timer_Tools::periodToString (working_time);
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("total working time (h:m:s.us): \"%s\"...\n"),
-              ACE_TEXT (working_time_string.c_str ())));
+              ACE_TEXT (Common_Timer_Tools::periodToString (working_time).c_str ())));
 
   result = EXIT_SUCCESS;
 

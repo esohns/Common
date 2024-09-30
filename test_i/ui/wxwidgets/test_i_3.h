@@ -1,7 +1,5 @@
-#ifndef TEST_U_3_H
-#define TEST_U_3_H
-
-//#include "ace/os_include/sys/os_types.h"
+#ifndef TEST_I_3_H
+#define TEST_I_3_H
 
 #include "wx/apptrait.h"
 
@@ -10,8 +8,8 @@
 #include "common_ui_wxwidgets_application.h"
 #include "common_ui_wxwidgets_xrc_definition.h"
 
-#include "test_u_3_ui.h"
-#include "test_u_3_ui_base.h"
+#include "test_i_3_ui.h"
+#include "test_i_3_ui_base.h"
 
 extern const char toplevel_widget_classname_string_[];
 
@@ -29,4 +27,4 @@ typedef Comon_UI_WxWidgets_Application_T<Test_U_WxWidgetsXRCDefinition_t,
                                          Test_U_WxWidgetsDialog_t,
                                          wxGUIAppTraits> Test_U_WxWidgetsApplication_t;
 
-#endif // TEST_U_3_H
+#endif // TEST_I_3_H

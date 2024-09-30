@@ -61,9 +61,9 @@ class MyApp
   }
 };
 
-#if wxCHECK_VERSION(3,0,0)
+#if wxCHECK_VERSION (3,0,0)
 wxIMPLEMENT_APP (MyApp);
-#elif wxCHECK_VERSION(2,0,0)
+#elif wxCHECK_VERSION (2,0,0)
 IMPLEMENT_APP (MyApp);
 
 void wxApp::OnAssertFailure (const wxChar *file,
