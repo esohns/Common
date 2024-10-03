@@ -638,21 +638,22 @@ void yyfree ( void * , yyscan_t yyscanner );
 
 #ifdef YY_HEADER_EXPORT_START_CONDITIONS
 #define INITIAL 0
-#define state_no_value 1
-#define state_value 2
-#define state_date_time 3
-#define state_ext_inf 4
-#define state_ext_inf_title 5
-#define state_ext_stream_inf_key_value 6
-#define state_ext_stream_inf_next_value_comma 7
-#define state_ext_stream_inf_next_value_quotation 8
-#define state_ext_stream_inf_is_last_value 9
-#define state_media_key_value 10
-#define state_media_next_value_comma 11
-#define state_media_next_value_quotation 12
-#define state_media_is_last_value 13
-#define state_url_1 14
-#define state_url_2 15
+#define state_comment 1
+#define state_no_value 2
+#define state_value 3
+#define state_date_time 4
+#define state_ext_inf 5
+#define state_ext_inf_title 6
+#define state_ext_stream_inf_key_value 7
+#define state_ext_stream_inf_next_value_comma 8
+#define state_ext_stream_inf_next_value_quotation 9
+#define state_ext_stream_inf_is_last_value 10
+#define state_media_key_value 11
+#define state_media_next_value_comma 12
+#define state_media_next_value_quotation 13
+#define state_media_is_last_value 14
+#define state_url_1 15
+#define state_url_2 16
 
 #endif
 

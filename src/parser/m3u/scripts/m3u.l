@@ -93,6 +93,7 @@ TO_END_OF_LINE                    [^\x0A]
 TO_EQUALS                         [^=]
 LF                                \x0A|\x0D\x0A
 
+%s state_comment
 %s state_no_value
 %s state_value
 %s state_date_time
@@ -136,6 +137,8 @@ LF                                \x0A|\x0D\x0A
 %}
 
 <INITIAL>{
+"##"                              { parser->offset (yyleng);
+                                    BEGIN (state_comment); }
 "#EXTM3U"                         { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->lval,
                                                       struct M3U_Playlist);
@@ -216,6 +219,12 @@ LF                                \x0A|\x0D\x0A
                                   }
 } // end <INITIAL>
 
+<state_comment>{
+{TO_END_OF_LINE}+/{LF}            { parser->offset (yyleng); }
+{LF}                              { parser->offset (yyleng);
+                                    BEGIN (INITIAL); }
+} // end <state_comment>
+
 <state_no_value>{
 {LF}                              { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
@@ -235,6 +244,7 @@ LF                                \x0A|\x0D\x0A
 {LF}                              { parser->offset (yyleng);
                                     BEGIN (INITIAL); }
 } // end <state_value>
+
 <state_date_time>{
 {TO_END_OF_LINE}+/{LF}            { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
@@ -259,6 +269,7 @@ LF                                \x0A|\x0D\x0A
 ","                               { parser->offset (yyleng);
                                     BEGIN (state_ext_inf_title); }
 } // end <state_ext_inf>
+
 <state_ext_inf_title>{
 {TO_END_OF_LINE}+/{LF}            { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
@@ -280,6 +291,7 @@ LF                                \x0A|\x0D\x0A
 "="                               { parser->offset (yyleng);
                                     BEGIN (state_ext_stream_inf_is_last_value); }
 } // end <state_ext_stream_inf_key_value>
+
 <state_ext_stream_inf_is_last_value>{
 {TO_END_OF_LINE}+/{LF}            {
                                     std::string test_string = yytext;
@@ -307,6 +319,7 @@ LF                                \x0A|\x0D\x0A
 {LF}                              { parser->offset (yyleng);
                                     BEGIN (state_url_1); }
 } // end <state_ext_stream_inf_is_last_value>
+
 <state_ext_stream_inf_next_value_comma>{
 {TO_COMMA}+/,                     { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
@@ -317,6 +330,7 @@ LF                                \x0A|\x0D\x0A
 ","                                { parser->offset (yyleng);
                                      BEGIN (state_ext_stream_inf_key_value); }
 } // end <state_inf_next_value_comma>
+
 <state_ext_stream_inf_next_value_quotation>{
 {TO_QUOTATION}+/\"                { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
@@ -338,6 +352,7 @@ LF                                \x0A|\x0D\x0A
 "="                               { parser->offset (yyleng);
                                     BEGIN (state_media_is_last_value); }
 } // end <state_media_key_value>
+
 <state_media_is_last_value>{
 {TO_END_OF_LINE}+/{LF}            { std::string test_string = yytext;
                                     // *TODO*: actually, need to test whether ','
@@ -365,6 +380,7 @@ LF                                \x0A|\x0D\x0A
                                     BEGIN (INITIAL);
                                     return yy::parser::token::END_OF_ELEMENT; }
 } // end <state_media_is_last_value>
+
 <state_media_next_value_comma>{
 {TO_COMMA}+/,                     { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
@@ -375,6 +391,7 @@ LF                                \x0A|\x0D\x0A
 ","                               { parser->offset (yyleng);
                                     BEGIN (state_media_key_value); }
 } // end <state_media_next_value_comma>
+
 <state_media_next_value_quotation>{
 {TO_QUOTATION}+/\"                { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
@@ -393,6 +410,7 @@ LF                                \x0A|\x0D\x0A
 {TO_END_OF_LINE}{1}               { yyless (0);
                                     BEGIN (state_url_2); }
 } // end <state_url_1>
+
 <state_url_2>{
 {TO_END_OF_LINE}+/{LF}            { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
