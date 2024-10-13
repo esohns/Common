@@ -1520,11 +1520,14 @@ error:
   result = false;
 
 continue_:
-  result_2 = ACE_OS::fclose (file_p);
-  if (unlikely (result_2 == -1))
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
-                ACE_TEXT (path_in.c_str ())));
+  if (likely (file_p))
+  {
+    result_2 = ACE_OS::fclose (file_p);
+    if (unlikely (result_2 == -1))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::fclose(\"%s\"): \"%m\", continuing\n"),
+                  ACE_TEXT (path_in.c_str ())));
+  } // end IF
 
   return result;
 }
