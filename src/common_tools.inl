@@ -229,7 +229,7 @@ Common_Tools::getRandomNumber (ValueType begin_in,
 #else
   if ((end_in - begin_in) <= RAND_MAX)  // rand() generates [0, RAND_MAX]
 #endif // ACE_WIN32 || ACE_WIN64
-    return (static_cast<ValueType> (ACE_OS::rand () % (end_in - begin_in + 1)) + begin_in);
+    return (static_cast<ValueType> (ACE_OS::rand_r (&Common_Tools::randomSeed) % (end_in - begin_in + 1)) + begin_in);
 
   std::uniform_int_distribution<ValueType> distribution (begin_in, end_in);
   return Common_Tools::getRandomNumber (distribution);
