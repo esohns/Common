@@ -77,7 +77,7 @@ GtkApplication* app_p = NULL;
 GtkWindow* main_window_p = NULL;
 #endif // GTK_CHECK_VERSION (4,0,0)
 #if defined (GTKGL_SUPPORT)
-Common_GL_Texture texture (Common_GL_Texture::Type::TYPE_INVALID);
+Common_GL_Texture texture;
 GLuint VBO = 0, VAO = 0, EBO = 0;
 Common_GL_Shader shader;
 Common_GL_Camera camera;

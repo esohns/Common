@@ -9,14 +9,23 @@
 #include "common_gl_defines.h"
 #include "common_gl_tools.h"
 
-Common_GL_Texture::Common_GL_Texture (enum Type type_in)
+Common_GL_Texture::Common_GL_Texture ()
  : id_ (0)
  , path_ ()
- , type_ (type_in)
+ , type_ (Type::TYPE_INVALID)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::Common_GL_Texture"));
 
 }
+
+//Common_GL_Texture::Common_GL_Texture (enum Type type_in)
+// : id_ (0)
+// , path_ ()
+// , type_ (type_in)
+//{
+//  COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::Common_GL_Texture"));
+//
+//}
 
 Common_GL_Texture::Common_GL_Texture (const std::string& path_in,
                                       enum Type type_in)

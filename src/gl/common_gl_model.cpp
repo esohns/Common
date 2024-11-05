@@ -289,8 +289,9 @@ Common_GL_Model::addTexture (const std::string& path_in,
   // not cached --> load
   Common_GL_Texture* texture_p = NULL;
   ACE_NEW_NORETURN (texture_p,
-                    Common_GL_Texture (type_in));
+                    Common_GL_Texture ());
   ACE_ASSERT (texture_p);
+  texture_p->type_ = type_in;
 
   if (unlikely (!texture_p->load (path_in)))
   {

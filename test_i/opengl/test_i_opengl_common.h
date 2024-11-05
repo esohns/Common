@@ -55,7 +55,7 @@ struct Common_OpenGL_GLUT_CBData
    , mouseButton0IsDown (false)
    , camera ()
    , shader ()
-   , texture (Common_GL_Texture::TYPE_INVALID)
+   , texture ()
    , wireframe (false)
    , VBO (0)
    , VAO (0)

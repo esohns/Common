@@ -27,7 +27,8 @@ class Common_GL_Texture
     TYPE_INVALID
   };
 
-  Common_GL_Texture (enum Type = Type::TYPE_INVALID);
+  Common_GL_Texture ();
+  //Common_GL_Texture (enum Type = Type::TYPE_INVALID);
   Common_GL_Texture (const std::string&, // FQ path
                      enum Type = Type::TYPE_INVALID);
   ~Common_GL_Texture ();
@@ -46,7 +47,7 @@ class Common_GL_Texture
   enum Type   type_;
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_GL_Texture ())
+  // ACE_UNIMPLEMENTED_FUNC (Common_GL_Texture ())
   // ACE_UNIMPLEMENTED_FUNC (Common_GL_Texture (const Common_GL_Texture&))
   // ACE_UNIMPLEMENTED_FUNC (Common_GL_Texture& operator= (const Common_GL_Texture&))
 };
