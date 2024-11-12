@@ -54,6 +54,7 @@ class Common_GL_Image_Tools
 #if defined (STB_IMAGE_SUPPORT)
   // *IMPORTANT NOTE*: callers need to free() allocated memory (5th argument)
   static bool loadSTB (const std::string&, // path
+                       bool,               // flip image on load ? (required for OpenGL)
                        unsigned int&,      // return value: width
                        unsigned int&,      // return value: height
                        unsigned int&,      // return value: #channels

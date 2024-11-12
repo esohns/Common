@@ -33,7 +33,8 @@ class Common_GL_Texture
                      enum Type = Type::TYPE_INVALID);
   ~Common_GL_Texture ();
 
-  bool load (const std::string&); // FQ path
+  bool load (const std::string&, // FQ path
+             bool = true);       // flip image on load ? (required for OpenGL)
   void reset ();
   void bind (GLuint = 0); // texture unit (!), not -id (!!!)
   void unbind ();

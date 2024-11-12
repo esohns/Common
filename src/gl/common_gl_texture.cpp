@@ -57,7 +57,8 @@ Common_GL_Texture::~Common_GL_Texture ()
 }
 
 bool
-Common_GL_Texture::load (const std::string& path_in)
+Common_GL_Texture::load (const std::string& path_in,
+                         bool flipImage_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::load"));
 
@@ -66,7 +67,8 @@ Common_GL_Texture::load (const std::string& path_in)
     reset ();
   ACE_ASSERT (!id_);
 
-  id_ = Common_GL_Tools::loadTexture (path_in);
+  id_ = Common_GL_Tools::loadTexture (path_in,
+                                      flipImage_in);
   if (unlikely (!id_))
   {
    ACE_DEBUG ((LM_ERROR,

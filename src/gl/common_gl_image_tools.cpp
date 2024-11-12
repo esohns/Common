@@ -319,6 +319,7 @@ error:
 #if defined (STB_IMAGE_SUPPORT)
 bool
 Common_GL_Image_Tools::loadSTB (const std::string& path_in,
+                                bool flipImage_in,
                                 unsigned int& width_out,
                                 unsigned int& height_out,
                                 unsigned int& channels_out,
@@ -330,7 +331,8 @@ Common_GL_Image_Tools::loadSTB (const std::string& path_in,
   ACE_ASSERT (!data_out);
 
   // for OpenGL...
-  stbi_set_flip_vertically_on_load (1);
+  if (flipImage_in)
+    stbi_set_flip_vertically_on_load (1);
 
   int width_i, height_i, channels_i;
   data_out = stbi_load (path_in.c_str (),
@@ -341,7 +343,7 @@ Common_GL_Image_Tools::loadSTB (const std::string& path_in,
   {
     width_out = static_cast<unsigned int> (width_i);
     height_out = static_cast<unsigned int> (height_i);
-    channels_out = static_cast<unsigned int> (channels_i);
+    channels_out = static_cast<unsigned int> (channels_i == 3 ? channels_i + 1 : channels_i); // + alpha ?
 
     return true;
   } // end IF

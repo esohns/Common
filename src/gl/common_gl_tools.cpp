@@ -214,7 +214,8 @@ Common_GL_Tools::loadModel (const std::string& path_in,
 }
 
 GLuint
-Common_GL_Tools::loadTexture (const std::string& path_in)
+Common_GL_Tools::loadTexture (const std::string& path_in,
+                              bool flipImage_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::loadTexture"));
 
@@ -253,6 +254,7 @@ Common_GL_Tools::loadTexture (const std::string& path_in)
     {
 #if defined (STB_IMAGE_SUPPORT)
       if (!Common_GL_Image_Tools::loadSTB (path_in,
+                                           flipImage_in,
                                            width, height,
                                            channels,
                                            image_p))
