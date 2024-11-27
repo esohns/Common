@@ -169,12 +169,19 @@ class Common_Image_Tools
                     Common_Image_Resolution_t&, // return value: resolution
                     uint8_t*&);                 // return value: buffer
 
+  // *NOTE*: callers need to delete[] the returned memory buffer(s) (iff any)
+  static bool scale (const Common_Image_Resolution_t&, // source resolution
+                     const std::string&,               // source blob format (e.g. "RGB", "RGBA", etc)
+                     const uint8_t*,                   // source buffer
+                     Common_Image_Resolution_t&,       // in/out value: target resolution
+                     uint8_t*&);                       // return value: buffer
+
   static std::string errorToString (struct _MagickWand*); // context
 #endif // IMAGEMAGICK_SUPPORT
 
  private:
 #if defined (FFMPEG_SUPPORT)
-   // *NOTE*: callers need to delete[] the returned memory buffer(s) (iff any)
+  // *NOTE*: callers need to delete[] the returned memory buffer(s) (iff any)
   static bool convert (struct SwsContext*,               // context ? : use sws_getCachedContext()
                        const Common_Image_Resolution_t&, // source resolution
                        enum AVPixelFormat,               // source pixel format

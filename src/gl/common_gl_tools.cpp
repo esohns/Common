@@ -83,11 +83,21 @@ Common_GL_Tools::errorToString (GLenum error_in)
   return return_value;
 }
 
+float
+Common_GL_Tools::brightness (const Common_GL_Color_t& color_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::brightness"));
+
+  return (color_in.r * 0.2126f + color_in.g * 0.7152f + color_in.b * 0.0722f) / 255.0f;
+}
+
 Common_GL_Color_t
 Common_GL_Tools::lerpRGB (const Common_GL_Color_t& color1_in,
                           const Common_GL_Color_t& color2_in,
                           float ratio_in)
 {
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::lerpRGB"));
+
   Common_GL_Color_t result;
 
   // sanity check(s)

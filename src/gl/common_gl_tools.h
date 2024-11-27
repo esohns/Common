@@ -61,9 +61,10 @@ class Common_GL_Tools
                                                                                ValueType); // to end   (inclusive)
 
   // color
+  static float brightness (const Common_GL_Color_t&); // returns [0.0f..1.0f]
   static Common_GL_Color_t lerpRGB (const Common_GL_Color_t&, // color 1
                                     const Common_GL_Color_t&, // color 2
-                                    float);                   // ratio [0.0..1.0]
+                                    float);                   // ratio [0.0f..1.0f]
   // transitions between red --> green --> blue
   static Common_GL_Color_t toRGBColor (float); // [0.0..1.0]
 

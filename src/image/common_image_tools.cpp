@@ -629,7 +629,7 @@ Common_Image_Tools::load (const std::string& path_in,
 
   int result = -1;
   int index_i = -1;
-  enum AVCodecID coded_id_e = AV_CODEC_ID_NONE;
+  enum AVCodecID codec_id_e = AV_CODEC_ID_NONE;
 
   AVFormatContext* format_context_p = avformat_alloc_context ();
   if (unlikely (!format_context_p))
@@ -679,7 +679,7 @@ Common_Image_Tools::load (const std::string& path_in,
     result = -1;
     goto error;
   } // end IF
-  coded_id_e = format_context_p->streams[index_i]->codecpar->codec_id;
+  codec_id_e = format_context_p->streams[index_i]->codecpar->codec_id;
 
 error:
   if (likely (format_context_p))
@@ -687,7 +687,7 @@ error:
   avformat_free_context (format_context_p); format_context_p = NULL;
 
   return ((result == 0) ? Common_Image_Tools::load (path_in,
-                                                    coded_id_e,
+                                                    codec_id_e,
                                                     resolution_out,
                                                     format_out,
                                                     buffers_out)
@@ -1684,6 +1684,7 @@ Common_Image_Tools::load (const std::string& sourceFilePath_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to MagickReadImage(): \"%s\", aborting\n"),
                 ACE_TEXT (MagickGetException (wand_p, &severity))));
+    DestroyMagickWand (wand_p);
     return false;
   } // end IF
 
@@ -1720,6 +1721,108 @@ Common_Image_Tools::load (const std::string& sourceFilePath_in,
                                  &size_i);
 #endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
   ACE_ASSERT (data_out);
+
+  DestroyMagickWand (wand_p); wand_p = NULL;
+
+  return true;
+}
+
+bool
+Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
+                           const std::string& sourceFormat_in,
+                           const uint8_t* sourceBuffer_in,
+                           Common_Image_Resolution_t& targetResolution_inout,
+                           uint8_t*& buffer_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::load"));
+
+  // initialize return value(s)
+  if (targetResolution_inout.cy == -1)
+  { ACE_ASSERT (targetResolution_inout.cx > 0);
+    float ratio_f = sourceResolution_in.cx / static_cast<float> (targetResolution_inout.cx);
+    targetResolution_inout.cy = static_cast<int> (std::round (sourceResolution_in.cy * (1.0f / ratio_f)));
+  } // end IF
+  else if (targetResolution_inout.cx == -1)
+  { ACE_ASSERT (targetResolution_inout.cy > 0);
+    float ratio_f = sourceResolution_in.cy / static_cast<float> (targetResolution_inout.cy);
+    targetResolution_inout.cx = static_cast<int> (std::round (sourceResolution_in.cx * (1.0f / ratio_f)));
+  } // end ELSE IF
+  ACE_ASSERT (!buffer_out);
+
+  MagickWand* wand_p = NewMagickWand ();
+  ACE_ASSERT (wand_p);
+
+  PixelWand* pixel_wand_p = NewPixelWand ();
+  ACE_ASSERT (pixel_wand_p);
+#if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
+  unsigned int result = 0;
+#else
+  MagickBooleanType result = MagickFalse;
+#endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
+  result = MagickNewImage (wand_p,
+                           sourceResolution_in.cx, sourceResolution_in.cy,
+                           pixel_wand_p);
+  if (result != MagickTrue)
+  {
+    ExceptionType severity;
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to MagickNewImage(): \"%s\", aborting\n"),
+                ACE_TEXT (MagickGetException (wand_p, &severity))));
+    DestroyPixelWand (pixel_wand_p);
+    DestroyMagickWand (wand_p);
+    return false;
+  } // end IF
+  DestroyPixelWand (pixel_wand_p); pixel_wand_p = NULL;
+  result = MagickSetImageFormat (wand_p,
+                                 sourceFormat_in.c_str ());
+  ACE_ASSERT (result == MagickTrue);
+
+  result = MagickImportImagePixels (wand_p,
+                                    0,0, sourceResolution_in.cx,sourceResolution_in.cy,
+                                    sourceFormat_in.c_str (),
+                                    StorageType::CharPixel,
+                                    sourceBuffer_in);
+  if (result != MagickTrue)
+  {
+    ExceptionType severity;
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to MagickImportImagePixels(): \"%s\", aborting\n"),
+                ACE_TEXT (MagickGetException (wand_p, &severity))));
+    DestroyMagickWand (wand_p);
+    return false;
+  } // end IF
+
+  result = MagickResizeImage (wand_p,
+                              targetResolution_inout.cx,
+                              targetResolution_inout.cy,
+                              CubicFilter);
+  if (result != MagickTrue)
+  {
+    ExceptionType severity;
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to MagickResizeImage(): \"%s\", aborting\n"),
+                ACE_TEXT (MagickGetException (wand_p, &severity))));
+    DestroyMagickWand (wand_p);
+    return false;
+  } // end IF
+
+  //ACE_ASSERT (isRGB (sourceFormat_in)); // *TODO*
+  ACE_NEW_NORETURN (buffer_out,
+                    uint8_t[sourceFormat_in.size () * MagickGetImageWidth (wand_p) * MagickGetImageHeight (wand_p)]);
+  result = MagickExportImagePixels (wand_p,
+                                    0,0, MagickGetImageWidth (wand_p),MagickGetImageHeight (wand_p),
+                                    sourceFormat_in.c_str (),
+                                    StorageType::CharPixel,
+                                    buffer_out);
+  if (result != MagickTrue)
+  {
+    ExceptionType severity;
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to MagickExportImagePixels(): \"%s\", aborting\n"),
+                ACE_TEXT (MagickGetException (wand_p, &severity))));
+    DestroyMagickWand (wand_p);
+    return false;
+  } // end IF
 
   DestroyMagickWand (wand_p); wand_p = NULL;
 
