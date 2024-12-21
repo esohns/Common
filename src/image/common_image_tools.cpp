@@ -1737,6 +1737,7 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
   COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::load"));
 
   // initialize return value(s)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   if (targetResolution_inout.cy == -1)
   { ACE_ASSERT (targetResolution_inout.cx > 0);
     float ratio_f = sourceResolution_in.cx / static_cast<float> (targetResolution_inout.cx);
@@ -1747,6 +1748,18 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
     float ratio_f = sourceResolution_in.cy / static_cast<float> (targetResolution_inout.cy);
     targetResolution_inout.cx = static_cast<int> (std::round (sourceResolution_in.cx * (1.0f / ratio_f)));
   } // end ELSE IF
+#else
+  if (targetResolution_inout.height == -1)
+  { ACE_ASSERT (targetResolution_inout.width > 0);
+    float ratio_f = sourceResolution_in.width / static_cast<float> (targetResolution_inout.width);
+    targetResolution_inout.height = static_cast<int> (std::round (sourceResolution_in.height * (1.0f / ratio_f)));
+  } // end IF
+  else if (targetResolution_inout.width == -1)
+  { ACE_ASSERT (targetResolution_inout.height > 0);
+    float ratio_f = sourceResolution_in.height / static_cast<float> (targetResolution_inout.height);
+    targetResolution_inout.width = static_cast<int> (std::round (sourceResolution_in.width * (1.0f / ratio_f)));
+  } // end ELSE IF
+#endif // ACE_WIN32 || ACE_WIN64
   ACE_ASSERT (!buffer_out);
 
   MagickWand* wand_p = NewMagickWand ();
@@ -1760,7 +1773,11 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
   MagickBooleanType result = MagickFalse;
 #endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
   result = MagickNewImage (wand_p,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
                            sourceResolution_in.cx, sourceResolution_in.cy,
+#else
+                           sourceResolution_in.width, sourceResolution_in.height,
+#endif // ACE_WIN32 || ACE_WIN64
                            pixel_wand_p);
   if (result != MagickTrue)
   {
@@ -1778,7 +1795,11 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
   ACE_ASSERT (result == MagickTrue);
 
   result = MagickImportImagePixels (wand_p,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
                                     0,0, sourceResolution_in.cx,sourceResolution_in.cy,
+#else
+                                    0,0, sourceResolution_in.width,sourceResolution_in.height,
+#endif // ACE_WIN32 || ACE_WIN64
                                     sourceFormat_in.c_str (),
                                     StorageType::CharPixel,
                                     sourceBuffer_in);
@@ -1793,8 +1814,11 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
   } // end IF
 
   result = MagickResizeImage (wand_p,
-                              targetResolution_inout.cx,
-                              targetResolution_inout.cy,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                              targetResolution_inout.cx,targetResolution_inout.cy,
+#else
+                              targetResolution_inout.width,targetResolution_inout.height,
+#endif // ACE_WIN32 || ACE_WIN64
                               CubicFilter);
   if (result != MagickTrue)
   {

@@ -1,7 +1,7 @@
 if (UNIX)
  set (GLFW_LIB_FILE libglfw.so.3)
  find_library (GLFW_LIBRARY ${GLFW_LIB_FILE}
-               PATHS /usr /usr/lib
+               PATHS /usr
                PATH_SUFFIXES lib64 x86_64-linux-gnu
                DOC "searching for ${GLFW_LIB_FILE}")
  if (GLFW_LIBRARY)

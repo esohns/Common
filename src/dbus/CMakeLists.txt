@@ -74,6 +74,8 @@ endif ()
 target_precompile_headers (${LIBRARY}
                            PRIVATE stdafx.h)
 
+set_property (TARGET ${LIBRARY} PROPERTY FOLDER "modules")
+
 # add all targets to the build-tree export set
 export (TARGETS ${LIBRARY}
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")

@@ -88,7 +88,9 @@ continue_:
 #endif // SD_BUS_SUPPORT
   result = true;
 
+#if defined (SD_BUS_SUPPORT)
 error:
+#endif // SD_BUS_SUPPORT
   return result;
 }
 bool

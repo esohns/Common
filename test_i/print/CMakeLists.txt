@@ -1,6 +1,6 @@
 if (UNIX)
  pkg_check_modules (PKG_CAIRO REQUIRED cairo)
-# pkg_check_modules (PKG_CUPS REQUIRED cups)
+ pkg_check_modules (PKG_CUPS REQUIRED cups)
 endif (UNIX)
 
 set (CUPS_LIB_FILE cups)

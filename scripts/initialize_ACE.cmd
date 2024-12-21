@@ -26,7 +26,7 @@ goto Clean_Up
 @rem  goto Failed
 @rem )
 set PROJECTS_ROOT_DIR_DEFAULT=D:\projects
-set PROJECTS_ROOT_DIR="%PRJ_ROOT%"
+set PROJECTS_ROOT_DIR=%PRJ_ROOT%
 if NOT exist "%PROJECTS_ROOT_DIR%" (
  set PROJECTS_ROOT_DIR="%PROJECTS_ROOT_DIR_DEFAULT%"
 )
