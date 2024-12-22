@@ -196,17 +196,24 @@ test_i_opengl_glut_reshape (int width_in, int height_in)
   static_cast<unsigned int> (height_in);
 }
 
+//void
+//test_i_opengl_glut_idle ()
+//{
+//  //glutPostRedisplay ();
+//}
+
 void
-test_i_opengl_glut_idle ()
+test_i_opengl_glut_timer (int value_in)
 {
   glutPostRedisplay ();
+  glutTimerFunc (1000 / 60, test_i_opengl_glut_timer, value_in);
 }
 
 void
 test_i_opengl_glut_visible (int visibility_in)
 {
   if (visibility_in == GLUT_VISIBLE)
-    glutIdleFunc (test_i_opengl_glut_idle);
+    /*glutIdleFunc (test_i_opengl_glut_idle)*/;
   else
     glutIdleFunc (NULL);
 }
@@ -329,18 +336,6 @@ test_i_opengl_glut_mouse_move (int x, int y)
     cb_data_p->camera.mouseLook (static_cast<int> (cb_data_p->perspective.resolution.width) - x, y);
 #endif // ACE_WIN32 || ACE_WIN64
 }
-
-//void
-//test_i_opengl_glut_timer (int v)
-//{
-//  struct Common_OpenGL_GLUT_CBData* cb_data_p =
-//    static_cast<struct Common_OpenGL_GLUT_CBData*> (glutGetWindowData ());
-//  ACE_ASSERT (cb_data_p);
-//
-//  glutTimerFunc (1000 / 30,
-//                 test_i_opengl_glut_timer,
-//                 v);
-//}
 
 void
 test_i_opengl_glut_mouse_wheel (int button, int dir, int x, int y)

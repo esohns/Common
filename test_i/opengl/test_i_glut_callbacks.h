@@ -23,14 +23,14 @@
 
 void test_i_opengl_glut_draw ();
 void test_i_opengl_glut_reshape (int, int);
-void test_i_opengl_glut_idle ();
+//void test_i_opengl_glut_idle ();
 void test_i_opengl_glut_visible (int);
 void test_i_opengl_glut_key (unsigned char, int, int);
 void test_i_opengl_glut_key_special (int, int, int);
 void test_i_opengl_glut_menu (int);
 void test_i_opengl_glut_mouse_button (int, int, int, int);
 void test_i_opengl_glut_mouse_move (int, int);
-//void test_i_opengl_glut_timer (int);
 void test_i_opengl_glut_mouse_wheel (int, int, int, int);
+void test_i_opengl_glut_timer (int);
 
 #endif
