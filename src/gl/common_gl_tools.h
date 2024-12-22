@@ -91,6 +91,7 @@ class Common_GL_Tools
   static void loadTexture (const uint8_t*, // data
                            unsigned int,   // width
                            unsigned int,   // height
+                           unsigned int,   // depth (3||4)
                            GLuint,         // texture id
                            bool);          // initial ? : update
 

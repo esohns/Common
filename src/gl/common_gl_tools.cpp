@@ -368,6 +368,7 @@ void
 Common_GL_Tools::loadTexture (const uint8_t* data_in,
                               unsigned int width_in,
                               unsigned int height_in,
+                              unsigned int depth_in,
                               GLuint textureIndex_in,
                               bool isFirst_in)
 {
@@ -399,7 +400,7 @@ Common_GL_Tools::loadTexture (const uint8_t* data_in,
   //#endif // GL_VERSION_1_1
 
     glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, width_in, height_in, 0,
-                  GL_RGBA,
+                  (depth_in == 4 ? GL_RGBA : GL_RGB),
                   GL_UNSIGNED_BYTE, data_in);
 
     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -416,10 +417,10 @@ Common_GL_Tools::loadTexture (const uint8_t* data_in,
   else
   {
     glTexSubImage2D (GL_TEXTURE_2D, 0, 0, 0, width_in, height_in,
-                     GL_RGBA,
+                     (depth_in == 4 ? GL_RGBA : GL_RGB),
                      GL_UNSIGNED_BYTE, data_in);
     //glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, width_in, height_in, 0,
-    //              GL_RGBA,
+    //              (depth_in == 4 ? GL_RGBA : GL_RGB),
     //              GL_UNSIGNED_BYTE, data_in);
   } // end ELSE
 
