@@ -88,7 +88,7 @@ common_ui_monitor_enum_cb (HMONITOR monitor_in,
   struct Common_UI_DisplayDevice* display_device_p = NULL;
   bool update_b = false;
   std::string device_name_string;
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
+#if COMMON_OS_WIN32_TARGET_PLATFORM (0x0600) // _WIN32_WINNT_VISTA
   // *NOTE*: more than one physical monitor may be associated with a monitor
   //         handle. Note how this is a race condition
   DWORD number_of_monitors = 0;
@@ -119,7 +119,7 @@ common_ui_monitor_enum_cb (HMONITOR monitor_in,
                 ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
     goto clean;
   } // end IF
-#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0600)
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM (0x0600)
 
   if (!GetMonitorInfo (monitor_in,
                        &monitor_info_s))
@@ -156,7 +156,7 @@ common_ui_monitor_enum_cb (HMONITOR monitor_in,
   if (!update_b)
   {
     display_device_p->description =
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
+#if COMMON_OS_WIN32_TARGET_PLATFORM (0x0600) // _WIN32_WINNT_VISTA
       ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (physical_monitors_p[0].szPhysicalMonitorDescription));
 #else
 #if defined (UNICODE)
@@ -164,7 +164,7 @@ common_ui_monitor_enum_cb (HMONITOR monitor_in,
 #else
       monitor_info_s.szDevice;
 #endif // UNICODE
-#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0600)
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM (0x0600)
     display_device_p->device =
 #if defined (UNICODE)
       ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (monitor_info_s.szDevice));
@@ -179,10 +179,10 @@ common_ui_monitor_enum_cb (HMONITOR monitor_in,
   result = TRUE;
 
 clean:
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_VISTA
+#if COMMON_OS_WIN32_TARGET_PLATFORM (0x0600) // _WIN32_WINNT_VISTA
   if (physical_monitors_p)
     delete [] physical_monitors_p;
-#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0600)
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM (0x0600)
 
   return result;
 };
@@ -372,18 +372,18 @@ Common_UI_Tools::getAdapters ()
                              flags_i))          // dwFlags
       break;
     device_feature_string.clear ();
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0500) // _WIN32_WINNT_WIN2K
+#if COMMON_OS_WIN32_TARGET_PLATFORM (0x0500) // _WIN32_WINNT_WIN2K
     if (display_device_s.StateFlags & DISPLAY_DEVICE_ACTIVE)
      device_feature_string += ACE_TEXT_ALWAYS_CHAR ("active ");
     if (display_device_s.StateFlags & DISPLAY_DEVICE_ATTACHED)
      device_feature_string += ACE_TEXT_ALWAYS_CHAR ("attached ");
-#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0500)
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM (0x0500)
     if (display_device_s.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP)
      device_feature_string += ACE_TEXT_ALWAYS_CHAR ("desktop ");
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0500) // _WIN32_WINNT_WIN2K
+#if COMMON_OS_WIN32_TARGET_PLATFORM (0x0500) // _WIN32_WINNT_WIN2K
     if (display_device_s.StateFlags & DISPLAY_DEVICE_DISCONNECT)
      device_feature_string += ACE_TEXT_ALWAYS_CHAR ("disconnect ");
-#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0500)
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM (0x0500)
     if (display_device_s.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER)
      device_feature_string += ACE_TEXT_ALWAYS_CHAR ("mirror ");
     if (display_device_s.StateFlags & DISPLAY_DEVICE_MODESPRUNED)
@@ -392,18 +392,18 @@ Common_UI_Tools::getAdapters ()
      device_feature_string += ACE_TEXT_ALWAYS_CHAR ("multi ");
     if (display_device_s.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)
      device_feature_string += ACE_TEXT_ALWAYS_CHAR ("primary ");
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0500) // _WIN32_WINNT_WIN2K
+#if COMMON_OS_WIN32_TARGET_PLATFORM (0x0500) // _WIN32_WINNT_WIN2K
     if (display_device_s.StateFlags & DISPLAY_DEVICE_REMOTE)
      device_feature_string += ACE_TEXT_ALWAYS_CHAR ("remote ");
     if (display_device_s.StateFlags & DISPLAY_DEVICE_REMOVABLE)
      device_feature_string += ACE_TEXT_ALWAYS_CHAR ("removable ");
-#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0500)
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM (0x0500)
     if (display_device_s.StateFlags & DISPLAY_DEVICE_TS_COMPATIBLE)
      device_feature_string += ACE_TEXT_ALWAYS_CHAR ("ts_compatible ");
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0600) // _WIN32_WINNT_LONGHORN
+#if COMMON_OS_WIN32_TARGET_PLATFORM (0x0600) // _WIN32_WINNT_LONGHORN
     if (display_device_s.StateFlags & DISPLAY_DEVICE_UNSAFE_MODES_ON)
      device_feature_string += ACE_TEXT_ALWAYS_CHAR ("unsafe_modes ");
-#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0600)
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM (0x0600)
     if (display_device_s.StateFlags & DISPLAY_DEVICE_VGA_COMPATIBLE)
      device_feature_string += ACE_TEXT_ALWAYS_CHAR ("vga_compatible ");
 #if defined (UNICODE)
@@ -2246,7 +2246,14 @@ Common_UI_Tools::setConsoleMaxWindowSize (ACE_INT16 requestedWidth_in)
     coord_s.Y = console_screen_buffer_info_ex_s.dwSize.Y;
     result = SetConsoleScreenBufferSize (console_h,
                                          coord_s);
-    ACE_ASSERT (result == TRUE);
+    if (unlikely (result != TRUE))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to SetConsoleScreenBufferSize(%@): \"%s\", returning\n"),
+                  console_h,
+                  ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
+      return { 0, 0, 0, 0 };
+    } // end IF
     result = GetConsoleScreenBufferInfoEx (console_h,
                                            &console_screen_buffer_info_ex_s);
     ACE_ASSERT (result == TRUE);
@@ -2276,7 +2283,7 @@ Common_UI_Tools::setConsoleFontSize (int factor_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::setConsoleFontSize"));
 
-  std::string commandline_string = ACE_TEXT_ALWAYS_CHAR(COMMON_COMMAND_XDOTOOL);
+  std::string commandline_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_XDOTOOL);
   commandline_string += ACE_TEXT_ALWAYS_CHAR(" key ");
   for (int i = 0;
        i < std::abs (factor_in);
@@ -2288,9 +2295,9 @@ Common_UI_Tools::setConsoleFontSize (int factor_in)
   int exit_status = -1;
   std::string stdout_string;
   return Common_Process_Tools::command (commandline_string,
-                                       exit_status,
-                                       stdout_string,
-                                       false);
+                                        exit_status,
+                                        stdout_string,
+                                        false);
 }
 
 bool
