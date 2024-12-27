@@ -6,20 +6,21 @@
 #include "ace/Assert.h"
 #include "ace/Global_Macros.h"
 
-class Common_Math_FFT_SampleIterator
+template <typename ValueType> 
+class Common_Math_FFT_SampleIterator_T
 {
  public:
-  Common_Math_FFT_SampleIterator (uint8_t*); // buffer
-  inline virtual ~Common_Math_FFT_SampleIterator () {}
+  Common_Math_FFT_SampleIterator_T (uint8_t*); // buffer
+  inline virtual ~Common_Math_FFT_SampleIterator_T () {}
 
   bool initialize (unsigned int, // bytes / 'data sample' (i.e. sizeof ('sound sample') * channels)
                    unsigned int, // resolution: bytes per 'sound sample'
                    bool,         // signed 'sound sample' format ?
                    bool,         // floating point format ? : integer format
                    int);         // 'sound sample' byte order (ACE-style, 0: N/A)
-  double get (unsigned int,  // index (i.e. #sample into buffer)
-              unsigned int); // channel index (i.e. 0: mono/stereo left,
-                             //                     1: stereo right, ...)
+  ValueType get (unsigned int,  // index (i.e. #sample into buffer)
+                 unsigned int); // channel index (i.e. 0: mono/stereo left,
+                                //                     1: stereo right, ...)
 
   bool         isInitialized_;
   uint8_t*     buffer_;
@@ -29,9 +30,9 @@ class Common_Math_FFT_SampleIterator
   unsigned int soundSampleSize_; // mono-
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator ())
-  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator (const Common_Math_FFT_SampleIterator&))
-  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator& operator= (const Common_Math_FFT_SampleIterator&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator_T ())
+  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator_T (const Common_Math_FFT_SampleIterator_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator_T& operator= (const Common_Math_FFT_SampleIterator_T&))
 
   bool         isFloatingPointFormat_;
   int          sampleByteOrder_; // ACE-style, 0: N/A
