@@ -103,7 +103,7 @@ class Common_Math_FFT_T
                                     : 0.0));
   }
 
-  inline std::vector<ValueType> Spectrum () const
+  std::vector<ValueType> Spectrum () const
   {
     std::vector<ValueType> result_a;
 
