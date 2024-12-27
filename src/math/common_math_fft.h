@@ -2,6 +2,7 @@
 #define COMMON_MATH_FFT_H
 
 #include <complex>
+#include <vector>
 
 #include "ace/Assert.h"
 #include "ace/Global_Macros.h"
@@ -75,9 +76,9 @@ class Common_Math_FFT_T
     ACE_ASSERT (slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
     return (normalize_in ? (slot_in ? std::norm (X_[channel_in][slot_in]) 
-                                    : 0) / (sqMaxValue_ ? sqMaxValue_ : 1)
+                                    : 0.0) / (sqMaxValue_ ? sqMaxValue_ : 1.0)
                          : (slot_in ? std::norm (X_[channel_in][slot_in])
-                                    : 0));
+                                    : 0.0));
   }
   inline ValueType Magnitude (unsigned int slot_in,
                               unsigned int channel_in,
@@ -86,9 +87,9 @@ class Common_Math_FFT_T
     ACE_ASSERT (slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
     return (normalize_in ? (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in])) 
-                                    : 0) / (maxValue_ ? maxValue_ : 1)
+                                    : 0.0) / (maxValue_ ? maxValue_ : 1.0)
                          : (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in]))
-                                    : 0));
+                                    : 0.0));
   }
   inline ValueType Magnitude2 (unsigned int slot_in,
                                unsigned int channel_in,
@@ -97,15 +98,34 @@ class Common_Math_FFT_T
     ACE_ASSERT (slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
     return (normalize_in ? (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in]))
-                                      : 0) / (2.0 * slots_)
-                           : (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in]))
-                                      : 0));
+                                    : 0.0) / (2.0 * slots_)
+                         : (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in]))
+                                    : 0.0));
   }
-  //inline int          Value (unsigned int slot_in,
-  //                           unsigned int channel_in) const
-  //{ ACE_ASSERT (slot_in < slots_); ACE_ASSERT (channel_in < channels_);
-  //  return static_cast<int> (buffer_[channel_in][slot_in]);
-  //}
+
+  inline std::vector<ValueType> Spectrum () const
+  {
+    std::vector<ValueType> result_a;
+
+    // sanity check(s)
+    if (unlikely (!isInitialized_))
+      return result_a;
+
+    // *IMPORTANT NOTE*: - the first ('DC'-)slot does not contain frequency
+    //                     information --> i = 1
+    //                   - the slots N/2 - N are mirrored and do not contain
+    //                     additional information
+    //                     --> there are only N/2 - 1 meaningful values
+    for (int i = 1; i < slots_ / 2; ++i)
+    {
+      ValueType value_f = std::sqrt (std::norm (X_[0][i]));
+      for (int j = 1; j < channels_; ++j)
+        value_f += std::sqrt (std::norm (X_[j][i]));
+      value_f /= static_cast<ValueType> (channels_);
+      result_a.push_back (value_f);
+    } // end FOR
+    return result_a;
+  }
 
   // return frequency in Hz of a given slot
   inline unsigned int Frequency (unsigned int slot_in) const
@@ -115,7 +135,7 @@ class Common_Math_FFT_T
   inline unsigned int MaxFrequency () const { return sampleRate_ / 2; }
   inline unsigned int HzToSlot (unsigned int frequency_in) const
   {
-    return static_cast<unsigned int> ((slots_ * frequency_in) / static_cast<double> (sampleRate_ / 2));
+    return static_cast<unsigned int> ((slots_ * frequency_in) / (sampleRate_ / 2.0));
   }
 
   // *NOTE*: only required when retrieving normalized (!) magnitudes (see above)

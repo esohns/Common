@@ -478,11 +478,12 @@ Common_Math_FFT_T<ValueType>::ComputeMaxValue ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::ComputeMaxValue"));
 
-  ValueType temp = 0;
+  // sanity check(s)
+  ACE_ASSERT (X_);
 
-  for (unsigned int j = 0;
-       j < channels_;
-       ++j)
+  ValueType temp = 0.0;
+
+  for (unsigned int j = 0; j < channels_; ++j)
     for (unsigned int i = 0; i < slots_; ++i)
     {
       ValueType magnitude = std::sqrt (std::norm (X_[j][i]));

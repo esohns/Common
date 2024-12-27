@@ -57,13 +57,17 @@ class Common_GL_Camera
   void updateDirection (float, float);
   void updateZoom (float); // dz
 
+#if defined (GLM_SUPPORT)
   glm::vec3 position_;
   glm::vec3 looking_at_;
   glm::vec3 up_;
   glm::vec3 right_;
+#endif // GLM_SUPPORT
   float yaw_; // degrees
   float pitch_; // degrees
   float zoom_;  // *TODO*: use for FOV [1.0f, 45.0f]
+
+#if defined (GLM_SUPPORT)
   glm::vec2 old_mouse_position_;
 
   // *TODO*: is this an alternative to glm::lookAt() ?
@@ -89,7 +93,9 @@ class Common_GL_Camera
                              (float)width_in / height_in,
                              zNear_in, zFar_in);
   }
+#endif // GLM_SUPPORT
 
+#if defined (GLM_SUPPORT)
   inline void forward (float speed_in)
   {
     position_ += looking_at_ * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR);
@@ -110,6 +116,7 @@ class Common_GL_Camera
     position_ -=
       right * (speed_in * COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR);
   }
+#endif // GLM_SUPPORT
 
   void mouseLook (int, int);
 
