@@ -122,20 +122,20 @@ Common_GL_Tools::toRGBColor (float color_in)
   ACE_OS::memset (&result, 0, sizeof (Common_GL_Color_t));
 
   // sanity check(s)
-  if (color_in < 0.0F)
-    color_in = 0.0F;
-  else if (color_in > 1.0)
-    color_in = 1.0F;
+  if (color_in < 0.0f)
+    color_in = 0.0f;
+  else if (color_in > 1.0f)
+    color_in = 1.0f;
 
   static Common_GL_Color_t red = {255, 0, 0, 255};
   static Common_GL_Color_t green = {0, 255, 0, 255};
   static Common_GL_Color_t blue = {0, 0, 255, 255};
-  if (color_in < 0.5)
+  if (color_in < 0.5f)
     result = Common_GL_Tools::lerpRGB (red, green, color_in * 2.0f);
-  else if (color_in == 0.5)
+  else if (color_in == 0.5f)
     result = green;
   else
-    result = Common_GL_Tools::lerpRGB (green, blue, (color_in - 0.5F) * 2.0f);
+    result = Common_GL_Tools::lerpRGB (green, blue, (color_in - 0.5f) * 2.0f);
 
   return result;
 }
@@ -149,6 +149,7 @@ Common_GL_Tools::randomColor ()
   result.r = static_cast<uint8_t> (Common_Tools::getRandomNumber (0, 255));
   result.g = static_cast<uint8_t> (Common_Tools::getRandomNumber (0, 255));
   result.b = static_cast<uint8_t> (Common_Tools::getRandomNumber (0, 255));
+  result.a = 255U;
 
   return result;
 }
