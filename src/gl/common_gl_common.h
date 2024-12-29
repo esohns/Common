@@ -73,13 +73,14 @@ typedef std::pair<struct Common_GL_VectorF3, struct Common_GL_VectorF3> Common_G
 #endif // GLM_SUPPORT
 
 #if defined (GLM_SUPPORT)
-typedef glm::u8vec3 Common_GL_Color_t;
+typedef glm::u8vec4 Common_GL_Color_t;
 #else
 struct Common_GL_Color
 {
   uint8_t r;
   uint8_t g;
   uint8_t b;
+  uint8_t a;
 };
 typedef struct Common_GL_Color Common_GL_Color_t;
 #endif // GLM_SUPPORT

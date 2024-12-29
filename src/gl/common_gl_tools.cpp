@@ -127,15 +127,15 @@ Common_GL_Tools::toRGBColor (float color_in)
   else if (color_in > 1.0)
     color_in = 1.0F;
 
-  static Common_GL_Color_t red = { 255, 0, 0 };
-  static Common_GL_Color_t green = { 0, 255, 0 };
-  static Common_GL_Color_t blue = { 0, 0, 255 };
+  static Common_GL_Color_t red = {255, 0, 0, 255};
+  static Common_GL_Color_t green = {0, 255, 0, 255};
+  static Common_GL_Color_t blue = {0, 0, 255, 255};
   if (color_in < 0.5)
-    result = Common_GL_Tools::lerpRGB (red, green, color_in * 2.0F);
+    result = Common_GL_Tools::lerpRGB (red, green, color_in * 2.0f);
   else if (color_in == 0.5)
     result = green;
   else
-    result = Common_GL_Tools::lerpRGB (green, blue, (color_in - 0.5F) * 2.0F);
+    result = Common_GL_Tools::lerpRGB (green, blue, (color_in - 0.5F) * 2.0f);
 
   return result;
 }
