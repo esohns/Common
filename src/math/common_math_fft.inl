@@ -185,6 +185,8 @@ Common_Math_FFT_T<ValueType>::Initialize (unsigned int channels_in,
 
   if (isInitialized_)
   {
+    isInitialized_ = false;
+
     if (buffer_)
     {
       for (unsigned int i = 0; i < channels_; ++i)
@@ -214,8 +216,6 @@ Common_Math_FFT_T<ValueType>::Initialize (unsigned int channels_in,
         delete [] X_[i];
       delete [] X_; X_ = NULL;
     } // end IF
-
-    isInitialized_ = false;
   } // end IF
 
   int rev = 0;

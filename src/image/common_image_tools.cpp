@@ -1749,12 +1749,12 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
     targetResolution_inout.cx = static_cast<int> (std::round (sourceResolution_in.cx * (1.0f / ratio_f)));
   } // end ELSE IF
 #else
-  if (targetResolution_inout.height == -1)
+  if (targetResolution_inout.height == static_cast<unsigned int> (-1))
   { ACE_ASSERT (targetResolution_inout.width > 0);
     float ratio_f = sourceResolution_in.width / static_cast<float> (targetResolution_inout.width);
     targetResolution_inout.height = static_cast<int> (std::round (sourceResolution_in.height * (1.0f / ratio_f)));
   } // end IF
-  else if (targetResolution_inout.width == -1)
+  else if (targetResolution_inout.width == static_cast<unsigned int> (-1))
   { ACE_ASSERT (targetResolution_inout.height > 0);
     float ratio_f = sourceResolution_in.height / static_cast<float> (targetResolution_inout.height);
     targetResolution_inout.width = static_cast<int> (std::round (sourceResolution_in.width * (1.0f / ratio_f)));

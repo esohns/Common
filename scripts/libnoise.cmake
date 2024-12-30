@@ -2,6 +2,7 @@ set (LIBNOISE_SUPPORT_DEFAULT ON)
 if (UNIX)
  set (LIBNOISE_DIR "$ENV{LIB_ROOT}/libnoise")
  set (LIBNOISE_INCLUDE_DIRS "${LIBNOISE_DIR}/include")
+ set (LIBNOISE_LIB_DIR "${LIBNOISE_DIR}/build/gcc")
  set (LIBNOISE_LIBRARY "libnoise.so")
  find_library (LIBNOISE_LIB ${LIBNOISE_LIBRARY}
                PATHS ${LIBNOISE_DIR}
