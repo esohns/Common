@@ -247,10 +247,14 @@ if (GTK_SUPPORT AND OPENGL_SUPPORT)
                  PATH_SUFFIXES .libs
                  DOC "searching for ${GTKGLAREA_LIB_FILE}")
   elseif (WIN32)
+   set (PATH_SUFFIX "Release")
+   if (DEFINED CMAKE_BUILD_TYPE)
+    set (PATH_SUFFIX ${CMAKE_BUILD_TYPE})
+   endif (DEFINED CMAKE_BUILD_TYPE)
    set (GTKGLAREA_LIB_FILE gtkglarea.lib)
    find_library (GTKGLAREA_LIBRARY ${GTKGLAREA_LIB_FILE}
                  PATHS $ENV{LIB_ROOT}/gtkglarea/build
-                 PATH_SUFFIXES ${CMAKE_BUILD_TYPE}
+                 PATH_SUFFIXES ${PATH_SUFFIX}
                  DOC "searching for ${GTKGLAREA_LIB_FILE}")
   endif ()
   if (GTKGLAREA_LIBRARY)
@@ -444,9 +448,13 @@ else ()
   endif (VCPKG_USE)
 
   if (NOT CURSES_FOUND)
+   set (PATH_SUFFIX "Release")
+   if (DEFINED CMAKE_BUILD_TYPE)
+    set (PATH_SUFFIX ${CMAKE_BUILD_TYPE})
+   endif (DEFINED CMAKE_BUILD_TYPE)
    find_library (CURSES_LIBRARY pdcurses.lib
                  PATHS $ENV{LIB_ROOT}/PDCurses/wincon
-                 PATH_SUFFIXES ${CMAKE_BUILD_TYPE}
+                 PATH_SUFFIXES ${PATH_SUFFIX}
                  DOC "searching for pdcurses.lib")
    if (NOT CURSES_LIBRARY)
     message (WARNING "could not find pdcurses.lib, continuing")

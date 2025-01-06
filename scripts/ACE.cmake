@@ -6,12 +6,6 @@ if (UNIX)
                PATH_SUFFIXES lib
                DOC "searching for ${ACE_LIB_FILE}")
 elseif (WIN32)
- set (LIB_FILE_SUFFIX "")
- if ((${CMAKE_BUILD_TYPE} STREQUAL "Debug") OR
-     (${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo"))
-  set (LIB_FILE_SUFFIX "d")
- endif ((${CMAKE_BUILD_TYPE} STREQUAL "Debug") OR
-        (${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo"))
  set (ACE_LIB_FILE ACE${LIB_FILE_SUFFIX}.lib)
 
  if (VCPKG_USE)

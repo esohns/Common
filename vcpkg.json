@@ -10,6 +10,7 @@
     "ffmpeg",
     "freeglut",
     "glew",
+    "glfw3",
     "glm",
     "gtk",
     "libiconv",
