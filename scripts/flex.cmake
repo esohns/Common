@@ -1,5 +1,5 @@
 if (WIN32)
- set (FLEX_EXECUTABLE "H:\\bin\\flex_bison\\win_flex.exe" CACHE PATH "Flex executable")
+ set (FLEX_EXECUTABLE "D:\\bin\\flex_bison\\win_flex.exe" CACHE PATH "Flex executable")
 endif (WIN32)
 
 find_package (FLEX)
