@@ -16,6 +16,7 @@
     "libiconv",
     "libxml2",
     "pdcurses",
-    "vulkan"
+    "vulkan",
+    "vulkan-utility-libraries"
   ]
 }
