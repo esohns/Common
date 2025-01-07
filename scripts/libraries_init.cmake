@@ -1,10 +1,3 @@
-if (WIN32)
-# set (CMAKE_BUILD_TYPE $<CONFIG> CACHE STRING "build type" FORCE)
- if (MSVC)
-  set (CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo;MinSizeRel" CACHE STRING "build types" FORCE)
- endif (MSVC)
-endif (WIN32)
-
 set (IS_DEBUG FALSE)
 if ($<CONFIG> STREQUAL "Debug" OR $<CONFIG> STREQUAL "RelWithDebInfo")
  set (IS_DEBUG TRUE)
