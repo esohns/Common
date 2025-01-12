@@ -1,5 +1,13 @@
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts")
+include (fftw)
+
 set (LIBRARY ${PROJECT_NAME}Math)
 add_library (${LIBRARY} STATIC "")
+
+if (FFTW_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${FFTW_INCLUDE_DIRS}>)
+endif (FFTW_SUPPORT)
 
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)
@@ -17,6 +25,11 @@ target_include_directories (${LIBRARY} PUBLIC
 
 if (WIN32)
  add_definitions (-D_USE_MATH_DEFINES)
+ if (FFTW_SUPPORT)
+  add_definitions (-D_CRT_USE_C_COMPLEX_H)
+#  add_definitions (-DFFTW_DLL)
+#  add_definitions (-Dcomplex) *TODO*: using C99 complex.h does not seem to work
+ endif (FFTW_SUPPORT)
 endif (WIN32)
 
 ############## next target ################
@@ -38,9 +51,16 @@ set (source_files
      common_math_tools.cpp
      common_math_tools.h
      common_math_tools.inl)
+if (FFTW_SUPPORT)
+ set (source_files
+      ${source_files}
+     common_math_fftw.cpp
+     common_math_fftw.h
+     common_math_fftw.inl)
+endif (FFTW_SUPPORT)
 
 # Include dir for installed targets
-set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
+#set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 
 #set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -83,18 +103,27 @@ export (TARGETS ${LIBRARY}
         APPEND FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
 
 ############### install files ################
+set (header_files
+     ${header_files}
+     common_math_defines.h
+     common_math_fft.h
+     common_math_fft.inl
+     common_math_pidcontrol.h
+     common_math_pidcontrol_zieglernichols.h
+     common_math_pt1_tracker.h
+     common_math_pt1_tracker.inl
+     common_math_sample.h
+     common_math_sample.inl
+     common_math_tools.h
+     common_math_tools.inl)
+if (FFTW_SUPPORT)
+ set (header_files
+      ${header_files}
+      common_math_fftw.h
+      common_math_fftw.inl)
+endif (FFTW_SUPPORT)
 install (FILES
-         common_math_defines.h
-         common_math_fft.h
-         common_math_fft.inl
-         common_math_pidcontrol.h
-         common_math_pidcontrol_zieglernichols.h
-         common_math_pt1_tracker.h
-         common_math_pt1_tracker.inl
-         common_math_sample.h
-         common_math_sample.inl
-         common_math_tools.h
-         common_math_tools.inl
+         ${header_files}
          DESTINATION include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets

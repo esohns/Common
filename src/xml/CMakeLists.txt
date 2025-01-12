@@ -38,7 +38,7 @@ set (source_files
      common_xml_tools.h)
 
 # Include dir for installed targets
-set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
+#set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 
 unset (absolute_source_files)
 foreach (source_file ${source_files})
