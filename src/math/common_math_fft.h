@@ -51,8 +51,11 @@ class Common_Math_FFT_T
   virtual ~Common_Math_FFT_T ();
 
   void Compute (unsigned int); // channel
-  //void CopyIn (unsigned int, // channel
-  //             ITERATOR_T*); // sample iterator
+
+  typedef Common_Math_FFT_SampleIterator_T<ValueType> ITERATOR_T;
+  void CopyIn (unsigned int, // channel
+               unsigned int, // #samples
+               ITERATOR_T&); // sample iterator
   bool Initialize (unsigned int,  // #channels
                    unsigned int,  // #slots (must be a power of 2)
                    unsigned int); // sample rate (Hz)
@@ -76,7 +79,7 @@ class Common_Math_FFT_T
     ACE_ASSERT (slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
     return (normalize_in ? (slot_in ? std::norm (X_[channel_in][slot_in]) 
-                                    : 0.0) / (sqMaxValue_ ? sqMaxValue_ : 1.0)
+                                    : 0.0) / sqMaxValue_
                          : (slot_in ? std::norm (X_[channel_in][slot_in])
                                     : 0.0));
   }
@@ -87,9 +90,9 @@ class Common_Math_FFT_T
     ACE_ASSERT (slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
     return (normalize_in ? (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in])) 
-                                    : 0.0) / (maxValue_ ? maxValue_ : 1.0)
+                                    : 0.0) / maxValue_
                          : (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in]))
-                                    : 0.0));
+                                    : 0.0) / sqrtSlots_);
   }
   inline ValueType Magnitude2 (unsigned int slot_in,
                                unsigned int channel_in,
@@ -98,7 +101,7 @@ class Common_Math_FFT_T
     ACE_ASSERT (slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
     return (normalize_in ? (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in]))
-                                    : 0.0) / (2.0 * slots_)
+                                    : 0.0) / sqrtSlots_
                          : (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in]))
                                     : 0.0));
   }
@@ -108,15 +111,14 @@ class Common_Math_FFT_T
     std::vector<ValueType> result_a;
 
     // sanity check(s)
-    if (unlikely (!isInitialized_))
-      return result_a;
+    ACE_ASSERT (isInitialized_);
 
     // *IMPORTANT NOTE*: - the first ('DC'-)slot does not contain frequency
     //                     information --> i = 1
     //                   - the slots N/2 - N are mirrored and do not contain
     //                     additional information
     //                     --> there are only N/2 - 1 meaningful values
-    for (int i = 1; i < slots_ / 2; ++i)
+    for (int i = 1; i < halfSlots_; ++i)
     {
       ValueType value_f = std::sqrt (std::norm (X_[0][i]));
       for (int j = 1; j < channels_; ++j)
@@ -162,7 +164,7 @@ class Common_Math_FFT_T
   void ApplyHammingWindow (unsigned int); // channel
 
   int                       logSlots_;
-  double                    sqrtSlots_;
+  ValueType                 sqrtSlots_;     // sqrt (#slots)
   std::complex<ValueType>** W_;             // exponentials
 };
 

@@ -30,7 +30,6 @@ Common_Math_FFT_SampleIterator_T<ValueType>::get (unsigned int index_in,
   //COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_SampleIterator_T::get"));
 
   // sanity check(s)
-  ACE_ASSERT (buffer_);
   ACE_ASSERT (isInitialized_);
 
   switch (soundSampleSize_)
@@ -113,7 +112,8 @@ Common_Math_FFT_T<ValueType>::Common_Math_FFT_T (unsigned int channels_in,
  , halfSlots_ (slots_in / 2)
  , slots_ (slots_in)
  , sampleRate_ (sampleRate_in)
- , maxValue_ (0)
+ , maxValue_ (0.0)
+ , sqMaxValue_ (0.0)
  /////////////////////////////////////////
  , logSlots_ (0)
  , sqrtSlots_ (0.0)
@@ -162,26 +162,9 @@ Common_Math_FFT_T<ValueType>::Initialize (unsigned int channels_in,
   COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Initialize"));
 
   // sanity check(s)
-  if (unlikely (!channels_in))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("invalid #channels, aborting\n")));
-    return false;
-  } // end IF
-  if (unlikely (!slots_in ||
-                (slots_in % 2)))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("invalid #slots (must be > 0 and a power of 2; was: %d), aborting\n"),
-                slots_in));
-    return false;
-  } // end IF
-  if (unlikely (!sampleRate_in))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("invalid sample rate, aborting\n")));
-    return false;
-  } // end IF
+  ACE_ASSERT (channels_in > 0);
+  ACE_ASSERT (slots_in > 0 && (slots_in % 2) == 0);
+  ACE_ASSERT (sampleRate_in);
 
   if (isInitialized_)
   {
@@ -197,6 +180,8 @@ Common_Math_FFT_T<ValueType>::Initialize (unsigned int channels_in,
     halfSlots_ = 0;
     slots_ = 0;
     sampleRate_ = 0;
+    maxValue_ = 0.0;
+    sqMaxValue_ = 0.0;
 
     if (bitReverseMap_)
     {
@@ -284,13 +269,13 @@ Common_Math_FFT_T<ValueType>::Initialize (unsigned int channels_in,
     slots_in >>= 1;
     logSlots_++;
   } // end WHILE
-  sqrtSlots_ = std::sqrt (static_cast<double> (slots_));
+  sqrtSlots_ = std::sqrt (static_cast<ValueType> (slots_));
 
   // precompute complex exponentials
-  //  ACE_NEW_NORETURN (W_,
-  //                    std::complex<ValueType>*[logSlots_ + 1]);
-  W_ =
-    reinterpret_cast<std::complex<ValueType>**> (ACE_OS::malloc (sizeof (std::complex<ValueType>*) * (logSlots_ + 1)));
+  ACE_NEW_NORETURN (W_,
+                    std::complex<ValueType>*[logSlots_ + 1]);
+  //W_ =
+  //  reinterpret_cast<std::complex<ValueType>**> (ACE_OS::malloc (sizeof (std::complex<ValueType>*) * (logSlots_ + 1)));
   if (unlikely (!W_))
   {
     ACE_DEBUG ((LM_CRITICAL,
@@ -367,38 +352,40 @@ error:
   return false;
 }
 
-//void
-//Common_Math_FFT_T::CopyIn (unsigned int channel_in,
-//                         ITERATOR_T* iterator_in)
-//{
-//  COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::CopyIn"));
-//
-//  // sanity check(s)
-//  ACE_ASSERT (channel_in > 0);
-//
-//  int number_of_samples = iterator_in.Count ();
-//  // sanity check(s)
-//  if (number_of_samples > slots_)
-//  {
-//    ACE_DEBUG ((LM_ERROR,
-//                ACE_TEXT ("buffer too small (expected: %d, is: %d), returning\n"),
-//                number_of_samples, slots_));
-//    return;
-//  } // end IF
-//
-//  // make space for inbound samples at the end of the buffer,
-//  // shifting previous samples towards the beginning
-//  ACE_OS::memmove (buffer_[channel_in], &buffer_[channel_in][number_of_samples],
-//                   (slots_ - number_of_samples) * sizeof (ValueType));
-//  // copy the sample data to the tail end of the buffer
-//  int tail_index  = slots_ - number_of_samples;
-//  for (int i = 0; i < number_of_samples; ++i, iterator_in.Advance ())
-//    buffer_[channel_in][tail_index + i] = static_cast<ValueType> (iterator_in.GetSample ());
-//
-//  // initialize the FFT working set buffer
-//  for (int i = 0; i < slots_; ++i)
-//    X_[channel_in][bitReverseMap_[i]] = std::complex<ValueType> (buffer_[channel_in][i]);
-//}
+template <typename ValueType>
+void
+Common_Math_FFT_T<ValueType>::CopyIn (unsigned int channel_in,
+                                      unsigned int samples_in,
+                                      ITERATOR_T& iterator_in)
+{
+  //COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::CopyIn"));
+
+  // sanity check(s)
+  ACE_ASSERT (channel_in > 0);
+  ACE_ASSERT (samples_in <= slots_);
+  //if (unlikely (samples_in > slots_))
+  //{
+  //  ACE_DEBUG ((LM_ERROR,
+  //              ACE_TEXT ("buffer too small (expected: %u, is: %u), returning\n"),
+  //              samples_in, slots_));
+  //  return;
+  //} // end IF
+
+  // make space for inbound samples at the end of the buffer,
+  // shifting previous samples towards the beginning
+  ACE_OS::memmove (&buffer_[channel_in][0], &buffer_[channel_in][samples_in],
+                   (slots_ - samples_in) * sizeof (ValueType));
+
+  // copy the sample data to the tail end of the buffer
+  int tail_slot = slots_ - samples_in;
+  for (int i = 0; i < samples_in; ++i)
+    buffer_[channel_in][tail_slot + i] = iterator_in.get (i, channel_in);
+
+  // initialize the FFT working set buffer
+  // *NOTE*: do this once only per update, before Compute()
+  //for (int i = 0; i < slots_; ++i)
+  //  X_[channel_in][bitReverseMap_[i]] = std::complex<ValueType> (buffer_[channel_in][i], 0.0);
+}
 
 //
 //               0   1   2   3   4   5   6   7
@@ -425,18 +412,12 @@ template <typename ValueType>
 void
 Common_Math_FFT_T<ValueType>::Compute (unsigned int channel_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Compute"));
-
-  //// apply a window function
-  //// *TODO*: do this only for the 'new' buffers ?
-  //ApplyHammingWindow (channel_in);
+  //COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Compute"));
 
   // step = 2 ^ (level - 1)
   // increment = 2 ^ level;
   unsigned int step = 1;
-  for (unsigned int level = 1;
-       level <= static_cast<unsigned int> (logSlots_);
-       ++level)
+  for (unsigned int level = 1; level <= static_cast<unsigned int> (logSlots_); ++level)
   {
     unsigned int increment = step * 2;
     for (unsigned int j = 0; j < step; ++j)
@@ -446,7 +427,6 @@ Common_Math_FFT_T<ValueType>::Compute (unsigned int channel_in)
       for (unsigned int i = j; i < slots_; i += increment)
       {
         // butterfly
-        //std::complex<double> T = U;
         std::complex<ValueType> T = U;
         T *= X_[channel_in][i + step];
         X_[channel_in][i + step]  = X_[channel_in][i];
@@ -462,21 +442,20 @@ template <typename ValueType>
 void
 Common_Math_FFT_T<ValueType>::ApplyHammingWindow (unsigned int channel_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::ApplyHammingWindow"));
+  //COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::ApplyHammingWindow"));
+
+  // sanity check(s)
+  ACE_ASSERT (buffer_);
 
   for (unsigned int i = 0; i < slots_; ++i)
-  {
-    ValueType factor =
-      (0.54 - 0.46 * std::cos ((2.0 * M_PI * i) / static_cast<ValueType> (slots_)));
-    buffer_[channel_in][i] *= factor;
-  } // end FOR
+    buffer_[channel_in][i] *= (0.54 - 0.46 * std::cos ((2.0 * M_PI * i) / static_cast<ValueType> (slots_)));
 }
 
 template <typename ValueType>
 void
 Common_Math_FFT_T<ValueType>::ComputeMaxValue ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::ComputeMaxValue"));
+  //COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::ComputeMaxValue"));
 
   // sanity check(s)
   ACE_ASSERT (X_);
@@ -484,7 +463,7 @@ Common_Math_FFT_T<ValueType>::ComputeMaxValue ()
   ValueType temp = 0.0;
 
   for (unsigned int j = 0; j < channels_; ++j)
-    for (unsigned int i = 0; i < slots_; ++i)
+    for (unsigned int i = 1; i < halfSlots_; ++i)
     {
       ValueType magnitude = std::sqrt (std::norm (X_[j][i]));
       temp = std::max (temp, magnitude);
