@@ -184,6 +184,8 @@ class Common_Math_FFTW_T
   ACE_UNIMPLEMENTED_FUNC (Common_Math_FFTW_T& operator= (const Common_Math_FFTW_T&))
 
   void ApplyHammingWindow (unsigned int); // channel
+
+  ValueType                 sqrtSlots_; // sqrt (#slots)
 };
 
 // include template definition

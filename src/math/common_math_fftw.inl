@@ -22,7 +22,7 @@ Common_Math_FFTW_SampleIterator_T<ValueType>::Common_Math_FFTW_SampleIterator_T 
 template <typename ValueType>
 ValueType
 Common_Math_FFTW_SampleIterator_T<ValueType>::get (unsigned int index_in,
-                                                   unsigned int subSampleIndex_in) // i.e. channel#
+                                                   unsigned int channel_in)
 {
   //COMMON_TRACE (ACE_TEXT ("Common_Math_FFTW_SampleIterator_T::get"));
 
@@ -110,6 +110,7 @@ Common_Math_FFTW_T<ValueType>::Common_Math_FFTW_T (unsigned int channels_in,
  , channels_ (channels_in)
  , slots_ (slots_in)
  , sampleRate_ (sampleRate_in)
+ , sqrtSlots_ (0.0)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Math_FFTW_T::Common_Math_FFTW_T"));
 
@@ -190,8 +191,12 @@ Common_Math_FFTW_T<ValueType>::Initialize (unsigned int channels_in,
       delete[] plans_; plans_ = NULL;
     } // end IF
     channels_ = 0;
+    halfSlots_ = 0;
     slots_ = 0;
     sampleRate_ = 0;
+    maxValue_ = 0.0;
+    sqMaxValue_ = 0.0;
+    sqrtSlots_ = 0.0;
   } // end IF
 
   ACE_NEW_NORETURN (buffer_,
@@ -220,18 +225,18 @@ Common_Math_FFTW_T<ValueType>::Initialize (unsigned int channels_in,
 #else
   for (unsigned int i = 0; i < channels_in; ++i)
     for (unsigned int j = 0; j < slots_in; ++j)
-      buffer_[i][j] = 0;
+      buffer_[i][j] = 0.0;
 #endif // 0
 
   ACE_NEW_NORETURN (X_,
-                    fftwf_complex*[channels_]);
+                    fftwf_complex*[channels_in]);
   if (unlikely (!X_))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory, aborting\n")));
     goto error;
   } // end IF
-  for (unsigned int i = 0; i < channels_; ++i)
+  for (unsigned int i = 0; i < channels_in; ++i)
   {
     ACE_NEW_NORETURN (X_[i],
                       fftwf_complex[slots_]);
@@ -244,17 +249,17 @@ Common_Math_FFTW_T<ValueType>::Initialize (unsigned int channels_in,
   } // end FOR
 
   ACE_NEW_NORETURN (Y_,
-                    fftwf_complex*[channels_]);
+                    fftwf_complex*[channels_in]);
   if (unlikely (!Y_))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory, aborting\n")));
     goto error;
   } // end IF
-  for (unsigned int i = 0; i < channels_; ++i)
+  for (unsigned int i = 0; i < channels_in; ++i)
   {
     ACE_NEW_NORETURN (Y_[i],
-                      fftwf_complex[slots_]);
+                      fftwf_complex[slots_in]);
     if (unlikely (!Y_[i]))
     {
       ACE_DEBUG ((LM_CRITICAL,
@@ -264,14 +269,14 @@ Common_Math_FFTW_T<ValueType>::Initialize (unsigned int channels_in,
   } // end FOR
 
   ACE_NEW_NORETURN (plans_,
-                    struct fftwf_plan_s*[channels_]);
+                    struct fftwf_plan_s*[channels_in]);
   if (unlikely (!plans_))
   {
     ACE_DEBUG ((LM_CRITICAL,
                 ACE_TEXT ("failed to allocate memory, aborting\n")));
     goto error;
   } // end IF
-  for (unsigned int i = 0; i < channels_; ++i)
+  for (unsigned int i = 0; i < channels_in; ++i)
   {
     plans_[i] =
       fftwf_plan_dft_1d (slots_in, X_[i], Y_[i], FFTW_FORWARD, FFTW_ESTIMATE);
@@ -284,8 +289,10 @@ Common_Math_FFTW_T<ValueType>::Initialize (unsigned int channels_in,
   } // end FOR
 
   channels_ = channels_in;
+  halfSlots_ = slots_in / 2;
   slots_ = slots_in;
   sampleRate_ = sampleRate_in;
+  sqrtSlots_ = std::sqrt (static_cast<ValueType> (slots_in));
 
   isInitialized_ = true;
 
