@@ -2103,13 +2103,29 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
     //  Common_String_Tools::tolower (Common_File_Tools::basename (Common_File_Tools::executable, true));
   } // end ELSE
 #else
-  std::string module_name_string =
-      (moduleName_in.empty () ? ACE_TEXT_ALWAYS_CHAR ("")
-                              : Common_String_Tools::tolower (Common_File_Tools::basename (Common_File_Tools::executable, true)));
-  return_value =
-    Common_File_Tools::getSystemConfigurationDataDirectory (packageName_in,
-                                                            module_name_string,
-                                                            isConfiguration_in);
+  if (is_test_b)
+  {
+    return_value = Common_File_Tools::getWorkingDirectory ();
+    return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
+    return_value +=
+      (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
+                          : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
+  } // end IF
+  else
+  {
+    return_value = Common_File_Tools::getWorkingDirectory ();
+    return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
+    return_value +=
+      (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
+                          : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
+  } // end ELSE
+  // std::string module_name_string =
+  //     (moduleName_in.empty () ? ACE_TEXT_ALWAYS_CHAR ("")
+  //                             : Common_String_Tools::tolower (Common_File_Tools::basename (Common_File_Tools::executable, true)));
+  // return_value =
+  //   Common_File_Tools::getSystemConfigurationDataDirectory (packageName_in,
+  //                                                           module_name_string,
+  //                                                           isConfiguration_in);
 #endif // ACE_WIN32 || ACE_WIN64
 
   // sanity check(s)

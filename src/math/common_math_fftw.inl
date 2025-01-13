@@ -239,7 +239,7 @@ Common_Math_FFTW_T<ValueType>::Initialize (unsigned int channels_in,
   for (unsigned int i = 0; i < channels_in; ++i)
   {
     ACE_NEW_NORETURN (X_[i],
-                      fftwf_complex[slots_]);
+                      fftwf_complex[slots_in]);
     if (unlikely (!X_[i]))
     {
       ACE_DEBUG ((LM_CRITICAL,
@@ -269,7 +269,7 @@ Common_Math_FFTW_T<ValueType>::Initialize (unsigned int channels_in,
   } // end FOR
 
   ACE_NEW_NORETURN (plans_,
-                    struct fftwf_plan_s*[channels_in]);
+                    fftwf_plan[channels_in]);
   if (unlikely (!plans_))
   {
     ACE_DEBUG ((LM_CRITICAL,
@@ -319,7 +319,7 @@ error:
   } // end IF
   if (plans_)
   {
-    for (unsigned int i = 0; i < channels_; ++i)
+    for (unsigned int i = 0; i < channels_in; ++i)
       fftwf_destroy_plan (plans_[i]);
     delete[] plans_; plans_ = NULL;
   } // end IF
@@ -384,7 +384,9 @@ Common_Math_FFTW_T<ValueType>::ComputeMaxValue ()
   for (unsigned int j = 0; j < channels_; ++j)
     for (unsigned int i = 1; i < halfSlots_; ++i)
     {
-      ValueType magnitude = std::sqrt (std::norm (Y_[j][i]));
+      ValueType real_f = Y_[j][i][0];
+      ValueType imag_f = Y_[j][i][1];
+      ValueType magnitude = std::sqrt (real_f * real_f + imag_f * imag_f);
       temp = std::max (temp, magnitude);
     } // end FOR
 

@@ -1,10 +1,11 @@
 #ifndef COMMON_MATH_FFTW_T
 #define COMMON_MATH_FFTW_T
 
+#include <cmath>
 #include <vector>
 
-#include <complex.h>
-#undef howmany
+// #include <complex.h>
+// #undef howmany
 #include "fftw3.h"
 
 #include "ace/Global_Macros.h"
@@ -169,7 +170,7 @@ class Common_Math_FFTW_T
   ValueType**               buffer_;        // sample data [/channel]
   fftwf_complex**           X_;             // input working buffer [/channel]
   fftwf_complex**           Y_;             // output working buffer [/channel]
-  fftwf_plan_s**            plans_;
+  fftwf_plan*               plans_;
 
   unsigned int              channels_;      // #channels
   unsigned int              halfSlots_;     // #slots / 2
