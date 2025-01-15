@@ -76,34 +76,28 @@ class Common_Math_FFT_T
                                 unsigned int channel_in,
                                 bool normalize_in)
   { ACE_ASSERT (X_);
-    ACE_ASSERT (slot_in < slots_);
+    ACE_ASSERT (slot_in > 0 && slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
-    return (normalize_in ? (slot_in ? std::norm (X_[channel_in][slot_in]) 
-                                    : 0.0) / sqMaxValue_
-                         : (slot_in ? std::norm (X_[channel_in][slot_in])
-                                    : 0.0));
+    return (normalize_in ? std::norm (X_[channel_in][slot_in]) / sqMaxValue_
+                         : std::norm (X_[channel_in][slot_in]));
   }
   inline ValueType Magnitude (unsigned int slot_in,
                               unsigned int channel_in,
                               bool normalize_in = true) const
   { ACE_ASSERT (X_);
-    ACE_ASSERT (slot_in < slots_);
+    ACE_ASSERT (slot_in > 0 && slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
-    return (normalize_in ? (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in])) 
-                                    : 0.0) / maxValue_
-                         : (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in]))
-                                    : 0.0) / sqrtSlots_);
+    return (normalize_in ? std::sqrt (std::norm (X_[channel_in][slot_in])) / maxValue_
+                         : std::sqrt (std::norm (X_[channel_in][slot_in])) / sqrtSlots_);
   }
   inline ValueType Magnitude2 (unsigned int slot_in,
                                unsigned int channel_in,
                                bool normalize_in = true) const
   { ACE_ASSERT (X_);
-    ACE_ASSERT (slot_in < slots_);
+    ACE_ASSERT (slot_in > 0 && slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
-    return (normalize_in ? (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in]))
-                                    : 0.0) / sqrtSlots_
-                         : (slot_in ? std::sqrt (std::norm (X_[channel_in][slot_in]))
-                                    : 0.0));
+    return (normalize_in ? std::sqrt (std::norm (X_[channel_in][slot_in])) / sqrtSlots_
+                         : std::sqrt (std::norm (X_[channel_in][slot_in])));
   }
 
   std::vector<ValueType> Spectrum () const

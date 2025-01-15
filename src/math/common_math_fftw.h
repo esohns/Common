@@ -26,8 +26,8 @@ class Common_Math_FFTW_SampleIterator_T
                    bool,         // floating point format ? : integer format
                    int);         // 'sound sample' byte order (ACE-style, 0: N/A)
   ValueType get (unsigned int,  // index (i.e. #sample into buffer)
-                 unsigned int); // subsample index (e.g. 0: mono/stereo left,
-                                //                       1: stereo right, ...)
+                 unsigned int); // channel# (e.g. 0: mono/stereo left,
+                                //                1: stereo right, ...)
 
   bool         isInitialized_;
   uint8_t*     buffer_;
@@ -82,74 +82,40 @@ class Common_Math_FFTW_T
                                 unsigned int channel_in,
                                 bool normalize_in)
   { ACE_ASSERT (Y_);
-    ACE_ASSERT (slot_in < slots_);
+    ACE_ASSERT (slot_in > 0 && slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
 
     ValueType real_f = Y_[channel_in][slot_in][0];
     ValueType imag_f = Y_[channel_in][slot_in][1];
-    return (normalize_in ? (slot_in ? real_f * real_f + imag_f * imag_f
-                                    : 0.0) / sqMaxValue_
-                         : (slot_in ? real_f * real_f + imag_f * imag_f
-                                    : 0.0));
+    return (normalize_in ? (real_f * real_f + imag_f * imag_f) / sqMaxValue_
+                         : real_f * real_f + imag_f * imag_f);
   }
   inline ValueType Magnitude (unsigned int slot_in,
                               unsigned int channel_in,
                               bool normalize_in = true) const
   { ACE_ASSERT (Y_);
-    ACE_ASSERT (slot_in < slots_);
+    ACE_ASSERT (slot_in > 0 && slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
 
     ValueType real_f = Y_[channel_in][slot_in][0];
     ValueType imag_f = Y_[channel_in][slot_in][1];
-    return (normalize_in ? (slot_in ? std::sqrt (real_f * real_f + imag_f * imag_f) 
-                                    : 0.0) / maxValue_
-                         : (slot_in ? std::sqrt (real_f * real_f + imag_f * imag_f)
-                                    : 0.0) / sqrtSlots_);
+    return (normalize_in ? std::sqrt (real_f * real_f + imag_f * imag_f) / maxValue_
+                         : std::sqrt (real_f * real_f + imag_f * imag_f) / sqrtSlots_);
   }
   inline ValueType Magnitude2 (unsigned int slot_in,
                                unsigned int channel_in,
                                bool normalize_in = true) const
   { ACE_ASSERT (Y_);
-    ACE_ASSERT (slot_in < slots_);
+    ACE_ASSERT (slot_in > 0 && slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
 
     ValueType real_f = Y_[channel_in][slot_in][0];
     ValueType imag_f = Y_[channel_in][slot_in][1];
-    return (normalize_in ? (slot_in ? std::sqrt (real_f * real_f + imag_f * imag_f)
-                                    : 0.0) / sqrtSlots_
-                         : (slot_in ? std::sqrt (real_f * real_f + imag_f * imag_f)
-                                    : 0.0));
+    return (normalize_in ? std::sqrt (real_f * real_f + imag_f * imag_f) / sqrtSlots_
+                         : std::sqrt (real_f * real_f + imag_f * imag_f));
   }
 
-  std::vector<ValueType> Spectrum () const
-  {
-    std::vector<ValueType> result_a;
-
-    // sanity check(s)
-    ACE_ASSERT (isInitialized_);
-
-    // *IMPORTANT NOTE*: - the first ('DC'-)slot does not contain frequency
-    //                     information --> i = 1
-    //                   - the slots N/2 - N are mirrored and do not contain
-    //                     additional information
-    //                     --> there are only N/2 - 1 meaningful values
-    for (int i = 1; i < halfSlots_; ++i)
-    {
-      ValueType real_f = Y_[0][i][0];
-      ValueType imag_f = Y_[0][i][1];
-      ValueType value_f = std::sqrt (real_f * real_f + imag_f * imag_f);
-      for (int j = 1; j < channels_; ++j)
-      {
-        real_f = Y_[j][i][0];
-        imag_f = Y_[j][i][1];
-        value_f += std::sqrt (real_f * real_f + imag_f * imag_f);
-      } // end FOR
-      value_f /= static_cast<ValueType> (channels_);
-      result_a.push_back (value_f);
-    } // end FOR
-
-    return result_a;
-  }
+  std::vector<ValueType> Spectrum (bool = false); // normalize values ?
 
   // return frequency in Hz of a given slot
   inline unsigned int Frequency (unsigned int slot_in) const

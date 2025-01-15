@@ -358,6 +358,50 @@ Common_Math_FFTW_T<ValueType>::CopyIn (unsigned int channel_in,
 }
 
 template <typename ValueType>
+std::vector<ValueType>
+Common_Math_FFTW_T<ValueType>::Spectrum (bool normalize_in)
+{
+  // COMMON_TRACE (ACE_TEXT ("Common_Math_FFTW_T::Spectrum"));
+
+  std::vector<ValueType> result_a;
+
+  // sanity check(s)
+  if (unlikely (!isInitialized_))
+    return result_a;
+
+  if (unlikely (normalize_in))
+    ComputeMaxValue ();
+
+  // *IMPORTANT NOTE*: - the first ('DC'-)slot does not contain frequency
+  //                     information --> i = 1
+  //                   - the slots N/2 - N are mirrored and do not contain
+  //                     additional information
+  //                     --> there are only N/2 - 1 meaningful values
+  for (int i = 1; i < halfSlots_; ++i)
+  {
+    ValueType real_f = Y_[0][i][0];
+    ValueType imag_f = Y_[0][i][1];
+    ValueType value_f = std::sqrt (real_f * real_f + imag_f * imag_f);
+    for (int j = 1; j < channels_; ++j)
+    {
+      real_f = Y_[j][i][0];
+      imag_f = Y_[j][i][1];
+      value_f += std::sqrt (real_f * real_f + imag_f * imag_f);
+    } // end FOR
+    value_f /= static_cast<ValueType> (channels_);
+    result_a.push_back (value_f);
+  } // end FOR
+
+  if (unlikely (normalize_in))
+    for (std::vector<ValueType>::iterator iterator = result_a.begin ();
+         iterator != result_a.end ();
+         ++iterator)
+      *iterator /= maxValue_;
+
+  return result_a;
+}
+
+template <typename ValueType>
 void
 Common_Math_FFTW_T<ValueType>::ApplyHammingWindow (unsigned int channel_in)
 {
