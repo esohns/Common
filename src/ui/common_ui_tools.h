@@ -23,12 +23,6 @@
 
 #include <string>
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-#include "X11/X.h"
-#include "X11/Xlib.h"
-#endif // ACE_WIN32 || ACE_WIN64
-
 #include "ace/Global_Macros.h"
 
 #include "common_iinitialize.h"
@@ -80,23 +74,6 @@ class Common_UI_Tools
 #endif // ACE_WIN32 || ACE_WIN64
   static struct Common_UI_DisplayAdapter getAdapter (const struct Common_UI_DisplayDevice&); // return value: corresponding graphics adapter (if any)
   static Common_UI_DisplayDevices_t getDesktopDisplays (); // return value: devices forming the desktop
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-  static void dump (const struct _XDisplay&, // connection handle
-                    Drawable);               // drawable (window or pixmap)
-  static XWindowAttributes get (const struct _XDisplay&, // connection handle
-                                Window);                 // window
-  // *NOTE*: queries the display name from the 'DISPLAY' environment to verify
-  //         that the X11 session is using the screen connected to the given
-  //         output
-  static std::string getX11DisplayName (const std::string&); // output name
-
-  static Common_UI_Resolution_t toResolution (const struct _XDisplay&, // display
-                                              Window);                 // window
-  static std::string toString (const struct _XDisplay&, // display
-                               int);                    // error code
-#endif // ACE_WIN32 || ACE_WIN64
 
   // *NOTE*: the identifier may specify either a graphics adapter or a display
   // *NOTE*: iff the identifier specifies a graphics adapter, this returns the

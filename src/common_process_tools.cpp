@@ -45,7 +45,7 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "common_error_tools.h"
 #else
-#include "common_ui_tools.h"
+#include "common_ui_x11_tools.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 //////////////////////////////////////////
@@ -668,7 +668,7 @@ Common_Process_Tools::id (struct _XDisplay& display_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to XGetWindowProperty(_NET_WM_PID): \"%s\", aborting\n"),
-                ACE_TEXT (Common_UI_Tools::toString (display_in, result).c_str ())));
+                ACE_TEXT (Common_UI_X11_Tools::toString (display_in, result).c_str ())));
     return 0;
   } // end IF
 
@@ -717,7 +717,7 @@ Common_Process_Tools::recurseSearchWindow (struct _XDisplay& display_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to XQueryTree(): \"%s\", aborting\n"),
-                ACE_TEXT (Common_UI_Tools::toString (display_in, result).c_str ())));
+                ACE_TEXT (Common_UI_X11_Tools::toString (display_in, result).c_str ())));
     return;
   } // end IF
   for (unsigned int i = 0; i < nChildren; i++)

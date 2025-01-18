@@ -393,7 +393,7 @@ Common_Math_FFTW_T<ValueType>::Spectrum (bool normalize_in)
   } // end FOR
 
   if (unlikely (normalize_in))
-    for (std::vector<ValueType>::iterator iterator = result_a.begin ();
+    for (typename std::vector<ValueType>::iterator iterator = result_a.begin ();
          iterator != result_a.end ();
          ++iterator)
       *iterator /= maxValue_;

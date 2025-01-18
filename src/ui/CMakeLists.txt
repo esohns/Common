@@ -48,7 +48,9 @@ if (UNIX)
  set (source_files
       ${source_files}
       common_ui_monitor_setup_xml_handler.cpp
-      common_ui_monitor_setup_xml_handler.h)
+      common_ui_monitor_setup_xml_handler.h
+      common_ui_x11_tools.cpp
+      common_ui_x11_tools.h)
 endif (UNIX)
 
 # Include dir for installed targets
@@ -104,7 +106,8 @@ set (${LIBRARY}_LIB_HDRS
 if (UNIX)
  set (${LIBRARY}_LIB_HDRS
       ${${LIBRARY}_LIB_HDRS}
-      common_ui_monitor_setup_xml_handler.h)
+      common_ui_monitor_setup_xml_handler.h
+      common_ui_x11_tools.h)
 endif (UNIX)
 install (FILES
          ${CommonUI_LIB_HDRS}

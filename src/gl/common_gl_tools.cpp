@@ -295,14 +295,29 @@ error:
 
 //#if defined (_DEBUG)
 //  Common_Image_Resolution_t resolution_s;
+//#if defined (ACE_WIN32) || defined (ACE_WIN64)
+//  resolution_s.cx = width; resolution_s.cy = height;
+//#else
 //  resolution_s.width = width; resolution_s.height = height;
+//#endif // ACE_WIN32 || ACE_WIN64
 //  std::string path = Common_File_Tools::getTempDirectory ();
 //  path += ACE_DIRECTORY_SEPARATOR_STR;
-//  path += Common_File_Tools::basename (path_in, false);
+//  path += Common_File_Tools::basename (path_in, true);
+//#if defined (ACE_WIN32) || defined (ACE_WIN64)
+//  path += ACE_TEXT_ALWAYS_CHAR (".bmp");
+//  uint8_t* buffers_a[1];
+//  buffers_a[0] = image_p;
+//  Common_Image_Tools::saveBMP (resolution_s,
+//                               (has_alpha ? 32 : 24),
+//                               buffers_a,
+//                               path);
+//#else
+//  path += ACE_TEXT_ALWAYS_CHAR (".png");
 //  Common_Image_Tools::savePNG (resolution_s,
 //                               (has_alpha ? AV_PIX_FMT_RGB32 : AV_PIX_FMT_RGB24),
 //                               image_p,
 //                               path);
+//#endif // ACE_WIN32 || ACE_WIN64
 //#endif // _DEBUG
 
   glGenTextures (1, &return_value);
