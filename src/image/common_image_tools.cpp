@@ -1678,7 +1678,7 @@ Common_Image_Tools::load (const std::string& sourceFilePath_in,
 #endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
   result = MagickReadImage (wand_p,
                             sourceFilePath_in.c_str ());
-  if (result != MagickTrue)
+  if (unlikely (result != MagickTrue))
   {
     ExceptionType severity;
     ACE_DEBUG ((LM_ERROR,

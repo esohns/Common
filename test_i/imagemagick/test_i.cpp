@@ -35,7 +35,7 @@
 #include "common_log_tools.h"
 
 #define TEST_I_SOURCE_FILE_NAME "oak-tree.png"
-#define TEST_I_TARGET_FILE_NAME "outfile.data"
+#define TEST_I_TARGET_FILE_NAME "outfile.rgba"
 
 void
 do_print_usage (const std::string& programName_in)
@@ -144,10 +144,10 @@ void
 do_work (const std::string& sourceFilePath_in)
 {
   std::string out_filename = ACE_TEXT_ALWAYS_CHAR (TEST_I_TARGET_FILE_NAME);
-  unsigned char* data_p = NULL;
+  uint8_t* data_p = NULL;
   Common_Image_Resolution_t resolution_s;
 
-  //MagickWandGenesis ();
+  MagickWandGenesis ();
   if (!Common_Image_Tools::load (sourceFilePath_in,
                                  ACE_TEXT_ALWAYS_CHAR ("RGBA"),
                                  resolution_s,
@@ -178,7 +178,7 @@ do_work (const std::string& sourceFilePath_in)
 //error:
   MagickRelinquishMemory (data_p); data_p = NULL;
   ACE_OS::fclose (file_p); file_p = NULL;
-  //MagickWandTerminus ();
+  MagickWandTerminus ();
 }
 
 int
