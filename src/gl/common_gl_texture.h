@@ -14,6 +14,8 @@
 
 #include "ace/Global_Macros.h"
 
+#include "common_image_common.h"
+
 #include "common_gl_shader.h"
 
 class Common_GL_Texture
@@ -33,6 +35,10 @@ class Common_GL_Texture
                      enum Type = Type::TYPE_INVALID);
   ~Common_GL_Texture ();
 
+  bool load (uint8_t*,                         // data
+             const Common_Image_Resolution_t&, // resolution
+             unsigned int,                     // depth
+             bool = true);                     // update ? : initial
   bool load (const std::string&, // FQ path
              bool = true);       // flip image on load ? (required for OpenGL)
   void reset ();

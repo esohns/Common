@@ -390,6 +390,9 @@ Common_GL_Tools::loadTexture (const uint8_t* data_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::loadTexture"));
 
+  // sanity check(s)
+  ACE_ASSERT (depth_in == 3 || depth_in == 4);
+
   glBindTexture (GL_TEXTURE_2D, textureIndex_in);
 
   if (isFirst_in)

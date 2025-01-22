@@ -29,7 +29,7 @@ Common_GL_Texture::Common_GL_Texture ()
 
 Common_GL_Texture::Common_GL_Texture (const std::string& path_in,
                                       enum Type type_in)
- : id_ (Common_GL_Tools::loadTexture (path_in))
+ : id_ (Common_GL_Tools::loadTexture (path_in, true))
  , path_ (id_ ? path_in : ACE_TEXT_ALWAYS_CHAR (""))
  , type_ (id_ ? type_in : Type::TYPE_INVALID)
 {
@@ -54,6 +54,36 @@ Common_GL_Texture::~Common_GL_Texture ()
                  ACE_TEXT ("cannot free texture resources when out of context, continuing\n")));
      //glDeleteTextures (1, &id_);
    } // end IF
+}
+
+bool
+Common_GL_Texture::load (uint8_t* data_in,
+                         const Common_Image_Resolution_t& resolution_in,
+                         unsigned int depth_in,
+                         bool update_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::load"));
+
+  // sanity check(s)
+  if (unlikely (!id_))
+  {
+    glGenTextures (1, &id_);
+  } // end IF
+  ACE_ASSERT (id_);
+
+  Common_GL_Tools::loadTexture (data_in,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                                resolution_in.cx,
+                                resolution_in.cy,
+#else
+                                resolution_in.width,
+                                resolution_in.height,
+#endif // ACE_WIN32 || ACE_WIN64
+                                depth_in,
+                                id_,
+                                !update_in);
+
+  return true;
 }
 
 bool
@@ -126,7 +156,5 @@ Common_GL_Texture::set (Common_GL_Shader& shader_in,
   // sanity check(s)
   ACE_ASSERT (texUniformLocation_i);
 
-  //shader_in.use ();
-
-  glUniform1i (texUniformLocation_i, unit_in);
+  glProgramUniform1i (shader_in.id_, texUniformLocation_i, unit_in);
 }
