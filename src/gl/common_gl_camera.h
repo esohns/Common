@@ -105,13 +105,13 @@ class Common_GL_Camera
     position_ -= looking_at_ * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR);
   }
   void left (float speed_in)
-  {
+  { // *TODO*: doesn't work if looking_at is zero in all components
     glm::vec3 right = glm::cross (looking_at_, up_);
     position_ +=
       right * (speed_in * COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR);
   }
   void right (float speed_in)
-  {
+  { // *TODO*: doesn't work if looking_at is zero in all components
     glm::vec3 right = glm::cross (looking_at_, up_);
     position_ -=
       right * (speed_in * COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR);

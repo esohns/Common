@@ -203,16 +203,13 @@ Common_GL_Model::render (Common_GL_Shader& shader_in,
 #if defined (ACE_WIN32) || defined (ACE_WIN32)
     Common_GL_Camera::getProjectionMatrix (perspectiveInformation_in.resolution.cx,
                                            perspectiveInformation_in.resolution.cy,
-                                           perspectiveInformation_in.FOV,
-                                           perspectiveInformation_in.zNear,
-                                           perspectiveInformation_in.zFar);
 #else
     Common_GL_Camera::getProjectionMatrix (perspectiveInformation_in.resolution.width,
                                            perspectiveInformation_in.resolution.height,
+#endif // ACE_WIN32 || ACE_WIN64
                                            perspectiveInformation_in.FOV,
                                            perspectiveInformation_in.zNear,
                                            perspectiveInformation_in.zFar);
-#endif // ACE_WIN32 || ACE_WIN64
   glm::mat4 proj_x_view_s = projection_matrix_s * view_matrix_s;
   shader_in.setMat4 (ACE_TEXT_ALWAYS_CHAR ("camMatrix"), proj_x_view_s);
 
