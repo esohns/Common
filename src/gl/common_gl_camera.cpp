@@ -122,7 +122,9 @@ Common_GL_Camera::mouseLook (int mouseX_in, int mouseY_in)
 
   glm::vec2 mouse_delta = old_mouse_position_ - current_mouse_position;
   mouse_delta *= COMMON_GL_CAMERA_DEFAULT_MOUSE_LOOK_FACTOR;
-  looking_at_ = glm::rotate (looking_at_, glm::radians (mouse_delta.x), up_);
+  looking_at_ = glm::rotate (looking_at_,
+                             glm::radians (mouse_delta.x),
+                             up_);
 
   old_mouse_position_ = current_mouse_position;
 }

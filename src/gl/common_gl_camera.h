@@ -71,9 +71,9 @@ class Common_GL_Camera
   glm::vec2 old_mouse_position_;
 
   // *TODO*: is this an alternative to glm::lookAt() ?
-  inline static glm::mat4 getViewMatrix (const glm::vec3& position_in,
-                                         const glm::vec3& forward_in,
-                                         const glm::vec3& up_in)
+  static glm::mat4 getViewMatrix (const glm::vec3& position_in,
+                                  const glm::vec3& forward_in,
+                                  const glm::vec3& up_in)
   {
     glm::vec3 right = glm::normalize (glm::cross (forward_in, up_in));
     glm::vec3 up = glm::normalize (glm::cross (right, forward_in));
