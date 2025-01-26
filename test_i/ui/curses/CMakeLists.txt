@@ -68,7 +68,7 @@ endif (WIN32)
 set (ARGS "-t")
 
 if (UNIX)
- file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}" COMMAND)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE}" COMMAND)
  create_target_launcher (${EXECUTABLE}
                          COMMAND ${COMMAND}
                          ARGS ${ARGS}

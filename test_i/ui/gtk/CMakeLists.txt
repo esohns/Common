@@ -9,7 +9,7 @@ if (GTKGL_SUPPORT)
  include (png)
 endif (GTKGL_SUPPORT)
 include (ffmpeg)
-include (ImageMagick)
+#include (ImageMagick)
 
 ############## includes ###############
 if (GLUT_SUPPORT)

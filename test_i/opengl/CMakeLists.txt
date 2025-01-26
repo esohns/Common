@@ -8,7 +8,7 @@ set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../../s
 include (png)
 
 include (ffmpeg)
-include (ImageMagick)
+#include (ImageMagick)
 include (libnoise)
 
 ############## includes ###############
