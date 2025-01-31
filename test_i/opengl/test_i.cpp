@@ -219,6 +219,8 @@ do_work (int argc_in,
 
   glEnable (GL_BLEND); // Enable Semi-Transparency
   COMMON_GL_ASSERT;
+  glEnable (GL_TEXTURE_2D); // Enable Textures
+  COMMON_GL_ASSERT;
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   COMMON_GL_ASSERT;
 
@@ -240,6 +242,9 @@ do_work (int argc_in,
   glutAttachMenu (GLUT_RIGHT_BUTTON);
 #endif // GLUT_SUPPORT
 
+  glActiveTexture (GL_TEXTURE0);
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
   if (!cb_data_s.texture.load (textureFilePath_in))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -247,6 +252,11 @@ do_work (int argc_in,
                 ACE_TEXT (textureFilePath_in.c_str ())));
     return;
   } // end IF
+  cb_data_s.texture.bind (0);
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glGenerateMipmap (GL_TEXTURE_2D);
+  cb_data_s.texture.unbind ();
 
   std::string path_root = Common_File_Tools::getWorkingDirectory ();
   std::string vertex_shader_file_path = path_root;
