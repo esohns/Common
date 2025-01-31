@@ -326,50 +326,10 @@ error:
   glBindTexture (GL_TEXTURE_2D, return_value);
   // COMMON_GL_ASSERT
 
-  //glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-  //COMMON_GL_ASSERT
-  //glEnableClientState (GL_VERTEX_ARRAY);
-  //COMMON_GL_ASSERT
-  //glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  //COMMON_GL_ASSERT
-  // select modulate to mix texture with color for shading
-//    glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-//    COMMON_GL_ASSERT
-
-//#if !defined (GL_VERSION_1_2)
-//  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); // GL_CLAMP_TO_EDGE
-//#else
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-//#endif // GL_VERSION_1_2
-  // COMMON_GL_ASSERT
-//#if !defined (GL_VERSION_1_2)
-//  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP); // GL_CLAMP_TO_EDGE
-//#else
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-//#endif // GL_VERSION_1_1
-  // COMMON_GL_ASSERT
-
   glTexImage2D (GL_TEXTURE_2D, 0, (has_alpha ? GL_RGBA8 : GL_RGB8), width, height, 0,
                 (has_alpha ? GL_RGBA : GL_RGB),
                 GL_UNSIGNED_BYTE, image_p);
   // COMMON_GL_ASSERT
-
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  // COMMON_GL_ASSERT
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  // COMMON_GL_ASSERT
-
-#if defined (GL_VERSION_3_0)
-  glGenerateMipmap (GL_TEXTURE_2D);
-  // COMMON_GL_ASSERT
-#elif defined (GL_VERSION_1_4)
-  glTexParameteri (GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-  COMMON_GL_ASSERT
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-  COMMON_GL_ASSERT
-  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1000);
-  COMMON_GL_ASSERT
-#endif // GL_VERSION_1_4
 
   glBindTexture (GL_TEXTURE_2D, 0);
   // COMMON_GL_ASSERT
@@ -396,43 +356,9 @@ Common_GL_Tools::loadTexture (const uint8_t* data_in,
   glBindTexture (GL_TEXTURE_2D, textureIndex_in);
 
   if (isFirst_in)
-  {
-    //glEnableClientState (GL_TEXTURE_COORD_ARRAY);
-    ////COMMON_GL_ASSERT;
-    //glEnableClientState (GL_VERTEX_ARRAY);
-    ////COMMON_GL_ASSERT;
-    //glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    //COMMON_GL_ASSERT;
-    // select modulate to mix texture with color for shading
-  //    glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-  //    ACE_ASSERT (glGetError () == GL_NO_ERROR);
-
-  //#if !defined (GL_VERSION_1_2)
-  //  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP); // GL_CLAMP_TO_EDGE
-  //#else
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  //#endif // GL_VERSION_1_2
-  //#if !defined (GL_VERSION_1_2)
-  //  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP); // GL_CLAMP_TO_EDGE
-  //#else
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  //#endif // GL_VERSION_1_1
-
     glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, width_in, height_in, 0,
                   (depth_in == 4 ? GL_RGBA : GL_RGB),
                   GL_UNSIGNED_BYTE, data_in);
-
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-#if defined (GL_VERSION_3_0)
-    glGenerateMipmap (GL_TEXTURE_2D);
-#elif defined (GL_VERSION_1_4)
-    glTexParameteri (GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1000);
-#endif // GL_VERSION_1_4 || GL_VERSION_3_0
-  } // end IF
   else
   {
     glTexSubImage2D (GL_TEXTURE_2D, 0, 0, 0, width_in, height_in,

@@ -131,7 +131,7 @@ Common_GL_Texture::bind (GLuint unit_in)
   ACE_ASSERT (id_);
   ACE_ASSERT (unit_in < 31);
 
-  glActiveTexture (GL_TEXTURE0 + unit_in);
+  //glActiveTexture (GL_TEXTURE0 + unit_in);
 
   glBindTexture (GL_TEXTURE_2D, id_);
 }
