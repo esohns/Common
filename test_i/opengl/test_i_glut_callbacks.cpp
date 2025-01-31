@@ -84,7 +84,6 @@ test_i_opengl_glut_draw ()
                                  glm::vec3 (0.0f, 0.0f, -3.0f));
   model_matrix = glm::rotate (model_matrix,
                               glm::radians (angle_f),
-                              //glm::vec3 (1.0f, 1.0f, 1.0f));
                               rotation_s);
 
   glm::mat4 view_matrix = cb_data_p->camera.getViewMatrix ();
@@ -163,11 +162,11 @@ test_i_opengl_glut_draw ()
     rotation_to.x = Common_Tools::getRandomNumber (0.0f, 1.0f);
     rotation_to.y = Common_Tools::getRandomNumber (0.0f, 1.0f);
     rotation_to.z = Common_Tools::getRandomNumber (0.0f, 1.0f);
-    //rotation_to = glm::normalize (rotation_to);
+    rotation_to = glm::normalize (rotation_to);
   } // end IF
   rotation_s = glm::mix (rotation_from, rotation_to, duration_f / TRANSITION_DURATION_F);
-  angle_f += 0.5f; // degrees
-  //angle_f = std::fmod (angle_f, 360.0f);
+  angle_f += 1.5f; // degrees
+  angle_f = std::fmod (angle_f, 360.0f);
 
   glutSwapBuffers ();
 }
