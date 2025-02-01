@@ -219,9 +219,11 @@ do_work (int argc_in,
 
   glEnable (GL_BLEND); // Enable Semi-Transparency
   COMMON_GL_ASSERT;
+  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  COMMON_GL_ASSERT;
   glEnable (GL_TEXTURE_2D); // Enable Textures
   COMMON_GL_ASSERT;
-  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable (GL_DEPTH_TEST); // Enable Depth Testing
   COMMON_GL_ASSERT;
 
 #if defined (GLUT_SUPPORT)
@@ -377,6 +379,8 @@ do_work (int argc_in,
 
   glutDestroyWindow (window_i); window_i = -1;
 #endif // GLUT_SUPPORT
+
+  cb_data_s.texture.reset ();
 }
 
 int

@@ -356,9 +356,11 @@ Common_GL_Tools::loadTexture (const uint8_t* data_in,
   glBindTexture (GL_TEXTURE_2D, textureIndex_in);
 
   if (isFirst_in)
+  {
     glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, width_in, height_in, 0,
                   (depth_in == 4 ? GL_RGBA : GL_RGB),
                   GL_UNSIGNED_BYTE, data_in);
+  } // end IF
   else
   {
     glTexSubImage2D (GL_TEXTURE_2D, 0, 0, 0, width_in, height_in,
