@@ -100,6 +100,19 @@ class Common_Image_Tools
                         float&,  // return value: g - normalized
                         float&); // return value: b - normalized
 
+  // --- STB image ---
+#if defined (STB_IMAGE_SUPPORT)
+  // *IMPORTANT NOTE*: callers need to free() allocated memory (5th argument)
+  static bool loadSTB (const std::string&,         // path
+                       Common_Image_Resolution_t&, // return value: resolution
+                       unsigned int&,              // return value: #channels
+                       uint8_t*&);                 // return value: data
+  static bool saveSTB (const std::string&,               // path
+                       const Common_Image_Resolution_t&, // resolution
+                       unsigned int,                     // #channels
+                       const uint8_t*);                  // data
+#endif // STB_IMAGE_SUPPORT
+
   // --- libav/ffmpeg ---
 #if defined (FFMPEG_SUPPORT)
   // *TODO*: currently supports AV_PIX_FMT_YUV420P only

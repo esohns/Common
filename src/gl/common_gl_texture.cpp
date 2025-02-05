@@ -3,10 +3,12 @@
 #include "common_gl_texture.h"
 
 #include "ace/Log_Msg.h"
+#include "ace/Malloc.h"
 
 #include "common_macros.h"
 
 #include "common_gl_defines.h"
+#include "common_gl_image_tools.h"
 #include "common_gl_tools.h"
 
 Common_GL_Texture::Common_GL_Texture ()
@@ -54,6 +56,30 @@ Common_GL_Texture::~Common_GL_Texture ()
                  ACE_TEXT ("cannot free texture resources when out of context, continuing\n")));
      //glDeleteTextures (1, &id_);
    } // end IF
+}
+
+bool
+Common_GL_Texture::load ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::load"));
+
+  // sanity check(s)
+  if (unlikely (!id_))
+  {
+    glGenTextures (1, &id_);
+  } // end IF
+  ACE_ASSERT (id_);
+
+  GLint viewport_a[4];
+  glGetIntegerv (GL_VIEWPORT, viewport_a);
+
+  bind (0);
+
+  glCopyTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, viewport_a[0], viewport_a[1], viewport_a[2], viewport_a[3], 0);
+
+  unbind ();
+
+  return true;
 }
 
 bool
@@ -107,6 +133,48 @@ Common_GL_Texture::load (const std::string& path_in,
    return false;
   } // end IF
   path_ = path_in;
+
+  return true;
+}
+
+bool
+Common_GL_Texture::save (const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::save"));
+
+  bind (0);
+
+  int width_i, height_i;
+  glGetTexLevelParameteriv (GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width_i);
+  glGetTexLevelParameteriv (GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height_i);
+
+  GLubyte* data_p = NULL;
+  ACE_NEW_NORETURN (data_p,
+                    GLubyte[width_i * height_i * 4]);
+  ACE_ASSERT (data_p);
+
+  glGetTexImage (GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, data_p);
+
+  unbind ();
+
+#if defined (STB_IMAGE_SUPPORT)
+  if (unlikely (!Common_GL_Image_Tools::saveSTB (path_in,
+                                                 static_cast<unsigned int> (width_i),
+                                                 static_cast<unsigned int> (height_i),
+                                                 4,
+                                                 data_p)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_GL_Image_Tools::saveSTB(\"%s\"), aborting\n"),
+                ACE_TEXT (path_in.c_str ())));
+    delete[] data_p;
+    return false;
+  } // end IF
+#else
+#error no STB image support, aborting
+#endif // STB_IMAGE_SUPPORT
+
+  delete [] data_p;
 
   return true;
 }

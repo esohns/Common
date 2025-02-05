@@ -580,3 +580,38 @@ Common_GL_Tools::drawCube (bool setTextureCoordinates_in,
 
   glEnd ();
 }
+
+void
+Common_GL_Tools::screenShot (const std::string& path_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::screenShot"));
+
+  GLint viewport_a[4];
+  glGetIntegerv (GL_VIEWPORT, viewport_a);
+
+  GLubyte* data_p = NULL;
+  ACE_NEW_NORETURN (data_p,
+                    GLubyte[viewport_a[2] * viewport_a[3] * 4]);
+  ACE_ASSERT (data_p);
+  
+  glReadPixels (viewport_a[0], viewport_a[1], viewport_a[2], viewport_a[3], GL_RGBA, GL_UNSIGNED_BYTE, data_p);
+
+#if defined (STB_IMAGE_SUPPORT)
+  if (unlikely (!Common_GL_Image_Tools::saveSTB (path_in,
+                                                 static_cast<unsigned int> (viewport_a[2]),
+                                                 static_cast<unsigned int> (viewport_a[3]),
+                                                 4,
+                                                 data_p)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_GL_Image_Tools::saveSTB(\"%s\"), returning\n"),
+                ACE_TEXT (path_in.c_str ())));
+    delete [] data_p;
+    return;
+  } // end IF
+#else
+#error no STB image support, aborting
+#endif // STB_IMAGE_SUPPORT
+
+  delete [] data_p;
+}

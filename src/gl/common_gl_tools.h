@@ -108,6 +108,8 @@ class Common_GL_Tools
   static void drawCube (bool = false, // set (2d-)texture coordinates ?
                         bool = true); // set color ?
 
+  static void screenShot (const std::string&); // FQ path
+
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_GL_Tools ())
   ACE_UNIMPLEMENTED_FUNC (~Common_GL_Tools ())

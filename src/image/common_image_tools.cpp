@@ -30,6 +30,13 @@
 #endif // DIRECTXSDK_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
+#if defined (STB_IMAGE_SUPPORT)
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+#endif // STB_IMAGE_SUPPORT
+
 #if defined (FFMPEG_SUPPORT)
 #ifdef __cplusplus
 extern "C"
@@ -331,6 +338,107 @@ Common_Image_Tools::HSVToRGB (float hue_in,
     blue_out = 0.0f;
   } // end ELSE
 }
+
+#if defined (STB_IMAGE_SUPPORT)
+bool
+Common_Image_Tools::loadSTB (const std::string& path_in,
+                             Common_Image_Resolution_t& resolution_out,
+                             unsigned int& channels_out,
+                             uint8_t*& data_out)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::loadSTB"));
+
+  // sanity check(s)
+  ACE_ASSERT (!data_out);
+
+  int width_i, height_i, channels_i;
+  data_out = stbi_load (path_in.c_str (),
+                        &width_i, &height_i,
+                        &channels_i,
+                        STBI_default);
+  if (unlikely (!data_out))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to stbi_load(\"%s\"): \"%s\", aborting\n"),
+                ACE_TEXT (path_in.c_str ()),
+                ACE_TEXT (stbi_failure_reason ())));
+    return false;
+  } // end IF
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  resolution_out.cx = width_i;
+  resolution_out.cy = height_i;
+#else
+  resolution_out.width = static_cast<unsigned int> (width_i);
+  resolution_out.height = static_cast<unsigned int> (height_i);
+#endif // ACE_WIN32 || ACE_WIN64
+  channels_out = static_cast<unsigned int> (channels_i);
+
+  return true;
+}
+
+bool
+Common_Image_Tools::saveSTB (const std::string& path_in,
+                             const Common_Image_Resolution_t& resolution_in,
+                             unsigned int numberOfChannels_in,
+                             const uint8_t* data_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::saveSTB"));
+
+  int result = -1;
+
+  int width_i, height_i;
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  width_i = resolution_in.cx;
+  height_i = resolution_in.cy;
+#else
+  width_i = static_cast<int> (resolution_in.width);
+  height_i = static_cast<int> (resolution_in.height);
+#endif // ACE_WIN32 || ACE_WIN64
+  switch (Common_Image_Tools::fileExtensionToType (path_in))
+  {
+    case COMMON_IMAGE_FILE_PNG:
+    {
+      stbi_write_png_compression_level = 0;
+      result =  stbi_write_png (path_in.c_str (),
+                                width_i,
+                                height_i,
+                                static_cast<int> (numberOfChannels_in),
+                                data_in,
+                                static_cast<int> (width_i * numberOfChannels_in));
+      break;
+    }
+    case COMMON_IMAGE_FILE_JPG:
+    {
+      result =  stbi_write_jpg (path_in.c_str (),
+                                width_i,
+                                height_i,
+                                static_cast<int> (numberOfChannels_in),
+                                data_in,
+                                100);
+      break;
+    }
+    default:
+    {
+//error:
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown image file format (path was: \"%s\"), aborting\n"),
+                  ACE_TEXT (path_in.c_str ())));
+      return false;
+    }
+  } // end SWITCH
+  if (unlikely (result))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to stbi_write(\"%s\"): \"%s\", aborting\n"),
+                ACE_TEXT (path_in.c_str ()),
+                ACE_TEXT (stbi_failure_reason ())));
+    return false;
+  } // end IF
+
+  return true;
+}
+#endif // STB_IMAGE_SUPPORT
 
 #if defined (FFMPEG_SUPPORT)
 bool

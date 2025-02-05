@@ -34,8 +34,10 @@
 #endif // IMAGEMAGICK_SUPPORT
 
 #if defined (STB_IMAGE_SUPPORT)
-#define STB_IMAGE_IMPLEMENTATION
+//#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 #endif // STB_IMAGE_SUPPORT
 
 #include "ace/Log_Msg.h"
@@ -339,15 +341,74 @@ Common_GL_Image_Tools::loadSTB (const std::string& path_in,
                         &width_i, &height_i,
                         &channels_i,
                         STBI_rgb_alpha);
-  if (likely (data_out))
+  if (unlikely (!data_out))
   {
-    width_out = static_cast<unsigned int> (width_i);
-    height_out = static_cast<unsigned int> (height_i);
-    channels_out = static_cast<unsigned int> (channels_i == 3 ? channels_i + 1 : channels_i); // + alpha ?
-
-    return true;
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to stbi_load(\"%s\"): \"%s\", aborting\n"),
+                ACE_TEXT (path_in.c_str ()),
+                ACE_TEXT (stbi_failure_reason ())));
+    return false;
   } // end IF
 
-  return false;
+  width_out = static_cast<unsigned int> (width_i);
+  height_out = static_cast<unsigned int> (height_i);
+  channels_out = static_cast<unsigned int> (channels_i == 3 ? 4 : channels_i); // + alpha ?
+
+  return true;
+}
+
+bool
+Common_GL_Image_Tools::saveSTB (const std::string& path_in,
+                                unsigned int width_in,
+                                unsigned int height_in,
+                                unsigned int numberOfChannels_in,
+                                const GLubyte* data_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Image_Tools::saveSTB"));
+
+  int result = -1;
+
+  switch (Common_Image_Tools::fileExtensionToType (path_in))
+  {
+    case COMMON_IMAGE_FILE_PNG:
+    {
+      stbi_write_png_compression_level = 0;
+      result =  stbi_write_png (path_in.c_str (),
+                                static_cast<int> (width_in),
+                                static_cast<int> (height_in),
+                                static_cast<int> (numberOfChannels_in),
+                                data_in,
+                                static_cast<int> (width_in * numberOfChannels_in));
+      break;
+    }
+    case COMMON_IMAGE_FILE_JPG:
+    {
+      result =  stbi_write_jpg (path_in.c_str (),
+                                static_cast<int> (width_in),
+                                static_cast<int> (height_in),
+                                static_cast<int> (numberOfChannels_in),
+                                data_in,
+                                100);
+      break;
+    }
+    default:
+    {
+//error:
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown image file format (path was: \"%s\"), aborting\n"),
+                  ACE_TEXT (path_in.c_str ())));
+      return false;
+    }
+  } // end SWITCH
+  if (unlikely (result))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to stbi_write(\"%s\"): \"%s\", aborting\n"),
+                ACE_TEXT (path_in.c_str ()),
+                ACE_TEXT (stbi_failure_reason ())));
+    return false;
+  } // end IF
+
+  return true;
 }
 #endif // STB_IMAGE_SUPPORT

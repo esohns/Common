@@ -4,6 +4,7 @@ endif (WIN32)
 
 set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts")
 include (png)
+include (stb)
 
 include (ffmpeg)
 include (ImageMagick)
@@ -15,10 +16,16 @@ if (WIN32 AND DIRECTXSDK_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
                              "$<BUILD_INTERFACE:${DIRECTXSDK_INCLUDE_DIR}>")
 endif (WIN32 AND DIRECTXSDK_SUPPORT)
+
 if (LIBPNG_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
                              "$<BUILD_INTERFACE:${PNG_INCLUDE_DIRS}>")
 endif (LIBPNG_SUPPORT)
+if (STB_IMAGE_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             "$<BUILD_INTERFACE:${STB_IMAGE_INCLUDE_DIRS}>")
+endif (STB_IMAGE_SUPPORT)
+
 if (FFMPEG_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${ffmpeg_INCLUDE_DIRS}>)

@@ -44,7 +44,7 @@ class Common_GL_Image_Tools
 #endif // LIBPNG_SUPPORT
 
 #if defined (IMAGEMAGICK_SUPPORT)
-  // *IMPORTANT NOTE*: callers need to free() allocated memory (5th argument)
+  // *IMPORTANT NOTE*: callers need to free() allocated memory (4th argument)
   static bool loadPNG (const std::string&, // path
                        unsigned int&,      // return value: width
                        unsigned int&,      // return value: height
@@ -52,13 +52,18 @@ class Common_GL_Image_Tools
 #endif // IMAGEMAGICK_SUPPORT
 
 #if defined (STB_IMAGE_SUPPORT)
-  // *IMPORTANT NOTE*: callers need to free() allocated memory (5th argument)
+  // *IMPORTANT NOTE*: callers need to free() allocated memory (6th argument)
   static bool loadSTB (const std::string&, // path
                        bool,               // flip image on load ? (required for OpenGL)
                        unsigned int&,      // return value: width
                        unsigned int&,      // return value: height
                        unsigned int&,      // return value: #channels
                        GLubyte*&);         // return value: data
+  static bool saveSTB (const std::string&, // path
+                       unsigned int,       // width
+                       unsigned int,       // height
+                       unsigned int,       // #channels
+                       const GLubyte*);    // data
 #endif // STB_IMAGE_SUPPORT
 
  private:
