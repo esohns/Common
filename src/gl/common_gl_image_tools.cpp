@@ -368,6 +368,9 @@ Common_GL_Image_Tools::saveSTB (const std::string& path_in,
 
   int result = -1;
 
+  // for OpenGL...
+  stbi_flip_vertically_on_write (1);
+
   switch (Common_Image_Tools::fileExtensionToType (path_in))
   {
     case COMMON_IMAGE_FILE_PNG:
@@ -400,7 +403,7 @@ Common_GL_Image_Tools::saveSTB (const std::string& path_in,
       return false;
     }
   } // end SWITCH
-  if (unlikely (result))
+  if (unlikely (result != 1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to stbi_write(\"%s\"): \"%s\", aborting\n"),

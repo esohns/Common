@@ -1528,16 +1528,17 @@ glarea_render_cb (GglaArea* area_in,
   COMMON_GL_ASSERT;
 
   static GLfloat cube_rotation = 0.0f;
-  glRotatef (cube_rotation, 0.9f, -1.0f, 1.1f);		// Rotate The Cube On X, Y, and Z
-  glRotatef (cube_rotation, 1.1f, 1.0f, 0.9f);		// Rotate The Cube On X, Y, and Z
+  glRotatef (cube_rotation, 0.9f, -1.0f, 1.1f); // Rotate The Cube On X, Y, and Z
+  glRotatef (cube_rotation, 1.1f, 1.0f, 0.9f);  // Rotate The Cube On X, Y, and Z
   COMMON_GL_ASSERT;
 
   // step2: draw cube
   ACE_ASSERT (texture_c.id_);
-  texture_c.bind (0);
+  glActiveTexture (GL_TEXTURE0);
+  texture_c.bind ();
   Common_GL_Tools::drawCube (true);
 
-  cube_rotation += 1.0f;					// Decrease The Rotation Variable For The Cube
+  cube_rotation += 1.0f; // Decrease The Rotation Variable For The Cube
   if (cube_rotation > 360.0f)
     cube_rotation -= 360.0f;
 

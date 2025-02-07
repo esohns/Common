@@ -36,7 +36,7 @@ class Common_GL_Texture
   ~Common_GL_Texture ();
 
   // *NOTE*: this loads the (currently bound) framebuffer
-  bool load ();
+  bool load (GLenum = GL_RGBA); // format
   bool load (uint8_t*,                         // data
              const Common_Image_Resolution_t&, // resolution
              unsigned int,                     // depth
@@ -45,7 +45,7 @@ class Common_GL_Texture
              bool = true);       // flip image on load ? (required for OpenGL)
   bool save (const std::string&); // FQ path
   void reset ();
-  void bind (GLuint = 0); // texture unit (!), not -id (!!!)
+  void bind (/*GLuint = 0*/); // texture unit (!), not -id (!!!)
   void unbind ();
 
   void set (Common_GL_Shader&,  // shader

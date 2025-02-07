@@ -73,7 +73,8 @@ test_i_opengl_glut_draw ()
   glBindVertexArray (cb_data_p->VAO);
   COMMON_GL_ASSERT;
 
-  cb_data_p->texture.bind (0); // texture unit
+  glActiveTexture (GL_TEXTURE0);
+  cb_data_p->texture.bind (); // texture unit
 
   static float angle_f = 0.0f; // *NOTE*: degrees
   static glm::vec3 rotation_s (0.0f, 0.0f, 1.0f);

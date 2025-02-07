@@ -59,7 +59,7 @@ Common_GL_Texture::~Common_GL_Texture ()
 }
 
 bool
-Common_GL_Texture::load ()
+Common_GL_Texture::load (GLenum format_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::load"));
 
@@ -73,9 +73,9 @@ Common_GL_Texture::load ()
   GLint viewport_a[4];
   glGetIntegerv (GL_VIEWPORT, viewport_a);
 
-  bind (0);
+  bind ();
 
-  glCopyTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, viewport_a[0], viewport_a[1], viewport_a[2], viewport_a[3], 0);
+  glCopyTexImage2D (GL_TEXTURE_2D, 0, format_in, viewport_a[0], viewport_a[1], viewport_a[2], viewport_a[3], 0);
 
   unbind ();
 
@@ -142,7 +142,7 @@ Common_GL_Texture::save (const std::string& path_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::save"));
 
-  bind (0);
+  bind ();
 
   int width_i, height_i;
   glGetTexLevelParameteriv (GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width_i);
@@ -191,13 +191,13 @@ Common_GL_Texture::reset ()
 }
 
 void
-Common_GL_Texture::bind (GLuint unit_in)
+Common_GL_Texture::bind (/*GLuint unit_in*/)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::bind"));
 
   // sanity check(s)
   ACE_ASSERT (id_);
-  ACE_ASSERT (unit_in < 31);
+  //ACE_ASSERT (unit_in < 31);
 
   //glActiveTexture (GL_TEXTURE0 + unit_in);
 
