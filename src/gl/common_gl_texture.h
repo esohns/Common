@@ -36,7 +36,7 @@ class Common_GL_Texture
   ~Common_GL_Texture ();
 
   // *NOTE*: this loads the (currently bound) framebuffer
-  bool load (GLenum = GL_RGBA); // format
+  bool load ();
   bool load (uint8_t*,                         // data
              const Common_Image_Resolution_t&, // resolution
              unsigned int,                     // depth
