@@ -36,16 +36,28 @@ class Common_GL_Texture
   ~Common_GL_Texture ();
 
   // *NOTE*: this loads the (currently bound) framebuffer
-  bool load ();
+  bool load (GLint = GL_RGBA8); // internalFormat
+  // GL_TEXTURE_2D
   bool load (uint8_t*,                         // data
              const Common_Image_Resolution_t&, // resolution
              unsigned int,                     // depth
              bool = true);                     // update ? : initial
+  // GL_TEXTURE_2D
   bool load (const std::string&, // FQ path
              bool = true);       // flip image on load ? (required for OpenGL)
+  // GL_TEXTURE_CUBE_MAP
+  bool load (const std::string&,  // FQ path (negative z)
+             const std::string&,  // FQ path (positive z)
+             const std::string&,  // FQ path (positive y)
+             const std::string&,  // FQ path (negative y)
+             const std::string&,  // FQ path (negative x)
+             const std::string&); // FQ path (positive x)
+  // GL_TEXTURE_2D
   bool save (const std::string&); // FQ path
+
   void reset ();
-  void bind (/*GLuint = 0*/); // texture unit (!), not -id (!!!)
+
+  void bind ();
   void unbind ();
 
   void set (Common_GL_Shader&,  // shader

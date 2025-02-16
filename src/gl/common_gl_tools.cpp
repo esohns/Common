@@ -293,33 +293,6 @@ error:
   if (!width || !height || !image_p)
     goto error;
 
-//#if defined (_DEBUG)
-//  Common_Image_Resolution_t resolution_s;
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
-//  resolution_s.cx = width; resolution_s.cy = height;
-//#else
-//  resolution_s.width = width; resolution_s.height = height;
-//#endif // ACE_WIN32 || ACE_WIN64
-//  std::string path = Common_File_Tools::getTempDirectory ();
-//  path += ACE_DIRECTORY_SEPARATOR_STR;
-//  path += Common_File_Tools::basename (path_in, true);
-//#if defined (ACE_WIN32) || defined (ACE_WIN64)
-//  path += ACE_TEXT_ALWAYS_CHAR (".bmp");
-//  uint8_t* buffers_a[1];
-//  buffers_a[0] = image_p;
-//  Common_Image_Tools::saveBMP (resolution_s,
-//                               (has_alpha ? 32 : 24),
-//                               buffers_a,
-//                               path);
-//#else
-//  path += ACE_TEXT_ALWAYS_CHAR (".png");
-//  Common_Image_Tools::savePNG (resolution_s,
-//                               (has_alpha ? AV_PIX_FMT_RGB32 : AV_PIX_FMT_RGB24),
-//                               image_p,
-//                               path);
-//#endif // ACE_WIN32 || ACE_WIN64
-//#endif // _DEBUG
-
   glGenTextures (1, &return_value);
   // COMMON_GL_ASSERT
 
@@ -336,6 +309,111 @@ error:
 
   // clean up
   free (image_p); image_p = NULL;
+
+  return return_value;
+}
+
+GLuint
+Common_GL_Tools::loadCubeMap (const std::string& negativeZ_in,
+                              const std::string& positiveZ_in,
+                              const std::string& positiveY_in,
+                              const std::string& negativeY_in,
+                              const std::string& negativeX_in,
+                              const std::string& positiveX_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Tools::loadCubeMap"));
+
+  GLuint return_value = 0;
+
+  glGenTextures (1, &return_value);
+  ACE_ASSERT (return_value);
+
+  glBindTexture (GL_TEXTURE_CUBE_MAP, return_value);
+
+  unsigned int width = 0, height = 0, channels = 0;
+  bool has_alpha = false;
+  GLubyte* image_p = NULL;
+  std::vector<std::string> files_a = { negativeZ_in, positiveZ_in,
+                                       positiveY_in, negativeY_in,
+                                       negativeX_in, positiveX_in };
+  static std::vector<GLenum> orientation_a =
+    { GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+      GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+      GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_X };
+  std::vector<GLenum>::const_iterator orientation = orientation_a.begin ();
+  for (std::vector<std::string>::const_iterator iterator = files_a.begin ();
+       iterator != files_a.end ();
+       ++iterator, ++orientation)
+  {
+    switch (Common_Image_Tools::fileExtensionToType (*iterator))
+    {
+      case COMMON_IMAGE_FILE_PNG:
+      {
+#if defined (LIBPNG_SUPPORT)
+        if (!Common_GL_Image_Tools::loadPNG (*iterator,
+                                             width, height,
+                                             has_alpha,
+                                             image_p))
+#elif defined (IMAGEMAGICK_SUPPORT)
+        if (!Common_GL_Image_Tools::loadPNG (*iterator,
+                                             width, height,
+                                             image_p))
+#endif // LIBPNG_SUPPORT || IMAGEMAGICK_SUPPORT
+        {
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to Common_GL_Image_Tools::loadPNG(\"%s\"), aborting\n"),
+                      ACE_TEXT ((*iterator).c_str ())));
+          return return_value;
+        } // end IF
+#if defined (LIBPNG_SUPPORT)
+#elif defined (IMAGEMAGICK_SUPPORT)
+        has_alpha = true;
+#endif // LIBPNG_SUPPORT || IMAGEMAGICK_SUPPORT
+        break;
+      }
+      case COMMON_IMAGE_FILE_JPG:
+      {
+#if defined (STB_IMAGE_SUPPORT)
+        if (!Common_GL_Image_Tools::loadSTB (*iterator,
+                                             false, // don't flip
+                                             width, height,
+                                             channels,
+                                             image_p))
+        {
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to Common_GL_Image_Tools::loadSTB(\"%s\"), aborting\n"),
+                      ACE_TEXT ((*iterator).c_str ())));
+          glDeleteTextures (1, &return_value);
+          return 0;
+        } // end IF
+        has_alpha = channels >= 4;
+#else
+        ACE_UNUSED_ARG (channels);
+#endif // STB_IMAGE_SUPPORT
+        break;
+      }
+      default:
+      {
+error:
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("invalid/unknown image file format (path was: \"%s\"), aborting\n"),
+                    ACE_TEXT ((*iterator).c_str ())));
+        glDeleteTextures (1, &return_value);
+        return 0;
+      }
+    } // end SWITCH
+    if (!width || !height || !image_p)
+      goto error;
+
+    glTexImage2D (*orientation, 0, (has_alpha ? GL_RGBA8 : GL_RGB8), width, height, 0,
+                  (has_alpha ? GL_RGBA : GL_RGB),
+                  GL_UNSIGNED_BYTE, image_p);
+
+    // clean up
+    free (image_p); image_p = NULL;
+  } // end FOR
+
+  glBindTexture (GL_TEXTURE_CUBE_MAP, 0);
 
   return return_value;
 }

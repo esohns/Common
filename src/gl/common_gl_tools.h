@@ -86,6 +86,12 @@ class Common_GL_Tools
   // *TODO*: currently, only PNG/JPG files are supported
   static GLuint loadTexture (const std::string&, // path
                              bool = true);       // flip image on load ? (required for OpenGL)
+  static GLuint loadCubeMap (const std::string&,  // FQ path (negative z)
+                             const std::string&,  // FQ path (positive z)
+                             const std::string&,  // FQ path (positive y)
+                             const std::string&,  // FQ path (negative y)
+                             const std::string&,  // FQ path (negative x)
+                             const std::string&); // FQ path (positive x)
   // *NOTE*: invoke glTexImage2D() with 'target' GL_TEXTURE_2D and 'internal
   //         format' GL_RGBA8, format GL_RGBA (!)
   static void loadTexture (const uint8_t*, // data
