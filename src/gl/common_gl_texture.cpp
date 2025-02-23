@@ -75,15 +75,15 @@ Common_GL_Texture::load (GLint internalFormat_in)
 
   bind ();
 
-  //glCopyTexImage2D (GL_TEXTURE_2D, 0, internalFormat_in, viewport_a[0], viewport_a[1], viewport_a[2], viewport_a[3], 0);
-  GLfloat* pixels_p = NULL;
-  ACE_NEW_NORETURN (pixels_p,
-                    GLfloat[4 * viewport_a[2] * viewport_a[3]]);
-  ACE_ASSERT (pixels_p);
+  glCopyTexImage2D (GL_TEXTURE_2D, 0, internalFormat_in, viewport_a[0], viewport_a[1], viewport_a[2], viewport_a[3], 0);
+  //GLfloat* pixels_p = NULL;
+  //ACE_NEW_NORETURN (pixels_p,
+  //                  GLfloat[4 * viewport_a[2] * viewport_a[3]]);
+  //ACE_ASSERT (pixels_p);
 
-  glReadPixels (0, 0, viewport_a[2], viewport_a[3], GL_RGBA, GL_FLOAT, pixels_p);
-  glTexImage2D (GL_TEXTURE_2D, 0, internalFormat_in, viewport_a[2], viewport_a[3], 0, GL_RGBA, GL_FLOAT, pixels_p);
-  delete [] pixels_p;
+  //glReadPixels (0, 0, viewport_a[2], viewport_a[3], GL_RGBA, GL_FLOAT, pixels_p);
+  //glTexImage2D (GL_TEXTURE_2D, 0, internalFormat_in, viewport_a[2], viewport_a[3], 0, GL_RGBA, GL_FLOAT, pixels_p);
+  //delete [] pixels_p;
 
   unbind ();
 
