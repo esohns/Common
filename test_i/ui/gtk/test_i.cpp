@@ -483,7 +483,7 @@ glarea_render_cb (GtkGLArea* area_in,
 
   glBindVertexArray (VAO);
   COMMON_GL_ASSERT;
-  texture.bind (0);
+  texture.bind ();
 
   //static GLfloat rot_x = 0.0f;
   //static GLfloat rot_y = 0.0f;

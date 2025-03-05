@@ -1279,7 +1279,7 @@ glarea_render_cb (GtkGLArea* area_in,
 
   // step2: draw cube
   ACE_ASSERT (texture_c.id_);
-  texture_c.bind (0);
+  texture_c.bind ();
   Common_GL_Tools::drawCube (false, true);
 
   cube_rotation += 1.0f; // Increase The Rotation Variable For The Cube
