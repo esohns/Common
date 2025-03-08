@@ -1028,16 +1028,16 @@ Common_OS_Tools::getUserName ()
 
   std::string return_value;
 
-  ACE_TCHAR buffer_a[L_cuserid];
-  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[L_cuserid]));
-  char* result_p = ACE_OS::cuserid (buffer_a);
+  ACE_TCHAR buffer_a[L_cuserid + 1];
+  ACE_OS::memset (buffer_a, 0, sizeof (ACE_TCHAR[L_cuserid + 1]));
+  char* result_p = ACE_OS::cuserid (buffer_a, L_cuserid);
   if (unlikely (!result_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE_OS::cuserid() : \"%m\", returning\n")));
     return ACE_TEXT_ALWAYS_CHAR ("");
   } // end IF
-  return_value = buffer_a;
+  return_value.assign (ACE_TEXT_ALWAYS_CHAR (buffer_a));
 
   return return_value;
 }
