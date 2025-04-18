@@ -25,28 +25,29 @@
 #else
 #include "sys/resource.h"
 #if defined (ACE_LINUX)
+#include "bits/sched.h"
 //#include "linux/sched/types.h"
-struct sched_attr {
-  __u32 size;
+// struct sched_attr {
+//   __u32 size;
 
-  __u32 sched_policy;
-  __u64 sched_flags;
+//   __u32 sched_policy;
+//   __u64 sched_flags;
 
-  /* SCHED_NORMAL, SCHED_BATCH */
-  __s32 sched_nice;
+//   /* SCHED_NORMAL, SCHED_BATCH */
+//   __s32 sched_nice;
 
-  /* SCHED_FIFO, SCHED_RR */
-  __u32 sched_priority;
+//   /* SCHED_FIFO, SCHED_RR */
+//   __u32 sched_priority;
 
-  /* SCHED_DEADLINE */
-  __u64 sched_runtime;
-  __u64 sched_deadline;
-  __u64 sched_period;
+//   /* SCHED_DEADLINE */
+//   __u64 sched_runtime;
+//   __u64 sched_deadline;
+//   __u64 sched_period;
 
-  /* Utilization hints */
-  __u32 sched_util_min;
-  __u32 sched_util_max;
-};
+//   /* Utilization hints */
+//   __u32 sched_util_min;
+//   __u32 sched_util_max;
+// };
 #include "sys/syscall.h"
 #endif // ACE_LINUX
 #endif // ACE_WIN32 || ACE_WIN64

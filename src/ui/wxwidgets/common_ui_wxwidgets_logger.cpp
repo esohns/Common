@@ -41,11 +41,9 @@ Common_UI_WxWidgets_Logger::~Common_UI_WxWidgets_Logger ()
     if (unlikely (!Common_UI_WxWidgets_Tools::initializeLogging ()))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_UI_WxWidgets_Tools::initializeLogging(), continuing\n")));
-#if defined (_DEBUG)
     else
       ACE_DEBUG ((LM_DEBUG,
                   ACE_TEXT ("reset wxwidgets logger\n")));
-#endif // _DEBUG
   } // end IF
 }
 

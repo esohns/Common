@@ -64,6 +64,7 @@ target_precompile_headers (${LIBRARY}
 #get_target_property (debug ${PROJECT_NAME}UI_GTK INTERFACE_INCLUDE_DIRECTORIES)
 #message (STATUS "INTERFACE_INCLUDE_DIRECTORIES: \"${debug}\"")
 
+target_link_libraries (${LIBRARY} ${wxWidgets_LIBRARIES})
 if (WIN32)
 #*TODO*: use pkg-config instead
  add_dependencies (${LIBRARY} Common)
@@ -73,8 +74,6 @@ if (WIN32)
 # else ()
 #  target_link_libraries (${LIBRARY} Msvcrt.lib)
 # endif ()
-
- target_link_libraries (${LIBRARY} ${wxWidgets_LIBRARIES})
 
  target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
 
