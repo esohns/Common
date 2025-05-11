@@ -21,14 +21,7 @@
 #ifndef COMMON_TASK_TOOLS_H
 #define COMMON_TASK_TOOLS_H
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-//#include "sched.h"
-#include "sys/types.h"
-
-typedef __pid_t pid_t;
-#endif // ACE_WIN32 || ACE_WIN64
-
+#include "ace/os_include/sys/os_types.h"
 #include "ace/Global_Macros.h"
 
 class Common_Task_Tools

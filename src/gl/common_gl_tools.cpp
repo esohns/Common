@@ -699,7 +699,7 @@ Common_GL_Tools::screenShot (const std::string& path_in)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_GL_Image_Tools::savePNG(\"%s\"), returning\n"),
                 ACE_TEXT (path_in.c_str ())));
-    delete[] data_p;
+    delete [] data_p;
     return;
   } // end IF
 #else
