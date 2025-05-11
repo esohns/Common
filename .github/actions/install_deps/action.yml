@@ -9,7 +9,7 @@ runs:
  steps:
   - run: sudo apt-get update
     shell: bash
-  - run: sudo apt-get install -y lsb-release libaio-dev libcap-dev libdbus-1-dev libsystemd-dev libstb-dev libmagickwand-6-headers libmagickwand-6.q16-dev libglu1-mesa-dev libglew-dev libglfw3-dev libglm-dev libassimp-dev libavcodec-dev libavformat-dev libswscale-dev libavutil-dev libgtk2.0-dev libgnutls28-dev libavahi-client-dev libcups2-dev libfl-dev libtinyobjloader-dev libvulkan-dev vulkan-utility-libraries-dev
+  - run: sudo apt-get install -y lsb-release libaio-dev libcap-dev libdbus-1-dev libsystemd-dev libstb-dev libmagickwand-6-headers libmagickwand-6.q16-dev libglu1-mesa-dev freeglut3-dev libglew-dev libglfw3-dev libglm-dev libassimp-dev libavcodec-dev libavformat-dev libswscale-dev libavutil-dev libgtk2.0-dev libgnutls28-dev libavahi-client-dev libcups2-dev libfl-dev libtinyobjloader-dev libvulkan-dev vulkan-utility-libraries-dev
     shell: bash
 #    if: inputs.os == 'ubuntu-latest'
 #  - run:
