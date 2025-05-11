@@ -4,7 +4,15 @@
 #if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
 #include "wand/wand_api.h"
 #else
+#if defined (ACE_LINUX)
+#if defined (IS_UBUNTU_LINUX) // *NOTE*: github "*-latest" runners lag behind:
+#include "wand/MagickWand.h" //          - Ubuntu 'noble' still is on ImageMagick-6
+#else
 #include "MagickWand/MagickWand.h"
+#endif // IS_UBUNTU_LINUX
+#else
+#include "MagickWand/MagickWand.h"
+#endif
 #endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
 #endif // IMAGEMAGICK_SUPPORT
 
