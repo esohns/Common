@@ -1,3 +1,6 @@
+if (UNIX)
+ include (OS) # *TODO*: why is this needed ?
+endif (UNIX)
 #include (ImageMagick)
 
 string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})

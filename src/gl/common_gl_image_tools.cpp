@@ -37,7 +37,7 @@
 #endif // IS_UBUNTU_LINUX
 #else
 #include "MagickWand/MagickWand.h"
-#endif
+#endif // ACE_LINUX
 #endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
 #endif // IMAGEMAGICK_SUPPORT
 
