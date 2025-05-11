@@ -1933,7 +1933,7 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
 #if defined (IS_UBUNTU_LINUX) // *NOTE*: github "*-latest" runners lag behind: ImageMagick-6
   result = MagickResizeImage (wand_p,
                               targetResolution_inout.width,targetResolution_inout.height,
-                              FilterType::CubicFilter,
+                              CubicFilter,
                               1.0); // blur
 #else // --> ImageMagick-7 API
   result = MagickResizeImage (wand_p,
