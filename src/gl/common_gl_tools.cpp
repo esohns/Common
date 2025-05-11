@@ -697,10 +697,10 @@ Common_GL_Tools::screenShot (const std::string& path_in)
                                                  data_p)))
   {
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to Common_GL_Image_Tools::savePNG(\"%s\"), aborting\n"),
+                ACE_TEXT ("failed to Common_GL_Image_Tools::savePNG(\"%s\"), returning\n"),
                 ACE_TEXT (path_in.c_str ())));
     delete[] data_p;
-    return false;
+    return;
   } // end IF
 #else
 #error no STB image|libpng support, aborting
