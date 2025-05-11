@@ -41,6 +41,12 @@ class Common_GL_Image_Tools
                        unsigned int&,      // return value: height
                        bool&,              // return value: has alpha channel ?
                        GLubyte*&);         // return value: data
+
+  static bool savePNG (const std::string&, // path
+                       unsigned int,       // width
+                       unsigned int,       // height
+                       unsigned int,       // #channels
+                       const GLubyte*);    // data
 #endif // LIBPNG_SUPPORT
 
 #if defined (IMAGEMAGICK_SUPPORT)

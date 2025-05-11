@@ -224,6 +224,136 @@ error:
 
   return false;
 }
+
+bool
+Common_GL_Image_Tools::savePNG (const std::string& path_in,
+                                unsigned int width_in,
+                                unsigned int height_in,
+                                unsigned int numberOfChannels_in,
+                                const GLubyte* data_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Image_Tools::savePNG"));
+
+  // sanity check(s)
+  ACE_ASSERT (data_in);
+  ACE_ASSERT (numberOfChannels_in <= 4);
+
+  bool status_b = false;
+  FILE* file_p = NULL;
+  png_structp png_p = NULL;
+  png_infop png_info_p = NULL;
+  png_byte** row_pointers_p = NULL;
+
+  if (unlikely ((file_p = ACE_OS::fopen (path_in.c_str (),
+                                         ACE_TEXT_ALWAYS_CHAR ("wb"))) == NULL))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ACE_OS::fopen(\"%s\"): \"%m\", aborting\n"),
+                ACE_TEXT (path_in.c_str ())));
+    return false;
+  } // end IF
+
+  png_p = png_create_write_struct (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  if (unlikely (png_p == NULL))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to png_create_write_struct(): \"%m\", aborting\n")));
+    goto error;
+  } // end IF
+
+  png_info_p = png_create_info_struct (png_p);
+  if (png_info_p == NULL)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to png_create_info_struct(): \"%m\", aborting\n")));
+    goto error;
+  }
+
+  if (unlikely (setjmp (png_jmpbuf (png_p))))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to setjmp(): \"%m\", aborting\n")));
+    goto error;
+  } // end IF
+
+  png_set_IHDR (png_p, png_info_p, width_in, height_in, 8, // *TODO*: pass in bit_depth
+                PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
+                PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+  row_pointers_p =
+    static_cast<png_byte**> (png_malloc (png_p, height_in * sizeof (png_byte*)));
+  if (unlikely (!row_pointers_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to png_malloc(): \"%m\", aborting\n")));
+    goto error;
+  } // end IF
+  ACE_OS::memset (row_pointers_p, 0, height_in * sizeof (png_byte*)); // ensure free() is always possible for ALL rows
+  for (unsigned int y = 0; y < height_in; y++)
+  {
+    png_byte* row_p =
+      static_cast<png_byte*> (png_malloc (png_p, sizeof (uint8_t) * width_in * numberOfChannels_in));
+    if (unlikely (!row_p))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to png_malloc(): \"%m\", aborting\n")));
+      for (unsigned int y_2 = 0; y_2 < y; y_2++)
+      {
+        png_free (png_p, row_pointers_p[y_2]); row_pointers_p[y_2] = NULL;
+      } // end FOR
+      goto error;
+    } // end IF
+    row_pointers_p[y] = row_p;
+
+    for (unsigned int x = 0; x < width_in; x++)
+    {
+      const png_byte* pixel_p = data_in + (y * width_in * numberOfChannels_in) + (x * numberOfChannels_in);
+      *row_p++ = *(pixel_p + 0); // red | grey
+      if (likely (numberOfChannels_in >= 3))
+      {
+        *row_p++ = *(pixel_p + 1); // green
+        *row_p++ = *(pixel_p + 2); // blue
+      } // end IF
+      if (numberOfChannels_in >= 4)
+        *row_p++ = *(pixel_p + 3); // alpha
+    } // end FOR
+  } // end FOR
+  // *NOTE*: OpenGL is bottom-to-top; png expects top-to-bottom
+  //         --> swap the order
+  // *TODO*: is this really necessary ?
+  for (unsigned int i = 0; i < height_in / 2; ++i)
+  {
+    png_byte* row_p = row_pointers_p[height_in - 1 - i];
+    row_pointers_p[height_in - 1 - i] = row_pointers_p[i];
+    row_pointers_p[i] = row_p;
+  } // end FOR
+
+  png_init_io (png_p, file_p);
+  png_set_rows (png_p, png_info_p, row_pointers_p);
+  png_write_png (png_p, png_info_p, PNG_TRANSFORM_IDENTITY, NULL);
+  png_write_end (png_p, png_info_p);
+  png_write_flush (png_p);
+
+  status_b = true;
+
+error:
+  if (likely (row_pointers_p))
+  {
+    for (unsigned int y = 0; y < height_in; y++)
+      png_free (png_p, row_pointers_p[y]);
+    png_free (png_p, row_pointers_p);
+  } // end IF
+  png_destroy_write_struct (&png_p, &png_info_p);
+  if (likely (file_p))
+  {
+    int result = ACE_OS::fclose (file_p);
+    if (unlikely (result == -1))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_OS::fclose(): \"%m\", continuing\n")));
+  } // end IF
+
+  return status_b;
+}
 #endif // LIBPNG_SUPPORT
 
 #if defined (IMAGEMAGICK_SUPPORT)
