@@ -264,16 +264,16 @@ Common_GL_Texture::unbind ()
 }
 
 void
-Common_GL_Texture::set (Common_GL_Shader& shader_in,
+Common_GL_Texture::set (GLuint program_in,
                         const std::string& uniform_in,
                         GLint unit_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::set"));
 
   GLint texUniformLocation_i =
-    glGetUniformLocation (shader_in.id_, uniform_in.c_str ());
+    glGetUniformLocation (program_in, uniform_in.c_str ());
   // sanity check(s)
   ACE_ASSERT (texUniformLocation_i);
 
-  glProgramUniform1i (shader_in.id_, texUniformLocation_i, unit_in);
+  glProgramUniform1i (program_in, texUniformLocation_i, unit_in);
 }

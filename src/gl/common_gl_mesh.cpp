@@ -357,7 +357,7 @@ Common_GL_Mesh::render (Common_GL_Shader& shader_in,
     } // end SWITCH
     glActiveTexture (GL_TEXTURE0 + i);
     textures_[i]->bind ();
-    textures_[i]->set (shader_in, type + num, i);
+    textures_[i]->set (shader_in.id_, type + num, i);
   } // end FOR
 
   // Draw the actual mesh

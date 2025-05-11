@@ -16,8 +16,6 @@
 
 #include "common_image_common.h"
 
-#include "common_gl_shader.h"
-
 class Common_GL_Texture
 {
  public:
@@ -60,7 +58,7 @@ class Common_GL_Texture
   void bind ();
   void unbind ();
 
-  void set (Common_GL_Shader&,  // shader
+  void set (GLuint,             // shader program id
             const std::string&, // uniform
             GLint = 0);         // texture unit (!), not -id (!!!)
 
