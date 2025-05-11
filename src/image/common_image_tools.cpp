@@ -1929,13 +1929,22 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
     return false;
   } // end IF
 
+#if defined (ACE_LINUX)
+#if defined (IS_UBUNTU_LINUX) // *NOTE*: github "*-latest" runners lag behind: ImageMagick-6
   result = MagickResizeImage (wand_p,
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-                              targetResolution_inout.cx,targetResolution_inout.cy,
-#else
                               targetResolution_inout.width,targetResolution_inout.height,
-#endif // ACE_WIN32 || ACE_WIN64
+                              CubicFilter,
+                              1.0); // blur
+#else // --> ImageMagick-7 API
+  result = MagickResizeImage (wand_p,
+                              targetResolution_inout.width,targetResolution_inout.height,
                               CubicFilter);
+#endif // IS_UBUNTU_LINUX
+#else
+  result = MagickResizeImage (wand_p,
+                              targetResolution_inout.cx, targetResolution_inout.cy,
+                              CubicFilter);
+#endif // ACE_LINUX
   if (result != MagickTrue)
   {
     ExceptionType severity;
