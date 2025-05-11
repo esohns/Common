@@ -1,14 +1,13 @@
 if (UNIX)
  find_path (STB_IMAGE_HEADER stb_image.h
-            PATHS $ENV{LIB_ROOT}
             PATH_SUFFIXES stb
             DOC "searching for stb_image")
  if (NOT STB_IMAGE_HEADER)
-  message (WARNING "could not find stb_image, continuing")
+  message (WARNING "could not find stb_image.h, continuing")
  else ()
-  message (STATUS "Found stb_image \"${STB_IMAGE_HEADER}\"")
+  message (STATUS "Found stb_image.h \"${STB_IMAGE_HEADER}\"")
   set (STB_IMAGE_FOUND TRUE)
-  set (STB_IMAGE_INCLUDE_DIRS "$ENV{LIB_ROOT}/stb")
+  set (STB_IMAGE_INCLUDE_DIRS "${STB_IMAGE_HEADER}")
  endif (NOT STB_IMAGE_HEADER)
 elseif (WIN32)
  if (VCPKG_USE)
@@ -22,15 +21,15 @@ elseif (WIN32)
  endif (VCPKG_USE)
  if (NOT STB_IMAGE_FOUND)
   find_path (STB_IMAGE_HEADER stb_image.h
-            PATHS $ENV{LIB_ROOT}
-            PATH_SUFFIXES stb
-            DOC "searching for stb_image")
+             PATHS $ENV{LIB_ROOT}
+             PATH_SUFFIXES stb
+             DOC "searching for stb_image")
   if (NOT STB_IMAGE_HEADER)
    message (WARNING "could not find stb_image.h, continuing")
   else ()
    message (STATUS "Found stb_image.h \"${STB_IMAGE_HEADER}\"")
    set (STB_IMAGE_FOUND TRUE)
-   set (STB_IMAGE_INCLUDE_DIRS "$ENV{LIB_ROOT}/stb")
+   set (STB_IMAGE_INCLUDE_DIRS "${STB_IMAGE_HEADER}")
   endif (NOT STB_IMAGE_HEADER)
  endif (NOT STB_IMAGE_FOUND)
 endif ()
