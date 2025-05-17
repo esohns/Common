@@ -74,8 +74,6 @@ target_sources (${LIBRARY}
 #                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 PRIVATE ${absolute_source_files})
-target_precompile_headers (${LIBRARY}
-                           PRIVATE stdafx.h)
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
  add_definitions (-DG_ERRORCHECK_MUTEXES)
