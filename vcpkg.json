@@ -18,6 +18,7 @@
     "pdcurses",
     "stb",
     "vulkan",
-    "vulkan-utility-libraries"
+    "vulkan-utility-libraries",
+    "wxwidgets"
   ]
 }
