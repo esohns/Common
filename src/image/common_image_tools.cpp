@@ -1888,6 +1888,18 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
 #else
   MagickBooleanType result = MagickFalse;
 #endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
+#if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
+  result = MagickReadImage (wand_p,
+                            ACE_TEXT_ALWAYS_CHAR ("XC:"));
+  ACE_ASSERT (result == 1);
+  result = MagickScaleImage (wand_p,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                             sourceResolution_in.cx, sourceResolution_in.cy
+#else
+                             sourceResolution_in.width, sourceResolution_in.height
+#endif // ACE_WIN32 || ACE_WIN64
+                            );
+#else
   result = MagickNewImage (wand_p,
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
                            sourceResolution_in.cx, sourceResolution_in.cy,
@@ -1895,6 +1907,7 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
                            sourceResolution_in.width, sourceResolution_in.height,
 #endif // ACE_WIN32 || ACE_WIN64
                            pixel_wand_p);
+#endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
   if (result != MagickTrue)
   {
     ExceptionType severity;
@@ -1910,6 +1923,13 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
                                  sourceFormat_in.c_str ());
   ACE_ASSERT (result == MagickTrue);
 
+#if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
+  size_t image_size_i =
+    sourceFormat_in.size () * MagickGetImageWidth (wand_p) * MagickGetImageHeight (wand_p);
+  result = MagickReadImageBlob (wand_p,
+                                sourceBuffer_in,
+                                image_size_i);
+#else
   result = MagickImportImagePixels (wand_p,
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
                                     0,0, sourceResolution_in.cx,sourceResolution_in.cy,
@@ -1919,6 +1939,7 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
                                     sourceFormat_in.c_str (),
                                     StorageType::CharPixel,
                                     sourceBuffer_in);
+#endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
   if (result != MagickTrue)
   {
     ExceptionType severity;
@@ -1929,6 +1950,16 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
     return false;
   } // end IF
 
+#if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
+  result = MagickResizeImage (wand_p,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                              targetResolution_inout.cx, targetResolution_inout.cy,
+#else
+                              targetResolution_inout.width, targetResolution_inout.height,
+#endif // ACE_WIN32 || ACE_WIN64
+                              CubicFilter,
+                              1.0); // blur
+#else
 #if defined (ACE_LINUX)
 #if defined (IS_UBUNTU_LINUX) // *NOTE*: github "*-latest" runners lag behind: ImageMagick-6
   result = MagickResizeImage (wand_p,
@@ -1945,6 +1976,7 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
                               targetResolution_inout.cx, targetResolution_inout.cy,
                               FilterType::CubicFilter);
 #endif // ACE_LINUX
+#endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
   if (result != MagickTrue)
   {
     ExceptionType severity;
@@ -1958,17 +1990,27 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
   //ACE_ASSERT (isRGB (sourceFormat_in)); // *TODO*
   ACE_NEW_NORETURN (buffer_out,
                     uint8_t[sourceFormat_in.size () * MagickGetImageWidth (wand_p) * MagickGetImageHeight (wand_p)]);
+  ACE_ASSERT (buffer_out);
+#if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
+  result = MagickGetImagePixels (wand_p,
+                                 0,0, MagickGetImageWidth (wand_p),MagickGetImageHeight (wand_p),
+                                 sourceFormat_in.c_str (),
+                                 CharPixel,
+                                 buffer_out);
+#else
   result = MagickExportImagePixels (wand_p,
                                     0,0, MagickGetImageWidth (wand_p),MagickGetImageHeight (wand_p),
                                     sourceFormat_in.c_str (),
                                     StorageType::CharPixel,
                                     buffer_out);
+#endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
   if (result != MagickTrue)
   {
     ExceptionType severity;
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to MagickExportImagePixels(): \"%s\", aborting\n"),
                 ACE_TEXT (MagickGetException (wand_p, &severity))));
+    delete [] buffer_out; buffer_out = NULL;
     DestroyMagickWand (wand_p);
     return false;
   } // end IF

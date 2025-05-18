@@ -817,7 +817,11 @@ Common_UI_Tools::getDisplays ()
                              &display_device_2,                                     // lpDisplayDevice
                              flags_i))                                              // dwFlags
       break;
+#if defined (UNICODE)
+    device_name_string = ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (display_device_2.DeviceName));
+#else
     device_name_string = ACE_TEXT_ALWAYS_CHAR (display_device_2.DeviceName);
+#endif // UNICODE
 
     index_2 = 0;
     do
