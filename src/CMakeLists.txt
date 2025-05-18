@@ -184,7 +184,7 @@ elseif (WIN32)
  target_link_libraries (${PROJECT_NAME} PUBLIC Secur32.lib)
  target_link_libraries (${PROJECT_NAME} PUBLIC Userenv.lib)
 
- target_link_libraries (${PROJECT_NAME} PUBLIC WinMM.lib)
+# target_link_libraries (${PROJECT_NAME} PUBLIC WinMM.lib)
 endif ()
 target_link_libraries (${PROJECT_NAME} PUBLIC ${ACE_LIBRARY})
 
