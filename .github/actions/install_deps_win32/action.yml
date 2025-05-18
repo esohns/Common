@@ -1,7 +1,7 @@
 name: 'install_deps_win32'
 description: 'install package dependencies on the runner'
 inputs:
- os:  # id of input
+ os:
   description: 'runner OS'
   required: true
 runs:
@@ -11,7 +11,6 @@ runs:
     with:
      vcpkgDirectory: '${{ env.VCPKG_ROOT }}'
      vcpkgGitCommitId: 'ca846b21276c9a3171074ac8d2b4f6516894a7d0'
-     # Run vcpkg with the command specified by the `runVcpkgFormatString` input
      runVcpkgInstall: true
      vcpkgJsonGlob: '**/vcpkg.json'
-     #vcpkgJsonGlob: '${{ runner.workspace }}/a/Common/vcpkg.json'
+     doNotCache: false
