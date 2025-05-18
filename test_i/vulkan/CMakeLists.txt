@@ -52,6 +52,9 @@ add_executable (${EXECUTABLE}
                 ${${EXECUTABLE}_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
+if (WIN32)
+ target_link_libraries (${EXECUTABLE} PUBLIC winmm.lib)
+endif (WIN32)
 if (VULKAN_SUPPORT)
  target_link_libraries (${EXECUTABLE} PUBLIC ${VULKAN_LIBRARIES})
 endif (VULKAN_SUPPORT)
