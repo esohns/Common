@@ -42,9 +42,9 @@ jobs:
   continue-on-error: true
 
   steps:
-#   - name: Get latest Cmake and Ninja
-#     uses: lukka/get-cmake@latest
-#
+   - name: Get latest Cmake and Ninja
+     uses: lukka/get-cmake@latest
+
    - name: Checkout
      uses: actions/checkout@v4
 
@@ -124,7 +124,7 @@ jobs:
      run: cmake -B ${{github.workspace}}\\build -DVCPKG_USE=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUI_FRAMEWORK=gtk -DBUILD_TEST_U=ON -DBUILD_TEST_I=ON
 
    - name: Build
-     run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+     run: cmake --build ${{github.workspace}}/build
 
 #   - name: Upload GitHub Actions artifact of vcpkg build logs [Win32]
 #     if: ${{ matrix.os=='windows-latest' }}
