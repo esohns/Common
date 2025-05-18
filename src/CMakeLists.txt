@@ -169,23 +169,25 @@ if (UNIX)
   target_link_libraries (${PROJECT_NAME} PUBLIC ${PKG_LIBSYSFS_LIBRARIES})
  endif (LIBSYSFS_SUPPORT)
 
- target_link_libraries (${PROJECT_NAME} PUBLIC X11)
+# target_link_libraries (${PROJECT_NAME} PUBLIC X11)
 elseif (WIN32)
- set (LIB_WITH_SUFFIX "Msvcrt")
- if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
-     CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-  set (LIB_WITH_SUFFIX "${LIB_WITH_SUFFIX}d")
- endif (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
-        CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
- set (LIB_WITH_SUFFIX "${LIB_WITH_SUFFIX}.lib")
- target_link_libraries (${PROJECT_NAME} PUBLIC ${LIB_WITH_SUFFIX})
- target_link_libraries (${PROJECT_NAME} PUBLIC Dbghelp.lib)
+# set (LIB_WITH_SUFFIX "Msvcrt")
+# if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
+#     CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+#  set (LIB_WITH_SUFFIX "${LIB_WITH_SUFFIX}d")
+# endif (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
+#        CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+# set (LIB_WITH_SUFFIX "${LIB_WITH_SUFFIX}.lib")
+# target_link_libraries (${PROJECT_NAME} PUBLIC ${LIB_WITH_SUFFIX})
+# target_link_libraries (${PROJECT_NAME} PUBLIC Dbghelp.lib)
  target_link_libraries (${PROJECT_NAME} PUBLIC Quartz.lib)
  target_link_libraries (${PROJECT_NAME} PUBLIC Secur32.lib)
  target_link_libraries (${PROJECT_NAME} PUBLIC Userenv.lib)
 
- target_link_libraries (${PROJECT_NAME} PUBLIC ${ACE_LIBRARY})
+ target_link_libraries (${PROJECT_NAME} PUBLIC WinMM.lib)
 endif ()
+target_link_libraries (${PROJECT_NAME} PUBLIC ${ACE_LIBRARY})
+
 target_link_libraries (${PROJECT_NAME} PUBLIC ${PROJECT_NAME}Error)
 target_link_libraries (${PROJECT_NAME} PUBLIC ${PROJECT_NAME}Signal)
 target_link_libraries (${PROJECT_NAME} PUBLIC ${PROJECT_NAME}UI)
