@@ -1,6 +1,5 @@
 #include "stdafx.h"
 
-#if defined (IMAGEMAGICK_SUPPORT)
 #if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
 #include "wand/wand_api.h"
 #else
@@ -14,7 +13,6 @@
 #include "MagickWand/MagickWand.h"
 #endif // ACE_LINUX
 #endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
-#endif // IMAGEMAGICK_SUPPORT
 
 #include <iostream>
 #include <string>
@@ -155,7 +153,11 @@ do_work (const std::string& sourceFilePath_in)
   uint8_t* data_p = NULL;
   Common_Image_Resolution_t resolution_s;
 
+#if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
+#else
   MagickWandGenesis ();
+#endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
+
   if (!Common_Image_Tools::load (sourceFilePath_in,
                                  ACE_TEXT_ALWAYS_CHAR ("RGBA"),
                                  resolution_s,
@@ -186,7 +188,11 @@ do_work (const std::string& sourceFilePath_in)
 //error:
   MagickRelinquishMemory (data_p); data_p = NULL;
   ACE_OS::fclose (file_p); file_p = NULL;
+
+#if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
+#else
   MagickWandTerminus ();
+#endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
 }
 
 int
