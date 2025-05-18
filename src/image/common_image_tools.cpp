@@ -1987,6 +1987,12 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
     return false;
   } // end IF
 
+  // *IMPORTANT NOTE*: "...Set the image depth to 8. If you are using the Q16
+  //                   version of ImageMagick, the image depth is promoted from
+  //                   8 to 16 when the image is resized. ..."
+  result = MagickSetImageDepth (wand_p, 8);
+  ACE_ASSERT (result == MagickTrue);
+
   //ACE_ASSERT (isRGB (sourceFormat_in)); // *TODO*
   ACE_NEW_NORETURN (buffer_out,
                     uint8_t[sourceFormat_in.size () * MagickGetImageWidth (wand_p) * MagickGetImageHeight (wand_p)]);
