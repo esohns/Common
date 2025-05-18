@@ -30,9 +30,11 @@ if (VCPKG_SUPPORT)
   endif (DEFINED ENV{VCPKG_INSTALLED_DIR})
   message (STATUS "vcpkg installed directory \"${VCPKG_INSTALLED_DIR}\"")
 
-  set (VCPKG_APPLOCAL_DEPS OFF CACHE BOOL "" FORCE)
+#  set (VCPKG_APPLOCAL_DEPS OFF CACHE BOOL "" FORCE)
   set (VCPKG_MANIFEST_MODE OFF CACHE BOOL "" FORCE)
-  set (VCPKG_MANIFEST_INSTALL OFF CACHE BOOL "" FORCE)
+#  set (VCPKG_MANIFEST_INSTALL OFF CACHE BOOL "" FORCE)
+  set (VCPKG_PREFER_SYSTEM_LIBS ON CACHE BOOL "" FORCE)
+  set (VCPKG_OVERLAY_PORTS "" CACHE STRING "" FORCE)
 
   set (CMAKE_TOOLCHAIN_FILE ${VCPKG_SCRIPT} CACHE STRING "vcpkg.cmake")
 #  message (STATUS "including vcpkg.cmake from \"${VCPKG_SCRIPT}\"")
@@ -40,15 +42,13 @@ if (VCPKG_SUPPORT)
 
   set (VCPKG_LIB_DIR_BASE ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET} CACHE STRING "vcpkg library path (base)" FORCE)
   set (VCPKG_INCLUDE_DIR ${VCPKG_LIB_DIR_BASE}/include CACHE STRING "vcpkg include path (base)" FORCE)
-  if ($<CONFIG> STREQUAL "Debug" OR
-      $<CONFIG> STREQUAL "RelWithDebInfo" OR
-      ${CMAKE_BUILD_TYPE} STREQUAL "Debug" OR
+  if (${CMAKE_BUILD_TYPE} STREQUAL "Debug" OR
       ${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo")
    set (VCPKG_LIB_DIR ${VCPKG_LIB_DIR_BASE}/debug/lib CACHE STRING "vcpkg library path" FORCE)
    set (VCPKG_BIN_DIR ${VCPKG_LIB_DIR_BASE}/debug/bin CACHE STRING "vcpkg binary path" FORCE)
   else ()
    set (VCPKG_LIB_DIR ${VCPKG_LIB_DIR_BASE}/lib CACHE STRING "vcpkg library path" FORCE)
    set (VCPKG_BIN_DIR ${VCPKG_LIB_DIR_BASE}/bin CACHE STRING "vcpkg binary path" FORCE)
- endif ()
+  endif ()
  endif (VCPKG_USE)
 endif (VCPKG_SUPPORT)

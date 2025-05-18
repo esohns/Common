@@ -13,4 +13,3 @@ runs:
      vcpkgGitCommitId: 'ca846b21276c9a3171074ac8d2b4f6516894a7d0'
      runVcpkgInstall: true
      vcpkgJsonGlob: '**/vcpkg.json'
-     doNotCache: false

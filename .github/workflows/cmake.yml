@@ -42,9 +42,9 @@ jobs:
   continue-on-error: true
 
   steps:
-   - name: Get latest Cmake and Ninja
-     uses: lukka/get-cmake@latest
-
+#   - name: Get latest Cmake and Ninja
+#     uses: lukka/get-cmake@latest
+#
    - name: Checkout
      uses: actions/checkout@v4
 
