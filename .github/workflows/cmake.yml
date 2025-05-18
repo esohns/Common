@@ -12,7 +12,12 @@ env:
  # set vcpkg root/installed directories
  VCPKG_ROOT: C:/vcpkg
  VCPKG_INSTALLED_DIR: C:/vcpkg/installed
- VCPKG_TOOLCHAIN_FILE: C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+ #VCPKG_TOOLCHAIN_FILE: C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+ # vcpkg binary cache
+ USERNAME: esohns
+ VCPKG_EXE: C:/vcpkg/vcpkg.exe
+ FEED_URL: https://nuget.pkg.github.com/esohns/index.json
+ VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/esohns/index.json,readwrite"
  # WINDOWS_SDK: 22621
 
 jobs:
@@ -58,6 +63,26 @@ jobs:
      with:
       os: ${{matrix.os}}
 
+   - name: Bootstrap vcpkg [Win32]
+     if: ${{ matrix.os=='windows-latest' }}
+     shell: pwsh
+     run: ${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.bat
+
+   - name: Add NuGet sources [Win32]
+     if: ${{ matrix.os=='windows-latest' }}
+     shell: pwsh
+     run: |
+      .$(${{ env.VCPKG_EXE }} fetch nuget) `
+        sources add `
+        -Source "${{ env.FEED_URL }}" `
+        -StorePasswordInClearText `
+        -Name GitHubPackages `
+        -UserName "${{ env.USERNAME }}" `
+        -Password "${{ secrets.GH_PACKAGES_TOKEN }}"
+      .$(${{ env.VCPKG_EXE }} fetch nuget) `
+        setapikey "${{ secrets.GH_PACKAGES_TOKEN }}" `
+        -Source "${{ env.FEED_URL }}"
+
    - name: Install dependencies (packages) [Win32]
      if: ${{ matrix.os=='windows-latest' }}
      uses: ./.github/actions/install_deps_win32
@@ -96,9 +121,7 @@ jobs:
 
    - name: Configure CMake [Win32]
      if: ${{ matrix.os=='windows-latest' }}
-     run: |
-          cmake -B ${{github.workspace}}\\build -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{env.VCPKG_TOOLCHAIN_FILE}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DVCPKG_USE=ON -DUI_FRAMEWORK=gtk -DBUILD_TEST_U=ON -DBUILD_TEST_I=ON
-          cmake -B ${{github.workspace}}\\build -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{env.VCPKG_TOOLCHAIN_FILE}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DVCPKG_USE=ON -DUI_FRAMEWORK=gtk -DBUILD_TEST_U=ON -DBUILD_TEST_I=ON
+     run: cmake -B ${{github.workspace}}\\build -DVCPKG_USE=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUI_FRAMEWORK=gtk -DBUILD_TEST_U=ON -DBUILD_TEST_I=ON
 
    - name: Build
      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
