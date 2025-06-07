@@ -122,12 +122,9 @@ jobs:
      if: ${{ matrix.os=='ubuntu-latest' }}
      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUI_FRAMEWORK=gtk -DBUILD_TEST_U=ON -DBUILD_TEST_I=ON
 
-   - name: Setup Developper Command Prompt [Win32]
-     if: ${{ matrix.os=='windows-latest' }}
-     uses: ilammy/msvc-dev-cmd@v1
-
    - name: Configure CMake [Win32]
      if: ${{ matrix.os=='windows-latest' }}
+     uses: ilammy/msvc-dev-cmd@v1
      run: cmake -B ${{github.workspace}}\\build -DVCPKG_USE=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUI_FRAMEWORK=gtk -DBUILD_TEST_U=ON -DBUILD_TEST_I=ON
 
    - name: Build

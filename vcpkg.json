@@ -15,6 +15,7 @@
     "graphicsmagick",
     "gtk3",
     "libiconv",
+    "libnoise",
     "libxml2",
     "pdcurses",
     "stb",

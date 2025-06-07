@@ -37,8 +37,6 @@
 #include "GL/gl.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
-//#include "noise/noise.h"
-
 #include "common_gl_camera.h"
 #include "common_gl_common.h"
 #include "common_gl_shader.h"
@@ -88,9 +86,6 @@ struct Common_OpenGL_GLUT_CBData
 #else
 #error missing implementation, aborting
 #endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
-
-  //noise::module::Perlin   noise;
-  //double                  x, y, z;
 };
 
 #endif

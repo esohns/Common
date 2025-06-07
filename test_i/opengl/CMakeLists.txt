@@ -9,21 +9,17 @@ include (png)
 
 include (ffmpeg)
 #include (ImageMagick)
-include (libnoise)
+#include (libnoise)
 
 ############## includes ###############
 if (GLUT_SUPPORT)
  include_directories (${GLUT_INCLUDE_DIRS})
 endif (GLUT_SUPPORT)
-if (LIBNOISE_SUPPORT)
- include_directories (${LIBNOISE_INCLUDE_DIRS})
-endif (LIBNOISE_SUPPORT)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/gl)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/image)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/log)
-#include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/timer)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
@@ -50,18 +46,15 @@ add_executable (${EXECUTABLE}
                 ${${EXECUTABLE}_EXE_SRCS})
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
-if (LIBNOISE_SUPPORT)
- target_link_libraries (${EXECUTABLE} PUBLIC ${LIBNOISE_LIB})
-endif (LIBNOISE_SUPPORT)
 if (OPENGL_SUPPORT)
  target_link_libraries (${EXECUTABLE} PUBLIC ${OPENGL_LIBRARIES})
- if (GLUT_SUPPORT)
-  target_link_libraries (${EXECUTABLE} PUBLIC ${GLUT_LIBRARIES})
- endif (GLUT_SUPPORT)
- if (GLEW_SUPPORT)
-  target_link_libraries (${EXECUTABLE} PUBLIC ${GLEW_LIBRARIES})
- endif (GLEW_SUPPORT)
 endif (OPENGL_SUPPORT)
+if (GLUT_SUPPORT)
+ target_link_libraries (${EXECUTABLE} PUBLIC ${GLUT_LIBRARIES})
+endif (GLUT_SUPPORT)
+if (GLEW_SUPPORT)
+ target_link_libraries (${EXECUTABLE} PUBLIC ${GLEW_LIBRARIES})
+endif (GLEW_SUPPORT)
 
 target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
 
