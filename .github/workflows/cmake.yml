@@ -128,6 +128,7 @@ jobs:
 
    - name: Configure CMake [Win32]
      if: ${{ matrix.os=='windows-latest' }}
+     shell: cmd
      run: |
        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat"
        cmake -B ${{github.workspace}}\\build -DVCPKG_USE=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUI_FRAMEWORK=gtk -DBUILD_TEST_U=ON -DBUILD_TEST_I=ON
