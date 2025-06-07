@@ -54,6 +54,10 @@ jobs:
 #     with:
 #      sdk-version: ${{env.WINDOWS_SDK}}
 
+   - name: Windows SDK Install
+     if: ${{ matrix.os=='windows-latest' }}
+     uses: ChristopheLav/windows-sdk-install@v1.0.3
+
    - name: Checkout submodules
      run: git submodule update --init --recursive
 
