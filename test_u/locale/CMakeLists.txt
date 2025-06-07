@@ -7,11 +7,7 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 ############## next target ################
 set (locale_EXE_SRCS
-#     stdafx.cpp
      stdafx.h
-#     ../test_u_common.h
-#     ../test_u_defines.h
-#     targetver.h
      test_u.cpp)
 
 #cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
@@ -29,6 +25,7 @@ set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_u")
 add_dependencies (${PROJECT_NAME} Common)
 
 target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
+
 target_link_libraries (${EXECUTABLE} PUBLIC Common)
 target_link_libraries (${EXECUTABLE} PUBLIC CommonLog)
 target_link_libraries (${EXECUTABLE} PUBLIC Common_Test_U)

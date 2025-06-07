@@ -117,7 +117,6 @@ endif (GUI_SUPPORT)
 
 set (source_files
      common_test_u_common.h
-#     test_u_defines.h
      common_test_u_tools.cpp
      common_test_u_tools.h
      common_test_u_tools.inl)
@@ -133,13 +132,10 @@ endforeach ()
 ##########################################
 
 target_sources (${LIBRARY}
-#                PRIVATE stdafx.cpp
                 PRIVATE stdafx.h
                 PRIVATE ${absolute_source_files})
 target_precompile_headers (${LIBRARY}
                            PRIVATE stdafx.h)
-
-#set_target_properties (LIBRARY PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 ##########################################
 
