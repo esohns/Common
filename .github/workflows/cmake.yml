@@ -54,12 +54,12 @@ jobs:
 #     with:
 #      sdk-version: ${{env.WINDOWS_SDK}}
 
-   - name: Windows SDK install
-     if: ${{ matrix.os=='windows-latest' }}
-     uses: ChristopheLav/windows-sdk-install@v1.0.3
-     with:
-      version-sdk: 26100
-      features: 'OptionId.UWPCPP,OptionId.DesktopCPPx64'
+#   - name: Windows SDK install
+#     if: ${{ matrix.os=='windows-latest' }}
+#     uses: ChristopheLav/windows-sdk-install@v1.0.3
+#     with:
+#      version-sdk: 26100
+#      features: 'OptionId.UWPCPP,OptionId.DesktopCPPx64'
 
    - name: Checkout submodules
      run: git submodule update --init --recursive
@@ -128,7 +128,9 @@ jobs:
 
    - name: Configure CMake [Win32]
      if: ${{ matrix.os=='windows-latest' }}
-     run: cmake -B ${{github.workspace}}\\build -DVCPKG_USE=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUI_FRAMEWORK=gtk -DBUILD_TEST_U=ON -DBUILD_TEST_I=ON
+     run: |
+       call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat"
+       cmake -B ${{github.workspace}}\\build -DVCPKG_USE=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUI_FRAMEWORK=gtk -DBUILD_TEST_U=ON -DBUILD_TEST_I=ON
 
    - name: Build
      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --verbose
