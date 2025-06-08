@@ -60,9 +60,6 @@ cmake_policy (SET CMP0048 NEW) # allow project VERSION
 project (${PROJECT_NAME}
          VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
          LANGUAGES CXX C)
-if (VCPKG_USE)
- set (CMAKE_LIBRARY_PATH "") # *TODO*: make github actions work
-endif (VCPKG_USE)
 
 include (PreToolChain)
 include (SetToolChain)

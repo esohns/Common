@@ -24,7 +24,6 @@ if (VCPKG_SUPPORT)
    set (VCPKG_TARGET_TRIPLET "${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE}-linux")
   elseif (WIN32)
    set (VCPKG_TARGET_TRIPLET "${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE}-windows")
-   set (CMAKE_LIBRARY_PATH "$ENV{LIB}") # *TODO*: hack to get the github runner to work
   endif ()
   message (STATUS "vcpkg triplet \"${VCPKG_TARGET_TRIPLET}\"")
 
