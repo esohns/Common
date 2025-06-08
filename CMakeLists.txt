@@ -51,7 +51,6 @@ endif ()
 include (PrePreToolChain)
 
 # *NOTE*: sets CMAKE_TOOLCHAIN_FILE, so include BEFORE project()
-message (STATUS "CMAKE_LIBRARY_PATH (before): ${CMAKE_LIBRARY_PATH}")
 include (vcpkg)
 
 cmake_policy (SET CMP0048 NEW) # allow project VERSION
@@ -61,7 +60,9 @@ cmake_policy (SET CMP0048 NEW) # allow project VERSION
 project (${PROJECT_NAME}
          VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
          LANGUAGES CXX C)
-message (STATUS "CMAKE_LIBRARY_PATH (after): ${CMAKE_LIBRARY_PATH}")
+if (VCPKG_USE)
+ set (CMAKE_LIBRARY_PATH "") # *TODO*: make github actions work
+endif (VCPKG_USE)
 
 include (PreToolChain)
 include (SetToolChain)
