@@ -29,7 +29,7 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../..)
 
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/../../..)
 
-link_directories (${GTK_LIB_DIRS})
+#link_directories (${GTK_LIB_DIRS})
 
 ############## next target ###############
 set (EXECUTABLE gtk)
@@ -58,7 +58,6 @@ if (GTKGL_SUPPORT)
   target_link_libraries (${EXECUTABLE} PUBLIC ${GLEW_LIBRARIES})
  endif (GLEW_SUPPORT)
 endif (GTKGL_SUPPORT)
-#target_link_libraries (${EXECUTABLE} PUBLIC ${ffmpeg_2_LIBRARIES})
 target_link_libraries (${EXECUTABLE} PUBLIC ${GTK_LIBRARIES})
 
 target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
