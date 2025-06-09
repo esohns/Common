@@ -1,9 +1,9 @@
 # configure C/C++ exceptions
-include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/SetCppExceptions.cmake)
+include (SetCppExceptions)
 
-include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/Threads.cmake)
+include (Threads)
 
-include (${CMAKE_CURRENT_SOURCE_DIR}/../scripts/ACE.cmake)
+include (ACE)
 
 option (BUILD_TEST_U "build test_u" OFF)
 
