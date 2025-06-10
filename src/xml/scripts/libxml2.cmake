@@ -20,23 +20,27 @@ elseif (WIN32)
   endif (LibXml2_FOUND)
  endif (VCPKG_USE)
  if (NOT LIBXML2_FOUND)
-  find_path (LIBXML2_INCLUDE_DIR NAMES libxml/xpath.h
-             PATHS "$ENV{LIB_ROOT}/libxml2/include"
-             PATH_SUFFIXES libxml2)
+  find_path (LIBXML2_INCLUDE_DIR
+             NAMES libxml/xpath.h
+             PATHS "$ENV{LIB_ROOT}/libxml2/include")
+  find_path (LIBXML2_INCLUDE_DIR_2
+             NAMES libxml/xmlversion.h
+             PATHS "$ENV{LIB_ROOT}/libxml2/build/msvc")
+  set (LIBXML2_LIB "libxml2${LIB_FILE_SUFFIX}.lib")
   find_library (LIBXML2_LIBRARY
-                NAMES libxml2
-                PATHS "$ENV{LIB_ROOT}/libxml2"
-                PATH_SUFFIXES lib
+                NAMES ${LIBXML2_LIB}
+                PATHS "$ENV{LIB_ROOT}/libxml2/build/msvc"
+                PATH_SUFFIXES ${CMAKE_BUILD_TYPE}
                 NO_DEFAULT_PATH)
-  if (LIBXML2_INCLUDE_DIR AND LIBXML2_LIBRARY)
+  if (LIBXML2_INCLUDE_DIR AND LIBXML2_INCLUDE_DIR_2 AND LIBXML2_LIBRARY)
    message (STATUS "found libxml2")
    set (LIBXML2_FOUND TRUE)
-   set (LIBXML2_INCLUDE_DIRS ${LIBXML2_INCLUDE_DIR})
+   set (LIBXML2_INCLUDE_DIRS ${LIBXML2_INCLUDE_DIR};${LIBXML2_INCLUDE_DIR_2})
    set (LIBXML2_LIBRARIES ${LIBXML2_LIBRARY})
-   set (LIBXML2_LIB_DIR "$ENV{LIB_ROOT}/libxml2/bin")
+   set (LIBXML2_LIB_DIR "$ENV{LIB_ROOT}/libxml2/build/msvc/${CMAKE_BUILD_TYPE}")
   else ()
    message (WARNING "could not find libxml2, continuing")
-  endif (LIBXML2_INCLUDE_DIR AND LIBXML2_LIBRARY)
+  endif (LIBXML2_INCLUDE_DIR AND LIBXML2_INCLUDE_DIR_2 AND LIBXML2_LIBRARY)
  endif (NOT LIBXML2_FOUND)
 endif ()
 if (LIBXML2_FOUND AND LIBICONV_SUPPORT)
