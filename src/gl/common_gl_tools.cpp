@@ -235,6 +235,9 @@ Common_GL_Tools::loadTexture (const std::string& path_in,
   unsigned int width = 0, height = 0, channels = 0;
   bool has_alpha = false;
   GLubyte* image_p = NULL;
+  GLint internal_format;
+  GLenum format;
+
   switch (Common_Image_Tools::fileExtensionToType (path_in))
   {
     case COMMON_IMAGE_FILE_PNG:
@@ -242,6 +245,7 @@ Common_GL_Tools::loadTexture (const std::string& path_in,
 #if defined (LIBPNG_SUPPORT)
       if (!Common_GL_Image_Tools::loadPNG (path_in,
                                            width, height,
+                                           channels,
                                            has_alpha,
                                            image_p))
 #elif defined (IMAGEMAGICK_SUPPORT)
@@ -253,10 +257,11 @@ Common_GL_Tools::loadTexture (const std::string& path_in,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to Common_GL_Image_Tools::loadPNG(\"%s\"), aborting\n"),
                     ACE_TEXT (path_in.c_str ())));
-        return return_value;
+        return 0;
       } // end IF
 #if defined (LIBPNG_SUPPORT)
 #elif defined (IMAGEMAGICK_SUPPORT)
+      channels = 4;
       has_alpha = true;
 #endif // LIBPNG_SUPPORT || IMAGEMAGICK_SUPPORT
       break;
@@ -273,39 +278,54 @@ Common_GL_Tools::loadTexture (const std::string& path_in,
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to Common_GL_Image_Tools::loadSTB(\"%s\"), aborting\n"),
                     ACE_TEXT (path_in.c_str ())));
-        return return_value;
+        return 0;
       } // end IF
       has_alpha = channels >= 4;
-#else
-      ACE_UNUSED_ARG (channels);
 #endif // STB_IMAGE_SUPPORT
       break;
     }
     default:
     {
-error:
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("invalid/unknown image file format (path was: \"%s\"), aborting\n"),
                   ACE_TEXT (path_in.c_str ())));
-      return return_value;
+      return 0;
     }
   } // end SWITCH
-  if (!width || !height || !image_p)
-    goto error;
+  ACE_ASSERT (width && height && image_p);
 
   glGenTextures (1, &return_value);
-  // COMMON_GL_ASSERT
+
+  switch (channels)
+  {
+    case 1:
+      internal_format = GL_R8;
+      format = GL_R;
+      break;
+    case 2:
+      internal_format = GL_RG8;
+      format = GL_RG;
+      break;
+    case 3:
+      ACE_ASSERT (!has_alpha);
+      internal_format = GL_RGB8;
+      format = GL_RGB;
+      break;
+    case 4:
+      internal_format = GL_RGBA8;
+      format = GL_RGBA;
+      break;
+    default:
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid number of channels (%d), aborting\n"),
+                  channels));
+      glDeleteTextures (1, &return_value);
+      return 0;
+  } // end SWITCH
 
   glBindTexture (GL_TEXTURE_2D, return_value);
-  // COMMON_GL_ASSERT
-
-  glTexImage2D (GL_TEXTURE_2D, 0, (has_alpha ? GL_RGBA8 : GL_RGB8), width, height, 0,
-                (has_alpha ? GL_RGBA : GL_RGB),
-                GL_UNSIGNED_BYTE, image_p);
-  // COMMON_GL_ASSERT
-
+  glTexImage2D (GL_TEXTURE_2D, 0, internal_format, width, height, 0, format, GL_UNSIGNED_BYTE, image_p);
   glBindTexture (GL_TEXTURE_2D, 0);
-  // COMMON_GL_ASSERT
 
   // clean up
   free (image_p); image_p = NULL;
@@ -333,6 +353,8 @@ Common_GL_Tools::loadCubeMap (const std::string& negativeZ_in,
   unsigned int width = 0, height = 0, channels = 0;
   bool has_alpha = false;
   GLubyte* image_p = NULL;
+  GLint internal_format;
+  GLenum format;
   std::vector<std::string> files_a = { negativeZ_in, positiveZ_in,
                                        positiveY_in, negativeY_in,
                                        negativeX_in, positiveX_in };
@@ -341,10 +363,14 @@ Common_GL_Tools::loadCubeMap (const std::string& negativeZ_in,
       GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
       GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_X };
   std::vector<GLenum>::const_iterator orientation = orientation_a.begin ();
+
   for (std::vector<std::string>::const_iterator iterator = files_a.begin ();
        iterator != files_a.end ();
        ++iterator, ++orientation)
   {
+    width = 0, height = 0, channels = 0;
+    has_alpha = false;
+
     switch (Common_Image_Tools::fileExtensionToType (*iterator))
     {
       case COMMON_IMAGE_FILE_PNG:
@@ -352,6 +378,7 @@ Common_GL_Tools::loadCubeMap (const std::string& negativeZ_in,
 #if defined (LIBPNG_SUPPORT)
         if (!Common_GL_Image_Tools::loadPNG (*iterator,
                                              width, height,
+                                             channels,
                                              has_alpha,
                                              image_p))
 #elif defined (IMAGEMAGICK_SUPPORT)
@@ -363,10 +390,13 @@ Common_GL_Tools::loadCubeMap (const std::string& negativeZ_in,
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to Common_GL_Image_Tools::loadPNG(\"%s\"), aborting\n"),
                       ACE_TEXT ((*iterator).c_str ())));
-          return return_value;
+          glBindTexture (GL_TEXTURE_CUBE_MAP, 0);
+          glDeleteTextures (1, &return_value);
+          return 0;
         } // end IF
 #if defined (LIBPNG_SUPPORT)
 #elif defined (IMAGEMAGICK_SUPPORT)
+        channels = 4;
         has_alpha = true;
 #endif // LIBPNG_SUPPORT || IMAGEMAGICK_SUPPORT
         break;
@@ -383,6 +413,7 @@ Common_GL_Tools::loadCubeMap (const std::string& negativeZ_in,
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to Common_GL_Image_Tools::loadSTB(\"%s\"), aborting\n"),
                       ACE_TEXT ((*iterator).c_str ())));
+          glBindTexture (GL_TEXTURE_CUBE_MAP, 0);
           glDeleteTextures (1, &return_value);
           return 0;
         } // end IF
@@ -394,20 +425,45 @@ Common_GL_Tools::loadCubeMap (const std::string& negativeZ_in,
       }
       default:
       {
-error:
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("invalid/unknown image file format (path was: \"%s\"), aborting\n"),
                     ACE_TEXT ((*iterator).c_str ())));
+        glBindTexture (GL_TEXTURE_CUBE_MAP, 0);
         glDeleteTextures (1, &return_value);
         return 0;
       }
     } // end SWITCH
-    if (!width || !height || !image_p)
-      goto error;
+    ACE_ASSERT (width && height && image_p);
 
-    glTexImage2D (*orientation, 0, (has_alpha ? GL_RGBA8 : GL_RGB8), width, height, 0,
-                  (has_alpha ? GL_RGBA : GL_RGB),
-                  GL_UNSIGNED_BYTE, image_p);
+    switch (channels)
+    {
+      case 1:
+        internal_format = GL_R8;
+        format = GL_R;
+        break;
+      case 2:
+        internal_format = GL_RG8;
+        format = GL_RG;
+        break;
+      case 3:
+        ACE_ASSERT (!has_alpha);
+        internal_format = GL_RGB8;
+        format = GL_RGB;
+        break;
+      case 4:
+        internal_format = GL_RGBA8;
+        format = GL_RGBA;
+        break;
+      default:
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("invalid number of channels (%d), aborting\n"),
+                    channels));
+        glBindTexture (GL_TEXTURE_CUBE_MAP, 0);
+        glDeleteTextures (1, &return_value);
+        return 0;
+    } // end SWITCH
+
+    glTexImage2D (*orientation, 0, internal_format, width, height, 0, format, GL_UNSIGNED_BYTE, image_p);
 
     // clean up
     free (image_p); image_p = NULL;

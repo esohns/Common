@@ -59,6 +59,7 @@ bool
 Common_GL_Image_Tools::loadPNG (const std::string& path_in,
                                 unsigned int& width_out,
                                 unsigned int& height_out,
+                                unsigned int& channels_out,
                                 bool& hasAlpha_out,
                                 GLubyte*& data_out)
 {
@@ -89,7 +90,6 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
     return false;
   } // end IF
 
-  // read the header magic, test if this could be a PNG file
   bytes_read = ACE_OS::fread (magic_a,
                               1,
                               COMMON_IMAGE_PNG_NUMBER_OF_MAGIC_BYTES,
@@ -111,11 +111,6 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
     goto error;
   } // end IF
 
-  // create and initialize the png_struct with the desired error handler
-  // functions. If you want to use the default stderr and longjump method, you
-  // can supply NULL for the last three parameters. We also supply the compiler
-  // header file version, so that we know if the application was compiled with a
-  // compatible version of the library. REQUIRED
   png_p = png_create_read_struct (PNG_LIBPNG_VER_STRING,
                                   NULL, NULL, NULL);
   if (unlikely (!png_p))
@@ -125,7 +120,6 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
     goto error;
   } // end IF
 
-  // allocate/initialize the memory for image information. REQUIRED
   png_info_p = png_create_info_struct (png_p);
   if (unlikely (!png_info_p))
   {
@@ -134,9 +128,6 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
     goto error;
   } // end IF
 
-  // set error handling if you are using the setjmp/longjmp method (this is the
-  // normal method of doing things with libpng). REQUIRED unless you set up your
-  // own error handlers in the png_create_read_struct() earlier
   if (unlikely (setjmp (png_jmpbuf (png_p))))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -144,10 +135,8 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
     goto error;
   } // end IF
 
-  // set up the output control if you are using standard C streams
   png_init_io (png_p, file_p);
 
-  // if we have already read some of the signature
   ACE_ASSERT (bytes_read <= COMMON_IMAGE_PNG_NUMBER_OF_MAGIC_BYTES);
   png_set_sig_bytes (png_p, static_cast<int> (bytes_read));
 
@@ -158,9 +147,14 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
                 &bit_depth, &color_type,
                 &interlace_type, &compression_method, &filter_method);
   width_out = width; height_out = height;
-  hasAlpha_out = (color_type == PNG_COLOR_TYPE_RGB_ALPHA);
+  channels_out = color_type == PNG_COLOR_TYPE_RGB ? 3 :
+                 color_type == PNG_COLOR_TYPE_RGB_ALPHA ? 4 :
+                 color_type == PNG_COLOR_TYPE_GRAY ? 1 :
+                 color_type == PNG_COLOR_TYPE_GRAY_ALPHA ? 2 :
+                 0;
+  ACE_ASSERT (channels_out);
+  hasAlpha_out = (color_type == PNG_COLOR_TYPE_RGB_ALPHA || color_type == PNG_COLOR_TYPE_GRAY_ALPHA);
 
-  // update the png info struct
   png_read_update_info (png_p, png_info_p);
 
   row_bytes = png_get_rowbytes (png_p, png_info_p);
@@ -175,7 +169,6 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
     goto error;
   } // end IF
 
-  // row_pointers is for pointing to image_data for reading the png with libpng
   row_pointers_pp =
     static_cast<png_bytepp> (malloc (sizeof (png_bytep) * height_out));
   if (unlikely (!row_pointers_pp))
@@ -184,8 +177,6 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
                 ACE_TEXT ("failed to allocate memory: \"%m\", aborting\n")));
     goto error;
   } // end IF
-  // set the individual row_pointers to point at the correct offsets of
-  // image_data
   // *NOTE*: png is ordered top-to-bottom; OpenGL expects it bottom-to-top
   //         --> swap the order
   for (unsigned int i = 0; i < height_out; ++i)
@@ -193,11 +184,9 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
 
   png_read_image (png_p, row_pointers_pp);
 
-  // clean up after the read, and free any memory allocated
   free (row_pointers_pp); row_pointers_pp = NULL;
   png_destroy_read_struct (&png_p, &png_info_p, NULL);
 
-  // close the file
   result = ACE_OS::fclose (file_p);
   if (unlikely (result == -1))
     ACE_DEBUG ((LM_ERROR,

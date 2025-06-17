@@ -39,6 +39,7 @@ class Common_GL_Image_Tools
   static bool loadPNG (const std::string&, // path
                        unsigned int&,      // return value: width
                        unsigned int&,      // return value: height
+                       unsigned int&,      // return value: #channels
                        bool&,              // return value: has alpha channel ?
                        GLubyte*&);         // return value: data
 
