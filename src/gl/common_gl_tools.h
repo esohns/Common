@@ -81,19 +81,19 @@ class Common_GL_Tools
 #endif // GLM_SUPPORT
 
   // texture
-  // *NOTE*: invoke glTexImage2D() with 'target' GL_TEXTURE_2D and 'internal
-  //         format' GL_RGBA8
-  // *TODO*: currently, only PNG/JPG files are supported
+  // *NOTE*: invokes glTexImage2D() with 'target' GL_TEXTURE_2D
+  // *TODO*: currently, only PNG/JPG/GIF files are supported
   static GLuint loadTexture (const std::string&, // path
                              bool = true);       // flip image on load ? (required for OpenGL)
+  // *TODO*: currently, only PNG/JPG/GIF files are supported
   static GLuint loadCubeMap (const std::string&,  // FQ path (negative z)
                              const std::string&,  // FQ path (positive z)
                              const std::string&,  // FQ path (positive y)
                              const std::string&,  // FQ path (negative y)
                              const std::string&,  // FQ path (negative x)
                              const std::string&); // FQ path (positive x)
-  // *NOTE*: invoke glTexImage2D() with 'target' GL_TEXTURE_2D and 'internal
-  //         format' GL_RGBA8, format GL_RGBA (!)
+  // *NOTE*: invoke glTex(Sub)Image2D() with 'target' GL_TEXTURE_2D
+  // *TODO*: currently, the 'internal format' is fixed at GL_RGBA8
   static void loadTexture (const uint8_t*, // data
                            unsigned int,   // width
                            unsigned int,   // height

@@ -266,6 +266,7 @@ Common_GL_Tools::loadTexture (const std::string& path_in,
 #endif // LIBPNG_SUPPORT || IMAGEMAGICK_SUPPORT
       break;
     }
+    case COMMON_IMAGE_FILE_GIF:
     case COMMON_IMAGE_FILE_JPG:
     {
 #if defined (STB_IMAGE_SUPPORT)
@@ -401,6 +402,7 @@ Common_GL_Tools::loadCubeMap (const std::string& negativeZ_in,
 #endif // LIBPNG_SUPPORT || IMAGEMAGICK_SUPPORT
         break;
       }
+      case COMMON_IMAGE_FILE_GIF:
       case COMMON_IMAGE_FILE_JPG:
       {
 #if defined (STB_IMAGE_SUPPORT)

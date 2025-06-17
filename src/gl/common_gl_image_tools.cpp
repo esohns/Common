@@ -265,9 +265,12 @@ Common_GL_Image_Tools::savePNG (const std::string& path_in,
     goto error;
   } // end IF
 
-  png_set_IHDR (png_p, png_info_p, width_in, height_in, 8, // *TODO*: pass in bit_depth
-                PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
-                PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+  png_set_IHDR (png_p, png_info_p, width_in, height_in,
+                8, // *TODO*: pass in bit_depth
+                (numberOfChannels_in >= 4 ? PNG_COLOR_TYPE_RGBA : PNG_COLOR_TYPE_RGB),
+                PNG_INTERLACE_NONE,
+                PNG_COMPRESSION_TYPE_DEFAULT,
+                PNG_FILTER_TYPE_DEFAULT);
 
   row_pointers_p =
     static_cast<png_byte**> (png_malloc (png_p, height_in * sizeof (png_byte*)));
@@ -298,6 +301,7 @@ Common_GL_Image_Tools::savePNG (const std::string& path_in,
     {
       const png_byte* pixel_p = data_in + (y * width_in * numberOfChannels_in) + (x * numberOfChannels_in);
       *row_p++ = *(pixel_p + 0); // red | grey
+      ACE_ASSERT (numberOfChannels_in != 2); // *TODO*: support greyscale + alpha ?
       if (likely (numberOfChannels_in >= 3))
       {
         *row_p++ = *(pixel_p + 1); // green
