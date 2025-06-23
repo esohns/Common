@@ -75,6 +75,8 @@ class Comon_UI_WxWidgets_Application_T
   // override (part of) wxAppConsole
   //inline virtual wxAppTraits* CreateTraits () { wxAppTraits* result_p = NULL; ACE_NEW_NORETURN (result_p, TraitsType ()); return result_p; }
   virtual bool OnInit ();
+  virtual void OnEndSession (wxCloseEvent&);
+  virtual void OnQueryEndSession (wxCloseEvent&);
   virtual int OnExit ();
 
   //wxDECLARE_APP(OWN_TYPE_T);
@@ -87,6 +89,7 @@ class Comon_UI_WxWidgets_Application_T
   inline virtual bool initialize (const CBDataType& CBData_in) { CBData_ = &const_cast<CBDataType&> (CBData_in); CBData_->UIState = &state_; return true; }
   inline virtual const CBDataType& getR_2 () const { ACE_ASSERT (CBData_); return *CBData_; }
   virtual bool run ();
+  virtual void stop ();
 #if wxCHECK_VERSION(3,0,0)
   inline virtual void wait () { while (inherited::HasPendingEvents ()) inherited::ProcessPendingEvents(); }
 #elif wxCHECK_VERSION(2,0,0)
@@ -95,10 +98,6 @@ class Comon_UI_WxWidgets_Application_T
 
  protected:
   // convenient types
-  //typedef Comon_UI_WxWidgets_Application_T<DefinitionType,
-  //                                         StateType,
-  //                                         ConfigurationType,
-  //                                         TopLevelClassType> OWN_TYPE_T;
   typedef Common_UI_wxWidgets_ITopLevel_T<StateType,
                                           CBDataType> ITOPLEVEL_T;
 

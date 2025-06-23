@@ -1,5 +1,5 @@
-#ifndef TEST_U_IMAGESCREEN_UI_H
-#define TEST_U_IMAGESCREEN_UI_H
+#ifndef TEST_I_3_UI_H
+#define TEST_I_3_UI_H
 
 #undef DrawText
 #undef SIZEOF_SIZE_T
@@ -7,31 +7,33 @@
 
 #include "common_ui_wxwidgets_itoplevel.h"
 
-template <typename WidgetBaseClassType, // implements wxWindow (e.g. wxDialog)
-          typename InterfaceType>       // implements Common_UI_wxWidgets_IApplication_T
-class Test_U_WxWidgetsDialog_T
- : public WidgetBaseClassType
- , public Common_UI_wxWidgets_ITopLevel_T<typename InterfaceType::STATE_T,
-                                          typename InterfaceType::CBDATA_T>
+#include "test_i_3_ui_base.h"
+
+class Test_I_WxWidgetsDialog
+ : public dialog_main_base
+ , public Common_UI_wxWidgets_ITopLevel_T<struct Common_UI_wxWidgets_State,
+                                          struct Common_UI_wxWidgets_CBData>
 {
-  typedef WidgetBaseClassType inherited;
+  typedef dialog_main_base inherited;
 
  public:
   // convenient types
-  typedef Common_UI_wxWidgets_IApplication_T<typename InterfaceType::STATE_T,
-                                             typename InterfaceType::CBDATA_T> IAPPLICATION_T;
+  typedef Common_UI_wxWidgets_ITopLevel_T<struct Common_UI_wxWidgets_State,
+                                          struct Common_UI_wxWidgets_CBData> ITOPLEVEL_T;
+  typedef Common_UI_wxWidgets_IApplication_T<struct Common_UI_wxWidgets_State,
+                                             struct Common_UI_wxWidgets_CBData> IAPPLICATION_T;
 
-  Test_U_WxWidgetsDialog_T (wxWindow* = NULL); // parent window (if any)
-  inline virtual ~Test_U_WxWidgetsDialog_T () {}
+  wxDECLARE_DYNAMIC_CLASS	(Test_I_WxWidgetsDialog);
+
+  Test_I_WxWidgetsDialog ();
+  inline virtual ~Test_I_WxWidgetsDialog () {}
 
   // implement Common_UI_wxWidgets_ITopLevel
   inline virtual const IAPPLICATION_T* const getP () const { ACE_ASSERT (application_); return application_; }
 
- private:
-  // convenient types
-  typedef Test_U_WxWidgetsDialog_T<WidgetBaseClassType,
-                                   InterfaceType> OWN_TYPE_T;
+//  virtual void GTKHandleRealized () { ACE_ASSERT (false); }
 
+ private:
   // implement Common_UI_wxWidgets_ITopLevel
   virtual bool OnInit_2 (IAPPLICATION_T*);
   virtual void OnExit_2 ();
@@ -48,15 +50,9 @@ class Test_U_WxWidgetsDialog_T
   void button_quit_clicked_cb (wxCommandEvent&);
   void on_close_cb (wxCloseEvent&);
 
-//  wxDECLARE_DYNAMIC_CLASS (OWN_TYPE_T);
-//  wxDECLARE_EVENT_TABLE ();
-
-  InterfaceType* application_;
-  bool           initializing_;
-  bool           untoggling_;
+  IAPPLICATION_T* application_;
+  bool            initializing_;
+  bool            untoggling_;
 };
 
-// include template definition
-#include "test_i_3_ui.inl"
-
-#endif // __test_u_imagescreen_ui__
+#endif

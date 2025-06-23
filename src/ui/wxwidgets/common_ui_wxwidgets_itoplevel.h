@@ -26,15 +26,15 @@
 #include "common_ui_wxwidgets_iapplication.h"
 
 template <typename StateType,
-          typename ConfigurationType>
+          typename CallbackDataType>
 class Common_UI_wxWidgets_ITopLevel_T
  : public Common_IGetP_T<Common_UI_wxWidgets_IApplication_T<StateType,
-                                                            ConfigurationType> >
+                                                            CallbackDataType> >
 {
  public:
   // convenient types
   typedef Common_UI_wxWidgets_IApplication_T<StateType,
-                                             ConfigurationType> IAPPLICATION_T;
+                                             CallbackDataType> IAPPLICATION_T;
 
   ////////////////////////////////////////
 

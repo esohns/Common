@@ -97,34 +97,32 @@ Common_UI_WxWidgetsXRCDefinition_T<StateType,
 
       if (!ACE_OS::strcmp ((*iterator).first.c_str (),
                            ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN)))
-      {
-        //object_p =
-        //    resource_p->LoadDialog (dynamic_cast<wxWindow*> (state_->instance),
-        //                            wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())));
-        if (unlikely (!resource_p->LoadDialog (dynamic_cast<wxDialog*> (state_->instance),
-                                               NULL,
-                                               wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())))))
+      { ACE_ASSERT (!state_->instance);
+        object_p =
+           resource_p->LoadDialog (NULL,
+                                   wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())));
+        // if (unlikely (!resource_p->LoadDialog (dynamic_cast<wxDialog*> (state_->instance),
+        //                                        NULL,
+        //                                        wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())))))
 //        if (unlikely (!resource_p->LoadObject (state_->instance,
-//                                               NULL,                                   // parent widget handle
+//                                               NULL,
 //                                               wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())),
 //                                               wxString (ACE_TEXT_ALWAYS_WCHAR (TopLevelClassName)))))
-        {
-          ACE_DEBUG ((LM_ERROR,
-                      ACE_TEXT ("failed to wxXmlResource::LoadDialog(0x%@,\"%s\"): \"%m\", aborting\n"),
-                      //ACE_TEXT ("failed to wxXmlResource::LoadObject(0x%@,\"%s\"): \"%m\", aborting\n"),
-                      state_->instance,
-                      ACE_TEXT (name_.c_str ())));
-          return false;
-        } // end IF
-        object_p = state_->instance;
+        // {
+        //   ACE_DEBUG ((LM_ERROR,
+        //               ACE_TEXT ("failed to wxXmlResource::LoadDialog(0x%@,\"%s\"): \"%m\", aborting\n"),
+        //               //ACE_TEXT ("failed to wxXmlResource::LoadObject(0x%@,\"%s\"): \"%m\", aborting\n"),
+        //               state_->instance,
+        //               ACE_TEXT (name_.c_str ())));
+        //   return false;
+        // } // end IF
+        state_->instance = object_p;
       } // end IF
       else
-      {
         object_p =
-          resource_p->LoadObject (NULL, // parent widget handle
+          resource_p->LoadObject (NULL,
                                   wxString (ACE_TEXT_ALWAYS_WCHAR (name_.c_str ())),
                                   wxString (ACE_TEXT_ALWAYS_CHAR (TopLevelClassName)));
-      } // end ELSE
       if (unlikely (!object_p))
       {
         ACE_DEBUG ((LM_ERROR,

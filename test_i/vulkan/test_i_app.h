@@ -33,13 +33,11 @@
 #include "glm/gtc/matrix_transform.hpp"
 #endif // GLM_SUPPORT
 
-#include "ace/config-lite.h"
-
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #define VK_USE_PLATFORM_WIN32_KHR
 #elif defined (ACE_LINUX)
-//#define VK_USE_PLATFORM_WAYLAND_KHR
-#define VK_USE_PLATFORM_XLIB_KHR
+#define VK_USE_PLATFORM_WAYLAND_KHR
+//#define VK_USE_PLATFORM_XLIB_KHR
 #endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"

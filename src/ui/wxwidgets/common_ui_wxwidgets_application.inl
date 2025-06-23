@@ -144,6 +144,23 @@ template <typename DefinitionType,
           typename StateType,
           typename TopLevelClassType,
           typename TraitsType>
+void
+Comon_UI_WxWidgets_Application_T<DefinitionType,
+                                 ConfigurationType,
+                                 StateType,
+                                 TopLevelClassType,
+                                 TraitsType>::stop ()
+{
+  COMMON_TRACE (ACE_TEXT ("Comon_UI_WxWidgets_Application_T::stop"));
+
+  wxTheApp->ExitMainLoop ();
+}
+
+template <typename DefinitionType,
+          typename ConfigurationType,
+          typename StateType,
+          typename TopLevelClassType,
+          typename TraitsType>
 bool
 Comon_UI_WxWidgets_Application_T<DefinitionType,
                                  ConfigurationType,
@@ -171,20 +188,28 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
   TopLevelClassType* widget_p = NULL;
   wxWindow* window_p = NULL;
 
-  ACE_NEW_NORETURN (state_.instance,
-                    TopLevelClassType (NULL));
-  if (unlikely (!state_.instance))
-  {
-    ACE_DEBUG ((LM_CRITICAL,
-                ACE_TEXT ("failed to allocate memory: %m, aborting\n")));
-    return false;
-  } // end IF
+  // { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_.lock, false);
+  //   ACE_NEW_NORETURN (state_.instance,
+  //                     TopLevelClassType ());
+  //   if (unlikely (!state_.instance))
+  //   {
+  //     ACE_DEBUG ((LM_CRITICAL,
+  //                 ACE_TEXT ("failed to allocate memory: %m, aborting\n")));
+  //     return false;
+  //   } // end IF
+  // } // end lock scope
+
+  // window_p = dynamic_cast<wxWindow*> (state_.instance);
+  // ACE_ASSERT (window_p);
+  // WXWidget gtk_widget_p = window_p->GetHandle ();
+  // ACE_ASSERT (gtk_widget_p);
+  // // gtk_widget_realize (gtk_widget_p);
 
   if (unlikely (!definition_.initialize (state_)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to initialize interface definition, aborting\n")));
-    delete state_.instance; state_.instance = NULL;
+    //delete state_.instance; state_.instance = NULL;
     return false;
   } // end IF
   ACE_ASSERT (!state_.resources.empty ());
@@ -196,9 +221,7 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
     window_p = static_cast<wxWindow*> ((*iterator).second.second);
     ACE_ASSERT (window_p);
 
-//    itop_level_p = dynamic_cast<ITOPLEVEL_T*> ((*iterator).second.second);
-//    ACE_ASSERT (itop_level_p);
-    itop_level_p = dynamic_cast<ITOPLEVEL_T*> (state_.instance);
+    itop_level_p = dynamic_cast<ITOPLEVEL_T*> ((*iterator).second.second);
     ACE_ASSERT (itop_level_p);
   } // end lock scope
 
@@ -213,10 +236,66 @@ Comon_UI_WxWidgets_Application_T<DefinitionType,
   widget_p = static_cast<TopLevelClassType*> (itop_level_p);
   ACE_ASSERT (widget_p);
   inherited::SetTopWindow (widget_p);
-//  widget_p->Show (true);
+  //widget_p->Show (true);
   window_p->Show (true);
 
   return true;
+}
+
+template <typename DefinitionType,
+          typename ConfigurationType,
+          typename StateType,
+          typename TopLevelClassType,
+          typename TraitsType>
+void
+Comon_UI_WxWidgets_Application_T<DefinitionType,
+                                 ConfigurationType,
+                                 StateType,
+                                 TopLevelClassType,
+                                 TraitsType>::OnEndSession (wxCloseEvent& event_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Comon_UI_WxWidgets_Application_T::OnEndSession"));
+
+  ACE_UNUSED_ARG (event_in);
+
+  ITOPLEVEL_T* itop_level_p = NULL;
+  { ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, state_.lock);
+    itop_level_p = dynamic_cast<ITOPLEVEL_T*> (state_.instance);
+  } // end lock scope
+  ACE_ASSERT (itop_level_p);
+
+  TopLevelClassType* widget_p = static_cast<TopLevelClassType*> (itop_level_p);
+  ACE_ASSERT (widget_p);
+
+  widget_p->Close ();
+}
+
+template <typename DefinitionType,
+          typename ConfigurationType,
+          typename StateType,
+          typename TopLevelClassType,
+          typename TraitsType>
+void
+Comon_UI_WxWidgets_Application_T<DefinitionType,
+                                 ConfigurationType,
+                                 StateType,
+                                 TopLevelClassType,
+                                 TraitsType>::OnQueryEndSession (wxCloseEvent& event_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Comon_UI_WxWidgets_Application_T::OnQueryEndSession"));
+
+  ACE_UNUSED_ARG (event_in);
+
+  ITOPLEVEL_T* itop_level_p = NULL;
+  { ACE_GUARD (ACE_SYNCH_MUTEX, aGuard, state_.lock);
+    itop_level_p = dynamic_cast<ITOPLEVEL_T*> (state_.instance);
+  } // end lock scope
+  ACE_ASSERT (itop_level_p);
+
+  TopLevelClassType* widget_p = static_cast<TopLevelClassType*> (itop_level_p);
+  ACE_ASSERT (widget_p);
+
+  widget_p->Close ();
 }
 
 template <typename DefinitionType,

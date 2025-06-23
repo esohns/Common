@@ -44,7 +44,6 @@ set (${EXECUTABLE_3}_EXE_SRCS
      test_i_3.h
      test_i_3_ui.cpp
      test_i_3_ui.h
-     test_i_3_ui.inl
      test_i_3_ui_base.cpp
      test_i_3_ui_base.h)
 

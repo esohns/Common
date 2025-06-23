@@ -22,7 +22,6 @@
       <object class="sizeritem">
         <object class="wxButton" name="wxID_CLEAR">
           <handler event="EVT_BUTTON">button_3_clicked_cb</handler>
-                    <disabled>1</disabled>
                     <enabled>0</enabled>
         </object>
       </object>

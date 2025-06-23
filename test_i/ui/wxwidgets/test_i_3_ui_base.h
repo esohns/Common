@@ -9,8 +9,8 @@
 //  g++ main.cpp $(wx-config --libs) $(wx-config --cxxflags) -o MyApp Dialog1.cpp Frame1.cpp
 //
 
-#ifndef TEST_U_3_UI_BASE_H
-#define TEST_U_3_UI_BASE_H
+#ifndef TEST_I_3_UI_BASE_H
+#define TEST_I_3_UI_BASE_H
 
 //#include "ace/os_include/sys/os_types.h"
 #include <wx/wx.h>
@@ -23,14 +23,19 @@
 // end wxGlade
 
 
-class dialog_main_base: public wxDialog {
-public:
+class dialog_main_base
+ : public wxDialog
+{
+ public:
   // begin wxGlade: dialog_main_base::ids
   // end wxGlade
 
-  dialog_main_base(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos=wxDefaultPosition, const wxSize& size=wxDefaultSize, long style=wxDEFAULT_DIALOG_STYLE);
+  dialog_main_base ();
+  dialog_main_base (wxWindow*, wxWindowID, const wxString&, const wxPoint& = wxDefaultPosition, const wxSize& = wxDefaultSize, long = wxDEFAULT_DIALOG_STYLE);
 
-private:
+  wxDECLARE_DYNAMIC_CLASS	(dialog_main_base);
+
+ private:
   // begin wxGlade: dialog_main_base::methods
   void set_properties();
   void do_layout();

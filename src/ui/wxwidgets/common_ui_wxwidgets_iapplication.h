@@ -29,6 +29,7 @@ class Common_UI_wxWidgets_IApplicationBase
 {
  public:
   virtual bool run () = 0;
+  virtual void stop () = 0; // call from toplevel widget on quit/close
   virtual void wait () = 0;
 };
 
@@ -45,15 +46,15 @@ class Common_UI_wxWidgets_IApplicationBase_T
 
 template <typename StateType,
           ////////////////////////////////
-          typename CBDataType>
+          typename CallbackDataType>
 class Common_UI_wxWidgets_IApplication_T
  : public Common_UI_wxWidgets_IApplicationBase_T<StateType>
- , public Common_IInitialize_T<CBDataType>
- , public Common_IGetR_2_T<CBDataType>
+ , public Common_IInitialize_T<CallbackDataType>
+ , public Common_IGetR_2_T<CallbackDataType>
 {
  public:
   // convenient types
-  typedef CBDataType CBDATA_T;
+  typedef CallbackDataType CALLBACKDATA_T;
 };
 
 #endif

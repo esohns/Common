@@ -47,9 +47,9 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #define GLFW_EXPOSE_NATIVE_WIN32
 #elif defined (ACE_LINUX)
-// #define GLFW_EXPOSE_NATIVE_WAYLAND
-#define GLFW_EXPOSE_NATIVE_X11
-#define GLFW_EXPOSE_NATIVE_NONE
+#define GLFW_EXPOSE_NATIVE_WAYLAND
+//#define GLFW_EXPOSE_NATIVE_X11
+//#define GLFW_NATIVE_INCLUDE_NONE
 #endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
 #include "GLFW/glfw3native.h"
 
@@ -62,14 +62,17 @@
 
 namespace std
 {
-template <> struct hash<Vertex>
+template <>
+struct hash<struct Vertex>
 {
-  size_t operator() (Vertex const& vertex) const
+  size_t operator() (struct Vertex const& vertex) const
   {
     return ((hash<glm::vec3> () (vertex.pos) ^ (hash<glm::vec3> () (vertex.color) << 1)) >> 1) ^ (hash<glm::vec2> () (vertex.texCoord) << 1);
   }
 };
 }
+
+/////////////////////////////////////////
 
 const std::vector<const char*> validation_layers_a = {
   ACE_TEXT_ALWAYS_CHAR ("VK_LAYER_KHRONOS_validation")
@@ -77,6 +80,8 @@ const std::vector<const char*> validation_layers_a = {
 const std::vector<const char*> device_extensions_a = {
   VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
+
+/////////////////////////////////////////
 
 //const std::vector<Vertex> vertices = { {  {0.0f, -0.5f}, {1.0f, 0.0f, 0.0f} }, // triangle
 //                                       {  {0.5f,  0.5f}, {0.0f, 1.0f, 0.0f} },
@@ -109,8 +114,9 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback (VkDebugUtilsMessageSeverityFlagBit
                                               VkDebugUtilsMessageTypeFlagsEXT messageType,
                                               const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                                               void* pUserData)
-{
-  std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+{ ACE_ASSERT (pCallbackData && pCallbackData->pMessage);
+
+  std::cerr << ACE_TEXT_ALWAYS_CHAR ("validation layer: ") << pCallbackData->pMessage << std::endl;
 
   return VK_FALSE;
 }
@@ -172,6 +178,8 @@ static void framebufferResizeCallback (GLFWwindow* window,
 {
   HelloTriangleApplication* app =
     reinterpret_cast<HelloTriangleApplication*> (glfwGetWindowUserPointer (window));
+  ACE_ASSERT (app);
+
   app->framebufferResized_ = true;
 }
 
@@ -383,7 +391,7 @@ HelloTriangleApplication::findQueueFamilies (VkPhysicalDevice device)
 
   int i = 0;
   VkBool32 presentSupport;
-  for (const auto& queueFamily: queue_families_a)
+  for (const auto& queueFamily : queue_families_a)
   {
     if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
     {
@@ -417,7 +425,7 @@ HelloTriangleApplication::checkDeviceExtensionSupport (VkPhysicalDevice device)
 
   std::set<std::string> requiredExtensions (device_extensions_a.begin (),
                                             device_extensions_a.end ());
-  for (const auto& extension: availableExtensions)
+  for (const auto& extension : availableExtensions)
     requiredExtensions.erase (extension.extensionName);
 
   return requiredExtensions.empty ();
@@ -611,24 +619,28 @@ HelloTriangleApplication::createSurface ()
     return;
   } // end IF
 #elif defined (ACE_LINUX)
-  // VkWaylandSurfaceCreateInfoKHR createInfo {};
-  // createInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
-  // createInfo.display = glfwGetWaylandDisplay ();
-  // createInfo.surface = glfwGetWaylandWindow (window_);
+  VkResult result = VK_ERROR_UNKNOWN;
+#if defined (GLFW_EXPOSE_NATIVE_WAYLAND)
+  VkWaylandSurfaceCreateInfoKHR createInfo {};
+  createInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
+  createInfo.display = glfwGetWaylandDisplay ();
+  createInfo.surface = glfwGetWaylandWindow (window_);
 
-  // VkResult result = vkCreateWaylandSurfaceKHR (instance_,
-  //                                              &createInfo,
-  //                                              NULL,
-  //                                              &surface_);
+  result = vkCreateWaylandSurfaceKHR (instance_,
+                                      &createInfo,
+                                      NULL,
+                                      &surface_);
+#elif defined (GLFW_EXPOSE_NATIVE_X11)
   VkXlibSurfaceCreateInfoKHR createInfo {};
   createInfo.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
   createInfo.dpy = glfwGetX11Display ();
   createInfo.window = glfwGetX11Window (window_);
 
-  VkResult result = vkCreateXlibSurfaceKHR (instance_,
-                                            &createInfo,
-                                            NULL,
-                                            &surface_);
+  result = vkCreateXlibSurfaceKHR (instance_,
+                                   &createInfo,
+                                   NULL,
+                                   &surface_);
+#endif // GLFW_EXPOSE_NATIVE_WAYLAND || GLFW_EXPOSE_NATIVE_X11
   if (result != VK_SUCCESS)
   {
     ACE_DEBUG ((LM_ERROR,

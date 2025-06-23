@@ -15,10 +15,20 @@
 // begin wxGlade: ::extracode
 // end wxGlade
 
+wxIMPLEMENT_DYNAMIC_CLASS (dialog_main_base, wxDialog)
 
+dialog_main_base::dialog_main_base ()
+ : wxDialog ()
+ , button_1 (NULL)
+ , button_2 (NULL)
+ , button_3 (NULL)
+{}
 
 dialog_main_base::dialog_main_base (wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style)
- : wxDialog (parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
+ : wxDialog (parent, id, title, pos, size, style)
+ , button_1 (NULL)
+ , button_2 (NULL)
+ , button_3 (NULL)
 {
 //  // begin wxGlade: dialog_main_base::dialog_main_base
 //  button_1 = new wxButton(this, wxID_NEW, wxEmptyString);
