@@ -47,10 +47,13 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #define GLFW_EXPOSE_NATIVE_WIN32
 #elif defined (ACE_LINUX)
+#if defined (IS_UBUNTU_LINUX)
+#define GLFW_EXPOSE_NATIVE_X11
+#else
 #define GLFW_EXPOSE_NATIVE_WAYLAND
-//#define GLFW_EXPOSE_NATIVE_X11
-//#define GLFW_NATIVE_INCLUDE_NONE
+#endif // IS_UBUNTU_LINUX
 #endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
+//#define GLFW_NATIVE_INCLUDE_NONE
 #include "GLFW/glfw3native.h"
 
 #include "ace/Log_Msg.h"
@@ -601,25 +604,18 @@ HelloTriangleApplication::createLogicalDevice (bool enableValidationLayers_in)
 void
 HelloTriangleApplication::createSurface ()
 {
+  VkResult result = VK_ERROR_UNKNOWN;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   VkWin32SurfaceCreateInfoKHR createInfo {};
   createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
   createInfo.hwnd = glfwGetWin32Window (window_);
   createInfo.hinstance = GetModuleHandle (NULL);
 
-  VkResult result = vkCreateWin32SurfaceKHR (instance_,
-                                             &createInfo,
-                                             NULL,
-                                             &surface_);
-  if (result != VK_SUCCESS)
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to create window surface: \"%s\"\n"),
-                ACE_TEXT (string_VkResult (result))));
-    return;
-  } // end IF
+  result = vkCreateWin32SurfaceKHR (instance_,
+                                    &createInfo,
+                                    NULL,
+                                    &surface_);
 #elif defined (ACE_LINUX)
-  VkResult result = VK_ERROR_UNKNOWN;
 #if defined (GLFW_EXPOSE_NATIVE_WAYLAND)
   VkWaylandSurfaceCreateInfoKHR createInfo {};
   createInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
@@ -641,6 +637,7 @@ HelloTriangleApplication::createSurface ()
                                    NULL,
                                    &surface_);
 #endif // GLFW_EXPOSE_NATIVE_WAYLAND || GLFW_EXPOSE_NATIVE_X11
+#endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
   if (result != VK_SUCCESS)
   {
     ACE_DEBUG ((LM_ERROR,
@@ -648,7 +645,6 @@ HelloTriangleApplication::createSurface ()
                 ACE_TEXT (string_VkResult (result))));
     return;
   } // end IF
-#endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
 }
 
 VkSurfaceFormatKHR

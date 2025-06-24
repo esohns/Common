@@ -1,3 +1,7 @@
+if (UNIX)
+ include (OS) # *TODO*: why is this needed ?
+endif (UNIX)
+
 set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../../src/gl/scripts")
 include (vulkan)
 include (glfw)

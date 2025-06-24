@@ -36,8 +36,11 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #define VK_USE_PLATFORM_WIN32_KHR
 #elif defined (ACE_LINUX)
+#if defined (IS_UBUNTU_LINUX)
+#define VK_USE_PLATFORM_XLIB_KHR
+#else
 #define VK_USE_PLATFORM_WAYLAND_KHR
-//#define VK_USE_PLATFORM_XLIB_KHR
+#endif // IS_UBUNTU_LINUX
 #endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
