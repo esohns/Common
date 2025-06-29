@@ -6,6 +6,8 @@
 #include "ace/Malloc.h"
 
 #include "common_macros.h"
+#include "common_file_tools.h"
+#include "common_string_tools.h"
 
 #include "common_gl_defines.h"
 #include "common_gl_image_tools.h"

@@ -30,6 +30,7 @@
 
 #include "common_file_tools.h"
 #include "common_macros.h"
+#include "common_string_tools.h"
 #include "common_tools.h"
 
 #include "common_image_common.h"

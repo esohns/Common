@@ -1,5 +1,6 @@
 if (UNIX)
  find_path (STB_IMAGE_HEADER stb_image.h
+            PATHS $ENV{LIB_ROOT}
             PATH_SUFFIXES stb
             DOC "searching for stb_image")
  if (NOT STB_IMAGE_HEADER)
