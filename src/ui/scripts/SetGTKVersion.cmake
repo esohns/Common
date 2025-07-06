@@ -1,4 +1,4 @@
-if (GTK_SUPPORT AND GTK_USE)
+if (GTK_SUPPORT)
  # *NOTE*: the first entry is the default option
  if (GTK3_SUPPORT)
   set (GTK_VERSION "gtk3" CACHE STRING "use GTK3 (default)")
@@ -75,7 +75,7 @@ if (GTK_SUPPORT AND GTK_USE)
   set (GTK_LIBRARIES "${GTK_LIBRARIES};${GTKGLAREA_LIBRARY}")
   set (GTK_LIB_DIRS "${GTK_LIB_DIRS};${GTKGLAREA_LIB_DIR}")
  endif (GTKGLAREA_SUPPORT AND (GTK2_USE OR GTK3_USE))
-endif (GTK_SUPPORT AND GTK_USE)
+endif (GTK_SUPPORT)
 
 # *NOTE*: unify include dirs and libraries; includers use GTK_INCLUDE_DIRS and GTK_LIBRARIES
 # *NOTE*: if no ui has been selected, but gtk is supported, prefer gtk2 over gtk3
