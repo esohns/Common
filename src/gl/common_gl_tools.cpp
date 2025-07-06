@@ -442,11 +442,11 @@ Common_GL_Tools::loadCubeMap (const std::string& negativeZ_in,
     {
       case 1:
         internal_format = GL_R8;
-        format = GL_R;
+        format = GL_RED;
         break;
       case 2:
         internal_format = GL_RG8;
-        format = GL_RG;
+        format = GL_RG_INTEGER;
         break;
       case 3:
         ACE_ASSERT (!has_alpha);
