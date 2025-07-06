@@ -20,63 +20,49 @@
 
 #include <iostream>
 
-#if defined (GUI_SUPPORT)
 #if defined (GTK_SUPPORT)
 #include "gtk/gtk.h"
 #endif // GTK_SUPPORT
-#endif // GUI_SUPPORT
 
 #include "ace/Guard_T.h"
 #include "ace/Synch_Traits.h"
 
 #include "common_macros.h"
-#if defined (GUI_SUPPORT)
 #include "common_ui_common.h"
-#endif // GUI_SUPPORT
 
 template <
-#if defined (GUI_SUPPORT)
           typename UIStateType
 #if defined (WXWIDGETS_USE)
           ,typename InterfaceType
 #endif // WXWIDGETS_USE
-#endif // GUI_SUPPORT
          >
 Test_I_InputHandler_T<
-#if defined (GUI_SUPPORT)
                       UIStateType
 #if defined (WXWIDGETS_USE)
                       ,InterfaceType
 #endif // WXWIDGETS_USE
-#endif // GUI_SUPPORT
                      >::Test_I_InputHandler_T ()
  : inherited ()
-#if defined (GUI_SUPPORT)
 #if defined (WXWIDGETS_USE)
  , interface_ (interface_in)
 #endif // WXWIDGETS_USE
-#endif // GUI_SUPPORT
 {
   COMMON_TRACE (ACE_TEXT ("Test_I_InputHandler_T::Test_I_InputHandler_T"));
 
 }
 
 template <
-#if defined (GUI_SUPPORT)
           typename UIStateType
 #if defined (WXWIDGETS_USE)
           ,typename InterfaceType
 #endif // WXWIDGETS_USE
-#endif // GUI_SUPPORT
          >
 bool
 Test_I_InputHandler_T<
-#if defined (GUI_SUPPORT)
                       UIStateType
 #if defined (WXWIDGETS_USE)
                       ,InterfaceType
 #endif // WXWIDGETS_USE
-#endif // GUI_SUPPORT
                      >::handle_input (ACE_Message_Block* messageBlock_in)
 {
   COMMON_TRACE (ACE_TEXT ("Test_I_InputHandler_T::handle_input"));

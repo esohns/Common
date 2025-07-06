@@ -25,12 +25,10 @@
 #include "ace/Synch_Traits.h"
 #include "ace/Thread_Mutex.h"
 
-#if defined (GUI_SUPPORT)
 #include "common_ui_common.h"
-#if defined (GTK_USE)
+#if defined (GTK_SUPPORT)
 #include "common_ui_gtk_common.h"
-#endif // GTK_USE
-#endif // GUI_SUPPORT
+#endif // GTK_SUPPORT
 
 #include "common_input_common.h"
 #include "common_input_manager.h"
@@ -38,7 +36,6 @@
 #include "test_i_inputhandler.h"
 
 typedef Test_I_InputHandler_T<
-#if defined (GUI_SUPPORT)
 #if defined (GTK_USE)
                               Common_UI_GTK_State_t
 #endif // GTK_USE || QT_USE || WXWIDGETS_USE
@@ -49,7 +46,6 @@ typedef Test_I_InputHandler_T<
 #else
                               void
 #endif // GTK_USE || QT_USE || WXWIDGETS_USE
-#endif // GUI_SUPPORT
                              > Test_I_InputHandler_t;
 
 typedef Common_Input_Manager_T<ACE_MT_SYNCH,

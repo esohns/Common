@@ -28,9 +28,7 @@
 
 #include "common_timer_tools.h"
 
-#if defined (GUI_SUPPORT)
 #include "common_ui_common.h"
-#endif // GUI_SUPPORT
 
 #include "test_i_common.h"
 #include "test_i_inputhandler.h"

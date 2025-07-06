@@ -27,12 +27,10 @@
 #include "common_input_handler_base.h"
 
 template <
-#if defined (GUI_SUPPORT)
           typename UIStateType
 #if defined (WXWIDGETS_USE)
           ,typename InterfaceType // implements Common_UI_wxWidgets_IApplicationBase_T
 #endif // WXWIDGETS_USE
-#endif // GUI_SUPPORT
          >
 class Test_I_InputHandler_T
  : public Common_InputHandler_Base_T<struct Common_Input_Configuration>
@@ -51,11 +49,9 @@ class Test_I_InputHandler_T
   ACE_UNIMPLEMENTED_FUNC (Test_I_InputHandler_T (const Test_I_InputHandler_T&))
   ACE_UNIMPLEMENTED_FUNC (Test_I_InputHandler_T& operator= (const Test_I_InputHandler_T&))
 
-#if defined (GUI_SUPPORT)
 #if defined (WXWIDGETS_USE)
   InterfaceType* interface_;
 #endif // WXWIDGETS_USE
-#endif // GUI_SUPPORT
 };
 
 // include template definition

@@ -31,11 +31,9 @@
 
 #include "ace/Log_Msg.h"
 
-#if defined (GUI_SUPPORT)
 #if defined (GTK_SUPPORT)
 #include "common_ui_gtk_manager_common.h"
 #endif // GTK_SUPPORT
-#endif // GUI_SUPPORT
 
 #include "common_macros.h"
 

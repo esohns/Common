@@ -8,16 +8,12 @@ include (ACE)
 option (BUILD_TEST_U "build test_u" OFF)
 
 # user interface
-option (GUI_SUPPORT "enable graphical user interface support" ON)
-if (GUI_SUPPORT)
- add_definitions (-DGUI_SUPPORT)
- set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/scripts")
- include (PreUIFramework)
- include (SetUIFramework)
- if (GTK_SUPPORT)
-  include (SetGTKVersion)
- endif (GTK_SUPPORT)
-endif (GUI_SUPPORT)
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/scripts")
+include (PreUIFramework)
+include (SetUIFramework)
+if (GTK_SUPPORT)
+ include (SetGTKVersion)
+endif (GTK_SUPPORT)
 
 if (UNIX)
  add_link_options ("LINKER:--as-needed")
@@ -26,35 +22,33 @@ endif (UNIX)
 set (LIBRARY ${PROJECT_NAME}_Test_U)
 add_library (${LIBRARY} STATIC "")
 
-if (GUI_SUPPORT)
- if (CURSES_SUPPORT)
-  target_include_directories (${LIBRARY} PUBLIC
-                              "$<BUILD_INTERFACE:${CURSES_INCLUDE_DIRS}>")
- endif (CURSES_SUPPORT)
- if (GTK_SUPPORT)
-  target_include_directories (${LIBRARY} PUBLIC
-                              "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
+if (CURSES_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             "$<BUILD_INTERFACE:${CURSES_INCLUDE_DIRS}>")
+endif (CURSES_SUPPORT)
+if (GTK_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
 
-  if (GTKGLAREA_SUPPORT)
+ if (GTKGLAREA_SUPPORT)
 # *NOTE*: check out the 'master' branch for gtk3-based applications
 # *NOTE*: check out the 'gtkglarea-2' branch for gtk2-based applications
 # *TODO*: verify automatically
-   target_include_directories (${LIBRARY} PUBLIC
-                               $<BUILD_INTERFACE:${GTKGLAREA_INCLUDES}>)
-  endif (GTKGLAREA_SUPPORT)
- endif (GTK_SUPPORT)
- if (QT_SUPPORT)
-  if (WIN32)
-   cmake_policy (SET CMP0020 OLD)
-  endif (WIN32)
   target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:${QT_INCLUDE_DIRS}>)
- endif (QT_SUPPORT)
- if (WXWIDGETS_SUPPORT)
-  target_include_directories (${LIBRARY} PUBLIC
-                              "$<BUILD_INTERFACE:${wxWidgets_INCLUDE_DIRS}>")
- endif (WXWIDGETS_SUPPORT)
-endif (GUI_SUPPORT)
+                              $<BUILD_INTERFACE:${GTKGLAREA_INCLUDES}>)
+ endif (GTKGLAREA_SUPPORT)
+endif (GTK_SUPPORT)
+if (QT_SUPPORT)
+ if (WIN32)
+  cmake_policy (SET CMP0020 OLD)
+ endif (WIN32)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${QT_INCLUDE_DIRS}>)
+endif (QT_SUPPORT)
+if (WXWIDGETS_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             "$<BUILD_INTERFACE:${wxWidgets_INCLUDE_DIRS}>")
+endif (WXWIDGETS_SUPPORT)
 
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)
@@ -77,43 +71,39 @@ target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/signal>)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/task>)
-if (GUI_SUPPORT)
+target_include_directories (${LIBRARY} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui>)
+if (CURSES_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui>)
- if (CURSES_SUPPORT)
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/curses>)
- endif (CURSES_SUPPORT)
- if (GTK_SUPPORT)
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/gtk>)
- endif (GTK_SUPPORT)
- if (QT_SUPPORT)
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/qt>)
- endif (QT_SUPPORT)
- if (WXWIDGETS_SUPPORT)
-  target_include_directories (${LIBRARY} PUBLIC
-                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/wxwidgets>)
- endif (WXWIDGETS_SUPPORT)
-endif (GUI_SUPPORT)
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/curses>)
+endif (CURSES_SUPPORT)
+if (GTK_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/gtk>)
+endif (GTK_SUPPORT)
+if (QT_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/qt>)
+endif (QT_SUPPORT)
+if (WXWIDGETS_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ui/wxwidgets>)
+endif (WXWIDGETS_SUPPORT)
 
-if (GUI_SUPPORT)
- if (GTK_SUPPORT)
-  target_link_libraries (${LIBRARY} PUBLIC ${GTK_LIBRARIES})
-  if (GTKGL_SUPPORT)
-   if (GTKGLAREA_SUPPORT)
-    target_link_libraries (${LIBRARY} PUBLIC ${GTKGLAREA_LIBRARY})
-   endif (GTKGLAREA_SUPPORT)
-  endif (GTKGL_SUPPORT)
- endif (GTK_SUPPORT)
- if (QT_SUPPORT)
-  target_link_libraries (${LIBRARY} PUBLIC ${QT_LIBRARIES})
- endif (QT_SUPPORT)
- if (WXWIDGETS_SUPPORT)
-  target_link_libraries (${LIBRARY} PUBLIC ${wxWidgets_LIBRARIES})
- endif (WXWIDGETS_SUPPORT)
-endif (GUI_SUPPORT)
+if (GTK_SUPPORT)
+ target_link_libraries (${LIBRARY} PUBLIC ${GTK_LIBRARIES})
+ if (GTKGL_SUPPORT)
+  if (GTKGLAREA_SUPPORT)
+   target_link_libraries (${LIBRARY} PUBLIC ${GTKGLAREA_LIBRARY})
+  endif (GTKGLAREA_SUPPORT)
+ endif (GTKGL_SUPPORT)
+endif (GTK_SUPPORT)
+if (QT_SUPPORT)
+ target_link_libraries (${LIBRARY} PUBLIC ${QT_LIBRARIES})
+endif (QT_SUPPORT)
+if (WXWIDGETS_SUPPORT)
+ target_link_libraries (${LIBRARY} PUBLIC ${wxWidgets_LIBRARIES})
+endif (WXWIDGETS_SUPPORT)
 
 set (source_files
      common_test_u_common.h

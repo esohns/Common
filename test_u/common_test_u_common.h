@@ -25,7 +25,6 @@
 
 #include "common_signal_common.h"
 
-#if defined (GUI_SUPPORT)
 #include "common_ui_common.h"
 #if defined (GTK_SUPPORT)
 #include "common_ui_gtk_common.h"
@@ -36,7 +35,6 @@
 #if defined (WXWIDGETS_SUPPORT)
 #include "common_ui_wxwidgets_common.h"
 #endif // WXWIDGETS_SUPPORT
-#endif // GUI_SUPPORT
 
 struct Test_U_UserData
 {
@@ -69,25 +67,20 @@ struct Test_U_Configuration
 
 //////////////////////////////////////////
 
-#if defined (GUI_SUPPORT)
 struct Test_U_UI_CBData;
 struct Test_U_UI_ProgressData
 {
   Test_U_UI_ProgressData ()
    : CBData (NULL)
-#if defined (GUI_SUPPORT)
 #if defined (GTK_USE) || defined (QT_USE) || defined (WXWIDGETS_USE)
    , state (NULL)
 #endif // GTK_USE || QT_USE || WXWIDGETS_USE
-#endif // GUI_SUPPORT
   {}
 
   struct Test_U_UI_CBData* CBData;
-#if defined (GUI_SUPPORT)
 #if defined (GTK_USE) || defined (QT_USE) || defined (WXWIDGETS_USE)
   struct Common_UI_State*  state;
 #endif // GTK_USE || QT_USE || WXWIDGETS_USE
-#endif // GUI_SUPPORT
 };
 
 struct Test_U_UI_CBData
@@ -95,21 +88,16 @@ struct Test_U_UI_CBData
   Test_U_UI_CBData ()
    : allowUserRuntimeStatistic (true)
    , progressData ()
-#if defined (GUI_SUPPORT)
    , UIState (NULL)
-#endif // GUI_SUPPORT
   {
     progressData.CBData = this;
-#if defined (GUI_SUPPORT)
 #if defined (GTK_USE) || defined (QT_USE) || defined (WXWIDGETS_USE)
     progressData.state = UIState;
 #endif // GTK_USE || QT_USE || WXWIDGETS_USE
-#endif // GUI_SUPPORT
   }
 
   bool                          allowUserRuntimeStatistic;
   struct Test_U_UI_ProgressData progressData;
-#if defined (GUI_SUPPORT)
 #if defined (GTK_USE)
   Common_UI_GTK_State_t*        UIState;
 #elif defined (QT_USE)
@@ -119,25 +107,17 @@ struct Test_U_UI_CBData
 #else
   struct Common_UI_State*       UIState;
 #endif // GTK_USE || QT_USE || WXWIDGETS_USE
-#endif // GUI_SUPPORT
 };
 
 struct Test_U_ThreadData
 {
   Test_U_ThreadData ()
-#if defined (GUI_SUPPORT)
    : CBData (NULL)
    , sessionId (0)
-#else
-   : sessionId (0)
-#endif // GUI_SUPPORT
   {}
 
-#if defined (GUI_SUPPORT)
   struct Test_U_UI_CBData* CBData;
-#endif // GUI_SUPPORT
   size_t                   sessionId;
 };
-#endif // GUI_SUPPORT
 
 #endif
