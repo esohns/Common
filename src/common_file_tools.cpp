@@ -2113,7 +2113,8 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
   } // end IF
   else
   {
-    return_value = Common_File_Tools::getWorkingDirectory ();
+    return_value = Common_File_Tools::getSourceDirectory (packageName_in,
+                                                          moduleName_in);
     return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
     return_value +=
       (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
@@ -2129,9 +2130,9 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
 #endif // ACE_WIN32 || ACE_WIN64
 
   // sanity check(s)
-//  ACE_DEBUG ((LM_DEBUG,
-//              ACE_TEXT ("directory: \"%s\"\n"),
-//              ACE_TEXT (return_value.c_str ())));
+ ACE_DEBUG ((LM_DEBUG,
+             ACE_TEXT ("directory: \"%s\"\n"),
+             ACE_TEXT (return_value.c_str ())));
   ACE_ASSERT (Common_File_Tools::isDirectory (return_value));
 
   return return_value;

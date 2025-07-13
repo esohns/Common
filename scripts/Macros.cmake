@@ -75,13 +75,11 @@ endif (MSVC)
 ##########################################
 
 macro (is_UI_graphical UI)
-# sanity check(s)
- if (NOT GUI_SUPPORT)
-  message (STATUS "GUI_SUPPORT not set, aborting")
- endif (NOT GUI_SUPPORT)
-
-
- set (${UI} FALSE)
+ if (CURSES_USE OR GTK_USE OR QT_USE OR WXWIDGETS_USE)
+  set (${UI} TRUE)
+ else ()
+  set (${UI} FALSE)
+ endif (CURSES_USE OR GTK_USE OR QT_USE OR WXWIDGETS_USE)
 endmacro (is_UI_graphical)
 
 ##########################################
