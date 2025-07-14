@@ -57,6 +57,7 @@
 #if defined (LIBPNG_SUPPORT)
 bool
 Common_GL_Image_Tools::loadPNG (const std::string& path_in,
+                                bool flipImage_in,
                                 unsigned int& width_out,
                                 unsigned int& height_out,
                                 unsigned int& channels_out,
@@ -178,9 +179,13 @@ Common_GL_Image_Tools::loadPNG (const std::string& path_in,
     goto error;
   } // end IF
   // *NOTE*: png is ordered top-to-bottom; OpenGL expects it bottom-to-top
-  //         --> swap the order
-  for (unsigned int i = 0; i < height_out; ++i)
-    row_pointers_pp[height_out - 1 - i] = data_out + (i * row_bytes);
+  //         --> swap the order ?
+  if (flipImage_in)
+    for (unsigned int i = 0; i < height_out; ++i)
+      row_pointers_pp[height_out - 1 - i] = data_out + (i * row_bytes);
+  else
+    for (unsigned int i = 0; i < height_out; ++i)
+      row_pointers_pp[i] = data_out + (i * row_bytes);
 
   png_read_image (png_p, row_pointers_pp);
 

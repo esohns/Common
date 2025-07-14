@@ -245,6 +245,7 @@ Common_GL_Tools::loadTexture (const std::string& path_in,
     {
 #if defined (LIBPNG_SUPPORT)
       if (!Common_GL_Image_Tools::loadPNG (path_in,
+                                           flipImage_in,
                                            width, height,
                                            channels,
                                            has_alpha,
@@ -379,6 +380,7 @@ Common_GL_Tools::loadCubeMap (const std::string& negativeZ_in,
       {
 #if defined (LIBPNG_SUPPORT)
         if (!Common_GL_Image_Tools::loadPNG (*iterator,
+                                             false, // don't flip
                                              width, height,
                                              channels,
                                              has_alpha,
