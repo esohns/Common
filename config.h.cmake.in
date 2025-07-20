@@ -36,6 +36,6 @@
 #cmakedefine Common_VERSION_DEVEL "@VERSION_DEVEL@"
 
 /****************************************/
-#cmakedefine TRACING
+/* #cmakedefine TRACING */
 
-#cmakedefine VALGRIND_SUPPORT
+/* #cmakedefine VALGRIND_SUPPORT */
