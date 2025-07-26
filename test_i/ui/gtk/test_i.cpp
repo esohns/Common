@@ -687,17 +687,17 @@ glarea_expose_event_cb (GtkWidget* widget_in,
   glBindTexture (GL_TEXTURE_2D, *texture_id_p);
   COMMON_GL_ASSERT;
 
-  //static GLfloat rot_x = 0.0f;
-  //static GLfloat rot_y = 0.0f;
-  //static GLfloat rot_z = 0.0f;
-  //glRotatef (rot_x, 1.0f, 0.0f, 0.0f); // Rotate On The X Axis
-  //glRotatef (rot_y, 0.0f, 1.0f, 0.0f); // Rotate On The Y Axis
-  //glRotatef (rot_z, 0.0f, 0.0f, 1.0f); // Rotate On The Z Axis
-  static GLfloat rotation = 0.0f;
-  glRotatef (rotation, 1.0f, 1.0f, 1.0f); // Rotate On The X,Y,Z Axis
+  static GLfloat rot_x = 0.0f;
+  static GLfloat rot_y = 0.0f;
+  static GLfloat rot_z = 0.0f;
+  glRotatef (rot_x, 1.0f, 0.0f, 0.0f); // Rotate Around The X Axis
+  glRotatef (rot_y, 0.0f, 1.0f, 0.0f); // Rotate Around The Y Axis
+  glRotatef (rot_z, 0.0f, 0.0f, 1.0f); // Rotate Around The Z Axis
+  //static GLfloat rotation = 0.0f;
+  //glRotatef (rotation, 1.0f, 1.0f, 1.0f); // Rotate Around The X,Y,Z Axis
   COMMON_GL_ASSERT;
 
-  static GLfloat cube[] = {
+  static GLfloat cube_a[] = {
     // x,    y,    z,   s,   t,
      1.0f,-1.0f,-1.0f, 0.0f,1.0f,
     -1.0f,-1.0f,-1.0f, 1.0f,1.0f,
@@ -731,29 +731,35 @@ glarea_expose_event_cb (GtkWidget* widget_in,
   };
 
   glBegin (GL_QUADS);
-  int i = 0, n = sizeof (cube) / (sizeof (cube[0]));
-  for (i = 0; i < n; i += 5)
+  for (int i = 0; i < sizeof (cube_a) / (sizeof (cube_a[0])); i += 5)
   {
-    glTexCoord2fv (cube + i + 3);
-    glVertex3fv (cube + i + 0);
+    glTexCoord2fv (cube_a + i + 3);
+    glVertex3fv (cube_a + i + 0);
   } // end FOR
   glEnd ();
 
-  //switch (Common_Tools::getRandomNumber (0, 2))
-  //{
-  //  case 0:
-  //    rot_x += 0.1f;
-  //    break;
-  //  case 1:
-  //    rot_y += 0.1f;
-  //    break;
-  //  case 2:
-  //    rot_z += 0.1f;
-  //    break;
-  //  default:
-  //    ACE_ASSERT (false);
-  //} // end SWITCH
-  rotation += 0.1f; // change the rotation variable for the cube
+  glBindTexture (GL_TEXTURE_2D, 0);
+  COMMON_GL_ASSERT;
+
+  switch (Common_Tools::getRandomNumber (0, 2))
+  {
+    case 0:
+      rot_x += 0.1f;
+      break;
+    case 1:
+      rot_y += 0.1f;
+      break;
+    case 2:
+      rot_z += 0.1f;
+      break;
+    default:
+      ACE_ASSERT (false);
+      break;
+  } // end SWITCH
+  rot_x = std::fmod (rot_x, 360.0f);
+  rot_y = std::fmod (rot_y, 360.0f);
+  rot_z = std::fmod (rot_z, 360.0f);
+  // rotation += 0.1f; // change the rotation variable for the cube
 
   ggla_area_swap_buffers (gl_area_p);
 

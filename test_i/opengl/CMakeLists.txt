@@ -75,8 +75,10 @@ target_precompile_headers (${EXECUTABLE}
 install (TARGETS ${EXECUTABLE}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+install (FILES etc/fragment_shader.glsl etc/vertex_shader.glsl
+         DESTINATION "etc" COMPONENT config)
 install (FILES share/opengl_logo.png
-         DESTINATION "${INSTALL_SHARE_DIR}/${EXECUTABLE}" COMPONENT data)
+         DESTINATION ${INSTALL_SHARE_DIR} COMPONENT data)
 
 ################ launchers ###############
 
