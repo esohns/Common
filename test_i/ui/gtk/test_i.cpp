@@ -809,6 +809,10 @@ glarea_realize_cb (GtkWidget* widget_in,
   } // end IF
   if (!*texture_id_p)
   {
+    glActiveTexture (GL_TEXTURE0);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
     std::string module_name =
       ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY);
     module_name += ACE_DIRECTORY_SEPARATOR_STR;
@@ -819,7 +823,7 @@ glarea_realize_cb (GtkWidget* widget_in,
                                                         false); // data
     filename += ACE_DIRECTORY_SEPARATOR_CHAR;
     filename += ACE_TEXT_ALWAYS_CHAR ("opengl_logo.png");
-    *texture_id_p = Common_GL_Tools::loadTexture (filename);
+    *texture_id_p = Common_GL_Tools::loadTexture (filename, true);
     if (!*texture_id_p)
     {
       ACE_DEBUG ((LM_ERROR,
@@ -827,6 +831,12 @@ glarea_realize_cb (GtkWidget* widget_in,
                   ACE_TEXT (filename.c_str ())));
       return;
     } // end IF
+    glBindTexture (GL_TEXTURE_2D, *texture_id_p);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //glGenerateMipmap (GL_TEXTURE_2D);
+    glBindTexture (GL_TEXTURE_2D, 0);
+
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("OpenGL texture id: %u\n"),
                 *texture_id_p));

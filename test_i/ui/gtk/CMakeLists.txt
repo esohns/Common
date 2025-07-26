@@ -177,6 +177,14 @@ if (WIN32)
   string (REPLACE "\\" "\\\\" LIB_ROOT ${LIB_ROOT})
  endif (DEFINED ENV{LIB_ROOT})
  install (FILES ${ACE_DLL_FQPATH}
+                ${LIB_ROOT}/assimp/cmake/bin/Debug/assimp-vc143-mtd.dll
+                ${LIB_ROOT}/ffmpeg/libavcodec/avcodec-61.dll
+                ${LIB_ROOT}/ffmpeg/libavformat/avformat-61.dll
+                ${LIB_ROOT}/ffmpeg/libavutil/avutil-59.dll
+                ${LIB_ROOT}/ffmpeg/libswresample/swresample-5.dll
+                ${LIB_ROOT}/ffmpeg/libswscale/swscale-8.dll
+                ${LIB_ROOT}/freeglut/bin/x64/freeglut.dll
+                ${LIB_ROOT}/glew/bin/Release/x64/glew32.dll
                 ${LIB_ROOT}/gtk3/bin/libatk-1.0-0.dll
                 ${LIB_ROOT}/gtk3/bin/libfreetype-6.dll
                 ${LIB_ROOT}/gtk3/bin/libintl-8.dll
@@ -203,13 +211,22 @@ if (WIN32)
                 ${LIB_ROOT}/gtk3/bin/libcairo-gobject-2.dll
                 ${LIB_ROOT}/gtk3/bin/libpixman-1-0.dll
                 ${LIB_ROOT}/gtk3/bin/libwinpthread-1.dll
-                ${LIB_ROOT}/assimp/cmake/bin/Debug/assimp-vc142-mtd.dll
-                ${LIB_ROOT}/libpng/build/Debug/libpng16d.dll
-                ${LIB_ROOT}/ffmpeg/libswresample/swresample-4.dll
-                ${LIB_ROOT}/ffmpeg/libswscale/swscale-7.dll
-                ${LIB_ROOT}/ffmpeg/libavcodec/avcodec-60.dll
-                ${LIB_ROOT}/ffmpeg/libavutil/avutil-58.dll
+                ${LIB_ROOT}/ImageMagick/CORE_RL_bzlib_.dll
+                ${LIB_ROOT}/ImageMagick/CORE_RL_freetype_.dll
+                ${LIB_ROOT}/ImageMagick/CORE_RL_fribidi_.dll
+                ${LIB_ROOT}/ImageMagick/CORE_RL_glib_.dll
+                ${LIB_ROOT}/ImageMagick/CORE_RL_harfbuzz_.dll
+                ${LIB_ROOT}/ImageMagick/CORE_RL_lcms_.dll
+                ${LIB_ROOT}/ImageMagick/CORE_RL_libxml_.dll
+                ${LIB_ROOT}/ImageMagick/CORE_RL_lqr_.dll
+                ${LIB_ROOT}/ImageMagick/CORE_RL_MagickCore_.dll
+                ${LIB_ROOT}/ImageMagick/CORE_RL_MagickWand_.dll
+                ${LIB_ROOT}/ImageMagick/CORE_RL_zlib_.dll
                 ${LIB_ROOT}/libepoxy/bin/epoxy-0.dll
+                ${LIB_ROOT}/libpng/build/Debug/libpng16d.dll
+                ${LIB_ROOT}/vcpkg/installed/x64-windows/bin/bz2.dll
+                ${LIB_ROOT}/vcpkg/installed/x64-windows/bin/iconv-2.dll
+                ${LIB_ROOT}/vcpkg/installed/x64-windows/bin/liblzma.dll
                 ${LIB_ROOT}/wxWidgets/lib/vc_x64_dll/wxmsw316d_core_vc_x64_custom.dll
                 ${LIB_ROOT}/wxWidgets/lib/vc_x64_dll/wxmsw316d_html_vc_x64_custom.dll
                 ${LIB_ROOT}/wxWidgets/lib/vc_x64_dll/wxmsw316d_xrc_vc_x64_custom.dll
@@ -217,12 +234,10 @@ if (WIN32)
                 ${LIB_ROOT}/zlib/build/Debug/zlibd.dll
           DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 endif (WIN32)
-if (GTK_USE)
- install (FILES etc/${ui_definition_file}
-          DESTINATION "etc/${EXECUTABLE}" COMPONENT config)
-endif (GTK_USE)
+install (FILES etc/${ui_definition_file}
+         DESTINATION "etc" COMPONENT config)
 install (FILES share/opengl_logo.png
-         DESTINATION "${INSTALL_SHARE_DIR}/${EXECUTABLE}" COMPONENT data)
+         DESTINATION ${INSTALL_SHARE_DIR} COMPONENT data)
 
 ################ launchers ###############
 
@@ -286,6 +301,7 @@ elseif (WIN32)
  file (TO_CMAKE_PATH "${PNG_LIB_DIR}" PNG_LIB_PATH)
  file (TO_CMAKE_PATH "${ASSIMP_LIB_DIR}" ASSIMP_LIB_PATH)
  file (TO_CMAKE_PATH "${GTK_LIB_DIRS}" GTK_LIB_PATH)
+ file (TO_CMAKE_PATH "${VCPKG_RELEASE_BIN_DIR}" VCPKG_BIN_PATH)
  file (TO_CMAKE_PATH "${ACE_LIB_DIR}" ACE_LIB_PATH)
  create_target_launcher (${EXECUTABLE}
                          COMMAND ${COMMAND}
@@ -297,6 +313,7 @@ elseif (WIN32)
                                               ${ASSIMP_LIB_PATH}
                                               ${FFMPEG_LIB_PATH}
                                               ${IMAGEMAGICK_LIB_PATH}
+                                              ${VCPKG_BIN_PATH}
                                               ${ACE_LIB_PATH}
                                               ${GTK_LIB_PATH}
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/gtk
