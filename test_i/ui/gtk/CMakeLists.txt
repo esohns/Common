@@ -227,17 +227,17 @@ if (WIN32)
                 ${LIB_ROOT}/vcpkg/installed/x64-windows/bin/bz2.dll
                 ${LIB_ROOT}/vcpkg/installed/x64-windows/bin/iconv-2.dll
                 ${LIB_ROOT}/vcpkg/installed/x64-windows/bin/liblzma.dll
+                ${LIB_ROOT}/wxWidgets/lib/vc_x64_dll/wxbase316d_xml_vc_x64_custom.dll
                 ${LIB_ROOT}/wxWidgets/lib/vc_x64_dll/wxmsw316d_core_vc_x64_custom.dll
                 ${LIB_ROOT}/wxWidgets/lib/vc_x64_dll/wxmsw316d_html_vc_x64_custom.dll
                 ${LIB_ROOT}/wxWidgets/lib/vc_x64_dll/wxmsw316d_xrc_vc_x64_custom.dll
-                ${LIB_ROOT}/wxWidgets/lib/vc_x64_dll/wxbase316d_xml_vc_x64_custom.dll
                 ${LIB_ROOT}/zlib/build/Debug/zlibd.dll
           DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 endif (WIN32)
 install (FILES etc/${ui_definition_file}
-         DESTINATION "etc" COMPONENT config)
+         DESTINATION "etc/${EXECUTABLE}" COMPONENT config)
 install (FILES share/opengl_logo.png
-         DESTINATION ${INSTALL_SHARE_DIR} COMPONENT data)
+         DESTINATION "${INSTALL_SHARE_DIR}/${EXECUTABLE}" COMPONENT data)
 
 ################ launchers ###############
 
@@ -311,9 +311,9 @@ elseif (WIN32)
                                               ${GLUT_LIB_PATH}
                                               ${PNG_LIB_PATH}
                                               ${ASSIMP_LIB_PATH}
+                                              ${VCPKG_BIN_PATH}
                                               ${FFMPEG_LIB_PATH}
                                               ${IMAGEMAGICK_LIB_PATH}
-                                              ${VCPKG_BIN_PATH}
                                               ${ACE_LIB_PATH}
                                               ${GTK_LIB_PATH}
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/gtk
@@ -330,6 +330,7 @@ elseif (WIN32)
                                               ${LIBXML2_LIB_PATH}
                                               ${ASSIMP_LIB_PATH}
                                               ${PNG_LIB_PATH}
+                                              ${VCPKG_BIN_PATH}
                                               ${FFMPEG_LIB_PATH}
                                               ${IMAGEMAGICK_LIB_PATH}
                                               ${LIBGLADE_LIB_PATH}
@@ -348,6 +349,7 @@ elseif (WIN32)
                                               ${LIBXML2_LIB_PATH}
                                               ${ASSIMP_LIB_PATH}
                                               ${PNG_LIB_PATH}
+                                              ${VCPKG_BIN_PATH}
                                               ${FFMPEG_LIB_PATH}
                                               ${IMAGEMAGICK_LIB_PATH}
                                               ${LIBGLADE_LIB_PATH}

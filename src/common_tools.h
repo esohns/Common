@@ -26,7 +26,6 @@
 #include <string>
 #include <type_traits>
 
-#include "ace/config-lite.h"
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #define __CGUID_H__
 #include "combaseapi.h"

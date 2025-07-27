@@ -58,7 +58,9 @@ do_print_usage (const std::string& programName_in)
   std::cout.setf (std::ios::boolalpha);
 
   std::string path_root =
-    Common_File_Tools::getWorkingDirectory ();
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      false);
 
   std::cout << ACE_TEXT_ALWAYS_CHAR ("usage: ")
             << programName_in
@@ -92,7 +94,9 @@ do_process_arguments (int argc_in,
                       bool& traceInformation_out)
 {
   std::string path_root =
-    Common_File_Tools::getWorkingDirectory ();
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      false);
 
   // initialize results
   sourceFilePath_out = path_root;
@@ -211,7 +215,7 @@ do_work (int argc_in,
         ACE_ASSERT (data_2[0]);
         delete [] data_a[0]; data_a[0] = NULL;
         delete [] data_a[1]; data_a[1] = NULL;
-        ACE_OS::memcpy (data_a, data_2, sizeof (uint8_t*[4]));
+        ACE_OS::memcpy (data_a, data_2, sizeof (uint8_t*[AV_NUM_DATA_POINTERS]));
         ACE_ASSERT (data_a[0]);
       } // end IF
       file_stream.open (out_filename,
@@ -300,6 +304,7 @@ ACE_TMAIN (int argc_in,
   process_profile.start ();
 
 //  Common_Tools::initialize ();
+  Common_File_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (argv_in[0]));
 
   ACE_High_Res_Timer timer;
   ACE_Time_Value working_time;
@@ -308,7 +313,10 @@ ACE_TMAIN (int argc_in,
   ACE_Time_Value user_time, system_time;
 
   // step1a set defaults
-  std::string path_root = Common_File_Tools::getWorkingDirectory ();
+  std::string path_root =
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      false);
   std::string source_file_path = path_root;
   source_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   source_file_path += ACE_TEXT_ALWAYS_CHAR (TEST_I_SOURCE_FILE_NAME);

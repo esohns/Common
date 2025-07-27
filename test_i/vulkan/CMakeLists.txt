@@ -85,7 +85,17 @@ target_precompile_headers (${EXECUTABLE}
 install (TARGETS ${EXECUTABLE}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
-install (FILES share/vulkan_logo.png
+if (WIN32)
+ if (DEFINED ENV{LIB_ROOT})
+  file (TO_NATIVE_PATH $ENV{LIB_ROOT} LIB_ROOT)
+  string (REPLACE "\\" "\\\\" LIB_ROOT ${LIB_ROOT})
+ endif (DEFINED ENV{LIB_ROOT})
+ install (FILES ${LIB_ROOT}/glfw/lib-vc2022/glfw3.dll
+          DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+endif (WIN32)
+install (FILES etc/frag.spv etc/vert.spv
+         DESTINATION "etc/${EXECUTABLE}" COMPONENT config)
+install (FILES share/viking_room.obj share/viking_room.png share/vulkan_logo.png
          DESTINATION "${INSTALL_SHARE_DIR}/${EXECUTABLE}" COMPONENT data)
 
 ################ launchers ###############
@@ -98,7 +108,7 @@ if (UNIX)
                          ARGS ${ARGS}
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
-                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/${EXECUTABLE}
+                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
                          ENVIRONMENT ${ENVIRONMENT})
 elseif (WIN32)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)

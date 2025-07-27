@@ -31,7 +31,9 @@
 #define TEST_I_VULKAN_MODEL_FILENAME           "viking_room.obj"
 #define TEST_I_VULKAN_MODEL_TEXTURE_FILENAME   "viking_room.png"
 
-#define TEST_I_VULKAN_VERTEX_SHADER_FILENAME   "vertex_shader.glsl"
-#define TEST_I_VULKAN_FRAGMENT_SHADER_FILENAME "fragment_shader.glsl"
+//#define TEST_I_VULKAN_VERTEX_SHADER_FILENAME   "vertex_shader.glsl"
+//#define TEST_I_VULKAN_FRAGMENT_SHADER_FILENAME "fragment_shader.glsl"
+#define TEST_I_VULKAN_VERTEX_SHADER_FILENAME   "vert.spv"
+#define TEST_I_VULKAN_FRAGMENT_SHADER_FILENAME "frag.spv"
 
 #endif

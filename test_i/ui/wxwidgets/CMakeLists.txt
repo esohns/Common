@@ -89,6 +89,11 @@ target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
 target_link_libraries (${EXECUTABLE_2} PUBLIC ${ACE_LIBRARY})
 target_link_libraries (${EXECUTABLE_3} PUBLIC ${ACE_LIBRARY})
 
+target_link_libraries (${EXECUTABLE_2} PUBLIC Common)
+
+target_link_libraries (${EXECUTABLE_2} PUBLIC CommonLog)
+target_link_libraries (${EXECUTABLE_3} PUBLIC CommonLog)
+
 target_link_libraries (${EXECUTABLE_3} PUBLIC CommonUI_wxWidgets)
 
 target_link_libraries (${EXECUTABLE} PUBLIC Common_Test_I)
@@ -99,25 +104,45 @@ target_link_libraries (${EXECUTABLE_3} PUBLIC Common_Test_I)
 install (TARGETS ${EXECUTABLE}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+if (WIN32)
+ if (DEFINED ENV{LIB_ROOT})
+  file (TO_NATIVE_PATH $ENV{LIB_ROOT} LIB_ROOT)
+  string (REPLACE "\\" "\\\\" LIB_ROOT ${LIB_ROOT})
+ endif (DEFINED ENV{LIB_ROOT})
+ install (FILES ${LIB_ROOT}/wxWidgets/lib/vc_x64_dll/wxbase316d_vc_x64_custom.dll
+          DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+endif (WIN32)
 install (TARGETS ${EXECUTABLE_2}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+install (FILES etc/test_i_2.xrc
+         DESTINATION "etc/${EXECUTABLE}" COMPONENT config)
 install (TARGETS ${EXECUTABLE_3}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
-# install (FILES etc/${EXECUTABLE}.glade
-#          DESTINATION "${INSTALL_SHARE_DIR}/${PROJECT_NAME}/${EXECUTABLE}" COMPONENT config)
+install (FILES etc/test_i_3.xrc
+         DESTINATION "etc/${EXECUTABLE}" COMPONENT config)
 
 ################ launchers ###############
 file (TO_CMAKE_PATH "${wxWidgets_LIB_DIR}" wxWidgets_LIB_DIR)
 if (UNIX)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}" COMMAND)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE_2}" COMMAND_2)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE_3}" COMMAND_3)
 # file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
 elseif (WIN32)
  file (TO_CMAKE_PATH ${ACE_LIB_DIR} ACE_LIB_PATH)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
+ string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE_2}.exe" COMMAND_2)
+ string (REPLACE "\\" "\\\\" COMMAND_2 ${COMMAND_2})
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE_3}.exe" COMMAND_3)
+ string (REPLACE "\\" "\\\\" COMMAND_3 ${COMMAND_3})
 endif ()
 set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                           ${ACE_LIB_PATH})
 create_target_launcher (${EXECUTABLE}
+                        COMMAND ${COMMAND}
                         ARGS ""
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
@@ -127,6 +152,7 @@ create_target_launcher (${EXECUTABLE}
                         ENVIRONMENT foo=bar)
 
 create_target_launcher (${EXECUTABLE_2}
+                        COMMAND ${COMMAND_2}
                         ARGS ""
 #                        FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
@@ -136,6 +162,7 @@ create_target_launcher (${EXECUTABLE_2}
                         ENVIRONMENT foo=bar)
 
 create_target_launcher (${EXECUTABLE_3}
+                        COMMAND ${COMMAND_3}
                         ARGS ""
 #                        FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}

@@ -929,8 +929,19 @@ HelloTriangleApplication::createDescriptorSetLayout ()
 void
 HelloTriangleApplication::createGraphicsPipeline ()
 {
-  std::vector<char> vertShaderCode = readFile ("etc/vert.spv");
-  std::vector<char> fragShaderCode = readFile ("etc/frag.spv");
+  std::string path_string =
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      true);
+  std::string vert_shader_path = path_string;
+  vert_shader_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
+  vert_shader_path += ACE_TEXT_ALWAYS_CHAR (TEST_I_VULKAN_VERTEX_SHADER_FILENAME);
+  std::string frag_shader_path = path_string;
+  frag_shader_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
+  frag_shader_path += ACE_TEXT_ALWAYS_CHAR (TEST_I_VULKAN_FRAGMENT_SHADER_FILENAME);
+
+  std::vector<char> vertShaderCode = readFile (vert_shader_path);
+  std::vector<char> fragShaderCode = readFile (frag_shader_path);
 
   VkShaderModule vertShaderModule = createShaderModule (vertShaderCode);
   VkShaderModule fragShaderModule = createShaderModule (fragShaderCode);
@@ -1217,9 +1228,11 @@ void
 HelloTriangleApplication::createTextureImage ()
 {
   int texWidth, texHeight, texChannels;
-  std::string texture_file_path = Common_File_Tools::getWorkingDirectory ();
-  texture_file_path += ACE_DIRECTORY_SEPARATOR_STR_A;
-  texture_file_path += ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY);
+  std::string path_string =
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      false);
+  std::string texture_file_path = path_string;
   texture_file_path += ACE_DIRECTORY_SEPARATOR_STR_A;
   //texture_file_path += ACE_TEXT_ALWAYS_CHAR (TEST_I_VULKAN_TEXTURE_FILENAME);
   texture_file_path += ACE_TEXT_ALWAYS_CHAR (TEST_I_VULKAN_MODEL_TEXTURE_FILENAME);
@@ -1656,9 +1669,11 @@ HelloTriangleApplication::loadModel ()
   std::vector<tinyobj::material_t> materials;
 #endif // TINY_OBJ_LOADER_SUPPORT
   std::string warn, err;
-  std::string obj_file_path = Common_File_Tools::getWorkingDirectory ();
-  obj_file_path += ACE_DIRECTORY_SEPARATOR_STR_A;
-  obj_file_path += ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY);
+  std::string path_string =
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      false);
+  std::string obj_file_path = path_string;
   obj_file_path += ACE_DIRECTORY_SEPARATOR_STR_A;
   obj_file_path += ACE_TEXT_ALWAYS_CHAR (TEST_I_VULKAN_MODEL_FILENAME);
 

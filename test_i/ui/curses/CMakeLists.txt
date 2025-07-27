@@ -74,7 +74,7 @@ if (UNIX)
                          ARGS ${ARGS}
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
-                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/ui/console
+                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/curses
                          ENVIRONMENT ${ENVIRONMENT})
 elseif (WIN32)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
@@ -85,14 +85,14 @@ elseif (WIN32)
                          ARGS ${ARGS}
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
-                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/console
+                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/curses
                          ENVIRONMENT ${ENVIRONMENT})
 endif ()
 
 ################ tests ###################
 add_test (NAME ${EXECUTABLE}_test
           COMMAND ${PROJECT_BINARY_DIR}/${EXECUTABLE}
-          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/console)
+          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/ui/curses)
 set_tests_properties (${EXECUTABLE}_test
                       PROPERTIES
                       ENVIRONMENT "PATH=D:\\projects\\ATCD\\ACE\\lib;D:\\projects\\gtk\\bin;D:\\projects\\libglade\\bin;D:\\projects\\libxml2-2.9.1\\.libs;G:\\software\\Development\\dll;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\..\\libCommon\\cmake\\src\\ui\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\Debug;${PROJECT_SOURCE_DIR}\\cmake\\src\\modules\\dev\\Debug;${PROJECT_SOURCE_DIR}\\..\\libACENetwork\\cmake\\src\\Debug;%PATH%")

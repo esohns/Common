@@ -42,7 +42,9 @@ do_print_usage (const std::string& programName_in)
   std::cout.setf (std::ios::boolalpha);
 
   std::string path_root =
-    Common_File_Tools::getWorkingDirectory ();
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      false);
 
   std::cout << ACE_TEXT_ALWAYS_CHAR ("usage: ")
             << programName_in
@@ -52,8 +54,6 @@ do_print_usage (const std::string& programName_in)
   std::cout << ACE_TEXT_ALWAYS_CHAR ("currently available options:")
             << std::endl;
   std::string texture_file_path = path_root;
-  texture_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  texture_file_path += COMMON_LOCATION_DATA_SUBDIRECTORY;
   texture_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   texture_file_path +=
     ACE_TEXT_ALWAYS_CHAR (TEST_I_VULKAN_TEXTURE_FILENAME);
@@ -74,12 +74,12 @@ do_process_arguments (int argc_in,
                       bool& traceInformation_out)
 {
   std::string path_root =
-    Common_File_Tools::getWorkingDirectory ();
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      false);
 
   // initialize results
   textureFilePath_out = path_root;
-  textureFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  textureFilePath_out += COMMON_LOCATION_DATA_SUBDIRECTORY;
   textureFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   textureFilePath_out += ACE_TEXT_ALWAYS_CHAR (TEST_I_VULKAN_TEXTURE_FILENAME);
 

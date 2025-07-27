@@ -15,6 +15,8 @@
 #include "common_ui_wxwidgets_defines.h"
 #include "common_ui_wxwidgets_tools.h"
 
+#include "common_test_i_defines.h"
+
 #include "test_i_3.h"
 
 extern const char toplevel_widget_classname_string_[] =
@@ -23,6 +25,8 @@ extern const char toplevel_widget_classname_string_[] =
 int
 main (int argc, char** argv)
 {
+  Common_File_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (argv[0]));
+  
   Test_I_WxWidgetsApplication_t* application_p = NULL;
   ACE_NEW_NORETURN (application_p,
                     Test_I_WxWidgetsApplication_t (toplevel_widget_classname_string_,
@@ -35,8 +39,19 @@ main (int argc, char** argv)
   application_p->initialize (ui_cb_data);
   struct Common_UI_wxWidgets_State& state_r =
     const_cast<struct Common_UI_wxWidgets_State&> (application_p->getR ());
+  std::string module_name =
+      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY);
+  module_name += ACE_DIRECTORY_SEPARATOR_STR;
+  module_name += ACE_TEXT_ALWAYS_CHAR (COMMON_TEST_I_UI_SUBDIRECTORY);
+  std::string path_root =
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      module_name,
+                                                      true);
+  std::string file_path = path_root;
+  file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
+  file_path += ACE_TEXT_ALWAYS_CHAR ("test_i_3.xrc");
   state_r.resources[ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN)] =
-    std::make_pair (ACE_TEXT_ALWAYS_CHAR ("test_i_3.xrc"), static_cast<wxObject*> (NULL));
+    std::make_pair (file_path, static_cast<wxObject*> (NULL));
 
   application_p->run ();
 

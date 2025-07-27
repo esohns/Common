@@ -76,9 +76,9 @@ install (TARGETS ${EXECUTABLE}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 install (FILES etc/fragment_shader.glsl etc/vertex_shader.glsl
-         DESTINATION "etc" COMPONENT config)
+         DESTINATION "etc/${EXECUTABLE}" COMPONENT config)
 install (FILES share/opengl_logo.png
-         DESTINATION ${INSTALL_SHARE_DIR} COMPONENT data)
+         DESTINATION "${INSTALL_SHARE_DIR}/${EXECUTABLE}" COMPONENT data)
 
 ################ launchers ###############
 
@@ -91,7 +91,7 @@ if (UNIX)
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${GTK_LIB_PATH}
                                               ${ACE_LIB_PATH}
-                         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/../test_i/opengl
+                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/opengl
                          ENVIRONMENT ${ENVIRONMENT})
 elseif (WIN32)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)

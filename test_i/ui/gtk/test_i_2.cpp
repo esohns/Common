@@ -26,6 +26,8 @@
 #include "common_ui_gtk_builder_definition.h"
 #include "common_ui_gtk_manager_common.h"
 
+#include "common_test_i_defines.h"
+
 #include "test_i_gtk_callbacks.h"
 #include "test_i_gtk_defines.h"
 
@@ -88,8 +90,14 @@ do_print_usage (const std::string& programName_in)
   // enable verbatim boolean output
   std::cout.setf (std::ios::boolalpha);
 
+  std::string module_name =
+    ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY);
+  module_name += ACE_DIRECTORY_SEPARATOR_STR;
+  module_name += ACE_TEXT_ALWAYS_CHAR (COMMON_TEST_I_UI_SUBDIRECTORY);
   std::string path_root =
-    Common_File_Tools::getWorkingDirectory ();
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      module_name,
+                                                      true);
 
   std::cout << ACE_TEXT_ALWAYS_CHAR ("usage: ")
             << programName_in
@@ -99,8 +107,6 @@ do_print_usage (const std::string& programName_in)
   std::cout << ACE_TEXT_ALWAYS_CHAR ("currently available options:")
             << std::endl;
   std::string ui_definition_file_path = path_root;
-  ui_definition_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  ui_definition_file_path += COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY;
   ui_definition_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   ui_definition_file_path += ACE_TEXT_ALWAYS_CHAR (TEST_U_UI_DEFINITION_FILE);
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-g [FILEPATH]: ui definition file [")
@@ -124,15 +130,19 @@ do_process_arguments (int argc_in,
                       bool& traceInformation_out,
                       std::string& UIDefinitionFilePath_out)
 {
+  std::string module_name =
+    ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY);
+  module_name += ACE_DIRECTORY_SEPARATOR_STR;
+  module_name += ACE_TEXT_ALWAYS_CHAR (COMMON_TEST_I_UI_SUBDIRECTORY);
   std::string path_root =
-    Common_File_Tools::getWorkingDirectory ();
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      module_name,
+                                                      true);
 
   // initialize results
   mode_out = TEST_I_MODE_DEFAULT;
   traceInformation_out = false;
   UIDefinitionFilePath_out = path_root;
-  UIDefinitionFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  UIDefinitionFilePath_out += COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY;
   UIDefinitionFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   UIDefinitionFilePath_out += ACE_TEXT_ALWAYS_CHAR (TEST_U_UI_DEFINITION_FILE);
 
@@ -320,6 +330,8 @@ ACE_TMAIN (int argc_in,
 #else
   Common_Tools::initialize (false); // RNG ?
 #endif // ACE_WIN32 || ACE_WIN64
+
+
   Common_File_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (argv_in[0]));
 
   ACE_High_Res_Timer timer;
@@ -329,7 +341,15 @@ ACE_TMAIN (int argc_in,
   ACE_Time_Value user_time, system_time;
 
   // step1a set defaults
-  std::string path_root = Common_File_Tools::getWorkingDirectory ();
+  std::string module_name =
+    ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY);
+  module_name += ACE_DIRECTORY_SEPARATOR_STR;
+  module_name += ACE_TEXT_ALWAYS_CHAR (COMMON_TEST_I_UI_SUBDIRECTORY);
+  std::string path_root =
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      module_name,
+                                                      true);
+
   enum Test_I_ModeType program_mode_e = TEST_I_MODE_INVALID;
   bool trace_information = false;
   std::string ui_definition_file_path = path_root;

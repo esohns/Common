@@ -22,6 +22,8 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 ############## next target ###############
 set (imagemagick_EXE_SRCS
+#     stdafx.cpp
+     stdafx.h
      test_i.cpp)
 
 #cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
@@ -46,36 +48,47 @@ target_link_libraries (${EXECUTABLE} PUBLIC CommonLog)
 target_link_libraries (${EXECUTABLE} PUBLIC CommonTimer)
 
 # add PCH
-#target_precompile_headers (${EXECUTABLE}
-#                           PUBLIC stdafx.h)
+target_precompile_headers (${EXECUTABLE}
+                           PUBLIC stdafx.h)
 
 ############### installation #############
 install (TARGETS ${EXECUTABLE}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+install (FILES share/oak-tree.png
+         DESTINATION "${INSTALL_SHARE_DIR}/${EXECUTABLE}" COMPONENT data)
 
 ################ launchers ###############
 if (UNIX)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}" COMMAND)
+ create_target_launcher (${EXECUTABLE}
+                         COMMAND ${COMMAND}
+                         ARGS "-f share/oak-tree.png -t"
+#                          FORWARD_ARGS
+                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
+                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
+                         ENVIRONMENT ${ENVIRONMENT_MAGICK})
 elseif (WIN32)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
  string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
+ file (TO_CMAKE_PATH "${VCPKG_RELEASE_BIN_DIR}" VCPKG_BIN_PATH)
  file (TO_CMAKE_PATH "${ffmpeg_LIB_DIR}" FFMPEG_LIB_PATH)
  file (TO_CMAKE_PATH "${ImageMagick_LIB_DIR}" IMAGEMAGICK_LIB_PATH)
  file (TO_CMAKE_PATH "${ACE_LIB_DIR}" ACE_LIB_PATH)
  set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
+                           ${VCPKG_BIN_PATH}
                            ${FFMPEG_LIB_PATH}
                            ${IMAGEMAGICK_LIB_PATH}
                            ${ACE_LIB_PATH})
  set (ENVIRONMENT_MAGICK "MAGICK_CODER_MODULE_PATH=${IMAGEMAGICK_LIB_PATH}\\\\modules\\\\coders")
+ create_target_launcher (${EXECUTABLE}
+                         COMMAND ${COMMAND}
+                         ARGS "-f share\\\\oak-tree.png -t"
+#                          FORWARD_ARGS
+                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
+                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
+                         ENVIRONMENT ${ENVIRONMENT_MAGICK})
 endif ()
-create_target_launcher (${EXECUTABLE}
-                        COMMAND ${COMMAND}
-                        ARGS "-f oak-tree.png -t"
-#                         FORWARD_ARGS
-                        RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
-                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
-                        ENVIRONMENT ${ENVIRONMENT_MAGICK})
 
 ################ tests ###################
 add_test (NAME ${EXECUTABLE}_test

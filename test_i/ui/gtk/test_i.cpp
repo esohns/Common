@@ -98,7 +98,9 @@ do_print_usage (const std::string& programName_in)
   std::cout.setf (std::ios::boolalpha);
 
   std::string path_root =
-    Common_File_Tools::getWorkingDirectory ();
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      true);
 
   std::cout << ACE_TEXT_ALWAYS_CHAR ("usage: ")
             << programName_in
@@ -108,8 +110,6 @@ do_print_usage (const std::string& programName_in)
   std::cout << ACE_TEXT_ALWAYS_CHAR ("currently available options:")
             << std::endl;
   std::string ui_definition_file_path = path_root;
-  ui_definition_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  ui_definition_file_path += COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY;
   ui_definition_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   ui_definition_file_path += ACE_TEXT_ALWAYS_CHAR (TEST_U_UI_DEFINITION_FILE);
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-g [FILEPATH]: ui definition file [")
@@ -129,13 +129,13 @@ do_process_arguments (int argc_in,
                       std::string& UIDefinitionFilePath_out)
 {
   std::string path_root =
-    Common_File_Tools::getWorkingDirectory ();
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      true);
 
   // initialize results
   traceInformation_out = false;
   UIDefinitionFilePath_out = path_root;
-  UIDefinitionFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  UIDefinitionFilePath_out += COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY;
   UIDefinitionFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   UIDefinitionFilePath_out += ACE_TEXT_ALWAYS_CHAR (TEST_U_UI_DEFINITION_FILE);
 
@@ -1749,11 +1749,13 @@ ACE_TMAIN (int argc_in,
   ACE_Time_Value user_time, system_time;
 
   // step1a set defaults
-  std::string path_root = Common_File_Tools::getWorkingDirectory ();
+  std::string path_root =
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      true);
+
   bool trace_information = false;
   std::string ui_definition_file_path = path_root;
-  ui_definition_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  ui_definition_file_path += COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY;
   ui_definition_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   ui_definition_file_path += ACE_TEXT_ALWAYS_CHAR (TEST_U_UI_DEFINITION_FILE);
 

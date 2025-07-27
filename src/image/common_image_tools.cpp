@@ -820,7 +820,9 @@ bool Common_Image_Tools::load (const std::string& path_in,
 
   // sanity check(s)
   if (codecId_in == AV_CODEC_ID_NONE)
-    return Common_Image_Tools::load (path_in, resolution_out, format_out,
+    return Common_Image_Tools::load (path_in,
+                                     resolution_out,
+                                     format_out,
                                      buffers_out);
 
   bool result = false;

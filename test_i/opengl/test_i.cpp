@@ -68,7 +68,9 @@ do_print_usage (const std::string& programName_in)
   std::cout.setf (std::ios::boolalpha);
 
   std::string path_root =
-    Common_File_Tools::getWorkingDirectory ();
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      false);
 
   std::cout << ACE_TEXT_ALWAYS_CHAR ("usage: ")
             << programName_in
@@ -78,8 +80,6 @@ do_print_usage (const std::string& programName_in)
   std::cout << ACE_TEXT_ALWAYS_CHAR ("currently available options:")
             << std::endl;
   std::string texture_file_path = path_root;
-  texture_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  texture_file_path += COMMON_LOCATION_DATA_SUBDIRECTORY;
   texture_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   texture_file_path +=
     ACE_TEXT_ALWAYS_CHAR (TEST_I_OPENGL_TEXTURE_FILENAME);
@@ -100,12 +100,12 @@ do_process_arguments (int argc_in,
                       bool& traceInformation_out)
 {
   std::string path_root =
-    Common_File_Tools::getWorkingDirectory ();
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      false);
 
   // initialize results
   textureFilePath_out = path_root;
-  textureFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  textureFilePath_out += COMMON_LOCATION_DATA_SUBDIRECTORY;
   textureFilePath_out += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   textureFilePath_out += ACE_TEXT_ALWAYS_CHAR (TEST_I_OPENGL_TEXTURE_FILENAME);
 
@@ -260,16 +260,15 @@ do_work (int argc_in,
   glGenerateMipmap (GL_TEXTURE_2D);
   cb_data_s.texture.unbind ();
 
-  std::string path_root = Common_File_Tools::getWorkingDirectory ();
-  std::string vertex_shader_file_path = path_root;
-  vertex_shader_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  vertex_shader_file_path += COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY;
+  std::string path_string =
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      true);
+  std::string vertex_shader_file_path = path_string;
   vertex_shader_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   vertex_shader_file_path +=
     ACE_TEXT_ALWAYS_CHAR (TEST_I_OPENGL_VERTEX_SHADER_FILENAME);
-  std::string fragment_shader_file_path = path_root;
-  fragment_shader_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  fragment_shader_file_path += COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY;
+  std::string fragment_shader_file_path = path_string;
   fragment_shader_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   fragment_shader_file_path +=
     ACE_TEXT_ALWAYS_CHAR (TEST_I_OPENGL_FRAGMENT_SHADER_FILENAME);
@@ -421,10 +420,11 @@ ACE_TMAIN (int argc_in,
   ACE_Time_Value user_time, system_time;
 
   // step1a set defaults
-  std::string path_root = Common_File_Tools::getWorkingDirectory ();
-  std::string texture_file_path = path_root;
-  texture_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
-  texture_file_path += COMMON_LOCATION_DATA_SUBDIRECTORY;
+  std::string path_string =
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      false);
+  std::string texture_file_path = path_string;
   texture_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   texture_file_path += ACE_TEXT_ALWAYS_CHAR (TEST_I_OPENGL_TEXTURE_FILENAME);
   bool trace_information = false;

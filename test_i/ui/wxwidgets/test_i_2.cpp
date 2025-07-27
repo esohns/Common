@@ -12,10 +12,15 @@
 
 #include "test_i_2.h"
 
+#include "wx/cmdline.h"
 #include "wx/xrc/xmlres.h"
 
 #include "ace/Log_Msg.h"
 #include "ace/OS_Memory.h"
+
+#include "common_file_tools.h"
+
+#include "common_test_i_defines.h"
 
 // begin wxGlade: ::extracode
 // end wxGlade
@@ -118,6 +123,7 @@ class Test_U_wxWidgets_Application
  : public wxApp {
  public:
   bool OnInit ();
+  void OnInitCmdLine (wxCmdLineParser&);
   void OnEndSession (wxCloseEvent&);
   void OnQueryEndSession (wxCloseEvent&);
   int OnExit ();
@@ -142,6 +148,16 @@ void wxAppConsole::OnAssert (const wxChar *file,
                              const wxChar *msg) {};
 #endif // wxCHECK_VERSION
 
+void Test_U_wxWidgets_Application::OnInitCmdLine (wxCmdLineParser& parser)
+{
+  wxApp::OnInitCmdLine (parser);
+
+  //parser.AddSwitch ("v", "version", "Shows the application version", 0);
+  parser.Parse (true);
+
+  Common_File_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (wxAppConsole::argv[0]));
+}
+
 bool Test_U_wxWidgets_Application::OnInit ()
 {
   wxInitAllImageHandlers ();
@@ -164,14 +180,25 @@ bool Test_U_wxWidgets_Application::OnInit ()
   resource_p->InitAllHandlers ();
 
   // load widget tree
-//  wxObject* object_p = NULL;
+  std::string module_name =
+      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY);
+  module_name += ACE_DIRECTORY_SEPARATOR_STR;
+  module_name += ACE_TEXT_ALWAYS_CHAR (COMMON_TEST_I_UI_SUBDIRECTORY);
+  std::string path_root =
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      module_name,
+                                                      true);
+
+  std::string file_path = path_root;
+  file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
+  file_path += ACE_TEXT_ALWAYS_CHAR ("test_i_2.xrc");
 #if wxCHECK_VERSION (3,0,0)
   wxFileName file_name;
-  file_name.Assign (wxString (ACE_TEXT_ALWAYS_CHAR ("test_i_2.xrc")),
+  file_name.Assign (wxString (file_path),
                     wxPATH_NATIVE);
   if (!resource_p->LoadFile (file_name))
 #elif wxCHECK_VERSION (2,0,0)
-  wxString file_name (ACE_TEXT_ALWAYS_CHAR ("test_i_2.xrc"));
+  wxString file_name (file_path);
   if (unlikely (!resource_p->Load (file_name)))
 #endif // wxCHECK_VERSION
   {
@@ -206,12 +233,12 @@ bool Test_U_wxWidgets_Application::OnInit ()
 //    return false;
 //  } // end IF
   dialog_ =
-      resource_p->LoadDialog (dialog_main_p,
-                              wxString (ACE_TEXT_ALWAYS_CHAR ("dialog_main_base")));
+    resource_p->LoadDialog (dialog_main_p,
+                            wxString (ACE_TEXT_ALWAYS_CHAR ("dialog_main_base")));
   ACE_ASSERT (dialog_);
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("loaded widget tree \"%s\"\n"),
-              ACE_TEXT ("test_i_2.xrc")));
+              ACE_TEXT (file_path.c_str ())));
 
   SetTopWindow (dialog_main_p);
 //  dialog_main->Show (true);

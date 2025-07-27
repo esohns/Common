@@ -78,6 +78,18 @@ target_precompile_headers (${EXECUTABLE_2}
 install (TARGETS ${EXECUTABLE}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+if (WIN32)
+ if (DEFINED ENV{LIB_ROOT})
+  file (TO_NATIVE_PATH $ENV{LIB_ROOT} LIB_ROOT)
+  string (REPLACE "\\" "\\\\" LIB_ROOT ${LIB_ROOT})
+ endif (DEFINED ENV{LIB_ROOT})
+ install (FILES ${LIB_ROOT}/qt/5.15.2/msvc2019_64/bin/Qt5Core.dll
+                ${LIB_ROOT}/qt/5.15.2/msvc2019_64/bin/Qt5Gui.dll
+                ${LIB_ROOT}/qt/5.15.2/msvc2019_64/bin/Qt5Widgets.dll
+          DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+ install (FILES ${LIB_ROOT}/qt/5.15.2/msvc2019_64/plugins/platforms/qwindows.dll
+          DESTINATION ${INSTALL_BIN_DIR}/platforms COMPONENT test_i)
+endif (WIN32)
 install (TARGETS ${EXECUTABLE_2}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
