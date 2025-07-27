@@ -110,8 +110,7 @@ Common_CppParserBase_T<ConfigurationType,
 
     if (buffer_)
     {
-      scanner_.yy_delete_buffer (buffer_);
-      buffer_ = NULL;
+      scanner_.yy_delete_buffer (buffer_); buffer_ = NULL;
     } // end IF
 
     isInitialized_ = false;
@@ -347,7 +346,8 @@ Common_CppParserBase_T<ConfigurationType,
   if (!fragment_->cont ())
   {
     // sanity check(s)
-    if (!blockInParse_)
+    ACE_ASSERT (configuration_);
+    if (!configuration_->block)
       return false; // not enough data, cannot proceed
 
     waitBuffer (); // <-- wait for data
@@ -419,7 +419,7 @@ Common_CppParserBase_T<ConfigurationType,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("message queue not set - cannot wait, returning\n")));
-      return;
+    return;
   } // end IF
 
   // 1. wait for data
