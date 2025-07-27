@@ -45,12 +45,10 @@ Common_CppParserBase_T<ConfigurationType,
 // , argument_ ()
  , scanner_ ()
  , scannerState_ ()
- , blockInParse_ (false)
  , isFirst_ (true)
  , buffer_ (NULL)
  , streamBuffer_ ()
  , stream_ (&streamBuffer_)
- , messageQueue_ (NULL)
  , isInitialized_ (false)
 {
   COMMON_TRACE (ACE_TEXT ("Common_CppParserBase_T::Common_CppParserBase_T"));
@@ -108,7 +106,6 @@ Common_CppParserBase_T<ConfigurationType,
     offset_ = 0;
     trace_ = COMMON_PARSER_DEFAULT_YACC_TRACE;
 
-    blockInParse_ = false;
     isFirst_ = true;
 
     if (buffer_)
@@ -116,8 +113,6 @@ Common_CppParserBase_T<ConfigurationType,
       scanner_.yy_delete_buffer (buffer_);
       buffer_ = NULL;
     } // end IF
-
-    messageQueue_ = NULL;
 
     isInitialized_ = false;
   } // end IF
@@ -127,10 +122,6 @@ Common_CppParserBase_T<ConfigurationType,
 #if defined (_DEBUG)
   trace_ = configuration_->debugParser;
 #endif // _DEBUG
-
-  blockInParse_ = configuration_->block;
-
-  messageQueue_ = configuration_->messageQueue;
 
 #if defined (_DEBUG)
   scanner_.set_debug (configuration_->debugScanner ? 1 : 0);
@@ -422,8 +413,9 @@ Common_CppParserBase_T<ConfigurationType,
   // *IMPORTANT NOTE*: 'this' is the parser thread currently blocked in yylex()
 
   // sanity check(s)
-  ACE_ASSERT (blockInParse_);
-  if (!messageQueue_)
+  ACE_ASSERT (configuration_);
+  ACE_ASSERT (configuration_->block);
+  if (!configuration_->messageQueue)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("message queue not set - cannot wait, returning\n")));
@@ -433,8 +425,9 @@ Common_CppParserBase_T<ConfigurationType,
   // 1. wait for data
   do
   {
-    result = messageQueue_->dequeue_head (message_block_p,
-                                          NULL);
+    result =
+      configuration_->messageQueue->dequeue_head (message_block_p,
+                                                  NULL);
     if (result == -1)
     {
       error = ACE_OS::last_error ();
@@ -449,7 +442,7 @@ Common_CppParserBase_T<ConfigurationType,
     {
       case ACE_Message_Block::MB_STOP:
       {
-        result = messageQueue_->enqueue (message_block_p);
+        result = configuration_->messageQueue->enqueue (message_block_p);
         if (result == -1)
         {
           error = ACE_OS::last_error ();
@@ -465,7 +458,7 @@ Common_CppParserBase_T<ConfigurationType,
       }
       case ACE_Message_Block::MB_USER:
       {
-        result = messageQueue_->enqueue_tail (message_block_p);
+        result = configuration_->messageQueue->enqueue_tail (message_block_p);
         if (result == -1)
         {
           error = ACE_OS::last_error ();
