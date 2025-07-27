@@ -83,7 +83,7 @@ class INotify_Event_Handler
         {
           event_p = reinterpret_cast<struct inotify_event*> (&(buffer_a[0]) + offset_i);
           if (event_p->mask & IN_MODIFY)
-            ACE_DEBUG ((LM_DEBUG,
+            ACE_DEBUG ((LM_INFO,
                         ACE_TEXT ("directory \"%s\" modified, continuing\n"),
                         ACE_TEXT (event_p->name)));
           offset_i += sizeof (struct inotify_event) + event_p->len;
@@ -106,7 +106,7 @@ class INotify_Event_Handler
 
 enum Test_U_Common_File_ModeType
 {
-  TEST_U_COMMON_FILE_MODE_PATH,    // <-- verify path (absolute/relative)
+  TEST_U_COMMON_FILE_MODE_PATH = 0,// <-- verify path (absolute/relative)
   TEST_U_COMMON_FILE_MODE_SIZE,    // <-- determine file size using f[open|seek|tell|close] vs fstat
   TEST_U_COMMON_FILE_MODE_WATCH,   // <-- watch directory (inotify)
   ////////////////////////////////////////
@@ -129,11 +129,15 @@ do_printUsage (const std::string& programName_in)
             << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("currently available options:")
             << std::endl;
-  std::cout << ACE_TEXT_ALWAYS_CHAR ("-d [PATH]   : watch directory")
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-d [PATH]: directory")
             << std::endl;
-  std::cout << ACE_TEXT_ALWAYS_CHAR ("-s [PATH]   : determine file size")
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-m [MODE]: mode [")
+            << TEST_U_COMMON_FILE_MODE_PATH
+            << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
-  std::cout << ACE_TEXT_ALWAYS_CHAR ("-t          : trace information [")
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-s [PATH]: determine file size")
+            << std::endl;
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-t       : trace information [")
             << false
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
@@ -155,7 +159,7 @@ do_processArguments (int argc_in,
 
   ACE_Get_Opt argument_parser (argc_in,
                                argv_in,
-                               ACE_TEXT ("f:m:t"),
+                               ACE_TEXT ("d:m:s:t"),
                                1,                         // skip command name
                                1,                         // report parsing errors
                                ACE_Get_Opt::PERMUTE_ARGS, // ordering
@@ -166,9 +170,15 @@ do_processArguments (int argc_in,
   {
     switch (option_i)
     {
-      case 'f':
+      case 'd':
       {
         filePath_out = ACE_TEXT_ALWAYS_CHAR (argument_parser.opt_arg ());
+        break;
+      }
+      case 's':
+      {
+        filePath_out = ACE_TEXT_ALWAYS_CHAR (argument_parser.opt_arg ());
+        mode_out = TEST_U_COMMON_FILE_MODE_SIZE;
         break;
       }
       case 'm':
@@ -229,7 +239,7 @@ do_work (enum Test_U_Common_File_ModeType mode_in,
   {
     case TEST_U_COMMON_FILE_MODE_PATH:
     {
-      ACE_DEBUG ((LM_DEBUG,
+      ACE_DEBUG ((LM_INFO,
                   ACE_TEXT ("\"%s\" is a%s path\n"),
                   ACE_TEXT (filePath_in.c_str ()),
                   Common_File_Tools::isAbsolutePath (filePath_in) ? ACE_TEXT ("n absolute") : ACE_TEXT (" relative")));
@@ -244,7 +254,7 @@ do_work (enum Test_U_Common_File_ModeType mode_in,
       ACE_ASSERT (Common_File_Tools::canRead (filePath_in, static_cast<uid_t> (-1)));
 #endif // ACE_WIN32 || ACE_WIN64
 
-      unsigned char* data_p = NULL;
+      uint8_t* data_p = NULL;
       ACE_UINT64 file_size_i = 0, file_size_2 = 0;
       if (unlikely (!Common_File_Tools::load (filePath_in,
                                               data_p,
@@ -256,6 +266,7 @@ do_work (enum Test_U_Common_File_ModeType mode_in,
                     ACE_TEXT (filePath_in.c_str ())));
         return;
       } // end IF
+      delete [] data_p; data_p = NULL;
       file_size_2 = Common_File_Tools::size (filePath_in);
       if (unlikely (file_size_i != file_size_2))
       {
@@ -263,8 +274,11 @@ do_work (enum Test_U_Common_File_ModeType mode_in,
                     ACE_TEXT ("test failed: %Q != %Q, returning\n"),
                     file_size_i, file_size_2));
         ACE_ASSERT (false);
+        return;
       } // end IF
-
+      ACE_DEBUG ((LM_INFO,
+                  ACE_TEXT ("test succeeded (file size is/was: %Q)\n"),
+                  file_size_i));
       break;
     }
     case TEST_U_COMMON_FILE_MODE_WATCH:
@@ -307,8 +321,8 @@ do_work (enum Test_U_Common_File_ModeType mode_in,
           case WAIT_OBJECT_0:
           {
             // A file was created, renamed, or deleted in the directory.
-            // Refresh this directory and restart the notification.
-            ACE_DEBUG ((LM_DEBUG,
+            // Refresh this directory and restart the notification
+            ACE_DEBUG ((LM_INFO,
                         ACE_TEXT ("directory \"%s\" modified, continuing\n"),
                         ACE_TEXT (filePath_in.c_str ())));
 
@@ -324,9 +338,8 @@ do_work (enum Test_U_Common_File_ModeType mode_in,
           case WAIT_OBJECT_0 + 1:
           {
             // A directory was created, renamed, or deleted.
-            // Refresh the tree and restart the notification.
- 
-            ACE_DEBUG ((LM_DEBUG,
+            // Refresh the tree and restart the notification
+            ACE_DEBUG ((LM_INFO,
                         ACE_TEXT ("subtree \"%s\" modified, continuing\n"),
                         ACE_TEXT (filePath_in.c_str ())));
 
@@ -344,9 +357,8 @@ do_work (enum Test_U_Common_File_ModeType mode_in,
             // A timeout occurred, this would happen if some value other
             // than INFINITE is used in the Wait call and no changes occur.
             // In a single-threaded environment you might not want an
-            // INFINITE wait.
-
-            ACE_DEBUG ((LM_DEBUG,
+            // INFINITE wait
+            ACE_DEBUG ((LM_INFO,
                         ACE_TEXT ("no changes in the specified timeout, continuing\n")));
             break;
           }
@@ -494,18 +506,18 @@ ACE_TMAIN (int argc_in,
                             file_path_string,
                             trace_information_b))
   {
-    do_printUsage (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR));
+    do_printUsage (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)));
     return EXIT_FAILURE;
   } // end IF
   if (file_path_string.empty ())
   {
-    do_printUsage (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR));
+    do_printUsage (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)));
     return EXIT_FAILURE;
   } // end IF
 
   // step1d: initialize logging and/or tracing
   std::string log_file_name;
-  if (!Common_Log_Tools::initialize (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR), // program name
+  if (!Common_Log_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)), // program name
                                      log_file_name,              // log file name
                                      false,                      // log to syslog ?
                                      false,                      // trace messages ?
@@ -528,7 +540,7 @@ ACE_TMAIN (int argc_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("invalid arguments (was: \"%s\"), aborting\n"),
                 ACE_TEXT (Common_Process_Tools::toString (argc_in, argv_in).c_str ())));
-    do_printUsage (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR));
+    do_printUsage (ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR)));
     return EXIT_FAILURE;
   } // end IF
 
@@ -538,7 +550,6 @@ ACE_TMAIN (int argc_in,
            file_path_string);
   timer.stop ();
 
-  // debug info
   ACE_Time_Value working_time;
   timer.elapsed_time (working_time);
   ACE_DEBUG ((LM_DEBUG,

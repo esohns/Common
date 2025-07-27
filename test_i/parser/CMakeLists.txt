@@ -146,6 +146,15 @@ install (FILES share/test_3.m3u
 install (TARGETS ${EXECUTABLE_4}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+if (WIN32)
+ if (DEFINED ENV{LIB_ROOT})
+  file (TO_NATIVE_PATH $ENV{LIB_ROOT} LIB_ROOT)
+  string (REPLACE "\\" "\\\\" LIB_ROOT ${LIB_ROOT})
+ endif (DEFINED ENV{LIB_ROOT})
+ install (FILES ${LIB_ROOT}/libiconv/lib64/libiconv.dll
+                ${LIB_ROOT}/libxml2/build/msvc/Debug/libxml2d.dll
+          DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+endif (WIN32)
 install (FILES share/test_4.xml
          DESTINATION "${INSTALL_SHARE_DIR}/${EXECUTABLE}" COMPONENT data)
 

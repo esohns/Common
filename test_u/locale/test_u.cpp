@@ -33,15 +33,16 @@ main (int argc, char *argv[])
     return -1;
   }
 
+  ////////////////////////////////////////
+
   std::string test_string ("Ù");
   for (std::string::const_iterator iterator = test_string.begin ();
        iterator != test_string.end ();
        ++iterator)
   {
-    if (std::isalpha (*iterator, locale))
-      std::cout << "isalpha: " << ACE_TEXT_ALWAYS_CHAR ("true") << "\n";
-    else
-      std::cout << "isalpha: " << ACE_TEXT_ALWAYS_CHAR ("false") << "\n";
+    std::cout << "'" << *iterator << "'"
+              << " isalpha: " << (std::isalpha (*iterator, locale) ? ACE_TEXT_ALWAYS_CHAR ("true") : ACE_TEXT_ALWAYS_CHAR ("false"))
+              << std::endl;
   } // end FOR
 
   return 0;

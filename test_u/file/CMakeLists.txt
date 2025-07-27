@@ -76,8 +76,11 @@ install (TARGETS ${EXECUTABLE}
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_u)
 
 if (UNIX)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}" COMMAND)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}" FILE_PATH)
  create_target_launcher (${EXECUTABLE}
-                         ARGS "-t"
+                         COMMAND ${COMMAND}
+                         ARGS "-s ${FILE_PATH} -t"
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_u/${EXECUTABLE}
@@ -90,11 +93,11 @@ elseif (WIN32)
 # else ()
   file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
 # endif (VCPKG_USE)
- file (TO_NATIVE_PATH "${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" FILE_PATH)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" FILE_PATH)
  string (REPLACE "\\" "\\\\" FILE_PATH ${FILE_PATH})
  create_target_launcher (${EXECUTABLE}
                          COMMAND ${COMMAND}
-                         ARGS "-f ${FILE_PATH} -m 0 -t"
+                         ARGS "-s ${FILE_PATH} -t"
 #                        FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
                                               G:/software/Development/dll

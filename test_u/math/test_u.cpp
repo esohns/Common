@@ -62,15 +62,15 @@ do_printUsage (const std::string& programName_in)
             << std::endl << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("currently available options:")
             << std::endl;
-  std::cout << ACE_TEXT_ALWAYS_CHAR ("-l          : log to a file [")
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-l: log to a file [")
             << false
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
-  std::cout << ACE_TEXT_ALWAYS_CHAR ("-m          : program mode [")
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-m: program mode [")
             << TEST_U_MODE_DEFAULT
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
-  std::cout << ACE_TEXT_ALWAYS_CHAR ("-t          : trace information [")
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-t: trace information [")
             << false
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
@@ -165,22 +165,22 @@ do_work (enum Test_U_ModeType mode_in)
   {
     case TEST_U_MODE_DEFAULT:
     {
-//  std::vector<int> test_vector = {1, 2, 3, 4, 5}, result;
-//  std::vector<std::vector<int>> results;
-//  results.push_back (test_vector);
-//  do
-//  {
-//    result = Common_Math_Tools::permute (test_vector);
-//    if (result.empty())
-//      break;
-//    results.push_back (result);
-//  } while (true);
-//  print_vectors (results);
+      std::vector<int> test_vector_a = {1, 2, 3, 4, 5}, result;
+      std::vector<std::vector<int>> results;
+      results.push_back (test_vector_a);
+      do
+      {
+        result = Common_Math_Tools::permute (test_vector_a);
+        if (result.empty ())
+          break;
+        results.push_back (result);
+      } while (true);
+      print_vectors (results);
 
-      std::vector<int> test_vector = {1, 2, 3, 4, 5, 6};
-      std::vector<std::vector<int> > results;
-      std::vector<int> positions_a (test_vector.size (), 0);
-      Common_Math_Tools::combine (test_vector,
+      std::vector<int> test_vector_2 = {1, 2, 3, 4, 5, 6};
+      results.clear ();
+      std::vector<int> positions_a (test_vector_2.size (), 0);
+      Common_Math_Tools::combine (test_vector_2,
                                   positions_a,
                                   0,
                                   results);
