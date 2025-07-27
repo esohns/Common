@@ -76,7 +76,8 @@ class Common_ParserBase_T
   virtual void error (const std::string&); // message
 
   // implement (part of) Common_ILexScanner_T
-  inline virtual const struct Common_FlexScannerState& getR () const { return scannerState_; }
+  inline virtual const ConfigurationType& getR () const { ACE_ASSERT (configuration_); return *configuration_; }
+  inline virtual const struct Common_FlexScannerState& getR_2 () const { return scannerState_; }
   inline virtual const ExtraDataType* const getP_2 () const { return this; }
   inline virtual bool initialize (yyscan_t&, ExtraDataType*) { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
   inline virtual void finalize (yyscan_t&) { /*ACE_ASSERT (false);*/ ACE_NOTSUP; ACE_NOTREACHED (return;) }

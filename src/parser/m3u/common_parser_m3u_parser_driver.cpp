@@ -43,6 +43,20 @@ Common_Parser_M3U_ParserDriver::Common_Parser_M3U_ParserDriver ()
 //  inherited::parser_.set (this);
 }
 
+bool
+Common_Parser_M3U_ParserDriver::hasFinished () const
+{
+  if (inherited::finished_)
+    return true;
+
+  // sanity check(s)
+  ACE_ASSERT (inherited::configuration_);
+  ACE_ASSERT (inherited::fragment_);
+
+  return (!inherited::configuration_->messageQueue &&
+          inherited::scannerState_.offset >= inherited::fragment_->length ());
+}
+
 void
 Common_Parser_M3U_ParserDriver::record (struct M3U_Playlist*& record_inout)
 {
@@ -51,9 +65,9 @@ Common_Parser_M3U_ParserDriver::record (struct M3U_Playlist*& record_inout)
   // sanity check(s)
   ACE_ASSERT (record_inout);
 
-  ACE_DEBUG((LM_DEBUG,
-             ACE_TEXT("%s\n"),
-             ACE_TEXT (Common_Parser_M3U_Tools::PlaylistToString (*record_inout).c_str ())));
+  ACE_DEBUG ((LM_DEBUG,
+              ACE_TEXT ("%s\n"),
+              ACE_TEXT (Common_Parser_M3U_Tools::PlaylistToString (*record_inout).c_str ())));
 
   delete record_inout; record_inout = NULL;
   ACE_ASSERT (!record_inout);

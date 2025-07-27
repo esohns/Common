@@ -34,7 +34,9 @@ do_print_usage (const std::string& programName_in)
   std::cout.setf (std::ios::boolalpha);
 
   std::string path_root =
-    Common_File_Tools::getWorkingDirectory ();
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      false);
 
   std::cout << ACE_TEXT_ALWAYS_CHAR ("usage: ")
             << programName_in
@@ -78,7 +80,9 @@ do_process_arguments (int argc_in,
                       bool& traceInformation_out)
 {
   std::string path_root =
-    Common_File_Tools::getWorkingDirectory ();
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      false);
 
   // initialize results
   debugScanner_out = false;
@@ -176,7 +180,8 @@ do_work (int argc_in,
   ACE_Message_Block* message_block_p = NULL, * message_block_2 = NULL;
   struct Common_FlexBisonParserConfiguration configuration;
   Common_Parser_Bencoding_ParserDriver parser_driver;
-  std::string file_path_2 = ACE_TEXT_ALWAYS_CHAR (ACE::dirname (sourceFilePath_in.c_str (), '\\'));
+  std::string file_path_2 =
+    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT_ALWAYS_CHAR (sourceFilePath_in.c_str ()), ACE_DIRECTORY_SEPARATOR_CHAR));
   file_path_2 += ACE_DIRECTORY_SEPARATOR_STR;
   file_path_2 += ACE_TEXT ("test_2_2.txt");
 
@@ -249,6 +254,7 @@ do_work (int argc_in,
 clean:
   if (message_block_p)
   {
+    message_block_p->cont (NULL);
     message_block_p->release (); message_block_p = NULL;
   } // end IF
   if (data_p)
@@ -291,6 +297,7 @@ ACE_TMAIN (int argc_in,
 #else
   Common_Tools::initialize (false); // RNG ?
 #endif // ACE_WIN32 || ACE_WIN64
+  Common_File_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (argv_in[0]));
 
   ACE_High_Res_Timer timer;
   ACE_Time_Value working_time;
@@ -301,7 +308,10 @@ ACE_TMAIN (int argc_in,
   // step1a set defaults
   bool debug_scanner = false;
   bool debug_parser = false;
-  std::string path_root = Common_File_Tools::getWorkingDirectory ();
+  std::string path_root =
+    Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
+                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      false);
   std::string source_file_path = path_root;
   source_file_path += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   source_file_path += ACE_TEXT_ALWAYS_CHAR (TEST_I_SOURCE_FILE_NAME);

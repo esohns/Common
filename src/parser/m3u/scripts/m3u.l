@@ -56,7 +56,7 @@ extern YY_DECL;
 %option pointer
 %option stack
 
-%option nodefault
+/* %option nodefault */
 %option nomain
 %option nostdinit
 %option nounput

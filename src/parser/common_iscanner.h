@@ -55,11 +55,17 @@ class Common_IScannerBase
   virtual void error (const std::string&) = 0;
 };
 
+template <typename ConfigurationType>
+class Common_IScanner_T
+ : public Common_IScannerBase
+ , public Common_IGetR_T<ConfigurationType>
+{};
+
 template <typename StateType,     // implements struct Common_ScannerState
           typename ExtraDataType> // 'extra' data type
 class Common_ILexScanner_T
- : public Common_IScannerBase
- , public Common_IGetR_T<StateType>
+ : public Common_IScanner_T<struct Common_FlexBisonParserConfiguration>
+ , public Common_IGetR_2_T<StateType>
 //, public Common_IGetSetP_T<ExtraDataType>
 //, public Common_IGetP_2_T<ExtraDataType>
 {

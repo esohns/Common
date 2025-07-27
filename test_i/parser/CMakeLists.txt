@@ -131,26 +131,34 @@ target_precompile_headers (${EXECUTABLE_4}
 install (TARGETS ${EXECUTABLE}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+install (FILES share/test.txt
+         DESTINATION "${INSTALL_SHARE_DIR}/${EXECUTABLE}" COMPONENT data)
 install (TARGETS ${EXECUTABLE_2}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+install (FILES share/test_2.txt share/test_2_2.txt
+         DESTINATION "${INSTALL_SHARE_DIR}/${EXECUTABLE}" COMPONENT data)
 install (TARGETS ${EXECUTABLE_3}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+install (FILES share/test_3.m3u
+         DESTINATION "${INSTALL_SHARE_DIR}/${EXECUTABLE}" COMPONENT data)
 install (TARGETS ${EXECUTABLE_4}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+install (FILES share/test_4.xml
+         DESTINATION "${INSTALL_SHARE_DIR}/${EXECUTABLE}" COMPONENT data)
 
 ################ launchers ###############
+set (ARG_FILE_2 "share/test_2.txt")
 if (UNIX)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}" COMMAND)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE_2}" COMMAND_2)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE_3}" COMMAND_3)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE_4}" COMMAND_4)
 elseif (WIN32)
-# if (VCPKG_USE)
-#  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
-# else ()
+ file (TO_NATIVE_PATH "${ARG_FILE_2}" ARG_FILE_2)
+ string (REPLACE "\\" "\\\\" ARG_FILE_2 ${ARG_FILE_2})
  file (TO_CMAKE_PATH "${LIBICONV_LIB_DIR}" LIBICONV_LIB_PATH)
  file (TO_CMAKE_PATH "${LIBXML2_LIB_DIR}" LIBXML2_LIB_PATH)
  if (GTK_SUPPORT)
@@ -175,7 +183,7 @@ elseif (WIN32)
 endif ()
 create_target_launcher (${EXECUTABLE}
                         COMMAND ${COMMAND}
-                        ARGS "-d -e -f test.txt -l -t"
+                        ARGS "-f share/test.txt -l -t"
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
@@ -183,7 +191,7 @@ create_target_launcher (${EXECUTABLE}
                         ENVIRONMENT foo=bar)
 create_target_launcher (${EXECUTABLE_2}
                         COMMAND ${COMMAND_2}
-                        ARGS "-d -e -f test_2.txt -l -t"
+                        ARGS "-f ${ARG_FILE_2} -l -t"
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
@@ -191,7 +199,7 @@ create_target_launcher (${EXECUTABLE_2}
                         ENVIRONMENT foo=bar)
 create_target_launcher (${EXECUTABLE_3}
                         COMMAND ${COMMAND_3}
-                        ARGS "-d -e -f test_3.txt -l -t"
+                        ARGS "-f share/test_3.m3u -l -t"
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
@@ -199,7 +207,7 @@ create_target_launcher (${EXECUTABLE_3}
                         ENVIRONMENT foo=bar)
 create_target_launcher (${EXECUTABLE_4}
                         COMMAND ${COMMAND_4}
-                        ARGS "-f test_4.xml -l -t"
+                        ARGS "-f share/test_4.xml -l -t"
 #                         FORWARD_ARGS
                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}

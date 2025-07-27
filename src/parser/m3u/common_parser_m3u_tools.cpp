@@ -21,6 +21,8 @@
 
 #include "common_parser_m3u_tools.h"
 
+#include <sstream>
+
 #include "ace/Log_Msg.h"
 
 #include "common_macros.h"
@@ -31,6 +33,19 @@ Common_Parser_M3U_Tools::ElementToString (const struct M3U_ExtInf_Element& eleme
   COMMON_TRACE (ACE_TEXT ("Common_Parser_M3U_Tools::ElementToString"));
 
   std::string result;
+
+  result += element_in.Artist;
+  result += ACE_TEXT_ALWAYS_CHAR (" - ");
+  result += element_in.Album;
+  result += ACE_TEXT_ALWAYS_CHAR (" - ");
+  result += element_in.Title;
+  result += ACE_TEXT_ALWAYS_CHAR (" : ");
+  std::ostringstream converter;
+  converter << element_in.Length;
+  result += converter.str ();
+  result += ACE_TEXT_ALWAYS_CHAR (" --> ");
+  result += element_in.URL;
+  result += ACE_TEXT_ALWAYS_CHAR ("\n");
 
   return result;
 }
@@ -61,6 +76,11 @@ Common_Parser_M3U_Tools::PlaylistToString (const struct M3U_Playlist& playlist_i
   COMMON_TRACE (ACE_TEXT ("Common_Parser_M3U_Tools::PlaylistToString"));
 
   std::string result;
+
+  for (M3U_ExtInf_ElementsIterator_t iterator = playlist_in.ext_inf_elements.begin ();
+       iterator != playlist_in.ext_inf_elements.end ();
+       ++iterator)
+    result += Common_Parser_M3U_Tools::ElementToString (*iterator);
 
   return result;
 }
