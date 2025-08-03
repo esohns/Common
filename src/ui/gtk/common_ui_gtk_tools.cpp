@@ -34,6 +34,7 @@
 // #include "gdk/gdkwayland.h"
 #include "gdk/gdkdisplay.h"
 #include "gdk/gdkx.h"
+#include "gdk/gdkwayland.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (GTK2_USE)
@@ -509,7 +510,7 @@ Common_UI_GTK_Tools::getDisplayDevices ()
   return return_value;
 }
 
-#if defined(ACE_WIN32) || defined(ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 GdkWindow*
 Common_UI_GTK_Tools::get (unsigned long windowId_in)
@@ -534,8 +535,7 @@ Common_UI_GTK_Tools::get (unsigned long windowId_in)
     for (GSList* iterator = list_p; iterator; iterator = iterator->next)
     {
       display_p = (GdkDisplay*)iterator->data;
-      // if (GDK_IS_X11_DISPLAY (display_p))
-        displays_a.push_back (display_p);
+      displays_a.push_back (display_p);
     } // end FOR
     g_slist_free (list_p); list_p = NULL;
   // } // end ELSE
@@ -549,8 +549,26 @@ Common_UI_GTK_Tools::get (unsigned long windowId_in)
        iterator != displays_a.end ();
        ++iterator)
   {
-    result_p = gdk_x11_window_lookup_for_display (*iterator,
-                                                  windowId_in);
+    if (!GDK_IS_X11_DISPLAY (*iterator))
+      continue;
+
+    try {
+      result_p = gdk_x11_window_lookup_for_display (*iterator,
+                                                    windowId_in);
+    } catch (...) {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("caught exception in gdk_x11_window_lookup_for_display(), continuing\n")));
+    }
+    goto continue_;
+
+    if (!GDK_IS_WAYLAND_DISPLAY (*iterator))
+      continue;
+
+    // *TODO*: how to return a GdkWindow from a Wayland window id ?
+    // result_p = gdk_wayland_window_lookup_for_display (*iterator,
+    //                                                   windowId_in);
+
+continue_:
     if (result_p)
     {
       g_object_ref (result_p); // *NOTE*: consistent with code below (caller
@@ -564,6 +582,8 @@ Common_UI_GTK_Tools::get (unsigned long windowId_in)
   result_p =
     gdk_x11_window_foreign_new_for_display (*displays_a.begin (),
                                             windowId_in);
+  ACE_ASSERT (result_p);
+
   return result_p;
 }
 #endif // ACE_WIN32 || ACE_WIN64

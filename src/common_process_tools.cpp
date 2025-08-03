@@ -233,9 +233,11 @@ Common_Process_Tools::window (pid_t processId_in)
                 ACE_TEXT ("failed to XCloseDisplay() (result was: %d), continuing\n"),
                 result));
 
+  std::sort (result_a.begin (), result_a.end ());
+
   if (unlikely (result_a.empty ()))
     return 0;
-  return result_a[0];
+  return result_a.front (); // return oldest handle...
 }
 #endif // ACE_WIN32 || ACE_WIN64
 

@@ -155,7 +155,8 @@ void Test_U_wxWidgets_Application::OnInitCmdLine (wxCmdLineParser& parser)
   //parser.AddSwitch ("v", "version", "Shows the application version", 0);
   parser.Parse (true);
 
-  Common_File_Tools::initialize (ACE_TEXT_ALWAYS_CHAR (wxAppConsole::argv[0]));
+  std::string argv_0 = parser.GetParam (0).ToStdString ();
+  Common_File_Tools::initialize (argv_0);
 }
 
 bool Test_U_wxWidgets_Application::OnInit ()

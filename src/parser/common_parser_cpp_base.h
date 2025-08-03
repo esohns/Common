@@ -68,7 +68,7 @@ class Common_CppParserBase_T
 #if defined (_DEBUG)
   inline virtual bool debug () const { return scanner_.debug (); }
 #endif // _DEBUG
-  inline virtual bool isBlocking () const { return blockInParse_; }
+  inline virtual bool isBlocking () const { ACE_ASSERT (configuration_); return configuration_->block; }
   inline virtual void offset (unsigned int offset_in) { offset_ += offset_in; } // offset (increment)
   inline virtual unsigned int offset () const { return offset_; }
   virtual bool begin (const char*,   // buffer

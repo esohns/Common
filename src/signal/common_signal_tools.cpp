@@ -304,6 +304,20 @@ continue_:
                 ACE_TEXT ("%t: removed %d: \"%S\" from handled signals\n"),
                 SIGINT, SIGINT));
   } // end IF
+  if (signals_inout.is_member (SIGSTOP) > 0)
+  {
+    result = signals_inout.sig_del (SIGSTOP);
+    if (unlikely (result == -1))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%d: \"%S\"): \"%m\", aborting\n"),
+                  SIGSTOP, SIGSTOP));
+      return false;
+    } // end IF
+    ACE_DEBUG ((LM_WARNING,
+                ACE_TEXT ("%t: removed %d: \"%S\" from handled signals\n"),
+                SIGSTOP, SIGSTOP));
+  } // end IF
   if (signals_inout.is_member (SIGTRAP) > 0)
   {
     result = signals_inout.sig_del (SIGTRAP);
@@ -508,11 +522,11 @@ Common_Signal_Tools::initialize (enum Common_SignalDispatchType dispatch_in,
         if (signals_in.is_member (i) > 0)
         {
           result =
-              Common_Signal_Tools::signalHandler_.register_handler (i,
-                                                                    eventHandler_in,
-                                                                    &signal_action,
-                                                                    &event_handler_p,
-                                                                    &previous_action);
+            Common_Signal_Tools::signalHandler_.register_handler (i,
+                                                                  eventHandler_in,
+                                                                  &signal_action,
+                                                                  &event_handler_p,
+                                                                  &previous_action);
           if (unlikely (result == -1))
           {
             ACE_DEBUG ((LM_ERROR,

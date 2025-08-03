@@ -77,9 +77,9 @@ test_i_opengl_glut_draw ()
   cb_data_p->texture.bind (); // texture unit
 
   static float angle_f = 0.0f; // *NOTE*: degrees
+#if defined (GLM_SUPPORT)
   static glm::vec3 rotation_s (0.0f, 0.0f, 1.0f);
 
-#if defined (GLM_SUPPORT)
   glm::mat4 model_matrix = glm::mat4 (1.0f); // make sure to initialize matrix to identity matrix first
   model_matrix = glm::translate (model_matrix,
                                  glm::vec3 (0.0f, 0.0f, -3.0f));

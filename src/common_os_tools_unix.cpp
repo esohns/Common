@@ -1093,7 +1093,7 @@ Common_OS_Tools::isInstalled (const std::string& executableName_in,
   } // end SWITCH
 
   command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_LOCATE);
-  command_line_string += ACE_TEXT_ALWAYS_CHAR (" -b '\\");
+  command_line_string += ACE_TEXT_ALWAYS_CHAR (" -b '");
   command_line_string +=
       ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT (executableName_in.c_str ()),
                                            ACE_DIRECTORY_SEPARATOR_CHAR));
@@ -1118,20 +1118,25 @@ Common_OS_Tools::isInstalled (const std::string& executableName_in,
   std::istringstream converter;
   converter.str (command_output_string);
   char buffer_a [BUFSIZ];
+  std::vector<std::string> results_a;
   do
   {
     converter.getline (buffer_a, sizeof (char[BUFSIZ]));
     if (converter.eof ())
       break; // done
-    if (executablePath_out.empty ())
-      executablePath_out = buffer_a;
-#if defined (_DEBUG)
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("found executable (was: \"%s\"): \"%s\"\n"),
-                ACE_TEXT (executableName_in.c_str ()),
-                ACE_TEXT (buffer_a)));
-#endif // _DEBUG
+    results_a.push_back (buffer_a);
+    // ACE_DEBUG ((LM_DEBUG,
+    //             ACE_TEXT ("found executable (was: \"%s\"): \"%s\"\n"),
+    //             ACE_TEXT (executableName_in.c_str ()),
+    //             ACE_TEXT (buffer_a)));
   } while (true);
+
+  // *TODO*: how to best distinguish between different executables ?
+  std::sort (results_a.begin (), results_a.end (),
+             [](std::string& s1, std::string& s2) { return s1.length () < s2.length (); });
+
+  if (!results_a.empty ())
+    executablePath_out = results_a.front ();
 
   result = !executablePath_out.empty ();
 #else
