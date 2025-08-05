@@ -24,6 +24,7 @@
 #include <limits>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #if GTK_CHECK_VERSION (2,3,0)
 #include "glib-object.h"
@@ -31,8 +32,10 @@
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-#include "gdk/gdkdisplay.h"
-//#include "gdk/gdkwayland.h"
+#include "gdk/gdk.h"
+#if defined (GTK3_USE)
+#include "gdk/gdkwayland.h"
+#endif // GTK3_USE
 #include "gdk/gdkx.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
@@ -535,18 +538,24 @@ Common_UI_GTK_Tools::get (unsigned long windowId_in)
        ++iterator)
   {
     if (!GDK_IS_X11_DISPLAY (*iterator))
-      continue;
+      goto wayland;
 
     result_p = gdk_x11_window_lookup_for_display (*iterator,
                                                   windowId_in);
+
     goto continue_;
 
-    //if (!GDK_IS_WAYLAND_DISPLAY (*iterator))
-    //  continue;
+wayland:
+#if defined (GTK3_USE)
+    if (!GDK_IS_WAYLAND_DISPLAY (*iterator))
+      goto continue_;
 
     // *TODO*: how to return a GdkWindow from a Wayland window id ?
     // result_p = gdk_wayland_window_lookup_for_display (*iterator,
     //                                                   windowId_in);
+#endif // GTK3_USE
+
+    goto continue_;
 
 continue_:
     if (result_p)
@@ -556,13 +565,6 @@ continue_:
       return result_p;
     } // end IF
   } // end FOR
-
-  //if (displays_a.empty ())
-  //  return NULL;
-  //result_p =
-  //  gdk_x11_window_foreign_new_for_display (*displays_a.begin (),
-  //                                          windowId_in);
-  //ACE_ASSERT (result_p);
 
   return result_p;
 }
