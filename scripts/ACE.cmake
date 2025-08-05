@@ -17,7 +17,7 @@ elseif (WIN32)
              DOC "searching for ACE.h"
              NO_DEFAULT_PATH)
   find_library (ACE_LIBRARY ${ACE_LIB_FILE}
-                PATHS ${VCPKG_DEBUG_LIB_DIR} ${VCPKG_RELEASE_LIB_DIR}
+                PATHS ${VCPKG_LIB_DIR}
                 DOC "searching for ${ACE_LIB_FILE}"
                 REQUIRED
                 NO_DEFAULT_PATH)
