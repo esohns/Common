@@ -31,10 +31,9 @@
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-// #include "gdk/gdkwayland.h"
 #include "gdk/gdkdisplay.h"
+//#include "gdk/gdkwayland.h"
 #include "gdk/gdkx.h"
-#include "gdk/gdkwayland.h"
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (GTK2_USE)
@@ -520,30 +519,16 @@ Common_UI_GTK_Tools::get (unsigned long windowId_in)
   GdkWindow* result_p = NULL;
 
   std::vector<GdkDisplay*> displays_a;
+
   GdkDisplayManager* display_manager_p = gdk_display_manager_get ();
   ACE_ASSERT (display_manager_p);
-  GdkDisplay* display_p = NULL;
-  // display_p = gdk_display_manager_get_default_display (display_manager_p);
-  // if (!display_p)
-  //  display_p = gdk_display_get_default ();
-  // if (display_p)
-  //   displays_a.push_back (display_p);
-  // else
-  // {
-    GSList* list_p =
-     gdk_display_manager_list_displays (display_manager_p);
-    for (GSList* iterator = list_p; iterator; iterator = iterator->next)
-    {
-      display_p = (GdkDisplay*)iterator->data;
-      displays_a.push_back (display_p);
-    } // end FOR
-    g_slist_free (list_p); list_p = NULL;
-  // } // end ELSE
-  // Display* display_2 = XOpenDisplay (NULL);
-  // ACE_ASSERT (display_2);
-  // display_p = gdk_x11_lookup_xdisplay (display_2);
-  // ACE_ASSERT (display_p);
-  // XCloseDisplay (display_2); display_2 = NULL;
+
+  GSList* list_p =
+    gdk_display_manager_list_displays (display_manager_p);
+  ACE_ASSERT (list_p);
+  for (GSList* iterator = list_p; iterator; iterator = iterator->next)
+    displays_a.push_back ((GdkDisplay*)iterator->data);
+  g_slist_free (list_p); list_p = NULL;
 
   for (std::vector<GdkDisplay*>::iterator iterator = displays_a.begin ();
        iterator != displays_a.end ();
@@ -552,17 +537,12 @@ Common_UI_GTK_Tools::get (unsigned long windowId_in)
     if (!GDK_IS_X11_DISPLAY (*iterator))
       continue;
 
-    try {
-      result_p = gdk_x11_window_lookup_for_display (*iterator,
-                                                    windowId_in);
-    } catch (...) {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("caught exception in gdk_x11_window_lookup_for_display(), continuing\n")));
-    }
+    result_p = gdk_x11_window_lookup_for_display (*iterator,
+                                                  windowId_in);
     goto continue_;
 
-    if (!GDK_IS_WAYLAND_DISPLAY (*iterator))
-      continue;
+    //if (!GDK_IS_WAYLAND_DISPLAY (*iterator))
+    //  continue;
 
     // *TODO*: how to return a GdkWindow from a Wayland window id ?
     // result_p = gdk_wayland_window_lookup_for_display (*iterator,
@@ -577,12 +557,12 @@ continue_:
     } // end IF
   } // end FOR
 
-  if (displays_a.empty ())
-    return NULL;
-  result_p =
-    gdk_x11_window_foreign_new_for_display (*displays_a.begin (),
-                                            windowId_in);
-  ACE_ASSERT (result_p);
+  //if (displays_a.empty ())
+  //  return NULL;
+  //result_p =
+  //  gdk_x11_window_foreign_new_for_display (*displays_a.begin (),
+  //                                          windowId_in);
+  //ACE_ASSERT (result_p);
 
   return result_p;
 }
@@ -595,9 +575,9 @@ GdkPixbuf* Common_UI_GTK_Tools::get (GdkSurface* surface_in)
 
   GdkPixbuf* pixel_buffer_p = NULL;
 
-  gint width, height;
-  width = gdk_surface_get_width (surface_in);
-  height = gdk_surface_get_height (surface_in);
+  //gint width, height;
+  //width = gdk_surface_get_width (surface_in);
+  //height = gdk_surface_get_height (surface_in);
   ACE_ASSERT (false); // *TODO*
   // pixel_buffer_p = gdk_pixbuf_get_from_surface (surface_in,
   //                                               0, 0,
