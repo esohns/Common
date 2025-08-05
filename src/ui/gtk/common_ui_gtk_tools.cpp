@@ -537,8 +537,10 @@ Common_UI_GTK_Tools::get (unsigned long windowId_in)
        iterator != displays_a.end ();
        ++iterator)
   {
+#if defined (GTK3_USE)
     if (!GDK_IS_X11_DISPLAY (*iterator))
       goto wayland;
+#endif // GTK3_USE
 
     result_p = gdk_x11_window_lookup_for_display (*iterator,
                                                   windowId_in);
