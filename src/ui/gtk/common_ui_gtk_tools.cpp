@@ -547,8 +547,8 @@ Common_UI_GTK_Tools::get (unsigned long windowId_in)
 
     goto continue_;
 
-wayland:
 #if defined (GTK3_USE)
+wayland:
     if (!GDK_IS_WAYLAND_DISPLAY (*iterator))
       goto continue_;
 
