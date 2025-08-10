@@ -33,6 +33,7 @@
 
 #include "common_defines.h"
 #include "common_file_tools.h"
+#include "common_process_tools.h"
 
 #include "common_log_tools.h"
 
@@ -90,6 +91,7 @@ class Test_U_Task
   virtual void handle (ACE_Message_Block*& message_inout)
   {
     // sanity check(s)
+    ACE_ASSERT (!inherited::threadIds_.empty ());
     ACE_ASSERT (message_inout);
 
     // *TODO*: do some meaningful work here
@@ -103,7 +105,7 @@ class Test_U_Task
 
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("(%s):[%t]: work done, shutting down...\n"),
-                ACE_TEXT (inherited::threadName_.c_str ())));
+                ACE_TEXT (Common_Process_Tools::name (inherited::threadIds_[0]).c_str ())));
     inherited::finished ();
   }
 
@@ -136,6 +138,7 @@ class Test_U_Task_2
   virtual void handle (ACE_Message_Block*& message_inout)
   {
     // sanity check(s)
+    ACE_ASSERT (!inherited::threadIds_.empty ());
     ACE_ASSERT (message_inout);
 
     // *TODO*: do some meaningful work here
@@ -149,7 +152,7 @@ class Test_U_Task_2
 
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("(%s):[%t]: work done, shutting down...\n"),
-                ACE_TEXT (inherited::threadName_.c_str ())));
+                ACE_TEXT (Common_Process_Tools::name (inherited::threadIds_[0]).c_str ())));
     inherited::finished ();
   }
 
@@ -192,6 +195,7 @@ class Test_U_Task_3
   virtual void handle (ACE_Message_Block*& message_inout)
   {
     // sanity check(s)
+    ACE_ASSERT (!inherited::threadIds_.empty ());
     ACE_ASSERT (message_inout);
 
     // *TODO*: do some meaningful work here
@@ -205,7 +209,7 @@ class Test_U_Task_3
 
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("(%s):[%t]: work done, shutting down...\n"),
-                ACE_TEXT (inherited::threadName_.c_str ())));
+                ACE_TEXT (Common_Process_Tools::name (inherited::threadIds_[0]).c_str ())));
     finished ();
   }
 

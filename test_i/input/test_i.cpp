@@ -273,8 +273,11 @@ error:
 
   // step5: finalize timer ?
   if (simulateKeyPresses_in)
+  {
     Common_Timer_Tools::finalize ();
-    
+    Common_Tools::finalize ();
+  } // end IF
+
   // step6: finalize signal handling
   Common_Signal_Tools::finalize (COMMON_SIGNAL_DISPATCH_SIGNAL,
                                  previous_signal_actions_a,

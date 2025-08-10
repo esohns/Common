@@ -35,6 +35,7 @@ struct _XDisplay;
 
 #include "ace/ace_wchar.h"
 #include "ace/Global_Macros.h"
+#include "ace/OS_NS_Thread.h"
 
 class Common_Process_Tools
 {
@@ -67,6 +68,10 @@ class Common_Process_Tools
   static pid_t id (const std::string&); // executable (base-)name
   // *NOTE*: the Windows implementation relies on the 'taskkill.exe' command
   static bool kill (pid_t);
+
+  // *NOTE*: (on Win32) names set with RaiseException (0x406D1388,...) cannot be
+  //         retrieved with GetThreadDescription(), so this may fail
+  static std::string name (const ACE_Thread_ID&); // thread id
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else

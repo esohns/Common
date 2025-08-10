@@ -109,6 +109,7 @@ class Common_TaskBase_T
   // *NOTE*: this is the 'configured' (not the 'current') thread count
   //         --> see ACE_Task::thr_count_ for that
   unsigned int         threadCount_;
+  // *NOTE*: this is the 'configured' (may not be the 'current') thread name
   std::string          threadName_;
   THREAD_IDS_T         threadIds_;
 

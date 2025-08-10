@@ -170,7 +170,7 @@ Common_Process_Tools::command (const std::string& commandLine_in,
     stdOut_out.assign (reinterpret_cast<char* >(data_p), file_size_i);
 
     // clean up
-    delete [] data_p;
+    delete [] data_p; data_p = NULL;
   } // end IF
 
   return true;
@@ -639,7 +639,7 @@ clean:
 }
 #endif // ACE_WIN32 || ACE_WIN64
 
-#if defined(ACE_WIN32) || defined(ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 pid_t
 Common_Process_Tools::id (struct _XDisplay& display_in,
@@ -734,3 +734,30 @@ Common_Process_Tools::recurseSearchWindow (struct _XDisplay& display_in,
     XFree (wChild);
 }
 #endif // ACE_WIN32 || ACE_WIN64
+
+std::string
+Common_Process_Tools::name (const ACE_Thread_ID& id_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Process_Tools::name"));
+
+  // initialize return value(s)
+  std::string result;
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  WCHAR* buffer_p = NULL;
+  HRESULT result_2 = ::GetThreadDescription (id_in.handle (),
+                                             &buffer_p);
+  ACE_ASSERT (SUCCEEDED (result_2) && buffer_p);
+  result = ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (buffer_p));
+  LocalFree (buffer_p); buffer_p = NULL;
+#else
+  char buffer_a[COMMON_THREAD_PTHREAD_NAME_MAX_LENGTH];
+  ACE_OS::memset (buffer_a, 0, sizeof (char[COMMON_THREAD_PTHREAD_NAME_MAX_LENGTH]));
+  int result_2 = ::pthread_getname_np (id_in.id (),
+                                       buffer_a, sizeof (char[COMMON_THREAD_PTHREAD_NAME_MAX_LENGTH]));
+  ACE_ASSERT (result_2 == 0);
+  result = buffer_a;
+#endif // ACE_WIN32 || ACE_WIN64
+
+  return result;
+}

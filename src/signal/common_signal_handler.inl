@@ -77,7 +77,7 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
       signals_.push_back (signal_s);
 //      } // end lock scope
 
-      ACE_Proactor* proactor_p = ACE_Proactor::instance ();
+      ACE_Proactor* proactor_p = inherited::proactor ();
       ACE_ASSERT (proactor_p);
       result =
           proactor_p->schedule_timer (*this,                 // event handler
@@ -120,7 +120,7 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
 //      ACE_DEBUG ((LM_DEBUG,
 //                  ACE_TEXT ("%D: received [%u/\"%S\"]: %s\n"),
 //                  signal_in, signal_in,
-//                  ACE_TEXT (Common_Tools::signalToString (signal_s).c_str ())));
+//                  ACE_TEXT (Common_Signal_Tools::signalToString (signal_s).c_str ())));
 
       ACE_ASSERT (callback_);
       try {
@@ -139,7 +139,7 @@ Common_SignalHandler_T<ConfigurationType>::handle_signal (int signal_in,
       // *PORTABILITY*: tracing in a signal handler context is not portable
       //      ACE_DEBUG ((LM_ERROR,
       //                  ACE_TEXT ("invalid/unknown signal dispatch mode (was: %d), aborting\n"),
-      //                  dispatchMode_));
+      //                  configuration_->mode));
       result = -1;
 
       break;
@@ -201,15 +201,16 @@ Common_SignalHandler_T<ConfigurationType>::handle_exception (ACE_HANDLE handle_i
   Common_ISignal* callback_p = (callback_ ? callback_ : this);
   struct Common_Signal signal_s;
 
+  // *NOTE*: in reactor|proactor context; grabbing a lock should be portable
   { ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, aGuard, lock_, -1);
     ACE_ASSERT (!signals_.empty ());
     signal_s = signals_.front ();
     signals_.erase (signals_.begin ());
   } // end lock scope
-  ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("%D: received [%u/\"%S\"]: %s\n"),
-              signal_s.signal, signal_s.signal,
-              ACE_TEXT (Common_Signal_Tools::signalToString (signal_s).c_str ())));
+  //ACE_DEBUG ((LM_DEBUG,
+  //            ACE_TEXT ("%D: received [%u/\"%S\"]: %s\n"),
+  //            signal_s.signal, signal_s.signal,
+  //            ACE_TEXT (Common_Signal_Tools::signalToString (signal_s).c_str ())));
 
   try {
     callback_p->handle (signal_s);

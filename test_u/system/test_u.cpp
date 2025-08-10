@@ -52,6 +52,8 @@ enum Test_U_ModeType
   TEST_U_MODE_INVALID
 };
 
+#define TEST_U_DEFAULT_COMMAND "sox -h"
+
 void
 do_printUsage (const std::string& programName_in)
 {
@@ -65,6 +67,10 @@ do_printUsage (const std::string& programName_in)
             << ACE_TEXT_ALWAYS_CHAR (" [OPTIONS]")
             << std::endl << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("currently available options:")
+            << std::endl;
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-c          : command [")
+            << ACE_TEXT_ALWAYS_CHAR (TEST_U_DEFAULT_COMMAND)
+            << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-l          : log to a file [")
             << false
@@ -80,6 +86,7 @@ bool
 do_processArguments (int argc_in,
                      ACE_TCHAR* argv_in[], // cannot be const...
                      enum Test_U_ModeType& mode_out,
+                     std::string& command_out,
                      bool& logToFile_out,
                      bool& traceInformation_out)
 {
@@ -87,12 +94,13 @@ do_processArguments (int argc_in,
 
   // initialize results
   mode_out = TEST_U_MODE_DEFAULT;
+  command_out = ACE_TEXT_ALWAYS_CHAR (TEST_U_DEFAULT_COMMAND);
   logToFile_out = false;
   traceInformation_out = false;
 
   ACE_Get_Opt argument_parser (argc_in,
                                argv_in,
-                               ACE_TEXT ("lt"),
+                               ACE_TEXT ("c:lt"),
                                1,                         // skip command name
                                1,                         // report parsing errors
                                ACE_Get_Opt::PERMUTE_ARGS, // ordering
@@ -103,6 +111,11 @@ do_processArguments (int argc_in,
   {
     switch (option_i)
     {
+      case 'c':
+      {
+        command_out = ACE_TEXT_ALWAYS_CHAR (argument_parser.opt_arg ());
+        break;
+      }
       case 'l':
       {
         logToFile_out = true;
@@ -150,7 +163,8 @@ do_processArguments (int argc_in,
 void
 do_work (int argc_in,
          ACE_TCHAR* argv_in[],
-         enum Test_U_ModeType mode_in)
+         enum Test_U_ModeType mode_in,
+         const std::string& command_in)
 {
   COMMON_TRACE (ACE_TEXT ("::do_work"));
 
@@ -158,7 +172,7 @@ do_work (int argc_in,
   {
     case TEST_U_MODE_DEFAULT:
     {
-      std::string commandline_string = ACE_TEXT_ALWAYS_CHAR ("sox -h");
+      std::string commandline_string = command_in;
       int exit_status = 0;
       std::string output_string;
       if (!Common_Process_Tools::command (commandline_string,
@@ -167,10 +181,16 @@ do_work (int argc_in,
                                           true)) // return stdout
       {
         ACE_DEBUG ((LM_ERROR,
-                   ACE_TEXT ("failed to Common_Process_Tools::command(\"%s\"), returning\n"),
-                   ACE_TEXT (commandline_string.c_str ())));
+                   ACE_TEXT ("failed to Common_Process_Tools::command(\"%s\"): %d, returning\n"),
+                   ACE_TEXT (commandline_string.c_str ()),
+                   exit_status));
         return;
       } // end IF
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("\"%s\" returned %d: \"%s\"\n"),
+                  ACE_TEXT (commandline_string.c_str ()),
+                  exit_status,
+                  ACE_TEXT (output_string.c_str ())));
 
       break;
     }
@@ -214,6 +234,8 @@ ACE_TMAIN (int argc_in,
   process_profile.start ();
 
   enum Test_U_ModeType mode_type_e = TEST_U_MODE_DEFAULT;
+  std::string command_line_string =
+    ACE_TEXT_ALWAYS_CHAR (TEST_U_DEFAULT_COMMAND);
   bool trace_information_b = false;
   bool log_to_file = false;
   std::string log_file_name;
@@ -223,6 +245,7 @@ ACE_TMAIN (int argc_in,
   if (!do_processArguments (argc_in,
                             argv_in,
                             mode_type_e,
+                            command_line_string,
                             log_to_file,
                             trace_information_b))
   {
@@ -250,10 +273,10 @@ ACE_TMAIN (int argc_in,
   timer.start ();
   do_work (argc_in,
            argv_in,
-           mode_type_e);
+           mode_type_e,
+           command_line_string);
   timer.stop ();
 
-  // debug info
   timer.elapsed_time (working_time);
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("total working time (h:m:s.us): \"%s\"...\n"),

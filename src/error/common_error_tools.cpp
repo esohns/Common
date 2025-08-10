@@ -307,7 +307,7 @@ clean:
 }
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#if COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00) // _WIN32_WINNT_WIN10
+#if COMMON_OS_WIN32_TARGET_PLATFORM (0x0A00) // _WIN32_WINNT_WIN10
 void
 Common_Error_Tools::setThreadName (const std::string& name_in,
                                    HANDLE threadHandle_in)
@@ -353,7 +353,7 @@ Common_Error_Tools::setThreadName (const std::string& name_in,
 #pragma pack (pop)
   THREADNAME_INFO info_s;
   info_s.dwType = 0x1000;
-  info_s.szName = ACE_TEXT_ALWAYS_CHAR (name_in.c_str ());
+  info_s.szName = name_in.c_str ();
   info_s.dwThreadID = (threadId_in ? threadId_in : -1);
   info_s.dwFlags = 0;
 #pragma warning (push)
@@ -366,7 +366,9 @@ Common_Error_Tools::setThreadName (const std::string& name_in,
   } __except (EXCEPTION_EXECUTE_HANDLER) {}
 #pragma warning (pop)
 }
-#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0A00)
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM (0x0A00)
+#else
+void
 #endif // ACE_WIN32 || ACE_WIN64
 
 bool

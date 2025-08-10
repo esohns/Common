@@ -63,18 +63,51 @@ class Test_U_SignalHandler
   virtual void handle (const struct Common_Signal& signal_in)
   {
     ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("received signal: [%d] \"%S\"\n"),
-                signal_in.signal, signal_in.signal));
+                ACE_TEXT ("%D: received [%u/\"%S\"]: %s\n"),
+                signal_in.signal, signal_in.signal,
+                ACE_TEXT (Common_Signal_Tools::signalToString (signal_in).c_str ())));
 
-    if (signal_in.signal == SIGINT)
+    int result = -1;
+    switch (signal_in.signal)
     {
-      int result = -1;
-      { ACE_GUARD (ACE_Thread_Mutex, aGuard, inherited::configuration_->condition->mutex ());
-        result = inherited::configuration_->condition->broadcast ();
-      } // end lock scope
-      ACE_ASSERT (result == 0);
-      ACE_UNUSED_ARG (result);
-    } // end IF
+      case SIGINT:
+      case SIGBREAK:
+      { ACE_ASSERT (inherited::configuration_);
+        switch (inherited::configuration_->mode)
+        {
+          case COMMON_SIGNAL_DISPATCH_SIGNAL:
+          { ACE_ASSERT (inherited::configuration_->condition);
+            { ACE_GUARD (ACE_Thread_Mutex, aGuard, inherited::configuration_->condition->mutex ());
+              result = inherited::configuration_->condition->broadcast ();
+            } // end lock scope
+            ACE_ASSERT (result == 0);
+            ACE_UNUSED_ARG (result);
+
+            break;
+          }
+          case COMMON_SIGNAL_DISPATCH_PROACTOR:
+          {
+            result = ACE_Proactor::end_event_loop ();
+            ACE_ASSERT (result == 0);
+            ACE_UNUSED_ARG (result);
+            break;
+          }
+          case COMMON_SIGNAL_DISPATCH_REACTOR:
+          {
+            result = ACE_Reactor::end_event_loop ();
+            ACE_ASSERT (result == 0);
+            ACE_UNUSED_ARG (result);
+            break;
+          }
+          default:
+            break;
+        } // end SWITCH
+
+        break;
+      }
+      default:
+        break;
+    } // end SWITCH
   }
 
  private:
@@ -88,7 +121,8 @@ enum Test_U_Common_Signal_ModeType
 {
   TEST_U_COMMON_SIGNAL_MODE_DEFAULT = 0,
   TEST_U_COMMON_SIGNAL_MODE_IGNORE_SIGINT,
-  TEST_U_COMMON_SIGNAL_MODE_HANDLE_RT,
+  TEST_U_COMMON_SIGNAL_MODE_HANDLE_RT, // --> proactor dispatch
+  TEST_U_COMMON_SIGNAL_MODE_REACTOR, // reactor dispatch
   ////////////////////////////////////////
   TEST_U_COMMON_SIGNAL_MODE_MAX,
   TEST_U_COMMON_SIGNAL_MODE_INVALID
@@ -247,10 +281,12 @@ do_work (enum Test_U_Common_Signal_ModeType mode_in,
   ACE_Sig_Set previous_signal_mask (false); // fill ?
   Common_SignalActions_t previous_signal_actions;
 
+  int result = -1; 
   ACE_Thread_Mutex lock;
   ACE_Thread_Condition<ACE_Thread_Mutex> condition (lock, NULL, NULL);
   struct Test_U_SignalHandlerConfiguration configuration;
   configuration.condition = &condition;
+  configuration.mode = COMMON_SIGNAL_DISPATCH_SIGNAL;
   // *IMPORTANT NOTE*: on UNIX systems, this invokes the Proactor ctor, which
   //                   blocks RT signals (the default proactor on UNIX is
   //                   ACE_POSIX_SIG_Proactor)
@@ -289,6 +325,14 @@ do_work (enum Test_U_Common_Signal_ModeType mode_in,
         goto error;
       } // end IF
 
+      // *NOTE*: wait for Ctrl-C|Ctrl-Break (see above)
+      { ACE_GUARD (ACE_Thread_Mutex, aGuard, lock);
+        result = configuration.condition->wait (NULL);
+        if (unlikely (result == -1))
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to ACE_Thread_Condition::wait(): \"%m\", continuing\n")));
+      } // end lock scope
+
       break;
     }
     case TEST_U_COMMON_SIGNAL_MODE_IGNORE_SIGINT:
@@ -317,10 +361,20 @@ do_work (enum Test_U_Common_Signal_ModeType mode_in,
         goto error;
       } // end IF
 
+      // *NOTE*: wait for Ctrl-C|Ctrl-Break (see above)
+      { ACE_GUARD (ACE_Thread_Mutex, aGuard, lock);
+        result = configuration.condition->wait (NULL);
+        if (unlikely (result == -1))
+          ACE_DEBUG ((LM_ERROR,
+                      ACE_TEXT ("failed to ACE_Thread_Condition::wait(): \"%m\", continuing\n")));
+      } // end lock scope
+
       break;
     }
     case TEST_U_COMMON_SIGNAL_MODE_HANDLE_RT:
     {
+      configuration.mode = COMMON_SIGNAL_DISPATCH_PROACTOR;
+
       // *IMPORTANT NOTE*: on UNIX systems, unblock RT signals (see above)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
@@ -329,7 +383,7 @@ do_work (enum Test_U_Common_Signal_ModeType mode_in,
 #endif // ACE_WIN32 || ACE_WIN64
 
       if (!Common_Signal_Tools::preInitialize (signals_in,
-                                               COMMON_SIGNAL_DISPATCH_SIGNAL,
+                                               COMMON_SIGNAL_DISPATCH_PROACTOR,
                                                true,  // using networking ?
                                                false, // using asynch timers ?
                                                previous_signal_actions,
@@ -340,7 +394,7 @@ do_work (enum Test_U_Common_Signal_ModeType mode_in,
         return;
       } // end IF
 
-      if (!Common_Signal_Tools::initialize (COMMON_SIGNAL_DISPATCH_SIGNAL,
+      if (!Common_Signal_Tools::initialize (COMMON_SIGNAL_DISPATCH_PROACTOR,
                                             signals_in,
                                             ignoredSignals_in,
                                             &signal_handler,
@@ -351,6 +405,45 @@ do_work (enum Test_U_Common_Signal_ModeType mode_in,
         goto error;
       } // end IF
 
+      result = ACE_Proactor::run_event_loop ();
+      if (unlikely (result == -1))
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_Proactor::run_event_loop(): \"%m\", continuing\n")));
+
+      break;
+    }
+    case TEST_U_COMMON_SIGNAL_MODE_REACTOR:
+    {
+      configuration.mode = COMMON_SIGNAL_DISPATCH_REACTOR;
+
+      if (!Common_Signal_Tools::preInitialize (signals_in,
+                                               COMMON_SIGNAL_DISPATCH_REACTOR,
+                                               false, // using networking ?
+                                               false, // using asynch timers ?
+                                               previous_signal_actions,
+                                               previous_signal_mask))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to Common_Signal_Tools::preInitialize(), returning\n")));
+        return;
+      } // end IF
+
+      if (!Common_Signal_Tools::initialize (COMMON_SIGNAL_DISPATCH_REACTOR,
+                                            signals_in,
+                                            ignoredSignals_in,
+                                            &signal_handler,
+                                            previous_signal_actions))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to Common_Signal_Tools::initialize(), returning\n")));
+        goto error;
+      } // end IF
+
+      result = ACE_Reactor::run_event_loop ();
+      if (unlikely (result == -1))
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to ACE_Reactor::run_event_loop(): \"%m\", continuing\n")));
+
       break;
     }
     default:
@@ -358,16 +451,9 @@ do_work (enum Test_U_Common_Signal_ModeType mode_in,
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("invalid/unknown mode (was: %d), returning\n"),
                   mode_in));
-      break;
+      return;
     }
   } // end SWITCH
-
-  { ACE_GUARD (ACE_Thread_Mutex, aGuard, lock);
-    int result = configuration.condition->wait (NULL);
-    if (result == -1)
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Thread_Condition::wait(): \"%m\", continuing\n")));
-  } // end lock scope
 
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("finished working\n")));
@@ -390,7 +476,7 @@ ACE_TMAIN (int argc_in,
   // *PORTABILITY*: on Windows, initialize ACE
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   int result_2 = ACE::init ();
-  if (result_2 == -1)
+  if (unlikely (result_2 == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE::init(): \"%m\", aborting\n")));
@@ -439,7 +525,6 @@ ACE_TMAIN (int argc_in,
            ignored_signals);
   timer.stop ();
 
-  // debug info
   timer.elapsed_time (working_time);
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("total working time (h:m:s.us): \"%s\"...\n"),
@@ -452,7 +537,7 @@ error:
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   result_2 = ACE::fini ();
-  if (result_2 == -1)
+  if (unlikely (result_2 == -1))
   {
     ACE_DEBUG ((LM_ERROR,
                ACE_TEXT ("failed to ACE::fini(): \"%m\", aborting\n")));

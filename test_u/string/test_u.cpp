@@ -271,7 +271,7 @@ continue_3:
         } // end FOR
         // algorithm END
 
-        // print result
+        // print result(s)
         converter.str (ACE_TEXT_ALWAYS_CHAR (""));
         converter.clear ();
         converter << index_i;
@@ -279,11 +279,10 @@ continue_3:
         for (iterator_2 = (*iterator).first.begin ();
              iterator_2 != (*iterator).first.end ();
              ++iterator_2)
-        {
           std::cout << *iterator_2 << ACE_TEXT_ALWAYS_CHAR (" ");
-        } // end FOR
         std::cout << std::endl;
       } // end FOR
+
       break;
     }
     default:
@@ -363,7 +362,6 @@ ACE_TMAIN (int argc_in,
   do_work (mode_type_e);
   timer.stop ();
 
-  // debug info
   timer.elapsed_time (working_time);
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("total working time (h:m:s.us): \"%s\"...\n"),
