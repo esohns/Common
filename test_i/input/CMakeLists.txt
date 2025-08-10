@@ -20,10 +20,9 @@ set (${EXECUTABLE}_EXE_SRCS
      test_i_inputhandler.inl
      test_i_signalhandler.cpp
      test_i_signalhandler.h
-#     stdafx.cpp
+     test_i_timerhandler.cpp
+     test_i_timerhandler.h
      stdafx.h
-#     ../common_test_i_common.h
-#     ../common_test_i_defines.h
      test_i.cpp)
 
 #cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property

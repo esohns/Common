@@ -64,6 +64,7 @@ class Common_Timer_SecondPublisher_T
                      bool = false); // N/A
   inline virtual void wait (bool = true) const { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return; ) }
 
+  // implement Common_ISubscribe_T<Common_ICounter>
   virtual void subscribe (Common_ICounter*);
   virtual void unsubscribe (Common_ICounter*);
 

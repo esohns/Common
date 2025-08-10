@@ -21,12 +21,6 @@
 
 #include "test_i_signalhandler.h"
 
-//#if defined (WXWIDGETS_SUPPORT)
-//#undef DrawText
-//#undef SIZEOF_SIZE_T
-//#include "wx/wx.h"
-//#endif // WXWIDGETS_SUPPORT
-
 #include "ace/Log_Msg.h"
 
 #if defined (GTK_SUPPORT)

@@ -21,6 +21,11 @@
 
 #include "common_input_tools.h"
 
+#if defined (ACE_LINUX)
+#include "asm/termbits.h"
+#include "sys/ioctl.h"
+#endif // ACE_LINUX
+
 #include "ace/Log_Msg.h"
 #include "ace/OS.h"
 
@@ -196,6 +201,61 @@ Common_Input_Tools::finalizeInput (const struct termios& terminalSettings_in)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to tcsetattr(%d,TCSANOW): \"%m\", returning\n"),
                 ACE_STDIN));
+    return;
+  } // end IF
+#endif // ACE_WIN32 || ACE_WIN64
+}
+
+void Common_Input_Tools::input (char character_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Input_Tools::input"));
+
+#if defined(ACE_WIN32) || defined(ACE_WIN64)
+  struct tagINPUT input_s[2];
+  ACE_OS::memset (&input_s[0], 0, sizeof (struct tagINPUT));
+
+  HKL keyboad_layout_h = GetKeyboardLayout (0);
+  ACE_ASSERT (keyboad_layout_h);
+
+  input_s[0].type = INPUT_KEYBOARD;
+  //input_s[0].ki.wScan = 0;
+    //MapVirtualKeyEx (VkKeyScanEx (character_in, keyboad_layout_h), MAPVK_VK_TO_VSC, keyboad_layout_h);
+  //input_s[0].ki.time = 0;
+  //input_s[0].ki.dwExtraInfo = 0;
+  input_s[0].ki.wVk = VkKeyScanEx (character_in, keyboad_layout_h);
+  //input_s[0].ki.dwFlags = 0 /*| KEYEVENTF_SCANCODE*/; // 0 for key press
+
+  input_s[1] = input_s[0];
+  input_s[1].ki.dwFlags |= KEYEVENTF_KEYUP /* | KEYEVENTF_SCANCODE*/;
+
+  UINT result = SendInput (ARRAYSIZE (input_s), input_s, sizeof (INPUT));
+  if (unlikely (result != ARRAYSIZE (input_s)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to SendInput(%c): \"%s\", returning\n"),
+                character_in,
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false, false).c_str ())));
+    return;
+  } // end IF
+#else
+  // sanity check(s)
+  if (unlikely (!isatty (ACE_STDIN)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("%d is not associated to a terminal, returning\n"),
+                ACE_STDIN));
+    return;
+  } // end IF
+
+  int result = ::ioctl (ACE_STDIN,
+                        TIOCSTI,
+                        &character_in);
+  if (unlikely (result))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ioctl(%d,TIOCSTI,%c): \"%m\", returning\n"),
+                ACE_STDIN,
+                character_in));
     return;
   } // end IF
 #endif // ACE_WIN32 || ACE_WIN64

@@ -88,6 +88,7 @@ struct Common_TimerConfiguration
   // *NOTE*: applies to COMMON_TIMER_DISPATCH_QUEUE dispatch only
   enum Common_TimerQueueType    queueType;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+  // *NOTE*: as used by "AvSetMmThreadCharacteristics"
   std::string                   taskType;
 #endif // ACE_WIN32 || ACE_WIN64
 };

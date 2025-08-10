@@ -51,6 +51,12 @@ class Common_Input_Tools
   static void finalizeInput (const struct termios&); // previous terminal settings
 #endif // ACE_WIN32 || ACE_WIN64
 
+  // send a keystroke to the terminal
+  // *NOTE*: "...Since Linux 6.2, this operation may require the CAP_SYS_ADMIN
+  //          capability (if the dev.tty.legacy_tiocsti sysctl variable is set
+  //          to false) ..."
+  static void input (char); // key to send
+
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   static DWORD terminalSettings;
 #else

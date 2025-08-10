@@ -738,6 +738,7 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
         return false;
       } // end IF
       timer_manager_p->start (NULL);
+
       return true;
     }
     case COMMON_TIMER_DISPATCH_QUEUE:
@@ -756,6 +757,7 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
                     ACE_TEXT ("failed to start timer manager, aborting\n")));
         return false;
       } // end IF
+
       return true;
     }
     case COMMON_TIMER_DISPATCH_REACTOR:
@@ -766,7 +768,13 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
                     ACE_TEXT ("failed to initialize timer manager, aborting\n")));
         return false;
       } // end IF
-      timer_manager_p->start (NULL);
+      if (unlikely (!timer_manager_p->start (NULL)))
+      {
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_TEXT ("failed to start timer manager, aborting\n")));
+        return false;
+      } // end IF
+
       return true;
     }
     case COMMON_TIMER_DISPATCH_SIGNAL:
@@ -785,6 +793,7 @@ Common_Timer_Tools::initializeTimers (const struct Common_TimerConfiguration& co
       } // end IF
       timer_manager_2->start (NULL);
 #endif // ACE_WIN32 || ACE_WIN64
+
       return true;
     }
     default:

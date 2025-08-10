@@ -26,6 +26,8 @@
 #include "common_signal_common.h"
 #include "common_signal_tools.h"
 
+#include "common_timer_common.h"
+#include "common_timer_second_publisher.h"
 #include "common_timer_tools.h"
 
 #include "common_ui_common.h"
@@ -33,15 +35,13 @@
 #include "test_i_common.h"
 #include "test_i_inputhandler.h"
 #include "test_i_signalhandler.h"
+#include "test_i_timerhandler.h"
 
 void
 do_print_usage (const std::string& programName_in)
 {
   // enable verbatim boolean output
   std::cout.setf (std::ios::boolalpha);
-
-//  std::string path_root =
-//    Common_File_Tools::getWorkingDirectory ();
 
   std::cout << ACE_TEXT_ALWAYS_CHAR ("usage: ")
             << programName_in
@@ -58,6 +58,10 @@ do_print_usage (const std::string& programName_in)
             << false
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-s          : simulate key presses [")
+            << false
+            << ACE_TEXT_ALWAYS_CHAR ("]")
+            << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-t          : trace information [")
             << false
             << ACE_TEXT_ALWAYS_CHAR ("]")
@@ -69,6 +73,7 @@ do_process_arguments (int argc_in,
                       ACE_TCHAR** argv_in, // cannot be const...
                       bool& logToFile_out,
                       bool& lineMode_out,
+                      bool& simulateKeyPresses_out,
                       bool& traceInformation_out)
 {
   std::string path_root =
@@ -77,11 +82,12 @@ do_process_arguments (int argc_in,
   // initialize results
   logToFile_out = false;
   lineMode_out = false;
+  simulateKeyPresses_out = false;
   traceInformation_out = false;
 
   ACE_Get_Opt argument_parser (argc_in,
                                argv_in,
-                               ACE_TEXT ("lmt"),
+                               ACE_TEXT ("lmst"),
                                1,                         // skip command name
                                1,                         // report parsing errors
                                ACE_Get_Opt::PERMUTE_ARGS, // ordering
@@ -101,6 +107,11 @@ do_process_arguments (int argc_in,
       case 'm':
       {
         lineMode_out = true;
+        break;
+      }
+      case 's':
+      {
+        simulateKeyPresses_out = true;
         break;
       }
       case 't':
@@ -145,7 +156,8 @@ do_process_arguments (int argc_in,
 void
 do_work (int argc_in,
          ACE_TCHAR* argv_in[],
-         bool lineMode_in)
+         bool lineMode_in,
+         bool simulateKeyPresses_in)
 {
   // step1: initialize signals
   ACE_Sig_Set signals_a (true);
@@ -194,6 +206,17 @@ do_work (int argc_in,
     return;
   } // end IF
 
+  // step2: initialize timer ?
+  Test_I_TimerHandler timer_handler;
+  if (simulateKeyPresses_in)
+  {
+    Common_Tools::initialize (false, true); // initialize RNG
+    Common_Timer_Tools::configuration_.publishSeconds = true;
+    Common_Timer_Tools::initialize ();
+
+    COMMON_TIMER_SECONDPUBLISHER_SINGLETON::instance ()->subscribe (&timer_handler);
+  } // end IF
+
   struct Common_AllocatorConfiguration allocator_configuration;
   struct Common_EventDispatchConfiguration event_dispatch_configuration;
   event_dispatch_configuration.dispatch = COMMON_EVENT_DISPATCH_REACTOR;
@@ -202,8 +225,8 @@ do_work (int argc_in,
   struct Common_UI_CBData cbdata_s;
   struct Common_Input_Configuration input_configuration;
   struct Common_Input_Manager_Configuration configuration;
-
-  // step2: initialize input
+  
+  // step3a: initialize input handling
   if (unlikely (!Common_Input_Tools::initialize (lineMode_in)))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -211,7 +234,7 @@ do_work (int argc_in,
     goto error;
   } // end IF
 
-  // step3: initialize input manager
+  // step3b: initialize input manager
   input_manager_p = INPUT_MANAGER_SINGLETON::instance ();
   ACE_ASSERT (input_manager_p);
   input_configuration.allocatorConfiguration = &allocator_configuration;
@@ -248,7 +271,11 @@ error:
     return;
   } // end IF
 
-  // step5: finalize signal handling
+  // step5: finalize timer ?
+  if (simulateKeyPresses_in)
+    Common_Timer_Tools::finalize ();
+    
+  // step6: finalize signal handling
   Common_Signal_Tools::finalize (COMMON_SIGNAL_DISPATCH_SIGNAL,
                                  previous_signal_actions_a,
                                  previous_signal_mask_a);
@@ -285,6 +312,7 @@ ACE_TMAIN (int argc_in,
   bool log_to_file = false;
   std::string log_file_name;
   bool line_mode = false;
+  bool simulate_key_presses = false;
   bool trace_information = false;
 
   // step1b: parse/process/validate configuration
@@ -292,6 +320,7 @@ ACE_TMAIN (int argc_in,
                              argv_in,
                              log_to_file,
                              line_mode,
+                             simulate_key_presses,
                              trace_information))
   {
     do_print_usage (ACE::basename (argv_in[0], ACE_DIRECTORY_SEPARATOR_CHAR));
@@ -327,7 +356,8 @@ ACE_TMAIN (int argc_in,
   // step2: do actual work
   do_work (argc_in,
            argv_in,
-           line_mode);
+           line_mode,
+           simulate_key_presses);
   timer.stop ();
 
   // debug info

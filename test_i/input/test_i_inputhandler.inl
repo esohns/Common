@@ -72,7 +72,7 @@ Test_I_InputHandler_T<
   ACE_ASSERT (messageBlock_in);
 
   if (inherited::configuration_->lineMode)
-    ACE_DEBUG ((LM_DEBUG,
+    ACE_DEBUG ((LM_INFO,
                 ACE_TEXT ("read input: \"%s\"\n"),
                 ACE_TEXT (messageBlock_in->rd_ptr ())));
   else
@@ -80,11 +80,31 @@ Test_I_InputHandler_T<
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
     struct _KEY_EVENT_RECORD* key_event_record_p =
       reinterpret_cast<struct _KEY_EVENT_RECORD*> (messageBlock_in->rd_ptr ());
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("read input: \"%c\"\n"),
-                key_event_record_p->uChar.AsciiChar));
+
+    HKL keyboad_layout_h = GetKeyboardLayout (0);
+    ACE_ASSERT (keyboad_layout_h);
+
+    //DWORD virtual_key_u =
+    //  MapVirtualKeyEx (key_event_record_p->wVirtualScanCode, MAPVK_VSC_TO_VK, keyboad_layout_h);
+    //char char_c =
+    //  (CHAR)MapVirtualKeyEx (key_event_record_p->wVirtualKeyCode, MAPVK_VK_TO_CHAR, keyboad_layout_h);
+    BYTE keyboard_state_a[256];
+    bool bResult = GetKeyboardState (keyboard_state_a);
+    ACE_ASSERT (bResult);
+    WORD wCharacter = 0;
+    int iResult = ToAsciiEx ((UINT)key_event_record_p->wVirtualKeyCode,
+                             (UINT)key_event_record_p->wVirtualScanCode,
+                             keyboard_state_a,
+                             &wCharacter,
+                             0,
+                             keyboad_layout_h);
+    ACE_ASSERT (iResult && iResult <= 2);
+    char char_c = LOBYTE (wCharacter);
+    ACE_DEBUG ((LM_INFO,
+                ACE_TEXT ("read input: \"%c [%c]\"\n"),
+                key_event_record_p->uChar.AsciiChar, char_c));
 #else
-    ACE_DEBUG ((LM_DEBUG,
+    ACE_DEBUG ((LM_INFO,
                 ACE_TEXT ("read input: \"%c\"\n"),
                 *messageBlock_in->rd_ptr ()));
 #endif // ACE_WIN32 || ACE_WIN64
