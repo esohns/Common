@@ -348,7 +348,7 @@ Common_Task_2<ACE_SYNCH_USE,
               TimePolicyType,
               StatisticContainerType>::finished ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Task_2::svc"));
+  COMMON_TRACE (ACE_TEXT ("Common_Task_2::finished"));
 
   inherited::finished_ = true;
   inherited::stop (false,  // *WARNING*: (probably) cannot wait here

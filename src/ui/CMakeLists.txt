@@ -8,10 +8,23 @@ endif (GTK_SUPPORT)
 set (LIBRARY ${PROJECT_NAME}UI)
 add_library (${LIBRARY} STATIC "")
 
+
+if (CURSES_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             "$<BUILD_INTERFACE:${CURSES_INCLUDE_DIRS}>")
+endif (CURSES_SUPPORT)
 if (GTK_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
                              "$<BUILD_INTERFACE:${GTK_INCLUDE_DIRS}>")
 endif (GTK_SUPPORT)
+if (QT_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             "$<BUILD_INTERFACE:${QT_INCLUDES_DIRS}>")
+endif (QT_SUPPORT)
+if (WXWIDGETS_SUPPORT)
+ target_include_directories (${LIBRARY} PUBLIC
+                             "$<BUILD_INTERFACE:${wxWidgets_INCLUDE_DIRS}>")
+endif (WXWIDGETS_SUPPORT)
 
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)

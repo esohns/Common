@@ -156,7 +156,7 @@ class Common_Task_T<ACE_NULL_SYNCH,
 
 //////////////////////////////////////////
 
-// this version supports statistics and the task manager
+// this version supports statistics and a task manager
 template <ACE_SYNCH_DECL,
           typename TimePolicyType,
           typename StatisticContainerType> // inherits struct Common_Task_Statistic

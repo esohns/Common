@@ -26,7 +26,9 @@
 #include <string>
 #include <utility>
 
-#include "ace/config-lite.h"
+#undef DrawText
+#include "wx/wx.h"
+
 #include "ace/OS_NS_Thread.h"
 
 #include "common_itask.h"
@@ -35,14 +37,6 @@
 #include "common_ui_idefinition.h"
 
 #include "common_ui_wxwidgets_iapplication.h"
-
-// forward declarations
-#if (wxUSE_UNICODE == 1)
-typedef wchar_t wxChar;
-#else
-typedef char wxChar;
-#endif // wxUSE_UNICODE == 1
-class wxObject;
 
 typedef std::pair<std::string, wxObject*> Common_UI_wxWidgets_XmlResource_t;
 typedef std::map<std::string, Common_UI_wxWidgets_XmlResource_t> Common_UI_wxWidgets_XmlResources_t;

@@ -278,7 +278,7 @@ endif (GTK_SUPPORT AND OPENGL_SUPPORT)
 ##########################################
 
 # *NOTE*: this finds qt3/qt4 only
-find_package (Qt CONFIG COMPONENTS Core Widgets)
+find_package (Qt CONFIG COMPONENTS Core Gui Widgets)
 if (QT3_INSTALLED)
  message (STATUS "qt3 found")
  set (QT3_FOUND ON)
@@ -287,28 +287,33 @@ elseif (QT4_INSTALLED)
  set (QT4_FOUND ON)
 endif ()
 set (Qt5_DIR $ENV{QT5_DIR})
-find_package (Qt5 CONFIG COMPONENTS Core Widgets)
+find_package (Qt5 CONFIG COMPONENTS Core Gui Widgets)
 if (Qt5_FOUND)
  message (STATUS "qt5 found")
  set (QT5_FOUND ON)
 # set (AUTOMOC_EXECUTABLE "$ENV{QT5_DIR}/../../../bin/moc.exe")
 # set (AUTOUIC_EXECUTABLE "$ENV{QT5_DIR}/../../../bin/uic.exe")
 # message (STATUS "Qt5Widgets_INCLUDE_DIRS: ${Qt5Widgets_INCLUDE_DIRS}")
- set (QT_INCLUDES_DIRS "${Qt5Core_INCLUDE_DIRS};${Qt5Widgets_INCLUDE_DIRS}")
+ set (QT_INCLUDES_DIRS "${Qt5Core_INCLUDE_DIRS};${Qt5Gui_INCLUDE_DIRS};${Qt5Widgets_INCLUDE_DIRS}")
  if (UNIX)
-  set (QT_LIBRARIES "Qt5Core;Qt5Widgets")
+  set (QT_LIBRARIES "Qt5Core;Qt5Gui;Qt5Widgets")
  elseif (WIN32)
   set (QT5_CORE_LIB_FILE Qt5Core.lib)
   find_library (QT5_CORE_LIBRARY ${QT5_CORE_LIB_FILE}
                 PATHS $ENV{LIB_ROOT}/qt/5.15.2/msvc2019_64
                 PATH_SUFFIXES lib
                 DOC "searching for ${QT5_CORE_LIB_FILE}")
+  set (QT5_GUI_LIB_FILE Qt5Gui.lib)
+  find_library (QT5_GUI_LIBRARY ${QT5_GUI_LIB_FILE}
+                PATHS $ENV{LIB_ROOT}/qt/5.15.2/msvc2019_64
+                PATH_SUFFIXES lib
+                DOC "searching for ${QT5_GUI_LIB_FILE}")
   set (QT5_WIDGETS_LIB_FILE Qt5Widgets.lib)
   find_library (QT5_WIDGETS_LIBRARY ${QT5_WIDGETS_LIB_FILE}
                 PATHS $ENV{LIB_ROOT}/qt/5.15.2/msvc2019_64
                 PATH_SUFFIXES lib
                 DOC "searching for ${QT5_WIDGETS_LIB_FILE}")
-  set (QT_LIBRARIES "${QT5_CORE_LIBRARY};${QT5_WIDGETS_LIBRARY}")
+  set (QT_LIBRARIES "${QT5_CORE_LIBRARY};${QT5_GUI_LIBRARY};${QT5_WIDGETS_LIBRARY}")
  endif ()
  set (QT5_LIB_DIR "$ENV{QT5_DIR}/../../../bin")
 endif (Qt5_FOUND)

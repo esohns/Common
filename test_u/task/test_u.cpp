@@ -466,6 +466,7 @@ do_work (enum Test_U_ModeType mode_in,
                                            NULL,
                                            NULL));
       ACE_ASSERT (message_block_p);
+      message_block_p->wr_ptr (message_block_p->size ());
       int result_2 = task.put (message_block_p, NULL);
       ACE_ASSERT (result_2 > 0);
       ACE_UNUSED_ARG (result_2);
@@ -484,6 +485,7 @@ do_work (enum Test_U_ModeType mode_in,
                                            NULL,
                                            NULL));
       ACE_ASSERT (message_block_p);
+      message_block_p->wr_ptr (message_block_p->size ());
       result_2 = task_2.put (message_block_p, NULL);
       ACE_ASSERT (result_2 > 0);
       message_block_p = NULL;
@@ -501,6 +503,7 @@ do_work (enum Test_U_ModeType mode_in,
                                            NULL,
                                            NULL));
       ACE_ASSERT (message_block_p);
+      message_block_p->wr_ptr (message_block_p->size ());
       result_2 = task_3.put (message_block_p, NULL);
       ACE_ASSERT (result_2 > 0);
       message_block_p = NULL;
