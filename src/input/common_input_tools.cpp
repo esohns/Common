@@ -22,7 +22,6 @@
 #include "common_input_tools.h"
 
 #if defined (ACE_LINUX)
-#include "asm/termbits.h"
 #include "sys/ioctl.h"
 #endif // ACE_LINUX
 
