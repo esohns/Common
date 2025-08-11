@@ -71,7 +71,11 @@ class Test_U_SignalHandler
     switch (signal_in.signal)
     {
       case SIGINT:
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
       case SIGBREAK:
+#else
+      case SIGQUIT:
+#endif // ACE_WIN32 || ACE_WIN64
       { ACE_ASSERT (inherited::configuration_);
         switch (inherited::configuration_->mode)
         {
