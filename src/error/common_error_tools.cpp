@@ -367,8 +367,6 @@ Common_Error_Tools::setThreadName (const std::string& name_in,
 #pragma warning (pop)
 }
 #endif // COMMON_OS_WIN32_TARGET_PLATFORM (0x0A00)
-#else
-void
 #endif // ACE_WIN32 || ACE_WIN64
 
 bool
