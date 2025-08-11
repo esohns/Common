@@ -210,7 +210,11 @@ do_work (int argc_in,
   Test_I_TimerHandler timer_handler;
   if (simulateKeyPresses_in)
   {
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
     Common_Tools::initialize (false, true); // initialize RNG
+#else
+    Common_Tools::initialize (true) // initialize RNG
+#endif // ACE_WIN32 || ACE_WIN64
     Common_Timer_Tools::configuration_.publishSeconds = true;
     Common_Timer_Tools::initialize ();
 
