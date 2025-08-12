@@ -23,9 +23,11 @@
 
 #if defined (CURSES_SUPPORT)
 #if defined (ACE_WIN32) || defined (ACE_WIN32)
+#undef MOUSE_MOVED
 #include "curses.h"
 // *NOTE*: the olc PixelGameEngine complains about MOUSE_MOVED and OK
-#define MOUSE_MOVED 0x0001
+#undef MOUSE_MOVED
+#define MOUSE_MOVED 0x0001 // see: wincontypes.h:103
 #undef OK
 #else
 #include "ncurses.h"
@@ -60,79 +62,107 @@
 
 #include "ace/Global_Macros.h"
 
-union Common_UI_Window
+struct Common_UI_Window
 {
-  // *TODO*: add more window types (e.g. Qt, etc.)
+  enum Type
+  {
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  Common_UI_Window () : win32_hwnd (NULL) {}
-  Common_UI_Window (HWND window_in) : win32_hwnd (window_in) {}
-
-  operator HWND () const { return win32_hwnd; }
+    TYPE_WIN32 = 0,
 #else
-  Common_UI_Window () : x11_window (0) {}
-  Common_UI_Window (Window window_in) : x11_window (window_in) {}
+    TYPE_WAYLAND = 0,
+    TYPE_X11,
+#endif // ACE_WIN32 || ACE_WIN64
+#if defined (CURSES_SUPPORT)
+    TYPE_CURSES,
+#endif // CURSES_SUPPORT
+#if defined (GTK_SUPPORT)
+    TYPE_GTK,
+#endif // GTK_SUPPORT
+#if defined (QT_SUPPORT)
+    TYPE_QT,
+#endif // QT_SUPPORT
+#if defined (WXWIDGETS_SUPPORT)
+    TYPE_WXWIDGETS,
+#endif // WXWIDGETS_SUPPORT
+    TYPE_MAX,
+    TYPE_INVALID,
+  };
 
-  operator Window () const { return x11_window; }
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  Common_UI_Window () : type (TYPE_INVALID), win32_hwnd (NULL) {}
+  Common_UI_Window (HWND window_in) : type (TYPE_WIN32), win32_hwnd (window_in) {}
+
+  operator HWND () const { ACE_ASSERT (type == TYPE_WIN32); return win32_hwnd; }
+#else
+  Common_UI_Window () : type (TYPE_INVALID), x11_window (0) {}
+  Common_UI_Window (Window window_in) : type (TYPE_X11), x11_window (window_in) {}
+
+  operator Window () const { ACE_ASSERT (type == TYPE_X11); return x11_window; }
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (CURSES_SUPPORT)
-  Common_UI_Window (WINDOW* window_in) : curses_window (window_in) {}
+  Common_UI_Window (WINDOW* window_in) : type (TYPE_CURSES), curses_window (window_in) {}
 
-  operator WINDOW* () const { return curses_window; }
+  operator WINDOW* () const { ACE_ASSERT (type == TYPE_CURSES); return curses_window; }
 #endif // CURSES_SUPPORT
 
 #if defined (GTK_SUPPORT)
 #if GTK_CHECK_VERSION (4,0,0)
-  Common_UI_Window (GdkSurface* window_in) : gdk_surface (window_in) {}
+  Common_UI_Window (GdkSurface* window_in) : type (TYPE_GTK), gdk_surface (window_in) {}
 
-  operator GdkSurface* () const { return gdk_surface; }
+  operator GdkSurface* () const { ACE_ASSERT (type == TYPE_GTK); return gdk_surface; }
 #else
-  Common_UI_Window (GdkWindow* window_in) : gdk_window (window_in) {}
+  Common_UI_Window (GdkWindow* window_in) : type (TYPE_GTK), gdk_window (window_in) {}
 
-  operator GdkWindow* () const { return gdk_window; }
+  operator GdkWindow* () const { ACE_ASSERT (type == TYPE_GTK); return gdk_window; }
 #endif // GTK_CHECK_VERSION (4,0,0)
 #endif // GTK_SUPPORT
 
 #if defined (QT_SUPPORT)
-  Common_UI_Window (QWindow* window_in) : qt_window (window_in) {}
+  Common_UI_Window (QWindow* window_in) : type (TYPE_QT), qt_window (window_in) {}
 
-  operator QWindow* () const { return qt_window; }
+  operator QWindow* () const { ACE_ASSERT (type == TYPE_QT); return qt_window; }
 #endif // QT_SUPPORT
 
 #if defined (WXWIDGETS_SUPPORT)
-  Common_UI_Window (wxWindow* window_in) : wxwidgets_window (window_in) {}
+  Common_UI_Window (wxWindow* window_in) : type (TYPE_WXWIDGETS), wxwidgets_window (window_in) {}
 
-  operator wxWindow* () const { return wxwidgets_window; }
+  operator wxWindow* () const { ACE_ASSERT (type == TYPE_WXWIDGETS); return wxwidgets_window; }
 #endif // WXWIDGETS_SUPPORT
 
+  enum Common_UI_Window::Type type;
+
+  union
+  {
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  HWND win32_hwnd;
+    HWND win32_hwnd;
 #else
-  Window x11_window;
+    Window x11_window;
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (CURSES_SUPPORT)
-  WINDOW* curses_window;
+    WINDOW* curses_window;
 #endif // CURSES_SUPPORT
 
 #if defined (GTK_SUPPORT)
 #if GTK_CHECK_VERSION (4,0,0)
-  GdkSurface* gdk_surface;
+    GdkSurface* gdk_surface;
 #else
-  GdkWindow* gdk_window;
+    GdkWindow* gdk_window;
 #endif // GTK_CHECK_VERSION (4,0,0)
 #endif // GTK_SUPPORT
 
 #if defined (QT_SUPPORT)
-  QWindow* qt_window;
+    QWindow* qt_window;
 #endif // QT_SUPPORT
 
 #if defined (WXWIDGETS_SUPPORT)
-  wxWindow* wxwidgets_window;
+    wxWindow* wxwidgets_window;
 #endif // WXWIDGETS_SUPPORT
+  };
 };
 
-template <typename WindowType>
+template <typename NativeWindowType>
 class Common_UI_WindowTypeConverter_T
 {
  public:
@@ -141,21 +171,26 @@ class Common_UI_WindowTypeConverter_T
  protected:
   inline Common_UI_WindowTypeConverter_T () {}
 
-//  template <typename T> MediaType getMediaType (const T& mediaType_in) { MediaType result; getMediaType_impl (mediaType_in, result); return result; }
-//  template <typename T, typename U> T getMediaType_2 (const U& mediaType_in) { T result; getMediaType_impl (mediaType_in, result); return result; }
-//  template <typename T, typename U> T getMediaType_2 (const U&) { T result; ACE_ASSERT (false); ACE_NOTSUP_RETURN (result); ACE_NOTREACHED (return result;) }
+  NativeWindowType convert (const struct Common_UI_Window&);
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+  inline void getWindowType (const struct Common_UI_Window& windowType_in, HWND& windowType_out) { windowType_out = windowType_in; }
+
   inline void getWindowType (const HWND windowType_in, HWND& windowType_out) { windowType_out = windowType_in; }
+#if defined (CURSES_SUPPORT)
+  inline void getWindowType (const HWND windowType_in, WINDOW*& windowType_out) { ACE_ASSERT (false); ACE_NOTSUP; windowType_out = NULL; }
+#endif // CURSES_SUPPORT
+
 #if defined (GTK_SUPPORT)
 #if GTK_CHECK_VERSION (4,0,0)
   inline void getWindowType (const GdkSurface* windowType_in, HWND& windowType_out) { ACE_ASSERT (gdk_win32_surface_is_win32 (const_cast<GdkSurface*> (windowType_in))); windowType_out = gdk_win32_surface_get_impl_hwnd (const_cast<GdkSurface*> (windowType_in)); }
 #else
-  // *TODO*: consider static_cast<HWND> (GDK_WINDOW_HWND (window_p));
   inline void getWindowType (const GdkWindow* windowType_in, HWND& windowType_out) { ACE_ASSERT (gdk_win32_window_is_win32 (const_cast<GdkWindow*> (windowType_in))); windowType_out = gdk_win32_window_get_impl_hwnd (const_cast<GdkWindow*> (windowType_in)); }
 #endif // GTK_CHECK_VERSION (4,0,0)
 #endif // GTK_SUPPORT
 #else
+  inline void getWindowType (const struct Common_UI_Window& windowType_in, Window& windowType_out) { windowType_out = windowType_in; }
+
   inline void getWindowType (const Window windowType_in, Window& windowType_out) { windowType_out = windowType_in; }
 #if defined (GTK_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
@@ -166,10 +201,34 @@ class Common_UI_WindowTypeConverter_T
 #endif // GTK_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
+#if defined (CURSES_SUPPORT)
+  inline void getWindowType (const WINDOW* windowType_in, WINDOW*& windowType_out) { windowType_out = const_cast<WINDOW*> (windowType_in); }
+
 #if defined (GTK_SUPPORT)
 #if GTK_CHECK_VERSION (4,0,0)
+  inline void getWindowType (const GdkSurface* windowType_in, WINDOW*& windowType_out) { ACE_ASSERT (false); ACE_NOTSUP; windowType_out = NULL; }
+#else
+  inline void getWindowType (const GdkWindow* windowType_in, WINDOW*& windowType_out) { ACE_ASSERT (false); ACE_NOTSUP; windowType_out = NULL; }
+#endif // GTK_CHECK_VERSION (4,0,0)
+#endif // GTK_SUPPORT
+
+#if defined (QT_SUPPORT)
+  inline void getWindowType (const QWindow* windowType_in, WINDOW*& windowType_out) { ACE_ASSERT (false); ACE_NOTSUP; windowType_out = NULL; }
+#endif // QT_SUPPORT
+
+#if defined (WXWIDGETS_SUPPORT)
+  inline void getWindowType (const wxWindow* windowType_in, WINDOW*& windowType_out) { ACE_ASSERT (false); ACE_NOTSUP; windowType_out = NULL; }
+#endif // WXWIDGETS_SUPPORT
+#endif // CURSES_SUPPORT
+
+#if defined (GTK_SUPPORT)
+#if GTK_CHECK_VERSION (4,0,0)
+  inline void getWindowType (const struct Common_UI_Window& windowType_in, GdkSurface*& windowType_out) { windowType_out = windowType_in; }
+
   inline void getWindowType (const GdkSurface* windowType_in, GdkSurface*& windowType_out) { ACE_ASSERT (windowType_in); /*g_object_ref (windowType_in);*/ windowType_out = const_cast<GdkSurface*> (windowType_in); }
 #else
+  inline void getWindowType (const struct Common_UI_Window& windowType_in, GdkWindow*& windowType_out) { windowType_out = windowType_in; }
+
   inline void getWindowType (const GdkWindow* windowType_in, GdkWindow*& windowType_out) { ACE_ASSERT (windowType_in); /*g_object_ref (windowType_in);*/ windowType_out = const_cast<GdkWindow*> (windowType_in); }
 #endif // GTK_CHECK_VERSION(4,0,0)
 #endif // GTK_SUPPORT
