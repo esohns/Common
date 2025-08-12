@@ -21,6 +21,12 @@
 #ifndef COMMON_UI_WINDOWTYPE_CONVERTER_H
 #define COMMON_UI_WINDOWTYPE_CONVERTER_H
 
+#if defined (ACE_WIN32) || defined (ACE_WIN32)
+#else
+#include "X11/X.h"
+#include "X11/Xlib.h"
+#endif // ACE_WIN32 || ACE_WIN32
+
 #if defined (CURSES_SUPPORT)
 #if defined (ACE_WIN32) || defined (ACE_WIN32)
 #undef MOUSE_MOVED
@@ -31,7 +37,13 @@
 #undef OK
 #else
 #include "ncurses.h"
- // *NOTE*: the ncurses "timeout" macros conflict with
+// *NOTE*: the ncurses "scroll" macro conflicts with Qt. Since not currently
+//         used, it's safe to undefine
+#undef scroll
+// *NOTE*: the ncurses "OK" macro conflicts with olc::PixelGameEngine. Since not
+//         currently used, it's safe to undefine
+#undef OK
+// *NOTE*: the ncurses "timeout" macro conflicts with
  //         ACE_Synch_Options::timeout. Since not currently used, it's safe to
  //         undefine
 #undef timeout
@@ -49,12 +61,29 @@
 #endif // GTK_CHECK_VERSION (4,0,0)
 #else
 #include "gdk/gdkx.h"
+// *NOTE*: some X11 macros conflict with Qt. Since not currently used, they're
+//         safe to undefine
+#undef Bool
+#undef CursorShape
+#undef Expose
+#undef FocusIn
+#undef FocusOut
+#undef FontChange
+#undef KeyPress
+#undef KeyRelease
+#undef None
+#undef Status
 #endif // ACE_WIN32 || ACE_WIN64
 #endif // GTK_SUPPORT
 
 #if defined (QT_SUPPORT)
 #include "qwindow.h"
 #endif // QT_SUPPORT
+#if defined (ACE_WIN32) || defined (ACE_WIN32)
+#else
+#define Bool int
+#define Status int
+#endif // ACE_WIN32 || ACE_WIN32
 
 #if defined (WXWIDGETS_SUPPORT)
 #include "wx/window.h"
@@ -192,6 +221,11 @@ class Common_UI_WindowTypeConverter_T
   inline void getWindowType (const struct Common_UI_Window& windowType_in, Window& windowType_out) { windowType_out = windowType_in; }
 
   inline void getWindowType (const Window windowType_in, Window& windowType_out) { windowType_out = windowType_in; }
+
+#if defined (CURSES_SUPPORT)
+  inline void getWindowType (const Window windowType_in, WINDOW*& windowType_out) { ACE_ASSERT (false); ACE_NOTSUP; windowType_out = NULL; }
+#endif // CURSES_SUPPORT
+
 #if defined (GTK_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
   inline void getWindowType (const GdkWindow* windowType_in, Window& windowType_out) { ACE_ASSERT (windowType_in); /*g_object_ref (windowType_in);*/ windowType_out = gdk_x11_window_get_xid (const_cast<GdkWindow*> (windowType_in)); }

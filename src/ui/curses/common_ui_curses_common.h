@@ -30,6 +30,10 @@
  //         ACE_Synch_Options::timeout. Since not currently used, it's safe to
  //         undefine
 #undef timeout
+// *NOTE*: the ncurses "OK" macros conflict with
+//         olc::PixelGameEngine. Since not currently used, it's safe to
+//         undefine
+#undef OK
 #endif // ACE_WIN32 || ACE_WIN32
 #include "panel.h"
 
