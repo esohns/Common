@@ -29,31 +29,48 @@ Common_Math_SampleIterator_T<ValueType>::get (unsigned int index_in,
   ACE_ASSERT (buffer_);
   ACE_ASSERT (isInitialized_);
 
+  int index_i = (index_in * sampleSize_) + (subSampleIndex_in * subSampleSize_);
   // *TODO*: this isn't entirely portable
   switch (subSampleSize_)
   {
     case 1: // --> data is single-byte (possibly non-integer)
-      return buffer_[(index_in * sampleSize_) + subSampleIndex_in];
-    case 2:
-      return (reverseByteOrder_ ? (isSignedSampleFormat_ ? ACE_SWAP_WORD (*reinterpret_cast<short*> (&buffer_[(index_in * sampleSize_) + (subSampleIndex_in * subSampleSize_)]))
-                                                         : ACE_SWAP_WORD (*reinterpret_cast<unsigned short*> (&buffer_[(index_in * sampleSize_) + (subSampleIndex_in * subSampleSize_)])))
-                                : (isSignedSampleFormat_ ? *reinterpret_cast<short*> (&buffer_[(index_in * sampleSize_) + (subSampleIndex_in * subSampleSize_)])
-                                                         : *reinterpret_cast<unsigned short*> (&buffer_[(index_in * sampleSize_) + (subSampleIndex_in * subSampleSize_)])));
+    { ACE_ASSERT (!isFloatingPointFormat_); // (currently) not supported
+      return static_cast<ValueType> (buffer_[index_i]);
+    }
+    case 2: // --> data is double-byte (possibly non-integer)
+    { ACE_ASSERT (!isFloatingPointFormat_); // (currently) not supported
+      return static_cast<ValueType> (reverseByteOrder_ ? (isSignedSampleFormat_ ? ACE_SWAP_WORD (*reinterpret_cast<int16_t*> (&buffer_[index_i]))
+                                                                                : ACE_SWAP_WORD (*reinterpret_cast<uint16_t*> (&buffer_[index_i])))
+                                                       : (isSignedSampleFormat_ ? *reinterpret_cast<int16_t*> (&buffer_[index_i])
+                                                                                : *reinterpret_cast<uint16_t*> (&buffer_[index_i])));
+    }
     case 4:
-    { // --> non-integer type data is (most probably) a 32-bit IEEE float
-      // *TODO*: this isn't very portable
-      ACE_ASSERT (ACE_SIZEOF_FLOAT == 4);
-      return (subSampleByteOrder_ ? (reverseByteOrder_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG (*reinterpret_cast<int*> (&buffer_[(index_in * sampleSize_) + (subSampleIndex_in * subSampleSize_)]))
-                                                                                : ACE_SWAP_LONG (*reinterpret_cast<unsigned int*> (&buffer_[(subSampleIndex_in * sampleSize_) + (subSampleIndex_in * subSampleSize_)])))
-                                                       : (isSignedSampleFormat_ ? *reinterpret_cast<int*> (&buffer_[(index_in * sampleSize_) + (subSampleIndex_in * subSampleSize_)])
-                                                                                : *reinterpret_cast<unsigned int*> (&buffer_[(index_in * sampleSize_) + (subSampleIndex_in * subSampleSize_)])))
-                                  : *reinterpret_cast<float*> (&buffer_[(index_in * sampleSize_) + (subSampleIndex_in * subSampleSize_)]));
+    {
+      if (isFloatingPointFormat_)
+      { // *NOTE*: non-integer type data is (most probably) a 32-bit IEEE float
+        // *TODO*: this isn't very portable
+        ACE_ASSERT (ACE_SIZEOF_FLOAT == 4);
+        return static_cast<ValueType> (*reinterpret_cast<float*> (&buffer_[index_i]));
+      } // end IF
+      return static_cast<ValueType> (subSampleByteOrder_ ? (reverseByteOrder_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG (*reinterpret_cast<int32_t*> (&buffer_[index_i]))
+                                                                                                       : ACE_SWAP_LONG (*reinterpret_cast<uint32_t*> (&buffer_[index_i])))
+                                                                              : (isSignedSampleFormat_ ? *reinterpret_cast<int32_t*> (&buffer_[index_i])
+                                                                                                       : *reinterpret_cast<uint32_t*> (&buffer_[index_i])))
+                                                         : *reinterpret_cast<uint32_t*> (&buffer_[index_i]));
     }
     case 8:
     {
-      // --> non-integer type data is (most probably) a 64-bit IEEE float (aka double)
-      ACE_ASSERT (ACE_SIZEOF_DOUBLE == 8);
-      return *reinterpret_cast<double*> (&buffer_[(index_in * sampleSize_) + (subSampleIndex_in * subSampleSize_)]);
+      if (isFloatingPointFormat_)
+      { // *NOTE*: non-integer type data is (most probably) a 64-bit IEEE float (aka double)
+        // *TODO*: this isn't very portable
+        ACE_ASSERT (ACE_SIZEOF_DOUBLE == 8);
+        return static_cast<ValueType> (*reinterpret_cast<double*> (&buffer_[index_i]));
+      } // end IF
+      return static_cast<ValueType> (subSampleByteOrder_ ? (reverseByteOrder_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG (*reinterpret_cast<int64_t*> (&buffer_[index_i]))
+                                                                                                       : ACE_SWAP_LONG (*reinterpret_cast<uint64_t*> (&buffer_[index_i])))
+                                                                              : (isSignedSampleFormat_ ? *reinterpret_cast<int64_t*> (&buffer_[index_i])
+                                                                                                       : *reinterpret_cast<uint64_t*> (&buffer_[index_i])))
+                                                         : *reinterpret_cast<uint64_t*> (&buffer_[index_i]));
     }
     default:
     {
@@ -71,6 +88,7 @@ template <typename ValueType>
 bool
 Common_Math_SampleIterator_T<ValueType>::initialize (unsigned int sampleSize_in,
                                                      unsigned int subSampleSize_in,
+                                                     bool isFloatingPointFormat_in,
                                                      bool isSignedSampleFormat_in,
                                                      int subSampleByteOrder_in)
 {
@@ -81,6 +99,7 @@ Common_Math_SampleIterator_T<ValueType>::initialize (unsigned int sampleSize_in,
 
   sampleSize_ = sampleSize_in;
   subSampleSize_ = subSampleSize_in;
+  isFloatingPointFormat_ = isFloatingPointFormat_in;
   isSignedSampleFormat_ = isSignedSampleFormat_in;
   subSampleByteOrder_ = subSampleByteOrder_in;
 

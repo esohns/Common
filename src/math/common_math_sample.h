@@ -12,9 +12,9 @@ class Common_Math_SampleIterator_T
   Common_Math_SampleIterator_T (uint8_t*); // buffer
   inline virtual ~Common_Math_SampleIterator_T () {}
 
-  // *TODO*: needs more serious consideration
   bool initialize (unsigned int, // bytes / ('buffer'/'chunk'/'frame'/...) sample
                    unsigned int, // bytes / subsample (if any)
+                   bool,         // is floating point buffer ? (i.e. IEEE float/double)
                    bool,         // signed subsample format ?
                    int);         // subsample byte order (ACE-style, 0: N/A)
   //inline void set (char* buffer_in) { buffer_ = buffer_in; };
@@ -33,6 +33,7 @@ class Common_Math_SampleIterator_T
   ACE_UNIMPLEMENTED_FUNC (Common_Math_SampleIterator_T& operator= (const Common_Math_SampleIterator_T&))
 
   bool         isInitialized_;
+  bool         isFloatingPointFormat_;
   bool         isSignedSampleFormat_;
   int          subSampleByteOrder_; // ACE-style, 0: N/A
 };
