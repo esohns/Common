@@ -801,15 +801,13 @@ namespace yy {
 
   case 6: // $@2: %empty
                         {
-                    struct M3U_Playlist& playlist_r = iparser->current ();
-                    playlist_r.key = *(yystack_[0].value.sval); }
+                    iparser->setKey (*(yystack_[0].value.sval)); }
     break;
 
   case 7: // ext_x_key_value: "key" $@2 "value"
-                                                    {
+                                                     {
                     struct M3U_Playlist& playlist_r = iparser->current ();
-                    playlist_r.keyValues.push_back (std::make_pair (playlist_r.key, *(yystack_[0].value.sval)));
-                    playlist_r.key.clear ();
+                    playlist_r.keyValues.push_back (std::make_pair (iparser->lastKey (), *(yystack_[0].value.sval)));
                   }
     break;
 
@@ -832,12 +830,12 @@ namespace yy {
   case 12: // $@3: %empty
                                                                       {
                     iparser->setP_2 ((yystack_[0].value.eeval));
-                    struct M3U_Playlist& playlist_r = iparser->current ();
-                    if (!playlist_r.key.empty ())
+                    std::string date_time_value = iparser->dateTimeValue ();
+                    if (!date_time_value.empty ())
                     {
                       struct M3U_ExtInf_Element& element_r = iparser->current_2 ();
-                      element_r.keyValues.push_back (std::make_pair (ACE_TEXT_ALWAYS_CHAR (COMMON_PARSER_M3U_EXT_X_PROGRAM_DATE_TIME), playlist_r.key));
-                      playlist_r.key.clear ();
+                      element_r.keyValues.push_back (std::make_pair (ACE_TEXT_ALWAYS_CHAR (COMMON_PARSER_M3U_EXT_X_PROGRAM_DATE_TIME), date_time_value));
+                      iparser->setDateTimeValue (ACE_TEXT_ALWAYS_CHAR (""));
                     } // end IF
                   }
     break;
@@ -859,12 +857,12 @@ namespace yy {
   case 16: // $@5: %empty
                                            {
                     iparser->setP_4 ((yystack_[0].value.esval));
-                    struct M3U_Playlist& playlist_r = iparser->current ();
-                    if (!playlist_r.key.empty ())
+                    std::string date_time_value = iparser->dateTimeValue ();
+                    if (!date_time_value.empty ())
                     {
                       struct M3U_StreamInf_Element& element_r = iparser->current_4 ();
-                      element_r.keyValues.push_back (std::make_pair (ACE_TEXT_ALWAYS_CHAR (COMMON_PARSER_M3U_EXT_X_PROGRAM_DATE_TIME), playlist_r.key));
-                      playlist_r.key.clear ();
+                      element_r.keyValues.push_back (std::make_pair (ACE_TEXT_ALWAYS_CHAR (COMMON_PARSER_M3U_EXT_X_PROGRAM_DATE_TIME), date_time_value));
+                      iparser->setDateTimeValue (ACE_TEXT_ALWAYS_CHAR (""));
                     } // end IF
                   }
     break;
@@ -875,8 +873,7 @@ namespace yy {
 
   case 18: // program_date_time: "date_time"
                                {
-                    struct M3U_Playlist& playlist_r = iparser->current ();
-                    playlist_r.key = *(yystack_[0].value.sval); }
+                    iparser->setDateTimeValue (*(yystack_[0].value.sval)); }
     break;
 
   case 19: // program_date_time: %empty
@@ -911,11 +908,11 @@ namespace yy {
                                           {
                     struct M3U_ExtInf_Element& element_r = iparser->current_2 ();
                     element_r.URL = *(yystack_[0].value.sval);
-                    struct M3U_Playlist& playlist_r = iparser->current ();
-                    if (!playlist_r.key.empty ())
+                    std::string date_time_value = iparser->dateTimeValue ();
+                    if (!date_time_value.empty ())
                     {
-                      element_r.keyValues.push_back (std::make_pair (ACE_TEXT_ALWAYS_CHAR (COMMON_PARSER_M3U_EXT_X_PROGRAM_DATE_TIME), playlist_r.key));
-                      playlist_r.key.clear ();
+                      element_r.keyValues.push_back (std::make_pair (ACE_TEXT_ALWAYS_CHAR (COMMON_PARSER_M3U_EXT_X_PROGRAM_DATE_TIME), date_time_value));
+                      iparser->setDateTimeValue (ACE_TEXT_ALWAYS_CHAR (""));
                     } // end IF
                   }
     break;
@@ -945,14 +942,13 @@ namespace yy {
 
   case 31: // $@9: %empty
                              {
-                    struct M3U_Media_Element& element_r = iparser->current_3 ();
-                    element_r.key = *(yystack_[0].value.sval); }
+                    iparser->setKey (*(yystack_[0].value.sval)); }
     break;
 
   case 32: // ext_media_key_value: "key" $@9 "value"
-                                                   {
+                                                     {
                     struct M3U_Media_Element& element_r = iparser->current_3 ();
-                    element_r.keyValues.push_back (std::make_pair (element_r.key, *(yystack_[0].value.sval))); element_r.key.clear (); }
+                    element_r.keyValues.push_back (std::make_pair (iparser->lastKey (), *(yystack_[0].value.sval))); }
     break;
 
   case 33: // ext_media_rest_4: "element_end"
@@ -976,14 +972,13 @@ namespace yy {
 
   case 37: // $@10: %empty
                                   {
-  struct M3U_StreamInf_Element& element_r = iparser->current_4 ();
-  element_r.key = *(yystack_[0].value.sval); }
+  iparser->setKey (*(yystack_[0].value.sval)); }
     break;
 
   case 38: // ext_stream_inf_key_value: "key" $@10 "value"
-                                 {
+                                   {
   struct M3U_StreamInf_Element& element_r = iparser->current_4 ();
-  element_r.keyValues.push_back (std::make_pair (element_r.key, *(yystack_[0].value.sval))); element_r.key.clear (); }
+  element_r.keyValues.push_back (std::make_pair (iparser->lastKey (), *(yystack_[0].value.sval))); }
     break;
 
   case 39: // $@11: %empty
@@ -1473,11 +1468,11 @@ namespace yy {
   const short
   parser::yyrline_[] =
   {
-       0,   195,   195,   195,   208,   210,   211,   211,   218,   220,
-     222,   224,   225,   225,   235,   235,   238,   238,   248,   252,
-     254,   254,   257,   257,   260,   261,   261,   271,   276,   277,
-     279,   280,   280,   285,   290,   291,   293,   294,   294,   299,
-     299,   302
+       0,   195,   195,   195,   208,   210,   211,   211,   216,   218,
+     220,   222,   223,   223,   233,   233,   236,   236,   246,   249,
+     251,   251,   254,   254,   257,   258,   258,   268,   273,   274,
+     276,   277,   277,   281,   286,   287,   289,   290,   290,   294,
+     294,   297
   };
 
   void

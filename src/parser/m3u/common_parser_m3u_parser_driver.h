@@ -24,6 +24,7 @@
 #include <string>
 
 #include "ace/Global_Macros.h"
+#include "ace/OS.h"
 
 //#include "location.hh"
 
@@ -73,6 +74,13 @@ class Common_Parser_M3U_ParserDriver
   inline virtual void pop_next () { popState_ = true; }
   inline virtual bool pop_state () { bool pop_state_b = popState_; popState_ = false; return pop_state_b; }
 
+  inline virtual void setDateTimeValue (const std::string& value_in) { dateTimeValue_ = value_in; }
+  inline virtual std::string dateTimeValue () { return dateTimeValue_; }
+
+  inline virtual void setKey (const std::string& key_in) { lastKey_ = key_in; lastKeyWasURI_ = ACE_OS::strcmp (lastKey_.c_str (), ACE_TEXT_ALWAYS_CHAR ("URI")) == 0; }
+  inline virtual std::string lastKey () { return lastKey_; }
+  inline virtual bool lastKeyWasURI () { return lastKeyWasURI_; }
+
   inline virtual struct M3U_Playlist& current () { ACE_ASSERT (playlist_); return *playlist_; }
   inline virtual struct M3U_ExtInf_Element& current_2 () { ACE_ASSERT (extInfElement_); return *extInfElement_; }
   inline virtual struct M3U_Media_Element& current_3 () { ACE_ASSERT (mediaElement_); return *mediaElement_; }
@@ -108,6 +116,9 @@ class Common_Parser_M3U_ParserDriver
   inline virtual bool lex (yyscan_t state_in) { ACE_ASSERT (false); return M3U_lex (NULL, NULL, this, state_in); }
 
   bool                          popState_;
+  std::string                   dateTimeValue_;
+  std::string                   lastKey_;
+  bool                          lastKeyWasURI_;
   struct M3U_Playlist*          playlist_;
   struct M3U_ExtInf_Element*    extInfElement_;
   struct M3U_Media_Element*     mediaElement_;

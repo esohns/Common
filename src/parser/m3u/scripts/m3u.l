@@ -144,37 +144,43 @@ LF                                \x0A|\x0D\x0A
                                                       struct M3U_Playlist);
                                     ACE_ASSERT (yylval->lval);
                                     return yy::parser::token::EXT3MU; }
+"#EXT-X-I-FRAME-STREAM-INF:"      { parser->offset (yyleng);
+                                    BEGIN (state_ext_stream_inf_key_value);
+                                    ACE_NEW_NORETURN (yylval->esval,
+                                                      struct M3U_StreamInf_Element);
+                                    ACE_ASSERT (yylval->esval);
+                                    return yy::parser::token::BEGIN_EXT_STREAM_INF; }
 "#EXT-X-INDEPENDENT-SEGMENTS"     { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
-                                                     std::string);
+                                                      std::string);
                                     ACE_ASSERT (yylval->sval);
                                     *(yylval->sval) = ACE_TEXT_ALWAYS_CHAR ("INDEPENDENT-SEGMENTS");
                                     BEGIN (state_no_value);
                                     return yy::parser::token::KEY; }
 "#EXT-X-TARGETDURATION:"          { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
-                                                     std::string);
+                                                      std::string);
                                     ACE_ASSERT (yylval->sval);
                                     *(yylval->sval) = ACE_TEXT_ALWAYS_CHAR ("TARGETDURATION");
                                     BEGIN (state_value);
                                     return yy::parser::token::KEY; }
 "#EXT-X-ALLOW-CACHE:"             { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
-                                                     std::string);
+                                                      std::string);
                                     ACE_ASSERT (yylval->sval);
                                     *(yylval->sval) = ACE_TEXT_ALWAYS_CHAR ("ALLOW-CACHE");
                                     BEGIN (state_value);
                                     return yy::parser::token::KEY; }
 "#EXT-X-VERSION:"                 { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
-                                                     std::string);
+                                                      std::string);
                                     ACE_ASSERT (yylval->sval);
                                     *(yylval->sval) = ACE_TEXT_ALWAYS_CHAR ("VERSION");
                                     BEGIN (state_value);
                                     return yy::parser::token::KEY; }
 "#EXT-X-MEDIA-SEQUENCE:"          { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
-                                                     std::string);
+                                                      std::string);
                                     ACE_ASSERT (yylval->sval);
                                     *(yylval->sval) = ACE_TEXT_ALWAYS_CHAR ("MEDIA-SEQUENCE");
                                     BEGIN (state_value);
@@ -187,14 +193,14 @@ LF                                \x0A|\x0D\x0A
                                     return yy::parser::token::BEGIN_MEDIA; }
 "#EXT-X-DISCONTINUITY"            { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
-                                                     std::string);
+                                                      std::string);
                                     ACE_ASSERT (yylval->sval);
                                     *(yylval->sval) = ACE_TEXT_ALWAYS_CHAR ("DISCONTINUITY");
                                     BEGIN (state_no_value);
                                     return yy::parser::token::KEY; }
 "#EXT-X-DISCONTINUITY-SEQUENCE:"  { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
-                                                     std::string);
+                                                      std::string);
                                     ACE_ASSERT (yylval->sval);
                                     *(yylval->sval) = ACE_TEXT_ALWAYS_CHAR ("DISCONTINUITY-SEQUENCE");
                                     BEGIN (state_value);
@@ -228,7 +234,7 @@ LF                                \x0A|\x0D\x0A
 <state_no_value>{
 {LF}                              { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
-                                                     std::string);
+                                                      std::string);
                                     ACE_ASSERT (yylval->sval);
                                     *(yylval->sval) = ACE_TEXT_ALWAYS_CHAR ("");
                                     BEGIN (INITIAL);
@@ -237,7 +243,7 @@ LF                                \x0A|\x0D\x0A
 <state_value>{
 {TO_END_OF_LINE}+/{LF}            { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
-                                                     std::string);
+                                                      std::string);
                                     ACE_ASSERT (yylval->sval);
                                     *(yylval->sval) = yytext;
                                     return yy::parser::token::VALUE; }
@@ -284,7 +290,7 @@ LF                                \x0A|\x0D\x0A
 <state_ext_stream_inf_key_value>{
 {TO_EQUALS}+/=                    { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
-                                                     std::string);
+                                                      std::string);
                                     ACE_ASSERT (yylval->sval);
                                     *(yylval->sval) = yytext;
                                     return yy::parser::token::KEY; }
@@ -293,22 +299,19 @@ LF                                \x0A|\x0D\x0A
 } // end <state_ext_stream_inf_key_value>
 
 <state_ext_stream_inf_is_last_value>{
-{TO_END_OF_LINE}+/{LF}            {
-                                    std::string test_string = yytext;
-                                    // *TODO*: actually, need to test whether ','
-                                    // does NOT appear between '"'s
-                                    if (test_string.find_first_of (',') == std::string::npos)
+{TO_END_OF_LINE}+/{LF}            { std::string test_string = yytext;
+                                    if (test_string[0] == '"')
+                                    { parser->offset (1);
+                                      BEGIN (state_ext_stream_inf_next_value_quotation);
+                                      yyless (1);
+                                    } // end IF
+                                    else if (test_string.find_first_of (',') == std::string::npos)
                                     { parser->offset (yyleng);
                                       ACE_NEW_NORETURN (yylval->sval,
                                                         std::string);
                                       ACE_ASSERT (yylval->sval);
                                       *(yylval->sval) = yytext;
                                       return yy::parser::token::VALUE;
-                                    } // end IF
-                                    if (test_string[0] == '"')
-                                    { parser->offset (1);
-                                      BEGIN (state_ext_stream_inf_next_value_quotation);
-                                      yyless (1);
                                     } // end IF
                                     else
                                     {
@@ -338,8 +341,17 @@ LF                                \x0A|\x0D\x0A
                                     ACE_ASSERT (yylval->sval);
                                     *(yylval->sval) = yytext;
                                     return yy::parser::token::VALUE; }
-"\","                              { parser->offset (yyleng);
-                                     BEGIN (state_ext_stream_inf_key_value); }
+"\""                              { parser->offset (yyleng);
+                                    if (parser->lastKeyWasURI ())
+                                    {
+                                      BEGIN (state_url_2); // --> eat the next lf and end the element
+                                      ACE_NEW_NORETURN (yylval->sval,
+                                                        std::string);
+                                      ACE_ASSERT (yylval->sval);
+                                      return yy::parser::token::URL; // <-- *NOTE*: this is an empty URL
+                                    }
+                                    else
+                                      BEGIN (state_ext_stream_inf_next_value_comma); }
 } // end <state_inf_next_value_quotation>
 
 <state_media_key_value>{
@@ -355,20 +367,18 @@ LF                                \x0A|\x0D\x0A
 
 <state_media_is_last_value>{
 {TO_END_OF_LINE}+/{LF}            { std::string test_string = yytext;
-                                    // *TODO*: actually, need to test whether ','
-                                    // does NOT appear between '"'s
-                                    if (test_string.find_first_of (',') == std::string::npos)
-                                    { parser->offset (yyleng);
-                                      ACE_NEW_NORETURN (yylval->sval,
-                                                       std::string);
-                                      ACE_ASSERT (yylval->sval);
-                                      *(yylval->sval) = yytext;
-                                      return yy::parser::token::VALUE;
-                                    } // end IF
                                     if (test_string[0] == '"')
                                     { parser->offset (1);
                                       BEGIN (state_media_next_value_quotation);
                                       yyless (1);
+                                    } // end IF
+                                    else if (test_string.find_first_of (',') == std::string::npos)
+                                    { parser->offset (yyleng);
+                                      ACE_NEW_NORETURN (yylval->sval,
+                                                        std::string);
+                                      ACE_ASSERT (yylval->sval);
+                                      *(yylval->sval) = yytext;
+                                      return yy::parser::token::VALUE;
                                     } // end IF
                                     else
                                     {
@@ -399,8 +409,11 @@ LF                                \x0A|\x0D\x0A
                                     ACE_ASSERT (yylval->sval);
                                     *(yylval->sval) = yytext;
                                     return yy::parser::token::VALUE; }
-"\","                             { parser->offset (yyleng);
-                                    BEGIN (state_media_key_value); }
+"\""                             { parser->offset (yyleng);
+                                   if (parser->lastKeyWasURI ())
+                                     BEGIN (state_url_2); // --> eat the next lf and end the element
+                                   else
+                                     BEGIN (state_media_next_value_comma); }
 } // end <state_media_next_value_quotation>
 
 <state_url_1>{
@@ -414,7 +427,7 @@ LF                                \x0A|\x0D\x0A
 <state_url_2>{
 {TO_END_OF_LINE}+/{LF}            { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
-                                                     std::string);
+                                                      std::string);
                                     ACE_ASSERT (yylval->sval);
                                     *(yylval->sval) = yytext;
                                     return yy::parser::token::URL; }
@@ -425,6 +438,9 @@ LF                                \x0A|\x0D\x0A
 
 <<EOF>>                           { return yy::parser::token::END; }
 <*>{OCTET}                        { /* *TODO*: use (?s:.) ? */
+                                    parser->offset (yyleng);
+                                    if (parser->hasFinished ()) // ignore spurious LFs
+                                      return yy::parser::token::LF;
                                     if (!parser->isBlocking ())
                                       yyterminate ();
                                     // wait for more data fragment(s)

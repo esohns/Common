@@ -42,6 +42,7 @@ struct M3U_ExtInf_Element
   ACE_INT32       Length;
   std::string     Title;
   std::string     URL;
+
   M3U_KeyValues_t keyValues;
 };
 typedef std::vector<struct M3U_ExtInf_Element> M3U_ExtInf_Elements_t;
@@ -51,7 +52,6 @@ struct M3U_Media_Element
 {
   std::string     URL;
 
-  std::string     key; // temp
   M3U_KeyValues_t keyValues;
 };
 typedef std::vector<struct M3U_Media_Element> M3U_Media_Elements_t;
@@ -62,7 +62,6 @@ struct M3U_StreamInf_Element
   ACE_INT32       Length;
   std::string     URL;
 
-  std::string     key; // temp
   M3U_KeyValues_t keyValues;
 };
 typedef std::vector<struct M3U_StreamInf_Element> M3U_StreamInf_Elements_t;
@@ -74,7 +73,6 @@ struct M3U_Playlist
   M3U_Media_Elements_t media_elements;
   M3U_StreamInf_Elements_t stream_inf_elements;
 
-  std::string key; // temp
   M3U_KeyValues_t keyValues;
 };
 
@@ -99,6 +97,14 @@ class Common_Parser_M3U_IParser
 //  using Common_IScanner::error;
   virtual void pop_next () = 0;
   virtual bool pop_state () = 0;
+
+  virtual void setDateTimeValue (const std::string&) = 0;
+  virtual std::string dateTimeValue () = 0;
+
+  inline virtual void setKey (const std::string&) = 0;
+  virtual std::string lastKey () = 0;
+  // *WORKAROUND*: to correctly handle #EXT-X-I-FRAME-STREAM-INF elements
+  virtual bool lastKeyWasURI () = 0;
 
   virtual struct M3U_ExtInf_Element& current_2 () = 0; // element handle
   virtual struct M3U_Media_Element& current_3 () = 0; // element handle
