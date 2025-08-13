@@ -344,24 +344,30 @@ Common_String_Tools::strip (const std::string& string_in)
 }
 
 std::string
-Common_String_Tools::uncomment (const std::string& string_in)
+Common_String_Tools::uncomment (const std::string& string_in, char char_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_String_Tools::uncomment"));
 
   std::string result = string_in;
 
   // sanity check(s)
-  ACE_ASSERT (!result.empty ());
+  if (result.size () < 2)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("string (was: \"%s\") too short, aborting\n"),
+                ACE_TEXT (string_in.c_str ())));
+    return result;
+  } // end IF
+  if (result.front () != char_in || result.back () != char_in)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("string (was: \"%s\") not commented, aborting\n"),
+                ACE_TEXT (string_in.c_str ())));
+    return result;
+  } // end IF
 
-  if (result[0] == '"')
-    result.erase (0, 1);
-
-  // sanity check(s)
-  ACE_ASSERT (!result.empty ());
-
-  if (Common_String_Tools::endswith (result,
-                                     ACE_TEXT_ALWAYS_CHAR ("\"")))
-    result.erase (--result.end ());
+  result.erase (0, 1);
+  result.erase (--result.end ());
 
   return result;
 }

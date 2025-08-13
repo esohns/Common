@@ -37,6 +37,15 @@ typedef M3U_KeyValues_t::const_iterator M3U_KeyValuesIterator_t;
 
 struct M3U_ExtInf_Element
 {
+  M3U_ExtInf_Element ()
+   : Artist ()
+   , Album ()
+   , Length (0)
+   , Title ()
+   , URL ()
+   , keyValues ()
+  {}
+
   std::string     Artist;
   std::string     Album;
   ACE_INT32       Length;
@@ -50,6 +59,11 @@ typedef M3U_ExtInf_Elements_t::const_iterator M3U_ExtInf_ElementsIterator_t;
 
 struct M3U_Media_Element
 {
+  M3U_Media_Element ()
+   : URL ()
+   , keyValues ()
+  {}
+
   std::string     URL;
 
   M3U_KeyValues_t keyValues;
@@ -59,16 +73,29 @@ typedef M3U_Media_Elements_t::const_iterator M3U_Media_ElementsIterator_t;
 
 struct M3U_StreamInf_Element
 {
+  M3U_StreamInf_Element ()
+   : Length (0)
+   , URL ()
+   , keyValues ()
+  {}
+
   ACE_INT32       Length;
   std::string     URL;
 
   M3U_KeyValues_t keyValues;
 };
 typedef std::vector<struct M3U_StreamInf_Element> M3U_StreamInf_Elements_t;
-typedef M3U_StreamInf_Elements_t::const_iterator M3U_StreamInf_ElementsIterator_t;
+typedef M3U_StreamInf_Elements_t::iterator M3U_StreamInf_ElementsIterator_t;
 
 struct M3U_Playlist
 {
+  M3U_Playlist ()
+   : ext_inf_elements ()
+   , media_elements ()
+   , stream_inf_elements ()
+   , keyValues ()
+  {}
+
   M3U_ExtInf_Elements_t ext_inf_elements;
   M3U_Media_Elements_t media_elements;
   M3U_StreamInf_Elements_t stream_inf_elements;

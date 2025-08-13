@@ -53,8 +53,8 @@ class Common_String_Tools
   static std::string sanitize (const std::string&);
   // remove leading and trailing whitespace
   static std::string strip (const std::string&);
-  // remove leading and trailing '"'
-  static std::string uncomment (const std::string&);
+  // remove leading and trailing comments
+  static std::string uncomment (const std::string&, const char = '"');
 
   static bool isspace (const std::string&);
 
