@@ -7,12 +7,12 @@ template <typename ValueType>
 Common_Math_SampleIterator_T<ValueType>::Common_Math_SampleIterator_T (uint8_t* buffer_in)
  : buffer_ (buffer_in)
  , reverseByteOrder_ (false)
+ , frameSize_ (0)
  , sampleSize_ (0)
- , subSampleSize_ (0)
  /////////////////////////////////////////
  , isInitialized_ (false)
  , isSignedSampleFormat_ (true)
- , subSampleByteOrder_ (ACE_BYTE_ORDER)
+ , sampleByteOrder_ (ACE_BYTE_ORDER)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Math_SampleIterator_T_T::Common_Math_SampleIterator_T_T"));
 
@@ -20,8 +20,8 @@ Common_Math_SampleIterator_T<ValueType>::Common_Math_SampleIterator_T (uint8_t* 
 
 template <typename ValueType>
 ValueType
-Common_Math_SampleIterator_T<ValueType>::get (unsigned int index_in,
-                                              unsigned int subSampleIndex_in) // i.e. channel#
+Common_Math_SampleIterator_T<ValueType>::get (unsigned int frameIndex_in,
+                                              unsigned int sampleIndex_in) // i.e. channel#
 {
   COMMON_TRACE (ACE_TEXT ("Common_Math_SampleIterator_T::get"));
 
@@ -29,9 +29,8 @@ Common_Math_SampleIterator_T<ValueType>::get (unsigned int index_in,
   ACE_ASSERT (buffer_);
   ACE_ASSERT (isInitialized_);
 
-  int index_i = (index_in * sampleSize_) + (subSampleIndex_in * subSampleSize_);
-  // *TODO*: this isn't entirely portable
-  switch (subSampleSize_)
+  unsigned int index_i = (frameIndex_in * frameSize_) + (sampleIndex_in * sampleSize_);
+  switch (sampleSize_)
   {
     case 1: // --> data is single-byte (possibly non-integer)
     { ACE_ASSERT (!isFloatingPointFormat_); // (currently) not supported
@@ -86,25 +85,24 @@ Common_Math_SampleIterator_T<ValueType>::get (unsigned int index_in,
 
 template <typename ValueType>
 bool
-Common_Math_SampleIterator_T<ValueType>::initialize (unsigned int sampleSize_in,
-                                                     unsigned int subSampleSize_in,
+Common_Math_SampleIterator_T<ValueType>::initialize (unsigned int frameSize_in,
+                                                     unsigned int sampleSize_in,
                                                      bool isFloatingPointFormat_in,
                                                      bool isSignedSampleFormat_in,
-                                                     int subSampleByteOrder_in)
+                                                     int sampleByteOrder_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Math_SampleIterator_T::initialize"));
 
   // sanity check(s)
-  ACE_ASSERT (sizeof (ValueType) >= subSampleSize_in);
+  ACE_ASSERT (sizeof (ValueType) >= sampleSize_in);
 
+  frameSize_ = frameSize_in;
   sampleSize_ = sampleSize_in;
-  subSampleSize_ = subSampleSize_in;
   isFloatingPointFormat_ = isFloatingPointFormat_in;
   isSignedSampleFormat_ = isSignedSampleFormat_in;
-  subSampleByteOrder_ = subSampleByteOrder_in;
+  sampleByteOrder_ = sampleByteOrder_in;
 
-  reverseByteOrder_ =
-    subSampleByteOrder_ && (ACE_BYTE_ORDER != subSampleByteOrder_);
+  reverseByteOrder_ = sampleByteOrder_ && (ACE_BYTE_ORDER != sampleByteOrder_);
 
   isInitialized_ = true;
 

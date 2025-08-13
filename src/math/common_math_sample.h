@@ -12,20 +12,20 @@ class Common_Math_SampleIterator_T
   Common_Math_SampleIterator_T (uint8_t*); // buffer
   inline virtual ~Common_Math_SampleIterator_T () {}
 
-  bool initialize (unsigned int, // bytes / ('buffer'/'chunk'/'frame'/...) sample
-                   unsigned int, // bytes / subsample (if any)
+  bool initialize (unsigned int, // bytes / ('buffer'/'chunk'/'frame'/...) (i.e. typically #channels * (bytes / sample))
+                   unsigned int, // bytes / sample
                    bool,         // is floating point buffer ? (i.e. IEEE float/double)
-                   bool,         // signed subsample format ?
-                   int);         // subsample byte order (ACE-style, 0: N/A)
+                   bool,         // signed sample format ?
+                   int);         // sample byte order (ACE-style, 0: N/A)
   //inline void set (char* buffer_in) { buffer_ = buffer_in; };
-  ValueType get (unsigned int,  // index (i.e. #sample into buffer)
-                 unsigned int); // subsample index (e.g. 0: mono/stereo left,
-                                //                       1: stereo right, ...)
+  ValueType get (unsigned int,  // frame index (i.e. #frames into buffer)
+                 unsigned int); // sample index (e.g. 0: mono/stereo left,
+                                //                    1: stereo right, ...)
 
   uint8_t*     buffer_;
   bool         reverseByteOrder_;
+  unsigned int frameSize_;
   unsigned int sampleSize_;
-  unsigned int subSampleSize_;
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Math_SampleIterator_T ())
