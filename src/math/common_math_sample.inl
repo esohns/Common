@@ -51,11 +51,11 @@ Common_Math_SampleIterator_T<ValueType>::get (unsigned int frameIndex_in,
         ACE_ASSERT (ACE_SIZEOF_FLOAT == 4);
         return static_cast<ValueType> (*reinterpret_cast<float*> (&buffer_[index_i]));
       } // end IF
-      return static_cast<ValueType> (subSampleByteOrder_ ? (reverseByteOrder_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG (*reinterpret_cast<int32_t*> (&buffer_[index_i]))
-                                                                                                       : ACE_SWAP_LONG (*reinterpret_cast<uint32_t*> (&buffer_[index_i])))
-                                                                              : (isSignedSampleFormat_ ? *reinterpret_cast<int32_t*> (&buffer_[index_i])
-                                                                                                       : *reinterpret_cast<uint32_t*> (&buffer_[index_i])))
-                                                         : *reinterpret_cast<uint32_t*> (&buffer_[index_i]));
+      return static_cast<ValueType> ((sampleByteOrder_ != -1) ? (reverseByteOrder_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG (*reinterpret_cast<int32_t*> (&buffer_[index_i]))
+                                                                                                            : ACE_SWAP_LONG (*reinterpret_cast<uint32_t*> (&buffer_[index_i])))
+                                                                                   : (isSignedSampleFormat_ ? *reinterpret_cast<int32_t*> (&buffer_[index_i])
+                                                                                                            : *reinterpret_cast<uint32_t*> (&buffer_[index_i])))
+                                                              : *reinterpret_cast<uint32_t*> (&buffer_[index_i]));
     }
     case 8:
     {
@@ -65,17 +65,17 @@ Common_Math_SampleIterator_T<ValueType>::get (unsigned int frameIndex_in,
         ACE_ASSERT (ACE_SIZEOF_DOUBLE == 8);
         return static_cast<ValueType> (*reinterpret_cast<double*> (&buffer_[index_i]));
       } // end IF
-      return static_cast<ValueType> (subSampleByteOrder_ ? (reverseByteOrder_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG_LONG (*reinterpret_cast<int64_t*> (&buffer_[index_i]))
-                                                                                                       : ACE_SWAP_LONG_LONG (*reinterpret_cast<uint64_t*> (&buffer_[index_i])))
-                                                                              : (isSignedSampleFormat_ ? *reinterpret_cast<int64_t*> (&buffer_[index_i])
-                                                                                                       : *reinterpret_cast<uint64_t*> (&buffer_[index_i])))
-                                                         : *reinterpret_cast<uint64_t*> (&buffer_[index_i]));
+      return static_cast<ValueType> ((sampleByteOrder_ != -1) ? (reverseByteOrder_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG_LONG (*reinterpret_cast<int64_t*> (&buffer_[index_i]))
+                                                                                                            : ACE_SWAP_LONG_LONG (*reinterpret_cast<uint64_t*> (&buffer_[index_i])))
+                                                                                   : (isSignedSampleFormat_ ? *reinterpret_cast<int64_t*> (&buffer_[index_i])
+                                                                                                            : *reinterpret_cast<uint64_t*> (&buffer_[index_i])))
+                                                              : *reinterpret_cast<uint64_t*> (&buffer_[index_i]));
     }
     default:
     {
       ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("unknown/invalid subsample size (was: %d), aborting\n"),
-                  subSampleSize_));
+                  ACE_TEXT ("unknown/invalid sample size (was: %d), aborting\n"),
+                  sampleSize_));
       break;
     }
   } // end SWITCH
