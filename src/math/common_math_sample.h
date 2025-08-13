@@ -35,7 +35,7 @@ class Common_Math_SampleIterator_T
   bool         isInitialized_;
   bool         isFloatingPointFormat_;
   bool         isSignedSampleFormat_;
-  int          subSampleByteOrder_; // ACE-style, 0: N/A
+  int          sampleByteOrder_; // ACE-style; -1: N/A
 };
 
 //////////////////////////////////////////

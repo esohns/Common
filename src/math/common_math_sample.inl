@@ -65,8 +65,8 @@ Common_Math_SampleIterator_T<ValueType>::get (unsigned int frameIndex_in,
         ACE_ASSERT (ACE_SIZEOF_DOUBLE == 8);
         return static_cast<ValueType> (*reinterpret_cast<double*> (&buffer_[index_i]));
       } // end IF
-      return static_cast<ValueType> (subSampleByteOrder_ ? (reverseByteOrder_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG (*reinterpret_cast<int64_t*> (&buffer_[index_i]))
-                                                                                                       : ACE_SWAP_LONG (*reinterpret_cast<uint64_t*> (&buffer_[index_i])))
+      return static_cast<ValueType> (subSampleByteOrder_ ? (reverseByteOrder_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG_LONG (*reinterpret_cast<int64_t*> (&buffer_[index_i]))
+                                                                                                       : ACE_SWAP_LONG_LONG (*reinterpret_cast<uint64_t*> (&buffer_[index_i])))
                                                                               : (isSignedSampleFormat_ ? *reinterpret_cast<int64_t*> (&buffer_[index_i])
                                                                                                        : *reinterpret_cast<uint64_t*> (&buffer_[index_i])))
                                                          : *reinterpret_cast<uint64_t*> (&buffer_[index_i]));
@@ -102,7 +102,7 @@ Common_Math_SampleIterator_T<ValueType>::initialize (unsigned int frameSize_in,
   isSignedSampleFormat_ = isSignedSampleFormat_in;
   sampleByteOrder_ = sampleByteOrder_in;
 
-  reverseByteOrder_ = sampleByteOrder_ && (ACE_BYTE_ORDER != sampleByteOrder_);
+  reverseByteOrder_ = (sampleByteOrder_ != -1) && (ACE_BYTE_ORDER != sampleByteOrder_);
 
   isInitialized_ = true;
 
