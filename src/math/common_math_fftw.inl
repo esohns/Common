@@ -89,7 +89,7 @@ Common_Math_FFTW_SampleIterator_T<ValueType>::initialize (unsigned int dataSampl
   sampleByteOrder_ = sampleByteOrder_in;
 
   reverseEndianness_ =
-    sampleByteOrder_ && (ACE_BYTE_ORDER != sampleByteOrder_);
+    (sampleByteOrder_ != -1) && (ACE_BYTE_ORDER != sampleByteOrder_);
 
   isInitialized_ = true;
 

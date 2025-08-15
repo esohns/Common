@@ -42,7 +42,7 @@ class Common_Math_FFTW_SampleIterator_T
   ACE_UNIMPLEMENTED_FUNC (Common_Math_FFTW_SampleIterator_T& operator= (const Common_Math_FFTW_SampleIterator_T&))
 
   bool         isFloatingPointFormat_;
-  int          sampleByteOrder_; // ACE-style, 0: N/A
+  int          sampleByteOrder_; // ACE-style, -1: N/A
 };
 
 //////////////////////////////////////////
