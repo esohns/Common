@@ -153,10 +153,10 @@ void Test_U_wxWidgets_Application::OnInitCmdLine (wxCmdLineParser& parser)
   wxApp::OnInitCmdLine (parser);
 
   //parser.AddSwitch ("v", "version", "Shows the application version", 0);
-  parser.Parse (true);
+  //parser.Parse (true);
 
-  std::string argv_0 = parser.GetParam (0).ToStdString ();
-  Common_File_Tools::initialize (argv_0);
+  //std::string argv_0 = parser.GetParam (0).ToStdString ();
+  //Common_File_Tools::initialize (argv_0);
 }
 
 bool Test_U_wxWidgets_Application::OnInit ()
@@ -169,6 +169,9 @@ bool Test_U_wxWidgets_Application::OnInit ()
                 ACE_TEXT ("failed to wxAppConsole::OnInit(), aborting\n")));
     return false;
   } // end IF
+
+  std::string argv_0 = wxApp::argv[0];
+  Common_File_Tools::initialize (argv_0);
 
   // step0: initialize XRC
   wxXmlResource* resource_p = wxXmlResource::Get ();

@@ -109,7 +109,7 @@ if (WIN32)
   file (TO_NATIVE_PATH $ENV{LIB_ROOT} LIB_ROOT)
   string (REPLACE "\\" "\\\\" LIB_ROOT ${LIB_ROOT})
  endif (DEFINED ENV{LIB_ROOT})
- install (FILES ${LIB_ROOT}/wxWidgets/lib/vc_x64_dll/wxbase316d_vc_x64_custom.dll
+ install (FILES ${LIB_ROOT}/wxWidgets/lib/vc_x64_dll/wxbase316_vc_x64_custom.dll
           DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 endif (WIN32)
 install (TARGETS ${EXECUTABLE_2}

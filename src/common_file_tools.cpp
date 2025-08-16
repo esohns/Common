@@ -63,7 +63,7 @@ Common_File_Tools::initialize (const std::string& argv0_in)
 
   Common_File_Tools::executable =
   ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv0_in.c_str (),
-                                        ACE_DIRECTORY_SEPARATOR_CHAR_A));
+                                       ACE_DIRECTORY_SEPARATOR_CHAR_A));
 
   Common_File_Tools::executableBase =
     ACE_TEXT_ALWAYS_CHAR (ACE::dirname (argv0_in.c_str(),
