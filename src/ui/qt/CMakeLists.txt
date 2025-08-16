@@ -1,6 +1,6 @@
-if (WIN32)
- cmake_policy (SET CMP0020 OLD)
-endif (WIN32)
+#if (WIN32)
+# cmake_policy (SET CMP0020 OLD)
+#endif (WIN32)
 
 set (LIBRARY ${PROJECT_NAME}UI_Qt)
 add_library (${LIBRARY} STATIC "")

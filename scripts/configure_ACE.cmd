@@ -64,7 +64,7 @@ echo project: "!PROJECT_TYPE!"...
 set DEFAULT_PROJECT_DIRECTORY=%~dp0..\..
 set PROJECT_DIRECTORY=%DEFAULT_PROJECT_DIRECTORY%
 if NOT exist "%PROJECT_DIRECTORY%" (
- echo invalid directory ^(was: "%PROJECT_DIRECTORY%"^)^, exiting
+ echo invalid project directory ^(was: "%PROJECT_DIRECTORY%"^)^, exiting
  goto Failed
 )
 
@@ -73,7 +73,7 @@ if NOT exist "%ACE_ROOT%" (
  echo invalid directory ^(was: "%ACE_ROOT%"^)^, falling back
  set ACE_ROOT=%LIB_ROOT%\ACE_TAO\ACE
  if NOT exist "!ACE_ROOT!" (
-  echo invalid directory ^(was: "!ACE_ROOT!"^)^, exiting
+  echo invalid ACE_ROOT directory ^(was: "!ACE_ROOT!"^)^, exiting
   goto Failed
  )
 )
@@ -83,7 +83,7 @@ if NOT exist "%MPC_ROOT%" (
  echo invalid directory ^(was: "%MPC_ROOT%"^)^, falling back
  set MPC_ROOT=%LIB_ROOT%\MPC
  if NOT exist "!MPC_ROOT!" (
-  echo invalid directory ^(was: "!MPC_ROOT!"^)^, exiting
+  echo invalid MPC_ROOT directory ^(was: "!MPC_ROOT!"^)^, exiting
   goto Failed
  )
 )
@@ -154,7 +154,8 @@ if NOT exist "%ACE_BUILD_DIRECTORY%" (
 @rem  echo invalid directory ^(was: "%CREATE_ACE_BUILD%"^)^, exiting
 @rem  goto Failed
 @rem )
-set PERL_EXE=C:\Perl64\bin\perl.exe
+@rem set PERL_EXE=C:\Perl64\bin\perl.exe
+set PERL_EXE=C:\Strawberry\perl\bin\perl.exe
 if NOT exist "%PERL_EXE%" (
  echo invalid executable ^(was: "%PERL_EXE%"^)^, exiting
  goto Failed

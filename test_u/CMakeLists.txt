@@ -39,9 +39,9 @@ if (GTK_SUPPORT)
  endif (GTKGLAREA_SUPPORT)
 endif (GTK_SUPPORT)
 if (QT_SUPPORT)
- if (WIN32)
-  cmake_policy (SET CMP0020 OLD)
- endif (WIN32)
+# if (WIN32)
+#  cmake_policy (SET CMP0020 OLD)
+# endif (WIN32)
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${QT_INCLUDE_DIRS}>)
 endif (QT_SUPPORT)
@@ -104,6 +104,8 @@ endif (QT_SUPPORT)
 if (WXWIDGETS_SUPPORT)
  target_link_libraries (${LIBRARY} PUBLIC ${wxWidgets_LIBRARIES})
 endif (WXWIDGETS_SUPPORT)
+
+target_link_libraries (${LIBRARY} PUBLIC ${ACE_LIBRARY})
 
 set (source_files
      common_test_u_common.h
