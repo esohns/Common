@@ -101,18 +101,11 @@ struct Common_UI_Window
     TYPE_WAYLAND = 0,
     TYPE_X11,
 #endif // ACE_WIN32 || ACE_WIN64
-#if defined (CURSES_SUPPORT)
     TYPE_CURSES,
-#endif // CURSES_SUPPORT
-#if defined (GTK_SUPPORT)
     TYPE_GTK,
-#endif // GTK_SUPPORT
-#if defined (QT_SUPPORT)
     TYPE_QT,
-#endif // QT_SUPPORT
-#if defined (WXWIDGETS_SUPPORT)
     TYPE_WXWIDGETS,
-#endif // WXWIDGETS_SUPPORT
+    //////////////////////////////////////
     TYPE_MAX,
     TYPE_INVALID,
   };

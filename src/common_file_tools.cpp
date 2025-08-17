@@ -2096,8 +2096,10 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
     //  ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_PARENT_SUBDIRECTORY);
     //return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
     return_value +=
-        (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
-                            : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
+      (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
+                          : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
+#if defined (_DEBUG)
+#else
     return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
     std::string executable_directory_string =
       Common_String_Tools::tolower (Common_File_Tools::basename (Common_File_Tools::executable, true));
@@ -2114,6 +2116,7 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
       executable_directory_string.erase (position, std::string::npos);
     } // end IF
     return_value += executable_directory_string;
+#endif // _DEBUG
   } // end IF
   else
   {
@@ -2159,6 +2162,7 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
 #endif // ACE_WIN32 || ACE_WIN64
 
   // sanity check(s)
+  ACE_DEBUG ((LM_INFO, ACE_TEXT ("\"%s\"\n"), ACE_TEXT (return_value.c_str ())));
   ACE_ASSERT (Common_File_Tools::isDirectory (return_value));
 
   return return_value;
