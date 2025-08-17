@@ -170,7 +170,11 @@ bool Test_U_wxWidgets_Application::OnInit ()
     return false;
   } // end IF
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   std::string argv_0 = wxApp::argv[0];
+#else
+  std::string argv_0 = wxApp::argv[0].ToStdString ();
+#endif // ACE_WIN32 || ACE_WIN64
   Common_File_Tools::initialize (argv_0);
 
   // step0: initialize XRC
