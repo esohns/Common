@@ -1,5 +1,5 @@
 set (TENSORFLOW_SUPPORT_DEFAULT ON)
-set (TENSORFLOW_CC_SUPPORT_DEFAULT OFF)
+set (TENSORFLOW_CC_SUPPORT_DEFAULT ON)
 if (UNIX)
 # set (ENV{PKG_CONFIG_PATH} "/usr/local/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
  pkg_check_modules (PKG_TENSORFLOW tensorflow)
@@ -8,8 +8,13 @@ if (UNIX)
   set (tensorflow_INCLUDE_DIRS "${PKG_TENSORFLOW_INCLUDE_DIRS}")
   set (tensorflow_LIBRARIES "${PKG_TENSORFLOW_LIBRARIES}")
  else ()
+  if (EXISTS $ENV{TENSORFLOW_ROOT})
+   set (TENSORFLOW_ROOT $ENV{TENSORFLOW_ROOT})
+  else ()
+   set (TENSORFLOW_ROOT $ENV{LIB_ROOT}/tensorflow)
+  endif (EXISTS $ENV{TENSORFLOW_ROOT})
   find_library (TENSORFLOW_LIBRARY libtensorflow.so
-                PATHS /usr/local
+                PATHS ${TENSORFLOW_ROOT}
                 PATH_SUFFIXES lib
                 DOC "searching for libtensorflow.so"
                 NO_DEFAULT_PATH)
@@ -21,13 +26,18 @@ if (UNIX)
   if (TENSORFLOW_LIBRARY)
    set (TENSORFLOW_FOUND TRUE)
    set (tensorflow_LIBRARIES "${TENSORFLOW_LIBRARY}")
-   set (tensorflow_INCLUDE_DIRS "/usr/local/include")
-   set (tensorflow_LIB_DIR "/usr/local/lib")
+   set (tensorflow_INCLUDE_DIRS "${TENSORFLOW_ROOT}/include/unix")
+#   set (tensorflow_LIB_DIR "${TENSORFLOW_ROOT}/lib")
   endif (TENSORFLOW_LIBRARY)
 
+  if (EXISTS $ENV{TENSORFLOW_CC_ROOT})
+   set (TENSORFLOW_CC_ROOT $ENV{TENSORFLOW_CC_ROOT})
+  else ()
+   set (TENSORFLOW_CC_ROOT $ENV{LIB_ROOT}/tensorflow_cc)
+  endif (EXISTS $ENV{TENSORFLOW_CC_ROOT})
   find_library (TENSORFLOW_CC_LIBRARY libtensorflow_cc.so
-                PATHS /usr/local
-                PATH_SUFFIXES lib
+                PATHS ${TENSORFLOW_CC_ROOT}
+#                PATH_SUFFIXES lib
                 DOC "searching for libtensorflow_cc.so"
                 NO_DEFAULT_PATH)
   if (NOT TENSORFLOW_CC_LIBRARY)
@@ -35,8 +45,9 @@ if (UNIX)
   else ()
    message (STATUS "Found libtensorflow_cc.so library \"${TENSORFLOW_CC_LIBRARY}\"")
   endif (NOT TENSORFLOW_CC_LIBRARY)
+
   find_library (TENSORFLOW_FRAMEWORK_LIBRARY libtensorflow_framework.so.2
-                PATHS /usr/local
+                PATHS ${TENSORFLOW_ROOT}
                 PATH_SUFFIXES lib
                 DOC "searching for libtensorflow_framework.so.2"
                 NO_DEFAULT_PATH)
@@ -48,8 +59,8 @@ if (UNIX)
   if (TENSORFLOW_CC_LIBRARY AND TENSORFLOW_FRAMEWORK_LIBRARY)
    set (TENSORFLOW_CC_FOUND TRUE)
    set (tensorflow_cc_LIBRARIES "${TENSORFLOW_CC_LIBRARY};${TENSORFLOW_FRAMEWORK_LIBRARY}")
-   set (tensorflow_cc_INCLUDE_DIRS "/usr/local/include")
-   set (tensorflow_cc_LIB_DIR "/usr/local/lib")
+   set (tensorflow_cc_INCLUDE_DIRS "${TENSORFLOW_ROOT}/include/unix;${TENSORFLOW_ROOT}/include/unix/src")
+#   set (tensorflow_cc_LIB_DIR "/usr/local/lib")
   endif (TENSORFLOW_CC_LIBRARY AND TENSORFLOW_FRAMEWORK_LIBRARY)
  endif (PKG_TENSORFLOW_FOUND)
 elseif (WIN32)

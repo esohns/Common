@@ -77,7 +77,9 @@
 #endif // GTK_SUPPORT
 
 #if defined (QT_SUPPORT)
+//#define QT_NO_SIGNALS_SLOTS_KEYWORDS
 #include "qwindow.h"
+#undef signals
 #endif // QT_SUPPORT
 #if defined (ACE_WIN32) || defined (ACE_WIN32)
 #else
