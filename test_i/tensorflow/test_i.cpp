@@ -377,23 +377,22 @@ do_work (int argc_in,
     case TEST_I_MODE_CPP_DEFAULT:
     {
 #if defined (TENSORFLOW_CC_SUPPORT)
-      using namespace tensorflow;
-      Scope root = Scope::NewRootScope ();
+      tensorflow::Scope root = tensorflow::Scope::NewRootScope ();
       // Matrix A = [3 2; -1 0]
-      Output A =
-        ops::Const (root, {{3.f, 2.f}, {-1.f, 0.f}});
+      tensorflow::Output A =
+        tensorflow::ops::Const (root, {{3.f, 2.f}, {-1.f, 0.f}});
       // Vector b = [3 5]
-      Output b = ops::Const (root, {{3.f, 5.f}});
+      tensorflow::Output b = tensorflow::ops::Const (root, {{3.f, 5.f}});
       // v = Ab^T
-      Output v = ops::MatMul (root.WithOpName (ACE_TEXT_ALWAYS_CHAR ("v")),
-                              A, b,
-                              ops::MatMul::TransposeB (true));
-      std::vector<Tensor> outputs;
-      ClientSession session (root);
+      tensorflow::Output v = tensorflow::ops::MatMul (root.WithOpName (ACE_TEXT_ALWAYS_CHAR ("v")),
+                                                      A, b,
+                                                      tensorflow::ops::MatMul::TransposeB (true));
+      std::vector<tensorflow::Tensor> outputs;
+      tensorflow::ClientSession session (root);
       // Run and fetch v
       TF_CHECK_OK (session.Run ({v}, &outputs));
       // Expect outputs[0] == [19 -3]
-      typename TTypes<float>::Matrix matrix = outputs[0].matrix<float> ();
+      typename tensorflow::TTypes<float>::Matrix matrix = outputs[0].matrix<float> ();
       LOG (INFO) << matrix;
 #endif // TENSORFLOW_CC_SUPPORT
       break;

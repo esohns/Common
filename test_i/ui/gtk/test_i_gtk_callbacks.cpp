@@ -572,6 +572,15 @@ dialog_main_close_cb (GtkDialog* d,
   g_print ("dialog_main_close_cb()n");
 }
 
+gboolean
+dialog_main_close_request_cb (GtkWindow* w, 
+                              gpointer data)
+{
+  /* callback for "close-request" signal */
+  g_print ("dialog_main_close_request_cb()n");
+  return TRUE;
+}
+
 void
 dialog_main_response_cb (GtkDialog* d,
                          gint response_id,

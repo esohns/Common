@@ -84,6 +84,7 @@ G_MODULE_EXPORT void filechooserdialog_cb (GtkNativeDialog*, int);
 G_MODULE_EXPORT gint dialog_main_delete_cb (GtkWidget*, GdkEvent*, gpointer);
 G_MODULE_EXPORT gint dialog_main_destroy_cb (GtkWidget*, GdkEvent*, gpointer);
 G_MODULE_EXPORT void dialog_main_close_cb (GtkDialog*, gpointer);
+G_MODULE_EXPORT gboolean dialog_main_close_request_cb (GtkWindow*, gpointer);
 G_MODULE_EXPORT void dialog_main_response_cb (GtkDialog*, gint, gpointer);
 #else
 G_MODULE_EXPORT void filechooserbutton_cb (GtkFileChooserButton*, gpointer);

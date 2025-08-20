@@ -56,8 +56,14 @@ if (WIN32)
   file (TO_NATIVE_PATH $ENV{LIB_ROOT} LIB_ROOT)
   string (REPLACE "\\" "\\\\" LIB_ROOT ${LIB_ROOT})
  endif (DEFINED ENV{LIB_ROOT})
- install (FILES ${LIB_ROOT}/tensorflow/lib/tensorflow.dll
-          DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+# if (TENSORFLOW_SUPPORT)
+#  install (FILES ${LIB_ROOT}/tensorflow/lib/tensorflow.dll
+#           DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+# endif (TENSORFLOW_SUPPORT)
+# if (TENSORFLOW_CC_SUPPORT)
+#  install (FILES ${LIB_ROOT}/tensorflow_cc/tensorflow_cc.dll
+#           DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+# endif (TENSORFLOW_CC_SUPPORT)
 endif (WIN32)
 
 ################ launchers ###############

@@ -97,9 +97,13 @@ do_print_usage (const std::string& programName_in)
   // enable verbatim boolean output
   std::cout.setf (std::ios::boolalpha);
 
+  std::string module_name =
+    ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY);
+  module_name += ACE_DIRECTORY_SEPARATOR_STR;
+  module_name += ACE_TEXT_ALWAYS_CHAR (COMMON_TEST_I_UI_SUBDIRECTORY);
   std::string path_root =
     Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
-                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      module_name,
                                                       true);
 
   std::cout << ACE_TEXT_ALWAYS_CHAR ("usage: ")
@@ -128,9 +132,13 @@ do_process_arguments (int argc_in,
                       bool& traceInformation_out,
                       std::string& UIDefinitionFilePath_out)
 {
+  std::string module_name =
+    ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY);
+  module_name += ACE_DIRECTORY_SEPARATOR_STR;
+  module_name += ACE_TEXT_ALWAYS_CHAR (COMMON_TEST_I_UI_SUBDIRECTORY);
   std::string path_root =
     Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
-                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      module_name,
                                                       true);
 
   // initialize results
@@ -293,12 +301,6 @@ glarea_realize_cb (GtkWidget* widget_in,
   ACE_ASSERT (context_p);
   gdk_gl_context_make_current (context_p);
 
-  glClearColor (0.0f, 0.0f, 0.0f, 1.0f);
-  COMMON_GL_ASSERT;
-
-  //glEnable (GL_TEXTURE_2D); // Enable Texture Mapping
-  //COMMON_GL_ASSERT;
-
   // load texture ?
   std::string filename;
 
@@ -316,6 +318,17 @@ glarea_realize_cb (GtkWidget* widget_in,
   //Common_GL_Debug::Install ();
 #endif // _DEBUG
 
+  glClearColor (0.0f, 0.0f, 0.0f, 1.0f);
+
+  glEnable (GL_TEXTURE_2D); // Enable Textures
+  glEnable (GL_BLEND);      // Enable Semi-Transparency
+  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable (GL_DEPTH_TEST); // Enable Depth Testing
+
+  glActiveTexture (GL_TEXTURE0);
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
   filename = Common_File_Tools::getWorkingDirectory ();
   filename += ACE_DIRECTORY_SEPARATOR_CHAR;
   filename += ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY);
@@ -332,6 +345,12 @@ glarea_realize_cb (GtkWidget* widget_in,
               ACE_TEXT ("OpenGL texture id: %u\n"),
               texture.id_));
 
+  texture.bind ();
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glGenerateMipmap (GL_TEXTURE_2D);
+  texture.unbind ();
+
   camera.position_ = glm::vec3 (0.0f, 0.0f, 0.1f);
   camera.looking_at_ = glm::vec3 (0.0f, 0.0f, 0.0f);
   camera.up_ = glm::vec3 (0.0f, 1.0f, 0.0f);
@@ -341,12 +360,9 @@ glarea_realize_cb (GtkWidget* widget_in,
   //glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);
   //COMMON_GL_ASSERT;
 
-  glEnable (GL_DEPTH_TEST); // Enables Depth Testing
-  COMMON_GL_ASSERT;
-  glEnable (GL_BLEND); // Enable Semi-Transparency
-  COMMON_GL_ASSERT;
-  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  COMMON_GL_ASSERT;
+  //glEnable (GL_DEPTH_TEST); // Enables Depth Testing
+  //glEnable (GL_BLEND); // Enable Semi-Transparency
+  //glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   //glDepthFunc (GL_LESS);                              // The Type Of Depth Testing To Do
   //COMMON_GL_ASSERT;
   //glDepthMask (GL_TRUE);
@@ -359,20 +375,15 @@ glarea_realize_cb (GtkWidget* widget_in,
   //COMMON_GL_ASSERT;
 
   glGenVertexArrays (1, &VAO);
-  COMMON_GL_ASSERT;
   ACE_ASSERT (VAO);
   glGenBuffers (1, &VBO);
-  COMMON_GL_ASSERT;
   ACE_ASSERT (VBO);
   glGenBuffers (1, &EBO);
-  COMMON_GL_ASSERT;
   ACE_ASSERT (EBO);
 
   glBindVertexArray (VAO);
-  COMMON_GL_ASSERT;
 
   glBindBuffer (GL_ARRAY_BUFFER, VBO);
-  COMMON_GL_ASSERT;
   static GLfloat cube_strip_color_texcoords[] = {
    // x       y      z         r    g     b     a         u    v
     -0.5f, -0.5f,  0.5f,     1.0f, 0.0f, 0.0f, 0.5f,    0.0f, 0.0f,
@@ -406,28 +417,20 @@ glarea_realize_cb (GtkWidget* widget_in,
      0.5f,  0.5f, -0.5f,     1.0f, 1.0f, 1.0f, 0.5f,    1.0f, 1.0f
   };
   glBufferData (GL_ARRAY_BUFFER, sizeof (cube_strip_color_texcoords), cube_strip_color_texcoords, GL_STATIC_DRAW);
-  COMMON_GL_ASSERT;
 
   // position attribute
   glEnableVertexAttribArray (0);
-  COMMON_GL_ASSERT;
   glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof (GLfloat), (void*)0);
-  COMMON_GL_ASSERT;
 
   // color attribute
   glEnableVertexAttribArray (1);
-  COMMON_GL_ASSERT;
   glVertexAttribPointer (1, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (void*)(3 * sizeof (GLfloat)));
-  COMMON_GL_ASSERT;
 
   // texture coord attribute
   glEnableVertexAttribArray (2);
-  COMMON_GL_ASSERT;
   glVertexAttribPointer (2, 2, GL_FLOAT, GL_FALSE, 9 * sizeof (GLfloat), (void*)(7 * sizeof (GLfloat)));
-  COMMON_GL_ASSERT;
 
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, EBO);
-  COMMON_GL_ASSERT;
   static GLubyte cube_indices[34] = {
     0,  1,  2,  3,  3,      // Face 0 - triangle strip ( v0,  v1,  v2,  v3)
     4,  4,  5,  6,  7,  7,  // Face 1 - triangle strip ( v4,  v5,  v6,  v7)
@@ -437,7 +440,6 @@ glarea_realize_cb (GtkWidget* widget_in,
     20, 20, 21, 22, 23      // Face 5 - triangle strip (v20, v21, v22, v23)
   };
   glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof (cube_indices), cube_indices, GL_STATIC_DRAW);
-  COMMON_GL_ASSERT;
 
   std::string vertex_shader_filename = Common_File_Tools::getWorkingDirectory ();
   vertex_shader_filename += ACE_DIRECTORY_SEPARATOR_STR_A;
@@ -458,11 +460,8 @@ glarea_realize_cb (GtkWidget* widget_in,
                 ACE_TEXT ("loaded shader\n")));
 
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
-  COMMON_GL_ASSERT;
   glBindBuffer (GL_ARRAY_BUFFER, 0);
-  COMMON_GL_ASSERT;
   glBindVertexArray (0);
-  COMMON_GL_ASSERT;
 
   tp1 = std::chrono::high_resolution_clock::now ();
 } // glarea_realize_cb
@@ -479,10 +478,8 @@ glarea_render_cb (GtkGLArea* area_in,
   ACE_ASSERT (VAO && texture.id_);
 
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  COMMON_GL_ASSERT;
 
   glBindVertexArray (VAO);
-  COMMON_GL_ASSERT;
   texture.bind ();
 
   //static GLfloat rot_x = 0.0f;
@@ -524,15 +521,12 @@ glarea_render_cb (GtkGLArea* area_in,
   shader.setFloat (ACE_TEXT_ALWAYS_CHAR ("time"), elapsed_time.count ());
 
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, EBO);
-  COMMON_GL_ASSERT;
 
-  glDisable (GL_DEPTH_TEST);
+  //glDisable (GL_DEPTH_TEST);
   glDrawElements (GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_BYTE, (void*)0);
-  glEnable (GL_DEPTH_TEST);
+  //glEnable (GL_DEPTH_TEST);
 
-  COMMON_GL_ASSERT; // *NOTE*: GL_QUADS is not supported as primitive mode
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, 0);
-  COMMON_GL_ASSERT;
 
   //switch (Common_Tools::getRandomNumber (0, 2))
   //{
@@ -555,7 +549,6 @@ glarea_render_cb (GtkGLArea* area_in,
   //COMMON_GL_CLEAR_ERROR;
 
   glBindVertexArray (0);
-  COMMON_GL_ASSERT;
   texture.unbind ();
 
   // auto-redraw
@@ -578,7 +571,6 @@ glarea_resize_cb (GtkGLArea* GLArea_in,
 
   glViewport (0, 0,
               width_in, height_in);
-  COMMON_GL_ASSERT;
 
 //  glMatrixMode (GL_PROJECTION);
 //  //COMMON_GL_CLEAR_ERROR;
@@ -1749,9 +1741,13 @@ ACE_TMAIN (int argc_in,
   ACE_Time_Value user_time, system_time;
 
   // step1a set defaults
+  std::string module_name =
+    ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY);
+  module_name += ACE_DIRECTORY_SEPARATOR_STR;
+  module_name += ACE_TEXT_ALWAYS_CHAR (COMMON_TEST_I_UI_SUBDIRECTORY);
   std::string path_root =
     Common_File_Tools::getConfigurationDataDirectory (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
-                                                      ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_TEST_I_SUBDIRECTORY),
+                                                      module_name,
                                                       true);
 
   bool trace_information = false;

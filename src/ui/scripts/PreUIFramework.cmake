@@ -94,6 +94,23 @@ elseif (WIN32)
 #  endif (GTK_FOUND)
   endif (PKG_GTK_3_FOUND)
  else ()
+  if (VCPKG_SUPPORT)
+#   message (WARNING "looking for gtk4 in ${VCPKG_LIB_DIR_BASE}")
+   find_library (GTK4_LIBRARY gtk-4.lib
+                 PATHS ${VCPKG_LIB_DIR_BASE}
+                 PATH_SUFFIXES lib
+                 DOC "searching for gtk-4.lib")
+   if (GTK4_LIBRARY)
+    message (STATUS "found gtk4")
+    set (GTK4_FOUND ON)
+    set (GTK4_INCLUDE_DIRS "${VCPKG_INCLUDE_DIR}/atk-1.0;${VCPKG_INCLUDE_DIR}/gdk-pixbuf-2.0;${VCPKG_INCLUDE_DIR}/cairo;${VCPKG_INCLUDE_DIR}/pango-1.0;${VCPKG_INCLUDE_DIR}/glib-2.0;${VCPKG_LIB_DIR}/glib-2.0/include;${VCPKG_INCLUDE_DIR}/gtk-4.0;${VCPKG_INCLUDE_DIR}/harfbuzz;${VCPKG_INCLUDE_DIR}/graphene-1.0;${VCPKG_LIB_DIR}/graphene-1.0/include")
+    set (GTK4_LIBRARIES "${VCPKG_LIB_DIR}/gio-2.0.lib;${VCPKG_LIB_DIR}/glib-2.0.lib;${VCPKG_LIB_DIR}/gobject-2.0.lib;${VCPKG_LIB_DIR}/gthread-2.0.lib;${VCPKG_LIB_DIR}/gdk_pixbuf-2.0.lib;${VCPKG_LIB_DIR}/gtk-4.lib;${VCPKG_LIB_DIR}/pango-1.0.lib;${VCPKG_LIB_DIR}/cairo.lib")
+    set (GTK4_LIB_DIRS "${VCPKG_BIN_DIR}")
+   else ()
+    message (WARNING "could not find gtk4 (was: \"gtk-4.lib\"), continuing")
+   endif (GTK4_LIBRARY)
+  endif (VCPKG_SUPPORT)
+
 # *TODO*: repair win32 module support
   find_library (GTK2_LIBRARY gtk-win32-2.0.lib
                 PATHS $ENV{LIB_ROOT}/gtk2
