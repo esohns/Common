@@ -303,6 +303,7 @@ elseif (WIN32)
  file (TO_CMAKE_PATH "${GTK_LIB_DIRS}" GTK_LIB_PATH)
  file (TO_CMAKE_PATH "${VCPKG_RELEASE_BIN_DIR}" VCPKG_BIN_PATH)
  file (TO_CMAKE_PATH "${ACE_LIB_DIR}" ACE_LIB_PATH)
+ set (ENVIRONMENT "GDK_DEBUG=opengl")
  create_target_launcher (${EXECUTABLE}
                          COMMAND ${COMMAND}
                          ARGS ${ARGS}

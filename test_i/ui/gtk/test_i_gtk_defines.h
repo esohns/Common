@@ -31,8 +31,8 @@
 #define TEST_U_UI_DEFINITION_FILE                      "gtk.glade"
 #endif // GTKX_USE
 
-#define TEST_I_UI_GTK_BUTTON_ABOUT_NAME                "about"
-#define TEST_I_UI_GTK_BUTTON_QUIT_NAME                 "quit"
+#define TEST_I_UI_GTK_BUTTON_ABOUT_NAME                "button_about"
+#define TEST_I_UI_GTK_BUTTON_QUIT_NAME                 "button_quit"
 #define TEST_I_UI_GTK_COMBOBOX_SOURCE_NAME             "combobox_source"
 #define TEST_I_UI_GTK_COMBOBOX_SOURCE_2_NAME           "combobox_source_2"
 #define TEST_I_UI_GTK_DIALOG_ABOUT_NAME                "dialog_about"
