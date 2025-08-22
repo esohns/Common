@@ -94,6 +94,7 @@ class Common_UI_Tools
 
   // console
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static Common_UI_Resolution_t getConsoleSize (bool = false); // get maximum size ? : current
   static bool setConsoleFontSize (const struct _COORD&); // x/y
   static bool setConsoleSize (const struct _COORD&); // x/y
   static struct _SMALL_RECT setConsoleMaxWindowSize (ACE_INT16 = 0); // requested width ? : max (as per dwMaximumWindowSize)

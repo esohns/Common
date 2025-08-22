@@ -1973,6 +1973,33 @@ Common_UI_Tools::isMaximized (HWND window_in)
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+Common_UI_Resolution_t
+Common_UI_Tools::getConsoleSize (bool getMaxSize_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::getConsoleSize"));
+
+  Common_UI_Resolution_t resolution_s = {0, 0};
+
+  HANDLE console_h = GetStdHandle (STD_OUTPUT_HANDLE);
+  ACE_ASSERT (console_h != ACE_INVALID_HANDLE);
+
+  struct _CONSOLE_SCREEN_BUFFER_INFO buffer_s;
+  ACE_OS::memset (&buffer_s, 0, sizeof (struct _CONSOLE_SCREEN_BUFFER_INFO));
+  if (!GetConsoleScreenBufferInfo (console_h, &buffer_s))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to GetConsoleScreenBufferInfo(%@): \"%s\", aborting\n"),
+                console_h,
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
+    return resolution_s;
+  } // end IF
+
+  resolution_s.cx = getMaxSize_in ? buffer_s.dwMaximumWindowSize.X : buffer_s.dwSize.X;
+  resolution_s.cy = getMaxSize_in ? buffer_s.dwMaximumWindowSize.Y : buffer_s.dwSize.Y;
+
+  return resolution_s;
+}
+
 bool
 Common_UI_Tools::setConsoleFontSize (const struct _COORD& size_in)
 {
@@ -2020,7 +2047,7 @@ Common_UI_Tools::setConsoleSize (const struct _COORD& size_in)
 
   BOOL result = SetConsoleScreenBufferSize (console_h,
                                             size_in);
-  if (unlikely (result == FALSE))
+  if (unlikely (result == 0))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to SetConsoleScreenBufferSize(%d,%d): \"%s\", returning\n"),
@@ -2078,7 +2105,7 @@ Common_UI_Tools::setConsoleMaxWindowSize (ACE_INT16 requestedWidth_in)
                   ACE_TEXT ("failed to SetConsoleScreenBufferSize(%@): \"%s\", returning\n"),
                   console_h,
                   ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
-      return { 0, 0, 0, 0 };
+      return {0, 0, 0, 0};
     } // end IF
     result = GetConsoleScreenBufferInfoEx (console_h,
                                            &console_screen_buffer_info_ex_s);
@@ -2098,7 +2125,7 @@ Common_UI_Tools::setConsoleMaxWindowSize (ACE_INT16 requestedWidth_in)
                 ACE_TEXT ("failed to SetConsoleWindowInfo(%@): \"%s\", returning\n"),
                 console_h,
                 ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
-    return { 0, 0, 0, 0 };
+    return {0, 0, 0, 0};
   } // end IF
 
   return small_rect_s;
