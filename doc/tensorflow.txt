@@ -1,0 +1,19 @@
+libtensorflow (bazel build):
+
+git clone https://github.com/tensorflow/tensorflow.git
+cd tensorflow
+git checkout v2.19.0
+
+./configure.py
+
+ccflags: "-Wno-c23-extensions -Wno-unused-result"
+
+build c: "bazelisk build --config=opt //tensorflow:libtensorflow.so"
+
+build framework: "bazelisk build --config=opt //tensorflow:libtensorflow_framework.so"
+
+build c++: "bazelisk build --config=opt //tensorflow:libtensorflow_cc.so"
+
+build headers: "bazelisk build --config=opt tensorflow:install_headers"
+NOTE: "...This will generate an include folder with the cc header files in
+       bazel-bin/tensorflow/ ..."
