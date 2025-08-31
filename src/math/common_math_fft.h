@@ -100,28 +100,7 @@ class Common_Math_FFT_T
                          : std::sqrt (std::norm (X_[channel_in][slot_in])));
   }
 
-  std::vector<ValueType> Spectrum () const
-  {
-    std::vector<ValueType> result_a;
-
-    // sanity check(s)
-    ACE_ASSERT (isInitialized_);
-
-    // *IMPORTANT NOTE*: - the first ('DC'-)slot does not contain frequency
-    //                     information --> i = 1
-    //                   - the slots N/2 - N are mirrored and do not contain
-    //                     additional information
-    //                     --> there are only N/2 - 1 meaningful values
-    for (int i = 1; i < halfSlots_; ++i)
-    {
-      ValueType value_f = std::sqrt (std::norm (X_[0][i]));
-      for (int j = 1; j < channels_; ++j)
-        value_f += std::sqrt (std::norm (X_[j][i]));
-      value_f /= static_cast<ValueType> (channels_);
-      result_a.push_back (value_f);
-    } // end FOR
-    return result_a;
-  }
+  std::vector<ValueType> Spectrum (bool = false); // normalize values ?
 
   // return frequency in Hz of a given slot
   inline unsigned int Frequency (unsigned int slot_in) const
