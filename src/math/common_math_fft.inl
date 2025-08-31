@@ -473,15 +473,9 @@ Common_Math_FFT_T<ValueType>::Spectrum (bool normalize_in)
   //                     --> there are only N/2 - 1 meaningful values
   for (int i = 1; i < halfSlots_; ++i)
   {
-    ValueType real_f = Y_[0][i][0];
-    ValueType imag_f = Y_[0][i][1];
-    ValueType value_f = std::sqrt (real_f * real_f + imag_f * imag_f);
+    ValueType value_f = std::sqrt (std::norm (X_[0][i]));
     for (int j = 1; j < channels_; ++j)
-    {
-      real_f = Y_[j][i][0];
-      imag_f = Y_[j][i][1];
-      value_f += std::sqrt (real_f * real_f + imag_f * imag_f);
-    } // end FOR
+      value_f += std::sqrt (std::norm (X_[j][i]));
     value_f /= static_cast<ValueType> (channels_);
     result_a.push_back (value_f);
   } // end FOR
