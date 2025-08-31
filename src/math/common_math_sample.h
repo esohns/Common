@@ -16,7 +16,7 @@ class Common_Math_SampleIterator_T
                    unsigned int, // bytes / sample
                    bool,         // is floating point buffer ? (i.e. IEEE float/double)
                    bool,         // signed sample format ?
-                   int);         // sample byte order (ACE-style, 0: N/A)
+                   int);         // sample byte order (ACE-style, -1: N/A)
   //inline void set (char* buffer_in) { buffer_ = buffer_in; };
   ValueType get (unsigned int,  // frame index (i.e. #frames into buffer)
                  unsigned int); // sample index (e.g. 0: mono/stereo left,
