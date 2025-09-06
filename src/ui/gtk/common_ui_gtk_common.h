@@ -228,7 +228,7 @@ typedef Common_UI_GtkBuilderDefinition_T<Common_UI_GTK_State_t> Common_UI_GtkBui
 
 typedef std::map<guint, ACE_Thread_ID> Common_UI_GTK_PendingActions_t;
 typedef Common_UI_GTK_PendingActions_t::iterator Common_UI_GTK_PendingActionsIterator_t;
-typedef std::set<guint> Common_UI_GTK_CompletedActions_t;
+typedef std::set<ACE_thread_t> Common_UI_GTK_CompletedActions_t;
 typedef Common_UI_GTK_CompletedActions_t::iterator Common_UI_GTK_CompletedActionsIterator_t;
 
 struct Common_UI_GTK_ProgressData
