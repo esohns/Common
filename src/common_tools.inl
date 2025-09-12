@@ -199,9 +199,10 @@ Common_Tools::equalType (Type* pointer_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_Tools::equalType"));
 
-  // sanity check(s)
-  ACE_ASSERT (pointer_in);
-  ACE_ASSERT (pointer_2_in);
+  // *NOTE*: "...typeid of a pointer will always be the declared type, because
+  //         that's the real type of the pointer itself. To know the real type
+  //         of the object the pointer points to, you need to dereference the
+  //         pointer to get the actual type..."
 
   return !ACE_OS::strcmp (typeid (pointer_in).name (),
                           typeid (pointer_2_in).name ());
