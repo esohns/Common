@@ -2148,6 +2148,13 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
   {
     return_value = Common_File_Tools::getWorkingDirectory ();
     return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
+#if defined (_DEBUG)
+    if (!moduleName_in.empty ())
+    {
+      return_value = moduleName_in;
+      return_value += ACE_DIRECTORY_SEPARATOR_STR_A;
+    } // end IF
+#endif // DEBUG
     return_value +=
       (isConfiguration_in ? ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY)
                           : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
