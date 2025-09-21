@@ -29,7 +29,7 @@
 #include "Security.h"
 #if COMMON_OS_WIN32_TARGET_PLATFORM (0x0602) // _WIN32_WINNT_WIN8
 #include "processthreadsapi.h"
-#endif // COMMON_OS_WIN32_TARGET_PLATFORM(0x0602)
+#endif // COMMON_OS_WIN32_TARGET_PLATFORM (0x0602)
 #elif defined (ACE_LINUX)
 #include "sys/capability.h"
 #include "sys/prctl.h"
