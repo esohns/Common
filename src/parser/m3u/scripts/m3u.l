@@ -87,7 +87,7 @@ extern YY_DECL;
 
 DIGIT                             [[:digit:]]
 OCTET                             [\x00-\xFF]
-TO_COMMA                          [^,]
+TO_COMMA                          [^,\x0A]
 TO_QUOTATION                      [^\"]
 TO_END_OF_LINE                    [^\x0A]
 TO_EQUALS                         [^=]
@@ -330,8 +330,10 @@ LF                                \x0A|\x0D\x0A
                                     ACE_ASSERT (yylval->sval);
                                     *(yylval->sval) = yytext;
                                     return yy::parser::token::VALUE; }
-","                                { parser->offset (yyleng);
-                                     BEGIN (state_ext_stream_inf_key_value); }
+","                               { parser->offset (yyleng);
+                                    BEGIN (state_ext_stream_inf_key_value); }
+{LF}                              { parser->offset (yyleng);
+                                    BEGIN (state_url_1); }
 } // end <state_inf_next_value_comma>
 
 <state_ext_stream_inf_next_value_quotation>{
