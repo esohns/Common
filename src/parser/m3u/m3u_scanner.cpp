@@ -2208,20 +2208,21 @@ case 48:
 /* rule 48 can match eol */
 YY_RULE_SETUP
 { /* *TODO*: use (?s:.) ? */
-                                    parser->offset (yyleng);
-                                    if (parser->hasFinished ()) // ignore spurious LFs
-                                      return yy::parser::token::LF;
-                                    if (!parser->isBlocking ())
-                                      yyterminate ();
-                                    // wait for more data fragment(s)
-                                    if (!parser->switchBuffer ())
-                                    { // *NOTE*: most probable reason: connection
-                                      //         has been closed --> session end
-                                      ACE_DEBUG ((LM_DEBUG,
-                                                  ACE_TEXT ("failed to Common_IParser::switchBuffer(), returning\n")));
+                                    //parser->offset (yyleng);
+                                    //if (parser->hasFinished ()) // ignore spurious LFs
+                                    //  return yy::parser::token::LF;
+                                    //if (!parser->isBlocking ())
+                                    //  yyterminate ();
+                                    //// wait for more data fragment(s)
+                                    //if (!parser->switchBuffer ())
+                                    //{ // *NOTE*: most probable reason: connection
+                                    //  //         has been closed --> session end
+                                    //  ACE_DEBUG ((LM_DEBUG,
+                                    //              ACE_TEXT ("failed to Common_IParser::switchBuffer(), returning\n")));
                                       yyterminate (); // not enough data, cannot proceed
-                                    } // end IF
-                                    yyless (0); }
+                                    //} // end IF
+                                    //yyless (0);
+}
 	YY_BREAK
 case 49:
 YY_RULE_SETUP

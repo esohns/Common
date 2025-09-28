@@ -292,17 +292,17 @@ continue_:
     goto continue_3;
   if (signals_inout.is_member (SIGINT) > 0)
   {
-    result = signals_inout.sig_del (SIGINT);
-    if (unlikely (result == -1))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%d: \"%S\"): \"%m\", aborting\n"),
-                  SIGINT, SIGINT));
-      return false;
-    } // end IF
-    ACE_DEBUG ((LM_WARNING,
-                ACE_TEXT ("%t: removed %d: \"%S\" from handled signals\n"),
-                SIGINT, SIGINT));
+    // result = signals_inout.sig_del (SIGINT);
+    // if (unlikely (result == -1))
+    // {
+    //   ACE_DEBUG ((LM_ERROR,
+    //               ACE_TEXT ("failed to ACE_Sig_Set::sig_del(%d: \"%S\"): \"%m\", aborting\n"),
+    //               SIGINT, SIGINT));
+    //   return false;
+    // } // end IF
+    // ACE_DEBUG ((LM_WARNING,
+    //             ACE_TEXT ("%t: removed %d: \"%S\" from handled signals\n"),
+    //             SIGINT, SIGINT));
   } // end IF
   if (signals_inout.is_member (SIGSTOP) > 0)
   {
