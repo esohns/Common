@@ -27,7 +27,7 @@
 #include <type_traits>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define __CGUID_H__
+//#define __CGUID_H__
 #include "combaseapi.h"
 #include "guiddef.h"
 #include "minwindef.h"
