@@ -65,7 +65,7 @@ class Common_Process_Tools
   // *TODO*: parse /proc manually, or find a better alternative (e.g. 'libproc',
   //         testing for 'PID-files' in /var/run, ...)
   // *NOTE*: returns 0 on failure
-  static pid_t id (const std::string&); // executable (base-)name
+  static std::vector<pid_t> id (const std::string&); // executable (base-)name
   // *NOTE*: the Windows implementation relies on the 'taskkill.exe' command
   static bool kill (pid_t);
 

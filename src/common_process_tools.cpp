@@ -182,25 +182,27 @@ Common_Process_Tools::window (pid_t processId_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Process_Tools::window"));
 
-  std::vector<HWND> result;
+  std::vector<HWND> result_a;
 
   // sanity check(s)
   ACE_ASSERT (processId_in);
 
   struct common_enum_windows_cbdata cb_data_s;
   cb_data_s.id = processId_in;
-  cb_data_s.windows = &result;
+  cb_data_s.windows = &result_a;
 
   // step2: retrieve window handle by process id
   if (unlikely (!EnumWindows (common_enum_windows_cb,
                               reinterpret_cast<LPARAM> (&cb_data_s)) ||
-                result.empty ()))
+                result_a.empty ()))
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to EnumWindows(%d): \"%s\", aborting\n"),
                 processId_in,
                 ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false, false).c_str ())));
 
-  return result;
+  std::sort (result_a.begin (), result_a.end ());
+
+  return result_a;
 }
 #else
 Window
@@ -241,12 +243,12 @@ Common_Process_Tools::window (pid_t processId_in)
 }
 #endif // ACE_WIN32 || ACE_WIN64
 
-pid_t
+std::vector<pid_t>
 Common_Process_Tools::id (const std::string& executableName_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Process_Tools::id"));
 
-  pid_t result = 0;
+  std::vector<pid_t> result_a;
 
   // sanity check(s)
   ACE_ASSERT (!executableName_in.empty ());
@@ -314,7 +316,6 @@ Common_Process_Tools::id (const std::string& executableName_in)
 
   char buffer_a[BUFSIZ];
   char* pid_p = NULL;
-  std::vector<pid_t> process_ids_a;
   FILE* stream_p = ::popen (command_line_string.c_str (),
                             ACE_TEXT_ALWAYS_CHAR ("r"));
   if (unlikely (!stream_p))
@@ -338,18 +339,11 @@ Common_Process_Tools::id (const std::string& executableName_in)
   pid_p = ACE_OS::strtok (buffer_a, ACE_TEXT_ALWAYS_CHAR (" "));
   while (pid_p)
   {
-    process_ids_a.push_back (static_cast<pid_t> (ACE_OS::atoi (pid_p)));
+    result_a.push_back (static_cast<pid_t> (ACE_OS::atoi (pid_p)));
     pid_p = ACE_OS::strtok (NULL , ACE_TEXT_ALWAYS_CHAR (" "));
   } // end WHILE
-  if (unlikely (process_ids_a.size () > 1))
-  {
-    ACE_DEBUG ((LM_WARNING,
-                ACE_TEXT ("found more than one process for executable (was: \"%s\"), returning the lowest PID\n"),
-                ACE_TEXT (executableName_in.c_str ())));
-    std::sort (process_ids_a.begin (), process_ids_a.end ());
-  } // end IF
-  if (likely (!process_ids_a.empty ()))
-    result = process_ids_a[0];
+
+  std::sort (result_a.begin (), result_a.end ());
 
 clean:
   if (likely (stream_p))
@@ -432,14 +426,15 @@ clean:
 #endif // UNICODE
     if (!ACE_OS::strcmp (executable_string.c_str (), executableName_in.c_str ()))
     {
-      result = processes_a[i];
+      result_a.push_back (processes_a[i]);
       CloseHandle (hProcess); hProcess = NULL;
-      return result;
     } // end IF
 
     CloseHandle (hProcess); hProcess = NULL;
   } // end FOR
   
+  goto end;
+
 fallback:
   command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_TASKLIST);
   command_line_string += ACE_TEXT_ALWAYS_CHAR (" /NH /FI \"imagename eq ");
@@ -452,12 +447,13 @@ fallback:
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Process_Tools::command(\"%s\"), aborting\n")));
-    return 0;
+    return result_a;
   } // end IF
 
   // parse result
   converter.str (stdout_string);
   regex.assign (ACE_TEXT_ALWAYS_CHAR ("^([^ ]+)(?:[[:space:]]+)([[:digit:]]+)(?:[[:space:]]+)([[:alpha:]]+)(?:[[:space:]]+)([[:digit:]]+)(?:[[:space:]]+)(.+)(?:\r)$"));
+  pid_t process_id;
   do 
   {
     converter.getline (buffer_a, sizeof (char[BUFSIZ]));
@@ -475,12 +471,15 @@ fallback:
     ACE_ASSERT (match_results[2].matched);
     converter_2.clear ();
     converter_2.str (match_results[2].str ());
-    converter_2 >> result;
-    break; // *NOTE*: retrieve the first entry only
+    converter_2 >> process_id;
+    result_a.push_back (process_id);
   } while (!converter.fail ());
+
+end:
+  std::sort (result_a.begin (), result_a.end ());
 #endif // ACE_LINUX || ACE_WIN32 || ACE_WIN64
 
-  return result;
+  return result_a;
 }
 
 bool
