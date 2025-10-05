@@ -747,7 +747,13 @@ Common_Process_Tools::name (const ACE_Thread_ID& id_in)
   WCHAR* buffer_p = NULL;
   HRESULT result_2 = ::GetThreadDescription (id_in.handle (),
                                              &buffer_p);
-  ACE_ASSERT (SUCCEEDED (result_2) && buffer_p);
+  if (unlikely (FAILED (result_2) || !buffer_p))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to GetThreadDescription(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
+    return result;
+  } // end IF
   result = ACE_TEXT_ALWAYS_CHAR (ACE_TEXT_WCHAR_TO_TCHAR (buffer_p));
   LocalFree (buffer_p); buffer_p = NULL;
 #else
@@ -755,7 +761,12 @@ Common_Process_Tools::name (const ACE_Thread_ID& id_in)
   ACE_OS::memset (buffer_a, 0, sizeof (char[COMMON_THREAD_PTHREAD_NAME_MAX_LENGTH]));
   int result_2 = ::pthread_getname_np (id_in.id (),
                                        buffer_a, sizeof (char[COMMON_THREAD_PTHREAD_NAME_MAX_LENGTH]));
-  ACE_ASSERT (result_2 == 0);
+  if (unlikely (result_2))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to pthread_getname_np(): \"%m\", aborting\n")));
+    return result;
+  } // end IF
   result = buffer_a;
 #endif // ACE_WIN32 || ACE_WIN64
 
