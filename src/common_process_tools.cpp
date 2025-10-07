@@ -263,7 +263,7 @@ Common_Process_Tools::id (const std::string& executableName_in)
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to Common_Tools::getDistribution(), aborting\n")));
-    return 0;
+    return result_a;
   } // end IF
 
   std::string command_line_string;
@@ -279,7 +279,7 @@ Common_Process_Tools::id (const std::string& executableName_in)
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("command (was: \"%s\") is not installed: cannot proceed, aborting\n"),
                     ACE_TEXT (COMMON_COMMAND_PIDOFPROC)));
-        return 0;
+        return result_a;
       } // end IF
 //      ACE_ASSERT (Common_File_Tools::isExecutable (command_line_string));
       break;
@@ -294,7 +294,7 @@ Common_Process_Tools::id (const std::string& executableName_in)
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("command (was: \"%s\") is not installed: cannot proceed, aborting\n"),
                     ACE_TEXT (COMMON_COMMAND_PIDOF)));
-        return 0;
+        return result_a;
       } // end IF
 //      ACE_ASSERT (Common_File_Tools::isExecutable (command_line_string));
       break;
@@ -305,7 +305,7 @@ Common_Process_Tools::id (const std::string& executableName_in)
                   ACE_TEXT ("invalid/unsupported linux distribution (was: %d), aborting\n"),
                   linux_distribution_e));
       ACE_ASSERT (false); // *TODO*
-      return 0;
+      return result_a;
     }
   } // end SWITCH
   ACE_ASSERT (!command_line_string.empty ());
@@ -323,7 +323,7 @@ Common_Process_Tools::id (const std::string& executableName_in)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ::popen(\"%s\",r): \"%m\", aborting\n"),
                 ACE_TEXT (command_line_string.c_str ())));
-    return 0;
+    return result_a;
   } // end IF
   if (unlikely (!ACE_OS::fgets (buffer_a,
                                 sizeof (char[BUFSIZ]),
