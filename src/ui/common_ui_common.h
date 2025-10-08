@@ -232,7 +232,7 @@ enum Common_UI_FrameworkType
   COMMON_UI_FRAMEWORK_QT,
   COMMON_UI_FRAMEWORK_WXWIDGETS,
   // -------------------------------------
-  COMMON_UI_FRAMEWORK_MAX
+  COMMON_UI_FRAMEWORK_MAX = COMMON_UI_FRAMEWORK_WXWIDGETS
 };
 
 enum Common_UI_EventType
@@ -278,7 +278,8 @@ typedef ACE_Unbounded_Stack<enum Common_UI_EventType>::ITERATOR Common_UI_Events
 struct Common_UI_State
 {
   Common_UI_State ()
-   : eventStack (NULL)
+   : type (COMMON_UI_FRAMEWORK_CONSOLE)
+   , eventStack (NULL)
    , lock ()
    , condition (lock)
    , logQueue ()
@@ -286,12 +287,13 @@ struct Common_UI_State
    , subscribersLock ()
   {}
 
-  Common_UI_Events_t        eventStack;
-  ACE_SYNCH_MUTEX           lock;
-  ACE_SYNCH_CONDITION       condition;
-  Common_Log_MessageQueue_t logQueue;
-  ACE_SYNCH_MUTEX           logQueueLock;
-  ACE_SYNCH_RECURSIVE_MUTEX subscribersLock;
+  enum Common_UI_FrameworkType type; // this-
+  Common_UI_Events_t           eventStack;
+  ACE_SYNCH_MUTEX              lock;
+  ACE_SYNCH_CONDITION          condition;
+  Common_Log_MessageQueue_t    logQueue;
+  ACE_SYNCH_MUTEX              logQueueLock;
+  ACE_SYNCH_RECURSIVE_MUTEX    subscribersLock;
 };
 
 //////////////////////////////////////////

@@ -110,7 +110,9 @@ struct Common_UI_GTK_State
 #endif // LIBGLADE_SUPPORT
    ///////////////////////////////////////
    , userData (NULL)
-  {}
+  {
+    type = COMMON_UI_FRAMEWORK_GTK;
+  }
 
   Common_UI_GTK_Builders_t         builders;
   Common_UI_GTK_StatusContextIds_t contextIds; // status bar context ids

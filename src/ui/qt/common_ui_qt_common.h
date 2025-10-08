@@ -37,7 +37,9 @@ struct Common_UI_Qt_State
   Common_UI_Qt_State ()
    : Common_UI_State ()
    , instance (NULL)
-  {}
+  {
+    type = COMMON_UI_FRAMEWORK_QT;
+  }
 
   QMainWindow* instance;
 };

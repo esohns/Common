@@ -59,7 +59,9 @@ struct Common_UI_Curses_State
    , std_window (NULL)
    ///////////////////////////////////////
    , userData (NULL)
-  {}
+  {
+    type = COMMON_UI_FRAMEWORK_CURSES;
+  }
 
   // dispatch loop
   struct Common_EventDispatchState* dispatchState;

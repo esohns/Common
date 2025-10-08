@@ -52,7 +52,9 @@ struct Common_UI_wxWidgets_State
    , argv (NULL)
    , instance (NULL)
    , resources ()
-  {}
+  {
+    type = COMMON_UI_FRAMEWORK_WXWIDGETS;
+  }
 
   int                                argc;
   wxChar**                           argv;
