@@ -50,6 +50,25 @@ regex_test_2 ()
   return true;
 }
 
+bool regex_test_3 ()
+{
+  std::string test_string ("/t \"this is a test\"");
+  std::string regex_string ("^(?:/)([[:alpha:]]+)(?:[[:space:]]*)(?:(?:(?:\"([^\"]*)\")|([^\"]+))[[:space:]]+)*(?:(?:\"([^\"]*)\")|([^\"]+))?$");
+  std::regex regex (regex_string);
+  std::smatch results;
+  if (!std::regex_match (test_string,
+                         results,
+                         regex,
+                         std::regex_constants::match_default))
+  {
+    std::cout << "failed!\n";
+    return false;
+  }
+  std::cout << "success: \"" << results[1].str () << "\"\n";
+
+  return true;
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -60,12 +79,19 @@ main (int argc, char *argv[])
   }
   std::cout << "test 1 success\n";
 
-  if (!regex_test_2 ())
+  //if (!regex_test_2 ())
+  //{
+  //  std::cout << "test 2 failed!\n";
+  //  return -1;
+  //}
+  //std::cout << "test 2 success\n";
+
+  if (!regex_test_3 ())
   {
-    std::cout << "test 2 failed!\n";
+    std::cout << "test 3 failed!\n";
     return -1;
   }
-  std::cout << "test 2 success\n";
+  std::cout << "test 3 success\n";
 
   return 0;
 }

@@ -372,6 +372,22 @@ Common_String_Tools::uncomment (const std::string& string_in, char char_in)
   return result;
 }
 
+std::vector<std::string>
+Common_String_Tools::split (const std::string& string_in,
+                            char delimiter_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_String_Tools::split"));
+
+  std::vector<std::string> result_a;
+
+  std::istringstream iss (string_in);
+  std::string s;
+  while (std::getline (iss, s, delimiter_in))
+    result_a.push_back (s);
+
+  return result_a;
+}
+
 bool
 Common_String_Tools::isspace (const std::string& string_in)
 {

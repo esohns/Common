@@ -22,6 +22,7 @@
 #define COMMON_STRING_TOOLS_H
 
 #include <string>
+#include <vector>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "winnt.h"
@@ -54,7 +55,9 @@ class Common_String_Tools
   // remove leading and trailing whitespace
   static std::string strip (const std::string&);
   // remove leading and trailing comments
-  static std::string uncomment (const std::string&, const char = '"');
+  static std::string uncomment (const std::string&, char = '"');
+
+  static std::vector<std::string> split (const std::string&, char = ' ');
 
   static bool isspace (const std::string&);
 
