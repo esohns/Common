@@ -18,6 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <algorithm>
 #include <limits>
 #include <typeinfo>
 
@@ -158,6 +159,22 @@ Common_Tools::max (unsigned int numberOfBytes_in)
   } // end SWITCH
 
   return static_cast<ValueType> (std::numeric_limits<long double>::infinity ());
+}
+
+template <typename K,
+          typename V>
+std::vector<std::pair<K, V> >
+Common_Tools::sortMapByValue (const std::map<K, V>& map_in,
+                              bool ascending_in)
+{
+  std::vector<std::pair<K, V>> result_a (map_in.begin (), map_in.end ());
+
+  std::sort (result_a.begin (), result_a.end (),
+             [ascending_in] (const std::pair<K, V>& a, const std::pair<K, V>& b) {
+               return ascending_in ? a.second < b.second : a.second > b.second;
+             });
+
+  return result_a;
 }
 
 template <typename ValueType>

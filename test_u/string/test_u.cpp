@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -38,6 +39,7 @@
 #include "common_defines.h"
 
 #include "common_log_tools.h"
+#include "common_tools.h"
 
 #include "common_timer_tools.h"
 
@@ -53,6 +55,7 @@ typedef Test_U_TestCases_t::iterator Test_U_TestCasesIterator_t;
 enum Test_U_ModeType
 {
   TEST_U_MODE_DEFAULT = 0,
+  TEST_U_MODE_SORT_MAP_BY_VALUE,
   ////////////////////////////////////////
   TEST_U_MODE_MAX,
   TEST_U_MODE_INVALID
@@ -282,6 +285,25 @@ continue_3:
           std::cout << *iterator_2 << ACE_TEXT_ALWAYS_CHAR (" ");
         std::cout << std::endl;
       } // end FOR
+
+      break;
+    }
+    case TEST_U_MODE_SORT_MAP_BY_VALUE:
+    {
+      std::map<std::string, int> map_a;
+      map_a["one"] = 1;
+      map_a["two"] = 2;
+      map_a["three"] = 3;
+
+      std::vector<std::pair<std::string, int> > result_a =
+        Common_Tools::sortMapByValue (map_a, false); // descending
+      for (std::vector<std::pair<std::string, int> >::const_iterator iterator = result_a.begin ();
+           iterator != result_a.end ();
+           ++iterator)
+        std::cout << (*iterator).first
+                  << ACE_TEXT_ALWAYS_CHAR (": ")
+                  << (*iterator).second
+                  << std::endl;
 
       break;
     }

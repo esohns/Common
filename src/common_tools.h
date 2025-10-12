@@ -21,10 +21,12 @@
 #ifndef COMMON_TOOLS_H
 #define COMMON_TOOLS_H
 
+#include <map>
 #include <random>
 #include <sstream>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 //#define __CGUID_H__
@@ -70,6 +72,11 @@ class Common_Tools
   static std::enable_if_t<!std::is_integral<ValueType>::value, ValueType> min (unsigned int); // number of bytes
   template <typename ValueType>
   static std::enable_if_t<!std::is_integral<ValueType>::value, ValueType> max (unsigned int); // number of bytes
+
+  // map
+  template <typename K, typename V>
+  static std::vector<std::pair<K, V>> sortMapByValue (const std::map<K, V>&,
+                                                      bool = true); // ascending ? : descending
 
   // endianness
   template <typename ValueType>
