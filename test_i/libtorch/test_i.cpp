@@ -175,9 +175,9 @@ do_work (int argc_in,
       const size_t kOuputDim = 1;
       auto time_serie_detector =
         torch::nn::LSTM (torch::nn::LSTMOptions (kInputDim, kHiddenDim)
-                           .dropout (0.2)
-                           .num_layers (kSequenceLen)
-                           .bidirectional (false));
+          .dropout (0.2)
+          .num_layers (kSequenceLen)
+          .bidirectional (false));
       time_serie_detector->to (device);
       std::cout << time_serie_detector << std::endl;
 
