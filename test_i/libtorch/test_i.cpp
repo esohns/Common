@@ -191,8 +191,8 @@ do_work (int argc_in,
         input_acc[count][0] = i;
         count++;
       } // end FOR
-      input = input.toBackend (c10::Backend::CPU);
-      state = state.toBackend (c10::Backend::CPU);
+      input = input.to (device);
+      state = state.to (device);
 
       std::cout << "input = " << input << std::endl;
       time_serie_detector->zero_grad ();
