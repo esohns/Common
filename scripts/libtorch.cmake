@@ -83,7 +83,7 @@ elseif (WIN32)
    message (WARNING "could not find c10.lib, continuing")
   else ()
    message (STATUS "Found c10.lib library \"${C10_LIBRARY}\"")
-  endif (NOT LIBTORCH_LIBRARY)
+  endif (NOT C10_LIBRARY)
   find_library (LIBTORCH_LIBRARY torch_cpu.lib
                 PATHS ${LIBTORCH_ROOT}
                 PATH_SUFFIXES lib
@@ -99,7 +99,7 @@ elseif (WIN32)
    set (LIBTORCH_LIBRARIES "${C10_LIBRARY};${LIBTORCH_LIBRARY}")
    set (LIBTORCH_INCLUDE_DIRS "${LIBTORCH_ROOT}/include;${LIBTORCH_ROOT}/include/torch/csrc/api/include")
    set (LIBTORCH_LIB_DIR "${LIBTORCH_ROOT}/lib")
-  endif (LIBTORCH_LIBRARY)
+  endif (C10_LIBRARY AND LIBTORCH_LIBRARY)
  endif (NOT LIBTORCH_FOUND)
 endif ()
 if (LIBTORCH_FOUND)
