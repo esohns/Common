@@ -61,7 +61,7 @@ if (UNIX)
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
-                         ENVIRONMENT foo=bar)
+                         ENVIRONMENT "HSA_OVERRIDE_GFX_VERSION=9.0.0")
 elseif (WIN32)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
  string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
@@ -76,7 +76,7 @@ elseif (WIN32)
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
-                         ENVIRONMENT foo=bar)
+                         ENVIRONMENT "AMD_LOG_LEVEL=4;HSA_OVERRIDE_GFX_VERSION=9.0.0;ROCR_VISIBLE_DEVICES=0;GPU_DEVICE_ORDINAL=0;HIP_VISIBLE_DEVICES=0")
 endif ()
 
 ################ tests ###################

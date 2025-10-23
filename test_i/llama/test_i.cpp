@@ -181,29 +181,25 @@ do_work (int argc_in,
          const std::string& modelFilePath_in,
          enum Test_I_ModeType mode_in)
 {
+  // only print errors ?
+  llama_log_set ([] (enum ggml_log_level level, const char * text, void * /* user_data */)
+  {
 #if defined (_DEBUG)
-  // only print errors
-  llama_log_set ([] (enum ggml_log_level level, const char * text, void * /* user_data */)
-  {
     if (level >= GGML_LOG_LEVEL_NONE)
-      fprintf (stderr, "%s", text);
-  },
-  NULL);
 #else
-  // only print errors
-  llama_log_set ([] (enum ggml_log_level level, const char * text, void * /* user_data */)
-  {
     if (level >= GGML_LOG_LEVEL_ERROR)
-      fprintf(stderr, "%s", text);
+#endif // _DEBUG
+      ACE_DEBUG (((level >= GGML_LOG_LEVEL_ERROR ? LM_ERROR : LM_DEBUG),
+                  ACE_TEXT ("%s"),
+                  ACE_TEXT (text)));
   },
   NULL);
-#endif // _DEBUG
 
   // load dynamic backends
   ggml_backend_load_all ();
 
   // initialize the model
-  llama_model_params model_params = llama_model_default_params ();
+  struct llama_model_params model_params = llama_model_default_params ();
   model_params.n_gpu_layers = numberOfGPULayers_in;
   llama_model* model =
     llama_model_load_from_file (modelFilePath_in.c_str (), model_params);
@@ -242,16 +238,16 @@ do_work (int argc_in,
     case TEST_I_MODE_DEFAULT:
     {
       // helper function to evaluate a prompt and generate a response
-      auto generate = [&](const std::string& prompt)
+      auto generate = [&] (const std::string& prompt)
       {
         std::string response;
 
-        const bool is_first = llama_memory_seq_pos_max(llama_get_memory(ctx), 0) == -1;
+        const bool is_first = llama_memory_seq_pos_max (llama_get_memory (ctx), 0) == -1;
 
         // tokenize the prompt
-        const int n_prompt_tokens = -llama_tokenize(vocab, prompt.c_str(), prompt.size(), NULL, 0, is_first, true);
-        std::vector<llama_token> prompt_tokens(n_prompt_tokens);
-        if (llama_tokenize(vocab, prompt.c_str(), prompt.size(), prompt_tokens.data(), prompt_tokens.size(), is_first, true) < 0)
+        const int n_prompt_tokens = -llama_tokenize (vocab, prompt.c_str (), prompt.size (), NULL, 0, is_first, true);
+        std::vector<llama_token> prompt_tokens (n_prompt_tokens);
+        if (llama_tokenize (vocab, prompt.c_str (), prompt.size (), prompt_tokens.data (), prompt_tokens.size (), is_first, true) < 0)
         {
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to tokenize the prompt (was: \"%s\"), returning\n"),
@@ -260,21 +256,24 @@ do_work (int argc_in,
         } // end IF
 
         // prepare a batch for the prompt
-        llama_batch batch = llama_batch_get_one(prompt_tokens.data(), prompt_tokens.size());
+        llama_batch batch = llama_batch_get_one (prompt_tokens.data (), prompt_tokens.size ());
         llama_token new_token_id;
         while (true)
         {
           // check if we have enough space in the context to evaluate this batch
           int n_ctx = llama_n_ctx(ctx);
-          int n_ctx_used = llama_memory_seq_pos_max(llama_get_memory(ctx), 0) + 1;
+          int n_ctx_used = llama_memory_seq_pos_max (llama_get_memory (ctx), 0) + 1;
           if (n_ctx_used + batch.n_tokens > n_ctx)
           {
             printf("\033[0m\n");
-            fprintf(stderr, "context size exceeded\n");
-            exit(0);
-          }
+            ACE_DEBUG ((LM_ERROR,
+                        ACE_TEXT ("context size exceeded (was: %d, is: %d), returning\n"),
+                        n_ctx_used + batch.n_tokens,
+                        n_ctx));
+            return response;
+          } // end IF
 
-          int ret = llama_decode(ctx, batch);
+          int ret = llama_decode (ctx, batch);
           if (ret != 0)
           {
             ACE_DEBUG ((LM_ERROR,
@@ -285,15 +284,15 @@ do_work (int argc_in,
           } // end IF
 
           // sample the next token
-          new_token_id = llama_sampler_sample(smpl, ctx, -1);
+          new_token_id = llama_sampler_sample (smpl, ctx, -1);
 
           // is it an end of generation?
-          if (llama_vocab_is_eog(vocab, new_token_id))
+          if (llama_vocab_is_eog (vocab, new_token_id))
             break;
 
           // convert the token to a string, print it and add it to the response
           char buf[256];
-          int n = llama_token_to_piece(vocab, new_token_id, buf, sizeof(buf), 0, true);
+          int n = llama_token_to_piece (vocab, new_token_id, buf, sizeof (char[256]), 0, true);
           if (n < 0)
           {
             ACE_DEBUG ((LM_ERROR,
@@ -303,8 +302,8 @@ do_work (int argc_in,
             return response;
           } // end IF
           std::string piece(buf, n);
-          printf("%s", piece.c_str());
-          fflush(stdout);
+          printf ("%s", piece.c_str ());
+          fflush (stdout);
           response += piece;
 
           // prepare the next batch with the sampled token
@@ -315,33 +314,33 @@ do_work (int argc_in,
       };
 
       std::vector<llama_chat_message> messages;
-      std::vector<char> formatted(llama_n_ctx(ctx));
+      std::vector<char> formatted (llama_n_ctx (ctx));
       int prev_len = 0;
       while (true)
       {
         // get user input
-        printf("\033[32m> \033[0m");
+        printf ("\033[32m> \033[0m");
         std::string user;
-        std::getline(std::cin, user);
-        if (user.empty())
+        std::getline (std::cin, user);
+        if (user.empty ())
           break;
 
-        const char * tmpl = llama_model_chat_template(model, /* name */ nullptr);
+        const char * tmpl = llama_model_chat_template (model, NULL);
 
         // add the user input to the message list and format it
-        messages.push_back({"user", strdup(user.c_str())});
-        int new_len = llama_chat_apply_template(tmpl, messages.data(), messages.size(), true, formatted.data(), formatted.size());
-        if (new_len > (int)formatted.size())
+        messages.push_back ({"user", strdup (user.c_str ())});
+        int new_len = llama_chat_apply_template (tmpl, messages.data (), messages.size (), true, formatted.data (), formatted.size ());
+        if (new_len > (int)formatted.size ())
         {
-          formatted.resize(new_len);
-          new_len = llama_chat_apply_template(tmpl, messages.data(), messages.size(), true, formatted.data(), formatted.size());
-        }
+          formatted.resize (new_len);
+          new_len = llama_chat_apply_template (tmpl, messages.data (), messages.size (), true, formatted.data (), formatted.size ());
+        } // end IF
         if (new_len < 0)
         {
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to apply the chat template: %d, returning\n"),
                       new_len));
-          return;
+          break;
         } // end IF
 
         // remove previous messages to obtain the prompt to generate the response
@@ -360,12 +359,12 @@ do_work (int argc_in,
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to apply the chat template: %d, returning\n"),
                       prev_len));
-          return;
+          break;
         } // end IF
       } // end WHILE
 
       // free resources
-      for (auto& msg: messages)
+      for (struct llama_chat_message& msg: messages)
         free (const_cast<char*> (msg.content));
 
       break;
