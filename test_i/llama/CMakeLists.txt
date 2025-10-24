@@ -1,4 +1,4 @@
-include (llama)
+#include (llama)
 
 string (REPLACE ${CMAKE_SOURCE_DIR} "" BUILD_PATH_SUFFIX ${CMAKE_BINARY_DIR})
 string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
@@ -17,11 +17,10 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories (${CMAKE_CURRENT_BINARY_DIR}/..)
 
 ############## next target ###############
-set (EXECUTABLE llama)
+set (EXECUTABLE llamacpp)
 set (${EXECUTABLE}_EXE_SRCS
      test_i.cpp)
 
-#cmake_policy (SET CMP0065 OLD) # do not add flags to export symbols from executables without the ENABLE_EXPORTS target property
 add_executable (${EXECUTABLE}
                 EXCLUDE_FROM_ALL
                 ${${EXECUTABLE}_EXE_SRCS})
@@ -61,7 +60,7 @@ if (UNIX)
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
-                         ENVIRONMENT "HSA_OVERRIDE_GFX_VERSION=9.0.0")
+                         ENVIRONMENT "GGML_CUDA_ENABLE_UNIFIED_MEMORY=1;HSA_OVERRIDE_GFX_VERSION=9.0.0")
 elseif (WIN32)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
  string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})

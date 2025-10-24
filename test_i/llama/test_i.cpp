@@ -261,11 +261,11 @@ do_work (int argc_in,
         while (true)
         {
           // check if we have enough space in the context to evaluate this batch
-          int n_ctx = llama_n_ctx(ctx);
+          int n_ctx = llama_n_ctx (ctx);
           int n_ctx_used = llama_memory_seq_pos_max (llama_get_memory (ctx), 0) + 1;
           if (n_ctx_used + batch.n_tokens > n_ctx)
           {
-            printf("\033[0m\n");
+            printf ("\033[0m\n");
             ACE_DEBUG ((LM_ERROR,
                         ACE_TEXT ("context size exceeded (was: %d, is: %d), returning\n"),
                         n_ctx_used + batch.n_tokens,
