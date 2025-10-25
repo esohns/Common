@@ -59,7 +59,7 @@ if (UNIX)
                          ARGS "-m /mnt/win_e/models/Llama-3.1-8B-Instruct-IQ4_XS.gguf -p 0 -t"
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/modules/ACE/lib
-                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
+                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/llama
                          ENVIRONMENT "GGML_CUDA_ENABLE_UNIFIED_MEMORY=1;HSA_OVERRIDE_GFX_VERSION=9.0.0")
 elseif (WIN32)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
@@ -74,7 +74,7 @@ elseif (WIN32)
                          ARGS "-m e:\\\\models\\\\Llama-3.1-8B-Instruct-IQ4_XS.gguf -p 0 -t"
 #                         FORWARD_ARGS
                          RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
-                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/${EXECUTABLE}
+                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_i/llama
                          ENVIRONMENT "AMD_LOG_LEVEL=4;HSA_OVERRIDE_GFX_VERSION=9.0.0;ROCR_VISIBLE_DEVICES=0;GPU_DEVICE_ORDINAL=0;HIP_VISIBLE_DEVICES=0")
 endif ()
 
