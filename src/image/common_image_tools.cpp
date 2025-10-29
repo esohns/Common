@@ -1722,32 +1722,6 @@ Common_Image_Tools::errorToString (int errorCode_in)
   return return_value;
 }
 
-enum AVCodecID
-Common_Image_Tools::stringToCodecId (const std::string& format_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::stringToCodecId"));
-
-  // initialize return value(s)
-  enum AVCodecID return_value = AV_CODEC_ID_NONE;
-
-  if (format_in == ACE_TEXT_ALWAYS_CHAR ("RGB"))
-    return_value = AV_CODEC_ID_NONE;
-  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("RGBA"))
-    return_value = AV_CODEC_ID_NONE;
-  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("PNG"))
-    return_value = AV_CODEC_ID_PNG;
-  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("JPG"))
-    return_value = AV_CODEC_ID_MJPEG;
-  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("XC"))
-    return_value = AV_CODEC_ID_NONE;
-  else
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("invalid/unknown format (was: \"%s\"), aborting\n"),
-                ACE_TEXT (format_in.c_str ())));
-
-  return return_value;
-}
-
 std::string
 Common_Image_Tools::codecIdToString (enum AVCodecID codecId_in)
 {
@@ -2027,6 +2001,64 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
 
   return true;
 }
+
+#if defined (FFMPEG_SUPPORT)
+std::string
+Common_Image_Tools::AVPixelFormatToIMFormatString (enum AVPixelFormat format_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::AVPixelFormatToIMFormatString"));
+
+  std::string result;
+
+  switch (format_in)
+  {
+    case AV_PIX_FMT_RGB24:
+      result = ACE_TEXT_ALWAYS_CHAR ("RGB"); break;
+    case AV_PIX_FMT_BGR24:
+      result = ACE_TEXT_ALWAYS_CHAR ("BGR"); break;
+    case AV_PIX_FMT_RGBA:
+      result = ACE_TEXT_ALWAYS_CHAR ("RGBA"); break;
+    case AV_PIX_FMT_BGRA:
+      result = ACE_TEXT_ALWAYS_CHAR ("BGRA"); break;
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown format (was %d: \"%s\"), aborting\n"),
+                  format_in,
+                  ACE_TEXT (Common_Image_Tools::pixelFormatToString (format_in).c_str ())));
+      break;
+    }
+  } // end SWITCH
+
+  return result;
+}
+
+enum AVCodecID
+Common_Image_Tools::IMFormatStringToAVCodecID (const std::string& format_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::IMFormatStringToAVCodecID"));
+
+  // initialize return value(s)
+  enum AVCodecID return_value = AV_CODEC_ID_NONE;
+
+  if (format_in == ACE_TEXT_ALWAYS_CHAR ("RGB"))
+    return_value = AV_CODEC_ID_NONE;
+  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("RGBA"))
+    return_value = AV_CODEC_ID_NONE;
+  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("PNG"))
+    return_value = AV_CODEC_ID_PNG;
+  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("JPG"))
+    return_value = AV_CODEC_ID_MJPEG;
+  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("XC"))
+    return_value = AV_CODEC_ID_NONE;
+  else
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("invalid/unknown format (was: \"%s\"), aborting\n"),
+                ACE_TEXT (format_in.c_str ())));
+
+  return return_value;
+}
+#endif // FFMPEG_SUPPORT
 
 std::string
 Common_Image_Tools::errorToString (struct _MagickWand* context_in)
