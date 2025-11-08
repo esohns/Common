@@ -6,7 +6,7 @@ if (UNIX)
   set (ONNXRT_ROOT $ENV{LIB_ROOT}/onnxruntime)
  endif (EXISTS $ENV{ONNXRT_ROOT})
  find_library (ONNXRT_LIBRARY libonnxruntime.so
-               PATHS ${ONNXRT_ROOT}
+               PATHS ${ONNXRT_ROOT}/linux
                PATH_SUFFIXES lib
                DOC "searching for libonnxruntime.so"
                NO_DEFAULT_PATH)
@@ -18,7 +18,7 @@ if (UNIX)
  if (ONNXRT_LIBRARY)
   set (ONNXRT_FOUND TRUE)
   set (ONNXRT_LIBRARIES ${ONNXRT_LIBRARY})
-  set (ONNXRT_INCLUDE_DIRS ${ONNXRT_ROOT}/include)
+  set (ONNXRT_INCLUDE_DIRS ${ONNXRT_ROOT}/linux/include)
  endif (ONNXRT_LIBRARY)
 elseif (WIN32)
  if (VCPKG_USE)
@@ -37,7 +37,7 @@ elseif (WIN32)
    set (ONNXRT_ROOT $ENV{LIB_ROOT}/onnxruntime)
   endif (EXISTS $ENV{ONNXRT_ROOT})
   find_library (ONNXRT_LIBRARY onnxruntime.lib
-                PATHS ${ONNXRT_ROOT}
+                PATHS ${ONNXRT_ROOT}/win32
                 PATH_SUFFIXES lib
                 DOC "searching for onnxruntime.lib"
                 NO_DEFAULT_PATH)
@@ -49,8 +49,8 @@ elseif (WIN32)
   if (ONNXRT_LIBRARY)
    set (ONNXRT_FOUND TRUE)
    set (ONNXRT_LIBRARIES "${ONNXRT_LIBRARY}")
-   set (ONNXRT_INCLUDE_DIRS "${ONNXRT_ROOT}/include")
-   set (ONNXRT_LIB_DIR "${ONNXRT_ROOT}/lib")
+   set (ONNXRT_INCLUDE_DIRS "${ONNXRT_ROOT}/win32/include")
+   set (ONNXRT_LIB_DIR "${ONNXRT_ROOT}/win32/lib")
   endif (ONNXRT_LIBRARY)
  endif (NOT ONNXRT_FOUND)
 endif ()
