@@ -57,6 +57,24 @@
 
 #include "test_i_opengl_common.h"
 
+#if defined (ACE_LINUX)
+#else
+void* timer_cb_data_p = NULL;
+#endif // ACE_LINUX
+
+void
+test_i_opengl_glut_close ()
+{
+  struct Common_OpenGL_GLUT_CBData* cb_data_p =
+    static_cast<struct Common_OpenGL_GLUT_CBData*> (glutGetWindowData ());
+  ACE_ASSERT (cb_data_p);
+
+  // glutDestroyWindow (cb_data_p->windowId);
+  cb_data_p->windowId = -1;
+
+  glutLeaveMainLoop ();
+}
+
 void
 test_i_opengl_glut_draw ()
 {
@@ -205,8 +223,23 @@ test_i_opengl_glut_reshape (int width_in, int height_in)
 void
 test_i_opengl_glut_timer (int value_in)
 {
-  glutPostRedisplay ();
-  glutTimerFunc (1000 / 60, test_i_opengl_glut_timer, value_in);
+  // sanity check(s)
+  struct Common_OpenGL_GLUT_CBData* cb_data_p = NULL;
+#if defined (ACE_LINUX)
+  ACE_ASSERT (sizeof (unsigned int) == 4);
+  uint64_t value_i = static_cast<unsigned int> (value_in) + 0x7FFF00000000;
+  cb_data_p = reinterpret_cast<struct Common_OpenGL_GLUT_CBData*> (value_i);
+#else
+  cb_data_p =
+    reinterpret_cast<struct Common_OpenGL_GLUT_CBData*> (timer_cb_data_p);
+#endif // ACE_LINUX
+  ACE_ASSERT (cb_data_p);
+
+  if (likely (cb_data_p->windowId != -1))
+  {
+    glutPostRedisplay ();
+    glutTimerFunc (1000 / 60, test_i_opengl_glut_timer, value_in);
+  } // end IF
 }
 
 void
@@ -243,6 +276,7 @@ test_i_opengl_glut_key (unsigned char key_in,
       break;
     case 'q':
     case 27: /* Escape */
+      cb_data_p->windowId = -1;
       glutLeaveMainLoop ();
       break;
     default:

@@ -1765,6 +1765,8 @@ ACE_TMAIN (int argc_in,
 #if defined (GTKGL_SUPPORT)
 #if defined (GLUT_SUPPORT)
   glutInit (&argc_in, argv_in);
+  // glutSetOption (GLUT_ACTION_ON_WINDOW_CLOSE,
+  //                GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 #endif // GLUT_SUPPORT
 #endif // GTKGL_SUPPORT
   // *PORTABILITY*: on Windows, initialize ACE

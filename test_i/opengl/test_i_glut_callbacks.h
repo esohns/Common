@@ -21,6 +21,7 @@
 #ifndef TEST_I_GLUT_CALLBACKS_H
 #define TEST_I_GLUT_CALLBACKS_H
 
+void test_i_opengl_glut_close ();
 void test_i_opengl_glut_draw ();
 void test_i_opengl_glut_reshape (int, int);
 //void test_i_opengl_glut_idle ();
@@ -32,5 +33,10 @@ void test_i_opengl_glut_mouse_button (int, int, int, int);
 void test_i_opengl_glut_mouse_move (int, int);
 void test_i_opengl_glut_mouse_wheel (int, int, int, int);
 void test_i_opengl_glut_timer (int);
+
+#if defined (ACE_LINUX)
+#else
+extern void* timer_cb_data_p;
+#endif // ACE_LINUX
 
 #endif

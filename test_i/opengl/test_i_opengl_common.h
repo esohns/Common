@@ -59,10 +59,7 @@ struct Common_OpenGL_GLUT_CBData
    , VAO (0)
    , EBO (0)
    , tp1 ()
-   //, noise ()
-   //, x (0.0)
-   //, y (0.0)
-   //, z (0.0)
+   , windowId (-1)
   {}
 
   struct Common_GL_Perspective perspective;
@@ -86,6 +83,8 @@ struct Common_OpenGL_GLUT_CBData
 #else
 #error missing implementation, aborting
 #endif // ACE_WIN32 || ACE_WIN64 || ACE_LINUX
+
+  int                          windowId;
 };
 
 #endif

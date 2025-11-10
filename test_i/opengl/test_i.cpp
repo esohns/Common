@@ -179,12 +179,14 @@ do_work (int argc_in,
 
 #if defined (GLUT_SUPPORT)
   // initialize GLUT
+  glutSetOption (GLUT_ACTION_ON_WINDOW_CLOSE,
+                 GLUT_ACTION_GLUTMAINLOOP_RETURNS);
   glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);
   glutInitWindowSize (TEST_I_OPENGL_DEFAULT_WINDOW_WIDTH,
                       TEST_I_OPENGL_DEFAULT_WINDOW_HEIGHT);
 
-  int window_i = glutCreateWindow ("OpenGL");
-  //glutSetWindow (window_i);
+  cb_data_s.windowId = glutCreateWindow ("OpenGL");
+  // glutSetWindow (cb_data_s.windowId);
   glutSetWindowData (&cb_data_s);
 #endif // GLUT_SUPPORT
 
@@ -227,6 +229,7 @@ do_work (int argc_in,
   COMMON_GL_ASSERT;
 
 #if defined (GLUT_SUPPORT)
+  glutCloseFunc (test_i_opengl_glut_close);
   glutDisplayFunc (test_i_opengl_glut_draw);
   glutReshapeFunc (test_i_opengl_glut_reshape);
   glutVisibilityFunc (test_i_opengl_glut_visible);
@@ -236,7 +239,13 @@ do_work (int argc_in,
   glutMotionFunc (test_i_opengl_glut_mouse_move);
   glutPassiveMotionFunc (test_i_opengl_glut_mouse_move);
   //glutIdleFunc (test_i_opengl_glut_idle);
-  glutTimerFunc (1000 / 60, test_i_opengl_glut_timer, 0);
+  int value_i = 0;
+#if defined (ACE_LINUX)
+  value_i = static_cast<int> ((uint64_t)&cb_data_s);
+#else
+  timer_cb_data_p = &cb_data_s;
+#endif // ACE_LINUX
+  glutTimerFunc (1000 / 60, test_i_opengl_glut_timer, value_i);
   glutMouseWheelFunc (test_i_opengl_glut_mouse_wheel);
 
   glutCreateMenu (test_i_opengl_glut_menu);
@@ -376,9 +385,10 @@ do_work (int argc_in,
 #if defined (GLUT_SUPPORT)
   glutMainLoop ();
 
-  glutDestroyWindow (window_i); window_i = -1;
+  // glutDestroyWindow (window_i); window_i = -1;
 #endif // GLUT_SUPPORT
 
+  cb_data_s.shader.reset ();
   cb_data_s.texture.reset ();
 }
 

@@ -42,7 +42,7 @@ Common_GL_Shader::~Common_GL_Shader ()
   { // *TODO*
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("cannot free shader resources when out of context, continuing\n")));
-    //glDeleteProgram (id_);
+    glDeleteProgram (id_);
   } // end IF
 }
 
