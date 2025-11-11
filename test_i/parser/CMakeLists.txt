@@ -151,8 +151,13 @@ if (WIN32)
   file (TO_NATIVE_PATH $ENV{LIB_ROOT} LIB_ROOT)
   string (REPLACE "\\" "\\\\" LIB_ROOT ${LIB_ROOT})
  endif (DEFINED ENV{LIB_ROOT})
- install (FILES ${LIB_ROOT}/libiconv/lib64/libiconv.dll
-                ${LIB_ROOT}/libxml2/build/msvc/Debug/libxml2d.dll
+ if (IS_DEBUG)
+  set (LIB_FILE_SUFFIX_2 "D")
+ else ()
+  set (LIB_FILE_SUFFIX_2 "")
+ endif (IS_DEBUG)
+ install (FILES ${LIB_ROOT}/libiconv/output/x64/${CMAKE_BUILD_TYPE}/libiconv${LIB_FILE_SUFFIX_2}.dll
+                ${LIB_ROOT}/libxml2/build/msvc/${CMAKE_BUILD_TYPE}/libxml2${LIB_FILE_SUFFIX}.dll
           DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 endif (WIN32)
 install (FILES share/test_4.xml
