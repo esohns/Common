@@ -21,6 +21,7 @@ endif (UNIX)
 
 set (LIBRARY ${PROJECT_NAME}_Test_U)
 add_library (${LIBRARY} STATIC "")
+set_property (TARGET ${LIBRARY} PROPERTY FOLDER "test_u")
 
 if (CURSES_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
@@ -152,6 +153,8 @@ export (TARGETS ${LIBRARY}
 
 add_custom_target (test_u ALL
                    COMMENT "building test_u...")
+set_property (TARGET test_u PROPERTY FOLDER "test_u")
+
 if (BUILD_TEST_U)
  if (UNIX)
   add_subdirectory (capabilities)
