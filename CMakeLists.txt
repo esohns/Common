@@ -54,12 +54,9 @@ include (PrePreToolChain)
 include (vcpkg)
 
 cmake_policy (SET CMP0048 NEW) # allow project VERSION
-#cmake_policy (SET CMP0056 OLD) # honor per-config flags in try_compile()
-#cmake_policy (SET CMP0066 OLD) # honor per-config flags in try_compile()
-#cmake_policy (SET CMP0056 NEW)
 project (${PROJECT_NAME}
          VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-         LANGUAGES CXX C)
+         LANGUAGES CXX)
 
 include (PreToolChain)
 include (SetToolChain)
@@ -107,13 +104,13 @@ add_compile_options ($<$<CONFIG:Debug>:-D_DEBUG>)
 add_compile_options ($<$<CONFIG:Release>:-DACE_NDEBUG>)
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
  if (CMAKE_COMPILER_IS_GNUCXX)
-  add_compile_options (-g)
-  add_compile_options (-O0)
-  add_compile_options (-fno-inline)
+#  add_compile_options (-g)
+#  add_compile_options (-O0)
+#  add_compile_options (-fno-inline)
  endif (CMAKE_COMPILER_IS_GNUCXX)
 elseif (CMAKE_BUILD_TYPE STREQUAL Release)
  if (CMAKE_COMPILER_IS_GNUCXX)
-  add_compile_options (-O3)
+#  add_compile_options (-O3)
  endif (CMAKE_COMPILER_IS_GNUCXX)
 endif ()
 if (MSVC)
@@ -162,31 +159,19 @@ elseif (WIN32)
  endif (MSVC)
 endif ()
 
-set (LLVM_COMPILER_ID_STRING "Clang")
-string (TOLOWER "${LLVM_COMPILER_ID_STRING}" LLVM_COMPILER_ID_STRING_LOWER)
-string (TOLOWER "${CMAKE_CXX_COMPILER_ID}" CXX_COMPILER_ID_STRING_LOWER)
-if (CXX_COMPILER_ID_STRING_LOWER STREQUAL LLVM_COMPILER_ID_STRING_LOWER)
- add_compile_options (-fPIC)
+if (LLVM_USE)
+ add_compile_options (-Wno-pragma-pack)
+ add_compile_options (-Wno-\#pragma-messages)
+ add_compile_options (-Wno-register)
+# add_compile_options (-fPIC)
 # add_definitions (-D_GLIBCXX_USE_CXX11_ABI=0)
-endif ()
+endif (LLVM_USE)
 
 ################################################################################
 # policies
 cmake_policy (SET CMP0007 NEW)
 cmake_policy (SET CMP0011 NEW)
 cmake_policy (SET CMP0074 NEW)
-
-################################################################################
-#if (DEFINED ENV{LIB_ROOT})
-# file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/cotire/CMake" COTIRE_PATH)
-#else ()
-#  set (COTIRE_PATH "modules/cotire/CMake")
-#endif (DEFINED ENV{LIB_ROOT})
-#list (APPEND CMAKE_MODULE_PATH "${COTIRE_PATH}")
-#message (STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
-#include (cotire)
-#set_directory_properties (PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-#set_directory_properties (PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER TRUE)
 
 ################################################################################
 

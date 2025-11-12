@@ -1,5 +1,6 @@
 set (LIBRARY ${PROJECT_NAME}Input)
-add_library (${LIBRARY} STATIC "")
+add_library (${LIBRARY}
+             STATIC "")
 
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${ACE_INCLUDE_DIR}>)
@@ -33,9 +34,7 @@ set (source_files
      common_input_tools.h)
 
 # Include dir for installed targets
-set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
-
-#set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+#set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 
 unset (absolute_source_files)
 foreach (source_file ${source_files})
@@ -51,9 +50,9 @@ target_sources (${LIBRARY}
                 ${absolute_source_files})
 
 if (WIN32)
- if (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)
-  add_compile_options (-Wno-c++11-narrowing)
- endif (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)
+ if (LLVM_USE)
+#  target_compile_options (${LIBRARY} PUBLIC -Wno-c++11-narrowing)
+ endif (LLVM_USE)
 endif (WIN32)
 
 #*TODO*: use pkg-config instead
@@ -62,9 +61,6 @@ if (WIN32)
 endif (WIN32)
 target_link_libraries (${LIBRARY} PUBLIC ${PROJECT_NAME}Event)
 target_link_libraries (${LIBRARY} PUBLIC ${PROJECT_NAME}Task)
-
-#set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_PARSER_BUILD_DLL)
-#set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
 target_precompile_headers (${LIBRARY}

@@ -509,7 +509,7 @@ Common_Error_Tools::generateCoreDump (const std::string& programName_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to GetTempPath(): \"%s\", aborting\n"),
-                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()))));
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
     return false;
   } // end IF
   result_3 = StringCchPrintf (szFileName,
@@ -529,16 +529,14 @@ Common_Error_Tools::generateCoreDump (const std::string& programName_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to CreateDirectory(\"%s\"): \"%s\", aborting\n"),
-                ACE_TEXT (szFileName),
-                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false))));
+                szFileName,
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
     return false;
   } // end IF
-#if defined (_DEBUG)
   else
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("created directory \"%s\"\n"),
-                ACE_TEXT (szFileName)));
-#endif // _DEBUG
+                szFileName));
 
   result_3 =
     StringCchPrintf (szFileName,
@@ -547,12 +545,12 @@ Common_Error_Tools::generateCoreDump (const std::string& programName_in,
                      ACE_TEXT_ALWAYS_WCHAR ("%s%s\\%s-%04d%02d%02d-%02d%02d%02d-%ld-%ld.dmp"),
                      ACE_TEXT_ALWAYS_WCHAR (szPath),
                      ACE_TEXT_ALWAYS_WCHAR (programName_in.c_str ()),
-                     ACE_TEXT_ALWAYS_WCHAR (converter.str ()),
+                     ACE_TEXT_ALWAYS_WCHAR (converter.str ().c_str ()),
 #else
                      ACE_TEXT_ALWAYS_CHAR ("%s%s\\%s-%04d%02d%02d-%02d%02d%02d-%ld-%ld.dmp"),
                      ACE_TEXT_ALWAYS_CHAR (szPath),
                      ACE_TEXT_ALWAYS_CHAR (programName_in.c_str ()),
-                     ACE_TEXT_ALWAYS_CHAR (converter.str ()),
+                     ACE_TEXT_ALWAYS_CHAR (converter.str ().c_str ()),
 #endif // UNICODE
                      stLocalTime.wYear, stLocalTime.wMonth, stLocalTime.wDay, 
                      stLocalTime.wHour, stLocalTime.wMinute, stLocalTime.wSecond,
@@ -560,7 +558,7 @@ Common_Error_Tools::generateCoreDump (const std::string& programName_in,
   ACE_ASSERT (SUCCEEDED (result_3));
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("creating dump file \"%s\"\n"),
-              ACE_TEXT (szFileName)));
+              szFileName));
   hFile =
     ACE_TEXT_CreateFile (szFileName,
                          GENERIC_READ | GENERIC_WRITE, 
@@ -570,11 +568,10 @@ Common_Error_Tools::generateCoreDump (const std::string& programName_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to CreateFile(\"%s\"): \"%s\", aborting\n"),
                 ACE_TEXT (szFileName),
-                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
     return false;
   } // end IF
 
-#if defined (_DEBUG)
   bMiniDumpSuccessful =
     Common_Error_Tools::miniDumpWriteDumpFunc (GetCurrentProcess (),
                                                GetCurrentProcessId (), 
@@ -587,21 +584,18 @@ Common_Error_Tools::generateCoreDump (const std::string& programName_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to MiniDumpWriteDump(): \"%s\", aborting\n"),
-                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()))));
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
     goto clean;
   } // end IF
-#endif // _DEBUG
   result = true;
 
-#if defined (_DEBUG)
 clean:
-#endif // _DEBUG
   if (hFile != ACE_INVALID_HANDLE)
     if (!CloseHandle (hFile))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to CloseHandle(0x%@): \"%s\", continuing\n"),
                   hFile,
-                  ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()))));
+                  ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
 
   return result;
 }

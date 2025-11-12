@@ -41,12 +41,10 @@ target_sources (${LIBRARY}
                 PRIVATE ${absolute_source_files})
 
 if (WIN32)
-## set (CMAKE_GENERATOR_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE)
-# set (CMAKE_VS_PLATFORM_TOOLSET "LLVM-vs2014" CACHE STRING "Platform Toolset" FORCE)
- if (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)
-  add_compile_options (-Wno-c++11-narrowing)
- endif ()
-endif ()
+ if (LLVM_USE)
+#  target_compile_options (${LIBRARY} PUBLIC -Wno-c++11-narrowing)
+ endif (LLVM_USE)
+endif (WIN32)
 
 #add_dependencies (${LIBRARY} ACE)
 if (UNIX)

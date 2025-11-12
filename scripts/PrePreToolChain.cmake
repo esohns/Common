@@ -6,8 +6,8 @@ if (UNIX)
 elseif (WIN32)
  set (CMAKE_SYSTEM_NAME Windows)
 endif ()
-#this one not so much
-set (CMAKE_SYSTEM_VERSION 1)
+# this one not so much
+set (CMAKE_SYSTEM_VERSION 11)
 
 if (WIN32)
  # when (how) is this set by cmake ?

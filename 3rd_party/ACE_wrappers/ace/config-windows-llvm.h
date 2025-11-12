@@ -1,5 +1,3 @@
-//#include <sdkddkver.h>
-
 // *NOTE*: compile with large(r) file support
 #define _FILE_OFFSET_BITS 64
 
@@ -64,8 +62,6 @@
 //         --> as a workaround, disable SEH
 #undef ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS
 
-#define ACE_HAS_IP_MULTICAST 1
-
 // *NOTE*: ACE_IOStream support requires these definitions
 //#define ACE_USES_OLD_IOSTREAMS
 //#undef ACE_LACKS_ACE_IOSTREAM
@@ -86,4 +82,4 @@
 // *NOTE*: make sure the ACE project files are generated with ipv6=1 (see local.features),
 //         otherwise there will be stack corruption around ACE_INET_Addr
 //         see also: https://stevehuston.wordpress.com/2010/07/02/trouble-with-ace-and-ipv6-make-sure-your-config-is-consistent/
-#define ACE_HAS_IPV6
+//#define ACE_HAS_IPV6

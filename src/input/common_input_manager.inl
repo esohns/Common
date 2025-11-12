@@ -253,7 +253,7 @@ continue_:
         //          appropriate behaviour depending on which one of the handles
         //          was triggered. ..."
         ACE_OS::write (ACE_STDIN,
-                       static_cast<void*> (ACE_TEXT_ALWAYS_CHAR ("0")),
+                       reinterpret_cast<const void*> (ACE_TEXT_ALWAYS_CHAR ("0")),
                        1);
 #endif // ACE_WIN32 || ACE_WIN64
 

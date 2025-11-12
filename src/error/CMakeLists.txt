@@ -46,9 +46,9 @@ target_sources (${LIBRARY}
                 PRIVATE ${absolute_source_files})
 
 if (WIN32)
- if (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)
-  add_compile_options (-Wno-c++11-narrowing)
- endif (CMAKE_VS_PLATFORM_TOOLSET STREQUAL LLVM-vs2014)
+ if (LLVM_USE)
+  target_compile_options (${LIBRARY} PUBLIC -Wno-c++11-narrowing)
+ endif (LLVM_USE)
 endif (WIN32)
 
 if (UNIX)

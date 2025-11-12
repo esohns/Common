@@ -57,7 +57,9 @@ elseif (WIN32)
   set (EXCEPTION_CPP_USE ON CACHE STRING "use ISO C++ exceptions")
   mark_as_advanced (FORCE EXCEPTION_CPP_USE)
   add_definitions (-DEXCEPTION_CPP_USE)
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc") # C++ exception handling
+  if (MSVC)
+   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc") # C++ exception handling
+  endif (MSVC) 
  elseif (${EXCEPTION_IMPLEMENTATION} MATCHES "SEH")
   if (NOT EXCEPTION_SEH_SUPPORT)
    message (FATAL_ERROR "Win32 Structured Exceptions (SEH) not supported")
@@ -65,6 +67,8 @@ elseif (WIN32)
   set (EXCEPTION_SEH_USE ON CACHE STRING "use Win32 Structured Exceptions (SEH)")
   mark_as_advanced (FORCE EXCEPTION_SEH_USE)
   add_definitions (-DEXCEPTION_SEH_USE)
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHa") # Win32 structured exception handling
+  if (MSVC)
+   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHa") # Win32 structured exception handling
+  endif (MSVC) 
  endif ()
 endif ()
