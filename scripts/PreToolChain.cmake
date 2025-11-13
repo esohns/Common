@@ -15,7 +15,7 @@ if (UNIX)
                #NO_CMAKE_FIND_ROOT_PATH
               )
  if (GCC_BIN)
-  get_filename_component (GCC_BIN ${GCC_PATH_ROOT} PATH)
+  get_filename_component (GCC_PATH_ROOT ${GCC_BIN} PATH)
   set (GCC_SUPPORT ON)
  endif (GCC_BIN)
  
@@ -35,7 +35,7 @@ if (UNIX)
                #NO_CMAKE_FIND_ROOT_PATH
               )
  if (LLVM_BIN)
-  get_filename_component (LLVM_BIN ${LLVM_PATH_ROOT} PATH)
+  get_filename_component (LLVM_PATH_ROOT ${LLVM_BIN} PATH)
   set (LLVM_SUPPORT ON)
  endif (LLVM_BIN)
 elseif (WIN32)
@@ -56,7 +56,7 @@ elseif (WIN32)
                #NO_CMAKE_FIND_ROOT_PATH
               )
  if (LLVM_BIN)
-  get_filename_component (LLVM_BIN ${LLVM_PATH_ROOT} PATH)
+  get_filename_component (LLVM_PATH_ROOT ${LLVM_BIN} PATH)
   set (LLVM_SUPPORT ON)
  endif (LLVM_BIN)
 
