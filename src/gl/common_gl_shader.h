@@ -33,6 +33,7 @@ class Common_GL_Shader
   bool loadFromString (const std::string&,  // vertex shader code
                        const std::string&); // fragment shader code
   void reset ();
+#if defined (GLEW_SUPPORT)
   inline void use () { ACE_ASSERT (id_); glUseProgram (id_); }
   inline void unuse () { glUseProgram (0); }
 
@@ -44,6 +45,7 @@ class Common_GL_Shader
   inline void setVec3  (const std::string& name, const glm::vec3& vec) const { glUniform3fv (glGetUniformLocation (id_, name.c_str ()), 1, glm::value_ptr (vec)); }
   inline void setMat4  (const std::string& name, const glm::mat4& mat) const { glUniformMatrix4fv (glGetUniformLocation (id_, name.c_str ()), 1, GL_FALSE, glm::value_ptr (mat)); }
 #endif // GLM_SUPPORT
+#endif // GLEW_SUPPORT
 
   GLuint id_;
 
