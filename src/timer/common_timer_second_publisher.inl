@@ -159,10 +159,10 @@ Common_Timer_SecondPublisher_T<TimerManagerType>::toggleTimer ()
   {
     ACE_Time_Value one_second (1, 0); // one-second interval
     timerId_ =
-      itimer_manager_p->schedule_timer (&handler_,                    // event handler handle
-                                        NULL,                         // asynchronous completion token
-                                        COMMON_TIME_NOW + one_second, // first wakeup time
-                                        one_second);                  // interval
+      itimer_manager_p->schedule_timer (&handler_,   // event handler handle
+                                        NULL,        // asynchronous completion token
+                                        one_second,  // first wakeup time
+                                        one_second); // interval
     if (unlikely (timerId_ == -1))
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to Common_ITimer::schedule_timer(%#T): \"%m\", aborting\n"),
