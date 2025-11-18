@@ -474,16 +474,12 @@ Common_Error_Tools::generateCoreDump (const std::string& programName_in,
   COMMON_TRACE (ACE_TEXT ("Common_Error_Tools::generateCoreDump"));
 
   // sanity check(s)
-#if defined (_DEBUG)
   ACE_ASSERT (Common_Error_Tools::miniDumpWriteDumpFunc);
-#endif // _DEBUG
 
   bool result = false;
   DWORD result_2 = 0;
   HRESULT result_3 = E_FAIL;
-#if defined (_DEBUG)
   BOOL bMiniDumpSuccessful;
-#endif // _DEBUG
   ACE_TCHAR szPath[MAX_PATH];
   ACE_TCHAR szFileName[MAX_PATH];
   std::ostringstream converter (ACE_TEXT_ALWAYS_CHAR ("v"));
@@ -514,7 +510,6 @@ Common_Error_Tools::generateCoreDump (const std::string& programName_in,
   } // end IF
   result_3 = StringCchPrintf (szFileName,
                               MAX_PATH,
-#if defined (_WIN32) && !defined (OLE2ANSI) // see <WTypes.h>
 #if defined (UNICODE)
                               ACE_TEXT_ALWAYS_WCHAR ("%s%s"),
                               ACE_TEXT_ALWAYS_WCHAR (szPath),
@@ -522,7 +517,6 @@ Common_Error_Tools::generateCoreDump (const std::string& programName_in,
                               ACE_TEXT_ALWAYS_CHAR ("%s%s"),
                               ACE_TEXT_ALWAYS_CHAR (szPath),
 #endif // UNICODE
-#endif // _WIN32 && !OLE2ANSI
                               ACE_TEXT (programName_in.c_str ()));
   ACE_ASSERT (SUCCEEDED (result_3));
   if (!CreateDirectory (szFileName, NULL))
