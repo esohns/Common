@@ -11,7 +11,7 @@ if (UNIX)
   if (EXISTS $ENV{TENSORFLOW_ROOT})
    set (TENSORFLOW_ROOT $ENV{TENSORFLOW_ROOT})
   else ()
-   set (TENSORFLOW_ROOT $ENV{LIB_ROOT}/tensorflow)
+   set (TENSORFLOW_ROOT $ENV{LIB_ROOT}/tensorflow_c)
   endif (EXISTS $ENV{TENSORFLOW_ROOT})
   find_library (TENSORFLOW_LIBRARY libtensorflow.so
                 PATHS ${TENSORFLOW_ROOT}
@@ -78,7 +78,7 @@ elseif (WIN32)
   if (EXISTS $ENV{TENSORFLOW_ROOT})
    set (TENSORFLOW_ROOT $ENV{TENSORFLOW_ROOT})
   else ()
-   set (TENSORFLOW_ROOT $ENV{LIB_ROOT}/tensorflow)
+   set (TENSORFLOW_ROOT $ENV{LIB_ROOT}/tensorflow_c)
   endif (EXISTS $ENV{TENSORFLOW_ROOT})
   find_library (TENSORFLOW_LIBRARY tensorflow.lib
                 PATHS ${TENSORFLOW_ROOT}

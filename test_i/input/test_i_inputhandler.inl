@@ -98,7 +98,7 @@ Test_I_InputHandler_T<
                              &wCharacter,
                              0,
                              keyboad_layout_h);
-    ACE_ASSERT (iResult && iResult <= 2);
+    ACE_ASSERT (iResult >= 0 && iResult <= 2);
     char char_c = LOBYTE (wCharacter);
     ACE_DEBUG ((LM_INFO,
                 ACE_TEXT ("read input: \"%c [%c]\"\n"),
