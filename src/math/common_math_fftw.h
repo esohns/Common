@@ -115,7 +115,8 @@ class Common_Math_FFTW_T
                          : std::sqrt (real_f * real_f + imag_f * imag_f));
   }
 
-  std::vector<ValueType> Spectrum (bool = false); // normalize values ?
+  std::vector<ValueType> Spectrum (int = -1,      // channel# (-1: all)
+                                   bool = false); // normalize values ?
 
   // return frequency in Hz of a given slot
   inline unsigned int Frequency (unsigned int slot_in) const
@@ -129,7 +130,7 @@ class Common_Math_FFTW_T
   }
 
   // *NOTE*: only required when retrieving normalized (!) magnitudes (see above)
-  void ComputeMaxValue (); // -of the output buffer(s) Y_
+  void ComputeMaxValue (int = -1); // channel# (-1: all)
 
  protected:
   bool                      isInitialized_;

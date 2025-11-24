@@ -32,6 +32,8 @@ class Common_Parser_Bencoding_Tools
   static std::string DictionaryToString (const Bencoding_Dictionary_t&);
   static std::string ListToString (const Bencoding_List_t&);
 
+  // *NOTE*: this does NOT free the argument !
+  static void free (struct Bencoding_Element&);
   // *NOTE*: fire-and-forget API
   static void free (Bencoding_Dictionary_t*&);
   static void free (Bencoding_List_t*&);

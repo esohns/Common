@@ -359,7 +359,8 @@ Common_Math_FFTW_T<ValueType>::CopyIn (unsigned int channel_in,
 
 template <typename ValueType>
 std::vector<ValueType>
-Common_Math_FFTW_T<ValueType>::Spectrum (bool normalize_in)
+Common_Math_FFTW_T<ValueType>::Spectrum (int channel_in,
+                                         bool normalize_in)
 {
   // COMMON_TRACE (ACE_TEXT ("Common_Math_FFTW_T::Spectrum"));
 
@@ -370,27 +371,42 @@ Common_Math_FFTW_T<ValueType>::Spectrum (bool normalize_in)
     return result_a;
 
   if (unlikely (normalize_in))
-    ComputeMaxValue ();
+    ComputeMaxValue (channel_in);
 
   // *IMPORTANT NOTE*: - the first ('DC'-)slot does not contain frequency
   //                     information --> i = 1
   //                   - the slots N/2 - N are mirrored and do not contain
   //                     additional information
   //                     --> there are only N/2 - 1 meaningful values
-  for (int i = 1; i < halfSlots_; ++i)
+  ValueType real_f, imag_f, value_f;
+
+  if (likely (channel_in == -1))
   {
-    ValueType real_f = Y_[0][i][0];
-    ValueType imag_f = Y_[0][i][1];
-    ValueType value_f = std::sqrt (real_f * real_f + imag_f * imag_f);
-    for (int j = 1; j < channels_; ++j)
+    for (int i = 1; i < halfSlots_; ++i)
     {
-      real_f = Y_[j][i][0];
-      imag_f = Y_[j][i][1];
-      value_f += std::sqrt (real_f * real_f + imag_f * imag_f);
+      real_f = Y_[0][i][0];
+      imag_f = Y_[0][i][1];
+      value_f = std::sqrt (real_f * real_f + imag_f * imag_f);
+      for (int j = 1; j < channels_; ++j)
+      {
+        real_f = Y_[j][i][0];
+        imag_f = Y_[j][i][1];
+        value_f += std::sqrt (real_f * real_f + imag_f * imag_f);
+      } // end FOR
+      value_f /= static_cast<ValueType> (channels_);
+      result_a.push_back (value_f);
     } // end FOR
-    value_f /= static_cast<ValueType> (channels_);
-    result_a.push_back (value_f);
-  } // end FOR
+  } // end IF
+  else
+  { ACE_ASSERT (channel_in < channels_);
+    for (int i = 1; i < halfSlots_; ++i)
+    {
+      real_f = Y_[channel_in][i][0];
+      imag_f = Y_[channel_in][i][1];
+      value_f = std::sqrt (real_f * real_f + imag_f * imag_f);
+      result_a.push_back (value_f);
+    } // end FOR
+  } // end ELSE
 
   if (unlikely (normalize_in))
     for (typename std::vector<ValueType>::iterator iterator = result_a.begin ();
@@ -416,23 +432,37 @@ Common_Math_FFTW_T<ValueType>::ApplyHammingWindow (unsigned int channel_in)
 
 template <typename ValueType>
 void
-Common_Math_FFTW_T<ValueType>::ComputeMaxValue ()
+Common_Math_FFTW_T<ValueType>::ComputeMaxValue (int channel_in)
 {
   //COMMON_TRACE (ACE_TEXT ("Common_Math_FFTW_T::ComputeMaxValue"));
 
   // sanity check(s)
   ACE_ASSERT (Y_);
+  ACE_ASSERT (channel_in < channels_);
 
   ValueType temp = 0.0;
 
-  for (unsigned int j = 0; j < channels_; ++j)
+  if (likely (channel_in == -1))
+  {
+    for (unsigned int j = 0; j < channels_; ++j)
+      for (unsigned int i = 1; i < halfSlots_; ++i)
+      {
+        ValueType real_f = Y_[j][i][0];
+        ValueType imag_f = Y_[j][i][1];
+        ValueType magnitude = std::sqrt (real_f * real_f + imag_f * imag_f);
+        temp = std::max (temp, magnitude);
+      } // end FOR
+  } // end IF
+  else
+  {
     for (unsigned int i = 1; i < halfSlots_; ++i)
     {
-      ValueType real_f = Y_[j][i][0];
-      ValueType imag_f = Y_[j][i][1];
+      ValueType real_f = Y_[channel_in][i][0];
+      ValueType imag_f = Y_[channel_in][i][1];
       ValueType magnitude = std::sqrt (real_f * real_f + imag_f * imag_f);
       temp = std::max (temp, magnitude);
     } // end FOR
+  } // end ELSE
 
   maxValue_ = temp;
   sqMaxValue_ = maxValue_ * maxValue_;

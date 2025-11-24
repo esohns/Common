@@ -135,6 +135,40 @@ Common_Parser_Bencoding_Tools::ListToString (const Bencoding_List_t& list_in)
 }
 
 void
+Common_Parser_Bencoding_Tools::free (struct Bencoding_Element& element_inout)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Parser_Bencoding_Tools::free"));
+
+  switch (element_inout.type)
+  {
+    case Bencoding_Element::BENCODING_TYPE_INTEGER:
+      break;
+    case Bencoding_Element::BENCODING_TYPE_STRING:
+      delete element_inout.string;
+      break;
+    case Bencoding_Element::BENCODING_TYPE_LIST:
+    {
+      Common_Parser_Bencoding_Tools::free (element_inout.list);
+      break;
+    }
+    case Bencoding_Element::BENCODING_TYPE_DICTIONARY:
+    {
+      Common_Parser_Bencoding_Tools::free (element_inout.dictionary);
+      break;
+    }
+    default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown type (was: %d), continuing\n"),
+                  ACE_TEXT (element_inout.type)));
+      break;
+    }
+  } // end SWITCH
+
+  element_inout.type = Bencoding_Element::BENCODING_TYPE_INVALID;
+}
+
+void
 Common_Parser_Bencoding_Tools::free (Bencoding_Dictionary_t*& dictionary_inout)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Parser_Bencoding_Tools::free"));
@@ -145,31 +179,9 @@ Common_Parser_Bencoding_Tools::free (Bencoding_Dictionary_t*& dictionary_inout)
   for (Bencoding_DictionaryIterator_t iterator = dictionary_inout->begin ();
        iterator != dictionary_inout->end ();
        ++iterator)
-  {
-    switch ((*iterator).second->type)
-    {
-      case Bencoding_Element::BENCODING_TYPE_INTEGER:
-        break;
-      case Bencoding_Element::BENCODING_TYPE_STRING:
-        delete (*iterator).second->string; break;
-      case Bencoding_Element::BENCODING_TYPE_LIST:
-      {
-        Common_Parser_Bencoding_Tools::free ((*iterator).second->list);
-        break;
-      }
-      case Bencoding_Element::BENCODING_TYPE_DICTIONARY:
-      {
-        Common_Parser_Bencoding_Tools::free ((*iterator).second->dictionary);
-        break;
-      }
-      default:
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("invalid/unknown type (was: %d), continuing\n"),
-                    ACE_TEXT ((*iterator).second->type)));
-        break;
-      }
-    } // end SWITCH
+  { ACE_ASSERT ((*iterator).second);
+    Common_Parser_Bencoding_Tools::free (*(*iterator).second);
+    delete (*iterator).second;
   } // end FOR
 
   delete dictionary_inout; dictionary_inout = NULL;
@@ -186,31 +198,9 @@ Common_Parser_Bencoding_Tools::free (Bencoding_List_t*& list_inout)
   for (Bencoding_ListIterator_t iterator = list_inout->begin ();
        iterator != list_inout->end ();
        ++iterator)
-  {
-    switch ((*iterator)->type)
-    {
-      case Bencoding_Element::BENCODING_TYPE_INTEGER:
-        break;
-      case Bencoding_Element::BENCODING_TYPE_STRING:
-        delete (*iterator)->string; break;
-      case Bencoding_Element::BENCODING_TYPE_LIST:
-      {
-        Common_Parser_Bencoding_Tools::free ((*iterator)->list);
-        break;
-      }
-      case Bencoding_Element::BENCODING_TYPE_DICTIONARY:
-      {
-        Common_Parser_Bencoding_Tools::free ((*iterator)->dictionary);
-        break;
-      }
-      default:
-      {
-        ACE_DEBUG ((LM_ERROR,
-                    ACE_TEXT ("invalid/unknown type (was: %d), continuing\n"),
-                    ACE_TEXT ((*iterator)->type)));
-        break;
-      }
-    } // end SWITCH
+  { ACE_ASSERT (*iterator);
+    Common_Parser_Bencoding_Tools::free (*(*iterator));
+    delete *iterator;
   } // end FOR
 
   delete list_inout; list_inout = NULL;

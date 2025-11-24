@@ -30,10 +30,10 @@
 // *NOTE*: the bencoding format is not really type-safe, so 'strict' languages
 //         like C/C++ need to jump through a few hoops here
 struct Bencoding_Element;
-typedef std::vector<Bencoding_Element*> Bencoding_List_t;
+typedef std::vector<struct Bencoding_Element*> Bencoding_List_t;
 typedef Bencoding_List_t::const_iterator Bencoding_ListIterator_t;
 // *NOTE*: key order is important to generate correct hashes --> cannot use map
-typedef std::vector<std::pair<std::string*, Bencoding_Element*> > Bencoding_Dictionary_t;
+typedef std::vector<std::pair<std::string*, struct Bencoding_Element*> > Bencoding_Dictionary_t;
 typedef Bencoding_Dictionary_t::const_iterator Bencoding_DictionaryIterator_t;
 
 struct Bencoding_Element
