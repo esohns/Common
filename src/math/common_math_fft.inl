@@ -453,7 +453,8 @@ Common_Math_FFT_T<ValueType>::ApplyHammingWindow (unsigned int channel_in)
 
 template <typename ValueType>
 std::vector<ValueType>
-Common_Math_FFT_T<ValueType>::Spectrum (bool normalize_in)
+Common_Math_FFT_T<ValueType>::Spectrum (int channel_in,
+                                        bool normalize_in)
 {
   // COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Spectrum"));
 
@@ -464,21 +465,33 @@ Common_Math_FFT_T<ValueType>::Spectrum (bool normalize_in)
     return result_a;
 
   if (unlikely (normalize_in))
-    ComputeMaxValue ();
+    ComputeMaxValue (channel_in);
 
   // *IMPORTANT NOTE*: - the first ('DC'-)slot does not contain frequency
   //                     information --> i = 1
   //                   - the slots N/2 - N are mirrored and do not contain
   //                     additional information
   //                     --> there are only N/2 - 1 meaningful values
-  for (int i = 1; i < halfSlots_; ++i)
+  ValueType value_f;
+  if (likely (channel_in == -1))
   {
-    ValueType value_f = std::sqrt (std::norm (X_[0][i]));
-    for (int j = 1; j < channels_; ++j)
-      value_f += std::sqrt (std::norm (X_[j][i]));
-    value_f /= static_cast<ValueType> (channels_);
-    result_a.push_back (value_f);
-  } // end FOR
+    for (int i = 1; i < halfSlots_; ++i)
+    {
+      value_f = std::sqrt (std::norm (X_[0][i]));
+      for (int j = 1; j < channels_; ++j)
+        value_f += std::sqrt (std::norm (X_[j][i]));
+      value_f /= static_cast<ValueType> (channels_);
+      result_a.push_back (value_f);
+    } // end FOR
+  } // end IF
+  else
+  { ACE_ASSERT (channel_in < channels_);
+    for (int i = 1; i < halfSlots_; ++i)
+    {
+      value_f = std::sqrt (std::norm (X_[channel_in][i]));
+      result_a.push_back (value_f);
+    } // end FOR
+  } // end ELSE
 
   if (unlikely (normalize_in))
     for (typename std::vector<ValueType>::iterator iterator = result_a.begin ();
@@ -491,21 +504,33 @@ Common_Math_FFT_T<ValueType>::Spectrum (bool normalize_in)
 
 template <typename ValueType>
 void
-Common_Math_FFT_T<ValueType>::ComputeMaxValue ()
+Common_Math_FFT_T<ValueType>::ComputeMaxValue (int channel_in)
 {
   //COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::ComputeMaxValue"));
 
   // sanity check(s)
   ACE_ASSERT (X_);
+  ACE_ASSERT (channel_in < channels_);
 
   ValueType temp = 0.0;
 
-  for (unsigned int j = 0; j < channels_; ++j)
+  if (likely (channel_in == -1))
+  {
+    for (unsigned int j = 0; j < channels_; ++j)
+      for (unsigned int i = 1; i < halfSlots_; ++i)
+      {
+        ValueType magnitude = std::sqrt (std::norm (X_[j][i]));
+        temp = std::max (temp, magnitude);
+      } // end FOR
+  } // end IF
+  else
+  {
     for (unsigned int i = 1; i < halfSlots_; ++i)
     {
-      ValueType magnitude = std::sqrt (std::norm (X_[j][i]));
+      ValueType magnitude = std::sqrt (std::norm (X_[channel_in][i]));
       temp = std::max (temp, magnitude);
     } // end FOR
+  } // end ELSE
 
   maxValue_ = temp;
   sqMaxValue_ = maxValue_ * maxValue_;
