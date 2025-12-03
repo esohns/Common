@@ -171,17 +171,28 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
       if (unlikely (inherited::thr_count_ == 0))
         return 0; // nothing to do
 
-      // sanity check(s)
-      ACE_ASSERT (configuration_);
+      // remove event sources
+      { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_.lock, -1);
+        for (Common_UI_GTK_EventSourceIdsIterator_t iterator = state_.eventSourceIds.begin ();
+             iterator != state_.eventSourceIds.end ();
+             iterator++)
+          if (!g_source_remove (*iterator))
+            ACE_DEBUG ((LM_ERROR,
+                        ACE_TEXT ("failed to g_source_remove(%u), continuing\n"),
+                        *iterator));
+        state_.eventSourceIds.clear ();
+      } // end lock scope
 
       // schedule UI finalization
-      guint event_source_id = 0;
+      // sanity check(s)
+      ACE_ASSERT (configuration_);
       if (configuration_->eventHooks.finiHook)
       { ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, aGuard, state_.lock, -1);
-        event_source_id = g_idle_add_full (G_PRIORITY_DEFAULT, // same as timeout !
-                                           configuration_->eventHooks.finiHook,
-                                           configuration_->CBData,
-                                           NULL);
+        guint event_source_id =
+            g_idle_add_full (G_PRIORITY_DEFAULT, // same as timeout !
+                             configuration_->eventHooks.finiHook,
+                             configuration_->CBData,
+                             NULL);
         if (unlikely (!event_source_id))
         {
           ACE_DEBUG ((LM_ERROR,
