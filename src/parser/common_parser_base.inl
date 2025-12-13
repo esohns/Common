@@ -315,19 +315,16 @@ Common_ParserBase_T<ConfigurationType,
   // sanity check(s)
   ACE_ASSERT (configuration_);
 
+  bool get_cont_b = fragment_ != NULL;
   ACE_Message_Block* message_block_p = fragment_;
-  if (!fragment_->cont ())
+  if (!fragment_ || (get_cont_b && !fragment_->cont ()))
   {
-    //ACE_DEBUG ((LM_DEBUG,
-    //            ACE_TEXT ("parsed %Q byte(s), getting next fragment\n"),
-    //            fragment_->length ()));
-
     // sanity check(s)
     if (!configuration_->block)
       return false; // not enough data, cannot proceed
 
     waitBuffer (); // <-- wait for data
-    if (!fragment_->cont ())
+    if (!fragment_ || (get_cont_b && !fragment_->cont ()))
     { // *NOTE*: most probable reason: received session end
       if (!finished_)
         ACE_DEBUG ((LM_ERROR,
@@ -335,10 +332,10 @@ Common_ParserBase_T<ConfigurationType,
       return false;
     } // end IF
   } // end IF
-  //ACE_DEBUG ((LM_DEBUG,
-  //            ACE_TEXT ("parsed %Q byte(s), using next fragment\n"),
-  //            fragment_->length ()));
-  fragment_ = fragment_->cont ();
+  if (get_cont_b)
+    fragment_ = fragment_->cont ();
+  else
+    head (fragment_);
   scannerState_.offset = 0;
 
   // unlink ?
@@ -453,15 +450,19 @@ retry:
       break;
   } // end SWITCH
 
-  // 2. append data ?
+  // 2. set/append data ?
   if (!done)
-  { ACE_ASSERT (fragment_);
-    ACE_ASSERT (message_block_p);
-    ACE_Message_Block* message_block_2 = fragment_;
-    for (;
-         message_block_2->cont ();
-         message_block_2 = message_block_2->cont ());
-    message_block_2->cont (message_block_p);
+  { ACE_ASSERT (message_block_p);
+    if (fragment_)
+    {
+      ACE_Message_Block* message_block_2 = fragment_;
+      for (;
+           message_block_2->cont ();
+           message_block_2 = message_block_2->cont ());
+      message_block_2->cont (message_block_p);
+    } // end IF
+    else
+      fragment_ = message_block_p;
   } // end IF
 }
 

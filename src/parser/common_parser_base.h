@@ -72,8 +72,9 @@ class Common_ParserBase_T
   virtual void end ();
   virtual bool switchBuffer (bool = false); // unlink current fragment ?
   virtual void waitBuffer ();
-  inline virtual void offset (unsigned int offset_in) { scannerState_.offset += offset_in; } // offset (increment)
   virtual void error (const std::string&); // message
+  inline virtual void head (ACE_Message_Block*) { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
+  inline virtual void offset (unsigned int offset_in) { scannerState_.offset += offset_in; } // offset (increment)
 
   // implement (part of) Common_ILexScanner_T
   inline virtual const ConfigurationType& getR () const { ACE_ASSERT (configuration_); return *configuration_; }

@@ -51,8 +51,9 @@ class Common_IScannerBase
   virtual void waitBuffer () = 0;
 
   ////////////////////////////////////////
-  virtual void offset (unsigned int) = 0; // offset (/increment)
   virtual void error (const std::string&) = 0;
+  virtual void head (ACE_Message_Block*) = 0; // new data buffer handle
+  virtual void offset (unsigned int) = 0; // offset (/increment)
 };
 
 template <typename ConfigurationType>
