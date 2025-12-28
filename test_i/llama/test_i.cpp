@@ -245,9 +245,10 @@ do_work (int argc_in,
         const bool is_first = llama_memory_seq_pos_max (llama_get_memory (ctx), 0) == -1;
 
         // tokenize the prompt
-        const int n_prompt_tokens = -llama_tokenize (vocab, prompt.c_str (), prompt.size (), NULL, 0, is_first, true);
+        const int n_prompt_tokens =
+          -llama_tokenize (vocab, prompt.c_str (), static_cast<int32_t> (prompt.size ()), NULL, 0, is_first, true);
         std::vector<llama_token> prompt_tokens (n_prompt_tokens);
-        if (llama_tokenize (vocab, prompt.c_str (), prompt.size (), prompt_tokens.data (), prompt_tokens.size (), is_first, true) < 0)
+        if (llama_tokenize (vocab, prompt.c_str (), static_cast<int32_t> (prompt.size ()), prompt_tokens.data (), static_cast<int32_t> (prompt_tokens.size ()), is_first, true) < 0)
         {
           ACE_DEBUG ((LM_ERROR,
                       ACE_TEXT ("failed to tokenize the prompt (was: \"%s\"), returning\n"),
@@ -256,7 +257,7 @@ do_work (int argc_in,
         } // end IF
 
         // prepare a batch for the prompt
-        llama_batch batch = llama_batch_get_one (prompt_tokens.data (), prompt_tokens.size ());
+        llama_batch batch = llama_batch_get_one (prompt_tokens.data (), static_cast<int32_t> (prompt_tokens.size ()));
         llama_token new_token_id;
         while (true)
         {
@@ -328,12 +329,14 @@ do_work (int argc_in,
         const char * tmpl = llama_model_chat_template (model, NULL);
 
         // add the user input to the message list and format it
-        messages.push_back ({"user", strdup (user.c_str ())});
-        int new_len = llama_chat_apply_template (tmpl, messages.data (), messages.size (), true, formatted.data (), formatted.size ());
+        messages.push_back ({"user", ACE_OS::strdup (user.c_str ())});
+        int new_len =
+          llama_chat_apply_template (tmpl, messages.data (), messages.size (), true, formatted.data (), static_cast<int32_t> (formatted.size ()));
         if (new_len > (int)formatted.size ())
         {
           formatted.resize (new_len);
-          new_len = llama_chat_apply_template (tmpl, messages.data (), messages.size (), true, formatted.data (), formatted.size ());
+          new_len =
+            llama_chat_apply_template (tmpl, messages.data (), messages.size (), true, formatted.data (), static_cast<int32_t> (formatted.size ()));
         } // end IF
         if (new_len < 0)
         {
@@ -344,16 +347,16 @@ do_work (int argc_in,
         } // end IF
 
         // remove previous messages to obtain the prompt to generate the response
-        std::string prompt(formatted.begin() + prev_len, formatted.begin() + new_len);
+        std::string prompt(formatted.begin () + prev_len, formatted.begin () + new_len);
 
         // generate a response
-        printf("\033[33m");
-        std::string response = generate(prompt);
-        printf("\n\033[0m");
+        printf ("\033[33m");
+        std::string response = generate (prompt);
+        printf ("\n\033[0m");
 
         // add the response to the messages
-        messages.push_back({"assistant", strdup(response.c_str())});
-        prev_len = llama_chat_apply_template(tmpl, messages.data(), messages.size(), false, nullptr, 0);
+        messages.push_back ({"assistant", ACE_OS::strdup (response.c_str ())});
+        prev_len = llama_chat_apply_template (tmpl, messages.data (), messages.size (), false, nullptr, 0);
         if (prev_len < 0)
         {
           ACE_DEBUG ((LM_ERROR,
