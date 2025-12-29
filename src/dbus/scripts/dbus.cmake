@@ -1,6 +1,10 @@
 include (OS)
 
 if (UNIX)
+# double-include protection...
+ if (DBus1_LIBRARIES)
+  return ()
+ endif (DBus1_LIBRARIES)
 # find_package (DBus1 MODULE)
  find_package (DBus1)
  if (NOT DBus1_FOUND)
