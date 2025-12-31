@@ -68,15 +68,15 @@ do_printUsage (const std::string& programName_in)
             << std::endl << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("currently available options:")
             << std::endl;
-  std::cout << ACE_TEXT_ALWAYS_CHAR ("-c          : command [")
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-c: command [")
             << ACE_TEXT_ALWAYS_CHAR (TEST_U_DEFAULT_COMMAND)
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
-  std::cout << ACE_TEXT_ALWAYS_CHAR ("-l          : log to a file [")
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-l: log to a file [")
             << false
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
-  std::cout << ACE_TEXT_ALWAYS_CHAR ("-t          : trace information [")
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-t: trace information [")
             << false
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;

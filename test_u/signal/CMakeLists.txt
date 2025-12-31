@@ -82,19 +82,24 @@ if (UNIX)
                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_u/${EXECUTABLE}
                          ENVIRONMENT foo=bar)
 elseif (WIN32)
-# if (VCPKG_USE)
-#  file (TO_CMAKE_PATH ${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/bin ACE_LIB_PATH)
-# else ()
-  file (TO_CMAKE_PATH $ENV{LIB_ROOT}/ACE_TAO/ACE/lib ACE_LIB_PATH)
-# endif (VCPKG_USE)
+ file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}.exe" COMMAND)
+ string (REPLACE "\\" "\\\\" COMMAND ${COMMAND})
+
+ if (WXWIDGETS_SUPPORT)
+  file (TO_CMAKE_PATH ${wxWidgets_LIB_DIR} WXWIDGETS_LIB_PATH)
+ endif (WXWIDGETS_SUPPORT)
+ file (TO_CMAKE_PATH ${ACE_LIB_DIR} ACE_LIB_PATH)
+ set (RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
+                           ${WXWIDGETS_LIB_PATH}
+                           ${ACE_LIB_PATH})
+
  create_target_launcher (${EXECUTABLE}
+                         COMMAND ${COMMAND}
                          ARGS "-t"
 #                        FORWARD_ARGS
-                         RUNTIME_LIBRARY_DIRS ${ACE_LIB_PATH}
-                                              G:/software/Development/dll
-                                              ${PROJECT_BINARY_DIR}/src/${CMAKE_BUILD_TYPE}
-                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_u/${EXECUTABLE}
-                          ENVIRONMENT foo=bar)
+                         RUNTIME_LIBRARY_DIRS ${RUNTIME_LIBRARY_DIRS}
+                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test_u/${EXECUTABLE}
+                         ENVIRONMENT foo=bar)
 endif ()
 
 add_test (NAME ${EXECUTABLE}_test
