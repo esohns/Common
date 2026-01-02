@@ -172,7 +172,7 @@ do_work (int argc_in,
       const size_t kSequenceLen = 1;
       const size_t kInputDim = 1;
       const size_t kHiddenDim = 5;
-      const size_t kOuputDim = 1;
+      // const size_t kOutputDim = 1;
       auto time_serie_detector =
         torch::nn::LSTM (torch::nn::LSTMOptions (kInputDim, kHiddenDim)
           .dropout (0.2)

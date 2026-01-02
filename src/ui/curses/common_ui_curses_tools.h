@@ -34,9 +34,8 @@ class Common_UI_Curses_Tools
   static bool finalize ();
 
   static void init_colorpairs ();
-  inline static short curs_color (ACE_UINT8 color) { return (7 & color); }
-  static ACE_UINT8 colornum (ACE_UINT8,  // foreground
-                             ACE_UINT8); // background
+  static short colornum (ACE_UINT8,  // foreground
+                         ACE_UINT8); // background
   static bool is_bold (ACE_UINT8); // color
   static void setcolor (ACE_UINT8,  // foreground
                         ACE_UINT8); // background
@@ -44,6 +43,8 @@ class Common_UI_Curses_Tools
                           ACE_UINT8); // background
 
  private:
+  static short curs_color (ACE_UINT8); // color
+
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Curses_Tools ())
   ACE_UNIMPLEMENTED_FUNC (~Common_UI_Curses_Tools ())
   ACE_UNIMPLEMENTED_FUNC (Common_UI_Curses_Tools (const Common_UI_Curses_Tools&))

@@ -28,10 +28,14 @@
 
 // *TODO*: move these somewhere else ASAP
 // *NOTE*: these are merely UNICODE characters
-#define COMMON_UI_CURSES_BLOCK_SOLID           0x2588 // 9608
-#define COMMON_UI_CURSES_BLOCK_THREE_QUARTERS  0x2593 // 9619
-#define COMMON_UI_CURSES_BLOCK_HALF            0x2592 // 9618
-#define COMMON_UI_CURSES_BLOCK_QUARTER         0x2591 // 9617
+#define COMMON_UI_CURSES_BLOCK_SOLID           L'\u2588' // 9608
+#define COMMON_UI_CURSES_BLOCK_THREE_QUARTERS  L'\u2593' // 9619
+#define COMMON_UI_CURSES_BLOCK_HALF            L'\u2592' // 9618
+#define COMMON_UI_CURSES_BLOCK_QUARTER         L'\u2591' // 9617
+// #define COMMON_UI_CURSES_BLOCK_SOLID           L'█'
+// #define COMMON_UI_CURSES_BLOCK_THREE_QUARTERS  L'▓'
+// #define COMMON_UI_CURSES_BLOCK_HALF            L'▒'
+// #define COMMON_UI_CURSES_BLOCK_QUARTER         L'░'
 
 // colors (use common_ui_curses_tools::init_colors() first)
 #define COMMON_UI_CURSES_BLACK                 0x00
