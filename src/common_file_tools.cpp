@@ -2169,7 +2169,7 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
 #endif // ACE_WIN32 || ACE_WIN64
 
   // sanity check(s)
-  ACE_DEBUG ((LM_INFO, ACE_TEXT ("\"%s\"\n"), ACE_TEXT (return_value.c_str ())));
+  //ACE_DEBUG ((LM_INFO, ACE_TEXT ("\"%s\"\n"), ACE_TEXT (return_value.c_str ())));
   ACE_ASSERT (Common_File_Tools::isDirectory (return_value));
 
   return return_value;
