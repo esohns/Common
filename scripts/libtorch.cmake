@@ -40,7 +40,7 @@ if (UNIX)
    message (WARNING "could not find libtorch.so, continuing")
   else ()
    message (STATUS "Found libtorch.so library \"${LIBTORCH_LIBRARY}\"")
-  endif (NOT LIBTORCH_CPU_LIBRARY)
+  endif (NOT LIBTORCH_LIBRARY)
   find_library (LIBTORCH_CPU_LIBRARY libtorch_cpu.so
                 PATHS ${LIBTORCH_ROOT}
                 PATH_SUFFIXES lib
@@ -55,7 +55,7 @@ if (UNIX)
    set (LIBTORCH_FOUND TRUE)
    set (LIBTORCH_LIBRARIES "${C10_LIBRARY};${LIBTORCH_LIBRARY};${LIBTORCH_CPU_LIBRARY}")
    set (LIBTORCH_INCLUDE_DIRS "${LIBTORCH_ROOT}/include;${LIBTORCH_ROOT}/include/torch/csrc/api/include")
-  endif (C10_LIBRARY AND LIBTORCH_LIBRARY)
+  endif (C10_LIBRARY AND LIBTORCH_LIBRARY AND LIBTORCH_CPU_LIBRARY)
  endif (TORCH_FOUND)
 # endif (PKG_LIBTORCH_FOUND)
 elseif (WIN32)
