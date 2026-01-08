@@ -85,18 +85,17 @@ install (FILES
          common_lexer_base.inl
          common_parser_base.h
          common_parser_base.inl
-         common_parser_bencoding_common.h
-         common_parser_bencoding_tools.h
          common_parser_common.h
          common_parser_cpp_base.h
          common_parser_cpp_base.inl
          common_parser_defines.h
          common_parser_driver_base.h
          common_parser_driver_base.inl
-         DESTINATION include)
+         DESTINATION ${INSTALL_INCLUDE_DIR}
+         COMPONENT include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
          COMPONENT lib)
 
 add_subdirectory (bencoding)

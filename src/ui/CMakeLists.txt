@@ -122,11 +122,12 @@ if (UNIX)
       common_ui_x11_tools.h)
 endif (UNIX)
 install (FILES
-         ${CommonUI_LIB_HDRS}
-         DESTINATION include)
+         ${${LIBRARY}_LIB_HDRS}
+         DESTINATION ${INSTALL_INCLUDE_DIR}
+         COMPONENT include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
          COMPONENT lib)
 
 if (CURSES_SUPPORT)

@@ -100,13 +100,12 @@ set (${LIBRARY}_LIB_HDRS
      common_ui_qt_common.h
      common_ui_qt_defines.h
      common_ui_qt_iapplication.h
-     common_ui_qt_tools.h
-)
+     common_ui_qt_tools.h)
 install (FILES
-         ${CommonUI_Qt_LIB_HDRS}
-         DESTINATION include)
-
+         ${${LIBRARY}_LIB_HDRS}
+         DESTINATION ${INSTALL_INCLUDE_DIR}
+         COMPONENT include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
          COMPONENT lib)

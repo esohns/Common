@@ -79,8 +79,9 @@ install (FILES
          common_parser_bencoding_iparser.h
          common_parser_bencoding_parser_driver.h
          common_parser_bencoding_tools.h
-         DESTINATION include)
+         DESTINATION ${INSTALL_INCLUDE_DIR}
+         COMPONENT include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
          COMPONENT lib)

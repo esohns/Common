@@ -145,21 +145,20 @@ set (${LIBRARY}_LIB_HDRS
      common_ui_gtk_manager.inl
      common_ui_gtk_manager_common.h
      common_ui_gtk_tools.h)
-#     common_ui_gtk_types.h
 if (LIBGLADE_SUPPORT)
- set (${LIBRARY}_LIB_GLADE_HDRS ${CommonUI_GTK_LIB_GLADE_HDRS}
-      common_ui_glade_definition.h
+ set (${LIBRARY}_LIB_HDRS ${${LIBRARY}_LIB_HDRS}
+      common_ui_gtk_glade_definition.h
       common_ui_gtk_glade_definition.inl)
 endif (LIBGLADE_SUPPORT)
 if (GTKGL_SUPPORT)
- set (${LIBRARY}_LIB_GLADE_HDRS ${CommonUI_GTK_LIB_GLADE_HDRS}
+ set (${LIBRARY}_LIB_HDRS ${${LIBRARY}_LIB_HDRS}
       common_ui_gtk_gl_common.h)
 endif (GTKGL_SUPPORT)
 install (FILES
-         ${CommonUI_GTK_LIB_HDRS}
-         DESTINATION include)
-
+         ${${LIBRARY}_LIB_HDRS}
+         DESTINATION ${INSTALL_INCLUDE_DIR}
+         COMPONENT include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
          COMPONENT lib)

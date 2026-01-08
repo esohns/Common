@@ -96,8 +96,9 @@ install (FILES
          common_task_manager.h
          common_task_manager.inl
          common_task_tools.h
-         DESTINATION ${INSTALL_INCLUDE_DIR})
+         DESTINATION ${INSTALL_INCLUDE_DIR}
+         COMPONENT include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
          COMPONENT lib)

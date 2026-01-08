@@ -73,16 +73,17 @@ export (TARGETS ${LIBRARY}
 ############### install files ################
 install (FILES
          common_error_defines.h
-#         common_error_exports.h
          common_error_tools.h
-         DESTINATION include)
+         DESTINATION ${INSTALL_INCLUDE_DIR}
+         COMPONENT include)
 if (WIN32)
  install (FILES
           common_error_directx.cpp
           common_error_directx.h
-          DESTINATION include)
+          DESTINATION ${INSTALL_INCLUDE_DIR}
+          COMPONENT include)
 endif (WIN32)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
          COMPONENT lib)

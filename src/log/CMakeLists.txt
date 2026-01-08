@@ -74,8 +74,9 @@ install (FILES
          common_logger_file.inl
          common_logger_queue.h
          common_logger_queue.inl
-         DESTINATION include)
+         DESTINATION ${INSTALL_INCLUDE_DIR}
+         COMPONENT include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
          COMPONENT lib)

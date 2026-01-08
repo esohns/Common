@@ -149,8 +149,9 @@ if (ASSIMP_SUPPORT)
 endif (ASSIMP_SUPPORT)
 install (FILES
          ${source_files}
-         DESTINATION ${INSTALL_INCLUDE_DIR})
-#install (TARGETS ${LIBRARY}
-#         EXPORT ${PROJECT_NAME}Targets
-#         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-#         COMPONENT lib)
+         DESTINATION ${INSTALL_INCLUDE_DIR}
+         COMPONENT include)
+install (TARGETS ${LIBRARY}
+         EXPORT ${PROJECT_NAME}Targets
+         ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
+         COMPONENT lib)

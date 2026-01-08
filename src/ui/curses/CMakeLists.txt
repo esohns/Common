@@ -84,9 +84,9 @@ set (${LIBRARY}_LIB_HDRS
      common_ui_curses_tools.h)
 install (FILES
          ${${LIBRARY}_LIB_HDRS}
-         DESTINATION include)
-
+         DESTINATION ${INSTALL_INCLUDE_DIR}
+         COMPONENT include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
          COMPONENT lib)

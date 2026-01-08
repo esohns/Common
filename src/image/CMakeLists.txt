@@ -108,8 +108,9 @@ install (FILES
          common_image_common.h
          common_image_defines.h
          common_image_tools.h
-         DESTINATION ${INSTALL_INCLUDE_DIR})
-#install (TARGETS ${LIBRARY}
-#         EXPORT ${PROJECT_NAME}Targets
-#         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-#         COMPONENT lib)
+         DESTINATION ${INSTALL_INCLUDE_DIR}
+         COMPONENT include)
+install (TARGETS ${LIBRARY}
+         EXPORT ${PROJECT_NAME}Targets
+         ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
+         COMPONENT lib)

@@ -89,9 +89,6 @@ if (WIN32)
  target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
 endif (WIN32)
 
-#set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_MATH_BUILD_DLL)
-#set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
-
 # add PCH
 target_precompile_headers (${LIBRARY}
                            PRIVATE stdafx.h)
@@ -124,8 +121,9 @@ if (FFTW_SUPPORT)
 endif (FFTW_SUPPORT)
 install (FILES
          ${header_files}
-         DESTINATION include)
+         DESTINATION ${INSTALL_INCLUDE_DIR}
+         COMPONENT include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
          COMPONENT lib)

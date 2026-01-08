@@ -76,13 +76,15 @@ install (FILES
          common_event_defines.h
          common_event_handler_base.h
          common_event_tools.h
-         DESTINATION ${INSTALL_INCLUDE_DIR})
+         DESTINATION ${INSTALL_INCLUDE_DIR}
+         COMPONENT include)
 if (WIN32)
  install (FILES
           common_win32_event.h
-          DESTINATION ${INSTALL_INCLUDE_DIR})
+          DESTINATION ${INSTALL_INCLUDE_DIR}
+          COMPONENT include)
 endif (WIN32)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
          COMPONENT lib)

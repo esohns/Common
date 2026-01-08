@@ -74,8 +74,9 @@ install (FILES
          common_signal_handler.h
          common_signal_handler.inl
          common_signal_tools.h
-         DESTINATION ${INSTALL_INCLUDE_DIR})
+         DESTINATION ${INSTALL_INCLUDE_DIR}
+         COMPONENT include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
          COMPONENT lib)

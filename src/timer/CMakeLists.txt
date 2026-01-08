@@ -60,9 +60,6 @@ target_sources (${LIBRARY}
 
 #add_dependencies (${LIBRARY} ACE)
 
-#set_target_properties (${LIBRARY} PROPERTIES
-#                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
-
 if (UNIX)
  target_link_libraries (${LIBRARY} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 elseif (WIN32)
@@ -97,8 +94,9 @@ install (FILES
          common_timer_second_publisher.h
          common_timer_second_publisher.inl
          common_timer_tools.h
-         DESTINATION ${INSTALL_INCLUDE_DIR})
+         DESTINATION ${INSTALL_INCLUDE_DIR}
+         COMPONENT include)
 install (TARGETS ${LIBRARY}
          EXPORT ${PROJECT_NAME}Targets
-         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+         ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
          COMPONENT lib)
