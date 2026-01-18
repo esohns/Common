@@ -33,6 +33,8 @@ class Common_GL_Texture
                      enum Type = Type::TYPE_INVALID);
   ~Common_GL_Texture ();
 
+  void initialize ();
+
   // *NOTE*: this loads the (currently bound) framebuffer
   bool load (GLint = GL_RGBA8); // internalFormat
   // GL_TEXTURE_2D

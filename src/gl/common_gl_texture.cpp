@@ -60,6 +60,19 @@ Common_GL_Texture::~Common_GL_Texture ()
    } // end IF
 }
 
+void
+Common_GL_Texture::initialize ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::initialize"));
+
+  // sanity check(s)
+  if (unlikely (id_))
+    return;
+
+  glGenTextures (1, &id_);
+  ACE_ASSERT (id_);
+}
+
 bool
 Common_GL_Texture::load (GLint internalFormat_in)
 {
