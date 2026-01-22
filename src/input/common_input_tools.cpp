@@ -259,3 +259,23 @@ void Common_Input_Tools::input (char character_in)
   } // end IF
 #endif // ACE_WIN32 || ACE_WIN64
 }
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+HWND
+Common_Input_Tools::mouseCursorToWindow ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Input_Tools::mouseCursorToWindow"));
+
+  struct tagPOINT point_s;
+  if (!GetCursorPos (&point_s))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to GetCursorPos(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false, false).c_str ())));
+    return NULL;
+  } // end IF
+
+  return WindowFromPoint (point_s);
+}
+#endif // ACE_WIN32 || ACE_WIN64
+

@@ -58,6 +58,10 @@ class Common_Input_Tools
   static void input (char); // key to send
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static HWND mouseCursorToWindow ();
+#endif // ACE_WIN32 || ACE_WIN64
+
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   static DWORD terminalSettings;
 #else
   static struct termios terminalSettings;
