@@ -262,12 +262,12 @@ void Common_Input_Tools::input (char character_in)
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 HWND
-Common_Input_Tools::mouseCursorToWindow ()
+Common_Input_Tools::mouseCursorToWindowHandle (bool getToplevelWindow_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Input_Tools::mouseCursorToWindow"));
+  COMMON_TRACE (ACE_TEXT ("Common_Input_Tools::mouseCursorToWindowHandle"));
 
-  struct tagPOINT point_s;
-  if (!GetCursorPos (&point_s))
+  struct tagPOINT screen_point_s;
+  if (!GetCursorPos (&screen_point_s))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to GetCursorPos(): \"%s\", aborting\n"),
@@ -275,7 +275,58 @@ Common_Input_Tools::mouseCursorToWindow ()
     return NULL;
   } // end IF
 
-  return WindowFromPoint (point_s);
+  HWND parent_h = WindowFromPoint (screen_point_s);
+  if (parent_h == NULL)
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to WindowFromPoint(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false, false).c_str ())));
+    return NULL;
+  } // end IF
+
+  if (unlikely (getToplevelWindow_in))
+  {
+    while (GetParent (parent_h))
+      parent_h = GetParent (parent_h);
+    return parent_h;
+  } // end IF
+
+  struct tagPOINT client_point_s = screen_point_s;
+  if (!ScreenToClient (parent_h,
+                       &client_point_s))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to ScreenToClient(): \"%s\", aborting\n"),
+                ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false, false).c_str ())));
+    return NULL;
+  } // end IF
+
+  HWND child_h = RealChildWindowFromPoint (parent_h,
+                                           client_point_s);
+  if (child_h == NULL || child_h == parent_h)
+    return parent_h;
+
+  HWND child_2 = NULL;
+  while (true)
+  {
+    client_point_s = screen_point_s;
+    if (!ScreenToClient (child_h,
+                         &client_point_s))
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to ScreenToClient(): \"%s\", aborting\n"),
+                  ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false, false).c_str ())));
+      return NULL;
+    } // end IF
+
+    child_2 = RealChildWindowFromPoint (child_h,
+                                        client_point_s);
+    if (child_2 == NULL || child_2 == child_h)
+      break;
+    child_h = child_2;
+  } // end WHILE
+
+  return child_h;
 }
 #endif // ACE_WIN32 || ACE_WIN64
 

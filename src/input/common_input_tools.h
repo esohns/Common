@@ -58,7 +58,7 @@ class Common_Input_Tools
   static void input (char); // key to send
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  static HWND mouseCursorToWindow ();
+  static HWND mouseCursorToWindowHandle (bool = false); // get toplevel window ? : child window
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
