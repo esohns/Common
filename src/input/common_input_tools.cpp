@@ -301,8 +301,8 @@ Common_Input_Tools::mouseCursorToWindowHandle (bool getToplevelWindow_in)
     return NULL;
   } // end IF
 
-  HWND child_h = RealChildWindowFromPoint (parent_h,
-                                           client_point_s);
+  HWND child_h = ChildWindowFromPoint (parent_h,
+                                       client_point_s);
   if (child_h == NULL || child_h == parent_h)
     return parent_h;
 
@@ -319,8 +319,8 @@ Common_Input_Tools::mouseCursorToWindowHandle (bool getToplevelWindow_in)
       return NULL;
     } // end IF
 
-    child_2 = RealChildWindowFromPoint (child_h,
-                                        client_point_s);
+    child_2 = ChildWindowFromPoint (child_h,
+                                    client_point_s);
     if (child_2 == NULL || child_2 == child_h)
       break;
     child_h = child_2;

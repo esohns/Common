@@ -37,7 +37,7 @@
 #define COMMON_TIMER_PREALLOCATE_TIMER_SLOTS true
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-#define COMMON_TIMER_THREAD_DEFAULT_TASKNAME "" // --> not set
+#define COMMON_TIMER_THREAD_DEFAULT_TASKTYPE "" // --> not set
 #endif // ACE_WIN32 || ACE_WIN64
 
 #define COMMON_TIMER_STRFTIME_FORMAT         "%Y_%m_%d_%H_%M_%S"

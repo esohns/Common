@@ -980,14 +980,27 @@ Common_Timer_Manager_T<ACE_SYNCH_USE,
       AvSetMmThreadCharacteristics (ACE_TEXT_ALWAYS_CHAR (configuration_->taskType.c_str ()),
 #endif // UNICODE
                                     &task_index_i);
-    if (!task_h)
+    if (unlikely (!task_h))
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("(%s): failed to AvSetMmThreadCharacteristics(\"%s\"): \"%m\", aborting\n"),
-                  ACE_TEXT (configuration_->taskType.c_str ()),
-                  ACE_TEXT (COMMON_TIMER_THREAD_NAME)));
+                  ACE_TEXT (COMMON_TIMER_THREAD_NAME),
+                  ACE_TEXT (configuration_->taskType.c_str ())));
       return -1;
     } // end IF
+
+    if (unlikely (!AvSetMmThreadPriority (task_h,
+                                          configuration_->taskPriority)))
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("(%s): failed to AvSetMmThreadPriority(%d): \"%m\", continuing\n"),
+                  ACE_TEXT (COMMON_TIMER_THREAD_NAME),
+                  configuration_->taskPriority));
+    else
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("(%s): set thread characteristics to \"%s\"; priority: %d\n"),
+                  ACE_TEXT (COMMON_TIMER_THREAD_NAME),
+                  ACE_TEXT (configuration_->taskType.c_str ()),
+                  configuration_->taskPriority));
   } // end IF
 #endif // ACE_WIN32 || ACE_WIN64
 

@@ -21,6 +21,10 @@
 #ifndef COMMON_TIMER_COMMON_H
 #define COMMON_TIMER_COMMON_H
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#include "avrt.h"
+#endif // ACE_WIN32 || ACE_WIN64
+
 #include <string>
 
 #include "ace/Abstract_Timer_Queue.h"
@@ -79,7 +83,10 @@ struct Common_TimerConfiguration
    , publishSeconds (false)
    , queueType (COMMON_TIMER_DEFAULT_QUEUE)
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-   , taskType (ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_DEFAULT_TASKNAME))
+   // *NOTE*: as used by "AvSetMmThreadCharacteristics"
+   // see also: https://learn.microsoft.com/en-us/windows/win32/procthread/multimedia-class-scheduler-service
+   , taskType (ACE_TEXT_ALWAYS_CHAR (COMMON_TIMER_THREAD_DEFAULT_TASKTYPE))
+   , taskPriority (AVRT_PRIORITY_NORMAL)
 #endif // ACE_WIN32 || ACE_WIN64
   {}
 
@@ -88,8 +95,8 @@ struct Common_TimerConfiguration
   // *NOTE*: applies to COMMON_TIMER_DISPATCH_QUEUE dispatch only
   enum Common_TimerQueueType    queueType;
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  // *NOTE*: as used by "AvSetMmThreadCharacteristics"
   std::string                   taskType;
+  enum _AVRT_PRIORITY           taskPriority;
 #endif // ACE_WIN32 || ACE_WIN64
 };
 
