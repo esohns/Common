@@ -15,7 +15,7 @@ enum Common_Math_FFT_AlgorithmType
   ////////////////////////////////////////
   FFT_ALGORITHM_COOLEY_TUKEY,
   FFT_ALGORITHM_FFTW,
-  FFT_ALGORITHM_UNKNOWN,
+  FFT_ALGORITHM_UNKNOWN, // found this somewhere on the internet
   ////////////////////////////////////////
   FFT_ALGORITHM_MAX
 };
@@ -162,7 +162,7 @@ class Common_Math_FFT_T
 // specializations
 
 template <typename ValueType>
-class Common_Math_FFT_T<typename ValueType,
+class Common_Math_FFT_T<ValueType,
                         FFT_ALGORITHM_COOLEY_TUKEY>
 {
  public:
@@ -263,7 +263,7 @@ class Common_Math_FFT_T<typename ValueType,
 };
 
 template <typename ValueType>
-class Common_Math_FFT_T<typename ValueType,
+class Common_Math_FFT_T<ValueType,
                         FFT_ALGORITHM_UNKNOWN>
 {
  public:
