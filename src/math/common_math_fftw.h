@@ -1,5 +1,5 @@
-#ifndef COMMON_MATH_FFTW_T
-#define COMMON_MATH_FFTW_T
+#ifndef COMMON_MATH_FFT_HEADER_2
+#define COMMON_MATH_FFT_HEADER_2
 
 #include <cmath>
 #include <vector>
@@ -10,55 +10,25 @@
 
 #include "ace/Global_Macros.h"
 
-// *TODO*: 'macroize' this code. Data access should really have (nearly) zero
-//         overhead. If that is not possible, sub-class ASAP
-template <typename ValueType>
-class Common_Math_FFTW_SampleIterator_T
-{
- public:
-  Common_Math_FFTW_SampleIterator_T (uint8_t*); // buffer
-  inline virtual ~Common_Math_FFTW_SampleIterator_T () {}
-
-  // *TODO*: needs more serious consideration
-  bool initialize (unsigned int, // bytes / 'data sample' (i.e. sizeof ('sound sample') * channels)
-                   unsigned int, // resolution: bytes per 'sound sample'
-                   bool,         // signed 'sound sample' format ?
-                   bool,         // floating point format ? : integer format
-                   int);         // 'sound sample' byte order (ACE-style, 0: N/A)
-  ValueType get (unsigned int,  // index (i.e. #sample into buffer)
-                 unsigned int); // channel# (e.g. 0: mono/stereo left,
-                                //                1: stereo right, ...)
-
-  bool         isInitialized_;
-  uint8_t*     buffer_;
-  unsigned int dataSampleSize_; // soundSampleSize_ * #channels
-  bool         isSignedSampleFormat_;
-  bool         reverseEndianness_;
-  unsigned int soundSampleSize_; // mono-
-
- private:
-  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFTW_SampleIterator_T ())
-  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFTW_SampleIterator_T (const Common_Math_FFTW_SampleIterator_T&))
-  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFTW_SampleIterator_T& operator= (const Common_Math_FFTW_SampleIterator_T&))
-
-  bool         isFloatingPointFormat_;
-  int          sampleByteOrder_; // ACE-style, -1: N/A
-};
+#include "common_math_fft.h"
 
 //////////////////////////////////////////
 
-template <typename ValueType>
-class Common_Math_FFTW_T
+template <>
+class Common_Math_FFT_T<float,
+                        FFT_ALGORITHM_FFTW>
 {
  public:
-  Common_Math_FFTW_T (unsigned int,  // #channels
-                      unsigned int,  // #buffered samples ('magnitude' of the buffer)
-                      unsigned int); // source sample rate (Hz)
-  virtual ~Common_Math_FFTW_T ();
+  Common_Math_FFT_T (unsigned int,  // #channels
+                     unsigned int,  // #buffered samples ('magnitude' of the buffer)
+                     unsigned int); // source sample rate (Hz)
+  virtual ~Common_Math_FFT_T ();
 
+  // simply copy buffer to working set
+  void Setup (unsigned int); // channel
   inline void Compute (unsigned int channel_in) { fftwf_execute (plans_[channel_in]); }
 
-  typedef Common_Math_FFTW_SampleIterator_T<ValueType> ITERATOR_T;
+  typedef Common_Math_FFT_SampleIterator_T<float> ITERATOR_T;
   void CopyIn (unsigned int, // channel
                unsigned int, // #samples
                ITERATOR_T&); // sample iterator
@@ -78,45 +48,45 @@ class Common_Math_FFTW_T
   //    (slot_in ? std::abs (X_[channel_in][slot_in]) : 0);
   //  return modulus * modulus;
   //}
-  inline ValueType SqMagnitude (unsigned int slot_in,
-                                unsigned int channel_in,
-                                bool normalize_in)
+  inline float SqMagnitude (unsigned int slot_in,
+                            unsigned int channel_in,
+                            bool normalize_in)
   { ACE_ASSERT (Y_);
     ACE_ASSERT (slot_in > 0 && slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
 
-    ValueType real_f = Y_[channel_in][slot_in][0];
-    ValueType imag_f = Y_[channel_in][slot_in][1];
+    float real_f = Y_[channel_in][slot_in][0];
+    float imag_f = Y_[channel_in][slot_in][1];
     return (normalize_in ? (real_f * real_f + imag_f * imag_f) / sqMaxValue_
                          : real_f * real_f + imag_f * imag_f);
   }
-  inline ValueType Magnitude (unsigned int slot_in,
-                              unsigned int channel_in,
-                              bool normalize_in = true) const
+  inline float Magnitude (unsigned int slot_in,
+                          unsigned int channel_in,
+                          bool normalize_in = true) const
   { ACE_ASSERT (Y_);
     ACE_ASSERT (slot_in > 0 && slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
 
-    ValueType real_f = Y_[channel_in][slot_in][0];
-    ValueType imag_f = Y_[channel_in][slot_in][1];
+    float real_f = Y_[channel_in][slot_in][0];
+    float imag_f = Y_[channel_in][slot_in][1];
     return (normalize_in ? std::sqrt (real_f * real_f + imag_f * imag_f) / maxValue_
                          : std::sqrt (real_f * real_f + imag_f * imag_f) / sqrtSlots_);
   }
-  inline ValueType Magnitude2 (unsigned int slot_in,
-                               unsigned int channel_in,
-                               bool normalize_in = true) const
+  inline float Magnitude2 (unsigned int slot_in,
+                           unsigned int channel_in,
+                           bool normalize_in = true) const
   { ACE_ASSERT (Y_);
     ACE_ASSERT (slot_in > 0 && slot_in < slots_);
     ACE_ASSERT (channel_in < channels_);
 
-    ValueType real_f = Y_[channel_in][slot_in][0];
-    ValueType imag_f = Y_[channel_in][slot_in][1];
+    float real_f = Y_[channel_in][slot_in][0];
+    float imag_f = Y_[channel_in][slot_in][1];
     return (normalize_in ? std::sqrt (real_f * real_f + imag_f * imag_f) / sqrtSlots_
                          : std::sqrt (real_f * real_f + imag_f * imag_f));
   }
 
-  std::vector<ValueType> Spectrum (int = -1,      // channel# (-1: all)
-                                   bool = false); // normalize values ?
+  std::vector<float> Spectrum (int = -1,      // channel# (-1: all)
+                               bool = false); // normalize values ?
 
   // return frequency in Hz of a given slot
   inline unsigned int Frequency (unsigned int slot_in) const
@@ -133,27 +103,25 @@ class Common_Math_FFTW_T
   void ComputeMaxValue (int = -1); // channel# (-1: all)
 
  protected:
-  bool                      isInitialized_;
-  ValueType**               buffer_;        // sample data [/channel]
-  fftwf_complex**           X_;             // input working buffer [/channel]
-  fftwf_complex**           Y_;             // output working buffer [/channel]
-  fftwf_plan*               plans_;
+  bool            isInitialized_;
+  float**         buffer_;        // sample data [/channel]
+  fftwf_complex** X_;             // input working buffer [/channel]
+  fftwf_complex** Y_;             // output working buffer [/channel]
+  fftwf_plan*     plans_;
 
-  unsigned int              channels_;      // #channels
-  unsigned int              halfSlots_;     // #slots / 2
-  unsigned int              slots_;         // #buffered samples / channel
-  unsigned int              sampleRate_;
-  ValueType                 maxValue_;      // only required for normalization (see above)
-  ValueType                 sqMaxValue_;    // only required for normalization (see above)
+  unsigned int    channels_;      // #channels
+  unsigned int    halfSlots_;     // #slots / 2
+  unsigned int    slots_;         // #buffered samples / channel
+  unsigned int    sampleRate_;
+  float           maxValue_;      // only required for normalization (see above)
+  float           sqMaxValue_;    // only required for normalization (see above)
 
  private:
-  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFTW_T ())
-  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFTW_T (const Common_Math_FFTW_T&))
-  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFTW_T& operator= (const Common_Math_FFTW_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_T ())
+  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_T (const Common_Math_FFT_T&))
+  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_T& operator= (const Common_Math_FFT_T&))
 
-  void ApplyHammingWindow (unsigned int); // channel
-
-  ValueType                 sqrtSlots_; // sqrt (#slots)
+  float           sqrtSlots_;     // sqrt (#slots)
 };
 
 // include template definition

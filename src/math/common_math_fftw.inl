@@ -1,107 +1,15 @@
 
 #include "ace/Log_Msg.h"
+#include "ace/OS.h"
+#include "ace/OS_Memory.h"
 
 #include "common_macros.h"
 
-template <typename ValueType>
-Common_Math_FFTW_SampleIterator_T<ValueType>::Common_Math_FFTW_SampleIterator_T (uint8_t* buffer_in)
- : isInitialized_ (false)
- , buffer_ (buffer_in)
- , dataSampleSize_ (0)
- , isSignedSampleFormat_ (true)
- , reverseEndianness_ (false)
- , soundSampleSize_ (0)
- /////////////////////////////////////////
- , isFloatingPointFormat_ (false)
- , sampleByteOrder_ (ACE_BYTE_ORDER)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Math_FFTW_SampleIterator_T_T::Common_Math_FFTW_SampleIterator_T_T"));
-
-}
-
-template <typename ValueType>
-ValueType
-Common_Math_FFTW_SampleIterator_T<ValueType>::get (unsigned int index_in,
-                                                   unsigned int channel_in)
-{
-  //COMMON_TRACE (ACE_TEXT ("Common_Math_FFTW_SampleIterator_T::get"));
-
-  // sanity check(s)
-  ACE_ASSERT (buffer_);
-  ACE_ASSERT (isInitialized_);
-
-  switch (soundSampleSize_)
-  {
-    case 1: // --> data is single-byte (possibly non-integer)
-      return buffer_[(index_in * dataSampleSize_) + channel_in];
-    case 2:
-      return (reverseEndianness_ ? (isSignedSampleFormat_ ? ACE_SWAP_WORD (*reinterpret_cast<int16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))
-                                                          : ACE_SWAP_WORD (*reinterpret_cast<uint16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
-                                 : (isSignedSampleFormat_ ? *reinterpret_cast<int16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
-                                                          : *reinterpret_cast<uint16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])));
-    case 4:
-    { ACE_ASSERT (ACE_SIZEOF_FLOAT == 4);
-      return (isFloatingPointFormat_ ? *reinterpret_cast<float*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
-                                     : (reverseEndianness_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG (*reinterpret_cast<int32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))
-                                                                                    : ACE_SWAP_LONG (*reinterpret_cast<uint32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
-                                                           : (isSignedSampleFormat_ ? *reinterpret_cast<int32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
-                                                                                    : *reinterpret_cast<uint32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))));
-    }
-    case 8:
-    { ACE_ASSERT (ACE_SIZEOF_DOUBLE == 8);
-      return (isFloatingPointFormat_ ? *reinterpret_cast<double*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
-                                     : (reverseEndianness_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG_LONG (*reinterpret_cast<int64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))
-                                                                                    : ACE_SWAP_LONG_LONG (*reinterpret_cast<uint64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
-                                                           : (isSignedSampleFormat_ ? *reinterpret_cast<int64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
-                                                                                    : *reinterpret_cast<uint64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))));
-    }
-    case 16:
-    { ACE_ASSERT (ACE_SIZEOF_LONG_DOUBLE == 16);
-      ACE_ASSERT (isFloatingPointFormat_);
-      return *reinterpret_cast<long double*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]);
-    }
-    default:
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("unknown/invalid sound sample size (was: %d), aborting\n"),
-                  soundSampleSize_));
-      break;
-    }
-  } // end SWITCH
-
-  return 0.0;
-}
-
-template <typename ValueType>
-bool
-Common_Math_FFTW_SampleIterator_T<ValueType>::initialize (unsigned int dataSampleSize_in,
-                                                          unsigned int soundSampleSize_in,
-                                                          bool isSignedSampleFormat_in,
-                                                          bool isFloatingPointFormat_in,
-                                                          int sampleByteOrder_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Math_FFTW_SampleIterator_T::initialize"));
-
-  dataSampleSize_ = dataSampleSize_in;
-  soundSampleSize_ = soundSampleSize_in;
-  isSignedSampleFormat_ = isSignedSampleFormat_in;
-  isFloatingPointFormat_ = isFloatingPointFormat_in;
-  sampleByteOrder_ = sampleByteOrder_in;
-
-  reverseEndianness_ =
-    (sampleByteOrder_ != -1) && (ACE_BYTE_ORDER != sampleByteOrder_);
-
-  isInitialized_ = true;
-
-  return true;
-}
-
-//////////////////////////////////////////
-
-template <typename ValueType>
-Common_Math_FFTW_T<ValueType>::Common_Math_FFTW_T (unsigned int channels_in,
-                                                   unsigned int slots_in,
-                                                   unsigned int sampleRate_in)
+//template <>
+Common_Math_FFT_T<float,
+                  FFT_ALGORITHM_FFTW>::Common_Math_FFT_T (unsigned int channels_in,
+                                                          unsigned int slots_in,
+                                                          unsigned int sampleRate_in)
  : isInitialized_ (false)
  , buffer_ (NULL)
  , X_ (NULL)
@@ -112,17 +20,18 @@ Common_Math_FFTW_T<ValueType>::Common_Math_FFTW_T (unsigned int channels_in,
  , sampleRate_ (sampleRate_in)
  , sqrtSlots_ (0.0)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Math_FFTW_T::Common_Math_FFTW_T"));
+  COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Common_Math_FFT_T"));
 
   isInitialized_ = Initialize (channels_in,
                                slots_in,
                                sampleRate_in);
 }
 
-template <typename ValueType>
-Common_Math_FFTW_T<ValueType>::~Common_Math_FFTW_T ()
+//template <>
+Common_Math_FFT_T<float,
+                  FFT_ALGORITHM_FFTW>::~Common_Math_FFT_T ()
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Math_FFTW_T::~Common_Math_FFTW_T"));
+  COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::~Common_Math_FFT_T"));
 
   if (buffer_)
     for (unsigned int i = 0; i < channels_; ++i)
@@ -148,13 +57,14 @@ Common_Math_FFTW_T<ValueType>::~Common_Math_FFTW_T ()
   } // end IF
 }
 
-template <typename ValueType>
+//template <>
 bool
-Common_Math_FFTW_T<ValueType>::Initialize (unsigned int channels_in,
-                                           unsigned int slots_in,
-                                           unsigned int sampleRate_in)
+Common_Math_FFT_T<float,
+                  FFT_ALGORITHM_FFTW>::Initialize (unsigned int channels_in,
+                                                   unsigned int slots_in,
+                                                   unsigned int sampleRate_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Math_FFTW_T::Initialize"));
+  COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Initialize"));
 
   // sanity check(s)
   if (slots_in % 2)
@@ -200,7 +110,7 @@ Common_Math_FFTW_T<ValueType>::Initialize (unsigned int channels_in,
   } // end IF
 
   ACE_NEW_NORETURN (buffer_,
-                    ValueType*[channels_in]);
+                    float*[channels_in]);
   if (!buffer_)
   {
     ACE_DEBUG ((LM_CRITICAL,
@@ -210,7 +120,7 @@ Common_Math_FFTW_T<ValueType>::Initialize (unsigned int channels_in,
   for (unsigned int i = 0; i < channels_in; ++i)
   {
     ACE_NEW_NORETURN (buffer_[i],
-                      ValueType[slots_in]);
+                      float[slots_in]);
     if (!buffer_[i])
     {
       ACE_DEBUG ((LM_CRITICAL,
@@ -292,7 +202,7 @@ Common_Math_FFTW_T<ValueType>::Initialize (unsigned int channels_in,
   halfSlots_ = slots_in / 2;
   slots_ = slots_in;
   sampleRate_ = sampleRate_in;
-  sqrtSlots_ = std::sqrt (static_cast<ValueType> (slots_in));
+  sqrtSlots_ = std::sqrt (static_cast<float> (slots_in));
 
   isInitialized_ = true;
 
@@ -327,13 +237,28 @@ error:
   return false;
 }
 
-template <typename ValueType>
+//template <>
 void
-Common_Math_FFTW_T<ValueType>::CopyIn (unsigned int channel_in,
-                                       unsigned int samples_in,
-                                       ITERATOR_T& iterator_in)
+Common_Math_FFT_T<float,
+                  FFT_ALGORITHM_FFTW>::Setup (unsigned int channel_in)
 {
-  //COMMON_TRACE (ACE_TEXT ("Common_Math_FFTW_T::CopyIn"));
+  // COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Setup"));
+
+  for (unsigned int j = 0; j < slots_; ++j)
+  {
+    X_[channel_in][j][0] = buffer_[channel_in][j];
+    X_[channel_in][j][1] = 0.0f;
+  } // end FOR
+}
+
+//template <>
+void
+Common_Math_FFT_T<float,
+                  FFT_ALGORITHM_FFTW>::CopyIn (unsigned int channel_in,
+                                               unsigned int samples_in,
+                                               ITERATOR_T& iterator_in)
+{
+  //COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::CopyIn"));
 
   // sanity check(s)
   ACE_ASSERT (channel_in > 0);
@@ -349,22 +274,23 @@ Common_Math_FFTW_T<ValueType>::CopyIn (unsigned int channel_in,
   // make space for inbound samples at the end of the buffer,
   // shifting previous samples towards the beginning
   ACE_OS::memmove (&buffer_[channel_in][0], &buffer_[channel_in][samples_in],
-                   (slots_ - samples_in) * sizeof (ValueType));
+                   (slots_ - samples_in) * sizeof (float));
 
   // copy the sample data to the tail end of the buffer
   int tail_slot = slots_ - samples_in;
-  for (int i = 0; i < samples_in; ++i)
+  for (unsigned int i = 0; i < samples_in; ++i)
     buffer_[channel_in][tail_slot + i] = iterator_in.get (i, channel_in);
 }
 
-template <typename ValueType>
-std::vector<ValueType>
-Common_Math_FFTW_T<ValueType>::Spectrum (int channel_in,
-                                         bool normalize_in)
+//template <>
+std::vector<float>
+Common_Math_FFT_T<float,
+                  FFT_ALGORITHM_FFTW>::Spectrum (int channel_in,
+                                                 bool normalize_in)
 {
-  // COMMON_TRACE (ACE_TEXT ("Common_Math_FFTW_T::Spectrum"));
+  // COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Spectrum"));
 
-  std::vector<ValueType> result_a;
+  std::vector<float> result_a;
 
   // sanity check(s)
   if (unlikely (!isInitialized_))
@@ -378,28 +304,28 @@ Common_Math_FFTW_T<ValueType>::Spectrum (int channel_in,
   //                   - the slots N/2 - N are mirrored and do not contain
   //                     additional information
   //                     --> there are only N/2 - 1 meaningful values
-  ValueType real_f, imag_f, value_f;
+  float real_f, imag_f, value_f;
 
   if (likely (channel_in == -1))
   {
-    for (int i = 1; i < halfSlots_; ++i)
+    for (unsigned int i = 1; i < halfSlots_; ++i)
     {
       real_f = Y_[0][i][0];
       imag_f = Y_[0][i][1];
       value_f = std::sqrt (real_f * real_f + imag_f * imag_f);
-      for (int j = 1; j < channels_; ++j)
+      for (unsigned int j = 1; j < channels_; ++j)
       {
         real_f = Y_[j][i][0];
         imag_f = Y_[j][i][1];
         value_f += std::sqrt (real_f * real_f + imag_f * imag_f);
       } // end FOR
-      value_f /= static_cast<ValueType> (channels_);
+      value_f /= static_cast<float> (channels_);
       result_a.push_back (value_f);
     } // end FOR
   } // end IF
   else
-  { ACE_ASSERT (channel_in < channels_);
-    for (int i = 1; i < halfSlots_; ++i)
+  { ACE_ASSERT (channel_in < static_cast<int> (channels_));
+    for (unsigned int i = 1; i < halfSlots_; ++i)
     {
       real_f = Y_[channel_in][i][0];
       imag_f = Y_[channel_in][i][1];
@@ -409,7 +335,7 @@ Common_Math_FFTW_T<ValueType>::Spectrum (int channel_in,
   } // end ELSE
 
   if (unlikely (normalize_in))
-    for (typename std::vector<ValueType>::iterator iterator = result_a.begin ();
+    for (typename std::vector<float>::iterator iterator = result_a.begin ();
          iterator != result_a.end ();
          ++iterator)
       *iterator /= maxValue_;
@@ -417,39 +343,27 @@ Common_Math_FFTW_T<ValueType>::Spectrum (int channel_in,
   return result_a;
 }
 
-template <typename ValueType>
+//template <>
 void
-Common_Math_FFTW_T<ValueType>::ApplyHammingWindow (unsigned int channel_in)
+Common_Math_FFT_T<float,
+                  FFT_ALGORITHM_FFTW>::ComputeMaxValue (int channel_in)
 {
-  //COMMON_TRACE (ACE_TEXT ("Common_Math_FFTW_T::ApplyHammingWindow"));
-
-  // sanity check(s)
-  ACE_ASSERT (buffer_);
-
-  for (unsigned int i = 0; i < slots_; ++i)
-    buffer_[channel_in][i] *= (0.54 - 0.46 * std::cos ((2.0 * M_PI * i) / static_cast<ValueType> (slots_)));
-}
-
-template <typename ValueType>
-void
-Common_Math_FFTW_T<ValueType>::ComputeMaxValue (int channel_in)
-{
-  //COMMON_TRACE (ACE_TEXT ("Common_Math_FFTW_T::ComputeMaxValue"));
+  //COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::ComputeMaxValue"));
 
   // sanity check(s)
   ACE_ASSERT (Y_);
-  ACE_ASSERT (channel_in < channels_);
+  ACE_ASSERT (channel_in < static_cast<int> (channels_));
 
-  ValueType temp = 0.0;
+  float temp = 0.0f;
 
   if (likely (channel_in == -1))
   {
     for (unsigned int j = 0; j < channels_; ++j)
       for (unsigned int i = 1; i < halfSlots_; ++i)
       {
-        ValueType real_f = Y_[j][i][0];
-        ValueType imag_f = Y_[j][i][1];
-        ValueType magnitude = std::sqrt (real_f * real_f + imag_f * imag_f);
+        float real_f = Y_[j][i][0];
+        float imag_f = Y_[j][i][1];
+        float magnitude = std::sqrt (real_f * real_f + imag_f * imag_f);
         temp = std::max (temp, magnitude);
       } // end FOR
   } // end IF
@@ -457,9 +371,9 @@ Common_Math_FFTW_T<ValueType>::ComputeMaxValue (int channel_in)
   {
     for (unsigned int i = 1; i < halfSlots_; ++i)
     {
-      ValueType real_f = Y_[channel_in][i][0];
-      ValueType imag_f = Y_[channel_in][i][1];
-      ValueType magnitude = std::sqrt (real_f * real_f + imag_f * imag_f);
+      float real_f = Y_[channel_in][i][0];
+      float imag_f = Y_[channel_in][i][1];
+      float magnitude = std::sqrt (real_f * real_f + imag_f * imag_f);
       temp = std::max (temp, magnitude);
     } // end FOR
   } // end ELSE
