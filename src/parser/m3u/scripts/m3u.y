@@ -203,6 +203,7 @@ playlist:         "extm3u" {
                       ACE_DEBUG ((LM_ERROR,
                                   ACE_TEXT ("caught exception in M3U_IParser::record(), continuing\n")));
                     }
+                    iparser->reset ();
                     YYACCEPT;
                   }
 ext_x_key_values: ext_x_key_values ext_x_key_value

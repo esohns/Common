@@ -52,7 +52,7 @@ class Common_Parser_M3U_ParserDriver
 
  public:
   Common_Parser_M3U_ParserDriver ();
-  inline virtual ~Common_Parser_M3U_ParserDriver () {}
+  virtual ~Common_Parser_M3U_ParserDriver ();
 
   // convenient types
   typedef Common_ParserBase_T<struct Common_FlexBisonParserConfiguration,
@@ -98,15 +98,16 @@ class Common_Parser_M3U_ParserDriver
   ACE_UNIMPLEMENTED_FUNC (Common_Parser_M3U_ParserDriver (const Common_Parser_M3U_ParserDriver&))
   ACE_UNIMPLEMENTED_FUNC (Common_Parser_M3U_ParserDriver& operator= (const Common_Parser_M3U_ParserDriver&))
 
-  inline virtual void setP (struct M3U_Playlist* playlist_in) { /*ACE_ASSERT (!playlist_);*/ playlist_ = playlist_in; }
-  inline virtual void setP_2 (struct M3U_ExtInf_Element* element_in) { /*ACE_ASSERT (!element_);*/ extInfElement_ = element_in; }
-  inline virtual void setP_3 (struct M3U_Media_Element* element_in) { /*ACE_ASSERT (!element_);*/ mediaElement_ = element_in; }
-  inline virtual void setP_4 (struct M3U_StreamInf_Element* element_in) { /*ACE_ASSERT (!element_);*/ streamInfElement_ = element_in; }
+  inline virtual void setP (struct M3U_Playlist* playlist_in) { ACE_ASSERT (!playlist_); playlist_ = playlist_in; }
+  inline virtual void setP_2 (struct M3U_ExtInf_Element* element_in) { /*ACE_ASSERT (!extInfElement_);*/ extInfElement_ = element_in; }
+  inline virtual void setP_3 (struct M3U_Media_Element* element_in) { /*ACE_ASSERT (!mediaElement_);*/ mediaElement_ = element_in; }
+  inline virtual void setP_4 (struct M3U_StreamInf_Element* element_in) { /*ACE_ASSERT (!streamInfElement_);*/ streamInfElement_ = element_in; }
 
   // implement Common_ILexScanner_T
   inline virtual const M3U_IParser_t* const getP_2 () const { return this; }
   inline virtual void setDebug (yyscan_t state_in, bool toggle_in) { M3U_set_debug ((toggle_in ? 1 : 0), state_in); }
-  inline virtual void reset () { M3U_set_lineno (1, inherited::scannerState_.context); M3U_set_column (1, inherited::scannerState_.context); }
+  // *IMPORTANT NOTE*: call this after record () in the generated parser
+  inline virtual void reset () { M3U_set_lineno (1, inherited::scannerState_.context); M3U_set_column (1, inherited::scannerState_.context); playlist_ = NULL; }
   inline virtual bool initialize (yyscan_t& state_inout, M3U_IParser_t* extra_in) { return (M3U_lex_init_extra (extra_in, &state_inout) == 0); }
   inline virtual void finalize (yyscan_t& state_inout) { int result = M3U_lex_destroy (state_inout); ACE_UNUSED_ARG (result); state_inout = NULL; }
   virtual struct yy_buffer_state* create (yyscan_t, // state handle

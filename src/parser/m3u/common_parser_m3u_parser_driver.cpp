@@ -46,6 +46,20 @@ Common_Parser_M3U_ParserDriver::Common_Parser_M3U_ParserDriver ()
 //  inherited::parser_.set (this);
 }
 
+Common_Parser_M3U_ParserDriver::~Common_Parser_M3U_ParserDriver ()
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Parser_M3U_ParserDriver::~Common_Parser_M3U_ParserDriver"));
+
+  if (unlikely (playlist_))
+    delete playlist_;
+  if (unlikely (extInfElement_))
+    delete extInfElement_;
+  if (unlikely (mediaElement_))
+    delete mediaElement_;
+  if (unlikely (streamInfElement_))
+    delete streamInfElement_;
+}
+
 bool
 Common_Parser_M3U_ParserDriver::hasFinished () const
 {
@@ -91,8 +105,7 @@ Common_Parser_M3U_ParserDriver::create (yyscan_t state_in,
   ACE_ASSERT (state_in);
 
   struct yy_buffer_state* result_p = NULL;
-
-  if (inherited::configuration_->useYYScanBuffer)
+  if (likely (inherited::configuration_->useYYScanBuffer))
     result_p =
       M3U__scan_buffer (buffer_in,
                         size_in + COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE,
@@ -101,7 +114,7 @@ Common_Parser_M3U_ParserDriver::create (yyscan_t state_in,
     result_p = M3U__scan_bytes (buffer_in,
                                 static_cast<int> (size_in) + COMMON_PARSER_FLEX_BUFFER_BOUNDARY_SIZE,
                                 state_in);
-  if (!result_p)
+  if (unlikely (!result_p))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to yy_scan_buffer/bytes(0x%@, %d), aborting\n"),
