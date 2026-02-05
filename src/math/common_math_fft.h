@@ -257,6 +257,8 @@ class Common_Math_FFT_T<typename ValueType,
   ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_T (const Common_Math_FFT_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_T& operator= (const Common_Math_FFT_T&))
 
+  void fft (std::valarray<std::complex<ValueType> >&); // (complex) values
+
   ValueType                                 sqrtSlots_;     // sqrt (#slots)
 };
 

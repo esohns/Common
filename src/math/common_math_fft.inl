@@ -746,8 +746,24 @@ Common_Math_FFT_T<ValueType,
 {
   //COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Compute"));
 
+  //// divide
+  //std::valarray<std::complex<ValueType> > even = X_[channel_in]->[std::slice (0, halfSlots_, 2)];
+  //std::valarray<std::complex<ValueType> > odd = X_[channel_in]->[std::slice (1, halfSlots_, 2)];
+
+  //// conquer
+  //fft (even);
+  //fft (odd);
+
+  //// combine
+  //for (size_t k = 0; k < halfSlots_; ++k)
+  //{
+  //  std::complex<ValueType> t = std::polar (static_cast<ValueType> (1.0), static_cast<ValueType> (-2.0 * M_PI) * k / slots_) * odd[k];
+  //  X_[channel_in]->[k] = even[k] + t;
+  //  X_[channel_in]->[k + halfSlots_] = even[k] - t;
+  //} // end FOR
+
   unsigned int k = slots_, n;
-  static ValueType thetaT = M_PI / slots_;
+  const ValueType thetaT = static_cast<ValueType> (M_PI) / slots_;
   std::complex<ValueType> phiT (std::cos (thetaT), -std::sin (thetaT)), T;
 
   while (k > 1)
@@ -755,7 +771,7 @@ Common_Math_FFT_T<ValueType,
     n = k;
     k >>= 1;
     phiT = phiT * phiT;
-    T = 1.0L;
+    T = static_cast<ValueType> (1.0);
     for (unsigned int l = 0; l < k; l++)
     {
       for (unsigned int a = l; a < slots_; a += n)
@@ -770,7 +786,7 @@ Common_Math_FFT_T<ValueType,
   } // end WHILE
 
   // Decimate
-  static unsigned int m = (unsigned int)log2 (slots_);
+  const unsigned int m = (unsigned int)log2 (slots_);
   for (unsigned int a = 0; a < slots_; a++)
   {
     unsigned int b = a;
@@ -874,6 +890,35 @@ Common_Math_FFT_T<ValueType,
 
   maxValue_ = temp;
   sqMaxValue_ = maxValue_ * maxValue_;
+}
+
+template <typename ValueType>
+void
+Common_Math_FFT_T<ValueType,
+                  FFT_ALGORITHM_COOLEY_TUKEY>::fft (std::valarray<std::complex<ValueType> >& x_in)
+{
+  //COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::fft"));
+
+  const size_t N = x_in.size ();
+  if (unlikely (N <= 1))
+    return;
+
+  // divide
+  std::valarray<std::complex<ValueType> > even = x_in[std::slice (0, N / 2, 2)];
+  std::valarray<std::complex<ValueType> > odd = x_in[std::slice (1, N / 2, 2)];
+
+  // conquer
+  fft (even);
+  fft (odd);
+
+  // combine
+  for (size_t k = 0; k < N / 2; ++k)
+  {
+    std::complex<ValueType> t =
+      std::polar (static_cast<ValueType> (1.0), static_cast<ValueType> (-2.0 * M_PI) * k / N) * odd[k];
+    x_in[k] = even[k] + t;
+    x_in[k + N / 2] = even[k] - t;
+  } // end FOR
 }
 
 //////////////////////////////////////////
