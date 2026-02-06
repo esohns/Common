@@ -74,7 +74,7 @@ int
 Common_Timer_Handler::handle_timeout (const ACE_Time_Value& dipatchTime_in,
                                       const void* arg_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Timer_Handler::handle_timeout"));
+  //COMMON_TRACE (ACE_TEXT ("Common_Timer_Handler::handle_timeout"));
 
   ACE_UNUSED_ARG (dipatchTime_in);
 
@@ -93,7 +93,7 @@ void
 Common_Timer_Handler::handle_time_out (const ACE_Time_Value& requestedTime_in,
                                        const void* arg_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Timer_Handler::handle_time_out"));
+  //COMMON_TRACE (ACE_TEXT ("Common_Timer_Handler::handle_time_out"));
 
   ACE_UNUSED_ARG (requestedTime_in);
 

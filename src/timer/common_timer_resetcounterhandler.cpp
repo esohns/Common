@@ -40,7 +40,7 @@ Common_Timer_ResetCounterHandler::Common_Timer_ResetCounterHandler (Common_ICoun
 void
 Common_Timer_ResetCounterHandler::handle (const void* arg_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Timer_ResetCounterHandler::handle"));
+  //COMMON_TRACE (ACE_TEXT ("Common_Timer_ResetCounterHandler::handle"));
 
   ACE_UNUSED_ARG (arg_in);
 
