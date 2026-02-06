@@ -209,7 +209,7 @@ void Common_Input_Tools::input (char character_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Tools::input"));
 
-#if defined(ACE_WIN32) || defined(ACE_WIN64)
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
   struct tagINPUT input_s[2];
   ACE_OS::memset (&input_s[0], 0, sizeof (struct tagINPUT));
 
@@ -227,7 +227,7 @@ void Common_Input_Tools::input (char character_in)
   input_s[1] = input_s[0];
   input_s[1].ki.dwFlags |= KEYEVENTF_KEYUP /* | KEYEVENTF_SCANCODE*/;
 
-  UINT result = SendInput (ARRAYSIZE (input_s), input_s, sizeof (INPUT));
+  UINT result = SendInput (ARRAYSIZE (input_s), input_s, sizeof (struct tagINPUT));
   if (unlikely (result != ARRAYSIZE (input_s)))
   {
     ACE_DEBUG ((LM_ERROR,
