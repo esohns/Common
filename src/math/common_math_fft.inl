@@ -182,6 +182,18 @@ Common_Math_FFT_T<ValueType,
         delete [] buffer_[i];
       delete [] buffer_; buffer_ = NULL;
     } // end IF
+    if (X_)
+    {
+      for (unsigned int i = 0; i < channels_; ++i)
+        delete[] X_[i];
+      delete[] X_;
+      X_ = NULL;
+    } // end IF
+    if (bitReverseMap_)
+    {
+      delete [] bitReverseMap_; bitReverseMap_ = NULL;
+    } // end IF
+
     channels_ = 0;
     halfSlots_ = 0;
     slots_ = 0;
@@ -189,10 +201,6 @@ Common_Math_FFT_T<ValueType,
     maxValue_ = 0.0;
     sqMaxValue_ = 0.0;
 
-    if (bitReverseMap_)
-    {
-      delete [] bitReverseMap_; bitReverseMap_ = NULL;
-    } // end IF
     if (W_)
     {
       for (int l = 1; l <= logSlots_; ++l)
@@ -201,12 +209,6 @@ Common_Math_FFT_T<ValueType,
     } // end IF
     logSlots_ = 0;
     sqrtSlots_ = 0.0;
-    if (X_)
-    {
-      for (unsigned int i = 0; i < channels_; ++i)
-        delete [] X_[i];
-      delete [] X_; X_ = NULL;
-    } // end IF
   } // end IF
 
   int rev = 0;
@@ -567,11 +569,7 @@ Common_Math_FFT_T<ValueType,
     delete [] buffer_;
   } // end IF
   if (X_)
-  {
-    for (unsigned int i = 0; i < channels_; ++i)
-      delete X_[i];
     delete [] X_;
-  } // end IF
 }
 
 template <typename ValueType>
@@ -600,10 +598,7 @@ Common_Math_FFT_T<ValueType,
     } // end IF
     if (X_)
     {
-      for (unsigned int i = 0; i < channels_; ++i)
-        delete X_[i];
-      delete [] X_;
-      X_ = NULL;
+      delete [] X_; X_ = NULL;
     } // end IF
     channels_ = 0;
     halfSlots_ = 0;
@@ -652,7 +647,7 @@ Common_Math_FFT_T<ValueType,
   sqrtSlots_ = std::sqrt (static_cast<ValueType> (slots_));
 
   ACE_NEW_NORETURN (X_,
-                    std::valarray<std::complex<ValueType> >*[channels_]);
+                    std::valarray<std::complex<ValueType> >[channels_]);
   if (unlikely (!X_))
   {
     ACE_DEBUG ((LM_CRITICAL,
@@ -660,16 +655,7 @@ Common_Math_FFT_T<ValueType,
     goto error;
   } // end IF
   for (unsigned int i = 0; i < channels_; ++i)
-  {
-    ACE_NEW_NORETURN (X_[i],
-                      std::valarray<std::complex<ValueType> > (slots_));
-    if (unlikely (!X_[i]))
-    {
-      ACE_DEBUG ((LM_CRITICAL,
-                  ACE_TEXT ("failed to allocate memory, aborting\n")));
-      goto error;
-    } // end IF
-  } // end FOR
+    X_[i].resize (slots_);
 
   isInitialized_ = true;
 
@@ -684,8 +670,6 @@ error:
   } // end IF
   if (X_)
   {
-    for (unsigned int i = 0; i < channels_in; ++i)
-      delete X_[i];
     delete [] X_; X_ = NULL;
   } // end IF
 
@@ -747,8 +731,8 @@ Common_Math_FFT_T<ValueType,
   //COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Compute"));
 
   //// divide
-  //std::valarray<std::complex<ValueType> > even = X_[channel_in]->[std::slice (0, halfSlots_, 2)];
-  //std::valarray<std::complex<ValueType> > odd = X_[channel_in]->[std::slice (1, halfSlots_, 2)];
+  //std::valarray<std::complex<ValueType> > even = X_[channel_in][std::slice (0, halfSlots_, 2)];
+  //std::valarray<std::complex<ValueType> > odd = X_[channel_in][std::slice (1, halfSlots_, 2)];
 
   //// conquer
   //fft (even);
@@ -758,8 +742,8 @@ Common_Math_FFT_T<ValueType,
   //for (size_t k = 0; k < halfSlots_; ++k)
   //{
   //  std::complex<ValueType> t = std::polar (static_cast<ValueType> (1.0), static_cast<ValueType> (-2.0 * M_PI) * k / slots_) * odd[k];
-  //  X_[channel_in]->[k] = even[k] + t;
-  //  X_[channel_in]->[k + halfSlots_] = even[k] - t;
+  //  X_[channel_in][k] = even[k] + t;
+  //  X_[channel_in][k + halfSlots_] = even[k] - t;
   //} // end FOR
 
   unsigned int k = slots_, n;
@@ -1002,6 +986,17 @@ Common_Math_FFT_T<ValueType,
         delete [] buffer_[i];
       delete [] buffer_; buffer_ = NULL;
     } // end IF
+    if (X_)
+    {
+      for (unsigned int i = 0; i < channels_; ++i)
+        delete [] X_[i];
+      delete [] X_; X_ = NULL;
+    } // end IF
+    if (bitReverseMap_)
+    {
+      delete [] bitReverseMap_; bitReverseMap_ = NULL;
+    } // end IF
+
     channels_ = 0;
     halfSlots_ = 0;
     slots_ = 0;
@@ -1009,10 +1004,6 @@ Common_Math_FFT_T<ValueType,
     maxValue_ = 0.0;
     sqMaxValue_ = 0.0;
 
-    if (bitReverseMap_)
-    {
-      delete [] bitReverseMap_; bitReverseMap_ = NULL;
-    } // end IF
     if (W_)
     {
       for (int l = 1; l <= logSlots_; ++l)
@@ -1021,12 +1012,6 @@ Common_Math_FFT_T<ValueType,
     } // end IF
     logSlots_ = 0;
     sqrtSlots_ = 0.0;
-    if (X_)
-    {
-      for (unsigned int i = 0; i < channels_; ++i)
-        delete [] X_[i];
-      delete [] X_; X_ = NULL;
-    } // end IF
   } // end IF
 
   int rev = 0;

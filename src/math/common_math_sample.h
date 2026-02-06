@@ -13,7 +13,7 @@ class Common_Math_SampleIterator_T
   inline virtual ~Common_Math_SampleIterator_T () {}
 
   bool initialize (unsigned int, // bytes / ('buffer'/'chunk'/'frame'/...) (i.e. typically #channels * (bytes / sample))
-                   unsigned int, // bytes / sample
+                   unsigned int, // bytes / (mono-)sample
                    bool,         // is floating point buffer ? (i.e. IEEE float/double)
                    bool,         // signed sample format ?
                    int);         // sample byte order (ACE-style, -1: N/A)
@@ -25,7 +25,7 @@ class Common_Math_SampleIterator_T
   uint8_t*     buffer_;
   bool         reverseByteOrder_;
   unsigned int frameSize_;
-  unsigned int sampleSize_;
+  unsigned int sampleSize_; // bytes / (mono-)sample
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Math_SampleIterator_T ())

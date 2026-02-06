@@ -30,7 +30,7 @@ class Common_Math_FFT_SampleIterator_T
   inline virtual ~Common_Math_FFT_SampleIterator_T () {}
 
   bool initialize (unsigned int, // bytes / 'data sample' (i.e. sizeof ('sound sample') * channels)
-                   unsigned int, // resolution: bytes per 'sound sample'
+                   unsigned int, // resolution: bytes per (mono-)'sound sample'
                    bool,         // signed 'sound sample' format ?
                    bool,         // floating point format ? : integer format
                    int);         // 'sound sample' byte order (ACE-style, 0: N/A)
@@ -241,16 +241,16 @@ class Common_Math_FFT_T<ValueType,
   void ComputeMaxValue (int = -1); // channel# (-1: all)
 
  protected:
-  bool                                      isInitialized_;
-  ValueType**                               buffer_;        // sample data [/channel]
-  std::valarray<std::complex<ValueType> >** X_;             // 'in-place' working buffer [/channel]
+  bool                                     isInitialized_;
+  ValueType**                              buffer_;        // sample data [/channel]
+  std::valarray<std::complex<ValueType> >* X_;             // 'in-place' working buffer [/channel]
 
-  unsigned int                              channels_;      // #channels
-  unsigned int                              halfSlots_;     // #slots / 2
-  unsigned int                              slots_;         // #buffered samples / channel
-  unsigned int                              sampleRate_;
-  ValueType                                 maxValue_;      // only required for normalization (see above)
-  ValueType                                 sqMaxValue_;    // only required for normalization (see above)
+  unsigned int                             channels_;      // #channels
+  unsigned int                             halfSlots_;     // #slots / 2
+  unsigned int                             slots_;         // #buffered samples / channel
+  unsigned int                             sampleRate_;
+  ValueType                                maxValue_;      // only required for normalization (see above)
+  ValueType                                sqMaxValue_;    // only required for normalization (see above)
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_T ())
@@ -259,7 +259,7 @@ class Common_Math_FFT_T<ValueType,
 
   void fft (std::valarray<std::complex<ValueType> >&); // (complex) values
 
-  ValueType                                 sqrtSlots_;     // sqrt (#slots)
+  ValueType                                sqrtSlots_;     // sqrt (#slots)
 };
 
 template <typename ValueType>
