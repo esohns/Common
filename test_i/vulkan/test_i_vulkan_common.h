@@ -23,8 +23,6 @@
 
 #include <chrono>
 
-#include "ace/config-lite.h"
-
 #include "common_gl_camera.h"
 
 #include "test_i_vulkan_defines.h"
