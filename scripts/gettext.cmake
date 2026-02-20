@@ -27,7 +27,7 @@ elseif (WIN32)
               DOC "searching for libintl.h"
               NO_DEFAULT_PATH)
    set (LIBINTL_INCLUDE_DIRS ${LIBINTL_INCLUDE_DIR})
-   set (LIBINTL_LIBRARIES "${VCPKG_LIB_DIR}/libintl.lib")
+   set (LIBINTL_LIBRARIES "${VCPKG_LIB_DIR}/intl.lib")
    set (LIBINTL_LIB_DIR "${VCPKG_BIN_DIR}")
   endif (Gettext_FOUND)
 
@@ -40,7 +40,7 @@ elseif (WIN32)
               DOC "searching for libintl.h"
               NO_DEFAULT_PATH)
    set (LIBINTL_INCLUDE_DIRS ${LIBINTL_INCLUDE_DIR})
-   set (LIBINTL_LIBRARIES "${VCPKG_LIB_DIR}/libintl.lib")
+   set (LIBINTL_LIBRARIES "${VCPKG_LIB_DIR}/intl.lib")
    set (LIBINTL_LIB_DIR "${VCPKG_BIN_DIR}")
   endif (Intl_FOUND)
  endif (VCPKG_USE)
