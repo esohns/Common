@@ -409,14 +409,14 @@ Common_UI_Tools::getAdapters ()
 #if defined (UNICODE)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("found display adapter #%d: \"%s\" [%s] {%s}\n"),
-                index_i,
+                index_i + 1,
                 ACE_TEXT_WCHAR_TO_TCHAR (display_device_s.DeviceString),
                 ACE_TEXT_WCHAR_TO_TCHAR (display_device_s.DeviceName),
                 ACE_TEXT (device_feature_string.c_str ())));
 #else
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("found display adapter #%d: \"%s\" [%s] {%s}\n"),
-                index_i,
+                index_i + 1,
                 ACE_TEXT (display_device_s.DeviceString),
                 ACE_TEXT (display_device_s.DeviceName),
                 ACE_TEXT (device_feature_string.c_str ())));
