@@ -103,24 +103,26 @@ void wxDialog_main::button_3_clicked_cb (wxCommandEvent &event)  // wxGlade: wxD
 
 void wxDialog_main::on_close_cb (wxCloseEvent& event)  // wxGlade: wxDialog_main.<event_handler>
 {
-  wxWindow* parent_p = this->GetParent ();
-  ACE_ASSERT (parent_p);
-  parent_p->RemoveChild (this);
-  event.Skip();
+  //wxWindow* parent_p = GetParent ();
+  //ACE_ASSERT (parent_p);
+  //parent_p->RemoveChild (this);
+  //event.Skip();
   // notify the user that he hasn't implemented the event handler yet
 //  wxLogDebug(wxT("Event handler (wxDialog_main::button_3_clicked_cb) not implemented yet"));
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("close, clicked\n")));
 
-  //wxTheApp->Exit ();
-  this->Destroy ();
+  //Destroy ();
   //this->EndModal (0);
+
+  wxTheApp->Exit ();
 }
 
 // wxGlade: add wxDialog_main event handlers
 
 class Test_U_wxWidgets_Application
- : public wxApp {
+ : public wxApp
+{
  public:
   bool OnInit ();
   void OnInitCmdLine (wxCmdLineParser&);
