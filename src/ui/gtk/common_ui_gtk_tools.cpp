@@ -394,7 +394,7 @@ Common_UI_GTK_Tools::selectValue (GtkComboBox* comboBox_in,
     gchar* string_p = g_strdup_value_contents (&value_in);
     ACE_ASSERT (string_p);
     ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("invalid/unknown identifier (was: \"%s\"), returning\n"),
+                ACE_TEXT ("invalid/unknown identifier (was: %s), returning\n"),
                 string_p));
     g_free (string_p); string_p = NULL;
   } // end ELSE
