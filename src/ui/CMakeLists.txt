@@ -1,4 +1,9 @@
 set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts")
+if (UNIX)
+ include (wayland)
+ include (x11)
+endif (UNIX)
+
 include (PreUIFramework)
 include (SetUIFramework)
 if (GTK_SUPPORT)
@@ -7,7 +12,6 @@ endif (GTK_SUPPORT)
 
 set (LIBRARY ${PROJECT_NAME}UI)
 add_library (${LIBRARY} STATIC "")
-
 
 if (CURSES_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC

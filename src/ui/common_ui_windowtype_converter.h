@@ -25,6 +25,10 @@
 #else
 #include "X11/X.h"
 #include "X11/Xlib.h"
+
+#if defined (WAYLAND_SUPPORT)
+#include "wayland-client.h"
+#endif // WAYLAND_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN32
 
 #if defined (CURSES_SUPPORT)
@@ -122,6 +126,12 @@ struct Common_UI_Window
   Common_UI_Window (Window window_in) : type (TYPE_X11), x11_window (window_in) {}
 
   operator Window () const { ACE_ASSERT (type == TYPE_X11); return x11_window; }
+
+#if defined (WAYLAND_SUPPORT)
+  Common_UI_Window (wl_surface* window_in) : type (TYPE_WAYLAND), wayland_window (window_in) {}
+
+  operator wl_surface* () const { ACE_ASSERT (type == TYPE_WAYLAND); return wayland_window; }
+#endif // WAYLAND_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (CURSES_SUPPORT)
@@ -162,6 +172,10 @@ struct Common_UI_Window
     HWND win32_hwnd;
 #else
     Window x11_window;
+
+#if defined (WAYLAND_SUPPORT)
+    struct wl_surface* wayland_window;
+#endif // WAYLAND_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (CURSES_SUPPORT)

@@ -384,9 +384,9 @@ Common_UI_GTK_Tools::selectValue (GtkComboBox* comboBox_in,
   COMMON_TRACE (ACE_TEXT ("Common_UI_GTK_Tools::selectValue"));
 
   gint index_i =
-      Common_UI_GTK_Tools::valueToIndex (gtk_combo_box_get_model (comboBox_in),
-                                         value_in,
-                                         column_in);
+    Common_UI_GTK_Tools::valueToIndex (gtk_combo_box_get_model (comboBox_in),
+                                       value_in,
+                                       column_in);
   if (index_i != -1)
     gtk_combo_box_set_active (comboBox_in, index_i);
   else
