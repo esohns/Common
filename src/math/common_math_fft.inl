@@ -35,32 +35,32 @@ Common_Math_FFT_SampleIterator_T<ValueType>::get (unsigned int index_in,
   switch (soundSampleSize_)
   {
     case 1: // --> data is single-byte (possibly non-integer)
-      return buffer_[(index_in * dataSampleSize_) + channel_in];
+      return static_cast<ValueType> (buffer_[(index_in * dataSampleSize_) + channel_in]);
     case 2:
-      return (reverseEndianness_ ? (isSignedSampleFormat_ ? ACE_SWAP_WORD (*reinterpret_cast<int16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))
-                                                          : ACE_SWAP_WORD (*reinterpret_cast<uint16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
-                                 : (isSignedSampleFormat_ ? *reinterpret_cast<int16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
-                                                          : *reinterpret_cast<uint16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])));
+      return static_cast<ValueType> (reverseEndianness_ ? (isSignedSampleFormat_ ? ACE_SWAP_WORD (*reinterpret_cast<int16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))
+                                                                                 : ACE_SWAP_WORD (*reinterpret_cast<uint16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
+                                                        : (isSignedSampleFormat_ ? *reinterpret_cast<int16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
+                                                                                 : *reinterpret_cast<uint16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])));
     case 4:
     { ACE_ASSERT (ACE_SIZEOF_FLOAT == 4);
-      return (isFloatingPointFormat_ ? *reinterpret_cast<float*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
-                                     : (reverseEndianness_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG (*reinterpret_cast<int32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))
-                                                                                    : ACE_SWAP_LONG (*reinterpret_cast<uint32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
-                                                           : (isSignedSampleFormat_ ? *reinterpret_cast<int32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
-                                                                                    : *reinterpret_cast<uint32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))));
+      return static_cast<ValueType> (isFloatingPointFormat_ ? *reinterpret_cast<float*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
+                                                            : (reverseEndianness_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG (*reinterpret_cast<int32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))
+                                                                                                           : ACE_SWAP_LONG (*reinterpret_cast<uint32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
+                                                                                  : (isSignedSampleFormat_ ? *reinterpret_cast<int32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
+                                                                                                           : *reinterpret_cast<uint32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))));
     }
     case 8:
     { ACE_ASSERT (ACE_SIZEOF_DOUBLE == 8);
-      return (isFloatingPointFormat_ ? *reinterpret_cast<double*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
-                                     : (reverseEndianness_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG_LONG (*reinterpret_cast<int64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))
-                                                                                    : ACE_SWAP_LONG_LONG (*reinterpret_cast<uint64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
-                                                           : (isSignedSampleFormat_ ? *reinterpret_cast<int64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
-                                                                                    : *reinterpret_cast<uint64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))));
+      return static_cast<ValueType> (isFloatingPointFormat_ ? *reinterpret_cast<double*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
+                                                            : (reverseEndianness_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG_LONG (*reinterpret_cast<int64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))
+                                                                                                           : ACE_SWAP_LONG_LONG (*reinterpret_cast<uint64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
+                                                                                  : (isSignedSampleFormat_ ? *reinterpret_cast<int64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
+                                                                                                           : *reinterpret_cast<uint64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))));
     }
     case 16:
     { ACE_ASSERT (ACE_SIZEOF_LONG_DOUBLE == 16);
       ACE_ASSERT (isFloatingPointFormat_);
-      return *reinterpret_cast<long double*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]);
+      return static_cast<ValueType> (*reinterpret_cast<long double*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]));
     }
     default:
     {
@@ -748,7 +748,8 @@ Common_Math_FFT_T<ValueType,
 
   unsigned int k = slots_, n;
   const ValueType thetaT = static_cast<ValueType> (M_PI) / slots_;
-  std::complex<ValueType> phiT (std::cos (thetaT), -std::sin (thetaT)), T;
+  const std::complex<ValueType> phiT (std::cos (thetaT), -std::sin (thetaT));
+  std::complex<ValueType> T;
 
   while (k > 1)
   {
@@ -876,34 +877,34 @@ Common_Math_FFT_T<ValueType,
   sqMaxValue_ = maxValue_ * maxValue_;
 }
 
-template <typename ValueType>
-void
-Common_Math_FFT_T<ValueType,
-                  FFT_ALGORITHM_COOLEY_TUKEY>::fft (std::valarray<std::complex<ValueType> >& x_in)
-{
-  //COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::fft"));
-
-  const size_t N = x_in.size ();
-  if (unlikely (N <= 1))
-    return;
-
-  // divide
-  std::valarray<std::complex<ValueType> > even = x_in[std::slice (0, N / 2, 2)];
-  std::valarray<std::complex<ValueType> > odd = x_in[std::slice (1, N / 2, 2)];
-
-  // conquer
-  fft (even);
-  fft (odd);
-
-  // combine
-  for (size_t k = 0; k < N / 2; ++k)
-  {
-    std::complex<ValueType> t =
-      std::polar (static_cast<ValueType> (1.0), static_cast<ValueType> (-2.0 * M_PI) * k / N) * odd[k];
-    x_in[k] = even[k] + t;
-    x_in[k + N / 2] = even[k] - t;
-  } // end FOR
-}
+//template <typename ValueType>
+//void
+//Common_Math_FFT_T<ValueType,
+//                  FFT_ALGORITHM_COOLEY_TUKEY>::fft (std::valarray<std::complex<ValueType> >& x_in)
+//{
+//  //COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::fft"));
+//
+//  const size_t N = x_in.size ();
+//  if (unlikely (N <= 1))
+//    return;
+//
+//  // divide
+//  std::valarray<std::complex<ValueType> > even = x_in[std::slice (0, N / 2, 2)];
+//  std::valarray<std::complex<ValueType> > odd = x_in[std::slice (1, N / 2, 2)];
+//
+//  // conquer
+//  fft (even);
+//  fft (odd);
+//
+//  // combine
+//  for (size_t k = 0; k < N / 2; ++k)
+//  {
+//    std::complex<ValueType> t =
+//      std::polar (static_cast<ValueType> (1.0), static_cast<ValueType> (-2.0 * M_PI) * k / N) * odd[k];
+//    x_in[k] = even[k] + t;
+//    x_in[k + N / 2] = even[k] - t;
+//  } // end FOR
+//}
 
 //////////////////////////////////////////
 
