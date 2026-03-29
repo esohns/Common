@@ -1430,7 +1430,7 @@ Common_File_Tools::deleteFiles (const Common_File_IdentifierList_t& identifiers_
 
   bool result = true;
 
-  for (Common_File_IdentifierListIterator_t iterator = identifiers_in.begin ();
+  for (Common_File_IdentifierListConstIterator_t iterator = identifiers_in.begin ();
        iterator != identifiers_in.end ();
        ++iterator)
     result = result && Common_File_Tools::deleteFile ((*iterator).identifier);
@@ -1785,7 +1785,7 @@ Common_File_Tools::size (const Common_File_IdentifierList_t& identifiers_in)
 
   ACE_UINT64 result = 0;
 
-  for (Common_File_IdentifierListIterator_t iterator = identifiers_in.begin ();
+  for (Common_File_IdentifierListConstIterator_t iterator = identifiers_in.begin ();
        iterator != identifiers_in.end ();
        ++iterator)
     result += Common_File_Tools::size ((*iterator).identifier);
