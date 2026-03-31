@@ -384,7 +384,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
              ACE_TEXT ("initializing OpenGL...\n")));
   ACE_ASSERT (!state_.builders.empty ());
   iterator =
-      state_.builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
+    state_.builders.find (ACE_TEXT_ALWAYS_CHAR (COMMON_UI_DEFINITION_DESCRIPTOR_MAIN));
   ACE_ASSERT (iterator != state_.builders.end ());
   widget_p =
     GTK_WIDGET (gtk_builder_get_object ((*iterator).second.second,
@@ -422,8 +422,8 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
 #elif GTK_CHECK_VERSION (3,0,0)
 #if GTK_CHECK_VERSION (3,16,0)
   context_p =
-      gdk_window_create_gl_context (gtk_widget_get_window (widget_p),
-                                    &error_p);
+    gdk_window_create_gl_context (gtk_widget_get_window (widget_p),
+                                  &error_p);
   if (unlikely (!context_p || error_p))
   { // *NOTE*: on UNIX, try setting a 'GDK_BACKEND=x11' environment variable
     ACE_DEBUG ((LM_ERROR,
@@ -454,7 +454,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   /* Attribute list for gtkglarea widget. Specifies a list of Boolean attributes
      and enum/integer attribute/value pairs. The last attribute must be
      GGLA_NONE. See glXChooseVisual manpage for further explanation. */
-  int attribute_list[] = {
+  int gl_attribute_list_a[] = {
     GGLA_USE_GL,
     GGLA_RGBA,
     GGLA_DOUBLEBUFFER,
@@ -463,7 +463,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
     GGLA_BLUE_SIZE,  1,
     GGLA_NONE
   };
-  GdkVisual* visual_p = ggla_choose_visual (attribute_list);
+  GdkVisual* visual_p = ggla_choose_visual (gl_attribute_list_a);
   if (unlikely (!visual_p))
   {
     ACE_DEBUG ((LM_ERROR,
