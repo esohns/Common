@@ -44,7 +44,7 @@ elseif (WIN32)
   if (LLAMA_FOUND)
    set (LLAMACPP_FOUND TRUE)
    set (LLAMACPP_INCLUDE_DIRS ${VCPKG_INCLUDE_DIR})
-   set (LLAMACPP_LIBRARIES ${VCPKG_LIB_DIR}/torch_cpu.lib)
+   set (LLAMACPP_LIBRARIES ${VCPKG_LIB_DIR}/llama.lib)
    set (LLAMACPP_LIB_DIR "${VCPKG_BIN_DIR}")
   endif (LLAMA_FOUND)
  endif (VCPKG_USE)
@@ -55,8 +55,8 @@ elseif (WIN32)
    set (LLAMA_ROOT $ENV{LIB_ROOT}/llama.cpp)
   endif (EXISTS $ENV{LLAMA_ROOT})
   find_library (LLAMA_LIBRARY llama.lib
-                PATHS ${LLAMA_ROOT}/build/ninja
-                PATH_SUFFIXES src
+                PATHS ${LLAMA_ROOT}/build/msvc/src
+                PATH_SUFFIXES ${CMAKE_BUILD_TYPE}
                 DOC "searching for llama.lib"
                 NO_DEFAULT_PATH)
   if (NOT LLAMA_LIBRARY)
@@ -65,8 +65,8 @@ elseif (WIN32)
    message (STATUS "Found llama.lib library \"${LLAMA_LIBRARY}\"")
   endif (NOT LLAMA_LIBRARY)
   find_library (GGML_LIBRARY ggml.lib
-                PATHS ${LLAMA_ROOT}/build/ninja/ggml
-                PATH_SUFFIXES src
+                PATHS ${LLAMA_ROOT}/build/msvc/ggml/src
+                PATH_SUFFIXES ${CMAKE_BUILD_TYPE}
                 DOC "searching for ggml.lib"
                 NO_DEFAULT_PATH)
   if (NOT GGML_LIBRARY)
@@ -78,7 +78,7 @@ elseif (WIN32)
    set (LLAMACPP_FOUND TRUE)
    set (LLAMACPP_LIBRARIES "${LLAMA_LIBRARY};${GGML_LIBRARY}")
    set (LLAMACPP_INCLUDE_DIRS "${LLAMA_ROOT}/include;${LLAMA_ROOT}/ggml/include")
-   set (LLAMACPP_LIB_DIR "${LLAMA_ROOT}/build/ninja/bin")
+   set (LLAMACPP_LIB_DIR "${LLAMA_ROOT}/build/msvc/bin/${CMAKE_BUILD_TYPE}")
   endif (LLAMA_LIBRARY AND GGML_LIBRARY)
  endif (NOT LLAMACPP_FOUND)
 endif ()
