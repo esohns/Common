@@ -63,7 +63,7 @@ common_error_win32_crt_invalid_parameter_cb_function (wchar_t const* expression_
                                                       unsigned int line_in,
                                                       uintptr_t pReserved_in)
 {
-  COMMON_TRACE (ACE_TEXT ("::common_error_win32_crt_invalid_parameter_cb_function"));
+  //COMMON_TRACE (ACE_TEXT ("::common_error_win32_crt_invalid_parameter_cb_function"));
 
   ACE_DEBUG ((LM_ERROR,
               ACE_TEXT ("\"%s\":%u: passed invalid parameter to CRT: \"%s\" in \"%s\", continuing\n"),
@@ -77,18 +77,18 @@ LONG WINAPI
 common_error_win32_seh_filter_core_dump (unsigned int exceptionCode_in,
                                          struct _EXCEPTION_POINTERS* exceptionInformation_in)
 {
-  COMMON_TRACE (ACE_TEXT ("::common_error_win32_seh_filter_core_dump"));
+  //COMMON_TRACE (ACE_TEXT ("::common_error_win32_seh_filter_core_dump"));
 
   ACE_UNUSED_ARG (exceptionCode_in);
 
   // *TODO*: pass application information into the exception handler
-  struct Common_ApplicationVersion application_version;
-  ACE_OS::memset (&application_version, 0, sizeof (struct Common_ApplicationVersion));
-  application_version.majorVersion = Common_VERSION_MAJOR;
-  application_version.minorVersion = Common_VERSION_MINOR;
-  application_version.microVersion = Common_VERSION_MICRO;
+  struct Common_ApplicationVersion application_version_s;
+  ACE_OS::memset (&application_version_s, 0, sizeof (struct Common_ApplicationVersion));
+  application_version_s.majorVersion = Common_VERSION_MAJOR;
+  application_version_s.minorVersion = Common_VERSION_MINOR;
+  application_version_s.microVersion = Common_VERSION_MICRO;
   if (!Common_Error_Tools::generateCoreDump (ACE_TEXT_ALWAYS_CHAR (Common_PACKAGE_NAME),
-                                             application_version,
+                                             application_version_s,
                                              exceptionInformation_in))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -104,7 +104,7 @@ common_error_win32_seh_filter_core_dump (unsigned int exceptionCode_in,
 LONG WINAPI
 common_error_win32_default_seh_handler (struct _EXCEPTION_POINTERS* exceptionInformation_in)
 {
-  COMMON_TRACE (ACE_TEXT ("::common_error_win32_default_seh_handler"));
+  //COMMON_TRACE (ACE_TEXT ("::common_error_win32_default_seh_handler"));
 
   // sanity check(s)
   ACE_ASSERT (exceptionInformation_in);
@@ -113,7 +113,7 @@ common_error_win32_default_seh_handler (struct _EXCEPTION_POINTERS* exceptionInf
 #ifdef _M_IX86
   if (exceptionInformation_in->ExceptionRecord->ExceptionCode == EXCEPTION_STACK_OVERFLOW)  
   {
-    // be sure that we have enought space...
+    // ensure that there is enough space...
     static char MyStack[1024*128];  
     // it assumes that DS and SS are the same!!! (this is the case for Win32)
     // change the stack only if the selectors are the same (this is the case for Win32)
@@ -128,8 +128,8 @@ common_error_win32_default_seh_handler (struct _EXCEPTION_POINTERS* exceptionInf
     common_error_win32_seh_filter_core_dump (exceptionInformation_in->ExceptionRecord->ExceptionCode,
                                              exceptionInformation_in);
 
-  // Optional display an error message
-  FatalAppExit (-1, ACE_TEXT ("Application failed!"));
+  // optional display an error message
+  FatalAppExit (-1, ACE_TEXT ("application failed !"));
 
   // or return one of the following:
   // - EXCEPTION_CONTINUE_SEARCH
@@ -363,7 +363,8 @@ Common_Error_Tools::setThreadName (const std::string& name_in,
                       0,
                       sizeof (struct tagTHREADNAME_INFO) / sizeof (ULONG_PTR),
                       (ULONG_PTR*)&info_s);
-  } __except (EXCEPTION_EXECUTE_HANDLER) {}
+  } __except (EXCEPTION_EXECUTE_HANDLER) {
+  }
 #pragma warning (pop)
 }
 #endif // COMMON_OS_WIN32_TARGET_PLATFORM (0x0A00)
@@ -393,7 +394,7 @@ Common_Error_Tools::enableCoreDump (bool enable_in)
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to FreeLibrary(0x%@): \"%s\", continuing\n"),
                     Common_Error_Tools::debugHelpModule,
-                    ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
+                    ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
       Common_Error_Tools::debugHelpModule = NULL;
     } // end IF
 
@@ -412,7 +413,7 @@ Common_Error_Tools::enableCoreDump (bool enable_in)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to LoadLibrary(\"%s\"): \"%s\", aborting\n"),
                 ACE_TEXT ("dbghelp.dll"),
-                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
     return false;
   } // end IF
   Common_Error_Tools::miniDumpWriteDumpFunc =
@@ -423,7 +424,7 @@ Common_Error_Tools::enableCoreDump (bool enable_in)
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to GetProcAddress(\"%s\":\"%s\"): \"%s\", aborting\n"),
                 ACE_TEXT ("dbghelp.dll"), ACE_TEXT ("MiniDumpWriteDump"),
-                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError ()).c_str ())));
+                ACE_TEXT (Common_Error_Tools::errorToString (GetLastError (), false, false).c_str ())));
     return false;
   } // end IF
 
@@ -448,9 +449,9 @@ continue_:
 //  } // end IF
 
   int result =
-      ::prctl (PR_SET_DUMPABLE,
-               (enable_in ? 1 : 0), 0, 0, 0);
-//               (enable_in ? SUID_DUMP_USER : SUID_DUMP_DISABLE), 0, 0, 0);
+    ::prctl (PR_SET_DUMPABLE,
+             (enable_in ? 1 : 0), 0, 0, 0);
+//           (enable_in ? SUID_DUMP_USER : SUID_DUMP_DISABLE), 0, 0, 0);
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -699,28 +700,27 @@ Common_Error_Tools::initializeDebugHeap (const std::string& packageName_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Error_Tools::initializeDebugHeap"));
 
-  int previous_heap_flags = -1;
+  int previous_heap_flags_i, debug_heap_flags_i;
   ACE_FILE_Addr file_address;
   ACE_FILE_Connector file_connector;
   ACE_FILE_IO file_IO;
   int result = -1;
   std::string file_name;
-  ACE_HANDLE previous_file_handle = ACE_INVALID_HANDLE;
+  ACE_HANDLE previous_file_handle_h = ACE_INVALID_HANDLE;
 
   // sanity check(s)
   ACE_ASSERT (Common_Error_Tools::debugHeapLogFileHandle == ACE_INVALID_HANDLE);
 
-  //int current_debug_heap_flags = _CrtSetDbgFlag (_CRTDBG_REPORT_FLAG);
-  //int debug_heap_flags = current_debug_heap_flags;
-  int debug_heap_flags = (_CRTDBG_ALLOC_MEM_DF      |
-                          _CRTDBG_CHECK_ALWAYS_DF   |
-                          _CRTDBG_CHECK_CRT_DF      |
-                          _CRTDBG_DELAY_FREE_MEM_DF |
-                          _CRTDBG_LEAK_CHECK_DF);
-  debug_heap_flags = (debug_heap_flags | _CRTDBG_CHECK_EVERY_16_DF);
+  debug_heap_flags_i = (_CRTDBG_ALLOC_MEM_DF      |
+                      //_CRTDBG_CHECK_ALWAYS_DF   |
+                        _CRTDBG_CHECK_CRT_DF      |
+                        _CRTDBG_DELAY_FREE_MEM_DF |
+                        _CRTDBG_LEAK_CHECK_DF);
+  debug_heap_flags_i = (debug_heap_flags_i | _CRTDBG_CHECK_EVERY_1024_DF);
   // Turn off CRT block checking bit
-  //debug_heap_flags &= ~_CRTDBG_CHECK_CRT_DF;
-  previous_heap_flags = _CrtSetDbgFlag (debug_heap_flags);
+  debug_heap_flags_i &= ~_CRTDBG_CHECK_CRT_DF;
+  previous_heap_flags_i = _CrtSetDbgFlag (debug_heap_flags_i);
+
   // output to debug window
   file_name = Common_Log_Tools::getLogDirectory (packageName_in, 0);
   file_name += ACE_DIRECTORY_SEPARATOR_STR;
@@ -766,56 +766,56 @@ Common_Error_Tools::initializeDebugHeap (const std::string& packageName_in)
   _CrtSetReportMode (_CRT_ASSERT, _CRTDBG_MODE_FILE);
   _CrtSetReportMode (_CRT_ERROR,  _CRTDBG_MODE_FILE);
   _CrtSetReportMode (_CRT_WARN,   _CRTDBG_MODE_FILE);
-  previous_file_handle =
+  previous_file_handle_h =
     _CrtSetReportFile (_CRT_ASSERT,
                        Common_Error_Tools::debugHeapLogFileHandle);
-  ACE_ASSERT (previous_file_handle != _CRTDBG_HFILE_ERROR);
-  previous_file_handle =
+  ACE_ASSERT (previous_file_handle_h != _CRTDBG_HFILE_ERROR);
+  previous_file_handle_h =
     _CrtSetReportFile (_CRT_ERROR,
                        Common_Error_Tools::debugHeapLogFileHandle);
-  ACE_ASSERT (previous_file_handle != _CRTDBG_HFILE_ERROR);
-  previous_file_handle =
+  ACE_ASSERT (previous_file_handle_h != _CRTDBG_HFILE_ERROR);
+  previous_file_handle_h =
     _CrtSetReportFile (_CRT_WARN,
                        Common_Error_Tools::debugHeapLogFileHandle);
-  ACE_ASSERT (previous_file_handle != _CRTDBG_HFILE_ERROR);
+  ACE_ASSERT (previous_file_handle_h != _CRTDBG_HFILE_ERROR);
 
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("debug heap configuration:\n%s\t: %s\n%s\t: %s\n%s\t: %s\n%s\t: %s\n%s\t: %s\n%s\t: %s\n\n"),
               ACE_TEXT ("_CRTDBG_ALLOC_MEM_DF"),
-              ((debug_heap_flags & _CRTDBG_ALLOC_MEM_DF) ? ACE_TEXT ("on")
-                                                         : ACE_TEXT ("off")),
+              ((debug_heap_flags_i & _CRTDBG_ALLOC_MEM_DF) ? ACE_TEXT ("on")
+                                                           : ACE_TEXT ("off")),
               ACE_TEXT ("_CRTDBG_DELAY_FREE_MEM_DF"),
-              ((debug_heap_flags & _CRTDBG_DELAY_FREE_MEM_DF) ? ACE_TEXT ("on")
-                                                              : ACE_TEXT ("off")),
+              ((debug_heap_flags_i & _CRTDBG_DELAY_FREE_MEM_DF) ? ACE_TEXT ("on")
+                                                                : ACE_TEXT ("off")),
               ACE_TEXT ("_CRTDBG_CHECK_ALWAYS_DF"),
-              ((debug_heap_flags & _CRTDBG_CHECK_ALWAYS_DF) ? ACE_TEXT ("on")
-                                                            : ACE_TEXT ("off")),
+              ((debug_heap_flags_i & _CRTDBG_CHECK_ALWAYS_DF) ? ACE_TEXT ("on")
+                                                              : ACE_TEXT ("off")),
               ACE_TEXT ("_CRTDBG_RESERVED_DF"),
-              ((debug_heap_flags & _CRTDBG_RESERVED_DF) ? ACE_TEXT ("on")
-                                                        : ACE_TEXT ("off")),
+              ((debug_heap_flags_i & _CRTDBG_RESERVED_DF) ? ACE_TEXT ("on")
+                                                          : ACE_TEXT ("off")),
               ACE_TEXT ("_CRTDBG_CHECK_CRT_DF"),
-              ((debug_heap_flags & _CRTDBG_CHECK_CRT_DF) ? ACE_TEXT ("on")
-                                                         : ACE_TEXT ("off")),
+              ((debug_heap_flags_i & _CRTDBG_CHECK_CRT_DF) ? ACE_TEXT ("on")
+                                                           : ACE_TEXT ("off")),
               ACE_TEXT ("_CRTDBG_LEAK_CHECK_DF"),
-              ((debug_heap_flags & _CRTDBG_LEAK_CHECK_DF) ? ACE_TEXT ("on")
-                                                          : ACE_TEXT ("off"))));
+              ((debug_heap_flags_i & _CRTDBG_LEAK_CHECK_DF) ? ACE_TEXT ("on")
+                                                            : ACE_TEXT ("off"))));
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("debug heap checking-frequency configuration:\n%s\t: %s\n%s\t: %s\n%s\t: %s\n%s\t: %s\n\n"),
               ACE_TEXT ("_CRTDBG_CHECK_EVERY_16_DF"),
-              ((debug_heap_flags & _CRTDBG_CHECK_EVERY_16_DF) ? ACE_TEXT ("on")
-                                                              : ACE_TEXT ("off")),
-              ACE_TEXT ("_CRTDBG_CHECK_EVERY_128_DF"),
-              ((debug_heap_flags & _CRTDBG_CHECK_EVERY_128_DF) ? ACE_TEXT ("on")
-                                                               : ACE_TEXT ("off")),
-              ACE_TEXT ("_CRTDBG_CHECK_EVERY_1024_DF"),
-              ((debug_heap_flags & _CRTDBG_CHECK_EVERY_1024_DF) ? ACE_TEXT ("on")
+              ((debug_heap_flags_i & _CRTDBG_CHECK_EVERY_16_DF) ? ACE_TEXT ("on")
                                                                 : ACE_TEXT ("off")),
+              ACE_TEXT ("_CRTDBG_CHECK_EVERY_128_DF"),
+              ((debug_heap_flags_i & _CRTDBG_CHECK_EVERY_128_DF) ? ACE_TEXT ("on")
+                                                                 : ACE_TEXT ("off")),
+              ACE_TEXT ("_CRTDBG_CHECK_EVERY_1024_DF"),
+              ((debug_heap_flags_i & _CRTDBG_CHECK_EVERY_1024_DF) ? ACE_TEXT ("on")
+                                                                  : ACE_TEXT ("off")),
               ACE_TEXT ("_CRTDBG_CHECK_DEFAULT_DF"),
-              (((debug_heap_flags & 0xFFFF0000) == _CRTDBG_CHECK_DEFAULT_DF) ? ACE_TEXT ("on")
-                                                                             : ACE_TEXT ("off"))));
+              (((debug_heap_flags_i & 0xFFFF0000) == _CRTDBG_CHECK_DEFAULT_DF) ? ACE_TEXT ("on")
+                                                                               : ACE_TEXT ("off"))));
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT ("configured debug heap (%x, log file: \"%s\")\n"),
-              debug_heap_flags,
+              ACE_TEXT ("configured debug heap (0x%x, log file: \"%s\")\n"),
+              debug_heap_flags_i,
               ACE_TEXT (file_name.c_str ())));
 
   return true;
@@ -829,15 +829,15 @@ Common_Error_Tools::finalizeDebugHeap ()
   int result = -1;
   if (Common_Error_Tools::debugHeapLogFileHandle)
   {
-    ACE_HANDLE previous_file_handle =
+    ACE_HANDLE previous_file_handle_h =
       _CrtSetReportFile (_CRT_WARN, NULL);
-    ACE_ASSERT (previous_file_handle != _CRTDBG_HFILE_ERROR);
-    previous_file_handle =
+    ACE_ASSERT (previous_file_handle_h != _CRTDBG_HFILE_ERROR);
+    previous_file_handle_h =
       _CrtSetReportFile (_CRT_ERROR, NULL);
-    ACE_ASSERT (previous_file_handle != _CRTDBG_HFILE_ERROR);
-    previous_file_handle =
+    ACE_ASSERT (previous_file_handle_h != _CRTDBG_HFILE_ERROR);
+    previous_file_handle_h =
       _CrtSetReportFile (_CRT_ASSERT, NULL);
-    ACE_ASSERT (previous_file_handle != _CRTDBG_HFILE_ERROR);
+    ACE_ASSERT (previous_file_handle_h != _CRTDBG_HFILE_ERROR);
 
     result = ACE_OS::close (Common_Error_Tools::debugHeapLogFileHandle);
     if (result == -1)
@@ -850,4 +850,4 @@ Common_Error_Tools::finalizeDebugHeap ()
     Common_Error_Tools::debugHeapLogFileHandle = ACE_INVALID_HANDLE;
   } // end IF
 }
-#endif /* ACE_WIN32 || ACE_WIN64 */
+#endif // ACE_WIN32 || ACE_WIN64
