@@ -6,6 +6,7 @@ include (Threads)
 include (gettext)
 
 include (ffmpeg)
+include (gstreamer)
 include (ImageMagick)
 
 include (tensorflow)
@@ -50,9 +51,6 @@ if (GTK_SUPPORT)
  endif (GTKGLAREA_SUPPORT)
 endif (GTK_SUPPORT)
 if (QT_SUPPORT)
-# if (WIN32)
-#  cmake_policy (SET CMP0020 OLD)
-# endif (WIN32)
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${QT_INCLUDE_DIRS}>)
 endif (QT_SUPPORT)
@@ -158,8 +156,6 @@ target_sources (${LIBRARY}
 target_precompile_headers (${LIBRARY}
                            PRIVATE stdafx.h)
 
-#set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
-
 ##########################################
 
 install (FILES
@@ -196,6 +192,9 @@ if (BUILD_TEST_I)
  if (FFMPEG_SUPPORT)
   add_subdirectory (ffmpeg)
  endif (FFMPEG_SUPPORT)
+ if (GSTREAMER_SUPPORT)
+  add_subdirectory (gstreamer)
+ endif (GSTREAMER_SUPPORT)
  if (IMAGEMAGICK_SUPPORT)
   add_subdirectory (imagemagick)
  endif (IMAGEMAGICK_SUPPORT)
@@ -226,6 +225,9 @@ if (BUILD_TEST_I)
  if (FFMPEG_SUPPORT)
   add_dependencies (test_i ffmpeg)
  endif (FFMPEG_SUPPORT)
+ if (GSTREAMER_SUPPORT)
+  add_dependencies (test_i gstreamer)
+ endif (GSTREAMER_SUPPORT)
  if (IMAGEMAGICK_SUPPORT)
   add_dependencies (test_i imagemagick)
  endif (IMAGEMAGICK_SUPPORT)

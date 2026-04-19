@@ -256,7 +256,7 @@ Common_Log_Tools::getLogDirectory (const std::string& packageName_in,
 use_environment:
 #endif // ACE_WIN32 || ACE_WIN64
   string_p =
-      ACE_OS::getenv (ACE_TEXT (environment_variable.c_str ()));
+    ACE_OS::getenv (ACE_TEXT (environment_variable.c_str ()));
   if (unlikely (!string_p))
   {
     ACE_DEBUG ((LM_WARNING,
