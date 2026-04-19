@@ -7,7 +7,6 @@ string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 
 ############## includes ###############
 
-message (STATUS "GStreamer include dirs: ${GSTREAMER_INCLUDE_DIRS}")
 include_directories (${GSTREAMER_INCLUDE_DIRS})
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
