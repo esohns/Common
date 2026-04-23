@@ -34,9 +34,11 @@ Common_GL_Tools::map (ValueType value_in,
   COMMON_TRACE (ACE_TEXT ("Common_Tools::map"));
 
   // sanity check(s)
+  if (unlikely (value_in < fromBegin_in)) value_in = fromBegin_in;
+  if (unlikely (value_in > fromEnd_in)) value_in = fromEnd_in;
+  if (unlikely (fromBegin_in == fromEnd_in))
+    return (toEnd_in - toBegin_in) / 2;
   ACE_ASSERT (fromBegin_in < fromEnd_in);
-  if (value_in < fromBegin_in) value_in = fromBegin_in;
-  if (value_in > fromEnd_in) value_in = fromEnd_in;
 
   float temp = (value_in - fromBegin_in) *
                (static_cast<float> (toEnd_in - toBegin_in) /
@@ -55,9 +57,11 @@ Common_GL_Tools::map (ValueType value_in,
   COMMON_TRACE (ACE_TEXT ("Common_Tools::map"));
 
   // sanity check(s)
+  if (unlikely (value_in < fromBegin_in)) value_in = fromBegin_in;
+  if (unlikely (value_in > fromEnd_in)) value_in = fromEnd_in;
+  if (unlikely (fromBegin_in == fromEnd_in))
+    return (toEnd_in - toBegin_in) / 2;
   ACE_ASSERT (fromBegin_in < fromEnd_in);
-  if (value_in < fromBegin_in) value_in = fromBegin_in;
-  if (value_in > fromEnd_in) value_in = fromEnd_in;
 
   return (value_in - fromBegin_in) * ((toEnd_in - toBegin_in) / (fromEnd_in - fromBegin_in)) + toBegin_in;
 }
