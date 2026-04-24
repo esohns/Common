@@ -48,8 +48,9 @@ if (WIN32)
   file (TO_NATIVE_PATH $ENV{LIB_ROOT} LIB_ROOT)
   string (REPLACE "\\" "\\\\" LIB_ROOT ${LIB_ROOT})
  endif (DEFINED ENV{LIB_ROOT})
-#  install (FILES ${LIB_ROOT}/libtorch/lib/torch_cpu.dll
-#           DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
+  install (FILES ${LIB_ROOT}/libtorch/lib/c10.dll
+#                 ${LIB_ROOT}/libtorch/lib/torch_cpu.dll
+           DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
 endif (WIN32)
 
 ################ launchers ###############
