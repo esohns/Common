@@ -31,6 +31,7 @@
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/ACE.h"
+#include "ace/Assert.h"
 #include "ace/Dirent_Selector.h"
 #include "ace/FILE_Addr.h"
 #include "ace/FILE_Connector.h"
@@ -51,7 +52,7 @@
 
 // initialize statics
 std::string Common_File_Tools::executable = ACE_TEXT_ALWAYS_CHAR ("");
-std::string Common_File_Tools::executableBase = ACE_TEXT_ALWAYS_CHAR ("");
+std::string Common_File_Tools::executableBaseDirectory = ACE_TEXT_ALWAYS_CHAR ("");
 
 void
 Common_File_Tools::initialize (const std::string& argv0_in)
@@ -62,13 +63,11 @@ Common_File_Tools::initialize (const std::string& argv0_in)
   ACE_ASSERT (Common_File_Tools::isValidFilename (argv0_in));
 
   Common_File_Tools::executable =
-  ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv0_in.c_str (),
-                                       ACE_DIRECTORY_SEPARATOR_CHAR_A));
+    ACE_TEXT_ALWAYS_CHAR (ACE::basename (argv0_in.c_str (), ACE_DIRECTORY_SEPARATOR_CHAR_A));
 
-  Common_File_Tools::executableBase =
-    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (argv0_in.c_str(),
-                                        ACE_DIRECTORY_SEPARATOR_CHAR_A));
-  ACE_ASSERT (Common_File_Tools::isDirectory (Common_File_Tools::executableBase));
+  Common_File_Tools::executableBaseDirectory =
+    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (argv0_in.c_str(), ACE_DIRECTORY_SEPARATOR_CHAR_A));
+  ACE_ASSERT (Common_File_Tools::isDirectory (Common_File_Tools::executableBaseDirectory));
 }
 
 std::string

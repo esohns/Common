@@ -159,7 +159,7 @@ class Common_File_Tools
   static std::string getConfigurationDataDirectory (const std::string&, // package name
                                                     const std::string&, // module name
                                                     bool);              // configuration ? : data
-  inline static std::string getExecutableDirectory() { return Common_File_Tools::executableBase; };
+  inline static std::string getExecutableDirectory () { return Common_File_Tools::executableBaseDirectory; };
   static std::string getHomeDirectory (const std::string&); // user name (empty ? current user)
   // *NOTE*: (try to) create the directory if it doesn't exist
   static std::string getUserConfigurationDirectory ();
@@ -175,7 +175,7 @@ class Common_File_Tools
   static struct Common_File_Entry parseFileEntry (const std::string&);
 
   static std::string executable; // executable base name + extension
-  static std::string executableBase; // executables' base directory
+  static std::string executableBaseDirectory; // executables' base directory
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_File_Tools ())
