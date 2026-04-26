@@ -111,6 +111,7 @@
 
 #define COMMON_LOCATION_CONFIGURATION_SUBDIRECTORY             "etc"
 #define COMMON_LOCATION_DATA_SUBDIRECTORY                      "share"
+#define COMMON_LOCATION_MODELS_SUBDIRECTORY                    "models" // relative to $ENV{LIB_ROOT}/..
 #define COMMON_LOCATION_PARENT_SUBDIRECTORY                    ".."
 #define COMMON_LOCATION_SCRIPTS_SUBDIRECTORY                   "scripts"
 #define COMMON_LOCATION_SOURCE_SUBDIRECTORY                    "src"
