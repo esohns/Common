@@ -457,7 +457,7 @@ Common_Math_FFT_T<ValueType,
     return result_a;
 
   if (unlikely (normalize_in))
-    ComputeMaxValue (channel_in);
+    ComputeMaxValue (-1);
 
   // *IMPORTANT NOTE*: - the first ('DC'-)slot does not contain frequency
   //                     information --> i = 1
@@ -504,7 +504,7 @@ Common_Math_FFT_T<ValueType,
 
   // sanity check(s)
   ACE_ASSERT (X_);
-  ACE_ASSERT (channel_in < channels_);
+  ACE_ASSERT (channel_in < static_cast<int> (channels_));
 
   ValueType temp = 0.0;
 
@@ -805,7 +805,7 @@ Common_Math_FFT_T<ValueType,
     return result_a;
 
   if (unlikely (normalize_in))
-    ComputeMaxValue (channel_in);
+    ComputeMaxValue (-1);
 
   // *IMPORTANT NOTE*: - the first ('DC'-)slot does not contain frequency
   //                     information --> i = 1
@@ -851,7 +851,7 @@ Common_Math_FFT_T<ValueType,
 
   // sanity check(s)
   ACE_ASSERT (X_);
-  ACE_ASSERT (channel_in < channels_);
+  ACE_ASSERT (channel_in < static_cast<int> (channels_));
 
   ValueType temp = 0.0;
 
@@ -1278,7 +1278,7 @@ Common_Math_FFT_T<ValueType,
     return result_a;
 
   if (unlikely (normalize_in))
-    ComputeMaxValue (channel_in);
+    ComputeMaxValue (-1);
 
   // *IMPORTANT NOTE*: - the first ('DC'-)slot does not contain frequency
   //                     information --> i = 1
@@ -1324,7 +1324,7 @@ Common_Math_FFT_T<ValueType,
 
   // sanity check(s)
   ACE_ASSERT (X_);
-  ACE_ASSERT (channel_in < channels_);
+  ACE_ASSERT (channel_in < static_cast<int> (channels_));
 
   ValueType temp = 0.0;
 
