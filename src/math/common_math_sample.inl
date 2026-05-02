@@ -87,8 +87,8 @@ template <typename ValueType>
 bool
 Common_Math_SampleIterator_T<ValueType>::initialize (unsigned int frameSize_in,
                                                      unsigned int sampleSize_in,
-                                                     bool isFloatingPointFormat_in,
                                                      bool isSignedSampleFormat_in,
+                                                     bool isFloatingPointFormat_in,
                                                      int sampleByteOrder_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Math_SampleIterator_T::initialize"));

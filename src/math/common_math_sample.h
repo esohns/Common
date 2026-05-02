@@ -14,8 +14,8 @@ class Common_Math_SampleIterator_T
 
   bool initialize (unsigned int, // bytes / ('buffer'/'chunk'/'frame'/...) (i.e. typically #channels * (bytes / sample))
                    unsigned int, // bytes / (mono-)sample
-                   bool,         // is floating point buffer ? (i.e. IEEE float/double)
                    bool,         // signed sample format ?
+                   bool,         // is floating point buffer ? (i.e. IEEE float/double)
                    int);         // sample byte order (ACE-style, -1: N/A)
   //inline void set (char* buffer_in) { buffer_ = buffer_in; };
   ValueType get (unsigned int,  // frame index (i.e. #frames into buffer)
