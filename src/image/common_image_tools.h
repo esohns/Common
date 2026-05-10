@@ -102,7 +102,7 @@ class Common_Image_Tools
 
   // --- STB image ---
 #if defined (STB_IMAGE_SUPPORT)
-  // *IMPORTANT NOTE*: callers need to free() allocated memory (5th argument)
+  // *IMPORTANT NOTE*: callers need to free() allocated memory (4th argument)
   static bool loadSTB (const std::string&,         // path
                        Common_Image_Resolution_t&, // return value: resolution
                        unsigned int&,              // return value: #channels
@@ -187,6 +187,8 @@ class Common_Image_Tools
                      const uint8_t*,                   // source buffer
                      Common_Image_Resolution_t&,       // in/out value: target resolution
                      uint8_t*&);                       // return value: buffer
+
+  static bool isIMFormatRGB (const std::string&); // format (e.g. "RGB", "RGBA", etc)
 
 #if defined (FFMPEG_SUPPORT)
   static std::string AVPixelFormatToIMFormatString (enum AVPixelFormat);

@@ -617,12 +617,10 @@ clean:
                   ACE_TEXT (path_in.c_str ())));
   } // end IF
 
-#if defined (_DEBUG)
   if (result)
     ACE_DEBUG ((LM_DEBUG,
                 ACE_TEXT ("wrote file \"%s\"\n"),
                 ACE_TEXT (path_in.c_str ())));
-#endif
 
   return result;
 }
@@ -1969,19 +1967,19 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
   result = MagickSetImageDepth (wand_p, 8);
   ACE_ASSERT (result == MagickTrue);
 
-  //ACE_ASSERT (isRGB (sourceFormat_in)); // *TODO*
+  ACE_ASSERT (Common_Image_Tools::isIMFormatRGB (sourceFormat_in));
   ACE_NEW_NORETURN (buffer_out,
                     uint8_t[sourceFormat_in.size () * MagickGetImageWidth (wand_p) * MagickGetImageHeight (wand_p)]);
   ACE_ASSERT (buffer_out);
 #if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
   result = MagickGetImagePixels (wand_p,
-                                 0,0, MagickGetImageWidth (wand_p),MagickGetImageHeight (wand_p),
+                                 0, 0, MagickGetImageWidth (wand_p), MagickGetImageHeight (wand_p),
                                  sourceFormat_in.c_str (),
                                  CharPixel,
                                  buffer_out);
 #else
   result = MagickExportImagePixels (wand_p,
-                                    0,0, MagickGetImageWidth (wand_p),MagickGetImageHeight (wand_p),
+                                    0, 0, MagickGetImageWidth (wand_p), MagickGetImageHeight (wand_p),
                                     sourceFormat_in.c_str (),
                                     StorageType::CharPixel,
                                     buffer_out);
@@ -2000,6 +1998,27 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
   DestroyMagickWand (wand_p); wand_p = NULL;
 
   return true;
+}
+
+bool
+Common_Image_Tools::isIMFormatRGB (const std::string& format_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::isIMFormatRGB"));
+
+  if (format_in == ACE_TEXT_ALWAYS_CHAR ("RGB"))
+    return true;
+  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("RGBA"))
+    return true;
+  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("BGR"))
+    return true;
+  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("BGRA"))
+    return true;
+  else
+    ACE_DEBUG ((LM_ERROR,
+               ACE_TEXT ("invalid/unknown format (was: \"%s\"), aborting\n"),
+               ACE_TEXT (format_in.c_str ())));
+
+  return false;
 }
 
 #if defined (FFMPEG_SUPPORT)
