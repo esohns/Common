@@ -31,9 +31,11 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "windef.h"
 #else
+#if defined (X11_SUPPORT)
 //#include "X11/Xlib.h"
 // forward declarations
 struct _XDisplay;
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/Condition_Thread_Mutex.h"
@@ -193,14 +195,18 @@ struct Common_UI_Display
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
    : device () // output device (i.e. monitor description)
+#if defined (X11_SUPPORT)
    , display (NULL)
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
   {}
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
   std::string       device;
+#if defined (X11_SUPPORT)
   struct _XDisplay* display;
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 };
 

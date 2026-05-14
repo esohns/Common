@@ -70,7 +70,9 @@ class Common_UI_Tools
   static struct Common_UI_DisplayDevice getDisplay (const std::string&); // device identifier
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
+#if defined (X11_SUPPORT)
   static struct Common_UI_Display getLogicalDisplay (const std::string&); // display identifier (i.e. 'DISPLAY' environment variable)
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
   static struct Common_UI_DisplayAdapter getAdapter (const struct Common_UI_DisplayDevice&); // return value: corresponding graphics adapter (if any)
   static Common_UI_DisplayDevices_t getDesktopDisplays (); // return value: devices forming the desktop

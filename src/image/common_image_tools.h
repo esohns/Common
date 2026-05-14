@@ -188,7 +188,7 @@ class Common_Image_Tools
                      Common_Image_Resolution_t&,       // in/out value: target resolution
                      uint8_t*&);                       // return value: buffer
 
-  static bool isIMFormatRGB (const std::string&); // format (e.g. "RGB", "RGBA", etc)
+  static bool isIMFormatSizeEqualToNumberOfChannels (const std::string&); // format (e.g. "RGB", "RGBA", etc)
 
 #if defined (FFMPEG_SUPPORT)
   static std::string AVPixelFormatToIMFormatString (enum AVPixelFormat);

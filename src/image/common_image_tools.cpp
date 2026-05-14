@@ -1795,7 +1795,7 @@ Common_Image_Tools::load (const std::string& sourceFilePath_in,
   //ACE_ASSERT (result == MagickTrue);
 
 #if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
-  //ACE_ASSERT (isRGB (outputFormat_in)); // *TODO*
+  ACE_ASSERT (Common_Image_Tools::isIMFormatSizeEqualToNumberOfChannels (outputFormat_in));
   ACE_NEW_NORETURN (data_out,
                     uint8_t[outputFormat_in.size () * MagickGetImageWidth (wand_p) * MagickGetImageHeight (wand_p)]);
   result = MagickGetImagePixels (wand_p,
@@ -1898,6 +1898,8 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
   ACE_ASSERT (result == MagickTrue);
 
 #if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
+  ACE_ASSERT (MagickGetImageDepth (wand_p) == 8);
+  ACE_ASSERT (Common_Image_Tools::isIMFormatSizeEqualToNumberOfChannels (sourceFormat_in));
   size_t image_size_i =
     sourceFormat_in.size () * MagickGetImageWidth (wand_p) * MagickGetImageHeight (wand_p);
   result = MagickReadImageBlob (wand_p,
@@ -1906,9 +1908,9 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
 #else
   result = MagickImportImagePixels (wand_p,
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-                                    0,0, sourceResolution_in.cx,sourceResolution_in.cy,
+                                    0, 0, sourceResolution_in.cx, sourceResolution_in.cy,
 #else
-                                    0,0, sourceResolution_in.width,sourceResolution_in.height,
+                                    0, 0, sourceResolution_in.width, sourceResolution_in.height,
 #endif // ACE_WIN32 || ACE_WIN64
                                     sourceFormat_in.c_str (),
                                     StorageType::CharPixel,
@@ -1935,6 +1937,7 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
                               1.0); // blur
 #else
 #if defined (ACE_LINUX)
+// *TODO*: check version at runtime with MagickGetVersion() instead
 #if defined (IS_UBUNTU_LINUX) // *NOTE*: github "*-latest" runners lag behind: ImageMagick-6
   result = MagickResizeImage (wand_p,
                               targetResolution_inout.width, targetResolution_inout.height,
@@ -1967,7 +1970,7 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
   result = MagickSetImageDepth (wand_p, 8);
   ACE_ASSERT (result == MagickTrue);
 
-  ACE_ASSERT (Common_Image_Tools::isIMFormatRGB (sourceFormat_in));
+  ACE_ASSERT (Common_Image_Tools::isIMFormatSizeEqualToNumberOfChannels (sourceFormat_in));
   ACE_NEW_NORETURN (buffer_out,
                     uint8_t[sourceFormat_in.size () * MagickGetImageWidth (wand_p) * MagickGetImageHeight (wand_p)]);
   ACE_ASSERT (buffer_out);
@@ -2001,9 +2004,9 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
 }
 
 bool
-Common_Image_Tools::isIMFormatRGB (const std::string& format_in)
+Common_Image_Tools::isIMFormatSizeEqualToNumberOfChannels (const std::string& format_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::isIMFormatRGB"));
+  COMMON_TRACE (ACE_TEXT ("Common_Image_Tools::isIMFormatSizeEqualToNumberOfChannels"));
 
   if (format_in == ACE_TEXT_ALWAYS_CHAR ("RGB"))
     return true;
@@ -2013,10 +2016,14 @@ Common_Image_Tools::isIMFormatRGB (const std::string& format_in)
     return true;
   else if (format_in == ACE_TEXT_ALWAYS_CHAR ("BGRA"))
     return true;
+  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("CMYK"))
+    return true;
+  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("I"))
+    return true;
   else
     ACE_DEBUG ((LM_ERROR,
-               ACE_TEXT ("invalid/unknown format (was: \"%s\"), aborting\n"),
-               ACE_TEXT (format_in.c_str ())));
+                ACE_TEXT ("invalid/unknown format (was: \"%s\"), aborting\n"),
+                ACE_TEXT (format_in.c_str ())));
 
   return false;
 }
@@ -2064,12 +2071,16 @@ Common_Image_Tools::IMFormatStringToAVCodecID (const std::string& format_in)
     return_value = AV_CODEC_ID_NONE;
   else if (format_in == ACE_TEXT_ALWAYS_CHAR ("RGBA"))
     return_value = AV_CODEC_ID_NONE;
+  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("BGR"))
+    return_value = AV_CODEC_ID_NONE;
+  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("BGRA"))
+    return_value = AV_CODEC_ID_NONE;
+  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("XC"))
+    return_value = AV_CODEC_ID_NONE;
   else if (format_in == ACE_TEXT_ALWAYS_CHAR ("PNG"))
     return_value = AV_CODEC_ID_PNG;
   else if (format_in == ACE_TEXT_ALWAYS_CHAR ("JPG"))
     return_value = AV_CODEC_ID_MJPEG;
-  else if (format_in == ACE_TEXT_ALWAYS_CHAR ("XC"))
-    return_value = AV_CODEC_ID_NONE;
   else
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("invalid/unknown format (was: \"%s\"), aborting\n"),

@@ -36,8 +36,10 @@
 #include "physicalmonitorenumerationapi.h"
 #endif // COMMON_OS_WIN32_TARGET_PLATFORM (0x0600)
 #else
+#if defined (X11_SUPPORT)
 #include "X11/Xlib.h"
 #include "X11/extensions/Xrandr.h"
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/Dirent_Selector.h"
@@ -274,13 +276,15 @@ Common_UI_Tools::initialize ()
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
+#if defined (X11_SUPPORT)
   Status result = XInitThreads ();
-  if (unlikely (result == 0))
+  if (unlikely (result == False))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to XInitThreads(): \"%m\", aborting\n")));
     return false;
   } // end IF
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
   return true;
@@ -953,11 +957,38 @@ Common_UI_Tools::getDisplays ()
   int result_2 = -1;
   std::string command_line_string, tool_path_string;
 
+  std::string buffer_string;
+  int exit_status_i = 0;
+  std::smatch match_results, match_results_2;
+  std::string display_records_string;
+  std::istringstream converter, converter_2;
+  char buffer_a [BUFSIZ];
+  static std::string regex_string_screen =
+    ACE_TEXT_ALWAYS_CHAR ("^Screen ([[:digit:]]+): minimum ([[:digit:]]+) x ([[:digit:]]+), current ([[:digit:]]+) x ([[:digit:]]+), maximum ([[:digit:]]+) x ([[:digit:]]+)$");
+  static std::string regex_string_display =
+    ACE_TEXT_ALWAYS_CHAR ("^([^[:space:]]+) (connected|disconnected) (?:(primary) )?([[:digit:]]+)x([[:digit:]]+)(\\+|-)([[:digit:]]+)(\\+|-)([[:digit:]]+) \\((?:([^[:space:]]+) )+([^\\)]+)\\) ([[:digit:]]+)mm x ([[:digit:]]+)mm$");
+  std::regex regex (regex_string_screen);
+  std::regex regex_2 (regex_string_display);
+
+  static std::string regex_string_display_id =
+    ACE_TEXT_ALWAYS_CHAR ("^([[:digit:]]+): (?:.+)$");
+  static std::string regex_string_display_model =
+    ACE_TEXT_ALWAYS_CHAR ("^(?:[[:space:]]+)Model: \"(.+)\"$");
+  static std::string regex_string_display_device =
+    ACE_TEXT_ALWAYS_CHAR ("^(?:[[:space:]]+)Device: (?:.+)\"(.+)\"$");
+  static std::string regex_string_display_primary =
+    ACE_TEXT_ALWAYS_CHAR ("^Primary display adapter: #([[:digit:]]+)$");
+  std::regex regex_3 (regex_string_display_id);
+  unsigned int device_id = 0;
+  std::map<unsigned int, struct Common_UI_DisplayDevice> devices_a;
+  std::map<unsigned int, struct Common_UI_DisplayDevice>::iterator iterator;
+
+#if defined (X11_SUPPORT)
+  Display* display_p = XOpenDisplay (NULL);
   int monitor_count_i = 0;
   XRROutputInfo* output_info_p = NULL;
   XRRMonitorInfo* monitor_info_p = NULL, *monitor_info_2 = NULL;
   XRRScreenResources* screen_resources_p = NULL;
-  Display* display_p = XOpenDisplay (NULL);
   if (unlikely (!display_p))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -982,8 +1013,8 @@ Common_UI_Tools::getDisplays ()
   } // end IF
 
   screen_resources_p =
-      XRRGetScreenResources (display_p,
-                             DefaultRootWindow (display_p));
+    XRRGetScreenResources (display_p,
+                           DefaultRootWindow (display_p));
   ACE_ASSERT (screen_resources_p);
 
   monitor_info_2 = monitor_info_p;
@@ -991,9 +1022,9 @@ Common_UI_Tools::getDisplays ()
        i < monitor_count_i;
        ++i)
   {
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("found monitor: \"%s\"\n"),
-                ACE_TEXT (XGetAtomName (display_p, monitor_info_2->name))));
+    // ACE_DEBUG ((LM_DEBUG,
+    //             ACE_TEXT ("found monitor: \"%s\"\n"),
+    //             ACE_TEXT (XGetAtomName (display_p, monitor_info_2->name))));
     ACE_ASSERT (monitor_info_2->noutput == 1);
 
     output_info_p = XRRGetOutputInfo (display_p,
@@ -1030,251 +1061,222 @@ fallback:
   //         - system(3) call
   //         --> very inefficient; replace ASAP
   command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_XRANDR);
-  if (Common_OS_Tools::isInstalled (command_line_string,
-                                    tool_path_string))
+  if (!Common_OS_Tools::isInstalled (command_line_string,
+                                     tool_path_string))
+    goto fallback_2;
+
+  // *NOTE*: (qtcreator) gdb fails to debug this (hangs) unless you disable the
+  //         "Debug all children" option
+  if (unlikely (!Common_Process_Tools::command (tool_path_string.c_str (),
+                                                exit_status_i,
+                                                display_records_string)))
   {
-    std::string display_records_string;
-    std::istringstream converter, converter_2;
-    char buffer_a [BUFSIZ];
-    std::string regex_string_screen =
-        ACE_TEXT_ALWAYS_CHAR ("^Screen ([[:digit:]]+): minimum ([[:digit:]]+) x ([[:digit:]]+), current ([[:digit:]]+) x ([[:digit:]]+), maximum ([[:digit:]]+) x ([[:digit:]]+)$");
-    std::string regex_string_display =
-        ACE_TEXT_ALWAYS_CHAR ("^([^[:space:]]+) (connected|disconnected) (?:(primary) )?([[:digit:]]+)x([[:digit:]]+)(\\+|-)([[:digit:]]+)(\\+|-)([[:digit:]]+) \\((?:([^[:space:]]+) )+([^\\)]+)\\) ([[:digit:]]+)mm x ([[:digit:]]+)mm$");
-    std::regex regex (regex_string_screen);
-    std::regex regex_2 (regex_string_display);
-    std::smatch match_results, match_results_2;
-    std::string buffer_string;
-    // *NOTE*: (qtcreator) gdb fails to debug this (hangs) unless you disable the
-    //         "Debug all children" option
-    int exit_status_i = 0;
-    if (unlikely (!Common_Process_Tools::command (tool_path_string.c_str (),
-                                                  exit_status_i,
-                                                  display_records_string)))
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("failed to Common_Process_Tools::command(\"%s\"), aborting\n"),
-                  ACE_TEXT (command_line_string.c_str ())));
-      return result;
-    } // end IF
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to Common_Process_Tools::command(\"%s\"), aborting\n"),
+                ACE_TEXT (command_line_string.c_str ())));
+    return result;
+  } // end IF
 //  ACE_DEBUG ((LM_DEBUG,
 //              ACE_TEXT ("xrandr output: \"%s\"\n"),
 //              ACE_TEXT (display_record_string.c_str ())));
 
-    converter.str (display_records_string);
-    // parse screen entries
-    do
-    {
-      converter.getline (buffer_a, sizeof (char[BUFSIZ]));
-      buffer_string = buffer_a;
-      if (!std::regex_match (buffer_string,
-                             match_results,
-                             regex,
-                             std::regex_constants::match_default))
-        continue;
-      ACE_ASSERT (match_results.ready () && !match_results.empty ());
-      ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
-      ACE_ASSERT (match_results[4].matched && !match_results[4].str ().empty ());
-      ACE_ASSERT (match_results[5].matched && !match_results[5].str ().empty ());
+  converter.str (display_records_string);
+  // parse screen entries
+  do
+  {
+    converter.getline (buffer_a, sizeof (char[BUFSIZ]));
+    buffer_string = buffer_a;
+    if (!std::regex_match (buffer_string,
+                           match_results,
+                           regex,
+                           std::regex_constants::match_default))
+      continue;
+    ACE_ASSERT (match_results.ready () && !match_results.empty ());
+    ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
+    ACE_ASSERT (match_results[4].matched && !match_results[4].str ().empty ());
+    ACE_ASSERT (match_results[5].matched && !match_results[5].str ().empty ());
 //      ACE_DEBUG ((LM_DEBUG,
 //                  ACE_TEXT ("found screen %s\n"),
 //                  ACE_TEXT (match_results[1].str ().c_str ())));
-      converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
-      converter_2.clear ();
-      converter_2.str (match_results[4].str ());
-      converter_2 >> display_device_s.clippingArea.width;
-      converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
-      converter_2.clear ();
-      converter_2.str (match_results[5].str ());
-      converter_2 >> display_device_s.clippingArea.height;
-    } while (!converter.fail ());
+    converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
+    converter_2.clear ();
+    converter_2.str (match_results[4].str ());
+    converter_2 >> display_device_s.clippingArea.width;
+    converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
+    converter_2.clear ();
+    converter_2.str (match_results[5].str ());
+    converter_2 >> display_device_s.clippingArea.height;
+  } while (!converter.fail ());
 
-    // parse display entries
-    converter.str (ACE_TEXT_ALWAYS_CHAR (""));
-    converter.clear ();
-    converter.str (display_records_string);
-    do
-    {
-      converter.getline (buffer_a, sizeof (char[BUFSIZ]));
-      buffer_string = buffer_a;
-      if (!std::regex_match (buffer_string,
-                             match_results_2,
-                             regex_2,
-                             std::regex_constants::match_default))
-        continue;
-      ACE_ASSERT (match_results_2.ready () && !match_results_2.empty ());
-      ACE_ASSERT (match_results_2[1].matched && !match_results_2[1].str ().empty ());
-      ACE_ASSERT (match_results_2[2].matched && !match_results_2[2].str ().empty ());
-      ACE_ASSERT (match_results_2[4].matched && !match_results_2[4].str ().empty ());
-      ACE_ASSERT (match_results_2[5].matched && !match_results_2[5].str ().empty ());
-      ACE_ASSERT (match_results_2[6].matched && !match_results_2[6].str ().empty ());
-      ACE_ASSERT (match_results_2[7].matched && !match_results_2[7].str ().empty ());
-      ACE_ASSERT (match_results_2[8].matched && !match_results_2[8].str ().empty ());
-      ACE_ASSERT (match_results_2[9].matched && !match_results_2[9].str ().empty ());
-      if (ACE_OS::strcmp (match_results_2[2].str ().c_str (),
-                          ACE_TEXT_ALWAYS_CHAR ("connected")))
-        continue;
-      ACE_DEBUG ((LM_DEBUG,
-                  ACE_TEXT ("found display device \"%s\"\n"),
-                  ACE_TEXT (match_results_2[1].str ().c_str ())));
-      display_device_s.description = match_results_2[1].str ();
-      display_device_s.device = match_results_2[1].str ();
-      converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
-      converter_2.clear ();
-      if (match_results_2[3].matched)
-      { ACE_ASSERT (!ACE_OS::strcmp (match_results_2[3].str ().c_str (), ACE_TEXT_ALWAYS_CHAR ("primary")));
-        display_device_s.primary = true;
-      } // end IF
-      converter_2.str (match_results[4].str ());
-      converter_2 >> display_device_s.clippingArea.width;
-      converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
-      converter_2.clear ();
-      converter_2.str (match_results[5].str ());
-      converter_2 >> display_device_s.clippingArea.height;
-      converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
-      converter_2.clear ();
-      converter_2.str (match_results[7].str ());
-      converter_2 >> display_device_s.clippingArea.x;
-      if (match_results[6].str ()[0] == '-')
-        display_device_s.clippingArea.x = -display_device_s.clippingArea.x;
-      converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
-      converter_2.clear ();
-      converter_2.str (match_results[9].str ());
-      converter_2 >> display_device_s.clippingArea.y;
-      if (match_results[8].str ()[0] == '-')
-        display_device_s.clippingArea.y = -display_device_s.clippingArea.y;
-      result.push_back (display_device_s);
-    } while (!converter.fail ());
-  } // end IF
-  else
+  // parse display entries
+  converter.str (ACE_TEXT_ALWAYS_CHAR (""));
+  converter.clear ();
+  converter.str (display_records_string);
+  do
   {
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("%s not installed, falling back\n"),
-                ACE_TEXT (command_line_string.c_str ())));
-    command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_HWINFO);
-    if (Common_OS_Tools::isInstalled (command_line_string,
-                                      tool_path_string))
-    {
-      command_line_string += ACE_TEXT_ALWAYS_CHAR (" --");
-      command_line_string +=
-          ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_SWITCH_HWINFO_DISPLAY);
-      std::string display_records_string;
-      std::istringstream converter, converter_2;
-      char buffer_a [BUFSIZ];
-      std::string regex_string_display_id =
-          ACE_TEXT_ALWAYS_CHAR ("^([[:digit:]]+): (?:.+)$");
-      std::string regex_string_display_model =
-          ACE_TEXT_ALWAYS_CHAR ("^(?:[[:space:]]+)Model: \"(.+)\"$");
-      std::string regex_string_display_device =
-          ACE_TEXT_ALWAYS_CHAR ("^(?:[[:space:]]+)Device: (?:.+)\"(.+)\"$");
-      std::string regex_string_display_primary =
-          ACE_TEXT_ALWAYS_CHAR ("^Primary display adapter: #([[:digit:]]+)$");
-      std::regex regex (regex_string_display_id);
-      std::smatch match_results;
-      std::string buffer_string;
-      // *NOTE*: (qtcreator) gdb fails to debug this (hangs) unless you disable the
-      //         "Debug all children" option
-      int exit_status_i = 0;
-      if (unlikely (!Common_Process_Tools::command (command_line_string.c_str (),
-                                                    exit_status_i,
-                                                    display_records_string)))
-      {
-        ACE_DEBUG ((LM_ERROR,
-                   ACE_TEXT ("failed to Common_Process_Tools::command(\"%s\"), aborting\n"),
-                   ACE_TEXT (command_line_string.c_str ())));
-        return result;
-      } // end IF
-      //  ACE_DEBUG ((LM_DEBUG,
-      //              ACE_TEXT ("hwinfo output: \"%s\"\n"),
-      //              ACE_TEXT (display_record_string.c_str ())));
+    converter.getline (buffer_a, sizeof (char[BUFSIZ]));
+    buffer_string = buffer_a;
+    if (!std::regex_match (buffer_string,
+                           match_results_2,
+                           regex_2,
+                           std::regex_constants::match_default))
+      continue;
+    ACE_ASSERT (match_results_2.ready () && !match_results_2.empty ());
+    ACE_ASSERT (match_results_2[1].matched && !match_results_2[1].str ().empty ());
+    ACE_ASSERT (match_results_2[2].matched && !match_results_2[2].str ().empty ());
+    ACE_ASSERT (match_results_2[4].matched && !match_results_2[4].str ().empty ());
+    ACE_ASSERT (match_results_2[5].matched && !match_results_2[5].str ().empty ());
+    ACE_ASSERT (match_results_2[6].matched && !match_results_2[6].str ().empty ());
+    ACE_ASSERT (match_results_2[7].matched && !match_results_2[7].str ().empty ());
+    ACE_ASSERT (match_results_2[8].matched && !match_results_2[8].str ().empty ());
+    ACE_ASSERT (match_results_2[9].matched && !match_results_2[9].str ().empty ());
+    if (ACE_OS::strcmp (match_results_2[2].str ().c_str (),
+                        ACE_TEXT_ALWAYS_CHAR ("connected")))
+      continue;
+    // ACE_DEBUG ((LM_DEBUG,
+    //             ACE_TEXT ("found display device \"%s\"\n"),
+    //             ACE_TEXT (match_results_2[1].str ().c_str ())));
+    display_device_s.description = match_results_2[1].str ();
+    display_device_s.device = match_results_2[1].str ();
+    converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
+    converter_2.clear ();
+    if (match_results_2[3].matched)
+    { ACE_ASSERT (!ACE_OS::strcmp (match_results_2[3].str ().c_str (), ACE_TEXT_ALWAYS_CHAR ("primary")));
+      display_device_s.primary = true;
+    } // end IF
+    converter_2.str (match_results[4].str ());
+    converter_2 >> display_device_s.clippingArea.width;
+    converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
+    converter_2.clear ();
+    converter_2.str (match_results[5].str ());
+    converter_2 >> display_device_s.clippingArea.height;
+    converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
+    converter_2.clear ();
+    converter_2.str (match_results[7].str ());
+    converter_2 >> display_device_s.clippingArea.x;
+    if (match_results[6].str ()[0] == '-')
+      display_device_s.clippingArea.x = -display_device_s.clippingArea.x;
+    converter_2.str (ACE_TEXT_ALWAYS_CHAR (""));
+    converter_2.clear ();
+    converter_2.str (match_results[9].str ());
+    converter_2 >> display_device_s.clippingArea.y;
+    if (match_results[8].str ()[0] == '-')
+      display_device_s.clippingArea.y = -display_device_s.clippingArea.y;
+    result.push_back (display_device_s);
+  } while (!converter.fail ());
 
-      converter.str (display_records_string);
-      unsigned int device_id = 0;
-      std::map<unsigned int, struct Common_UI_DisplayDevice> devices_a;
-      std::map<unsigned int, struct Common_UI_DisplayDevice>::iterator iterator;
-      // parse display entries
+  goto continue_;
+
+fallback_2:
+#endif // X11_SUPPORT
+  command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_HWINFO);
+  if (!Common_OS_Tools::isInstalled (command_line_string,
+                                     tool_path_string))
+    goto continue_;
+
+  command_line_string += ACE_TEXT_ALWAYS_CHAR (" --");
+  command_line_string +=
+      ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_SWITCH_HWINFO_DISPLAY);
+
+  // *NOTE*: (qtcreator) gdb fails to debug this (hangs) unless you disable the
+  //         "Debug all children" option
+  if (unlikely (!Common_Process_Tools::command (command_line_string.c_str (),
+                                                exit_status_i,
+                                                display_records_string)))
+  {
+    ACE_DEBUG ((LM_ERROR,
+               ACE_TEXT ("failed to Common_Process_Tools::command(\"%s\"), aborting\n"),
+               ACE_TEXT (command_line_string.c_str ())));
+    return result;
+  } // end IF
+  //  ACE_DEBUG ((LM_DEBUG,
+  //              ACE_TEXT ("hwinfo output: \"%s\"\n"),
+  //              ACE_TEXT (display_record_string.c_str ())));
+
+  converter.str (display_records_string);
+  // parse display entries
 next:
-      while (!converter.fail ())
-      {
-        converter.getline (buffer_a, sizeof (char[BUFSIZ]));
-        buffer_string = buffer_a;
-        if (!std::regex_match (buffer_string,
-                               match_results,
-                               regex,
-                               std::regex_constants::match_default))
-          continue;
-        ACE_ASSERT (match_results.ready () && !match_results.empty ());
-        ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
-        converter_2.clear ();
-        converter_2.str (match_results[1].str ());
-        converter_2 >> device_id;
-        break;
-      } // end WHILE
-      regex.assign (regex_string_display_model);
-      while (!converter.fail ())
-      {
-        converter.getline (buffer_a, sizeof (char[BUFSIZ]));
-        buffer_string = buffer_a;
-        if (!std::regex_match (buffer_string,
-                               match_results,
-                               regex,
-                               std::regex_constants::match_default))
-          continue;
-        ACE_ASSERT (match_results.ready () && !match_results.empty ());
-        ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
+  while (!converter.fail ())
+  {
+    converter.getline (buffer_a, sizeof (char[BUFSIZ]));
+    buffer_string = buffer_a;
+    if (!std::regex_match (buffer_string,
+                           match_results,
+                           regex_3,
+                           std::regex_constants::match_default))
+      continue;
+    ACE_ASSERT (match_results.ready () && !match_results.empty ());
+    ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
+    converter_2.clear ();
+    converter_2.str (match_results[1].str ());
+    converter_2 >> device_id;
+    break;
+  } // end WHILE
+  regex_3.assign (regex_string_display_model);
+  while (!converter.fail ())
+  {
+    converter.getline (buffer_a, sizeof (char[BUFSIZ]));
+    buffer_string = buffer_a;
+    if (!std::regex_match (buffer_string,
+                           match_results,
+                           regex_3,
+                           std::regex_constants::match_default))
+      continue;
+    ACE_ASSERT (match_results.ready () && !match_results.empty ());
+    ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
 //        ACE_DEBUG ((LM_DEBUG,
 //                    ACE_TEXT ("%u: found display device \"%s\"\n"),
 //                    device_id,
 //                    ACE_TEXT (match_results[1].str ().c_str ())));
-        display_device_s.description = match_results[1].str ();
-        break;
-      } // end WHILE
-      regex.assign (regex_string_display_device);
-      while (!converter.fail ())
-      {
-        converter.getline (buffer_a, sizeof (char[BUFSIZ]));
-        buffer_string = buffer_a;
-        if (!std::regex_match (buffer_string,
-                               match_results,
-                               regex,
-                               std::regex_constants::match_default))
-          continue;
-        ACE_ASSERT (match_results.ready () && !match_results.empty ());
-        ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
-        display_device_s.device = match_results[1].str ();
-        devices_a.insert (std::make_pair (device_id, display_device_s));
-        break;
-      } // end WHILE
-      if (!converter.fail ())
-        goto next;
+    display_device_s.description = match_results[1].str ();
+    break;
+  } // end WHILE
+  regex_3.assign (regex_string_display_device);
+  while (!converter.fail ())
+  {
+    converter.getline (buffer_a, sizeof (char[BUFSIZ]));
+    buffer_string = buffer_a;
+    if (!std::regex_match (buffer_string,
+                           match_results,
+                           regex_3,
+                           std::regex_constants::match_default))
+      continue;
+    ACE_ASSERT (match_results.ready () && !match_results.empty ());
+    ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
+    display_device_s.device = match_results[1].str ();
+    devices_a.insert (std::make_pair (device_id, display_device_s));
+    break;
+  } // end WHILE
+  if (!converter.fail ())
+    goto next;
 
-      regex.assign (regex_string_display_primary);
-      converter.clear ();
-      converter.str (display_records_string);
-      while (!converter.fail ())
-      {
-        converter.getline (buffer_a, sizeof (char[BUFSIZ]));
-        buffer_string = buffer_a;
-        if (!std::regex_match (buffer_string,
-                               match_results,
-                               regex,
-                               std::regex_constants::match_default))
-          continue;
-        ACE_ASSERT (match_results.ready () && !match_results.empty ());
-        ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
-        converter_2.clear ();
-        converter_2.str (match_results[1].str ());
-        converter_2 >> device_id;
-        break;
-      } // end WHILE
-      iterator = devices_a.find (device_id);
-      ACE_ASSERT (iterator != devices_a.end ());
-      (*iterator).second.primary = true;
-      for (iterator = devices_a.begin ();
-           iterator != devices_a.end ();
-           ++iterator)
-        result.push_back ((*iterator).second);
-    } // end IF
-  } // end ELSE
+  regex_3.assign (regex_string_display_primary);
+  converter.clear ();
+  converter.str (display_records_string);
+  while (!converter.fail ())
+  {
+    converter.getline (buffer_a, sizeof (char[BUFSIZ]));
+    buffer_string = buffer_a;
+    if (!std::regex_match (buffer_string,
+                           match_results,
+                           regex_3,
+                           std::regex_constants::match_default))
+      continue;
+    ACE_ASSERT (match_results.ready () && !match_results.empty ());
+    ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
+    converter_2.clear ();
+    converter_2.str (match_results[1].str ());
+    converter_2 >> device_id;
+    break;
+  } // end WHILE
+  iterator = devices_a.find (device_id);
+  ACE_ASSERT (iterator != devices_a.end ());
+  (*iterator).second.primary = true;
+  for (iterator = devices_a.begin ();
+       iterator != devices_a.end ();
+       ++iterator)
+    result.push_back ((*iterator).second);
+
 continue_:
 #endif // ACE_WIN32 || ACE_WIN64
 
@@ -1335,6 +1337,7 @@ Common_UI_Tools::getDisplay (const std::string& deviceIdentifier_in)
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
+#if defined (X11_SUPPORT)
 struct Common_UI_Display
 Common_UI_Tools::getLogicalDisplay (const std::string& deviceIdentifier_in)
 {
@@ -1357,6 +1360,7 @@ Common_UI_Tools::getLogicalDisplay (const std::string& deviceIdentifier_in)
 
   return result;
 }
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
@@ -1367,7 +1371,7 @@ Common_UI_Tools::displayMatches (const std::string& identifier_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::displayMatches"));
 
-  std::string regex_string = ACE_TEXT_ALWAYS_CHAR ("^([^-]+)-(?:[[:alpha:]]{1}-)?([[:digit:]]+)$");
+  static std::string regex_string = ACE_TEXT_ALWAYS_CHAR ("^([^-]+)-(?:[[:alpha:]]{1}-)?([[:digit:]]+)$");
   std::regex regex (regex_string);
   std::smatch match_results, match_results_2;
   if (!std::regex_match (identifier_in,
@@ -1472,15 +1476,18 @@ Common_UI_Tools::getDesktopDisplays ()
   std::string display_records_string;
   std::istringstream converter;
   char buffer_a [BUFSIZ];
-  std::string regex_string =
-      ACE_TEXT_ALWAYS_CHAR ("^(.+) (?:connected)(?: primary)? (.+) \\((?:(.+)\\w*)+\\) ([[:digit:]]+)mm x ([[:digit:]]+)mm$");
+  static std::string regex_string =
+    ACE_TEXT_ALWAYS_CHAR ("^(.+) (?:connected)(?: primary)? (.+) \\((?:(.+)\\w*)+\\) ([[:digit:]]+)mm x ([[:digit:]]+)mm$");
   std::regex regex (regex_string);
   std::smatch match_results;
   std::string buffer_string;
-  std::string command_line_string = ACE_TEXT_ALWAYS_CHAR ("xrandr");
+  std::string command_line_string;
   // *NOTE*: (qtcreator) gdb fails to debug this (hangs) unless you disable the
   //         "Debug all children" option
   int exit_status_i = 0;
+
+#if defined (X11_SUPPORT)
+  command_line_string = ACE_TEXT_ALWAYS_CHAR (COMMON_COMMAND_XRANDR);
   if (unlikely (!Common_Process_Tools::command (command_line_string.c_str (),
                                                 exit_status_i,
                                                 display_records_string)))
@@ -1508,12 +1515,13 @@ Common_UI_Tools::getDesktopDisplays ()
     ACE_ASSERT (match_results.ready () && !match_results.empty ());
     ACE_ASSERT (match_results[1].matched && !match_results[1].str ().empty ());
 
-    ACE_DEBUG ((LM_DEBUG,
-                ACE_TEXT ("found display device \"%s\"...\n"),
-                ACE_TEXT (match_results[1].str ().c_str ())));
+    // ACE_DEBUG ((LM_DEBUG,
+    //             ACE_TEXT ("found display device \"%s\"...\n"),
+    //             ACE_TEXT (match_results[1].str ().c_str ())));
     device_s.device = match_results[1].str ();
     result.push_back (device_s);
   } while (!converter.fail ());
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
   return result;
@@ -1625,8 +1633,8 @@ Common_UI_Tools::get (const std::string& deviceIdentifier_in)
   // *NOTE*: /sys/class/drm/cardx/cardx-displayy/'modes' contains the supported
   //         resolutions
   std::string modes_file, buffer_string;
-  std::string regex_string =
-      ACE_TEXT_ALWAYS_CHAR ("^([[:digit:]]+)x([[:digit:]]+)$");
+  static std::string regex_string =
+    ACE_TEXT_ALWAYS_CHAR ("^([[:digit:]]+)x([[:digit:]]+)$");
   std::regex regex (regex_string);
   std::smatch match_results;
   std::istringstream converter, converter_2;

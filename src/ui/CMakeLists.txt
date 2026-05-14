@@ -64,9 +64,14 @@ if (UNIX)
  set (source_files
       ${source_files}
       common_ui_monitor_setup_xml_handler.cpp
-      common_ui_monitor_setup_xml_handler.h
-      common_ui_x11_tools.cpp
-      common_ui_x11_tools.h)
+      common_ui_monitor_setup_xml_handler.h)
+
+ if (X11_SUPPORT)
+  set (source_files
+       ${source_files}
+       common_ui_x11_tools.cpp
+       common_ui_x11_tools.h)
+ endif (X11_SUPPORT)
 endif (UNIX)
 
 # Include dir for installed targets
@@ -89,8 +94,11 @@ target_sources (${LIBRARY}
 
 add_dependencies (${LIBRARY} Common)
 if (UNIX)
- target_link_libraries (${LIBRARY} PUBLIC X11)
- target_link_libraries (${LIBRARY} PUBLIC Xrandr)
+ if (X11_SUPPORT)
+  target_link_libraries (${LIBRARY} PUBLIC X11)
+  target_link_libraries (${LIBRARY} PUBLIC Xrandr)
+ endif (X11_SUPPORT)
+
  target_link_libraries (${LIBRARY} PUBLIC ${ACEXML_LIBRARY})
 elseif (WIN32)
  target_link_libraries (${LIBRARY} PUBLIC Dxva2.lib)
@@ -122,8 +130,13 @@ set (${LIBRARY}_LIB_HDRS
 if (UNIX)
  set (${LIBRARY}_LIB_HDRS
       ${${LIBRARY}_LIB_HDRS}
-      common_ui_monitor_setup_xml_handler.h
-      common_ui_x11_tools.h)
+      common_ui_monitor_setup_xml_handler.h)
+
+ if (X11_SUPPORT)
+  set (${LIBRARY}_LIB_HDRS
+       ${${LIBRARY}_LIB_HDRS}
+       common_ui_x11_tools.h)
+ endif (X11_SUPPORT)
 endif (UNIX)
 install (FILES
          ${${LIBRARY}_LIB_HDRS}
