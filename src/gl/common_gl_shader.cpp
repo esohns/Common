@@ -42,7 +42,9 @@ Common_GL_Shader::~Common_GL_Shader ()
   { // *TODO*
     ACE_DEBUG ((LM_WARNING,
                 ACE_TEXT ("cannot free shader resources when out of context, continuing\n")));
+#if defined (GLEW_SUPPORT)
     glDeleteProgram (id_);
+#endif // GLEW_SUPPORT
   } // end IF
 }
 
@@ -78,6 +80,7 @@ Common_GL_Shader::loadFromFile (const std::string& vertexShaderFilename_in,
   } // end IF
   ACE_ASSERT (vertex_shader_id_i != static_cast<GLuint> (-1) && fragment_shader_id_i != static_cast<GLuint> (-1));
 
+#if defined (GLEW_SUPPORT)
   id_ = glCreateProgram ();
   ACE_ASSERT (id_ != static_cast<GLuint> (-1));
   glAttachShader (id_, vertex_shader_id_i);
@@ -108,6 +111,7 @@ Common_GL_Shader::loadFromFile (const std::string& vertexShaderFilename_in,
   glDetachShader (id_, fragment_shader_id_i);
   glDeleteShader (vertex_shader_id_i);
   glDeleteShader (fragment_shader_id_i);
+#endif // GLEW_SUPPORT
 
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("loaded shader...\n")));
@@ -145,6 +149,7 @@ Common_GL_Shader::loadFromString (const std::string& vertexShaderCode_in,
   } // end IF
   ACE_ASSERT (vertex_shader_id_i != static_cast<GLuint> (-1) && fragment_shader_id_i != static_cast<GLuint> (-1));
 
+#if defined (GLEW_SUPPORT)
   id_ = glCreateProgram ();
   ACE_ASSERT (id_);
   glAttachShader (id_, vertex_shader_id_i);
@@ -175,6 +180,7 @@ Common_GL_Shader::loadFromString (const std::string& vertexShaderCode_in,
   glDetachShader (id_, fragment_shader_id_i);
   glDeleteShader (vertex_shader_id_i);
   glDeleteShader (fragment_shader_id_i);
+#endif // GLEW_SUPPORT
 
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("loaded shader...\n")));
@@ -185,7 +191,9 @@ Common_GL_Shader::loadFromString (const std::string& vertexShaderCode_in,
 void
 Common_GL_Shader::reset ()
 {
+#if defined (GLEW_SUPPORT)
   if (likely (id_))
     glDeleteProgram (id_);
+#endif // GLEW_SUPPORT
   id_ = 0;
 }

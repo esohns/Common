@@ -62,14 +62,19 @@ class Common_GL_Camera
   glm::vec3 looking_at_;
   glm::vec3 up_;
   glm::vec3 right_;
+  glm::vec2 old_mouse_position_;
+#else
+  struct Common_GL_VectorF3 position_;
+  struct Common_GL_VectorF3 looking_at_;
+  struct Common_GL_VectorF3 up_;
+  struct Common_GL_VectorF3 right_;
+  struct Common_GL_VectorF2 old_mouse_position_;
 #endif // GLM_SUPPORT
   float yaw_; // degrees
   float pitch_; // degrees
   float zoom_;  // *TODO*: use for FOV [1.0f, 45.0f]
 
 #if defined (GLM_SUPPORT)
-  glm::vec2 old_mouse_position_;
-
   // *TODO*: is this an alternative to glm::lookAt() ?
   static glm::mat4 getViewMatrix (const glm::vec3& position_in,
                                   const glm::vec3& forward_in,

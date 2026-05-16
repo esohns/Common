@@ -523,6 +523,7 @@ Common_GL_Tools::loadAndCompileShaderFile (const std::string& path_in,
   // initialize return value(s)
   id_out = -1;
 
+#if defined (GLEW_SUPPORT)
   id_out = glCreateShader (type_in);
 
   uint8_t* data_p = NULL;
@@ -568,6 +569,11 @@ Common_GL_Tools::loadAndCompileShaderFile (const std::string& path_in,
   } // end IF
 
   return true;
+#else
+  ACE_UNUSED_ARG (path_in);
+  ACE_UNUSED_ARG (type_in);
+  return false;
+#endif // GLEW_SUPPORT
 }
 
 bool
@@ -580,6 +586,7 @@ Common_GL_Tools::loadAndCompileShaderString (const std::string& shaderCode_in,
   // initialize return value(s)
   id_out = -1;
 
+#if defined (GLEW_SUPPORT)
   id_out = glCreateShader (type_in);
 
   GLchar* array_a[2];
@@ -611,6 +618,11 @@ Common_GL_Tools::loadAndCompileShaderString (const std::string& shaderCode_in,
   } // end IF
 
   return true;
+#else
+  ACE_UNUSED_ARG (shaderCode_in);
+  ACE_UNUSED_ARG (type_in);
+  return false;
+#endif // GLEW_SUPPORT
 }
 
 void

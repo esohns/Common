@@ -18,10 +18,10 @@ Common_GL_Camera::Common_GL_Camera ()
  , looking_at_ (0.0f, 0.0f, -1.0f)
  , up_ (0.0f, 1.0f, 0.0f)
  , right_ (1.0f, 0.0f, 0.0f)
+ , old_mouse_position_ (0.0f, 0.0f)
  , yaw_ (0.0f)
  , pitch_ (0.0f)
  , zoom_ (45.0f) // FOV in degrees
- , old_mouse_position_ (0.0f, 0.0f)
 {
 
 }
@@ -29,10 +29,12 @@ Common_GL_Camera::Common_GL_Camera ()
 void
 Common_GL_Camera::reset ()
 {
+#if defined (GLM_SUPPORT)
   position_ = {0.0f, 0.0f, 0.0f};
   looking_at_ = {0.0f, 0.0f, -1.0f};
   up_ = {0.0f, 1.0f, 0.0f};
   right_ = {1.0f, 0.0f, 0.0f};
+#endif // GLM_SUPPORT
   yaw_ = 0.0f;
   pitch_ = 0.0f;
   zoom_ = 45.0f; // FOV in degrees
@@ -61,22 +63,34 @@ Common_GL_Camera::updatePosition (enum Common_GL_Camera::Direction direction_in,
   switch (direction_in)
   {
     case Common_GL_Camera::Direction::FORWARD:
+#if defined (GLM_SUPPORT)
       position_ += looking_at_ * velocity;
+#endif // GLM_SUPPORT
       break;
     case Common_GL_Camera::Direction::BACKWARD:
+#if defined (GLM_SUPPORT)
       position_ -= looking_at_ * velocity;
+#endif // GLM_SUPPORT
       break;
     case Common_GL_Camera::Direction::RIGHT:
+#if defined (GLM_SUPPORT)
       position_ += right_ * velocity;
+#endif // GLM_SUPPORT
       break;
     case Common_GL_Camera::Direction::LEFT:
+#if defined (GLM_SUPPORT)
       position_ -= right_ * velocity;
+#endif // GLM_SUPPORT
       break;
     case Common_GL_Camera::Direction::UP:
+#if defined (GLM_SUPPORT)
       position_ += up_ * velocity;
+#endif // GLM_SUPPORT
       break;
     case Common_GL_Camera::Direction::DOWN:
+#if defined (GLM_SUPPORT)
       position_ -= up_ * velocity;
+#endif // GLM_SUPPORT
       break;
     default:
       ACE_ASSERT (false);
@@ -98,6 +112,7 @@ Common_GL_Camera::updateZoom (float dz)
 void
 Common_GL_Camera::updateVectors ()
 {
+#if defined (GLM_SUPPORT)
   glm::vec3 direction;
   direction.x = std::cos (glm::radians (yaw_)) * std::cos (glm::radians (pitch_));
   direction.y = std::sin (glm::radians (pitch_));
@@ -106,11 +121,13 @@ Common_GL_Camera::updateVectors ()
 
   right_ = glm::normalize (glm::cross (looking_at_, {0.0f, 1.0f, 0.0f}));
   up_ = glm::normalize (glm::cross (right_, looking_at_));
+#endif // GLM_SUPPORT
 }
 
 void
 Common_GL_Camera::mouseLook (int mouseX_in, int mouseY_in)
 {
+#if defined (GLM_SUPPORT)
   glm::vec2 current_mouse_position (mouseX_in, mouseY_in);
 
   static bool first_b = true;
@@ -127,4 +144,5 @@ Common_GL_Camera::mouseLook (int mouseX_in, int mouseY_in)
                              up_);
 
   old_mouse_position_ = current_mouse_position;
+#endif // GLM_SUPPORT
 }

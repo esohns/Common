@@ -128,7 +128,7 @@ then
  then
   DEFAULT_OPENSSL_DIRECTORY=${SSL_ROOT} # <-- cygwin/mingw/msys
  else
-  DEFAULT_OPENSSL_DIRECTORY=/d/projects/openssl # <-- mingw/msys
+  DEFAULT_OPENSSL_DIRECTORY=/e/lib/openssl # <-- mingw/msys
  fi
  [ ! -d ${DEFAULT_OPENSSL_DIRECTORY} ] && echo "ERROR: invalid directory (was: \"${DEFAULT_OPENSSL_DIRECTORY}\"), aborting" && exit 1
 fi
@@ -199,6 +199,7 @@ fi
 #echo "DEBUG: ACE build directory: \"${ACE_BUILD_DIRECTORY}\""
 
 # step3: generate Makefiles
+rm -f ${ACE_BUILD_DIRECTORY}/GNUmakefile
 if [ ! -f ${ACE_BUILD_DIRECTORY}/GNUmakefile ]
 then
  FEATURES_FILE_DIRECTORY=${PROJECT_DIRECTORY}/Common/3rd_party/ACE_wrappers
@@ -218,14 +219,13 @@ then
  # MWC_PL_OPTIONS="-name_modifier *_gnu"
  #fi
  cd ${ACE_BUILD_DIRECTORY}
- perl ${MWC_PL} -feature_file ${LOCAL_FEATURES_FILE} ${MWC_PL_OPTIONS} -type ${PROJECT_TYPE} ${ACE_MWC_FILE} -workers 4 -exclude tests -exclude performance-tests -exclude examples
+ perl ${MWC_PL} -feature_file ${LOCAL_FEATURES_FILE} ${MWC_PL_OPTIONS} -type ${PROJECT_TYPE} ${ACE_MWC_FILE} -workers 16 -exclude tests -exclude performance-tests -exclude examples
  [ $? -ne 0 ] && echo "ERROR: failed to mwc.pl \"${ACE_MWC_FILE}\": $?, aborting" && exit 1
  echo "processing ${ACE_MWC_FILE}...DONE"
 fi
 
 # step4: make
-MAKE_OPTIONS=-j4
+MAKE_OPTIONS=-j16
 make ${MAKE_OPTIONS}
 [ $? -ne 0 ] && echo "ERROR: failed to make: $?, aborting" && exit 1
-# *NOTE*: if this fails, try 'cd /mnt/win_d/projects/ATCD/ACE/apps/gperf/tests'; export LD_LIBRARY_PATH=$ACE_ROOT/lib; make realclean; make
-
+# *NOTE*: if this fails, try 'cd /mnt/win_e/lib/ACE_TAO/ACE/apps/gperf/tests'; export LD_LIBRARY_PATH=$ACE_ROOT/lib; make realclean; make

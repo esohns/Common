@@ -1,6 +1,6 @@
-include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/VersionConfig.cmake)
-
 set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts")
+include (VersionConfig)
+
 include (Configuration)
 include (Macros)
 include (OS)
@@ -21,7 +21,7 @@ include (compiler_init)
 #             "http://dbus.freedesktop.org"
 #             "https://bugs.freedesktop.org/enter_bug.cgi?product=dbus")
 
-cmake_minimum_required (VERSION 2.8...3.12)
+cmake_minimum_required (VERSION 3.12)
 
 cmake_policy (SET CMP0069 NEW) # IPO is enforced when enabled
 include (CheckIPOSupported)
@@ -51,12 +51,14 @@ endif ()
 include (PrePreToolChain)
 
 # *NOTE*: sets CMAKE_TOOLCHAIN_FILE, so include BEFORE project()
-include (vcpkg)
+include (vcpkg_support)
 
 cmake_policy (SET CMP0048 NEW) # allow project VERSION
 project (${PROJECT_NAME}
-         VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
-         LANGUAGES CXX)
+         VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}"
+         DESCRIPTION "${${PROJECT_NAME}_PACKAGE_DESCRIPTION_SUMMARY}"
+         HOMEPAGE_URL "${${PROJECT_NAME}_PACKAGE_URL}"
+         LANGUAGES C CXX)
 
 include (PreToolChain)
 include (SetToolChain)

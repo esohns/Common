@@ -321,11 +321,14 @@ Common_GL_Mesh::Common_GL_Mesh (Common_GL_Model* model_in,
 void
 Common_GL_Mesh::render (Common_GL_Shader& shader_in,
                         Common_GL_Camera& camera_in,
-                        struct Common_GL_Perspective& perspectiveInformation_in,
-                        glm::mat4 modelMatrix_in,
+                        struct Common_GL_Perspective& perspectiveInformation_in
+#if defined (GLM_SUPPORT)
+                        ,glm::mat4 modelMatrix_in,
                         glm::vec3 translation_in,
                         glm::quat rotation_in,
-                        glm::vec3 scale_in)
+                        glm::vec3 scale_in
+#endif // GLM_SUPPORT
+                      )
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Mesh::render"));
 

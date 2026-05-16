@@ -54,11 +54,14 @@ class Common_GL_Mesh
 
   void render (Common_GL_Shader&,
                Common_GL_Camera&,
-               struct Common_GL_Perspective&, // perspective information
-               glm::mat4 = glm::mat4 (1.0f), // model matrix
+               struct Common_GL_Perspective& // perspective information
+#if defined (GLM_SUPPORT)
+               ,glm::mat4 = glm::mat4 (1.0f), // model matrix
                glm::vec3 = glm::vec3 (0.0f, 0.0f, 0.0f), // translation
                glm::quat = glm::quat (1.0f, 0.0f, 0.0f, 0.0f), // rotation
-               glm::vec3 = glm::vec3 (1.0f, 1.0f, 1.0f)); // scale
+               glm::vec3 = glm::vec3 (1.0f, 1.0f, 1.0f) // scale
+#endif // GLM_SUPPORT
+              );
   void reset ();
 
   std::vector <struct Common_GL_Vertex> vertices_;

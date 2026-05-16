@@ -3,10 +3,14 @@
   "dependencies": [
     {
       "name": "ace",
-      "features": [ "xml" ]
+      "features": [ "xml" ],
+      "platform": "windows"
     },
     "assimp",
-    "directxsdk",
+    {
+      "name": "directxsdk",
+      "platform": "windows"
+    },
     "ffmpeg",
     "freeglut",
     "glew",
@@ -17,7 +21,10 @@
     "libiconv",
     "libnoise",
     "libxml2",
-    "pdcurses",
+    {
+      "name": "pdcurses",
+      "platform": "windows"
+    },
     "stb",
     "tinyobjloader",
     "vulkan",

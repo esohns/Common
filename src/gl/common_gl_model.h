@@ -40,15 +40,22 @@ class Common_GL_Model
   void load (const std::string&); // FQ scene path
   void render (Common_GL_Shader&,
                Common_GL_Camera&,
-               struct Common_GL_Perspective&, // perspective information
-               glm::mat4 = glm::mat4 (1.0f), // model matrix
+               struct Common_GL_Perspective& // perspective information
+#if defined (GLM_SUPPORT)
+               ,glm::mat4 = glm::mat4 (1.0f), // model matrix
                glm::vec3 = glm::vec3 (0.0f, 0.0f, 0.0f), // --> no translation
                glm::quat = glm::quat (0.0f, 0.0f, 0.0f, 1.0f), // --> no rotation
-               glm::vec3 = glm::vec3 (1.0f, 1.0f, 1.0f)); // --> no scale
+               glm::vec3 = glm::vec3 (1.0f, 1.0f, 1.0f) // --> no scale
+#endif // GLM_SUPPORT
+              );
   void reset ();
 
   Common_GL_BoundingBox_t         box_;
+#if defined (GLM_SUPPORT)
   glm::vec3                       center_;
+#else
+  struct Common_GL_VectorF3       center_;
+#endif // GLM_SUPPORT
   std::vector<Common_GL_Mesh>     meshes_;
   std::vector<Common_GL_Texture*> textures_;
 

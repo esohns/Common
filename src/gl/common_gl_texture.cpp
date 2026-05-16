@@ -285,10 +285,12 @@ Common_GL_Texture::set (GLuint program_in,
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Texture::set"));
 
+#if defined (GLEW_SUPPORT)
   GLint texUniformLocation_i =
     glGetUniformLocation (program_in, uniform_in.c_str ());
   // sanity check(s)
   ACE_ASSERT (texUniformLocation_i);
 
   glProgramUniform1i (program_in, texUniformLocation_i, unit_in);
+#endif // GLEW_SUPPORT
 }

@@ -175,29 +175,41 @@ Common_GL_Model::load (const std::string& fileName_in)
 void
 Common_GL_Model::render (Common_GL_Shader& shader_in,
                          Common_GL_Camera& camera_in,
-                         struct Common_GL_Perspective& perspectiveInformation_in,
-                         glm::mat4 modelMatrix_in,
+                         struct Common_GL_Perspective& perspectiveInformation_in
+#if defined (GLM_SUPPORT)
+                         ,glm::mat4 modelMatrix_in,
                          glm::vec3 translation_in,
                          glm::quat rotation_in,
-                         glm::vec3 scale_in)
+                         glm::vec3 scale_in
+#endif // GLM_SUPPORT
+                        )
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Model::render"));
 
+#if defined (GLEW_SUPPORT)
   shader_in.use ();
+#endif // GLEW_SUPPORT
 
   // manage lighting
+#if defined (GLM_SUPPORT)
   static glm::vec4 light_color_s (1.0f); // opaque white
-  static GLint lightColor_location_i =
+#else
+  static struct Common_GL_VectorF3 light_color_s (1.0f, 1.0f, 1.0f); // opaque white
+#endif // GLM_SUPPORT
+#if defined (GLEW_SUPPORT)
+  GLint lightColor_location_i =
     glGetUniformLocation (shader_in.id_, ACE_TEXT_ALWAYS_CHAR ("lightColor"));
   ACE_ASSERT (lightColor_location_i);
   glUniform4fv (lightColor_location_i, 1, &(light_color_s.x));
 
   // manage camera uniforms
-  static GLint camPos_location_i =
+  GLint camPos_location_i =
     glGetUniformLocation (shader_in.id_, ACE_TEXT_ALWAYS_CHAR ("camPos"));
   ACE_ASSERT (camPos_location_i);
   glUniform3fv (camPos_location_i, 1, &(camera_in.position_.x));
+#endif // GLEW_SUPPORT
 
+#if defined (GLM_SUPPORT)
   glm::mat4 view_matrix_s = camera_in.getViewMatrix ();
   glm::mat4 projection_matrix_s =
 #if defined (ACE_WIN32) || defined (ACE_WIN32)
@@ -212,8 +224,10 @@ Common_GL_Model::render (Common_GL_Shader& shader_in,
                                            perspectiveInformation_in.zFar);
   glm::mat4 proj_x_view_s = projection_matrix_s * view_matrix_s;
   shader_in.setMat4 (ACE_TEXT_ALWAYS_CHAR ("camMatrix"), proj_x_view_s);
+#endif // GLM_SUPPORT
 
   // set mesh model matrix
+#if defined (GLM_SUPPORT)
   shader_in.setMat4 (ACE_TEXT_ALWAYS_CHAR ("model"), modelMatrix_in);
 
   // Initialize transformation matrices
@@ -231,17 +245,23 @@ Common_GL_Model::render (Common_GL_Shader& shader_in,
   shader_in.setMat4 (ACE_TEXT_ALWAYS_CHAR ("translation"), trans);
   shader_in.setMat4 (ACE_TEXT_ALWAYS_CHAR ("rotation"), rot);
   shader_in.setMat4 (ACE_TEXT_ALWAYS_CHAR ("scale"), sca);
+#endif // GLM_SUPPORT
 
   for (std::vector<Common_GL_Mesh>::iterator iterator = meshes_.begin ();
        iterator != meshes_.end ();
        ++iterator)
     (*iterator).render (shader_in,
                         camera_in,
-                        perspectiveInformation_in,
-                        modelMatrix_in,
-                        translation_in, rotation_in, scale_in);
+                        perspectiveInformation_in
+#if defined (GLM_SUPPORT)
+                        ,modelMatrix_in,
+                        translation_in, rotation_in, scale_in
+#endif // GLM_SUPPORT
+                       );
 
+#if defined (GLEW_SUPPORT)
   shader_in.unuse ();
+#endif // GLEW_SUPPORT
 }
 
 void
