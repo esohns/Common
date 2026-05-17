@@ -18,6 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#if defined (GTK_SUPPORT)
+#include "gtk/gtk.h"
+#endif // GTK_SUPPORT
+
 #include "ace/Log_Msg.h"
 
 #include "common_macros.h"
@@ -39,12 +43,14 @@ Common_UI_WindowTypeConverter_T<NativeWindowType>::convert (const struct Common_
       break;
     }
 #else
+#if defined (X11_SUPPORT)
     case Common_UI_Window::TYPE_X11:
     {
       getWindowType (window_in.x11_window, result);
       break;
     }
-#endif
+#endif // X11_SUPPORT
+#endif // ACE_WIN32 || ACE_WIN64
 #if defined (CURSES_SUPPORT)
     case Common_UI_Window::TYPE_CURSES:
     {

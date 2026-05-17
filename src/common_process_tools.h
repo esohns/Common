@@ -30,7 +30,9 @@
 #include <vector>
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
+#if defined (X11_SUPPORT)
 struct _XDisplay;
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/ace_wchar.h"
@@ -56,7 +58,9 @@ class Common_Process_Tools
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   static std::vector<HWND> window (pid_t); // process id
 #else
+#if defined (X11_SUPPORT)
   static unsigned long window (pid_t); // process id
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
   // *NOTE*: the Windows implementation relies on the 'tasklist.exe' command
@@ -88,14 +92,16 @@ class Common_Process_Tools
   // helper methods
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
-  static pid_t id (struct _XDisplay&, // display handle
-                   unsigned long,     // window id (XID)
-                   unsigned long);    // _NET_WM_PID (!) atom
+#if defined (X11_SUPPORT)
+ static pid_t id (struct _XDisplay&, // display handle
+                  unsigned long,     // window id (XID)
+                  unsigned long);    // _NET_WM_PID (!) atom
   static void recurseSearchWindow (struct _XDisplay&,            // display handle
                                    unsigned long,                // window id (XID)
                                    unsigned long,                // _NET_WM_PID (!) atom
                                    pid_t,                        // process id
                                    std::vector<unsigned long>&); // in/out result
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 };
 

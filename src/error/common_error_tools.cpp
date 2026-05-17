@@ -27,6 +27,11 @@
 #include "strsafe.h"
 #else
 #include "sys/prctl.h"
+
+#if defined (X11_SUPPORT)
+#include "X11/X.h"
+#include "X11/Xlib.h"
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include <exception>
@@ -276,8 +281,8 @@ Common_Error_Tools::inDebugSession ()
     goto clean;
   } // end IF
   tracer_pid_p =
-      ACE_OS::strstr (buffer_a,
-                      ACE_TEXT_ALWAYS_CHAR (COMMON_ERROR_LINUX_PROC_STATUS_TRACER_PID_KEY));
+    ACE_OS::strstr (buffer_a,
+                    ACE_TEXT_ALWAYS_CHAR (COMMON_ERROR_LINUX_PROC_STATUS_TRACER_PID_KEY));
   if (unlikely (!tracer_pid_p))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -286,7 +291,7 @@ Common_Error_Tools::inDebugSession ()
     goto clean;
   } // end IF
   result =
-      !!ACE_OS::atoi (tracer_pid_p + (sizeof (ACE_TEXT_ALWAYS_CHAR (COMMON_ERROR_LINUX_PROC_STATUS_TRACER_PID_KEY)) + 1));
+    !!ACE_OS::atoi (tracer_pid_p + (sizeof (ACE_TEXT_ALWAYS_CHAR (COMMON_ERROR_LINUX_PROC_STATUS_TRACER_PID_KEY)) + 1));
 
 clean:
   if (likely (status_fd != ACE_INVALID_HANDLE))
@@ -692,6 +697,36 @@ strip_newline:
 
   return result;
 }
+#else
+#if defined (X11_SUPPORT)
+std::string
+Common_Error_Tools::toString (const struct _XDisplay& display_in,
+                              int errorCode_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Error_Tools::toString"));
+
+  // initialize return value(s)
+  std::string return_value;
+
+  char buffer_a[BUFSIZ];
+  ACE_OS::memset (&buffer_a, 0, sizeof (char[BUFSIZ]));
+
+  Status result = XGetErrorText (&const_cast<Display&> (display_in),
+                                 errorCode_in,
+                                 buffer_a, sizeof (char[BUFSIZ]));
+  if (unlikely (result))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to XGetErrorText(0x%@,%d): \"%m\", aborting\n"),
+                &display_in,
+                errorCode_in));
+    return return_value;
+  } // end IF
+  return_value = buffer_a;
+
+  return return_value;
+}
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)

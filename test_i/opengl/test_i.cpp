@@ -62,6 +62,30 @@
 #include "test_i_glut_callbacks.h"
 
 void
+GLUT_init_warning_cb (const char* fmt, va_list ap)
+{
+  fprintf (stderr, "FreeGLUT Warning: ");
+  vfprintf (stderr, fmt, ap);
+  fprintf (stderr, "\n");
+}
+
+void
+GLUT_init_error_cb (const char* fmt, va_list ap)
+{
+  fprintf (stderr, "FreeGLUT Fatal Error: ");
+  vfprintf (stderr, fmt, ap);
+  fprintf (stderr, "\n");
+}
+
+void
+GLUT_init_context_cb ()
+{
+  fprintf (stderr, "FreeGLUT context initialized\n");
+}
+
+//////////////////////////////////////////
+
+void
 do_print_usage (const std::string& programName_in)
 {
   // enable verbatim boolean output
@@ -179,6 +203,15 @@ do_work (int argc_in,
 
 #if defined (GLUT_SUPPORT)
   // initialize GLUT
+#if defined (_DEBUG)
+  glutInitWarningFunc (GLUT_init_warning_cb);
+  glutInitErrorFunc (GLUT_init_error_cb);
+  // glutInitContextFunc (GLUT_init_context_cb);
+#else
+  glutInitContextVersion (4, 6);
+  glutInitContextProfile (GLUT_CORE_PROFILE);
+  glutInitContextFlags (GLUT_FORWARD_COMPATIBLE); 
+#endif // _DEBUG
   glutSetOption (GLUT_ACTION_ON_WINDOW_CLOSE,
                  GLUT_ACTION_GLUTMAINLOOP_RETURNS);
   glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);
@@ -188,6 +221,7 @@ do_work (int argc_in,
   cb_data_s.windowId = glutCreateWindow ("OpenGL");
   // glutSetWindow (cb_data_s.windowId);
   glutSetWindowData (&cb_data_s);
+  COMMON_GL_CLEAR_ERROR; // *TODO*: why is this necessary ?
 #endif // GLUT_SUPPORT
 
   ACE_DEBUG ((LM_DEBUG,
@@ -204,6 +238,7 @@ do_work (int argc_in,
 
   // initialize GLEW
 #if defined (GLEW_SUPPORT)
+  glewExperimental = GL_TRUE;
   GLenum err = glewInit ();
   if (GLEW_OK != err)
   {
@@ -218,13 +253,14 @@ do_work (int argc_in,
 #endif // GLEW_SUPPORT
 
   glClearColor (0.0f, 0.0f, 0.0f, 1.0f);
+  COMMON_GL_ASSERT;
 
   glEnable (GL_BLEND); // Enable Semi-Transparency
   COMMON_GL_ASSERT;
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   COMMON_GL_ASSERT;
-  glEnable (GL_TEXTURE_2D); // Enable Textures
-  COMMON_GL_ASSERT;
+  //glEnable (GL_TEXTURE_2D); // Enable Textures
+  //COMMON_GL_ASSERT;
   glEnable (GL_DEPTH_TEST); // Enable Depth Testing
   COMMON_GL_ASSERT;
 
@@ -292,6 +328,7 @@ do_work (int argc_in,
   } // end IF
   cb_data_s.shader.use ();
 
+  COMMON_GL_CLEAR_ERROR;
   glGenVertexArrays (1, &cb_data_s.VAO);
   COMMON_GL_ASSERT;
   ACE_ASSERT (cb_data_s.VAO);

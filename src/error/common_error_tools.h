@@ -23,6 +23,10 @@
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include <string>
+#else
+#if defined (X11_SUPPORT)
+struct _XDisplay;
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/Global_Macros.h"
@@ -98,6 +102,11 @@ class Common_Error_Tools
   static std::string errorToString (DWORD,         // error
                                     bool = false,  // ? use AMGetErrorText() : use FormatMessage()
                                     bool = false); // WinInet error ?
+#else
+#if defined (X11_SUPPORT)
+  static std::string toString (const struct _XDisplay&, // display
+                               int);                    // error code
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
  private:

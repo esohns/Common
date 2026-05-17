@@ -10,7 +10,7 @@ set (CMAKE_AUTOUIC ON)
 
 include_directories (${ACE_INCLUDE_DIR})
 
-include_directories (${QT_INCLUDES_DIRS})
+include_directories (${QT_INCLUDE_DIRS})
 if (WIN32)
  include_directories ("$ENV{LIB_ROOT}/qt/5.15.2/msvc2019_64/include;$ENV{LIB_ROOT}/qt/5.15.2/msvc2019_64/include/QtCore;$ENV{LIB_ROOT}/qt/5.15.2/msvc2019_64/include/QtWidgets;$ENV{LIB_ROOT}/qt/5.15.2/msvc2019_64/include/QtGui")
 

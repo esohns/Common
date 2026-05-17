@@ -100,7 +100,6 @@ class Common_GL_Camera
   }
 #endif // GLM_SUPPORT
 
-#if defined (GLM_SUPPORT)
   inline void forward (float speed_in)
   {
     position_ += looking_at_ * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR);
@@ -109,6 +108,7 @@ class Common_GL_Camera
   {
     position_ -= looking_at_ * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR);
   }
+#if defined (GLM_SUPPORT)
   void left (float speed_in)
   { // *TODO*: doesn't work if looking_at is zero in all components
     glm::vec3 right = glm::cross (looking_at_, up_);

@@ -47,6 +47,13 @@ struct Common_GL_VectorF2
    , y (y_in)
   {}
 
+  inline Common_GL_VectorF2& operator+= (const Common_GL_VectorF2& rhs)
+  {
+    x += rhs.x;
+    y += rhs.y;
+    return *this;
+  }
+
   float x;
   float y;
 };
@@ -64,6 +71,21 @@ struct Common_GL_VectorF3
    , y (y_in)
    , z (z_in)
   {}
+
+  inline Common_GL_VectorF3& operator+= (const Common_GL_VectorF3& rhs)
+  {
+    x += rhs.x;
+    y += rhs.y;
+    z += rhs.z;
+    return *this;
+  }
+
+  inline Common_GL_VectorF3 operator* (float scalar) const
+  {
+    return Common_GL_VectorF3 (x * scalar,
+                               y * scalar,
+                               z * scalar);
+  }
 
   float x;
   float y;

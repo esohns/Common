@@ -44,8 +44,6 @@ class Common_UI_X11_Tools
 
   static Common_UI_Resolution_t toResolution (const struct _XDisplay&, // display
                                               Window);                 // window
-  static std::string toString (const struct _XDisplay&, // display
-                               int);                    // error code
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_X11_Tools ())

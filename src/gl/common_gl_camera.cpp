@@ -21,35 +21,38 @@ Common_GL_Camera::Common_GL_Camera ()
  , old_mouse_position_ (0.0f, 0.0f)
  , yaw_ (0.0f)
  , pitch_ (0.0f)
- , zoom_ (45.0f) // FOV in degrees
+ , zoom_ (COMMON_GL_CAMERA_DEFAULT_FOV_DEG) // FOV in degrees
 {
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Camera::Common_GL_Camera"));
 
 }
 
 void
 Common_GL_Camera::reset ()
 {
-#if defined (GLM_SUPPORT)
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Camera::reset"));
+
   position_ = {0.0f, 0.0f, 0.0f};
   looking_at_ = {0.0f, 0.0f, -1.0f};
   up_ = {0.0f, 1.0f, 0.0f};
   right_ = {1.0f, 0.0f, 0.0f};
-#endif // GLM_SUPPORT
   yaw_ = 0.0f;
   pitch_ = 0.0f;
-  zoom_ = 45.0f; // FOV in degrees
+  zoom_ = COMMON_GL_CAMERA_DEFAULT_FOV_DEG; // FOV in degrees
 }
 
 void
 Common_GL_Camera::updateDirection (float dx, float dy)
 {
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Camera::updateDirection"));
+
   yaw_ += dx;
   pitch_ += dy;
 
-  if (pitch_ > 89.0f)
-    pitch_ = 89.0f;
-  else if (pitch_ < -89.0f)
-    pitch_ = -89.0f;
+  if (pitch_ > COMMON_GL_CAMERA_DEFAULT_MAX_PITCH_DEG)
+    pitch_ = COMMON_GL_CAMERA_DEFAULT_MAX_PITCH_DEG;
+  else if (pitch_ < -COMMON_GL_CAMERA_DEFAULT_MAX_PITCH_DEG)
+    pitch_ = -COMMON_GL_CAMERA_DEFAULT_MAX_PITCH_DEG;
 
   updateVectors ();
 }
@@ -58,39 +61,29 @@ void
 Common_GL_Camera::updatePosition (enum Common_GL_Camera::Direction direction_in,
                                   float dt)
 {
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Camera::updatePosition"));
+
   float velocity = dt * COMMON_GL_CAMERA_DEFAULT_SPEED;
 
   switch (direction_in)
   {
     case Common_GL_Camera::Direction::FORWARD:
-#if defined (GLM_SUPPORT)
       position_ += looking_at_ * velocity;
-#endif // GLM_SUPPORT
       break;
     case Common_GL_Camera::Direction::BACKWARD:
-#if defined (GLM_SUPPORT)
       position_ -= looking_at_ * velocity;
-#endif // GLM_SUPPORT
       break;
     case Common_GL_Camera::Direction::RIGHT:
-#if defined (GLM_SUPPORT)
       position_ += right_ * velocity;
-#endif // GLM_SUPPORT
       break;
     case Common_GL_Camera::Direction::LEFT:
-#if defined (GLM_SUPPORT)
       position_ -= right_ * velocity;
-#endif // GLM_SUPPORT
       break;
     case Common_GL_Camera::Direction::UP:
-#if defined (GLM_SUPPORT)
       position_ += up_ * velocity;
-#endif // GLM_SUPPORT
       break;
     case Common_GL_Camera::Direction::DOWN:
-#if defined (GLM_SUPPORT)
       position_ -= up_ * velocity;
-#endif // GLM_SUPPORT
       break;
     default:
       ACE_ASSERT (false);
@@ -101,6 +94,8 @@ Common_GL_Camera::updatePosition (enum Common_GL_Camera::Direction direction_in,
 void
 Common_GL_Camera::updateZoom (float dz)
 {
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Camera::updateZoom"));
+
   if (zoom_ >= 1.0f && zoom_ <= 45.0f)
     zoom_ -= dz * COMMON_GL_CAMERA_DEFAULT_SPEED;
   else if (zoom_ < 1.0f)
@@ -112,6 +107,8 @@ Common_GL_Camera::updateZoom (float dz)
 void
 Common_GL_Camera::updateVectors ()
 {
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Camera::updateVectors"));
+
 #if defined (GLM_SUPPORT)
   glm::vec3 direction;
   direction.x = std::cos (glm::radians (yaw_)) * std::cos (glm::radians (pitch_));
@@ -127,14 +124,15 @@ Common_GL_Camera::updateVectors ()
 void
 Common_GL_Camera::mouseLook (int mouseX_in, int mouseY_in)
 {
+  COMMON_TRACE (ACE_TEXT ("Common_GL_Camera::mouseLook"));
+
 #if defined (GLM_SUPPORT)
   glm::vec2 current_mouse_position (mouseX_in, mouseY_in);
 
   static bool first_b = true;
   if (first_b)
-  {
+  { first_b = false;
     old_mouse_position_ = current_mouse_position;
-    first_b = false;
   } // end IF
 
   glm::vec2 mouse_delta = old_mouse_position_ - current_mouse_position;

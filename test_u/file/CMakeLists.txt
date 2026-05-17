@@ -52,19 +52,16 @@ elseif (WIN32)
                  ${file_EXE_SRCS}
                  ${VERSION_FILES})
 endif ()
+
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_u")
-#cmake_policy (SET CMP0012 NEW)
-#if (WIN32 AND NOT BUILD_TEST_U)
-# set_target_properties (${EXECUTABLE} PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
-#endif ()
 
 #add_dependencies (${ACESTREAM_TARGET_NAME} ACE)
-add_dependencies (${PROJECT_NAME} Common)
+#add_dependencies (${PROJECT_NAME} Common)
 
 target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
 
-target_link_libraries (${EXECUTABLE} PUBLIC Common)
 target_link_libraries (${EXECUTABLE} PUBLIC CommonLog)
+target_link_libraries (${EXECUTABLE} PUBLIC Common)
 target_link_libraries (${EXECUTABLE} PUBLIC CommonTimer)
 
 # add PCH

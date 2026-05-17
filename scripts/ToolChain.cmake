@@ -55,7 +55,7 @@ if (UNIX)
   set (CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
   set (CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
 
-  execute_process (COMMAND ${LLVM_BIN} --version]
+  execute_process (COMMAND ${LLVM_BIN} --version
                    OUTPUT_VARIABLE CMAKE_CXX_COMPILER_VERSION)
  endif (LLVM_USE)
 elseif (WIN32)
@@ -106,7 +106,7 @@ elseif (WIN32)
   set (CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
   set (CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
  
-  execute_process (COMMAND ${LLVM_BIN} --version]
+  execute_process (COMMAND ${LLVM_BIN} --version
                    OUTPUT_VARIABLE CMAKE_CXX_COMPILER_VERSION)
  endif (LLVM_USE)
 endif ()

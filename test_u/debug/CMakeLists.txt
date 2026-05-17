@@ -68,12 +68,12 @@ set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_u")
 #endif ()
 
 #add_dependencies (${ACESTREAM_TARGET_NAME} ACE)
-add_dependencies (${PROJECT_NAME} Common)
+#add_dependencies (${PROJECT_NAME} Common)
 
 target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
 
-target_link_libraries (${EXECUTABLE} PUBLIC Common)
 target_link_libraries (${EXECUTABLE} PUBLIC CommonLog)
+target_link_libraries (${EXECUTABLE} PUBLIC Common)
 target_link_libraries (${EXECUTABLE} PUBLIC CommonTimer)
 
 # add PCH

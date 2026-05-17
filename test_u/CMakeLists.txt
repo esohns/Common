@@ -18,6 +18,10 @@ endif (GTK_SUPPORT)
 if (UNIX)
  add_link_options ("LINKER:--as-needed")
 endif (UNIX)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+# *TODO*: remove ASAP
+ add_link_options ("LINKER:--warn-unresolved-symbols")
+endif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
 set (LIBRARY ${PROJECT_NAME}_Test_U)
 add_library (${LIBRARY} STATIC "")
@@ -44,7 +48,7 @@ if (QT_SUPPORT)
 #  cmake_policy (SET CMP0020 OLD)
 # endif (WIN32)
  target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:${QT_INCLUDE_DIRS}>)
+                             "$<BUILD_INTERFACE:${QT_INCLUDE_DIRS}>")
 endif (QT_SUPPORT)
 if (WXWIDGETS_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC

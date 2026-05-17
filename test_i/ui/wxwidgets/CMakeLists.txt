@@ -89,10 +89,13 @@ target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
 target_link_libraries (${EXECUTABLE_2} PUBLIC ${ACE_LIBRARY})
 target_link_libraries (${EXECUTABLE_3} PUBLIC ${ACE_LIBRARY})
 
-target_link_libraries (${EXECUTABLE_2} PUBLIC Common)
-
+target_link_libraries (${EXECUTABLE} PUBLIC CommonLog)
 target_link_libraries (${EXECUTABLE_2} PUBLIC CommonLog)
 target_link_libraries (${EXECUTABLE_3} PUBLIC CommonLog)
+
+target_link_libraries (${EXECUTABLE} PUBLIC Common)
+target_link_libraries (${EXECUTABLE_2} PUBLIC Common)
+target_link_libraries (${EXECUTABLE_3} PUBLIC Common)
 
 target_link_libraries (${EXECUTABLE_3} PUBLIC CommonUI_wxWidgets)
 

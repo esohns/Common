@@ -9,9 +9,8 @@ if (UNIX)
  target_compile_options (${LIBRARY} PRIVATE -fPIC)
 endif (UNIX)
 
-#message (STATUS "QT_INCLUDES_DIRS: ${QT_INCLUDES_DIRS}")
 target_include_directories (${LIBRARY} PUBLIC
-                            "$<BUILD_INTERFACE:${QT_INCLUDES_DIRS}>")
+                            "$<BUILD_INTERFACE:${QT_INCLUDE_DIRS}>")
 
 if (WIN32)
 # message (STATUS "ENV{QT5_DIR}: $ENV{QT5_DIR}")

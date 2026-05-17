@@ -23,8 +23,10 @@
 
 #if defined (ACE_WIN32) || defined (ACE_WIN32)
 #else
+#if defined (X11_SUPPORT)
 #include "X11/X.h"
 #include "X11/Xlib.h"
+#endif // X11_SUPPORT
 
 #if defined (WAYLAND_SUPPORT)
 #include "wayland-client.h"
@@ -116,16 +118,17 @@ struct Common_UI_Window
     TYPE_INVALID,
   };
 
+  Common_UI_Window () : type (TYPE_INVALID), window (NULL) {}
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  Common_UI_Window () : type (TYPE_INVALID), win32_hwnd (NULL) {}
   Common_UI_Window (HWND window_in) : type (TYPE_WIN32), win32_hwnd (window_in) {}
 
   operator HWND () const { ACE_ASSERT (type == TYPE_WIN32); return win32_hwnd; }
 #else
-  Common_UI_Window () : type (TYPE_INVALID), x11_window (0) {}
+#if defined (X11_SUPPORT)
   Common_UI_Window (Window window_in) : type (TYPE_X11), x11_window (window_in) {}
 
   operator Window () const { ACE_ASSERT (type == TYPE_X11); return x11_window; }
+#endif // WAYLAND_SUPPORT
 
 #if defined (WAYLAND_SUPPORT)
   Common_UI_Window (wl_surface* window_in) : type (TYPE_WAYLAND), wayland_window (window_in) {}
@@ -171,7 +174,9 @@ struct Common_UI_Window
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
     HWND win32_hwnd;
 #else
+#if defined (X11_SUPPORT)
     Window x11_window;
+#endif // X11_SUPPORT
 
 #if defined (WAYLAND_SUPPORT)
     struct wl_surface* wayland_window;
@@ -197,6 +202,8 @@ struct Common_UI_Window
 #if defined (WXWIDGETS_SUPPORT)
     wxWindow* wxwidgets_window;
 #endif // WXWIDGETS_SUPPORT
+
+    void* window;
   };
 };
 
@@ -227,12 +234,16 @@ class Common_UI_WindowTypeConverter_T
 #endif // GTK_CHECK_VERSION (4,0,0)
 #endif // GTK_SUPPORT
 #else
+#if defined (X11_SUPPORT)
   inline void getWindowType (const struct Common_UI_Window& windowType_in, Window& windowType_out) { windowType_out = windowType_in; }
 
   inline void getWindowType (const Window windowType_in, Window& windowType_out) { windowType_out = windowType_in; }
+#endif // X11_SUPPORT
 
 #if defined (CURSES_SUPPORT)
+#if defined (X11_SUPPORT)
   inline void getWindowType (const Window windowType_in, WINDOW*& windowType_out) { ACE_ASSERT (false); ACE_NOTSUP; windowType_out = NULL; }
+#endif // X11_SUPPORT
 #endif // CURSES_SUPPORT
 
 #if defined (GTK_SUPPORT)
@@ -245,6 +256,10 @@ class Common_UI_WindowTypeConverter_T
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (CURSES_SUPPORT)
+#if defined (X11_SUPPORT)
+  inline void getWindowType (const WINDOW* windowType_in, Window& windowType_out) { ACE_ASSERT (false); ACE_NOTSUP; windowType_out = 0; }
+#endif // X11_SUPPORT
+
   inline void getWindowType (const WINDOW* windowType_in, WINDOW*& windowType_out) { windowType_out = const_cast<WINDOW*> (windowType_in); }
 
 #if defined (GTK_SUPPORT)
@@ -275,6 +290,12 @@ class Common_UI_WindowTypeConverter_T
   inline void getWindowType (const GdkWindow* windowType_in, GdkWindow*& windowType_out) { ACE_ASSERT (windowType_in); /*g_object_ref (windowType_in);*/ windowType_out = const_cast<GdkWindow*> (windowType_in); }
 #endif // GTK_CHECK_VERSION(4,0,0)
 #endif // GTK_SUPPORT
+
+#if defined (WXWIDGETS_SUPPORT)
+#if defined (X11_SUPPORT)
+  inline void getWindowType (const wxWindow* windowType_in, Window& windowType_out) { ACE_ASSERT (false); ACE_NOTSUP; windowType_out = 0; }
+#endif // X11_SUPPORT
+#endif // WXWIDGETS_SUPPORT
 
  private:
   ACE_UNIMPLEMENTED_FUNC (Common_UI_WindowTypeConverter_T (const Common_UI_WindowTypeConverter_T&))

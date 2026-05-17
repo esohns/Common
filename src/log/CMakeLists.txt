@@ -26,7 +26,7 @@ set (source_files
      common_logger_queue.inl)
 
 # Include dir for installed targets
-set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
+#set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 
 unset (absolute_source_files)
 foreach (source_file ${source_files})
@@ -48,13 +48,12 @@ endif (WIN32)
 
 #add_dependencies (${LIBRARY} ACE)
 if (UNIX)
- add_dependencies (${LIBRARY} ${PROJECT_NAME})
+# add_dependencies (${LIBRARY} ${PROJECT_NAME})
+
+ target_link_libraries (${LIBRARY} PUBLIC ${ACE_LIBRARY})
 
  target_link_libraries (${LIBRARY} PUBLIC ${PROJECT_NAME})
 endif (UNIX)
-
-#set_target_properties (${LIBRARY} PROPERTIES
-#                       VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
 target_precompile_headers (${LIBRARY}

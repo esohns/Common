@@ -28,9 +28,7 @@ if (WIN32)
 endif (WIN32)
 
 # Include dir for installed targets
-set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
-
-#set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+#set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 
 unset (absolute_source_files)
 foreach (source_file ${source_files})
@@ -52,13 +50,12 @@ if (WIN32)
 endif (WIN32)
 
 if (UNIX)
- target_link_libraries (${LIBRARY} Common)
+ target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
+
+# target_link_libraries (${LIBRARY} ${PROJECT_NAME})
 elseif (WIN32)
  target_link_libraries (${LIBRARY} ${ACE_LIBRARY})
 endif ()
-
-#set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_ERR_BUILD_DLL)
-#set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
 
 # add PCH
 target_precompile_headers (${LIBRARY}

@@ -24,6 +24,8 @@
 #include "X11/Xlib.h"
 #include "X11/extensions/Xrandr.h"
 
+#include "common_error_tools.h"
+
 #include "common_ui_defines.h"
 #include "common_ui_monitor_setup_xml_handler.h"
 
@@ -149,34 +151,6 @@ Common_UI_X11_Tools::dump (const struct _XDisplay& display_in,
               border_width_i, depth_i));
 }
 
-std::string
-Common_UI_X11_Tools::toString (const struct _XDisplay& display_in,
-                               int errorCode_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_UI_X11_Tools::toString"));
-
-  // initialize return value(s)
-  std::string return_value;
-
-  char buffer_a[BUFSIZ];
-  ACE_OS::memset (&buffer_a, 0, sizeof (char[BUFSIZ]));
-
-  Status result = XGetErrorText (&const_cast<Display&> (display_in),
-                                 errorCode_in,
-                                 buffer_a, sizeof (char[BUFSIZ]));
-  if (unlikely (result))
-  {
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to XGetErrorText(0x%@,%d): \"%m\", aborting\n"),
-                &display_in,
-                errorCode_in));
-    return return_value;
-  } // end IF
-  return_value = buffer_a;
-
-  return return_value;
-}
-
 Common_UI_Resolution_t
 Common_UI_X11_Tools::toResolution (const struct _XDisplay& display_in,
                                    Window window_in)
@@ -195,7 +169,7 @@ Common_UI_X11_Tools::toResolution (const struct _XDisplay& display_in,
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to XGetWindowAttributes(0x%@,%u): \"%s\", aborting\n"),
                 &display_in, window_in,
-                ACE_TEXT (Common_UI_X11_Tools::toString (display_in, result).c_str ())));
+                ACE_TEXT (Common_Error_Tools::toString (display_in, result).c_str ())));
     return return_value;
   } // end IF
   return_value.width = attributes_s.width;

@@ -85,24 +85,24 @@ set_property (TARGET ${EXECUTABLE_4} PROPERTY FOLDER "test_i")
 
 target_link_libraries (${EXECUTABLE} ${ACE_LIBRARY})
 
-target_link_libraries (${EXECUTABLE} Common)
 target_link_libraries (${EXECUTABLE} CommonLog)
+target_link_libraries (${EXECUTABLE} Common)
 target_link_libraries (${EXECUTABLE} CommonParser)
 target_link_libraries (${EXECUTABLE} CommonParser_Bencoding)
 target_link_libraries (${EXECUTABLE} CommonTimer)
 
 target_link_libraries (${EXECUTABLE_2} ${ACE_LIBRARY})
 
-target_link_libraries (${EXECUTABLE_2} Common)
 target_link_libraries (${EXECUTABLE_2} CommonLog)
+target_link_libraries (${EXECUTABLE_2} Common)
 target_link_libraries (${EXECUTABLE_2} CommonParser)
 target_link_libraries (${EXECUTABLE_2} CommonParser_Bencoding)
 target_link_libraries (${EXECUTABLE_2} CommonTimer)
 
 target_link_libraries (${EXECUTABLE_3} ${ACE_LIBRARY})
 
-target_link_libraries (${EXECUTABLE_3} Common)
 target_link_libraries (${EXECUTABLE_3} CommonLog)
+target_link_libraries (${EXECUTABLE_3} Common)
 target_link_libraries (${EXECUTABLE_3} CommonParser)
 target_link_libraries (${EXECUTABLE_3} CommonParser_M3U)
 target_link_libraries (${EXECUTABLE_3} CommonTimer)
@@ -113,8 +113,8 @@ endif (LIBXML2_SUPPORT)
 
 target_link_libraries (${EXECUTABLE_4} ${ACE_LIBRARY})
 
-target_link_libraries (${EXECUTABLE_4} Common)
 target_link_libraries (${EXECUTABLE_4} CommonLog)
+target_link_libraries (${EXECUTABLE_4} Common)
 target_link_libraries (${EXECUTABLE_4} CommonTimer)
 
 # add PCH

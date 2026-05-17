@@ -29,9 +29,11 @@
 #else
 #include "signal.h"
 
+#if defined (X11_SUPPORT)
 #include "X11/X.h"
 #include "X11/Xatom.h"
 #include "X11/Xlib.h"
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/Log_Msg.h"
@@ -45,7 +47,9 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #include "common_error_tools.h"
 #else
-#include "common_ui_x11_tools.h"
+#if defined (X11_SUPPORT)
+#include "common_error_tools.h"
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
 //////////////////////////////////////////
@@ -205,7 +209,8 @@ Common_Process_Tools::window (pid_t processId_in)
   return result_a;
 }
 #else
-Window
+#if defined (X11_SUPPORT)
+unsigned long
 Common_Process_Tools::window (pid_t processId_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Process_Tools::window"));
@@ -241,6 +246,7 @@ Common_Process_Tools::window (pid_t processId_in)
     return 0;
   return result_a.front (); // return oldest handle...
 }
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
 std::vector<pid_t>
@@ -640,6 +646,7 @@ clean:
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
+#if defined (X11_SUPPORT)
 pid_t
 Common_Process_Tools::id (struct _XDisplay& display_in,
                           unsigned long windowId_in,
@@ -669,7 +676,7 @@ Common_Process_Tools::id (struct _XDisplay& display_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to XGetWindowProperty(_NET_WM_PID): \"%s\", aborting\n"),
-                ACE_TEXT (Common_UI_X11_Tools::toString (display_in, result).c_str ())));
+                ACE_TEXT (Common_Error_Tools::toString (display_in, result).c_str ())));
     return 0;
   } // end IF
 
@@ -718,7 +725,7 @@ Common_Process_Tools::recurseSearchWindow (struct _XDisplay& display_in,
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to XQueryTree(): \"%s\", aborting\n"),
-                ACE_TEXT (Common_UI_X11_Tools::toString (display_in, result).c_str ())));
+                ACE_TEXT (Common_Error_Tools::toString (display_in, result).c_str ())));
     return;
   } // end IF
   for (unsigned int i = 0; i < nChildren; i++)
@@ -732,6 +739,7 @@ Common_Process_Tools::recurseSearchWindow (struct _XDisplay& display_in,
   if (wChild)
     XFree (wChild);
 }
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
 std::string

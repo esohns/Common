@@ -41,9 +41,7 @@ set (source_files
      common_timer_tools.h)
 
 # Include dir for installed targets
-set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
-
-#set_target_properties (${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+#set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
 
 unset (absolute_source_files)
 foreach (source_file ${source_files})

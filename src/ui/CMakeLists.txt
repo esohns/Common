@@ -23,7 +23,7 @@ if (GTK_SUPPORT)
 endif (GTK_SUPPORT)
 if (QT_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
-                             "$<BUILD_INTERFACE:${QT_INCLUDES_DIRS}>")
+                             "$<BUILD_INTERFACE:${QT_INCLUDE_DIRS}>")
 endif (QT_SUPPORT)
 if (WXWIDGETS_SUPPORT)
  target_include_directories (${LIBRARY} PUBLIC
@@ -38,11 +38,11 @@ target_include_directories (${LIBRARY} PUBLIC
 if (WIN32)
  target_include_directories (${LIBRARY} PUBLIC
                              $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>)
- target_include_directories (${LIBRARY} PUBLIC
-                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
 endif (WIN32)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
+target_include_directories (${LIBRARY} PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../error>)
 target_include_directories (${LIBRARY} PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../log>)
 target_include_directories (${LIBRARY} PUBLIC

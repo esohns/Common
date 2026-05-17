@@ -8,8 +8,6 @@ set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../../s
 include (png)
 
 include (ffmpeg)
-#include (ImageMagick)
-#include (libnoise)
 
 ############## includes ###############
 if (GLUT_SUPPORT)
@@ -83,6 +81,7 @@ install (FILES share/opengl_logo.png
 ################ launchers ###############
 
 set (ARGS "-t")
+set (ENVIRONMENT "GLUT_FPS=1000")
 if (UNIX)
  file (TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/${EXECUTABLE}" COMMAND)
  create_target_launcher (${EXECUTABLE}

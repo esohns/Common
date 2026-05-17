@@ -1,4 +1,4 @@
-set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts")
+list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/scripts")
 include (VersionConfig)
 
 include (Configuration)
@@ -18,7 +18,7 @@ include (compiler_init)
 # set PACKAGE_... variables
 #autopackage (dbus
 #             ${DBUS_VERSION_STRING}
-#             "http://dbus.freedesktop.org"
+#             "https://dbus.freedesktop.org"
 #             "https://bugs.freedesktop.org/enter_bug.cgi?product=dbus")
 
 cmake_minimum_required (VERSION 3.12)
@@ -33,6 +33,7 @@ if (IPO_SUPPORTED)
  message (STATUS "-- IPO is supported: \"${IPO_REASON}\"")
  set (CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif (IPO_SUPPORTED)
+
 set_property (GLOBAL PROPERTY USE_FOLDERS ON)
 
 #include (MacroLibrary)
@@ -54,10 +55,10 @@ include (PrePreToolChain)
 include (vcpkg_support)
 
 cmake_policy (SET CMP0048 NEW) # allow project VERSION
-project (${PROJECT_NAME}
-         VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}"
-         DESCRIPTION "${${PROJECT_NAME}_PACKAGE_DESCRIPTION_SUMMARY}"
-         HOMEPAGE_URL "${${PROJECT_NAME}_PACKAGE_URL}"
+project (${COMMON_PROJECT_NAME}
+         VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}
+         DESCRIPTION ${${COMMON_PROJECT_NAME}_PACKAGE_DESCRIPTION_SUMMARY}
+         HOMEPAGE_URL ${${COMMON_PROJECT_NAME}_PACKAGE_URL}
          LANGUAGES C CXX)
 
 include (PreToolChain)
@@ -81,7 +82,7 @@ set (INSTALL_SHARE_DIR share CACHE PATH "Installation directory for data files")
 if (WIN32 AND NOT CYGWIN)
  set (DEF_INSTALL_CMAKE_DIR CMake)
 else ()
- set (DEF_INSTALL_CMAKE_DIR lib/CMake/${PROJECT_NAME})
+ set (DEF_INSTALL_CMAKE_DIR lib/CMake/${COMMON_PROJECT_NAME})
 endif ()
 set (INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH "Installation directory for CMake files")
 
@@ -137,7 +138,7 @@ if (UNIX)
  if (CMAKE_COMPILER_IS_GNUCXX)
 #  add_compile_options (-ansi)
 #  add_compile_options (-std=c++11)
-  add_compile_options (-Wall -Wno-deprecated-declarations)
+  add_compile_options (-Wall)
   set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS} -g")
   add_definitions (-D_GNU_SOURCE)
 #  set_property (SOURCE PROPERTY COMPILE_DEFINITIONS _GNU_SOURCE)
@@ -148,7 +149,7 @@ elseif (WIN32)
   add_definitions (-D_CRT_SECURE_NO_WARNINGS)
   add_definitions (-D_WINSOCK_DEPRECATED_NO_WARNINGS)
 
-  set (MSVC_INCREMENTAL_YES_FLAG "/INCREMENTAL:NO")
+#  set (MSVC_INCREMENTAL_YES_FLAG "/INCREMENTAL:NO")
   foreach (FLAG_TYPE EXE MODULE SHARED STATIC)
    string (REGEX REPLACE "/INCREMENTAL* " "/INCREMENTAL:NO " CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG "${CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG}")
    string (REPLACE "/EDITANDCONTINUE"     ""                 CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG "${CMAKE_${FLAG_TYPE}_LINKER_FLAGS_DEBUG}")
@@ -180,7 +181,7 @@ cmake_policy (SET CMP0074 NEW)
 # configuration files
 # Export the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)
-export (PACKAGE ${PROJECT_NAME})
+export (PACKAGE ${COMMON_PROJECT_NAME})
 
 # Create the CommonConfig.cmake and CommonConfigVersion.cmake files
 # *NOTE*: see: https://cmake.org/Wiki/CMake/Tutorials/How_to_create_a_ProjectConfig.cmake_file
@@ -192,29 +193,29 @@ if (UNIX)
 elseif (WIN32)
  set (NEWLINE_STYLE WIN32)
 endif ()
-configure_file (${PROJECT_NAME}Config.cmake.in
-                "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+configure_file (${COMMON_PROJECT_NAME}Config.cmake.in
+                "${PROJECT_BINARY_DIR}/${COMMON_PROJECT_NAME}Config.cmake"
                 @ONLY
                 NEWLINE_STYLE ${NEWLINE_STYLE})
 # ... for the install tree
 set (CONF_INCLUDE_DIRS "\${Common_CMAKE_DIR}/${REL_INCLUDE_DIR}")
-configure_file (${PROJECT_NAME}Config.cmake.in
-                "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PROJECT_NAME}Config.cmake"
+configure_file (${COMMON_PROJECT_NAME}Config.cmake.in
+                "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${COMMON_PROJECT_NAME}Config.cmake"
                 @ONLY
                 NEWLINE_STYLE ${NEWLINE_STYLE})
 # ... for both
-configure_file (${PROJECT_NAME}ConfigVersion.cmake.in
-                "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+configure_file (${COMMON_PROJECT_NAME}ConfigVersion.cmake.in
+                "${PROJECT_BINARY_DIR}/${COMMON_PROJECT_NAME}ConfigVersion.cmake"
                 @ONLY
                 NEWLINE_STYLE ${NEWLINE_STYLE})
 
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake.in
-                ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_config.h
+                ${CMAKE_CURRENT_BINARY_DIR}/${COMMON_PROJECT_NAME}_config.h
                 @ONLY
                 NEWLINE_STYLE ${NEWLINE_STYLE})
-#add_custom_target (${PROJECT_NAME}_config)
-#set_target_properties (${PROJECT_NAME}_config PROPERTIES
-#                       PUBLIC_HEADER "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_config.h")
+#add_custom_target (${COMMON_PROJECT_NAME}_config)
+#set_target_properties (${COMMON_PROJECT_NAME}_config PROPERTIES
+#                       PUBLIC_HEADER "${CMAKE_CURRENT_BINARY_DIR}/${COMMON_PROJECT_NAME}_config.h")
 add_definitions (-DHAVE_CONFIG_H)
 #set_property (SOURCE PROPERTY COMPILE_DEFINITIONS HAVE_CONFIG_H)
 
@@ -228,37 +229,35 @@ add_subdirectory (src)
 
 # Install the CommonConfig.cmake and CommonConfigVersion.cmake
 install (FILES
-         "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PROJECT_NAME}Config.cmake"
-         "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+         "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${COMMON_PROJECT_NAME}Config.cmake"
+         "${PROJECT_BINARY_DIR}/${COMMON_PROJECT_NAME}ConfigVersion.cmake"
          DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 # Install the export set for use with the install-tree
-install (EXPORT ${PROJECT_NAME}Targets
+install (EXPORT ${COMMON_PROJECT_NAME}Targets
          DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
-install (FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_config.h"
-         DESTINATION "${INSTALL_INCLUDE_DIR}/${PROJECT_NAME}"
+install (FILES "${CMAKE_CURRENT_BINARY_DIR}/${COMMON_PROJECT_NAME}_config.h"
+         DESTINATION "${INSTALL_INCLUDE_DIR}/${COMMON_PROJECT_NAME}"
          COMPONENT dev)
 
 ################################################################################
 if (DEFINED ENV{LIB_ROOT})
  file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/cmake-modules" CMAKE_MODULES_PATH)
 else ()
-  set (CMAKE_MODULES_PATH "modules/cmake-modules")
+ set (CMAKE_MODULES_PATH "modules/cmake-modules")
 endif (DEFINED ENV{LIB_ROOT})
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_MODULES_PATH}")
 #include (UseBackportedModules)
 #cmake_policy (SET CMP0026 OLD)
 #cmake_policy (SET CMP0053 OLD)
 include (CreateLaunchers)
-if (WIN32)
- if (DEFINED ENV{LIB_ROOT})
-  file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/CMakeHelpers" CMAKE_HELPERS_PATH)
- else ()
-  set (CMAKE_HELPERS_PATH "modules/CMakeHelpers")
- endif (DEFINED ENV{LIB_ROOT})
- list (APPEND CMAKE_MODULE_PATH "${CMAKE_HELPERS_PATH}")
- include (generate_product_version)
-endif (WIN32)
+if (DEFINED ENV{LIB_ROOT})
+ file (TO_CMAKE_PATH "$ENV{LIB_ROOT}/CMakeHelpers" CMAKE_HELPERS_PATH)
+else ()
+ set (CMAKE_HELPERS_PATH "modules/CMakeHelpers")
+endif (DEFINED ENV{LIB_ROOT})
+list (APPEND CMAKE_MODULE_PATH "${CMAKE_HELPERS_PATH}")
+include (generate_product_version)
 
 # enable (unit/integration) tests
 #include (CTest)

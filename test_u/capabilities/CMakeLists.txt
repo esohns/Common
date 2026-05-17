@@ -17,12 +17,12 @@ include_directories (${PKG_CAP_INCLUDE_DIRS})
 
 include_directories (${ACE_INCLUDE_DIR})
 
-include_directories (${CMAKE_BINARY_DIR})
-
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../../src/timer)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
+
+include_directories (${CMAKE_BINARY_DIR})
 
 ############## next target ###############
 set (capabilities_EXE_SRCS
@@ -68,8 +68,9 @@ add_executable (${EXECUTABLE_2}
 set_property (TARGET ${EXECUTABLE_2} PROPERTY FOLDER "test_u")
 
 #add_dependencies (${EXECUTABLE_2} ACE)
-add_dependencies (${EXECUTABLE_2} Common)
-add_dependencies (${EXECUTABLE_2} CommonTimer)
+#add_dependencies (${EXECUTABLE_2} CommonLog)
+#add_dependencies (${EXECUTABLE_2} Common)
+#add_dependencies (${EXECUTABLE_2} CommonTimer)
 
 # *NOTE*: Common requires libaio.so
 #target_link_libraries (${EXECUTABLE_2} rt)
@@ -79,11 +80,9 @@ target_link_libraries (${EXECUTABLE_2} ${PKG_CAP_LIBRARIES})
 
 target_link_libraries (${EXECUTABLE_2} ${ACE_LIBRARY})
 
-target_link_libraries (${EXECUTABLE_2} Common)
 target_link_libraries (${EXECUTABLE_2} CommonLog)
+target_link_libraries (${EXECUTABLE_2} Common)
 target_link_libraries (${EXECUTABLE_2} CommonTimer)
-
-#target_link_libraries (${EXECUTABLE_2} pthread)
 
 # add PCH
 target_precompile_headers (${EXECUTABLE_2}
