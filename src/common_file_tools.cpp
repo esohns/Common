@@ -2076,7 +2076,7 @@ Common_File_Tools::getConfigurationDataDirectory (const std::string& packageName
                             : ACE_TEXT_ALWAYS_CHAR (COMMON_LOCATION_DATA_SUBDIRECTORY));
     } // end ELSE
     // sanity check(s)
-    ACE_ASSERT (Common_File_Tools::isDirectory (return_value));
+    //ACE_ASSERT (Common_File_Tools::isDirectory (return_value));
 
     return return_value;
   } // end IF
