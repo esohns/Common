@@ -35,7 +35,7 @@ if (UNIX)
  endif (THREADS_HAVE_PTHREAD_ARG)
  target_link_libraries (${EXECUTABLE} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 endif (UNIX)
-target_link_libraries (${EXECUTABLE} PUBLIC ${GSTREAMER_LIBRARIES})
+target_link_libraries (${EXECUTABLE} PUBLIC ${GSTREAMER_LIBRARIES_WITH_GLIB})
 
 target_link_libraries (${EXECUTABLE} PUBLIC ${ACE_LIBRARY})
 

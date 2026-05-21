@@ -26,15 +26,27 @@ elseif (WIN32)
                 PATH_SUFFIXES lib
                 DOC "searching for gstbase-1.0.lib"
                 NO_DEFAULT_PATH)
-  if (NOT GStreamer_FOUND OR NOT GSTREAMER_LIBRARY_BASE)
+  find_library (GSTREAMER_LIBRARY_APP gstapp-1.0.lib
+                PATHS $ENV{LIB_ROOT}/gstreamer
+                PATH_SUFFIXES lib
+                DOC "searching for gstapp-1.0.lib"
+                NO_DEFAULT_PATH)
+  if (NOT GStreamer_FOUND OR NOT GSTREAMER_LIBRARY_BASE OR NOT GSTREAMER_LIBRARY_APP)
    message (WARNING "could not find GStreamer, continuing")
   else ()
    message (STATUS "Found GStreamer ${GStreamer_VERSION}")
    set (GSTREAMER_FOUND TRUE)
    set (GSTREAMER_INCLUDE_DIRS "${GStreamer_INCLUDE_DIR};$ENV{LIB_ROOT}/gstreamer/include/glib-2.0;$ENV{LIB_ROOT}/gstreamer/lib/glib-2.0/include")
-   set (GSTREAMER_LIBRARIES "${GStreamer_LIBRARY};${GSTREAMER_LIBRARY_BASE};${pkgcfg_lib_PC_GStreamer_glib-2.0};${pkgcfg_lib_PC_GStreamer_gobject-2.0}")
+   set (GSTREAMER_LIBRARIES_BASE "${GStreamer_LIBRARY};${GSTREAMER_LIBRARY_BASE};${GSTREAMER_LIBRARY_APP}")
+   # *NOTE*: linking without glib-2.0 (and gobject-2.0) and using the ones
+   #         provided by GTK seems to work, but causes issues using GStreamer
+   #         OTOH, linking with the ones provided by GStreamer causes issues
+   #         using GTK...
+   set (GSTREAMER_LIBRARIES "${GSTREAMER_LIBRARIES_BASE}")
+#   set (GSTREAMER_LIBRARIES "${GSTREAMER_LIBRARIES_BASE};${pkgcfg_lib_PC_GStreamer_glib-2.0};${pkgcfg_lib_PC_GStreamer_gobject-2.0}")
+   set (GSTREAMER_LIBRARIES_WITH_GLIB "${GSTREAMER_LIBRARIES_BASE};${pkgcfg_lib_PC_GStreamer_glib-2.0};${pkgcfg_lib_PC_GStreamer_gobject-2.0}")
    set (GSTREAMER_LIB_DIR "$ENV{LIB_ROOT}/gstreamer/bin")
-  endif (NOT GStreamer_FOUND)
+  endif (NOT GStreamer_FOUND OR NOT GSTREAMER_LIBRARY_BASE OR NOT GSTREAMER_LIBRARY_APP)
  endif (NOT GSTREAMER_FOUND)
 endif ()
 if (GSTREAMER_FOUND)

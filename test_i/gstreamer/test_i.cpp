@@ -232,24 +232,24 @@ do_work (int argc_in,
   {
     case TEST_I_MODE_DEFAULT:
     {
-      GMainLoop *loop;
+      GMainLoop* loop;
 
-      GstElement *pipeline, *source, *demuxer, *decoder, *resample, *convert, *sink;
-      GstBus *bus;
+      GstElement* pipeline, *source, *demuxer, *decoder, *resample, *convert, *sink;
+      GstBus* bus;
       guint bus_watch_id;
 
       loop = g_main_loop_new (NULL, FALSE);
 
       /* Create gstreamer elements */
-      pipeline = gst_pipeline_new ("audio-player");
-      source   = gst_element_factory_make ("filesrc",        "file-source");
-      demuxer  = gst_element_factory_make ("mpegaudioparse", "demuxer");
-      decoder  = gst_element_factory_make ("mpg123audiodec", "decoder");
-      resample = gst_element_factory_make ("audioresample",  "resample");
-      convert  = gst_element_factory_make ("audioconvert",   "converter");
-      sink     = gst_element_factory_make ("autoaudiosink",  "audio-output");
+      pipeline = gst_pipeline_new (ACE_TEXT_ALWAYS_CHAR ("audio-player"));
+      source   = gst_element_factory_make (ACE_TEXT_ALWAYS_CHAR ("filesrc"),        ACE_TEXT_ALWAYS_CHAR ("file-source"));
+      demuxer  = gst_element_factory_make (ACE_TEXT_ALWAYS_CHAR ("mpegaudioparse"), ACE_TEXT_ALWAYS_CHAR ("demuxer"));
+      decoder  = gst_element_factory_make (ACE_TEXT_ALWAYS_CHAR ("mpg123audiodec"), ACE_TEXT_ALWAYS_CHAR ("decoder"));
+      resample = gst_element_factory_make (ACE_TEXT_ALWAYS_CHAR ("audioresample"),  ACE_TEXT_ALWAYS_CHAR ("resample"));
+      convert  = gst_element_factory_make (ACE_TEXT_ALWAYS_CHAR ("audioconvert"),   ACE_TEXT_ALWAYS_CHAR ("converter"));
+      sink     = gst_element_factory_make (ACE_TEXT_ALWAYS_CHAR ("autoaudiosink"),  ACE_TEXT_ALWAYS_CHAR ("audio-output"));
 
-      if (!pipeline || !source /* || !demuxer*/ || !decoder || !convert || !sink)
+      if (!pipeline || !source || !demuxer || !decoder || !convert || !sink)
       {
         ACE_DEBUG ((LM_ERROR,
                     ACE_TEXT ("failed to create filter element, returning\n")));
@@ -474,6 +474,7 @@ clean:
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to ACE::fini(): \"%m\", continuing\n")));
 #endif // ACE_WIN32 || ACE_WIN64
+  gst_deinit ();
 
   return result;
 }
