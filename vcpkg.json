@@ -17,6 +17,7 @@
     "glfw3",
     "glm",
     "graphicsmagick",
+    "gstreamer",
     "gtk3",
     "libiconv",
     "libnoise",
