@@ -30,8 +30,6 @@
 #include "glib-object.h"
 #endif // GTK_CHECK_VERSION (2,3,0)
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
 #include "gdk/gdk.h"
 #if defined (WAYLAND_SUPPORT)
 #if GTK_CHECK_VERSION (4,0,0)
@@ -47,7 +45,6 @@
 #include "gdk/gdkx.h"
 #endif // GTK_CHECK_VERSION (4,0,0)
 #endif // X11_SUPPORT
-#endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (GTK2_USE)
 #if defined (LIBGLADE_SUPPORT)
@@ -112,7 +109,7 @@ gtk_tree_model_foreach_find_index_cb (GtkTreeModel* treeModel_in,
   ACE_ASSERT (treeIterator_in);
   ACE_ASSERT (userData_in);
   struct common_ui_gtk_tools_treemodel_indexsearch_cbdata* cb_data_p =
-      reinterpret_cast<struct common_ui_gtk_tools_treemodel_indexsearch_cbdata*> (userData_in);
+    reinterpret_cast<struct common_ui_gtk_tools_treemodel_indexsearch_cbdata*> (userData_in);
   ACE_ASSERT (cb_data_p);
 
 #if GTK_CHECK_VERSION (2,30,0)
@@ -131,7 +128,7 @@ gtk_tree_model_foreach_find_index_cb (GtkTreeModel* treeModel_in,
     {
 #if GTK_CHECK_VERSION (3,0,0)
       cb_data_p->found =
-          (g_value_get_schar (&cb_data_p->value) == g_value_get_schar (&value));
+        (g_value_get_schar (&cb_data_p->value) == g_value_get_schar (&value));
 #else
       cb_data_p->found =
         (g_value_get_char (&cb_data_p->value) == g_value_get_char (&value));
@@ -141,61 +138,61 @@ gtk_tree_model_foreach_find_index_cb (GtkTreeModel* treeModel_in,
     case G_TYPE_UCHAR:
     {
       cb_data_p->found =
-          (g_value_get_uchar (&cb_data_p->value) == g_value_get_uchar (&value));
+        (g_value_get_uchar (&cb_data_p->value) == g_value_get_uchar (&value));
       break;
     }
     case G_TYPE_BOOLEAN:
     {
       cb_data_p->found =
-          (g_value_get_boolean (&cb_data_p->value) == g_value_get_boolean (&value));
+        (g_value_get_boolean (&cb_data_p->value) == g_value_get_boolean (&value));
       break;
     }
     case G_TYPE_INT:
     {
       cb_data_p->found =
-          (g_value_get_int (&cb_data_p->value) == g_value_get_int (&value));
+        (g_value_get_int (&cb_data_p->value) == g_value_get_int (&value));
       break;
     }
     case G_TYPE_UINT:
     {
       cb_data_p->found =
-          (g_value_get_uint (&cb_data_p->value) == g_value_get_uint (&value));
+        (g_value_get_uint (&cb_data_p->value) == g_value_get_uint (&value));
       break;
     }
     case G_TYPE_LONG:
     {
       cb_data_p->found =
-          (g_value_get_long (&cb_data_p->value) == g_value_get_long (&value));
+        (g_value_get_long (&cb_data_p->value) == g_value_get_long (&value));
       break;
     }
     case G_TYPE_ULONG:
     {
       cb_data_p->found =
-          (g_value_get_ulong (&cb_data_p->value) == g_value_get_ulong (&value));
+        (g_value_get_ulong (&cb_data_p->value) == g_value_get_ulong (&value));
       break;
     }
     case G_TYPE_INT64:
     {
       cb_data_p->found =
-          (g_value_get_int64 (&cb_data_p->value) == g_value_get_int64 (&value));
+        (g_value_get_int64 (&cb_data_p->value) == g_value_get_int64 (&value));
       break;
     }
     case G_TYPE_UINT64:
     {
       cb_data_p->found =
-          (g_value_get_uint64 (&cb_data_p->value) == g_value_get_uint64 (&value));
+        (g_value_get_uint64 (&cb_data_p->value) == g_value_get_uint64 (&value));
       break;
     }
     case G_TYPE_FLOAT:
     {
       cb_data_p->found =
-          (g_value_get_float (&cb_data_p->value) == g_value_get_float (&value));
+        (g_value_get_float (&cb_data_p->value) == g_value_get_float (&value));
       break;
     }
     case G_TYPE_DOUBLE:
     {
       cb_data_p->found =
-          (g_value_get_double (&cb_data_p->value) == g_value_get_double (&value));
+        (g_value_get_double (&cb_data_p->value) == g_value_get_double (&value));
       break;
     }
     case G_TYPE_STRING:
@@ -208,7 +205,7 @@ gtk_tree_model_foreach_find_index_cb (GtkTreeModel* treeModel_in,
     case G_TYPE_POINTER:
     {
       cb_data_p->found =
-          (g_value_get_pointer (&cb_data_p->value) == g_value_get_pointer (&value));
+        (g_value_get_pointer (&cb_data_p->value) == g_value_get_pointer (&value));
       break;
     }
     default:
@@ -548,19 +545,22 @@ Common_UI_GTK_Tools::get (unsigned long windowId_in)
        ++iterator)
   {
 #if defined (X11_SUPPORT)
+#if GTK_CHECK_VERSION (3,10,0)
     if (!GDK_IS_X11_DISPLAY (*iterator))
       goto wayland;
-
+#endif // GTK_CHECK_VERSION (3,10,0)
     result_p = gdk_x11_window_lookup_for_display (*iterator,
                                                   windowId_in);
 
     goto continue_;
 #endif // X11_SUPPORT
 
-#if defined (WAYLAND_SUPPORT)
 wayland:
+#if defined (WAYLAND_SUPPORT)
+#if GTK_CHECK_VERSION (3,10,0)
     if (!GDK_IS_WAYLAND_DISPLAY (*iterator))
       goto continue_;
+#endif // GTK_CHECK_VERSION (3,10,0)
 
     // *TODO*: how to return a GdkWindow from a Wayland window id ?
     // result_p = gdk_wayland_window_lookup_for_display (*iterator,
