@@ -33,10 +33,20 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #else
 #include "gdk/gdk.h"
-#if defined (GTK3_USE)
+#if defined (WAYLAND_SUPPORT)
+#if GTK_CHECK_VERSION (4,0,0)
+#include "gdk/wayland/gdkwayland.h"
+#else
 #include "gdk/gdkwayland.h"
-#endif // GTK3_USE
+#endif // GTK_CHECK_VERSION (4,0,0)
+#endif // WAYLAND_SUPPORT
+#if defined (X11_SUPPORT)
+#if GTK_CHECK_VERSION (4,0,0)
+#include "gdk/x11/gdkx.h"
+#else
 #include "gdk/gdkx.h"
+#endif // GTK_CHECK_VERSION (4,0,0)
+#endif // X11_SUPPORT
 #endif // ACE_WIN32 || ACE_WIN64
 
 #if defined (GTK2_USE)
@@ -537,17 +547,17 @@ Common_UI_GTK_Tools::get (unsigned long windowId_in)
        iterator != displays_a.end ();
        ++iterator)
   {
-#if defined (GTK3_USE)
+#if defined (X11_SUPPORT)
     if (!GDK_IS_X11_DISPLAY (*iterator))
       goto wayland;
-#endif // GTK3_USE
 
     result_p = gdk_x11_window_lookup_for_display (*iterator,
                                                   windowId_in);
 
     goto continue_;
+#endif // X11_SUPPORT
 
-#if defined (GTK3_USE)
+#if defined (WAYLAND_SUPPORT)
 wayland:
     if (!GDK_IS_WAYLAND_DISPLAY (*iterator))
       goto continue_;
@@ -555,7 +565,7 @@ wayland:
     // *TODO*: how to return a GdkWindow from a Wayland window id ?
     // result_p = gdk_wayland_window_lookup_for_display (*iterator,
     //                                                   windowId_in);
-#endif // GTK3_USE
+#endif // WAYLAND_SUPPORT
 
     goto continue_;
 

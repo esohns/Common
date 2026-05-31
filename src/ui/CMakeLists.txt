@@ -1,8 +1,6 @@
 set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts")
-if (UNIX)
- include (wayland)
- include (x11)
-endif (UNIX)
+include (wayland)
+include (x11)
 
 include (PreUIFramework)
 include (SetUIFramework)
@@ -57,21 +55,21 @@ set (source_files
      common_ui_tools.cpp
      common_ui_tools.h
      common_ui_types.h
+     common_ui_window.h
      common_ui_windowtype_converter.cpp
      common_ui_windowtype_converter.h
      common_ui_windowtype_converter.inl)
+if (X11_SUPPORT)
+ set (source_files
+      ${source_files}
+      common_ui_x11_tools.cpp
+      common_ui_x11_tools.h)
+endif (X11_SUPPORT)
 if (UNIX)
  set (source_files
       ${source_files}
       common_ui_monitor_setup_xml_handler.cpp
       common_ui_monitor_setup_xml_handler.h)
-
- if (X11_SUPPORT)
-  set (source_files
-       ${source_files}
-       common_ui_x11_tools.cpp
-       common_ui_x11_tools.h)
- endif (X11_SUPPORT)
 endif (UNIX)
 
 # Include dir for installed targets
@@ -125,18 +123,18 @@ set (${LIBRARY}_LIB_HDRS
      common_ui_ifullscreen.h
      common_ui_tools.h
      common_ui_types.h
+     common_ui_window.h
      common_ui_windowtype_converter.h
      common_ui_windowtype_converter.inl)
+if (X11_SUPPORT)
+ set (${LIBRARY}_LIB_HDRS
+      ${${LIBRARY}_LIB_HDRS}
+      common_ui_x11_tools.h)
+endif (X11_SUPPORT)
 if (UNIX)
  set (${LIBRARY}_LIB_HDRS
       ${${LIBRARY}_LIB_HDRS}
       common_ui_monitor_setup_xml_handler.h)
-
- if (X11_SUPPORT)
-  set (${LIBRARY}_LIB_HDRS
-       ${${LIBRARY}_LIB_HDRS}
-       common_ui_x11_tools.h)
- endif (X11_SUPPORT)
 endif (UNIX)
 install (FILES
          ${${LIBRARY}_LIB_HDRS}

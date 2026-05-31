@@ -1,3 +1,7 @@
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/../scripts")
+include (wayland)
+include (x11)
+
 set (LIBRARY ${PROJECT_NAME}UI_GTK)
 add_library (${LIBRARY} STATIC "")
 

@@ -46,7 +46,11 @@ add_executable (${EXECUTABLE}
 set_property (TARGET ${EXECUTABLE} PROPERTY FOLDER "test_i")
 
 if (UNIX)
- add_link_options ("-rdynamic")
+ if (CMAKE_COMPILER_IS_GNUCXX)
+  target_link_options (${EXECUTABLE} PUBLIC "-rdynamic")
+ else ()
+  target_link_options (${EXECUTABLE} PUBLIC "-Wl,--export-dynamic")
+ endif (CMAKE_COMPILER_IS_GNUCXX)
 endif (UNIX)
 
 if (GTKGL_SUPPORT)

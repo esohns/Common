@@ -1,6 +1,6 @@
-list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/scripts")
-include (VersionConfig)
+include (${CMAKE_CURRENT_SOURCE_DIR}/scripts/VersionConfig.cmake)
 
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/scripts")
 include (Configuration)
 include (Macros)
 include (OS)

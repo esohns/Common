@@ -22,21 +22,10 @@
 #define COMMON_UI_COMMON_H
 
 #include <cstdint>
-
 #include <limits>
 #include <list>
 #include <string>
 #include <vector>
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#include "windef.h"
-#else
-#if defined (X11_SUPPORT)
-//#include "X11/Xlib.h"
-// forward declarations
-struct _XDisplay;
-#endif // X11_SUPPORT
-#endif // ACE_WIN32 || ACE_WIN64
 
 #include "ace/Condition_Thread_Mutex.h"
 #include "ace/Containers_T.h"
@@ -336,4 +325,5 @@ struct Common_UI_ThreadData
 
   struct Common_UI_CBData* CBData;
 };
+
 #endif

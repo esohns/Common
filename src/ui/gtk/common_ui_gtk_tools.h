@@ -23,11 +23,6 @@
 
 #include <string>
 
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-//#include "X11/X.h"
-#endif // ACE_WIN32 || ACE_WIN64
-
 #include "gtk/gtk.h"
 #if defined (GTKGL_SUPPORT)
 #if GTK_CHECK_VERSION (3,0,0)
