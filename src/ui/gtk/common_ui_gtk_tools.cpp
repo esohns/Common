@@ -34,9 +34,9 @@
 #if defined (WAYLAND_SUPPORT)
 #if GTK_CHECK_VERSION (4,0,0)
 #include "gdk/wayland/gdkwayland.h"
-#else
+#elif GTK_CHECK_VERSION (3,10,0)
 #include "gdk/gdkwayland.h"
-#endif // GTK_CHECK_VERSION (4,0,0)
+#endif // GTK_CHECK_VERSION (x,x,x)
 #endif // WAYLAND_SUPPORT
 #if defined (X11_SUPPORT)
 #if GTK_CHECK_VERSION (4,0,0)
