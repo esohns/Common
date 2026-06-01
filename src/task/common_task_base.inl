@@ -463,15 +463,20 @@ Common_TaskBase_T<ACE_SYNCH_USE,
 #endif // ACE_WIN32 || ACE_WIN64
     if (inherited::mod_)
       ACE_DEBUG ((log_priority,
-                  ACE_TEXT ("%s: caught exception in TaskType::wait(), returning\n"),
+                  ACE_TEXT ("%s: caught exception in TaskType::wait(), continuing\n"),
                   inherited::mod_->name ()));
     else
       ACE_DEBUG ((log_priority,
-                  ACE_TEXT ("caught exception in TaskType::wait(), returning\n")));
+                  ACE_TEXT ("caught exception in TaskType::wait(), continuing\n")));
   }
   if (unlikely (result == -1))
-    ACE_DEBUG ((LM_ERROR,
-                ACE_TEXT ("failed to TaskType::wait(): \"%m\", continuing\n")));
+    if (inherited::mod_)
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("%s: failed to TaskType::wait(): \"%m\", continuing\n"),
+                  inherited::mod_->name ()));
+    else
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("failed to TaskType::wait(): \"%m\", continuing\n")));
 }
 
 template <ACE_SYNCH_DECL,
