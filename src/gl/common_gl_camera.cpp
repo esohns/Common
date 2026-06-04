@@ -67,11 +67,11 @@ Common_GL_Camera::updatePosition (enum Common_GL_Camera::Direction direction_in,
 
   float velocity = dt * COMMON_GL_CAMERA_DEFAULT_SPEED_F;
 #if defined (GLM_SUPPORT)
-  glm::vec3 eye_target = position_ - looking_at_;
+  glm::vec3 eye_target = looking_at_ - position_;
 #else
-  struct Common_GL_VectorF3 eye_target = {position_.x - looking_at_.x,
-                                          position_.y - looking_at_.y,
-                                          position_.z - looking_at_.z};
+  struct Common_GL_VectorF3 eye_target = {looking_at_.x - position_.x,
+                                          looking_at_.y - position_.y,
+                                          looking_at_.z - position_.z};
   float length_f =
     std::sqrt (eye_target.x * eye_target.x + eye_target.y * eye_target.y + eye_target.z * eye_target.z);
 #endif // GLM_SUPPORT

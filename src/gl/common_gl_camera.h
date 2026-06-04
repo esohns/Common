@@ -27,7 +27,6 @@
 #endif // GLM_SUPPORT
 
 #include "ace/Assert.h"
-// #include "ace/Global_Macros.h"
 
 #include "common_gl_common.h"
 #include "common_gl_defines.h"
@@ -79,7 +78,7 @@ class Common_GL_Camera
 #if defined (GLM_SUPPORT)
   // *TODO*: is this a good alternative to glm::lookAt() ?
   static glm::mat4 getViewMatrix (const glm::vec3& position_in, // eye (== camera-?) position
-                                  const glm::vec3& forward_in, // i.e. zoom-in direction
+                                  const glm::vec3& forward_in, // zoom-in direction i.e. (target - eye)
                                   const glm::vec3& up_in)
   {
     glm::vec3 right = glm::normalize (glm::cross (forward_in, up_in));
@@ -91,7 +90,7 @@ class Common_GL_Camera
     return result;
   }
 
-  inline glm::mat4 getViewMatrix () { return glm::lookAt (position_, position_ - looking_at_, up_); }
+  inline glm::mat4 getViewMatrix () { return glm::lookAt (position_, looking_at_ - position_, up_); }
   inline static glm::mat4 getProjectionMatrix (int width_in, int height_in,
                                                float FOV_in, // degrees
                                                float zNear_in, float zFar_in)
@@ -104,11 +103,11 @@ class Common_GL_Camera
 
   inline void forward (float speed_in)
   {
-    position_ += (position_ - looking_at_) * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR_F);
+    position_ += (looking_at_ - position_) * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR_F);
   }
   inline void backward (float speed_in)
   {
-    position_ -= (position_ - looking_at_) * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR_F);
+    position_ -= (looking_at_ - position_) * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR_F);
   }
   void left (float speed_in)
   { // *TODO*: doesn't work if looking_at is zero in all components
