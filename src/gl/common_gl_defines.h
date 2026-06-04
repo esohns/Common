@@ -62,13 +62,13 @@
   } while (0);
 
 // camera
-#define COMMON_GL_CAMERA_DEFAULT_SPEED                       1.0f
-#define COMMON_GL_CAMERA_DEFAULT_FOV_DEG                     45.0f
-#define COMMON_GL_CAMERA_DEFAULT_MAX_PITCH_DEG               89.0f
-#define COMMON_GL_CAMERA_DEFAULT_MOUSE_LOOK_FACTOR           1.0f
+#define COMMON_GL_CAMERA_DEFAULT_SPEED_F                     1.0f
+#define COMMON_GL_CAMERA_DEFAULT_FOV_DEG_F                   45.0f
+#define COMMON_GL_CAMERA_DEFAULT_MAX_PITCH_DEG_F             89.0f
+#define COMMON_GL_CAMERA_DEFAULT_MOUSE_LOOK_FACTOR_F         1.0f
 
-#define COMMON_GL_CAMERA_DEFAULT_ROTATION_FACTOR             0.8f
-#define COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR          0.1f
-#define COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR                 0.1f
+#define COMMON_GL_CAMERA_DEFAULT_ROTATION_FACTOR_F           0.8f
+#define COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR_F        0.1f
+#define COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR_F               0.1f
 
 #endif

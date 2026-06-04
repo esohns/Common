@@ -22,7 +22,7 @@ Common_GL_Camera::Common_GL_Camera ()
  , old_mouse_position_ (0.0f, 0.0f)
  , yaw_ (0.0f)
  , pitch_ (0.0f)
- , zoom_ (COMMON_GL_CAMERA_DEFAULT_FOV_DEG) // FOV in degrees
+ , zoom_ (COMMON_GL_CAMERA_DEFAULT_FOV_DEG_F) // FOV in degrees
 {
   COMMON_TRACE (ACE_TEXT ("Common_GL_Camera::Common_GL_Camera"));
 
@@ -40,7 +40,7 @@ Common_GL_Camera::reset ()
   right_ = {1.0f, 0.0f, 0.0f};
   yaw_ = 0.0f;
   pitch_ = 0.0f;
-  zoom_ = COMMON_GL_CAMERA_DEFAULT_FOV_DEG; // FOV in degrees
+  zoom_ = COMMON_GL_CAMERA_DEFAULT_FOV_DEG_F; // FOV in degrees
 }
 
 void
@@ -51,10 +51,10 @@ Common_GL_Camera::updateDirection (float dx, float dy)
   yaw_ += dx;
   pitch_ += dy;
 
-  if (pitch_ > COMMON_GL_CAMERA_DEFAULT_MAX_PITCH_DEG)
-    pitch_ = COMMON_GL_CAMERA_DEFAULT_MAX_PITCH_DEG;
-  else if (pitch_ < -COMMON_GL_CAMERA_DEFAULT_MAX_PITCH_DEG)
-    pitch_ = -COMMON_GL_CAMERA_DEFAULT_MAX_PITCH_DEG;
+  if (pitch_ > COMMON_GL_CAMERA_DEFAULT_MAX_PITCH_DEG_F)
+    pitch_ = COMMON_GL_CAMERA_DEFAULT_MAX_PITCH_DEG_F;
+  else if (pitch_ < -COMMON_GL_CAMERA_DEFAULT_MAX_PITCH_DEG_F)
+    pitch_ = -COMMON_GL_CAMERA_DEFAULT_MAX_PITCH_DEG_F;
 
   updateVectors ();
 }
@@ -65,31 +65,61 @@ Common_GL_Camera::updatePosition (enum Common_GL_Camera::Direction direction_in,
 {
   //COMMON_TRACE (ACE_TEXT ("Common_GL_Camera::updatePosition"));
 
-  float velocity = dt * COMMON_GL_CAMERA_DEFAULT_SPEED;
+  float velocity = dt * COMMON_GL_CAMERA_DEFAULT_SPEED_F;
+#if defined (GLM_SUPPORT)
+  glm::vec3 eye_target = position_ - looking_at_;
+#else
+  struct Common_GL_VectorF3 eye_target = {position_.x - looking_at_.x,
+                                          position_.y - looking_at_.y,
+                                          position_.z - looking_at_.z};
+  float length_f =
+    std::sqrt (eye_target.x * eye_target.x + eye_target.y * eye_target.y + eye_target.z * eye_target.z);
+#endif // GLM_SUPPORT
 
   switch (direction_in)
   {
     case Common_GL_Camera::Direction::FORWARD:
-      position_ += (position_ - looking_at_) * velocity;
+      position_ += eye_target * velocity;
       break;
     case Common_GL_Camera::Direction::BACKWARD:
-      position_ -= (position_ - looking_at_) * velocity;
+      position_ -= eye_target * velocity;
       break;
     case Common_GL_Camera::Direction::RIGHT:
-      position_ += right_ * velocity;
+#if defined (GLM_SUPPORT)
+      position_ += glm::length (eye_target) * right_ * velocity;
+#else
+      position_ += length_f * right_ * velocity;
+#endif // GLM_SUPPORT
       break;
     case Common_GL_Camera::Direction::LEFT:
-      position_ -= right_ * velocity;
+#if defined (GLM_SUPPORT)
+      position_ -= glm::length (eye_target) * right_ * velocity;
+#else
+      position_ -= length_f * right_ * velocity;
+#endif // GLM_SUPPORT
       break;
     case Common_GL_Camera::Direction::UP:
-      position_ += up_ * velocity;
+#if defined (GLM_SUPPORT)
+      position_ += glm::length (eye_target) * up_ * velocity;
+#else
+      position_ += length_f * up_ * velocity;
+#endif // GLM_SUPPORT
       break;
     case Common_GL_Camera::Direction::DOWN:
-      position_ -= up_ * velocity;
+#if defined (GLM_SUPPORT)
+      position_ -= glm::length (eye_target) * up_ * velocity;
+#else
+      position_ -= length_f * up_ * velocity;
+#endif // GLM_SUPPORT
       break;
     default:
+    {
+      ACE_DEBUG ((LM_ERROR,
+                  ACE_TEXT ("invalid/unknown direction (was: %d), continuing\n"),
+                  direction_in));
       ACE_ASSERT (false);
       break;
+    }
   } // end SWITCH
 }
 
@@ -99,7 +129,7 @@ Common_GL_Camera::updateZoom (float dz)
   //COMMON_TRACE (ACE_TEXT ("Common_GL_Camera::updateZoom"));
 
   if (zoom_ >= 1.0f && zoom_ <= 45.0f)
-    zoom_ -= dz * COMMON_GL_CAMERA_DEFAULT_SPEED;
+    zoom_ -= dz * COMMON_GL_CAMERA_DEFAULT_SPEED_F;
   else if (zoom_ < 1.0f)
     zoom_ = 1.0f;
   else // > 45.0f
@@ -120,6 +150,8 @@ Common_GL_Camera::updateVectors ()
 
   right_ = glm::normalize (glm::cross (looking_at_, {0.0f, 1.0f, 0.0f}));
   up_ = glm::normalize (glm::cross (right_, looking_at_));
+#else
+  ACE_ASSERT (false); // *TODO*
 #endif // GLM_SUPPORT
 }
 
@@ -128,10 +160,10 @@ Common_GL_Camera::mouseLook (int mouseX_in, int mouseY_in)
 {
   //COMMON_TRACE (ACE_TEXT ("Common_GL_Camera::mouseLook"));
 
+  static bool first_b = true;
 #if defined (GLM_SUPPORT)
   glm::vec2 current_mouse_position (mouseX_in, mouseY_in);
 
-  static bool first_b = true;
   if (first_b)
   { first_b = false;
     homePosition_ = position_;
@@ -139,7 +171,7 @@ Common_GL_Camera::mouseLook (int mouseX_in, int mouseY_in)
   } // end IF
 
   glm::vec2 mouse_delta = old_mouse_position_ - current_mouse_position;
-  mouse_delta *= COMMON_GL_CAMERA_DEFAULT_MOUSE_LOOK_FACTOR;
+  mouse_delta *= COMMON_GL_CAMERA_DEFAULT_MOUSE_LOOK_FACTOR_F;
   position_ = glm::rotate (position_,
                            glm::radians (mouse_delta.x),
                            up_);
@@ -148,5 +180,7 @@ Common_GL_Camera::mouseLook (int mouseX_in, int mouseY_in)
                            right_);
 
   old_mouse_position_ = current_mouse_position;
+#else
+  ACE_ASSERT (false); // *TODO*
 #endif // GLM_SUPPORT
 }

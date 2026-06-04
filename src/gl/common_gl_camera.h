@@ -51,10 +51,10 @@ class Common_GL_Camera
 
   void reset ();
 
-  // *TODO*: to be tested
   void updatePosition (enum Common_GL_Camera::Direction, // direction
                        float);                           // dt
-  void updateDirection (float, float);
+  // *TODO*: to be tested
+  void updateDirection (float, float); // dx, dy
   void updateZoom (float); // dz
 
 #if defined (GLM_SUPPORT)
@@ -77,9 +77,9 @@ class Common_GL_Camera
   float zoom_;  // *TODO*: use for FOV [1.0f, 45.0f]
 
 #if defined (GLM_SUPPORT)
-  // *TODO*: is this an alternative to glm::lookAt() ?
-  static glm::mat4 getViewMatrix (const glm::vec3& position_in,
-                                  const glm::vec3& forward_in,
+  // *TODO*: is this a good alternative to glm::lookAt() ?
+  static glm::mat4 getViewMatrix (const glm::vec3& position_in, // eye (== camera-?) position
+                                  const glm::vec3& forward_in, // i.e. zoom-in direction
                                   const glm::vec3& up_in)
   {
     glm::vec3 right = glm::normalize (glm::cross (forward_in, up_in));
@@ -91,7 +91,7 @@ class Common_GL_Camera
     return result;
   }
 
-  inline glm::mat4 getViewMatrix () { return glm::lookAt (position_, position_ + looking_at_, up_); }
+  inline glm::mat4 getViewMatrix () { return glm::lookAt (position_, position_ - looking_at_, up_); }
   inline static glm::mat4 getProjectionMatrix (int width_in, int height_in,
                                                float FOV_in, // degrees
                                                float zNear_in, float zFar_in)
@@ -104,32 +104,27 @@ class Common_GL_Camera
 
   inline void forward (float speed_in)
   {
-    position_ += looking_at_ * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR);
+    position_ += (position_ - looking_at_) * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR_F);
   }
   inline void backward (float speed_in)
   {
-    position_ -= looking_at_ * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR);
+    position_ -= (position_ - looking_at_) * (speed_in * COMMON_GL_CAMERA_DEFAULT_ZOOM_FACTOR_F);
   }
-#if defined (GLM_SUPPORT)
   void left (float speed_in)
   { // *TODO*: doesn't work if looking_at is zero in all components
-    glm::vec3 right = glm::cross (looking_at_, up_);
+    //glm::vec3 right = glm::cross (looking_at_, up_);
     position_ +=
-      right * (speed_in * COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR);
+      right_ * (speed_in * COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR_F);
   }
   void right (float speed_in)
   { // *TODO*: doesn't work if looking_at is zero in all components
-    glm::vec3 right = glm::cross (looking_at_, up_);
+    //glm::vec3 right = glm::cross (looking_at_, up_);
     position_ -=
-      right * (speed_in * COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR);
+      right_ * (speed_in * COMMON_GL_CAMERA_DEFAULT_TRANSLATION_FACTOR_F);
   }
-#endif // GLM_SUPPORT
-
-  void mouseLook (int, int); // mouse 2D x,y
+  void mouseLook (int, int); // mouse x,y
 
  private:
-  // ACE_UNIMPLEMENTED_FUNC (Common_GL_Camera (const Common_GL_Camera&))
-
   void updateVectors ();
 };
 
