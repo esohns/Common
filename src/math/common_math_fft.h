@@ -29,7 +29,7 @@ class Common_Math_FFT_SampleIterator_T
   Common_Math_FFT_SampleIterator_T (uint8_t*); // buffer
   inline virtual ~Common_Math_FFT_SampleIterator_T () {}
 
-  bool initialize (unsigned int, // bytes / 'data sample' (i.e. sizeof ('sound sample') * channels)
+  bool initialize (unsigned int, // bytes / (interleaved) 'data sample' (i.e. sizeof ((mono-)'sound sample') * channels)
                    unsigned int, // resolution: bytes per (mono-)'sound sample'
                    bool,         // signed 'sound sample' format ?
                    bool,         // floating point format ? : integer format
@@ -124,12 +124,12 @@ class Common_Math_FFT_T
   // return frequency in Hz of a given slot
   inline unsigned int Frequency (unsigned int slot_in) const
   { ACE_ASSERT (slot_in < slots_);
-    return static_cast<unsigned int> (((sampleRate_ / 2) * slot_in) / static_cast<double> (slots_));
+    return static_cast<unsigned int> (((sampleRate_ / 2) * slot_in) / static_cast<float> (slots_));
   }
   inline unsigned int MaxFrequency () const { return sampleRate_ / 2; }
   inline unsigned int HzToSlot (unsigned int frequency_in) const
   {
-    return static_cast<unsigned int> ((slots_ * frequency_in) / (sampleRate_ / 2.0));
+    return static_cast<unsigned int> ((slots_ * frequency_in) / (sampleRate_ / 2.0f));
   }
 
   // *NOTE*: only required when retrieving normalized (!) magnitudes (see above)
@@ -229,12 +229,12 @@ class Common_Math_FFT_T<ValueType,
   // return frequency in Hz of a given slot
   inline unsigned int Frequency (unsigned int slot_in) const
   { ACE_ASSERT (slot_in < slots_);
-    return static_cast<unsigned int> (((sampleRate_ / 2) * slot_in) / static_cast<double> (slots_));
+    return static_cast<unsigned int> (((sampleRate_ / 2) * slot_in) / static_cast<float> (slots_));
   }
   inline unsigned int MaxFrequency () const { return sampleRate_ / 2; }
   inline unsigned int HzToSlot (unsigned int frequency_in) const
   {
-    return static_cast<unsigned int> ((slots_ * frequency_in) / (sampleRate_ / 2.0));
+    return static_cast<unsigned int> ((slots_ * frequency_in) / (sampleRate_ / 2.0f));
   }
 
   // *NOTE*: only required when retrieving normalized (!) magnitudes (see above)
@@ -330,12 +330,12 @@ class Common_Math_FFT_T<ValueType,
   // return frequency in Hz of a given slot
   inline unsigned int Frequency (unsigned int slot_in) const
   { ACE_ASSERT (slot_in < slots_);
-    return static_cast<unsigned int> (((sampleRate_ / 2) * slot_in) / static_cast<double> (slots_));
+    return static_cast<unsigned int> (((sampleRate_ / 2) * slot_in) / static_cast<float> (slots_));
   }
   inline unsigned int MaxFrequency () const { return sampleRate_ / 2; }
   inline unsigned int HzToSlot (unsigned int frequency_in) const
   {
-    return static_cast<unsigned int> ((slots_ * frequency_in) / (sampleRate_ / 2.0));
+    return static_cast<unsigned int> ((slots_ * frequency_in) / (sampleRate_ / 2.0f));
   }
 
   // *NOTE*: only required when retrieving normalized (!) magnitudes (see above)

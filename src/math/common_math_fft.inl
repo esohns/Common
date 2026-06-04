@@ -454,7 +454,10 @@ Common_Math_FFT_T<ValueType,
 
   // sanity check(s)
   if (unlikely (!isInitialized_))
+  {
+    result_a.resize (halfSlots_ - 1, 0);
     return result_a;
+  } // end IF
 
   if (unlikely (normalize_in))
     ComputeMaxValue (-1);
@@ -802,7 +805,10 @@ Common_Math_FFT_T<ValueType,
 
   // sanity check(s)
   if (unlikely (!isInitialized_))
+  {
+    result_a.resize (halfSlots_ - 1, 0);
     return result_a;
+  } // end IF
 
   if (unlikely (normalize_in))
     ComputeMaxValue (-1);
@@ -1275,7 +1281,10 @@ Common_Math_FFT_T<ValueType,
 
   // sanity check(s)
   if (unlikely (!isInitialized_))
+  {
+    result_a.resize (halfSlots_ - 1, 0);
     return result_a;
+  } // end IF
 
   if (unlikely (normalize_in))
     ComputeMaxValue (-1);

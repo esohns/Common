@@ -55,7 +55,8 @@ class Common_Input_Tools
   // *NOTE*: "...Since Linux 6.2, this operation may require the CAP_SYS_ADMIN
   //          capability (if the dev.tty.legacy_tiocsti sysctl variable is set
   //          to false) ..."
-  static void input (char); // key to send
+  static void input (char,          // key to send
+                     bool = false); // is virtual key ?
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
   static HWND mouseCursorToWindowHandle (bool = false); // get toplevel window ? : child window

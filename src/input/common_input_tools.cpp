@@ -120,7 +120,7 @@ Common_Input_Tools::initializeInput (bool lineMode_in,
   struct termios termios_s;
 
   // sanity check(s)
-  if (unlikely (!isatty (ACE_STDIN)))
+  if (unlikely (!ACE_OS::isatty (ACE_STDIN)))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("%d is not associated to a terminal, aborting\n"),
@@ -205,30 +205,88 @@ Common_Input_Tools::finalizeInput (const struct termios& terminalSettings_in)
 #endif // ACE_WIN32 || ACE_WIN64
 }
 
-void Common_Input_Tools::input (char character_in)
+void
+Common_Input_Tools::input (char character_in,
+                           bool isVirtualKey_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Input_Tools::input"));
 
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
-  struct tagINPUT input_s[2];
-  ACE_OS::memset (&input_s[0], 0, sizeof (struct tagINPUT));
+  std::vector<struct tagINPUT> inputs_a;
+  bool shift_b, ctrl_b, alt_b;
+  struct tagINPUT input_s;
+  ACE_OS::memset (&input_s, 0, sizeof (struct tagINPUT));
+  input_s.type = INPUT_KEYBOARD;
 
   HKL keyboad_layout_h = GetKeyboardLayout (0);
   ACE_ASSERT (keyboad_layout_h);
+  SHORT result = VkKeyScanExA (character_in, keyboad_layout_h);
+  if (result == -1 || isVirtualKey_in)
+  {
+    if (result == -1)
+      ACE_DEBUG ((LM_DEBUG,
+                  ACE_TEXT ("failed to VkKeyScanExA(%c): \"%s\", continuing\n"),
+                  character_in,
+                  ACE_TEXT (Common_Error_Tools::errorToString (::GetLastError (), false, false).c_str ())));
 
-  input_s[0].type = INPUT_KEYBOARD;
-  //input_s[0].ki.wScan = 0;
-    //MapVirtualKeyEx (VkKeyScanEx (character_in, keyboad_layout_h), MAPVK_VK_TO_VSC, keyboad_layout_h);
-  //input_s[0].ki.time = 0;
-  //input_s[0].ki.dwExtraInfo = 0;
-  input_s[0].ki.wVk = VkKeyScanEx (character_in, keyboad_layout_h);
-  //input_s[0].ki.dwFlags = 0 /*| KEYEVENTF_SCANCODE*/; // 0 for key press
+    input_s.ki.wVk = character_in; // input character already IS a virtual key code ?
+    inputs_a.push_back (input_s);
+    input_s.ki.dwFlags |= KEYEVENTF_KEYUP;
+    inputs_a.push_back (input_s);
+  } // end IF
+  else
+  {
+    BYTE modifiers = HIBYTE (result);
+    shift_b = (modifiers & 1) != 0;
+    ctrl_b = (modifiers & 2) != 0;
+    alt_b = (modifiers & 4) != 0;
 
-  input_s[1] = input_s[0];
-  input_s[1].ki.dwFlags |= KEYEVENTF_KEYUP /* | KEYEVENTF_SCANCODE*/;
+    // press modifier(s)
+    if (shift_b)
+    {
+      input_s.ki.wVk = VK_SHIFT;
+      inputs_a.push_back (input_s);
+    } // end IF
+    if (ctrl_b)
+    {
+      input_s.ki.wVk = VK_CONTROL;
+      inputs_a.push_back (input_s);
+    } // end IF
+    if (alt_b)
+    {
+      input_s.ki.wVk = VK_MENU;
+      inputs_a.push_back (input_s);
+    } // end IF
 
-  UINT result = SendInput (ARRAYSIZE (input_s), input_s, sizeof (struct tagINPUT));
-  if (unlikely (result != ARRAYSIZE (input_s)))
+    // press key
+    input_s.ki.wVk = LOBYTE (result);
+    inputs_a.push_back (input_s);
+
+    // release key
+    input_s.ki.dwFlags |= KEYEVENTF_KEYUP;
+    inputs_a.push_back (input_s);
+
+    // release modifier(s)
+    if (alt_b)
+    {
+      input_s.ki.wVk = VK_MENU;
+      inputs_a.push_back (input_s);
+    } // end IF
+    if (ctrl_b)
+    {
+      input_s.ki.wVk = VK_CONTROL;
+      inputs_a.push_back (input_s);
+    } // end IF
+    if (shift_b)
+    {
+      input_s.ki.wVk = VK_SHIFT;
+      inputs_a.push_back (input_s);
+    } // end IF
+  } // end ELSE
+
+  UINT result_2 =
+    SendInput (static_cast<UINT> (inputs_a.size ()), inputs_a.data (), sizeof (struct tagINPUT));
+  if (unlikely (result_2 != static_cast<UINT> (inputs_a.size ())))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("failed to SendInput(%c): \"%s\", returning\n"),
@@ -237,8 +295,9 @@ void Common_Input_Tools::input (char character_in)
     return;
   } // end IF
 #else
+  int result = ACE_OS::isatty (ACE_STDIN);
   // sanity check(s)
-  if (unlikely (!isatty (ACE_STDIN)))
+  if (unlikely (!result))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("%d is not associated to a terminal, returning\n"),
@@ -246,9 +305,9 @@ void Common_Input_Tools::input (char character_in)
     return;
   } // end IF
 
-  int result = ::ioctl (ACE_STDIN,
-                        TIOCSTI,
-                        &character_in);
+  result = ACE_OS::ioctl (ACE_STDIN,
+                          TIOCSTI,
+                          &character_in);
   if (unlikely (result))
   {
     ACE_DEBUG ((LM_ERROR,
