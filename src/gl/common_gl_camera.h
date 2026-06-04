@@ -58,12 +58,14 @@ class Common_GL_Camera
   void updateZoom (float); // dz
 
 #if defined (GLM_SUPPORT)
+  glm::vec3 homePosition_;
   glm::vec3 position_;
   glm::vec3 looking_at_;
   glm::vec3 up_;
   glm::vec3 right_;
   glm::vec2 old_mouse_position_;
 #else
+  struct Common_GL_VectorF3 homePosition_;
   struct Common_GL_VectorF3 position_;
   struct Common_GL_VectorF3 looking_at_;
   struct Common_GL_VectorF3 up_;
@@ -123,7 +125,7 @@ class Common_GL_Camera
   }
 #endif // GLM_SUPPORT
 
-  void mouseLook (int, int);
+  void mouseLook (int, int); // mouse 2D x,y
 
  private:
   // ACE_UNIMPLEMENTED_FUNC (Common_GL_Camera (const Common_GL_Camera&))
