@@ -335,8 +335,10 @@ Common_ParserBase_T<ConfigurationType,
   if (get_cont_b)
     fragment_ = fragment_->cont ();
   else
+  {
     head (fragment_);
-  scannerState_.offset = 0;
+    scannerState_.offset = 0;
+  } // end ELSE
 
   // unlink ?
   if (unlink_in)
