@@ -51,8 +51,6 @@ target_precompile_headers (${EXECUTABLE}
 install (TARGETS ${EXECUTABLE}
          EXPORT ${PROJECT_NAME}Targets
          RUNTIME DESTINATION ${INSTALL_BIN_DIR} COMPONENT test_i)
-install (FILES share/oak-tree.png
-         DESTINATION "${INSTALL_SHARE_DIR}/${EXECUTABLE}" COMPONENT data)
 
 ################ launchers ###############
 if (UNIX)
