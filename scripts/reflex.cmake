@@ -1,0 +1,57 @@
+set (REFLEX_SUPPORT_DEFAULT ON)
+
+if (WIN32)
+ set (REFLEX_EXECUTABLE "E:\\lib\\RE-flex\\bin\\win64\\reflex.exe" CACHE PATH "REflex executable")
+endif (WIN32)
+
+if (UNIX)
+ set (REFLEX_DIR "$ENV{LIB_ROOT}/RE-flex")
+ set (REFLEX_INCLUDE_DIRS "${REFLEX_DIR}/include")
+ set (REFLEX_LIB_DIR "${REFLEX_DIR}/lib")
+ set (REFLEX_LIBRARY "reflex.so")
+ find_library (REFLEX_LIB ${REFLEX_LIBRARY}
+               PATHS ${REFLEX_DIR}
+               PATH_SUFFIXES lib
+               DOC "searching for ${REFLEX_LIBRARY}"
+               NO_DEFAULT_PATH)
+ if (NOT REFLEX_LIB)
+  message (WARNING "could not find ${REFLEX_LIBRARY}, continuing")
+ else ()
+  message (STATUS "Found ${REFLEX_LIBRARY} library \"${REFLEX_LIB}\"")
+  set (REFLEX_FOUND TRUE)
+ endif (NOT REFLEX_LIB)
+elseif (WIN32)
+ if (VCPKG_USE)
+#  cmake_policy (SET CMP0074 OLD)
+  find_package (reflex CONFIG)
+  if (REFLEX_FOUND)
+   set (REFLEX_FOUND TRUE)
+   set (REFLEX_INCLUDE_DIRS ${VCPKG_INCLUDE_DIR})
+   set (REFLEX_LIB "${VCPKG_LIB_DIR}/reflex.lib")
+   set (REFLEX_LIB_DIR ${VCPKG_BIN_DIR})
+  endif (REFLEX_FOUND)
+ endif (VCPKG_USE)
+ if (NOT REFLEX_FOUND)
+  set (REFLEX_DIR "$ENV{LIB_ROOT}/RE-flex")
+  set (REFLEX_LIBRARY "reflex.lib")
+  find_library (REFLEX_LIB ${REFLEX_LIBRARY}
+                PATHS ${REFLEX_DIR}
+                PATH_SUFFIXES vs
+                DOC "searching for ${REFLEX_LIBRARY}"
+                NO_DEFAULT_PATH)
+  if (NOT REFLEX_LIB)
+   message (WARNING "could not find ${REFLEX_LIBRARY}, continuing")
+  else ()
+   message (STATUS "found ${REFLEX_LIBRARY} library \"${REFLEX_LIB}\"")
+   set (REFLEX_FOUND TRUE)
+   set (REFLEX_INCLUDE_DIRS "${REFLEX_DIR}/include")
+   set (REFLEX_LIB_DIR "${REFLEX_DIR}/vs")
+  endif (NOT REFLEX_LIB)
+ endif (NOT REFLEX_FOUND)
+endif ()
+if (REFLEX_FOUND)
+ option (REFLEX_SUPPORT "enable REflex support" ${REFLEX_SUPPORT_DEFAULT})
+ if (REFLEX_SUPPORT)
+  add_definitions (-DREFLEX_SUPPORT)
+ endif (REFLEX_SUPPORT)
+endif (REFLEX_FOUND)

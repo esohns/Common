@@ -42,39 +42,30 @@ class Common_IParser_T
 
 //////////////////////////////////////////
 
-// forward declarations
-#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
-struct YYLTYPE
-{
-  int first_line;
-  int first_column;
-  int last_line;
-  int last_column;
-};
-# define YYLTYPE_IS_DECLARED 1
-# define YYLTYPE_IS_TRIVIAL 1
-#endif
-
-template <typename ConfigurationType>
+template <typename ConfigurationType,
+          typename LocationType> // i.e. YYLTYPE
 class Common_IYaccParser_T
  : public Common_IParser_T<ConfigurationType>
 {
  public:
   ////////////////////////////////////////
-  virtual void error (const struct YYLTYPE&, // location
+  virtual void error (const LocationType&, // location
                       const std::string&) = 0;
   virtual void error (const yy::location&,
                       const std::string&) = 0;
 };
 
 template <typename ConfigurationType,
+          typename LocationType,
           typename RecordType>
 class Common_IYaccStreamParser_T
- : public Common_IYaccParser_T<ConfigurationType>
+ : public Common_IYaccParser_T<ConfigurationType,
+                               LocationType>
 {
  public:
   // convenient types
   typedef Common_IYaccStreamParser_T<ConfigurationType,
+                                     LocationType,
                                      RecordType> IPARSER_T;
 
   virtual RecordType& current () = 0;
@@ -88,14 +79,17 @@ class Common_IYaccStreamParser_T
 //////////////////////////////////////////
 
 template <typename ConfigurationType,
+          typename LocationType,
           typename RecordType>
 class Common_IYaccRecordParser_T
  : public Common_IYaccStreamParser_T<ConfigurationType,
+                                     LocationType,
                                      RecordType>
 {
  public:
   // convenient types
   typedef Common_IYaccRecordParser_T<ConfigurationType,
+                                     LocationType,
                                      RecordType> IPARSER_T;
 
   virtual bool hasFinished () const = 0;

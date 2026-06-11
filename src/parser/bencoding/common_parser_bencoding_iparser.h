@@ -31,8 +31,22 @@
 
 #include "common_parser_bencoding_common.h"
 
+// forward declarations
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
+
 class Common_Parser_Bencoding_IParser
  : public Common_IYaccRecordParser_T<struct Common_FlexBisonParserConfiguration,
+                                     struct YYLTYPE,
                                      Bencoding_Dictionary_t>
  , virtual public Common_ILexScanner_T<struct Common_FlexScannerState,
                                        void>
@@ -42,6 +56,7 @@ class Common_Parser_Bencoding_IParser
  public:
   // convenient types
   typedef Common_IYaccRecordParser_T<struct Common_FlexBisonParserConfiguration,
+                                     struct YYLTYPE,
                                      Bencoding_Dictionary_t> IPARSER_T;
   typedef Common_ILexScanner_T<struct Common_FlexScannerState,
                                void> ISCANNER_T;

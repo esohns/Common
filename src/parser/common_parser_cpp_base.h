@@ -82,8 +82,8 @@ class Common_CppParserBase_T
   inline virtual void reset () { scanner_.reset (); }
   inline virtual bool initialize (yyscan_t& state_in, ExtraDataType* extra_in) { return scanner_.initialize (state_in, extra_in); }
   virtual void finalize (yyscan_t& state_in) { scanner_.finalize (state_in); }
-  inline virtual struct yy_buffer_state* create (yyscan_t state_in, char* buffer_in, size_t size_in) { return scanner_.create (state_in, buffer_in, size_in); }
-  inline virtual void destroy (yyscan_t state_in, struct yy_buffer_state*& buffer_inout) { scanner_.destroy (state_in, buffer_inout); }
+  inline virtual yy_buffer_state* create (yyscan_t state_in, char* buffer_in, size_t size_in) { return scanner_.create (state_in, buffer_in, size_in); }
+  inline virtual void destroy (yyscan_t state_in, yy_buffer_state*& buffer_inout) { scanner_.destroy (state_in, buffer_inout); }
   inline virtual bool lex (yyscan_t state_in) { return scanner_.lex (state_in); }
 
  protected:
@@ -116,7 +116,7 @@ class Common_CppParserBase_T
 
   bool                    isFirst_;
 
-  struct yy_buffer_state* buffer_;
+  yy_buffer_state*        buffer_;
   MEMORY_BUFFER_T         streamBuffer_;
   std::istream            stream_;
 

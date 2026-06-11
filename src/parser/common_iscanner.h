@@ -79,11 +79,11 @@ class Common_ILexScanner_T
                            ExtraDataType* = NULL) = 0; // 'extra' data handle
   virtual void finalize (yyscan_t&) = 0; // state handle
 
-  virtual struct yy_buffer_state* create (yyscan_t,    // state handle
-                                          char*,       // buffer handle
-                                          size_t) = 0; // buffer size
-  virtual void destroy (yyscan_t,                      // state handle
-                        struct yy_buffer_state*&) = 0; // buffer handle
+  virtual yy_buffer_state* create (yyscan_t,    // state handle
+                                   char*,       // buffer handle
+                                   size_t) = 0; // buffer size
+  virtual void destroy (yyscan_t,               // state handle
+                        yy_buffer_state*&) = 0; // buffer handle
 
   virtual bool lex (yyscan_t) = 0; // state handle
 };

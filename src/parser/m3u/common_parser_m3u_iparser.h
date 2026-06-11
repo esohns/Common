@@ -32,6 +32,19 @@
 #include "common_iparser.h"
 #include "common_parser_common.h"
 
+// forward declarations
+#if !defined YYLTYPE && !defined YYLTYPE_IS_DECLARED
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+#define YYLTYPE_IS_DECLARED 1
+#define YYLTYPE_IS_TRIVIAL 1
+#endif
+
 typedef std::vector<std::pair<std::string, std::string> > M3U_KeyValues_t;
 typedef M3U_KeyValues_t::const_iterator M3U_KeyValuesIterator_t;
 
@@ -105,6 +118,7 @@ struct M3U_Playlist
 
 class Common_Parser_M3U_IParser
  : public Common_IYaccRecordParser_T<struct Common_FlexBisonParserConfiguration,
+                                     struct YYLTYPE,
                                      struct M3U_Playlist>
  , virtual public Common_ILexScanner_T<struct Common_FlexScannerState,
                                        Common_Parser_M3U_IParser>
@@ -116,6 +130,7 @@ class Common_Parser_M3U_IParser
  public:
   // convenient types
   typedef Common_IYaccRecordParser_T<struct Common_FlexBisonParserConfiguration,
+                                     struct YYLTYPE,
                                      struct M3U_Playlist> IPARSER_T;
   typedef Common_ILexScanner_T<struct Common_FlexScannerState,
                                Common_Parser_M3U_IParser> ISCANNER_T;
