@@ -78,6 +78,7 @@ class Common_Parser_Bencoding_ParserDriver
 
   inline virtual Bencoding_Dictionary_t& current () { ACE_ASSERT (!dictionaries_.empty ()); return *dictionaries_.top (); }
   inline virtual Bencoding_List_t& current_2 () { ACE_ASSERT (!lists_.empty ()); return *lists_.top (); }
+  inline virtual void finished () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
   inline virtual bool hasFinished () const { ACE_ASSERT (false); ACE_NOTSUP_RETURN (false); ACE_NOTREACHED (return false;) }
 
   ////////////////////////////////////////

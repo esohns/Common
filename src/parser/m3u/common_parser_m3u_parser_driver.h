@@ -85,6 +85,7 @@ class Common_Parser_M3U_ParserDriver
   inline virtual struct M3U_ExtInf_Element& current_2 () { ACE_ASSERT (extInfElement_); return *extInfElement_; }
   inline virtual struct M3U_Media_Element& current_3 () { ACE_ASSERT (mediaElement_); return *mediaElement_; }
   inline virtual struct M3U_StreamInf_Element& current_4 () { ACE_ASSERT (streamInfElement_); return *streamInfElement_; }
+  inline virtual void finished () { ACE_ASSERT (false); ACE_NOTSUP; ACE_NOTREACHED (return;) }
   virtual bool hasFinished () const;
 
   ////////////////////////////////////////

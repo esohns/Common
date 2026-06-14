@@ -93,6 +93,11 @@ class Common_IYaccRecordParser_T
                                      RecordType> IPARSER_T;
 
   virtual bool hasFinished () const = 0;
+
+  ////////////////////////////////////////
+  // callbacks
+  // --> finished parsing record
+  virtual void finished () = 0;
 };
 
 #endif
