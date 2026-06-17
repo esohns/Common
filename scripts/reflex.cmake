@@ -8,7 +8,7 @@ if (UNIX)
  set (REFLEX_DIR "$ENV{LIB_ROOT}/RE-flex")
  set (REFLEX_INCLUDE_DIRS "${REFLEX_DIR}/include")
  set (REFLEX_LIB_DIR "${REFLEX_DIR}/lib")
- set (REFLEX_LIBRARY "reflex.so")
+ set (REFLEX_LIBRARY "libreflex.so")
  find_library (REFLEX_LIB ${REFLEX_LIBRARY}
                PATHS ${REFLEX_DIR}
                PATH_SUFFIXES lib
