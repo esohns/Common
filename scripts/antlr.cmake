@@ -1,0 +1,52 @@
+set (ANTLR_SUPPORT_DEFAULT ON)
+
+set (ANTLR_TOOL "$ENV{LIB_ROOT}/antlr/tool/antlr-4.13.2-complete.jar" CACHE PATH "ANTLR generator .jar")
+
+set (ANTLR_DIR "$ENV{LIB_ROOT}/antlr")
+set (ANTLR_INCLUDE_DIRS "${ANTLR_DIR}/runtime/src")
+set (ANTLR_LIB_DIR "${ANTLR_DIR}/dist")
+if (UNIX)
+ set (ANTLR_LIBRARY "libantlr4-runtime.so")
+ find_library (ANTLR_LIB ${ANTLR_LIBRARY}
+               PATHS ${ANTLR_LIB_DIR}
+#               PATH_SUFFIXES lib
+               DOC "searching for ${ANTLR_LIBRARY}"
+               NO_DEFAULT_PATH)
+ if (NOT ANTLR_LIB)
+  message (WARNING "could not find ${ANTLR_LIBRARY}, continuing")
+ else ()
+  message (STATUS "Found ${ANTLR_LIBRARY} library \"${ANTLR_LIB}\"")
+  set (ANTLR_FOUND TRUE)
+ endif (NOT ANTLR_LIB)
+elseif (WIN32)
+ if (VCPKG_USE)
+#  cmake_policy (SET CMP0074 OLD)
+  find_package (antlr4 CONFIG)
+  if (ANTLR_FOUND)
+   set (ANTLR_FOUND TRUE)
+   set (ANTLR_INCLUDE_DIRS ${VCPKG_INCLUDE_DIR})
+   set (ANTLR_LIB "${VCPKG_LIB_DIR}/antlr-runtime.lib")
+   set (ANTLR_LIB_DIR ${VCPKG_BIN_DIR})
+  endif (ANTLR_FOUND)
+ endif (VCPKG_USE)
+ if (NOT ANTLR_FOUND)
+  set (ANTLR_LIBRARY "antlr4-runtime.lib")
+  find_library (ANTLR_LIB ${ANTLR_LIBRARY}
+                PATHS ${ANTLR_LIB_DIR}
+#                PATH_SUFFIXES lib
+                DOC "searching for ${ANTLR_LIBRARY}"
+                NO_DEFAULT_PATH)
+  if (NOT ANTLR_LIB)
+   message (WARNING "could not find ${ANTLR_LIBRARY}, continuing")
+  else ()
+   message (STATUS "found ${ANTLR_LIBRARY} library \"${ANTLR_LIB}\"")
+   set (ANTLR_FOUND TRUE)
+  endif (NOT ANTLR_LIB)
+ endif (NOT ANTLR_FOUND)
+endif ()
+if (ANTLR_FOUND)
+ option (ANTLR_SUPPORT "enable ANTLR support" ${ANTLR_SUPPORT_DEFAULT})
+ if (ANTLR_SUPPORT)
+  add_definitions (-DANTLR_SUPPORT)
+ endif (ANTLR_SUPPORT)
+endif (ANTLR_FOUND)

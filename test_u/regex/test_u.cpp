@@ -69,6 +69,25 @@ bool regex_test_3 ()
   return true;
 }
 
+bool regex_test_4 ()
+{
+  std::string test_string ("HTTP/1.1");
+  std::string regex_string ("^(?:HTTP\\/)([[:digit:]]{1}\\.[[:digit:]]{1})$");
+  std::regex regex (regex_string);
+  std::smatch results;
+  if (!std::regex_match (test_string,
+                         results,
+                         regex,
+                         std::regex_constants::match_default))
+  {
+    std::cout << "failed!\n";
+    return false;
+  }
+  std::cout << "success: \"" << results[1].str () << "\"\n";
+
+  return true;
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -92,6 +111,13 @@ main (int argc, char *argv[])
     return -1;
   }
   std::cout << "test 3 success\n";
+
+  if (!regex_test_4 ())
+  {
+    std::cout << "test 4 failed!\n";
+    return -1;
+  }
+  std::cout << "test 4 success\n";
 
   return 0;
 }
