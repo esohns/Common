@@ -4,8 +4,8 @@ set (ANTLR_TOOL "$ENV{LIB_ROOT}/antlr/tool/antlr-4.13.2-complete.jar" CACHE PATH
 
 set (ANTLR_DIR "$ENV{LIB_ROOT}/antlr")
 set (ANTLR_INCLUDE_DIRS "${ANTLR_DIR}/runtime/src")
-set (ANTLR_LIB_DIR "${ANTLR_DIR}/dist")
 if (UNIX)
+ set (ANTLR_LIB_DIR "${ANTLR_DIR}/dist")
  set (ANTLR_LIBRARY "libantlr4-runtime.so")
  find_library (ANTLR_LIB ${ANTLR_LIBRARY}
                PATHS ${ANTLR_LIB_DIR}
