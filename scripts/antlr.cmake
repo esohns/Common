@@ -31,9 +31,10 @@ elseif (WIN32)
  endif (VCPKG_USE)
  if (NOT ANTLR_FOUND)
   set (ANTLR_LIBRARY "antlr4-runtime.lib")
+  set (ANTLR_LIB_DIR_BASE "${ANTLR_DIR}/build/msvc/runtime")
   find_library (ANTLR_LIB ${ANTLR_LIBRARY}
-                PATHS ${ANTLR_LIB_DIR}
-#                PATH_SUFFIXES lib
+                PATHS ${ANTLR_LIB_DIR_BASE}
+                PATH_SUFFIXES ${CMAKE_BUILD_TYPE}
                 DOC "searching for ${ANTLR_LIBRARY}"
                 NO_DEFAULT_PATH)
   if (NOT ANTLR_LIB)
@@ -41,6 +42,7 @@ elseif (WIN32)
   else ()
    message (STATUS "found ${ANTLR_LIBRARY} library \"${ANTLR_LIB}\"")
    set (ANTLR_FOUND TRUE)
+   set (ANTLR_LIB_DIR "${ANTLR_LIB_DIR_BASE}/${CMAKE_BUILD_TYPE}")
   endif (NOT ANTLR_LIB)
  endif (NOT ANTLR_FOUND)
 endif ()

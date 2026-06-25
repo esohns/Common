@@ -67,6 +67,8 @@ class Common_ParserBase_T
 #endif // _DEBUG
   inline virtual bool isBlocking () const { ACE_ASSERT (configuration_); return configuration_->block; }
   inline virtual unsigned int offset () const { return scannerState_.offset; }
+  inline virtual ACE_Message_Block* head () { ACE_ASSERT (false); ACE_NOTSUP_RETURN (NULL); ACE_NOTREACHED (return NULL;) }
+
   virtual bool begin (const char*,   // buffer
                       unsigned int); // size
   virtual void end ();

@@ -41,6 +41,7 @@ class Common_IScannerBase
 #endif // _DEBUG
   virtual bool isBlocking () const = 0;
   virtual unsigned int offset () const = 0;
+  virtual ACE_Message_Block* head () = 0; // return value: head buffer handle
 
   virtual bool begin (const char*,       // buffer
                       unsigned int) = 0; // size
