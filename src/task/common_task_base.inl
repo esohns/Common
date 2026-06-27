@@ -470,6 +470,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
                   ACE_TEXT ("caught exception in TaskType::wait(), continuing\n")));
   }
   if (unlikely (result == -1))
+  {
     if (inherited::mod_)
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("%s: failed to TaskType::wait(): \"%m\", continuing\n"),
@@ -477,6 +478,7 @@ Common_TaskBase_T<ACE_SYNCH_USE,
     else
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("failed to TaskType::wait(): \"%m\", continuing\n")));
+  } // end IF
 }
 
 template <ACE_SYNCH_DECL,
