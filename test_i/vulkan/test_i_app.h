@@ -29,7 +29,10 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
-#define GLM_FORCE_PURE
+//#define GLM_FORCE_PURE
+#if defined (_DEBUG)
+#define GLM_FORCE_MESSAGES
+#endif // _DEBUG
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #endif // GLM_SUPPORT
@@ -48,9 +51,15 @@
 
 struct Vertex
 {
+#if defined (GLM_SUPPORT)
   glm::vec3 pos;
   glm::vec3 color;
   glm::vec2 texCoord;
+#else
+  struct Common_GL_VectorF3 pos;
+  struct Common_GL_VectorF3 color;
+  struct Common_GL_VectorF2 texCoord;
+#endif // GLM_SUPPORT
 
   static VkVertexInputBindingDescription getBindingDescription ()
   {

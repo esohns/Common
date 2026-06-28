@@ -72,7 +72,11 @@ struct hash<struct Vertex>
 {
   size_t operator() (struct Vertex const& vertex) const
   {
+#if defined (GLM_SUPPORT)
     return ((hash<glm::vec3> () (vertex.pos) ^ (hash<glm::vec3> () (vertex.color) << 1)) >> 1) ^ (hash<glm::vec2> () (vertex.texCoord) << 1);
+#else
+    return (((vertex.pos.x ^ vertex.pos.y ^ vertex.pos.z) + ((vertex.color.x ^ vertex.color.y ^ vertex.color.z) << 1)) >> 1) ^ ((vertex.texCoord.x ^ vertex.texCoord.y) << 1);
+#endif // GLM_SUPPORT
   }
 };
 }
@@ -108,9 +112,14 @@ const std::vector<const char*> device_extensions_a = {
 
 struct UniformBufferObject
 {
+#if defined (GLM_SUPPORT)
   alignas (16) glm::mat4 model;
   alignas (16) glm::mat4 view;
   alignas (16) glm::mat4 proj;
+#else
+// *TODO*
+#error "no GLM support, aborting"
+#endif // GLM_SUPPORT
 };
 
 /////////////////////////////////////////
@@ -2216,6 +2225,7 @@ HelloTriangleApplication::updateUniformBuffer (uint32_t currentImage)
     std::chrono::duration<float, std::chrono::seconds::period> (currentTime - startTime).count ();
 
   struct UniformBufferObject ubo {};
+#if defined (GLM_SUPPORT)
   ubo.model =
     glm::rotate (glm::mat4 (1.0f), time * COMMON_GL_CAMERA_DEFAULT_ROTATION_FACTOR_F * glm::radians (90.0f), glm::vec3 (0.0f, 0.0f, 1.0f));
   ubo.view =
@@ -2223,6 +2233,7 @@ HelloTriangleApplication::updateUniformBuffer (uint32_t currentImage)
   ubo.proj =
     glm::perspective (glm::radians (45.0f), swapChainExtent_.width / (float) swapChainExtent_.height, 0.1f, 10.0f);
   ubo.proj[1][1] *= -1.0f; // model is upside-down ?
+#endif // GLM_SUPPORT
   ACE_OS::memcpy (uniformBuffersMapped_[currentImage], &ubo, sizeof (struct UniformBufferObject));
 }
 
