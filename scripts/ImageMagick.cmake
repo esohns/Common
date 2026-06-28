@@ -27,7 +27,7 @@ elseif (WIN32)
   endif (PKG_GRAPHICSMAGICK_FOUND)
 #  endif (unofficial-GraphicsMagick_FOUND)
  endif (VCPKG_USE)
- if (NOT unofficial-GraphicsMagick_FOUND)
+ if (NOT IMAGEMAGICK_FOUND)
   find_library (ImageMagick_MagickCore_LIBRARY CORE_RL_MagickCore_.lib
                 PATHS $ENV{LIB_ROOT}/ImageMagick
                 PATH_SUFFIXES lib
@@ -56,7 +56,7 @@ elseif (WIN32)
    set (ImageMagick_LIBRARIES "${ImageMagick_MagickCore_LIBRARY};${ImageMagick_MagickWand_LIBRARY}")
    set (ImageMagick_LIB_DIR "$ENV{LIB_ROOT}/ImageMagick")
   endif (ImageMagick_MagickCore_LIBRARY AND ImageMagick_MagickWand_LIBRARY)
- endif (NOT unofficial-GraphicsMagick_FOUND)
+ endif (NOT IMAGEMAGICK_FOUND)
 endif ()
 if (IMAGEMAGICK_FOUND)
  option (IMAGEMAGICK_SUPPORT "enable ImageMagick support" ${IMAGEMAGICK_SUPPORT_DEFAULT})
