@@ -122,11 +122,11 @@ class HelloTriangleApplication
   void run ()
   {
     bool enable_validation_layers_b =
-#if defined (NDEBUG)
-      false
-#else
+#if defined (_DEBUG)
       true
-#endif // NDEBUG
+#else
+      false
+#endif // _DEBUG
       ;
 
     initWindow ();

@@ -1695,8 +1695,8 @@ HelloTriangleApplication::loadModel ()
 
   std::unordered_map<Vertex, uint32_t> uniqueVertices {};
 #if defined (TINY_OBJ_LOADER_SUPPORT)
-  for (const auto& shape : shapes)
-    for (const auto& index : shape.mesh.indices)
+  for (const tinyobj::shape_t& shape: shapes)
+    for (const tinyobj::index_t& index: shape.mesh.indices)
     {
       Vertex vertex {};
       vertex.pos = {attrib.vertices[3 * index.vertex_index + 0],
