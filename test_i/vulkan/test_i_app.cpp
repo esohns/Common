@@ -2213,22 +2213,21 @@ HelloTriangleApplication::updateUniformBuffer (uint32_t currentImage)
   float time =
     std::chrono::duration<float, std::chrono::seconds::period> (currentTime - startTime).count ();
 
-  UniformBufferObject ubo {};
+  struct UniformBufferObject ubo {};
   ubo.model =
-    glm::rotate (glm::mat4 (1.0f), time * glm::radians (90.0f), glm::vec3 (0.0f, 0.0f, 1.0f));
+    glm::rotate (glm::mat4 (1.0f), time * COMMON_GL_CAMERA_DEFAULT_ROTATION_FACTOR_F * glm::radians (90.0f), glm::vec3 (0.0f, 0.0f, 1.0f));
   ubo.view =
     glm::lookAt (glm::vec3 (2.0f, 2.0f, 2.0f), glm::vec3 (0.0f, 0.0f, 0.0f), glm::vec3 (0.0f, 0.0f, 1.0f));
   ubo.proj =
     glm::perspective (glm::radians (45.0f), swapChainExtent_.width / (float) swapChainExtent_.height, 0.1f, 10.0f);
-  ubo.proj[1][1] *= -1;
-  ACE_OS::memcpy (uniformBuffersMapped_[currentImage], &ubo, sizeof (UniformBufferObject));
+  ubo.proj[1][1] *= -1.0f; // model is upside-down ?
+  ACE_OS::memcpy (uniformBuffersMapped_[currentImage], &ubo, sizeof (struct UniformBufferObject));
 }
 
 void
 HelloTriangleApplication::drawFrame ()
 {
   vkWaitForFences (device_, 1, &inFlightFences_[currentFrame_], VK_TRUE, UINT64_MAX);
-  //vkResetFences (device_, 1, &inFlightFences_[currentFrame_]);
 
   uint32_t imageIndex;
   VkResult result = vkAcquireNextImageKHR (device_,
@@ -2250,7 +2249,7 @@ HelloTriangleApplication::drawFrame ()
     return;
   } // end ELSE IF
 
-  // Only reset the fence if we are submitting work
+  // *NOTE*: only reset the fence if submitting work
   vkResetFences (device_, 1, &inFlightFences_[currentFrame_]);
 
   updateUniformBuffer (currentFrame_);

@@ -29,6 +29,7 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
+#define GLM_FORCE_PURE
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #endif // GLM_SUPPORT
@@ -36,8 +37,8 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 #define VK_USE_PLATFORM_WIN32_KHR
 #elif defined (ACE_LINUX)
-#if defined (IS_UBUNTU_LINUX)
-#define VK_USE_PLATFORM_XLIB_KHR
+#if defined (IS_UBUNTU_LINUX)    // *NOTE*: github "*-latest" runners lag behind:
+#define VK_USE_PLATFORM_XLIB_KHR //         - Ubuntu 'noble' still is on X11
 #else
 #define VK_USE_PLATFORM_WAYLAND_KHR
 #endif // IS_UBUNTU_LINUX
@@ -263,7 +264,7 @@ class HelloTriangleApplication
   VkDeviceMemory               depthImageMemory_;
   VkImageView                  depthImageView_;
 
-  std::vector<Vertex>          vertices_;
+  std::vector<struct Vertex>   vertices_;
   std::vector<uint32_t>        indices_;
 
   uint32_t                     currentFrame_;
