@@ -23,7 +23,7 @@
 
 #include <chrono>
 
-#include "common_gl_camera.h"
+//#include "common_gl_camera.h"
 
 #include "test_i_vulkan_defines.h"
 
@@ -33,7 +33,7 @@ struct Common_Vulkan_CBData
    : width (static_cast<float> (TEST_I_VULKAN_DEFAULT_WINDOW_WIDTH))
    , height (static_cast<float> (TEST_I_VULKAN_DEFAULT_WINDOW_HEIGHT))
    , mouseButton0IsDown (false)
-   , camera ()
+   //, camera ()
    , wireframe (false)
    , tp1 ()
   {}
@@ -43,7 +43,7 @@ struct Common_Vulkan_CBData
 
   bool                    mouseButton0IsDown; // current-
 
-  Common_GL_Camera        camera;
+  //Common_GL_Camera        camera;
 
   bool                    wireframe;
 

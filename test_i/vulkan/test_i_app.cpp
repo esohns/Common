@@ -61,6 +61,8 @@
 
 #include "common_file_tools.h"
 
+#include "common_gl_defines.h"
+
 #include "test_i_vulkan_common.h"
 
 namespace std
