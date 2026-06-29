@@ -7,8 +7,13 @@ string (SUBSTRING ${BUILD_PATH_SUFFIX} 1 -1 BUILD_PATH_SUFFIX)
 
 ############## includes ###############
 
-include_directories (${tensorflow_INCLUDE_DIRS})
+if (TENSORFLOW_SUPPORT)
+ if (NOT TENSORFLOW_CC_SUPPORT)
+  include_directories (${tensorflow_INCLUDE_DIRS})
+ endif (NOT TENSORFLOW_CC_SUPPORT)
+endif (TENSORFLOW_SUPPORT)
 if (TENSORFLOW_CC_SUPPORT)
+#*WARNING*: the includes for Tensorflow C API conflict with the ones from the Tensorflow C++ API... :-(
  include_directories (${tensorflow_cc_INCLUDE_DIRS})
 endif (TENSORFLOW_CC_SUPPORT)
 
