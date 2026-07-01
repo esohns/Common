@@ -360,7 +360,7 @@ do_work (int argc_in,
 
       void* output_data_p = TF_TensorData (run_output_tensors_a[0]);
       float data1 = ((float*)output_data_p)[0];
-      ACE_DEBUG ((LM_DEBUG,
+      ACE_DEBUG ((LM_INFO,
                   ACE_TEXT ("Prediction: %.4f\n"),
                   data1));
 

@@ -2219,20 +2219,32 @@ HelloTriangleApplication::createSyncObjects ()
 void
 HelloTriangleApplication::updateUniformBuffer (uint32_t currentImage)
 {
-  static auto startTime = std::chrono::high_resolution_clock::now ();
-  auto currentTime = std::chrono::high_resolution_clock::now ();
-  float time =
-    std::chrono::duration<float, std::chrono::seconds::period> (currentTime - startTime).count ();
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+  static std::chrono::steady_clock::time_point start_time =
+    std::chrono::steady_clock::now ();
+  std::chrono::steady_clock::time_point current_time =
+    std::chrono::steady_clock::now ();
+#else
+  static std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> start_time =
+    std::chrono::high_resolution_clock::now ();
+  std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> current_time =
+    std::chrono::high_resolution_clock::now ();
+#endif // ACE_WIN32 || ACE_WIN64
+  float time_f =
+    std::chrono::duration<float, std::chrono::seconds::period> (current_time - start_time).count ();
 
   struct UniformBufferObject ubo {};
 #if defined (GLM_SUPPORT)
   ubo.model =
-    glm::rotate (glm::mat4 (1.0f), time * COMMON_GL_CAMERA_DEFAULT_ROTATION_FACTOR_F * glm::radians (90.0f), glm::vec3 (0.0f, 0.0f, 1.0f));
+    glm::rotate (glm::mat4 (1.0f), time_f * COMMON_GL_CAMERA_DEFAULT_ROTATION_FACTOR_F * glm::radians (90.0f), glm::vec3 (0.0f, 0.0f, 1.0f));
   ubo.view =
     glm::lookAt (glm::vec3 (2.0f, 2.0f, 2.0f), glm::vec3 (0.0f, 0.0f, 0.0f), glm::vec3 (0.0f, 0.0f, 1.0f));
   ubo.proj =
     glm::perspective (glm::radians (45.0f), swapChainExtent_.width / (float) swapChainExtent_.height, 0.1f, 10.0f);
   ubo.proj[1][1] *= -1.0f; // model is upside-down ?
+#else
+// *TODO*
+#error "no GLM support, aborting"
 #endif // GLM_SUPPORT
   ACE_OS::memcpy (uniformBuffersMapped_[currentImage], &ubo, sizeof (struct UniformBufferObject));
 }

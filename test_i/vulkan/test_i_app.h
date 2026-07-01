@@ -26,13 +26,13 @@
 #include <vector>
 
 #if defined (GLM_SUPPORT)
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
-//#define GLM_FORCE_PURE
-#if defined (_DEBUG)
-#define GLM_FORCE_MESSAGES
-#endif // _DEBUG
+//#define GLM_FORCE_RADIANS
+//#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+//#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
+////#define GLM_FORCE_PURE
+//#if defined (_DEBUG)
+//#define GLM_FORCE_MESSAGES
+//#endif // _DEBUG
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #endif // GLM_SUPPORT
