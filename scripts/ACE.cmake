@@ -21,16 +21,16 @@ elseif (WIN32)
                 DOC "searching for ${ACE_LIB_FILE}"
                 REQUIRED
                 NO_DEFAULT_PATH)
- else ()
+ endif (VCPKG_USE)
+ if (NOT ACE_LIBRARY)
   find_library (ACE_LIBRARY ${ACE_LIB_FILE}
                 PATHS $ENV{ACE_ROOT} $ENV{LIB_ROOT}/ACE_TAO/ACE
                 PATH_SUFFIXES lib
                 DOC "searching for ${ACE_LIB_FILE}"
                 REQUIRED
                 NO_DEFAULT_PATH)
- endif (VCPKG_USE)
+ endif (NOT ACE_LIBRARY)
 endif ()
-#if (NOT EXISTS ACE_LIBRARY)
 if (NOT ACE_LIBRARY)
  message (FATAL_ERROR "could not find ${ACE_LIB_FILE}, aborting")
 else ()
@@ -38,7 +38,7 @@ else ()
  set (CMAKE_CXX_STANDARD 17)
  set (CMAKE_CXX_STANDARD_REQUIRED ON)
 # set (CMAKE_CXX_EXTENSIONS OFF)
-endif ()
+endif (NOT ACE_LIBRARY)
 
 # set ACE include[/dll] directory
 if (DEFINED ENV{ACE_ROOT})
@@ -53,11 +53,11 @@ if (UNIX)
 elseif (WIN32)
  if (NOT DEFINED ENV{ACE_ROOT})
   if (VCPKG_USE)
-   set (ACE_INCLUDE_DIR ${VCPKG_INCLUDE_DIR})
-   set (ACE_LIB_DIR ${VCPKG_BIN_DIR})
+   set (ACE_INCLUDE_DIR "${VCPKG_INCLUDE_DIR}")
+   set (ACE_LIB_DIR "${VCPKG_BIN_DIR}")
   elseif (DEFINED ENV{LIB_ROOT})
-   set (ACE_INCLUDE_DIR $ENV{LIB_ROOT}/ACE_TAO/ACE)
-   set (ACE_LIB_DIR $ENV{LIB_ROOT}/ACE_TAO/ACE/lib)
+   set (ACE_INCLUDE_DIR "$ENV{LIB_ROOT}/ACE_TAO/ACE")
+   set (ACE_LIB_DIR "$ENV{LIB_ROOT}/ACE_TAO/ACE/lib")
   else ()
    message (FATAL_ERROR "ACE library not available, aborting")
   endif ()
