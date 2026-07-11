@@ -7,13 +7,13 @@ if (UNIX)
   set (BOX2D_INCLUDE_DIRS "${PKG_BOX2D_INCLUDE_DIRS}")
   set (BOX2D_LIBRARIES "${PKG_BOX2D_LIBRARIES}")
  else ()
-  find_library (BOX2D_LIBRARY libbox2d.a
-                PATHS $ENV{LIB_ROOT}/box2d/build/gcc
+  find_library (BOX2D_LIBRARY libbox2d${LIB_FILE_SUFFIX}.a
+                PATHS $ENV{LIB_ROOT}/box2d/build/gcc/src
                 PATH_SUFFIXES ${CMAKE_BUILD_TYPE}
                 DOC "searching for box2d"
                 NO_DEFAULT_PATH)
   if (NOT BOX2D_LIBRARY)
-   message (WARNING "could not find libbox2d.a, continuing")
+   message (WARNING "could not find libbox2d${LIB_FILE_SUFFIX}.a, continuing")
   endif (NOT BOX2D_LIBRARY)
   if (BOX2D_LIBRARY)
    message (STATUS "found Box2D")

@@ -1,7 +1,7 @@
 set (LIQUIDFUN_SUPPORT_DEFAULT ON)
 if (UNIX)
 # set (ENV{PKG_CONFIG_PATH} "/usr/local/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
- pkg_check_modules (PKG_LIQUIDFUN LIQUIDFUN)
+ pkg_check_modules (PKG_LIQUIDFUN liquidfun)
  if (PKG_LIQUIDFUN_FOUND)
   set (LIQUIDFUN_FOUND TRUE)
   set (LIQUIDFUN_INCLUDE_DIRS "${PKG_LIQUIDFUN_INCLUDE_DIRS}")
