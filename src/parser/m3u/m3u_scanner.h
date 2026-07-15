@@ -652,8 +652,9 @@ void yyfree ( void * , yyscan_t yyscanner );
 #define state_media_next_value_comma 12
 #define state_media_next_value_quotation 13
 #define state_media_is_last_value 14
-#define state_url_1 15
-#define state_url_2 16
+#define state_uri_end 15
+#define state_url_1 16
+#define state_url_2 17
 
 #endif
 

@@ -199,7 +199,6 @@ Common_ParserBase_T<ConfigurationType,
 
   // dump message
   ACE_Message_Block* message_block_p = fragment_;
-  while (message_block_p->prev ()) message_block_p = message_block_p->prev ();
   ACE_ASSERT (message_block_p);
   Common_IDumpState* idump_state_p =
     dynamic_cast<Common_IDumpState*> (message_block_p);

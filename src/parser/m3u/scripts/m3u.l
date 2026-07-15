@@ -107,6 +107,7 @@ LF                                \x0A|\x0D\x0A
 %s state_media_next_value_comma
 %s state_media_next_value_quotation
 %s state_media_is_last_value
+%s state_uri_end
 %s state_url_1 state_url_2
 
 %{
@@ -413,10 +414,16 @@ LF                                \x0A|\x0D\x0A
                                     return yy::parser::token::VALUE; }
 "\""                             { parser->offset (yyleng);
                                    if (parser->lastKeyWasURI ())
-                                     BEGIN (state_url_2); // --> eat the next lf and end the element
+                                     BEGIN (state_uri_end); // --> eat the next lf and end the element
                                    else
                                      BEGIN (state_media_next_value_comma); }
 } // end <state_media_next_value_quotation>
+
+<state_uri_end>{
+{LF}                              { parser->offset (yyleng);
+                                    BEGIN (INITIAL);
+                                    return yy::parser::token::END_OF_ELEMENT; }
+} // end <state_uri_end>
 
 <state_url_1>{
 "#EXT-X-PROGRAM-DATE-TIME:"       { parser->offset (yyleng);
