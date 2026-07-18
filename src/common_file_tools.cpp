@@ -2646,7 +2646,7 @@ Common_File_Tools::parseFileEntry (const std::string& entry_in)
 
   // *NOTE*: e.g. "drwxrwxr-x   6 ftpfau   ftpfau       4096 Jan 15 16:35 almalinux"
   //              "drwxr-xr-x  11 ftpfau   ftpfau       4096 Apr 30  2021 cdn.media.ccc.de"
-  std::string regex_string = // drwxrwxr-x                    6                  ftpfau                 ftpfau                 4096               Jan                             15                               16            :    35                                   almalinux
+  static std::string regex_string = // drwxrwxr-x                    6                  ftpfau                 ftpfau                 4096               Jan                             15                               16            :    35                                   almalinux
     ACE_TEXT_ALWAYS_CHAR ("^([[:alpha:]-]{10})(?:[[:space:]]+)([[:digit:]]+)(?: )([^ ]+)(?:[[:space:]]+)([^ ]+)(?:[[:space:]]+)([[:digit:]]+)(?: )([[:alpha:]]{3})(?:[[:space:]]+)([[:digit:]]+)(?:[[:space:]]+)(?:([[:digit:]]+)(?::)([[:digit:]]+)|([[:digit:]]{4}))(?: )(.+)$");
   std::regex regex;
   std::regex::flag_type flags = std::regex_constants::ECMAScript;

@@ -22,7 +22,6 @@
 #define COMMON_FILE_COMMON_H
 
 #include <string>
-//#include <utility>
 #include <vector>
 
 #include "ace/Assert.h"
