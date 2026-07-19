@@ -33,7 +33,17 @@
 #include "common_iscanner.h"
 
 // forward declaration(s)
-struct YYLTYPE;
+#if !defined YYLTYPE && !defined YYLTYPE_IS_DECLARED
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+#define YYLTYPE_IS_DECLARED 1
+#define YYLTYPE_IS_TRIVIAL 1
+#endif
 struct yy_buffer_state;
 
 template <typename ConfigurationType, // implements struct Common_ParserConfiguration

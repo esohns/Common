@@ -31,6 +31,9 @@
       ((ACE_MINOR_VERSION > 1) || \
        ((ACE_MINOR_VERSION == 1) && (ACE_BETA_VERSION > 6)))))
 #include "ace/Time_Policy.h"
+
+typedef ACE_HR_Time_Policy Common_HRTimePolicy_t;
+
 // *NOTE*: (where possible) use high-resolution timestamps for accuracy and low
 //         latency timers
 // *IMPORTANT NOTE*: currently, the high resolution time policy is not
@@ -48,11 +51,10 @@
 #if defined (ACE_WIN32) || defined (ACE_WIN64)
 typedef ACE_System_Time_Policy Common_TimePolicy_t;
 #else
-typedef ACE_HR_Time_Policy Common_TimePolicy_t;
+typedef ACE_System_Time_Policy Common_TimePolicy_t;
 #endif // ACE_WIN32 || ACE_WIN64
 #else
 #error ACE version > 6.1.6 required
-typedef ACE_System_Time_Policy Common_TimePolicy_t;
 #endif // ACE_VERSION (> 6.1.6)
 
 #if ((ACE_MAJOR_VERSION > 6) ||   \
@@ -64,7 +66,7 @@ typedef ACE_System_Time_Policy Common_TimePolicy_t;
 //#pragma GCC diagnostic ignored "-Wunused-variable"
 #endif // __GNUG__
 COMMON_COMPILER_UNUSED_SYMBOL_PREFIX static Common_TimePolicy_t COMMON_TIME_POLICY;
-COMMON_COMPILER_UNUSED_SYMBOL_PREFIX static ACE_Time_Value_T<ACE_HR_Time_Policy> COMMON_TIME_POLICY_HR;
+COMMON_COMPILER_UNUSED_SYMBOL_PREFIX static ACE_Time_Value_T<Common_HRTimePolicy_t> COMMON_TIME_POLICY_HR;
 #if defined (__GNUG__)
 //#pragma GCC diagnostic pop
 #endif // __GNUG__
