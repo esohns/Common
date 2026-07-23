@@ -99,8 +99,8 @@ test_i_opengl_glut_draw ()
   static glm::vec3 rotation_s (0.0f, 0.0f, 1.0f);
 
   glm::mat4 model_matrix = glm::mat4 (1.0f); // make sure to initialize matrix to identity matrix first
-  model_matrix = glm::translate (model_matrix,
-                                 glm::vec3 (0.0f, 0.0f, -3.0f));
+  //model_matrix = glm::translate (model_matrix,
+  //                               glm::vec3 (0.0f, 0.0f, -3.0f));
   model_matrix = glm::rotate (model_matrix,
                               glm::radians (angle_f),
                               rotation_s);
@@ -309,6 +309,7 @@ test_i_opengl_glut_key_special (int key_in,
       break;
     case GLUT_KEY_HOME:
       cb_data_p->camera.reset ();
+      cb_data_p->camera.position_ = {0.0f, 0.0f, TEST_I_OPENGL_DEFAULT_CAMERA_Z};
       break;
     default:
       break;

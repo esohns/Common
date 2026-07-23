@@ -200,18 +200,20 @@ do_work (int argc_in,
          const std::string& textureFilePath_in)
 {
   struct Common_OpenGL_GLUT_CBData cb_data_s;
+  cb_data_s.camera.position_ = {0.0f, 0.0f, TEST_I_OPENGL_DEFAULT_CAMERA_Z};
 
 #if defined (GLUT_SUPPORT)
   // initialize GLUT
+  // glutInitContextVersion (4, 6);
 #if defined (_DEBUG)
   glutInitWarningFunc (GLUT_init_warning_cb);
   glutInitErrorFunc (GLUT_init_error_cb);
   // glutInitContextFunc (GLUT_init_context_cb);
+  glutInitContextProfile (GLUT_COMPATIBILITY_PROFILE);
 #else
-  glutInitContextVersion (4, 6);
   glutInitContextProfile (GLUT_CORE_PROFILE);
-  glutInitContextFlags (GLUT_FORWARD_COMPATIBLE); 
 #endif // _DEBUG
+  //glutInitContextFlags (GLUT_FORWARD_COMPATIBLE); 
   glutSetOption (GLUT_ACTION_ON_WINDOW_CLOSE,
                  GLUT_ACTION_GLUTMAINLOOP_RETURNS);
   glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);

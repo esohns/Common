@@ -28,6 +28,9 @@
 #define TEST_I_OPENGL_DEFAULT_ZNEAR            0.1f
 #define TEST_I_OPENGL_DEFAULT_ZFAR             100.0f
 
+// camera
+#define TEST_I_OPENGL_DEFAULT_CAMERA_Z         3.0f
+
 #define TEST_I_OPENGL_DEFAULT_SCALE_FACTOR     30
 
 #define TEST_I_OPENGL_TEXTURE_FILENAME         "opengl_logo.png"
