@@ -71,15 +71,30 @@ Common_Math_Tools::lerp (ValueType start_in,
 
   // sanity check(s)
   ACE_ASSERT (amount_in >= static_cast<ValueType> (0.0) && amount_in <= static_cast<ValueType> (1.0));
+  if (unlikely (start_in == end_in))
+    return start_in;
   if (unlikely (end_in < start_in))
-  {
-    ValueType temp = end_in;
-    end_in = start_in;
-    start_in = temp;
-    amount_in = static_cast<ValueType> (1.0) - amount_in;
-  } // end IF
+    return Common_Math_Tools::lerp (end_in, start_in, static_cast<ValueType> (1.0) - amount_in);
 
   return (static_cast<ValueType> (1.0) - amount_in) * start_in + amount_in * end_in;
+}
+
+template <typename ValueType>
+std::enable_if_t<std::is_integral<ValueType>::value, ValueType>
+Common_Math_Tools::lerp (ValueType start_in,
+                         ValueType end_in,
+                         float amount_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Math_Tools::lerp"));
+
+  // sanity check(s)
+  ACE_ASSERT (amount_in >= 0.0f && amount_in <= 1.0f);
+  if (unlikely (start_in == end_in))
+    return start_in;
+  if (unlikely (end_in < start_in))
+    return Common_Math_Tools::lerp (end_in, start_in, 1.0f - amount_in);
+
+  return (start_in + static_cast<ValueType> (amount_in * static_cast<float> (end_in - start_in)));
 }
 
 template <typename ContainerType>

@@ -37,6 +37,10 @@ class Common_Math_Tools
   static std::enable_if_t<!std::is_integral<ValueType>::value, ValueType> lerp (ValueType,  // start
                                                                                 ValueType,  // end
                                                                                 ValueType); // amount
+  template <typename ValueType>
+  static std::enable_if_t<std::is_integral<ValueType>::value, ValueType> lerp (ValueType,  // start
+                                                                               ValueType,  // end
+                                                                               float); // amount
 
   // permutations
   template <typename ContainerType>

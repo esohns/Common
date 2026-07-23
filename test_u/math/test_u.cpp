@@ -21,8 +21,8 @@ template <typename T>
 void
 print_vector (std::vector<T>& vector_in)
 {
-  for (int i = 0;
-       i < static_cast<int> (vector_in.size ());
+  for (size_t i = 0;
+       i < vector_in.size ();
        ++i)
     std::cout << vector_in[i];
   std::cout << std::endl;
@@ -30,11 +30,11 @@ print_vector (std::vector<T>& vector_in)
 
 template <typename T>
 void
-print_vectors (std::vector<std::vector<T>>& vectors_in)
+print_vectors (std::vector<std::vector<T> >& vectors_in)
 {
   std::cout << vectors_in.size () << ACE_TEXT_ALWAYS_CHAR (" result(s)") << std::endl;
-  for (int i = 0;
-       i < static_cast<int> (vectors_in.size ());
+  for (size_t i = 0;
+       i < vectors_in.size ();
        ++i)
     print_vector (vectors_in[i]);
 }
@@ -166,7 +166,7 @@ do_work (enum Test_U_ModeType mode_in)
     case TEST_U_MODE_DEFAULT:
     {
       std::vector<int> test_vector_a = {1, 2, 3, 4, 5}, result;
-      std::vector<std::vector<int>> results;
+      std::vector<std::vector<int> > results;
       results.push_back (test_vector_a);
       do
       {
