@@ -29,7 +29,6 @@ glib_log_handler (const gchar* logDomain_in,
 {
   COMMON_TRACE (ACE_TEXT ("::glib_log_handler"));
 
-  ACE_UNUSED_ARG (logDomain_in);
   ACE_UNUSED_ARG (userData_in);
 
   // translate loglevel
@@ -57,14 +56,14 @@ glib_log_handler (const gchar* logDomain_in,
     {
       ACE_DEBUG ((LM_ERROR,
                   ACE_TEXT ("invalid/unknown glib log level (was: 0x%x), returning"),
-                  logLevel_in));
+                  logLevel_in & G_LOG_LEVEL_MASK));
       return;
     }
   } // end SWITCH
 
-  if ((log_priority == LM_DEBUG) &&
-      !(ACE_LOG_MSG->priority_mask (ACE_Log_Msg::PROCESS) & LM_DEBUG))
-    return; // don't log
+  //if ((log_priority == LM_DEBUG) &&
+  //    !(ACE_LOG_MSG->priority_mask (ACE_Log_Msg::PROCESS) & LM_DEBUG))
+  //  return; // don't log
 
   ACE_DEBUG ((log_priority,
               ACE_TEXT ("%s:%s%s%s\n"),
