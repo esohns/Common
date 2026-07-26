@@ -213,6 +213,7 @@ Common_GL_Texture::save (const std::string& path_in)
 
 #if defined (STB_IMAGE_SUPPORT)
   if (unlikely (!Common_GL_Image_Tools::saveSTB (path_in,
+                                                 true,
                                                  static_cast<unsigned int> (width_i),
                                                  static_cast<unsigned int> (height_i),
                                                  4,

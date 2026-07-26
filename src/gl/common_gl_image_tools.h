@@ -68,6 +68,7 @@ class Common_GL_Image_Tools
                        unsigned int&,      // return value: #channels
                        GLubyte*&);         // return value: data
   static bool saveSTB (const std::string&, // path
+                       bool,               // flip image on save ? (required for OpenGL)
                        unsigned int,       // width
                        unsigned int,       // height
                        unsigned int,       // #channels

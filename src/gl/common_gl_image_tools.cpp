@@ -495,6 +495,7 @@ Common_GL_Image_Tools::loadSTB (const std::string& path_in,
 
 bool
 Common_GL_Image_Tools::saveSTB (const std::string& path_in,
+                                bool flipImage_in,
                                 unsigned int width_in,
                                 unsigned int height_in,
                                 unsigned int numberOfChannels_in,
@@ -505,7 +506,8 @@ Common_GL_Image_Tools::saveSTB (const std::string& path_in,
   int result = -1;
 
   // for OpenGL...
-  stbi_flip_vertically_on_write (1);
+  if (flipImage_in)
+    stbi_flip_vertically_on_write (1);
 
   switch (Common_Image_Tools::fileExtensionToType (path_in))
   {

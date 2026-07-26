@@ -749,6 +749,7 @@ Common_GL_Tools::screenShot (const std::string& path_in)
 
 #if defined (STB_IMAGE_SUPPORT)
   if (unlikely (!Common_GL_Image_Tools::saveSTB (path_in,
+                                                 false,
                                                  static_cast<unsigned int> (viewport_a[2]),
                                                  static_cast<unsigned int> (viewport_a[3]),
                                                  4,
