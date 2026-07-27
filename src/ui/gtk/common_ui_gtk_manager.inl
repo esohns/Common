@@ -762,9 +762,7 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
   GError* error_p = NULL;
 #endif // GTK_CHECK_VERSION (3,0,0)
   // step1a: set log handlers ?
-  // g_set_print_handler (glib_print_debug_handler);
-  g_set_printerr_handler (glib_print_error_handler);
-  g_log_set_default_handler (glib_log_handler, NULL);
+#if defined (_DEBUG)
   GLogLevelFlags log_flags =
     static_cast <GLogLevelFlags> (G_LOG_FLAG_FATAL    |
                                   G_LOG_FLAG_RECURSION);
@@ -777,7 +775,10 @@ Common_UI_GTK_Manager_T<ACE_SYNCH_USE,
                                   G_LOG_LEVEL_DEBUG);
   if (!(process_priority_mask & LM_DEBUG))
     log_level = static_cast<GLogLevelFlags> (log_level & ~G_LOG_LEVEL_DEBUG);
-#if defined (_DEBUG)
+
+  // g_set_print_handler (glib_print_debug_handler);
+  g_set_printerr_handler (glib_print_error_handler);
+  g_log_set_default_handler (glib_log_handler, NULL);
   g_log_set_handler (G_LOG_DOMAIN,
                      static_cast <GLogLevelFlags> (log_flags | log_level),
                      glib_log_handler,
