@@ -984,12 +984,12 @@ Common_File_Tools::basename (const std::string& path_in,
   COMMON_TRACE (ACE_TEXT ("Common_File_Tools::basename"));
 
   std::string return_value =
-      ACE_TEXT_ALWAYS_CHAR (ACE::basename (path_in.c_str (),
-                                           ACE_DIRECTORY_SEPARATOR_CHAR_A));
-  if (stripSuffix_in)
+    ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT_CHAR_TO_TCHAR (path_in.c_str ()),
+                                         ACE_DIRECTORY_SEPARATOR_CHAR));
+  if (unlikely (stripSuffix_in))
   {
     std::string::size_type position = return_value.rfind ('.');
-    if (position != std::string::npos)
+    if (likely (position != std::string::npos))
       return_value.erase (position, std::string::npos);
   } // end IF
 
@@ -1003,11 +1003,11 @@ Common_File_Tools::isBasename (const std::string& path_in)
 
   std::string directory, file_name;
   directory =
-    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (path_in.c_str (),
-                                        ACE_DIRECTORY_SEPARATOR_CHAR_A));
+    ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT_CHAR_TO_TCHAR (path_in.c_str ()),
+                                        ACE_DIRECTORY_SEPARATOR_CHAR));
   file_name =
-    ACE_TEXT_ALWAYS_CHAR (ACE::basename (path_in.c_str (),
-                                         ACE_DIRECTORY_SEPARATOR_CHAR_A));
+    ACE_TEXT_ALWAYS_CHAR (ACE::basename (ACE_TEXT_CHAR_TO_TCHAR (path_in.c_str ()),
+                                         ACE_DIRECTORY_SEPARATOR_CHAR));
 
   return (!ACE_OS::strcmp (directory.c_str (),
                            ACE_TEXT_ALWAYS_CHAR (".")) &&
@@ -1103,7 +1103,7 @@ Common_File_Tools::createDirectory (const std::string& directory_in,
 //  std::reverse (subdirectories_a.begin (), subdirectories_a.end ());
 //
 //continue_:
-  result = ACE_OS::mkdir (ACE_TEXT (directory_in.c_str ()),
+  result = ACE_OS::mkdir (ACE_TEXT_CHAR_TO_TCHAR (directory_in.c_str ()),
                           ACE_DEFAULT_DIR_PERMS);
   if (unlikely (result == -1))
   {
@@ -1114,8 +1114,9 @@ Common_File_Tools::createDirectory (const std::string& directory_in,
       {
         // OK: some base sub-directory doesn't seem to exist...
         // --> try to recurse
-        std::string base_directory = ACE::dirname (ACE_TEXT (directory_in.c_str ()),
-                                                   ACE_DIRECTORY_SEPARATOR_CHAR);
+        std::string base_directory =
+          ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT_CHAR_TO_TCHAR (directory_in.c_str ()),
+                                              ACE_DIRECTORY_SEPARATOR_CHAR));
         // sanity check: don't recurse for "." !
         if ((base_directory != ACE_TEXT_ALWAYS_CHAR (".")) &&
             createMissingSubdirectories_in)
@@ -1172,7 +1173,7 @@ Common_File_Tools::copyFile (const std::string& path_in,
   int result = -1;
   ACE_FILE_Addr source_address, target_address;
 
-  result = source_address.set (ACE_TEXT_CHAR_TO_TCHAR (path_in.c_str ()));
+  result = source_address.set (ACE_TEXT (path_in.c_str ()));
   if (unlikely (result == -1))
   {
     ACE_DEBUG ((LM_ERROR,
@@ -1181,16 +1182,16 @@ Common_File_Tools::copyFile (const std::string& path_in,
     return false;
   } // end IF
   std::string target_filename =
-      (directory_in.empty () ? ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT_CHAR_TO_TCHAR (path_in.c_str ()),
-                                                                   ACE_DIRECTORY_SEPARATOR_CHAR))
-                             : directory_in);
+    (directory_in.empty () ? ACE_TEXT_ALWAYS_CHAR (ACE::dirname (ACE_TEXT_CHAR_TO_TCHAR (path_in.c_str ()),
+                                                                 ACE_DIRECTORY_SEPARATOR_CHAR))
+                           : directory_in);
   target_filename += ACE_DIRECTORY_SEPARATOR_CHAR_A;
   if (directory_in.empty ())
   {
     target_filename += Common_File_Tools::basename (path_in,
                                                     true);
     target_filename +=
-        ACE_TEXT_ALWAYS_CHAR (COMMON_FILE_FILENAME_BACKUP_SUFFIX);
+      ACE_TEXT_ALWAYS_CHAR (COMMON_FILE_FILENAME_BACKUP_SUFFIX);
   } // end IF
   else
   {
