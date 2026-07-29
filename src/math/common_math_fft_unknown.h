@@ -1,64 +1,20 @@
-#ifndef COMMON_MATH_FFT_H
-#define COMMON_MATH_FFT_H
+#ifndef COMMON_MATH_FFT_UNKNOWN_H
+#define COMMON_MATH_FFT_UNKNOWN_H
 
 #include <complex>
-#include <valarray>
 #include <vector>
 
 #include "ace/Assert.h"
 #include "ace/Global_Macros.h"
 
-enum Common_Math_FFT_AlgorithmType
-{
-  FFT_ALGORITHM_INVALID = -1,
-  ////////////////////////////////////////
-  FFT_ALGORITHM_COOLEY_TUKEY,
-  FFT_ALGORITHM_FFTW,
-  FFT_ALGORITHM_MILKDROP, // projectM
-  FFT_ALGORITHM_UNKNOWN, // found this somewhere on the internet
-  ////////////////////////////////////////
-  FFT_ALGORITHM_MAX
-};
+#include "common_math_fft.h"
 
 //////////////////////////////////////////
+// specialization
 
-template <typename ValueType> 
-class Common_Math_FFT_SampleIterator_T
-{
- public:
-  Common_Math_FFT_SampleIterator_T (uint8_t*); // buffer
-  inline virtual ~Common_Math_FFT_SampleIterator_T () {}
-
-  bool initialize (unsigned int, // bytes / (interleaved) 'data sample' (i.e. sizeof ((mono-)'sound sample') * channels)
-                   unsigned int, // resolution: bytes per (mono-)'sound sample'
-                   bool,         // signed 'sound sample' format ?
-                   bool,         // floating point format ? : integer format
-                   int);         // 'sound sample' byte order (ACE-style, 0: N/A)
-  ValueType get (unsigned int,  // index (i.e. #sample into buffer)
-                 unsigned int); // channel index (i.e. 0: mono/stereo left,
-                                //                     1: stereo right, ...)
-
-  bool         isInitialized_;
-  uint8_t*     buffer_;
-  unsigned int dataSampleSize_; // soundSampleSize_ * #channels
-  bool         isSignedSampleFormat_;
-  bool         reverseEndianness_;
-  unsigned int soundSampleSize_; // mono-
-
- private:
-  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator_T ())
-  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator_T (const Common_Math_FFT_SampleIterator_T&))
-  ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator_T& operator= (const Common_Math_FFT_SampleIterator_T&))
-
-  bool         isFloatingPointFormat_;
-  int          sampleByteOrder_; // ACE-style, -1: N/A
-};
-
-//////////////////////////////////////////
-
-template <typename ValueType,
-          enum Common_Math_FFT_AlgorithmType AlgorithmType = FFT_ALGORITHM_UNKNOWN>
-class Common_Math_FFT_T
+template <typename ValueType>
+class Common_Math_FFT_T<ValueType,
+                        FFT_ALGORITHM_UNKNOWN>
 {
  public:
   Common_Math_FFT_T (unsigned int,  // #channels
@@ -161,13 +117,6 @@ class Common_Math_FFT_T
 //////////////////////////////////////////
 
 // include template definition
-#include "common_math_fft.inl"
-
-#include "common_math_fft_cooley_tukey.h"
-#if defined (FFTW_SUPPORT)
-#include "common_math_fftw.h"
-#endif // FFTW_SUPPORT
-#include "common_math_fft_milkdrop.h"
-#include "common_math_fft_unknown.h"
+#include "common_math_fft_unknown.inl"
 
 #endif

@@ -38,6 +38,15 @@ set (source_files
      common_math_fft.cpp
      common_math_fft.h
      common_math_fft.inl
+     common_math_fft_cooley_tukey.cpp
+     common_math_fft_cooley_tukey.h
+     common_math_fft_cooley_tukey.inl
+     common_math_fft_milkdrop.cpp
+     common_math_fft_milkdrop.h
+     common_math_fft_milkdrop.inl
+     common_math_fft_unknown.cpp
+     common_math_fft_unknown.h
+     common_math_fft_unknown.inl
      common_math_pidcontrol.cpp
      common_math_pidcontrol.h
      common_math_pidcontrol_zieglernichols.cpp
@@ -105,6 +114,12 @@ set (header_files
      common_math_defines.h
      common_math_fft.h
      common_math_fft.inl
+     common_math_fft_cooley_tukey.h
+     common_math_fft_cooley_tukey.inl
+     common_math_fft_milkdrop.h
+     common_math_fft_milkdrop.inl
+     common_math_fft_unknown.h
+     common_math_fft_unknown.inl
      common_math_pidcontrol.h
      common_math_pidcontrol_zieglernichols.h
      common_math_pt1_tracker.h

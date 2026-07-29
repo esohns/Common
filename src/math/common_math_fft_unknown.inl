@@ -7,105 +7,10 @@
 #include "common_macros.h"
 
 template <typename ValueType>
-Common_Math_FFT_SampleIterator_T<ValueType>::Common_Math_FFT_SampleIterator_T (uint8_t* buffer_in)
- : isInitialized_ (false)
- , buffer_ (buffer_in)
- , dataSampleSize_ (0)
- , isSignedSampleFormat_ (true)
- , reverseEndianness_ (false)
- , soundSampleSize_ (0)
- /////////////////////////////////////////
- , isFloatingPointFormat_ (false)
- , sampleByteOrder_ (ACE_BYTE_ORDER)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_SampleIterator_T::Common_Math_FFT_SampleIterator_T"));
-
-}
-
-template <typename ValueType>
-ValueType
-Common_Math_FFT_SampleIterator_T<ValueType>::get (unsigned int index_in,
-                                                  unsigned int channel_in)
-{
-  //COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_SampleIterator_T::get"));
-
-  // sanity check(s)
-  ACE_ASSERT (isInitialized_);
-
-  switch (soundSampleSize_)
-  {
-    case 1: // --> data is single-byte (possibly non-integer)
-      return static_cast<ValueType> (buffer_[(index_in * dataSampleSize_) + channel_in]);
-    case 2:
-      return static_cast<ValueType> (reverseEndianness_ ? (isSignedSampleFormat_ ? ACE_SWAP_WORD (*reinterpret_cast<int16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))
-                                                                                 : ACE_SWAP_WORD (*reinterpret_cast<uint16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
-                                                        : (isSignedSampleFormat_ ? *reinterpret_cast<int16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
-                                                                                 : *reinterpret_cast<uint16_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])));
-    case 4:
-    { ACE_ASSERT (ACE_SIZEOF_FLOAT == 4);
-      return static_cast<ValueType> (isFloatingPointFormat_ ? *reinterpret_cast<float*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
-                                                            : (reverseEndianness_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG (*reinterpret_cast<int32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))
-                                                                                                           : ACE_SWAP_LONG (*reinterpret_cast<uint32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
-                                                                                  : (isSignedSampleFormat_ ? *reinterpret_cast<int32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
-                                                                                                           : *reinterpret_cast<uint32_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))));
-    }
-    case 8:
-    { ACE_ASSERT (ACE_SIZEOF_DOUBLE == 8);
-      return static_cast<ValueType> (isFloatingPointFormat_ ? *reinterpret_cast<double*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
-                                                            : (reverseEndianness_ ? (isSignedSampleFormat_ ? ACE_SWAP_LONG_LONG (*reinterpret_cast<int64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))
-                                                                                                           : ACE_SWAP_LONG_LONG (*reinterpret_cast<uint64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])))
-                                                                                  : (isSignedSampleFormat_ ? *reinterpret_cast<int64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)])
-                                                                                                           : *reinterpret_cast<uint64_t*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]))));
-    }
-    case 16:
-    { ACE_ASSERT (ACE_SIZEOF_LONG_DOUBLE == 16);
-      ACE_ASSERT (isFloatingPointFormat_);
-      return static_cast<ValueType> (*reinterpret_cast<long double*> (&buffer_[(index_in * dataSampleSize_) + (channel_in * soundSampleSize_)]));
-    }
-    default:
-    {
-      ACE_DEBUG ((LM_ERROR,
-                  ACE_TEXT ("unknown/invalid sound sample size (was: %d), aborting\n"),
-                  soundSampleSize_));
-      break;
-    }
-  } // end SWITCH
-
-  return 0.0;
-}
-
-template <typename ValueType>
-bool
-Common_Math_FFT_SampleIterator_T<ValueType>::initialize (unsigned int dataSampleSize_in,
-                                                         unsigned int soundSampleSize_in,
-                                                         bool isSignedSampleFormat_in,
-                                                         bool isFloatingPointFormat_in,
-                                                         int sampleByteOrder_in)
-{
-  COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_SampleIterator_T::initialize"));
-
-  dataSampleSize_ = dataSampleSize_in;
-  soundSampleSize_ = soundSampleSize_in;
-  isSignedSampleFormat_ = isSignedSampleFormat_in;
-  isFloatingPointFormat_ = isFloatingPointFormat_in;
-  sampleByteOrder_ = sampleByteOrder_in;
-
-  reverseEndianness_ =
-    (sampleByteOrder_ != -1) && (ACE_BYTE_ORDER != sampleByteOrder_);
-
-  isInitialized_ = true;
-
-  return true;
-}
-
-//////////////////////////////////////////
-
-template <typename ValueType,
-          enum Common_Math_FFT_AlgorithmType AlgorithmType>
 Common_Math_FFT_T<ValueType,
-                  AlgorithmType>::Common_Math_FFT_T (unsigned int channels_in,
-                                                     unsigned int slots_in,
-                                                     unsigned int sampleRate_in)
+                  FFT_ALGORITHM_UNKNOWN>::Common_Math_FFT_T (unsigned int channels_in,
+                                                             unsigned int slots_in,
+                                                             unsigned int sampleRate_in)
  : isInitialized_ (false)
  , buffer_ (NULL)
  , X_ (NULL)
@@ -128,10 +33,9 @@ Common_Math_FFT_T<ValueType,
                                sampleRate_in);
 }
 
-template <typename ValueType,
-          enum Common_Math_FFT_AlgorithmType AlgorithmType>
+template <typename ValueType>
 Common_Math_FFT_T<ValueType,
-                  AlgorithmType>::~Common_Math_FFT_T ()
+                  FFT_ALGORITHM_UNKNOWN>::~Common_Math_FFT_T ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::~Common_Math_FFT_T"));
 
@@ -157,13 +61,12 @@ Common_Math_FFT_T<ValueType,
   } // end IF
 }
 
-template <typename ValueType,
-          enum Common_Math_FFT_AlgorithmType AlgorithmType>
+template <typename ValueType>
 bool
 Common_Math_FFT_T<ValueType,
-                  AlgorithmType>::Initialize (unsigned int channels_in,
-                                              unsigned int slots_in,
-                                              unsigned int sampleRate_in)
+                  FFT_ALGORITHM_UNKNOWN>::Initialize (unsigned int channels_in,
+                                                      unsigned int slots_in,
+                                                      unsigned int sampleRate_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Initialize"));
 
@@ -185,9 +88,8 @@ Common_Math_FFT_T<ValueType,
     if (X_)
     {
       for (unsigned int i = 0; i < channels_; ++i)
-        delete[] X_[i];
-      delete[] X_;
-      X_ = NULL;
+        delete [] X_[i];
+      delete [] X_; X_ = NULL;
     } // end IF
     if (bitReverseMap_)
     {
@@ -360,13 +262,12 @@ error:
   return false;
 }
 
-template <typename ValueType,
-          enum Common_Math_FFT_AlgorithmType AlgorithmType>
+template <typename ValueType>
 void
 Common_Math_FFT_T<ValueType,
-                  AlgorithmType>::CopyIn (unsigned int channel_in,
-                                          unsigned int samples_in,
-                                          ITERATOR_T& iterator_in)
+                  FFT_ALGORITHM_UNKNOWN>::CopyIn (unsigned int channel_in,
+                                                  unsigned int samples_in,
+                                                  ITERATOR_T& iterator_in)
 {
   //COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::CopyIn"));
 
@@ -397,11 +298,10 @@ Common_Math_FFT_T<ValueType,
   //  X_[channel_in][bitReverseMap_[i]] = std::complex<ValueType> (buffer_[channel_in][i], 0.0);
 }
 
-template <typename ValueType,
-          enum Common_Math_FFT_AlgorithmType AlgorithmType>
+template <typename ValueType>
 void
 Common_Math_FFT_T<ValueType,
-                  AlgorithmType>::Setup (unsigned int channel_in)
+                  FFT_ALGORITHM_UNKNOWN>::Setup (unsigned int channel_in)
 {
   // COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Setup"));
 
@@ -409,11 +309,31 @@ Common_Math_FFT_T<ValueType,
     X_[channel_in][bitReverseMap_[j]] = std::complex<ValueType> (buffer_[channel_in][j], static_cast<ValueType> (0.0));
 }
 
-template <typename ValueType,
-          enum Common_Math_FFT_AlgorithmType AlgorithmType>
+//
+//               0   1   2   3   4   5   6   7
+//  level   1
+//  step    1                                     0
+//  increm  2                                   W 
+//  j = 0        <--->   <--->   <--->   <--->   1
+//  level   2
+//  step    2
+//  increm  4                                     0
+//  j = 0        <------->       <------->      W      1
+//  j = 1            <------->       <------->   2   W
+//  level   3                                         2
+//  step    4
+//  increm  8                                     0
+//  j = 0        <--------------->              W      1
+//  j = 1            <--------------->           3   W      2
+//  j = 2                <--------------->            3   W      3
+//  j = 3                    <--------------->             3   W
+//                                                              3
+//
+
+template <typename ValueType>
 void
 Common_Math_FFT_T<ValueType,
-                  AlgorithmType>::Compute (unsigned int channel_in)
+                  FFT_ALGORITHM_UNKNOWN>::Compute (unsigned int channel_in)
 {
   //COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Compute"));
 
@@ -441,12 +361,11 @@ Common_Math_FFT_T<ValueType,
   } // end FOR
 }
 
-template <typename ValueType,
-          enum Common_Math_FFT_AlgorithmType AlgorithmType>
+template <typename ValueType>
 std::vector<ValueType>
 Common_Math_FFT_T<ValueType,
-                  AlgorithmType>::Spectrum (int channel_in,
-                                            bool normalize_in)
+                  FFT_ALGORITHM_UNKNOWN>::Spectrum (int channel_in,
+                                                    bool normalize_in)
 {
   // COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::Spectrum"));
 
@@ -497,11 +416,10 @@ Common_Math_FFT_T<ValueType,
   return result_a;
 }
 
-template <typename ValueType,
-          enum Common_Math_FFT_AlgorithmType AlgorithmType>
+template <typename ValueType>
 void
 Common_Math_FFT_T<ValueType,
-                  AlgorithmType>::ComputeMaxValue (int channel_in)
+                  FFT_ALGORITHM_UNKNOWN>::ComputeMaxValue (int channel_in)
 {
   //COMMON_TRACE (ACE_TEXT ("Common_Math_FFT_T::ComputeMaxValue"));
 

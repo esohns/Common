@@ -1,5 +1,5 @@
-#ifndef COMMON_MATH_FFT_HEADER_2
-#define COMMON_MATH_FFT_HEADER_2
+#ifndef COMMON_MATH_FFTW_H
+#define COMMON_MATH_FFTW_H
 
 #include <cmath>
 #include <vector>
