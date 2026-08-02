@@ -42,6 +42,7 @@ class Common_Math_FFT_SampleIterator_T
   uint8_t*     buffer_;
   unsigned int dataSampleSize_; // soundSampleSize_ * #channels
   bool         isSignedSampleFormat_;
+  bool         isFloatingPointFormat_;
   bool         reverseEndianness_;
   unsigned int soundSampleSize_; // mono-
 
@@ -50,7 +51,6 @@ class Common_Math_FFT_SampleIterator_T
   ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator_T (const Common_Math_FFT_SampleIterator_T&))
   ACE_UNIMPLEMENTED_FUNC (Common_Math_FFT_SampleIterator_T& operator= (const Common_Math_FFT_SampleIterator_T&))
 
-  bool         isFloatingPointFormat_;
   int          sampleByteOrder_; // ACE-style, -1: N/A
 };
 
