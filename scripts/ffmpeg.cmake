@@ -1,7 +1,7 @@
 set (FFMPEG_SUPPORT_DEFAULT ON)
 if (UNIX)
 # set (ENV{PKG_CONFIG_PATH} "/usr/local/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
- pkg_check_modules (PKG_FFMPEG libavcodec libavformat libswscale libavutil)
+ pkg_check_modules (PKG_FFMPEG libavcodec libavfilter libavformat libswscale libavutil)
  pkg_check_modules (PKG_FFMPEG_2 libswresample)
  if (PKG_FFMPEG_FOUND)
   set (FFMPEG_FOUND TRUE)
