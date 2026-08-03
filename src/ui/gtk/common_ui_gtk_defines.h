@@ -23,6 +23,8 @@
 
 #include "gtk/gtk.h"
 
+#include "common_ui_defines.h"
+
 #if GTK_CHECK_VERSION (2,32,0)
 #else
 #define G_SOURCE_CONTINUE                                       TRUE
@@ -31,7 +33,7 @@
 
 // refresh rates / timeouts
 #define COMMON_UI_GTK_REFRESH_DEFAULT_CAIRO_MS                  COMMON_UI_REFRESH_DEFAULT_VIDEO_MS
-#define COMMON_UI_GTK_REFRESH_DEFAULT_OPENGL_MS                 COMMON_UI_REFRESH_DEFAULT_VIDEO_MS
+#define COMMON_UI_GTK_REFRESH_DEFAULT_OPENGL_MS                 COMMON_UI_REFRESH_DEFAULT_OPENGL_MS
 
 #define COMMON_UI_GTK_TIMEOUT_DEFAULT_MANAGER_INITIALIZATION_MS 100 // ms
 #define COMMON_UI_GTK_TIMEOUT_DEFAULT_WIDGET_TOOLTIP_DELAY_MS   100 // ms
