@@ -180,11 +180,11 @@ class Common_UI_WindowTypeConverter_T
 #if GTK_CHECK_VERSION (4,0,0)
   inline void getWindowType (const struct Common_UI_Window& windowType_in, GdkSurface*& windowType_out) { windowType_out = windowType_in; }
 
-  inline void getWindowType (const GdkSurface* windowType_in, GdkSurface*& windowType_out) { ACE_ASSERT (windowType_in); /*g_object_ref (windowType_in);*/ windowType_out = const_cast<GdkSurface*> (windowType_in); }
+  inline void getWindowType (const GdkSurface* windowType_in, GdkSurface*& windowType_out) { /*ACE_ASSERT (windowType_in); g_object_ref (windowType_in);*/ windowType_out = const_cast<GdkSurface*> (windowType_in); }
 #else
   inline void getWindowType (const struct Common_UI_Window& windowType_in, GdkWindow*& windowType_out) { windowType_out = windowType_in; }
 
-  inline void getWindowType (const GdkWindow* windowType_in, GdkWindow*& windowType_out) { ACE_ASSERT (windowType_in); /*g_object_ref (windowType_in);*/ windowType_out = const_cast<GdkWindow*> (windowType_in); }
+  inline void getWindowType (const GdkWindow* windowType_in, GdkWindow*& windowType_out) { /*ACE_ASSERT (windowType_in); g_object_ref (windowType_in);*/ windowType_out = const_cast<GdkWindow*> (windowType_in); }
 #endif // GTK_CHECK_VERSION(4,0,0)
 #endif // GTK_SUPPORT
 
