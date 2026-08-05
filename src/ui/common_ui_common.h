@@ -259,6 +259,7 @@ enum Common_UI_EventType
 
   // UI
   COMMON_UI_EVENT_UI_BASE              = 0x0800,
+  COMMON_UI_EVENT_FORMAT,
   COMMON_UI_EVENT_RESIZE,
 
   // other & user
