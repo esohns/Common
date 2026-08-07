@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 
 #include "ace/Log_Msg.h"
 
@@ -44,6 +45,25 @@ Common_Math_Tools::map (ValueType value_in,
   } // end IF
 
   return result;
+}
+
+template <typename ValueType>
+std::enable_if_t<std::is_integral<ValueType>::value, bool>
+Common_Math_Tools::almost_equal (ValueType x,
+                                 ValueType target_in,
+                                 float percentage_in)
+{
+  COMMON_TRACE (ACE_TEXT ("Common_Math_Tools::almost_equal"));
+
+  // sanity check(s)
+  ACE_ASSERT (percentage_in >= 0.0f && percentage_in <= 1.0f);
+
+  ValueType range_i =
+    static_cast<ValueType> (percentage_in * std::abs (target_in));
+  if (!range_i)
+    return true;
+
+  return (x > target_in ? x - range_i <= target_in : x + range_i >= target_in);
 }
 
 template <typename ValueType>
