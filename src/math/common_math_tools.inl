@@ -48,12 +48,12 @@ Common_Math_Tools::map (ValueType value_in,
 }
 
 template <typename ValueType>
-std::enable_if_t<std::is_integral<ValueType>::value, bool>
-Common_Math_Tools::almost_equal (ValueType x,
-                                 ValueType target_in,
-                                 float percentage_in)
+bool
+Common_Math_Tools::almost_equal_percentage (ValueType x,
+                                            ValueType target_in,
+                                            float percentage_in)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Math_Tools::almost_equal"));
+  COMMON_TRACE (ACE_TEXT ("Common_Math_Tools::almost_equal_percentage"));
 
   // sanity check(s)
   ACE_ASSERT (percentage_in >= 0.0f && percentage_in <= 1.0f);
@@ -68,11 +68,11 @@ Common_Math_Tools::almost_equal (ValueType x,
 
 template <typename ValueType>
 std::enable_if_t<!std::is_integral<ValueType>::value, bool>
-Common_Math_Tools::almost_equal (ValueType x,
-                                 ValueType y,
-                                 int ulp)
+Common_Math_Tools::almost_equal_digits (ValueType x,
+                                        ValueType y,
+                                        int ulp)
 {
-  COMMON_TRACE (ACE_TEXT ("Common_Math_Tools::almost_equal"));
+  COMMON_TRACE (ACE_TEXT ("Common_Math_Tools::almost_equal_digits"));
 
   // the machine epsilon has to be scaled to the magnitude of the values used
   // and multiplied by the desired precision in ULPs (units in the last place)
