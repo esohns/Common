@@ -21,7 +21,9 @@
 #ifndef COMMON_EVENT_DEFINES_H
 #define COMMON_EVENT_DEFINES_H
 
-#include "ace/config-lite.h"
+#include "ace/OS.h"
+
+#include "common_event_common.h"
 
 #define COMMON_EVENT_MAXIMUM_HANDLES                           ACE::max_handles ()
 #define COMMON_EVENT_THREAD_NAME                               "event dispatch"

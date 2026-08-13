@@ -87,7 +87,7 @@ enum Common_UI_GTK_StatusContextType
   COMMON_UI_GTK_STATUSCONTEXT_MAX
 };
 typedef std::map<enum Common_UI_GTK_StatusContextType, guint> Common_UI_GTK_StatusContextIds_t;
-typedef Common_UI_GTK_StatusContextIds_t::iterator Common_UI_GTK_Common_UI_GTK_StatusContextIdsIterator_t;
+typedef Common_UI_GTK_StatusContextIds_t::iterator Common_UI_GTK_StatusContextIdsIterator_t;
 
 #if defined (LIBGLADE_SUPPORT)
 typedef std::pair<std::string, struct _GladeXML*> Common_UI_GladeXML_t;
