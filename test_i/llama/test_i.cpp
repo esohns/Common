@@ -29,6 +29,7 @@
 
 #define LLAMACPP_CONTEXT_SIZE_DEFAULT         2048
 #define LLAMACPP_NUMBER_OF_GPU_LAYERS_DEFAULT 99
+#define LLAMACPP_MODEL_DEFAULT                "Llama-3.1-8B-Instruct-IQ4_XS.gguf"
 
 enum Test_I_ModeType
 {
@@ -62,7 +63,19 @@ do_print_usage (const std::string& programName_in)
             << LLAMACPP_NUMBER_OF_GPU_LAYERS_DEFAULT
             << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
-  std::cout << ACE_TEXT_ALWAYS_CHAR ("-m : model file path")
+  const char* lib_root_p =
+    ACE_OS::getenv (ACE_TEXT_ALWAYS_CHAR (COMMON_ENVIRONMENT_DIRECTORY_ROOT_LIB));
+  ACE_ASSERT (lib_root_p);
+  std::string model_file_string = lib_root_p;
+  model_file_string += ACE_DIRECTORY_SEPARATOR_STR_A;
+  model_file_string += COMMON_LOCATION_PARENT_SUBDIRECTORY;
+  model_file_string += ACE_DIRECTORY_SEPARATOR_STR_A;
+  model_file_string += ACE_TEXT_ALWAYS_CHAR ("models");
+  model_file_string += ACE_DIRECTORY_SEPARATOR_STR_A;
+  model_file_string += ACE_TEXT_ALWAYS_CHAR (LLAMACPP_MODEL_DEFAULT);
+  std::cout << ACE_TEXT_ALWAYS_CHAR ("-m : model file path [")
+            << model_file_string
+            << ACE_TEXT_ALWAYS_CHAR ("]")
             << std::endl;
   std::cout << ACE_TEXT_ALWAYS_CHAR ("-p : program mode [")
             << TEST_I_MODE_DEFAULT
@@ -89,7 +102,17 @@ do_process_arguments (int argc_in,
   // initialize results
   contextSize_out = LLAMACPP_CONTEXT_SIZE_DEFAULT;
   numberOfGPULayers_out = LLAMACPP_NUMBER_OF_GPU_LAYERS_DEFAULT;
-  modelFilePath_out.clear ();
+  const char* lib_root_p =
+    ACE_OS::getenv (ACE_TEXT_ALWAYS_CHAR (COMMON_ENVIRONMENT_DIRECTORY_ROOT_LIB));
+  ACE_ASSERT (lib_root_p);
+  std::string model_file_string = lib_root_p;
+  model_file_string += ACE_DIRECTORY_SEPARATOR_STR_A;
+  model_file_string += COMMON_LOCATION_PARENT_SUBDIRECTORY;
+  model_file_string += ACE_DIRECTORY_SEPARATOR_STR_A;
+  model_file_string += ACE_TEXT_ALWAYS_CHAR ("models");
+  model_file_string += ACE_DIRECTORY_SEPARATOR_STR_A;
+  model_file_string += ACE_TEXT_ALWAYS_CHAR (LLAMACPP_MODEL_DEFAULT);
+  modelFilePath_out = model_file_string;
   mode_out = TEST_I_MODE_DEFAULT;
   traceInformation_out = false;
 
@@ -421,7 +444,16 @@ ACE_TMAIN (int argc_in,
   // step1a set defaults
   int context_size = LLAMACPP_CONTEXT_SIZE_DEFAULT;
   int number_of_GPU_layers = LLAMACPP_NUMBER_OF_GPU_LAYERS_DEFAULT;
-  std::string model_path_string;
+  const char* lib_root_p =
+    ACE_OS::getenv (ACE_TEXT_ALWAYS_CHAR (COMMON_ENVIRONMENT_DIRECTORY_ROOT_LIB));
+  ACE_ASSERT (lib_root_p);
+  std::string model_file_string = lib_root_p;
+  model_file_string += ACE_DIRECTORY_SEPARATOR_STR_A;
+  model_file_string += COMMON_LOCATION_PARENT_SUBDIRECTORY;
+  model_file_string += ACE_DIRECTORY_SEPARATOR_STR_A;
+  model_file_string += ACE_TEXT_ALWAYS_CHAR ("models");
+  model_file_string += ACE_DIRECTORY_SEPARATOR_STR_A;
+  model_file_string += ACE_TEXT_ALWAYS_CHAR (LLAMACPP_MODEL_DEFAULT);
   enum Test_I_ModeType mode_type_e = TEST_I_MODE_DEFAULT;
   bool trace_information = false;
   std::string log_file_name;
@@ -431,7 +463,7 @@ ACE_TMAIN (int argc_in,
                              argv_in,
                              context_size,
                              number_of_GPU_layers,
-                             model_path_string,
+                             model_file_string,
                              mode_type_e,
                              trace_information))
   {
@@ -439,7 +471,7 @@ ACE_TMAIN (int argc_in,
     goto clean;
   } // end IF
 
-  if (!Common_File_Tools::isReadable (model_path_string))
+  if (!Common_File_Tools::isReadable (model_file_string))
   {
     ACE_DEBUG ((LM_ERROR,
                 ACE_TEXT ("invalid argument(s), aborting\n")));
@@ -469,7 +501,7 @@ ACE_TMAIN (int argc_in,
            argv_in,
            context_size,
            number_of_GPU_layers,
-           model_path_string,
+           model_file_string,
            mode_type_e);
   timer.stop ();
 
