@@ -45,6 +45,7 @@
 #endif // ACE_WIN32 || ACE_WIN64
 
 // ************************************ SDL ************************************
+// *TODO*: move this to a dedicated header
 
 // event dispatch
 #define COMMON_UI_SDL_EVENT_TIMER                                 SDL_USEREVENT
