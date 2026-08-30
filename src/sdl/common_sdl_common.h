@@ -18,30 +18,37 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_UI_DEFINES_H
-#define COMMON_UI_DEFINES_H
+#ifndef COMMON_SDL_COMMON_H
+#define COMMON_SDL_COMMON_H
 
-// event dispatch
-#define COMMON_UI_EVENT_THREAD_GROUP_ID                           200
-#define COMMON_UI_EVENT_THREAD_NAME                               "UI dispatch"
+#include "common_sdl_defines.h"
 
-// refresh rates
-#define COMMON_UI_REFRESH_DEFAULT_OPENGL_MS                       17  // ms --> ~60 fps
-#define COMMON_UI_REFRESH_DEFAULT_PROGRESS_MS                     100 // ms --> 10 fps
-#define COMMON_UI_REFRESH_DEFAULT_VIDEO_MS                        33  // ms --> ~30 fps
-#define COMMON_UI_REFRESH_DEFAULT_WIDGET_MS                       200 // ms --> 5 fps
+struct Common_SDL_VideoConfiguration
+{
+  Common_SDL_VideoConfiguration ()
+   : screen_width (1024)
+   , screen_height (768)
+   , screen_colordepth (32)
+   , double_buffer (true)
+   , use_OpenGL (false)
+   , full_screen (false)
+   , video_driver (ACE_TEXT_ALWAYS_CHAR (COMMON_SDL_VIDEO_DEFAULT_DRIVER_NAME))
+#if defined (_DEBUG)
+   , debug (false)
+#endif // _DEBUG
+  {}
 
-// window
-#define COMMON_UI_WINDOW_DEFAULT_WIDTH                            320
-#define COMMON_UI_WINDOW_DEFAULT_HEIGHT                           240
-
-// interface definition
-#define COMMON_UI_DEFINITION_DESCRIPTOR_MAIN                      "main"
-
-#if defined (ACE_WIN32) || defined (ACE_WIN64)
-#else
-// X11
-#define COMMON_UI_X11_DISPLAY_ENVIRONMENT_VARIABLE                "DISPLAY"
-#endif // ACE_WIN32 || ACE_WIN64
+  int         screen_width;
+  int         screen_height;
+  int         screen_colordepth; // bits/pixel
+  //Uint32      screen_flags;
+  bool        double_buffer;
+  bool        use_OpenGL;
+  bool        full_screen;
+  std::string video_driver; // [wayland|x11|directx|windib|...]
+#if defined (_DEBUG)
+  bool        debug;
+#endif // _DEBUG
+};
 
 #endif

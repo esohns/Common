@@ -258,24 +258,26 @@ Common_String_Tools::toHexString (const std::string& string_in)
 }
 
 std::string
-Common_String_Tools::sanitizeURI (const std::string& uri_in)
+Common_String_Tools::sanitizeURI (const std::string& URI_in)
 {
   COMMON_TRACE (ACE_TEXT ("Common_String_Tools::sanitizeURI"));
 
-  std::string result = uri_in;
+  std::string result = URI_in;
 
-  std::replace (result.begin (),
-                result.end (),
+  // step1: sanitize any path separators
+  std::replace (result.begin (), result.end (),
                 '\\', '/');
+
+  // step2: replace any space characters
   size_t position;
   do
   {
     position = result.find (' ', 0);
     if (position == std::string::npos)
       break;
-
     result.replace (position, 1, ACE_TEXT_ALWAYS_CHAR ("%20"));
   } while (true);
+
   //XMLCh* transcoded_string =
   //	XMLString::transcode (result.c_str (),
   //	                      XMLPlatformUtils::fgMemoryManager);
@@ -396,7 +398,7 @@ Common_String_Tools::isspace (const std::string& string_in)
   for (std::string::size_type i = 0;
        i < string_in.size ();
        ++i)
-    if (!::isspace (static_cast<int> (string_in[i])))
+    if (!std::isspace (static_cast<int> (string_in[i])))
       return false;
 
   return true;

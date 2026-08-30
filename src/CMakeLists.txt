@@ -1,4 +1,3 @@
-# configure C/C++ exceptions
 include (SetCppExceptions)
 
 include (Threads)
@@ -9,6 +8,8 @@ set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/dbus/sc
 include (dbus)
 set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/gl/scripts")
 include (OpenGL)
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/sdl/scripts")
+include (sdl)
 set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/ui/scripts")
 include (x11)
 
@@ -134,15 +135,11 @@ elseif (WIN32)
       ${source_files})
 endif ()
 
-# Include dir for installed targets
-#set (INCLUDE_DIR include/${PROJECT_NAME}-${upstream_version})
-
 foreach (source_file ${source_files})
  get_filename_component (abs_source_file ${source_file} ABSOLUTE)
  list (APPEND absolute_source_files
        PRIVATE ${abs_source_file}
        )
-#       $<INSTALL_INTERFACE:${INCLUDE_DIR}/${source_file}>)
 endforeach ()
 target_sources (${PROJECT_NAME}
 #                PRIVATE stdafx.cpp
@@ -179,14 +176,6 @@ if (UNIX)
   target_link_libraries (${PROJECT_NAME} PUBLIC ${X11_LIBRARIES})
  endif (X11_SUPPORT)
 elseif (WIN32)
-# set (LIB_WITH_SUFFIX "Msvcrt")
-# if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
-#     CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-#  set (LIB_WITH_SUFFIX "${LIB_WITH_SUFFIX}d")
-# endif (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
-#        CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-# set (LIB_WITH_SUFFIX "${LIB_WITH_SUFFIX}.lib")
-# target_link_libraries (${PROJECT_NAME} PUBLIC ${LIB_WITH_SUFFIX})
 # target_link_libraries (${PROJECT_NAME} PUBLIC Dbghelp.lib)
  target_link_libraries (${PROJECT_NAME} PUBLIC Quartz.lib)
  target_link_libraries (${PROJECT_NAME} PUBLIC Secur32.lib)
@@ -273,6 +262,9 @@ add_subdirectory (math)
 add_subdirectory (parser)
 add_subdirectory (signal)
 add_subdirectory (task)
+if (SDL_SUPPORT)
+ add_subdirectory (sdl)
+endif (SDL_SUPPORT)
 add_subdirectory (timer)
 add_subdirectory (ui)
 add_subdirectory (xml)
