@@ -28,7 +28,6 @@ elseif (WIN32)
              PATH_SUFFIXES rapidjson
              DOC "searching for rapidjson.h"
              NO_DEFAULT_PATH)
-  endif ()
   if (RAPIDJSON_INCLUDE_DIR)
    message (STATUS "found RapidJSON")
    set (RAPIDJSON_FOUND TRUE)
