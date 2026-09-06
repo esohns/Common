@@ -73,6 +73,7 @@ struct Common_ParserConfiguration
    : block (true)
    , messageQueue (NULL)
    , notifyProgress (false)
+   , slurp (true)
 #if defined (_DEBUG)
    , debugParser (COMMON_PARSER_DEFAULT_YACC_TRACE)
    , debugScanner (COMMON_PARSER_DEFAULT_LEX_TRACE)
@@ -82,6 +83,7 @@ struct Common_ParserConfiguration
   bool                    block; // block in parse (i.e. wait for data in yywrap() ?)
   ACE_Message_Queue_Base* messageQueue; // queue (if any) to use for yywrap
   bool                    notifyProgress; // notify progress (i.e. send STREAM_SESSION_MESSAGE_STEP_DATA messages)
+  bool                    slurp; // process the entire input (i.e. parse until EOF) ?
 
 #if defined (_DEBUG)
   bool                    debugParser;
