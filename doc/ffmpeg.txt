@@ -1,0 +1,11 @@
+open terminal for developers
+inside that terminal, open MSYS64.lnk
+
+export PATH="/c/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/":/e/bin:$PATH
+
+./configure --target-os=win64 --arch=x86_64 --toolchain=msvc --enable-shared --enable-decoder=png --extra-ldflags='-LIBPATH:E:/lib/vcpkg/installed/x64-windows/lib' --extra-cflags='-IE:/lib/vcpkg/installed/x64-windows/include' --enable-zlib --enable-debug --enable-decoder=av1
+
+make clean
+
+make
+

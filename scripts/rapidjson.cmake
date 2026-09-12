@@ -8,6 +8,20 @@ if (UNIX)
   set (RAPIDJSON_LIBRARIES "${RapidJSON_LIBRARIES}")
  endif (RapidJSON_FOUND)
 # pkg_check_modules (PKG_RAPIDJSON rapidjson)
+ if (NOT RAPIDJSON_FOUND)
+  find_path (RAPIDJSON_INCLUDE_DIR NAMES rapidjson.h
+             PATHS "$ENV{LIB_ROOT}/rapidjson/include"
+             PATH_SUFFIXES rapidjson
+             DOC "searching for rapidjson.h"
+             NO_DEFAULT_PATH)
+  if (RAPIDJSON_INCLUDE_DIR)
+   message (STATUS "found RapidJSON")
+   set (RAPIDJSON_FOUND TRUE)
+   set (RAPIDJSON_INCLUDE_DIRS "${RAPIDJSON_INCLUDE_DIR}")
+  else ()
+   message (WARNING "could not find RapidJSON, continuing")
+  endif (RAPIDJSON_INCLUDE_DIR)
+ endif (NOT RAPIDJSON_FOUND)
 elseif (WIN32)
  if (VCPKG_USE)
   find_package (RapidJSON)
