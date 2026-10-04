@@ -86,6 +86,7 @@
 %union
 {
   ACE_INT32                     ival;
+  float                         fval;
   std::string*                  sval;
   struct M3U_ExtInf_Element*    eeval;
   struct M3U_Media_Element*     emval;
@@ -140,7 +141,7 @@
 ;
 %token <sval>  DATETIME             "date_time"
 %token <sval>  KEY                  "key"
-%token <ival>  LENGTH               "length"
+%token <fval>  LENGTH               "length"
 %token <sval>  TITLE                "title"
 %token <sval>  URL                  "URL"
 %token <sval>  VALUE                "value"
@@ -194,7 +195,7 @@ void yyprint (FILE*, yytokentype, YYSTYPE);*/
 %start            playlist;
 playlist:         "extm3u" {
                     iparser->setP ($1);
-                  } ext_x_key_values elements "lf" {
+                  } ext_x_key_values elements ext_x_key_values "lf" {
                     struct M3U_Playlist& playlist_r = iparser->current ();
                     struct M3U_Playlist* playlist_p = &playlist_r;
                     try {

@@ -91,7 +91,7 @@ TO_COMMA                          [^,\x0A]
 TO_QUOTATION                      [^\"]
 TO_END_OF_LINE                    [^\x0A]
 TO_EQUALS                         [^=]
-LF                                \x0A|\x0D\x0A
+LF                                \x0A
 
 %s state_comment
 %s state_no_value
@@ -214,6 +214,27 @@ LF                                \x0A|\x0D\x0A
                                                       struct M3U_StreamInf_Element);
                                     ACE_ASSERT (yylval->esval);
                                     return yy::parser::token::BEGIN_EXT_STREAM_INF; }
+"#EXT-X-PLAYLIST-TYPE:"           { parser->offset (yyleng);
+                                    ACE_NEW_NORETURN (yylval->sval,
+                                                      std::string);
+                                    ACE_ASSERT (yylval->sval);
+                                    *(yylval->sval) = ACE_TEXT_ALWAYS_CHAR ("PLAYLIST-TYPE");
+                                    BEGIN (state_value);
+                                    return yy::parser::token::KEY; }
+"#EXT-X-MAP:"                     { parser->offset (yyleng);
+                                    ACE_NEW_NORETURN (yylval->sval,
+                                                      std::string);
+                                    ACE_ASSERT (yylval->sval);
+                                    *(yylval->sval) = ACE_TEXT_ALWAYS_CHAR ("MAP");
+                                    BEGIN (state_value);
+                                    return yy::parser::token::KEY; }
+"#EXT-X-ENDLIST"                  { parser->offset (yyleng);
+                                    ACE_NEW_NORETURN (yylval->sval,
+                                                      std::string);
+                                    ACE_ASSERT (yylval->sval);
+                                    *(yylval->sval) = ACE_TEXT_ALWAYS_CHAR ("ENDLIST");
+                                    BEGIN (state_no_value);
+                                    return yy::parser::token::KEY; }
 "#EXTINF:"                        { parser->offset (yyleng);
                                     BEGIN (state_ext_inf);
                                     ACE_NEW_NORETURN (yylval->eeval,
@@ -227,7 +248,7 @@ LF                                \x0A|\x0D\x0A
 } // end <INITIAL>
 
 <state_comment>{
-{TO_END_OF_LINE}+/{LF}            { parser->offset (yyleng); }
+{TO_END_OF_LINE}+                 { parser->offset (yyleng); }
 {LF}                              { parser->offset (yyleng);
                                     BEGIN (INITIAL); }
 } // end <state_comment>
@@ -237,12 +258,12 @@ LF                                \x0A|\x0D\x0A
                                     ACE_NEW_NORETURN (yylval->sval,
                                                       std::string);
                                     ACE_ASSERT (yylval->sval);
-                                    *(yylval->sval) = ACE_TEXT_ALWAYS_CHAR ("");
+                                    /**(yylval->sval) = ACE_TEXT_ALWAYS_CHAR ("");*/
                                     BEGIN (INITIAL);
                                     return yy::parser::token::VALUE; }
 } // end <state_no_value>
 <state_value>{
-{TO_END_OF_LINE}+/{LF}            { parser->offset (yyleng);
+{TO_END_OF_LINE}+                 { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
                                                       std::string);
                                     ACE_ASSERT (yylval->sval);
@@ -253,7 +274,7 @@ LF                                \x0A|\x0D\x0A
 } // end <state_value>
 
 <state_date_time>{
-{TO_END_OF_LINE}+/{LF}            { parser->offset (yyleng);
+{TO_END_OF_LINE}+                 { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
                                                       std::string);
                                     ACE_ASSERT (yylval->sval);
@@ -267,18 +288,18 @@ LF                                \x0A|\x0D\x0A
 } // end <state_date_time>
 
 <state_ext_inf>{
-{TO_COMMA}+/,                     { parser->offset (yyleng);
+{TO_COMMA}+                       { parser->offset (yyleng);
                                     converter.str (ACE_TEXT_ALWAYS_CHAR (""));
                                     converter.clear ();
                                     converter << yytext;
-                                    converter >> yylval->ival;
+                                    converter >> yylval->fval;
                                     return yy::parser::token::LENGTH; }
 ","                               { parser->offset (yyleng);
                                     BEGIN (state_ext_inf_title); }
 } // end <state_ext_inf>
 
 <state_ext_inf_title>{
-{TO_END_OF_LINE}+/{LF}            { parser->offset (yyleng);
+{TO_END_OF_LINE}+                 { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
                                                       std::string);
                                     ACE_ASSERT (yylval->sval);
@@ -286,10 +307,10 @@ LF                                \x0A|\x0D\x0A
                                     return yy::parser::token::TITLE; }
 {LF}                              { parser->offset (yyleng);
                                     BEGIN (state_url_1); }
-} // end <state_key_value>
+} // end <state_ext_inf_title>
 
 <state_ext_stream_inf_key_value>{
-{TO_EQUALS}+/=                    { parser->offset (yyleng);
+{TO_EQUALS}+                      { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
                                                       std::string);
                                     ACE_ASSERT (yylval->sval);
@@ -300,7 +321,7 @@ LF                                \x0A|\x0D\x0A
 } // end <state_ext_stream_inf_key_value>
 
 <state_ext_stream_inf_is_last_value>{
-{TO_END_OF_LINE}+/{LF}            { std::string test_string = yytext;
+{TO_END_OF_LINE}+                 { std::string test_string = yytext;
                                     if (test_string[0] == '"')
                                     { parser->offset (1);
                                       BEGIN (state_ext_stream_inf_next_value_quotation);
@@ -325,7 +346,7 @@ LF                                \x0A|\x0D\x0A
 } // end <state_ext_stream_inf_is_last_value>
 
 <state_ext_stream_inf_next_value_comma>{
-{TO_COMMA}+/,                     { parser->offset (yyleng);
+{TO_COMMA}+                       { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
                                                       std::string);
                                     ACE_ASSERT (yylval->sval);
@@ -338,7 +359,7 @@ LF                                \x0A|\x0D\x0A
 } // end <state_inf_next_value_comma>
 
 <state_ext_stream_inf_next_value_quotation>{
-{TO_QUOTATION}+/\"                { parser->offset (yyleng);
+{TO_QUOTATION}+                   { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
                                                       std::string);
                                     ACE_ASSERT (yylval->sval);
@@ -358,7 +379,7 @@ LF                                \x0A|\x0D\x0A
 } // end <state_inf_next_value_quotation>
 
 <state_media_key_value>{
-{TO_EQUALS}+/=                    { parser->offset (yyleng);
+{TO_EQUALS}+                      { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
                                                       std::string);
                                     ACE_ASSERT (yylval->sval);
@@ -369,7 +390,7 @@ LF                                \x0A|\x0D\x0A
 } // end <state_media_key_value>
 
 <state_media_is_last_value>{
-{TO_END_OF_LINE}+/{LF}            { std::string test_string = yytext;
+{TO_END_OF_LINE}+                 { std::string test_string = yytext;
                                     if (test_string[0] == '"')
                                     { parser->offset (1);
                                       BEGIN (state_media_next_value_quotation);
@@ -395,7 +416,7 @@ LF                                \x0A|\x0D\x0A
 } // end <state_media_is_last_value>
 
 <state_media_next_value_comma>{
-{TO_COMMA}+/,                     { parser->offset (yyleng);
+{TO_COMMA}+                       { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
                                                       std::string);
                                     ACE_ASSERT (yylval->sval);
@@ -406,7 +427,7 @@ LF                                \x0A|\x0D\x0A
 } // end <state_media_next_value_comma>
 
 <state_media_next_value_quotation>{
-{TO_QUOTATION}+/\"                { parser->offset (yyleng);
+{TO_QUOTATION}+                   { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
                                                       std::string);
                                     ACE_ASSERT (yylval->sval);
@@ -434,7 +455,7 @@ LF                                \x0A|\x0D\x0A
 } // end <state_url_1>
 
 <state_url_2>{
-{TO_END_OF_LINE}+/{LF}            { parser->offset (yyleng);
+{TO_END_OF_LINE}+                 { parser->offset (yyleng);
                                     ACE_NEW_NORETURN (yylval->sval,
                                                       std::string);
                                     ACE_ASSERT (yylval->sval);
@@ -447,17 +468,24 @@ LF                                \x0A|\x0D\x0A
 
 <<EOF>>                           { return yy::parser::token::END; }
 <*>{OCTET}                        { /* *TODO*: use (?s:.) ? */
-                                    parser->offset (yyleng);
                                     if (parser->hasFinished ()) // ignore spurious LFs
+                                    {
+                                      parser->offset (yyleng);
                                       return yy::parser::token::LF;
+                                    } // end IF
                                     if (!parser->isBlocking ())
-                                      yyterminate ();
+                                    { // *IMPORTANT NOTE*: put the data back
+                                      *yy_cp = yyg->yy_hold_char;
+                                      yyterminate (); // not enough data, cannot proceed
+                                    } // end IF
                                     // wait for more data fragment(s)
                                     if (!parser->switchBuffer ())
                                     { // *NOTE*: most probable reason: connection
                                       //         has been closed --> session end
                                       ACE_DEBUG ((LM_DEBUG,
                                                   ACE_TEXT ("failed to Common_IParser::switchBuffer(), returning\n")));
+                                      // *IMPORTANT NOTE*: put the data back
+                                      *yy_cp = yyg->yy_hold_char;
                                       yyterminate (); // not enough data, cannot proceed
                                     } // end IF
                                     yyless (0); }

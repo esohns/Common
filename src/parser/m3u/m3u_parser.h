@@ -213,6 +213,7 @@ namespace yy {
     {
 
   ACE_INT32                     ival;
+  float                         fval;
   std::string*                  sval;
   struct M3U_ExtInf_Element*    eeval;
   struct M3U_Media_Element*     emval;
@@ -843,7 +844,7 @@ namespace yy {
     /// Constants.
     enum
     {
-      yylast_ = 24,     ///< Last index in yytable_.
+      yylast_ = 28,     ///< Last index in yytable_.
       yynnts_ = 32,  ///< Number of nonterminal symbols.
       yyfinal_ = 4 ///< Termination state number.
     };

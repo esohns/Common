@@ -53,7 +53,7 @@ struct M3U_ExtInf_Element
   M3U_ExtInf_Element ()
    : Artist ()
    , Album ()
-   , Length (0)
+   , Length (0.0f)
    , Title ()
    , URL ()
    , keyValues ()
@@ -61,7 +61,7 @@ struct M3U_ExtInf_Element
 
   std::string     Artist;
   std::string     Album;
-  ACE_INT32       Length;
+  float           Length;
   std::string     Title;
   std::string     URL;
 
@@ -87,12 +87,12 @@ typedef M3U_Media_Elements_t::const_iterator M3U_Media_ElementsIterator_t;
 struct M3U_StreamInf_Element
 {
   M3U_StreamInf_Element ()
-   : Length (0)
+   : Length (0.0f)
    , URL ()
    , keyValues ()
   {}
 
-  ACE_INT32       Length;
+  float           Length;
   std::string     URL;
 
   M3U_KeyValues_t keyValues;
@@ -109,11 +109,11 @@ struct M3U_Playlist
    , keyValues ()
   {}
 
-  M3U_ExtInf_Elements_t ext_inf_elements;
-  M3U_Media_Elements_t media_elements;
+  M3U_ExtInf_Elements_t    ext_inf_elements;
+  M3U_Media_Elements_t     media_elements;
   M3U_StreamInf_Elements_t stream_inf_elements;
 
-  M3U_KeyValues_t keyValues;
+  M3U_KeyValues_t          keyValues;
 };
 
 class Common_Parser_M3U_IParser
