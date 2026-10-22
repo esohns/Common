@@ -412,7 +412,7 @@ Common_String_Tools::toupper (const std::string& string_in)
   // initialize return value
   std::string return_value;
 
-  std::locale locale;
+  static std::locale locale;
   for (std::string::size_type i = 0;
        i < string_in.size ();
        ++i)
@@ -429,7 +429,7 @@ Common_String_Tools::tolower (const std::string& string_in)
   // initialize return value
   std::string return_value;
 
-  std::locale locale;
+  static std::locale locale;
   for (std::string::size_type i = 0;
        i < string_in.size ();
        ++i)
