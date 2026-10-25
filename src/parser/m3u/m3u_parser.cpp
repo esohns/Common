@@ -673,7 +673,7 @@ namespace yy {
         try
 #endif // YY_EXCEPTIONS
           {
-            yyla.kind_ = yytranslate_ (yylex (&yyla.value, &yyla.location, iparser, iscanner->getR_2 ().context));
+            yyla.kind_ = yytranslate_ (M3U_lex (&yyla.value, &yyla.location, iparser, iscanner->getR_2 ().context));
           }
 #if YY_EXCEPTIONS
         catch (const syntax_error& yyexc)
