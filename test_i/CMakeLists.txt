@@ -27,7 +27,7 @@ if (GTK_SUPPORT)
 endif (GTK_SUPPORT)
 
 if (UNIX)
- add_link_options ("LINKER:--as-needed")
+# add_link_options ("LINKER:--as-needed")
 endif (UNIX)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 # *TODO*: remove ASAP

@@ -32,7 +32,7 @@ if (UNIX)
   endif (LIBSYSFS_SUPPORT)
  endif (PKG_LIBSYSFS_FOUND)
 
- add_link_options ("LINKER:--as-needed")
+# add_link_options ("LINKER:--as-needed")
 endif (UNIX)
 
 add_library (${PROJECT_NAME} STATIC "")

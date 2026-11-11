@@ -168,6 +168,10 @@ if (LLVM_USE)
  add_compile_options (-Wno-register)
 # add_compile_options (-fPIC)
 # add_definitions (-D_GLIBCXX_USE_CXX11_ABI=0)
+# add_compile_options (-stdlib=libstdc++)
+# add_compile_options (-std=c++17)
+# add_definitions (-D_GNU_SOURCE)
+# add_definitions (-D__GNUC__=4)
 endif (LLVM_USE)
 
 ################################################################################
