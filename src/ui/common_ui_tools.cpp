@@ -294,6 +294,19 @@ Common_UI_Tools::finalize ()
 {
   COMMON_TRACE (ACE_TEXT ("Common_UI_Tools::finalize"));
 
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+#else
+#if defined (X11_SUPPORT)
+  Status result = XFreeThreads ();
+  if (unlikely (result == False))
+  {
+    ACE_DEBUG ((LM_ERROR,
+                ACE_TEXT ("failed to XFreeThreads(): \"%m\", aborting\n")));
+    return false;
+  } // end IF
+#endif // X11_SUPPORT
+#endif // ACE_WIN32 || ACE_WIN64
+
   return true;
 }
 
