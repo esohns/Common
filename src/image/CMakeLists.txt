@@ -90,9 +90,6 @@ if (IMAGEMAGICK_SUPPORT)
  target_link_libraries (${LIBRARY} PUBLIC ${ImageMagick_LIBRARIES})
 endif (IMAGEMAGICK_SUPPORT)
 
-#set_target_properties (${LIBRARY} PROPERTIES DEFINE_SYMBOL COMMON_IMAGE_BUILD_DLL)
-#set_target_properties (${LIBRARY} PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO} SOVERSION 1)
-
 # add PCH
 target_precompile_headers (${LIBRARY}
                            PRIVATE stdafx.h)

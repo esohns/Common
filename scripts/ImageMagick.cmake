@@ -83,8 +83,8 @@ if (IMAGEMAGICK_FOUND)
    else ()
     set (MAGICK_LIB_DIR "/usr/bin")
    endif (WIN32)
-   # Find where Magick-config lives
-   file (GLOB MAGICK_CONFIG "${MAGICK_LIB_DIR}/MagickCore-config")
+   # Find where MagickCore-config lives
+   file (GLOB_RECURSE MAGICK_CONFIG FOLLOW_SYMLINKS "${MAGICK_LIB_DIR}/MagickCore-config")
 #   file (GLOB_RECURSE MAGICK_CONFIG FOLLOW_SYMLINKS /usr/bin/Magick++-config)
   endif (IMAGEMAGICK_IS_GRAPHICSMAGICK)
   # Ask about CXX and lib flags/locations
@@ -101,6 +101,8 @@ if (IMAGEMAGICK_FOUND)
   string (STRIP "${MAGICK_CXX_FLAGS}" MAGICK_CXX_FLAGS)
   string (STRIP "${MAGICK_LD_FLAGS}" MAGICK_LD_FLAGS)
 
-  add_compile_options (${MAGICK_CXX_FLAGS})
+#  add_compile_options (${MAGICK_CXX_FLAGS})
+  add_definitions (-DMAGICKCORE_HDRI_ENABLE)
+  add_definitions (-DMAGICKCORE_QUANTUM_DEPTH=16)
  endif (IMAGEMAGICK_SUPPORT)
 endif (IMAGEMAGICK_FOUND)
