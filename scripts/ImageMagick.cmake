@@ -100,5 +100,7 @@ if (IMAGEMAGICK_FOUND)
   # Remove trailing whitespace (CMAKE warns about this)
   string (STRIP "${MAGICK_CXX_FLAGS}" MAGICK_CXX_FLAGS)
   string (STRIP "${MAGICK_LD_FLAGS}" MAGICK_LD_FLAGS)
+
+  add_compile_options (${MAGICK_CXX_FLAGS})
  endif (IMAGEMAGICK_SUPPORT)
 endif (IMAGEMAGICK_FOUND)
