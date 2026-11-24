@@ -53,15 +53,12 @@ extern "C"
 #if defined (IMAGEMAGICK_IS_GRAPHICSMAGICK)
 #include "wand/wand_api.h"
 #else
-#if defined (ACE_LINUX)
-#if defined (IS_UBUNTU_LINUX) // *NOTE*: github "*-latest" runners lag behind:
-#include "wand/MagickWand.h"  //         - Ubuntu 'noble' still is on ImageMagick-6
-#else
+#include "MagickCore/MagickCore.h"
+#if (MagickLibVersion >= 0x700)
 #include "MagickWand/MagickWand.h"
-#endif // IS_UBUNTU_LINUX
 #else
-#include "MagickWand/MagickWand.h"
-#endif // ACE_LINUX
+#include "wand/MagickWand.h"
+#endif // MagickLibVersion >= 0x700
 #endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
 #endif // IMAGEMAGICK_SUPPORT
 
@@ -1936,23 +1933,24 @@ Common_Image_Tools::scale (const Common_Image_Resolution_t& sourceResolution_in,
                               CubicFilter,
                               1.0); // blur
 #else
-#if defined (ACE_LINUX)
-// *TODO*: check version at runtime with MagickGetVersion() instead
-#if defined (IS_UBUNTU_LINUX) // *NOTE*: github "*-latest" runners lag behind: ImageMagick-6
+#if (MagickLibVersion >= 0x700)
   result = MagickResizeImage (wand_p,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
+                              targetResolution_inout.cx, targetResolution_inout.cy,
+#else
                               targetResolution_inout.width, targetResolution_inout.height,
-                              CubicFilter,
-                              1.0); // blur
-#else // --> ImageMagick-7 API
-  result = MagickResizeImage (wand_p,
-                              targetResolution_inout.width, targetResolution_inout.height,
+#endif // ACE_WIN32 || ACE_WIN64
                               FilterType::CubicFilter);
-#endif // IS_UBUNTU_LINUX
 #else
   result = MagickResizeImage (wand_p,
+#if defined (ACE_WIN32) || defined (ACE_WIN64)
                               targetResolution_inout.cx, targetResolution_inout.cy,
-                              FilterType::CubicFilter);
-#endif // ACE_LINUX
+#else
+                              targetResolution_inout.width, targetResolution_inout.height,
+#endif // ACE_WIN32 || ACE_WIN64
+                              CubicFilter,
+                              1.0); // blur
+#endif // MagickLibVersion >= 0x700
 #endif // IMAGEMAGICK_IS_GRAPHICSMAGICK
   if (result != MagickTrue)
   {
