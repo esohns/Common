@@ -73,6 +73,8 @@ jobs:
    - name: Setup vcpkg [Win32]
      if: ${{ matrix.os=='windows-latest' }}
      uses: lukka/run-vcpkg@v11
+     with:
+      vcpkgGitCommitId: 'a0400024711b283056538ac19ced80b91a83c24c'
 
    - name: Add NuGet sources [Win32]
      if: ${{ matrix.os=='windows-latest' }}
