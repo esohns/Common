@@ -12,7 +12,7 @@ env:
  # set vcpkg root/installed directories
  VCPKG_ROOT: ${{ github.workspace }}/vcpkg
  VCPKG_INSTALLED_DIR: ${{ github.workspace }}/vcpkg/installed
- #VCPKG_TOOLCHAIN_FILE: C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+ #VCPKG_TOOLCHAIN_FILE: ${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
  # vcpkg binary cache
  USERNAME: esohns
  VCPKG_EXE: ${{ github.workspace }}/vcpkg/vcpkg.exe
@@ -70,10 +70,9 @@ jobs:
      with:
       os: ${{matrix.os}}
 
-   - name: Bootstrap vcpkg [Win32]
+   - name: Setup vcpkg [Win32]
      if: ${{ matrix.os=='windows-latest' }}
-     shell: pwsh
-     run: ${{ env.VCPKG_ROOT }}/bootstrap-vcpkg.bat
+     uses: lukka/run-vcpkg@v11
 
    - name: Add NuGet sources [Win32]
      if: ${{ matrix.os=='windows-latest' }}
